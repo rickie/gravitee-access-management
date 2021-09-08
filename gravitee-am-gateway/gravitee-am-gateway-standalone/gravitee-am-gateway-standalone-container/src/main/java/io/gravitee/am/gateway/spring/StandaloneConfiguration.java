@@ -22,6 +22,7 @@ import io.gravitee.am.common.event.EventManager;
 import io.gravitee.am.gateway.configuration.ConfigurationChecker;
 import io.gravitee.am.gateway.event.EventManagerImpl;
 import io.gravitee.am.gateway.node.GatewayNode;
+import io.gravitee.am.gateway.node.GatewayNodeMetadataResolver;
 import io.gravitee.am.gateway.reactor.spring.ReactorConfiguration;
 import io.gravitee.am.gateway.vertx.VertxServerConfiguration;
 import io.gravitee.am.plugins.botdetection.spring.BotDetectionConfiguration;
@@ -34,6 +35,7 @@ import io.gravitee.am.plugins.protocol.spring.ProtocolConfiguration;
 import io.gravitee.am.plugins.reporter.spring.ReporterConfiguration;
 import io.gravitee.am.plugins.resource.spring.ResourceConfiguration;
 import io.gravitee.el.ExpressionLanguageInitializer;
+import io.gravitee.node.api.NodeMetadataResolver;
 import io.gravitee.node.container.NodeFactory;
 import io.gravitee.node.vertx.spring.VertxConfiguration;
 import io.gravitee.platform.repository.api.RepositoryScopeProvider;
@@ -108,5 +110,10 @@ public class StandaloneConfiguration {
     @Bean
     public ConfigurationChecker configurationChecker() {
         return new ConfigurationChecker();
+    }
+
+    @Bean
+    public NodeMetadataResolver nodeMetadataResolver() {
+        return new GatewayNodeMetadataResolver();
     }
 }
