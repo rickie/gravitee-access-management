@@ -22,6 +22,7 @@ import io.gravitee.am.gateway.handler.common.auth.idp.IdentityProviderManager;
 import io.gravitee.am.gateway.handler.common.auth.user.UserAuthenticationManager;
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
+import io.gravitee.am.gateway.handler.common.factor.FactorManager;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.provider.UserAuthProvider;
 import io.gravitee.am.gateway.handler.common.vertx.web.endpoint.ErrorEndpoint;
@@ -30,9 +31,9 @@ import io.gravitee.am.gateway.handler.common.vertx.web.handler.PolicyChainHandle
 import io.gravitee.am.gateway.handler.common.vertx.web.handler.impl.CookieHandler;
 import io.gravitee.am.gateway.handler.common.vertx.web.handler.impl.CookieSessionHandler;
 import io.gravitee.am.gateway.handler.manager.botdetection.BotDetectionManager;
-import io.gravitee.am.gateway.handler.common.factor.FactorManager;
 import io.gravitee.am.gateway.handler.root.resources.auth.handler.SocialAuthHandler;
 import io.gravitee.am.gateway.handler.root.resources.auth.provider.SocialAuthenticationProvider;
+import io.gravitee.am.gateway.handler.root.resources.endpoint.identifierfirst.IdentifierFirstLoginEndpoint;
 import io.gravitee.am.gateway.handler.root.resources.endpoint.login.LoginCallbackEndpoint;
 import io.gravitee.am.gateway.handler.root.resources.endpoint.login.LoginEndpoint;
 import io.gravitee.am.gateway.handler.root.resources.endpoint.login.LoginPostEndpoint;
@@ -41,7 +42,6 @@ import io.gravitee.am.gateway.handler.root.resources.endpoint.logout.LogoutCallb
 import io.gravitee.am.gateway.handler.root.resources.endpoint.logout.LogoutEndpoint;
 import io.gravitee.am.gateway.handler.root.resources.endpoint.mfa.MFAChallengeEndpoint;
 import io.gravitee.am.gateway.handler.root.resources.endpoint.mfa.MFAEnrollEndpoint;
-import io.gravitee.am.gateway.handler.root.resources.endpoint.identifierfirst.IdentifierFirstLoginEndpoint;
 import io.gravitee.am.gateway.handler.root.resources.endpoint.user.password.ForgotPasswordEndpoint;
 import io.gravitee.am.gateway.handler.root.resources.endpoint.user.password.ForgotPasswordSubmissionEndpoint;
 import io.gravitee.am.gateway.handler.root.resources.endpoint.user.password.ResetPasswordEndpoint;
@@ -56,7 +56,9 @@ import io.gravitee.am.gateway.handler.root.resources.endpoint.webauthn.WebAuthnR
 import io.gravitee.am.gateway.handler.root.resources.handler.botdetection.BotDetectionHandler;
 import io.gravitee.am.gateway.handler.root.resources.handler.client.ClientRequestParseHandler;
 import io.gravitee.am.gateway.handler.root.resources.handler.error.ErrorHandler;
+import io.gravitee.am.gateway.handler.root.resources.handler.geoip.GeoIpHandler;
 import io.gravitee.am.gateway.handler.root.resources.handler.login.*;
+import io.gravitee.am.gateway.handler.root.resources.handler.loginattempt.LoginAttemptHandler;
 import io.gravitee.am.gateway.handler.root.resources.handler.logout.LogoutCallbackParseHandler;
 import io.gravitee.am.gateway.handler.root.resources.handler.user.PasswordPolicyRequestParseHandler;
 import io.gravitee.am.gateway.handler.root.resources.handler.user.UserTokenRequestParseHandler;
@@ -65,10 +67,7 @@ import io.gravitee.am.gateway.handler.root.resources.handler.user.register.*;
 import io.gravitee.am.gateway.handler.root.resources.handler.webauthn.WebAuthnAccessHandler;
 import io.gravitee.am.gateway.handler.root.service.user.UserService;
 import io.gravitee.am.model.Domain;
-import io.gravitee.am.service.AuditService;
-import io.gravitee.am.service.AuthenticationFlowContextService;
-import io.gravitee.am.service.CredentialService;
-import io.gravitee.am.service.TokenService;
+import io.gravitee.am.service.*;
 import io.gravitee.am.service.validators.PasswordValidator;
 import io.gravitee.common.service.AbstractService;
 import io.vertx.core.Handler;
@@ -185,6 +184,9 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
     @Autowired
     private BotDetectionManager botDetectionManager;
 
+    @Autowired
+    private LoginAttemptService loginAttemptService;
+
     @Override
     protected void doStart() throws Exception {
         super.doStart();
@@ -213,6 +215,8 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
         Handler<RoutingContext> clientRequestParseHandlerOptional = new ClientRequestParseHandler(clientSyncService);
         Handler<RoutingContext> passwordPolicyRequestParseHandler = new PasswordPolicyRequestParseHandler(passwordValidator, domain);
         Handler<RoutingContext> botDetectionHandler = new BotDetectionHandler(domain, botDetectionManager);
+        Handler<RoutingContext> geoIpHandler = new GeoIpHandler(vertx.eventBus());
+        Handler<RoutingContext> loginAttemptHandler = new LoginAttemptHandler(domain, identityProviderManager, loginAttemptService);
 
         // Root policy chain handler
         rootRouter.route()
@@ -221,6 +225,8 @@ public class RootProvider extends AbstractService<ProtocolProvider> implements P
                 // for instance, the OAuthProvider will not execute the /oauth/authorize and there will have 500 ERROR instead of "missing client_id" OAuth 2.0 error
                 // See https://github.com/gravitee-io/issues/issues/5035
                 .handler(new ClientRequestParseHandler(clientSyncService).setContinueOnError(true))
+                .handler(geoIpHandler)
+                .handler(loginAttemptHandler)
                 .handler(policyChainHandler.create(ExtensionPoint.ROOT));
 
         // login route

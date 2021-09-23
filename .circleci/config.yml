@@ -130,9 +130,10 @@ jobs:
           name: Run API, GW and Postman tests
           command: |
             # Prepare AM
-
+            curl https://download.gravitee.io/plugins/services/gravitee-service-geoip-1.0.0.zip -o /tmp/workspace/gravitee-service-geoip-1.0.0.zip
             unzip /tmp/workspace/gravitee-am-gateway-standalone-*.zip
             unzip /tmp/workspace/gravitee-am-management-api-standalone-*.zip
+            unzip /tmp/workspace/gravitee-service-geoip-*.zip
 
             export AM_VERSION=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
 
