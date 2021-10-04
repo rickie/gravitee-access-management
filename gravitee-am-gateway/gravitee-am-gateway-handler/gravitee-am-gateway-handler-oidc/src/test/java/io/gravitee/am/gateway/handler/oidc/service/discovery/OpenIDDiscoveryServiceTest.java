@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.oidc.service.discovery;
 
 import io.gravitee.am.common.oidc.AcrValues;
 import io.gravitee.am.common.oidc.BrazilAcrValues;
+import io.gravitee.am.common.oidc.CIBADeliveryMode;
 import io.gravitee.am.common.oidc.idtoken.Claims;
 import io.gravitee.am.gateway.handler.oauth2.service.scope.ScopeService;
 import io.gravitee.am.gateway.handler.oidc.service.discovery.impl.OpenIDDiscoveryServiceImpl;
@@ -31,7 +32,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
 
+import java.util.List;
+
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -54,14 +58,14 @@ public class OpenIDDiscoveryServiceTest {
 
     @Before
     public void prepare() {
-        Mockito.when(environment.getProperty("http.secured", Boolean.class, false)).thenReturn(false);
-        Mockito.when(environment.getProperty("http.ssl.clientAuth", String.class, "none")).thenReturn("none");
+        when(environment.getProperty("http.secured", Boolean.class, false)).thenReturn(false);
+        when(environment.getProperty("http.ssl.clientAuth", String.class, "none")).thenReturn("none");
     }
 
     private void enableMtls() {
         Mockito.reset(environment);
-        Mockito.when(environment.getProperty("http.secured", Boolean.class, false)).thenReturn(true);
-        Mockito.when(environment.getProperty("http.ssl.clientAuth", String.class, "none")).thenReturn("required");
+        when(environment.getProperty("http.secured", Boolean.class, false)).thenReturn(true);
+        when(environment.getProperty("http.ssl.clientAuth", String.class, "none")).thenReturn("required");
     }
 
     @Test
@@ -89,7 +93,7 @@ public class OpenIDDiscoveryServiceTest {
 
     @Test
     public void shouldContain_brazil_claim_supported() {
-        Mockito.when(domain.useFapiBrazilProfile()).thenReturn(true);
+        when(domain.useFapiBrazilProfile()).thenReturn(true);
         OpenIDProviderMetadata openIDProviderMetadata = openIDDiscoveryService.getConfiguration("/");
         assertTrue(openIDProviderMetadata.getClaimsSupported().contains(Claims.acr));
         assertTrue(openIDProviderMetadata.getClaimsSupported().containsAll(OpenIDDiscoveryServiceImpl.BRAZIL_CLAIMS));
@@ -103,7 +107,7 @@ public class OpenIDDiscoveryServiceTest {
 
     @Test
     public void shouldContain_brazil_acr_values_supported() {
-        Mockito.when(domain.useFapiBrazilProfile()).thenReturn(true);
+        when(domain.useFapiBrazilProfile()).thenReturn(true);
         OpenIDProviderMetadata openIDProviderMetadata = openIDDiscoveryService.getConfiguration("/");
         assertTrue(openIDProviderMetadata.getAcrValuesSupported().containsAll(AcrValues.values()));
         assertTrue(openIDProviderMetadata.getAcrValuesSupported().containsAll(BrazilAcrValues.values()));
@@ -138,6 +142,28 @@ public class OpenIDDiscoveryServiceTest {
         assertTrue("par endpoint is required", openIDProviderMetadata.getMtlsAliases().getParEndpoint().contains("par"));
         assertTrue("endSession endpoint is required", openIDProviderMetadata.getMtlsAliases().getEndSessionEndpoint().contains("logout"));
         assertTrue("introspection endpoint is required", openIDProviderMetadata.getMtlsAliases().getIntrospectionEndpoint().contains("introspect"));
+    }
+
+    @Test
+    public void shouldContainsNotCIBAMetadata() {
+        when(domain.useCiba()).thenReturn(false);
+        final OpenIDProviderMetadata openIDProviderMetadata = openIDDiscoveryService.getConfiguration("/");
+        assertFalse(openIDProviderMetadata.isBackchannelUserCodeSupported());
+        assertNull(openIDProviderMetadata.getBackchannelAuthenticationEndpoint());
+        assertNull(openIDProviderMetadata.getBackchannelAuthenticationSigningAlg());
+        assertNull(openIDProviderMetadata.getBackchannelTokenDeliveryModesSupported());
+    }
+
+    @Test
+    public void shouldContainsCIBAMetadata() {
+        when(domain.useCiba()).thenReturn(true);
+        final OpenIDProviderMetadata openIDProviderMetadata = openIDDiscoveryService.getConfiguration("/");
+        assertFalse(openIDProviderMetadata.isBackchannelUserCodeSupported());
+        assertTrue("ciba auth endpoint is required", openIDProviderMetadata.getBackchannelAuthenticationEndpoint().contains("ciba/authenticate"));
+        assertNotNull(openIDProviderMetadata.getBackchannelAuthenticationSigningAlg());
+        assertTrue(openIDProviderMetadata.getBackchannelAuthenticationSigningAlg().containsAll(JWAlgorithmUtils.getSupportedBackchannelAuthenticationSigningAl()));
+        assertNotNull(openIDProviderMetadata.getBackchannelTokenDeliveryModesSupported());
+        assertTrue(openIDProviderMetadata.getBackchannelTokenDeliveryModesSupported().containsAll(List.of(CIBADeliveryMode.POLL)));
     }
 
 }

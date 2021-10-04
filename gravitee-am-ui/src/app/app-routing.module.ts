@@ -212,6 +212,7 @@ import { BotDetectionComponent } from './domain/settings/botdetections/bot-detec
 import { BotDetectionResolver } from './resolvers/bot-detection.resolver';
 import { ScopesAllResolver } from "./resolvers/scopes-all.resolver";
 import { OIDCProfileComponent } from './domain/settings/openid/oidc-profile/oidc-profile.component';
+import { CibaComponent } from './domain/settings/openid/ciba/ciba.component';
 
 let applyOnLabel = (label) => label.toLowerCase().replace(/_/g, ' ');
 
@@ -2233,6 +2234,20 @@ export const routes: Routes = [
                         data: {
                           menu: {
                             label: 'Security Profile',
+                            section: 'Openid'
+                          },
+                          perms: {
+                            only: ['domain_openid_read']
+                          }
+                        }
+                      },
+                      {
+                        path: 'ciba',
+                        component: CibaComponent,
+                        canActivate: [AuthGuard],
+                        data: {
+                          menu: {
+                            label: 'CIBA',
                             section: 'Openid'
                           },
                           perms: {

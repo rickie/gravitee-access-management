@@ -325,6 +325,7 @@ import {UserAvatarComponent} from './components/user-avatar/user-avatar.componen
 import {NotFoundComponent} from './not-found/not-found.component';
 import {UmaComponent} from './domain/settings/uma/uma.component';
 import {OIDCProfileComponent} from './domain/settings/openid/oidc-profile/oidc-profile.component';
+import {CibaComponent} from './domain/settings/openid/ciba/ciba.component';
 import {ApplicationResourcesComponent} from './domain/applications/application/advanced/resources/resources.component';
 import {ApplicationResourcesResolver} from './resolvers/application-resources.resolver';
 import {ApplicationResourceComponent} from './domain/applications/application/advanced/resources/resource/resource.component';
@@ -561,6 +562,7 @@ import { GvFormControlDirective } from "./directives/gv-form-control.directive";
     NotFoundComponent,
     UmaComponent,
     OIDCProfileComponent,
+    CibaComponent,
     LoginSettingsComponent,
     UsersSearchInfoDialog,
     NewsletterComponent,
