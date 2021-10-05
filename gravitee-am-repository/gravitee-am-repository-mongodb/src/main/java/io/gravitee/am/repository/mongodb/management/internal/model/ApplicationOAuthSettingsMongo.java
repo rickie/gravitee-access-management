@@ -88,6 +88,10 @@ public class ApplicationOAuthSettingsMongo {
     private boolean singleSignOut;
     private boolean silentReAuthentication;
     private List<ApplicationScopeSettingsMongo> scopeSettings;
+    private String backchannelTokenDeliveryMode;
+    private String backchannelClientNotificationEndpoint;
+    private String backchannelAuthRequestSignAlg;
+    private boolean backchannelUserCodeParameter;
 
     public String getClientId() {
         return clientId;
@@ -583,5 +587,37 @@ public class ApplicationOAuthSettingsMongo {
 
     public void setScopeSettings(List<ApplicationScopeSettingsMongo> scopeSettings) {
         this.scopeSettings = scopeSettings;
+    }
+
+    public String getBackchannelTokenDeliveryMode() {
+        return backchannelTokenDeliveryMode;
+    }
+
+    public void setBackchannelTokenDeliveryMode(String backchannelTokenDeliveryMode) {
+        this.backchannelTokenDeliveryMode = backchannelTokenDeliveryMode;
+    }
+
+    public String getBackchannelClientNotificationEndpoint() {
+        return backchannelClientNotificationEndpoint;
+    }
+
+    public void setBackchannelClientNotificationEndpoint(String backchannelClientNotificationEndpoint) {
+        this.backchannelClientNotificationEndpoint = backchannelClientNotificationEndpoint;
+    }
+
+    public String getBackchannelAuthRequestSignAlg() {
+        return backchannelAuthRequestSignAlg;
+    }
+
+    public void setBackchannelAuthRequestSignAlg(String backchannelAuthRequestSignAlg) {
+        this.backchannelAuthRequestSignAlg = backchannelAuthRequestSignAlg;
+    }
+
+    public boolean isBackchannelUserCodeParameter() {
+        return backchannelUserCodeParameter;
+    }
+
+    public void setBackchannelUserCodeParameter(boolean backchannelUserCodeParameter) {
+        this.backchannelUserCodeParameter = backchannelUserCodeParameter;
     }
 }

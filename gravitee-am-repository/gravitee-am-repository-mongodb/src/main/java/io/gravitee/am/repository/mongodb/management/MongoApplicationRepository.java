@@ -321,6 +321,12 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         if (other.getScopeSettings() != null) {
             applicationOAuthSettingsMongo.setScopeSettings(other.getScopeSettings().stream().map(MongoApplicationRepository::convert).collect(Collectors.toList()));
         }
+
+        applicationOAuthSettingsMongo.setBackchannelAuthRequestSignAlg(other.getBackchannelAuthRequestSignAlg());
+        applicationOAuthSettingsMongo.setBackchannelTokenDeliveryMode(other.getBackchannelTokenDeliveryMode());
+        applicationOAuthSettingsMongo.setBackchannelUserCodeParameter(other.isBackchannelUserCodeParameter());
+        applicationOAuthSettingsMongo.setBackchannelClientNotificationEndpoint(other.getBackchannelClientNotificationEndpoint());
+
         return applicationOAuthSettingsMongo;
     }
 
@@ -393,6 +399,12 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         if (other.getScopeSettings() != null) {
             applicationOAuthSettings.setScopeSettings(other.getScopeSettings().stream().map(MongoApplicationRepository::convert).collect(Collectors.toList()));
         }
+
+        applicationOAuthSettings.setBackchannelAuthRequestSignAlg(other.getBackchannelAuthRequestSignAlg());
+        applicationOAuthSettings.setBackchannelTokenDeliveryMode(other.getBackchannelTokenDeliveryMode());
+        applicationOAuthSettings.setBackchannelUserCodeParameter(other.isBackchannelUserCodeParameter());
+        applicationOAuthSettings.setBackchannelClientNotificationEndpoint(other.getBackchannelClientNotificationEndpoint());
+
         return applicationOAuthSettings;
     }
 
