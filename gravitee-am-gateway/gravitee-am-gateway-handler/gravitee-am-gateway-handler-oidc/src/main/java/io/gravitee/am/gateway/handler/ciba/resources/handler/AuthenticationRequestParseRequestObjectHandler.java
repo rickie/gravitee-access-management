@@ -38,6 +38,7 @@ import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -117,8 +118,11 @@ public class AuthenticationRequestParseRequestObjectHandler implements Handler<R
             final JWTClaimsSet claims = jwt.getJWTClaimsSet();
 
             // aud : The Audience claim MUST contain the value of the Issuer Identifier for the OP, which identifies the Authorization Server as an intended audience.
-            final String aud = claims.getStringClaim(Claims.aud);
-            if (aud == null || !oidcMeta.getIssuer().equals(aud)) {
+            final Object aud = claims.getClaim(Claims.aud);
+            if (aud == null ||
+                    (aud instanceof String && !oidcMeta.getIssuer().equals(aud)) ||
+                    (aud instanceof Collection && (((Collection) aud).isEmpty() || !((Collection) aud).stream().anyMatch(oidcMeta.getIssuer()::equals)))
+            ) {
                 return Single.error(new InvalidRequestException("aud is missing or invalid"));
             }
 
@@ -129,24 +133,24 @@ public class AuthenticationRequestParseRequestObjectHandler implements Handler<R
             }
 
             // exp : An expiration time that limits the validity lifetime of the signed authentication request.
-            final Long exp = claims.getLongClaim(Claims.exp);
+            final Date exp = claims.getDateClaim(Claims.exp);
             if (exp == null) {
                 return Single.error(new InvalidRequestException("exp is missing"));
             }
-            DefaultJWTParser.evaluateExp(exp, Instant.now(), 0);
+            DefaultJWTParser.evaluateExp(exp.getTime() / 1000, Instant.now(), 0);
 
             // iat : The time at which the signed authentication request was created.
-            final Long iat = claims.getLongClaim(Claims.iat);
+            final Date iat = claims.getDateClaim(Claims.iat);
             if (iat == null) {
                 return Single.error(new InvalidRequestException("iat is missing"));
             }
 
             // nbf : The time before which the signed authentication request is unacceptable.
-            final Long nbf = claims.getLongClaim(Claims.nbf);
+            final Date nbf = claims.getDateClaim(Claims.nbf);
             if (nbf == null) {
                 return Single.error(new InvalidRequestException("nbf is missing"));
             }
-            DefaultJWTParser.evaluateNbf(nbf, Instant.now(), 0);
+            DefaultJWTParser.evaluateNbf(nbf.getTime() / 1000, Instant.now(), 0);
 
             // jti : A unique identifier for the signed authentication request.
             if (claims.getStringClaim(Claims.jti) == null) {
