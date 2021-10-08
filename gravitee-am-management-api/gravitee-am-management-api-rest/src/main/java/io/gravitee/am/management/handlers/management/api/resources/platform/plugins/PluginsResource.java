@@ -76,4 +76,8 @@ public class PluginsResource {
         return resourceContext.getResource(BotDetectionsPluginResource.class);
     }
 
+    @Path("remember-devices")
+    public RememberDevicesPluginResource getRememberDevicesPlugins() {
+        return resourceContext.getResource(RememberDevicesPluginResource.class);
+    }
 }

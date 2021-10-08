@@ -1,0 +1,4 @@
+{
+  "type" : "object",
+  "id" : "urn:jsonschema:io:gravitee:am:rememberdevice:fingerprintjs:FingerprintJsV3Community"
+}

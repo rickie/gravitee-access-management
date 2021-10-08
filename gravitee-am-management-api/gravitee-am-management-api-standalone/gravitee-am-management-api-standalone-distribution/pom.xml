@@ -324,6 +324,23 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- AM Remember Device -->
+        <dependency>
+            <groupId>io.gravitee.am.rememberdevice</groupId>
+            <artifactId>gravitee-am-rememberdevice-fingerprintjs-v3-community</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.gravitee.am.rememberdevice</groupId>
+            <artifactId>gravitee-am-rememberdevice-fingerprintjs-v3-pro</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- External Plugins -->
         <dependency>
             <groupId>io.gravitee.policy</groupId>
@@ -519,7 +536,8 @@
                                     <artifactId>gravitee-am-repository-jdbc</artifactId>
                                     <version>${project.version}</version>
                                     <type>zip</type>
-                                </artifactItem>s
+                                </artifactItem>
+                                s
 
                                 <!-- Extension Grants -->
                                 <artifactItem>
@@ -633,6 +651,21 @@
                                 <artifactItem>
                                     <groupId>io.gravitee.am.botdetection</groupId>
                                     <artifactId>gravitee-am-botdetection-recaptcha-v3</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                </artifactItem>
+
+                                <!-- AM Remember Device -->
+                                <artifactItem>
+                                    <groupId>io.gravitee.am.rememberdevice</groupId>
+                                    <artifactId>gravitee-am-rememberdevice-fingerprintjs-v3-community</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                </artifactItem>
+
+                                <artifactItem>
+                                    <groupId>io.gravitee.am.rememberdevice</groupId>
+                                    <artifactId>gravitee-am-rememberdevice-fingerprintjs-v3-pro</artifactId>
                                     <version>${project.version}</version>
                                     <type>zip</type>
                                 </artifactItem>
