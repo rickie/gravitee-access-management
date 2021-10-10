@@ -16,6 +16,7 @@
 package io.gravitee.am.gateway.handler.ciba;
 
 import io.gravitee.am.gateway.handler.api.ProtocolProvider;
+import io.gravitee.am.gateway.handler.ciba.resources.handler.AuthenticationRequestFailureHandler;
 import io.gravitee.am.gateway.handler.ciba.resources.handler.AuthenticationRequestParseRequestObjectHandler;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.oauth2.resources.auth.handler.ClientAuthHandler;
@@ -100,7 +101,8 @@ public class CIBAProvider extends AbstractService<ProtocolProvider> implements P
                 .handler(clientAuthHandler)
                 .handler(new AuthorizationRequestParseProviderConfigurationHandler(this.openIDDiscoveryService))
                 .handler(new AuthenticationRequestParseRequestObjectHandler(this.requestObjectService, this.domain))
-                .handler(ctx -> ctx.response().end()); // fin
+                .handler(ctx -> ctx.response().end())
+                .failureHandler(new AuthenticationRequestFailureHandler()); // fin
 
         // error handler
         errorHandler(cibaRouter);

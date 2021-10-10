@@ -264,7 +264,7 @@ public class AuthenticationRequestParseRequestObjectHandlerTest extends RxWebTes
                 null,
                 HttpStatusCode.BAD_REQUEST_400, "Bad Request", null);
     }
-    
+
     @Test
     public void shouldRejectRequest_InvalidNbf() throws Exception {
         OpenIDProviderMetadata openIDProviderMetadata = new OpenIDProviderMetadata();
