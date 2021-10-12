@@ -71,6 +71,7 @@
         <gravitee-plugin.version>1.18.0</gravitee-plugin.version>
         <gravitee-node.version>1.17.0
         </gravitee-node.version>
+        <error-prone.args />
         <gravitee-reporter.version>1.17.1</gravitee-reporter.version>
         <gravitee-gateway-api.version>1.27.1</gravitee-gateway-api.version>
         <gravitee-expression-language.version>1.5.0</gravitee-expression-language.version>
@@ -365,6 +366,23 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- For the migration -->
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
+            <version>HEAD-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_refaster</artifactId>
+            <version>HEAD-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_type_annotations</artifactId>
+            <version>HEAD-SNAPSHOT</version>
+        </dependency>
+
         <!-- Log -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -413,6 +431,11 @@
                             <version>HEAD-SNAPSHOT</version>
                         </path>
                         <path>
+                            <groupId>org.mockito</groupId>
+                            <artifactId>mockito-errorprone</artifactId>
+                            <version>3.11.2</version>
+                        </path>
+                        <path>
                             <groupId>tech.picnic.error-prone-support</groupId>
                             <artifactId>error-prone-contrib</artifactId>
                             <version>0.0.1-SNAPSHOT</version>
@@ -421,7 +444,13 @@
                     <compilerArgs combine.children="append">
                         <arg>
                             -Xplugin:ErrorProne
-                            -XepAllErrorsAsWarnings
+<!--                            -Xep:SelfAssignment:OFF-->
+<!--                            -XepAllErrorsAsWarnings-->
+                            -XepAllDisabledChecksAsWarnings
+<!--                            -Xep:CheckReturnValue:OFF-->
+<!--                            -XepPatchChecks-->
+<!--                            -XepPatchLocation:IN_PLACE-->
+<!--                            ${error-prone.args}-->
                         </arg>
                         <arg>-XDcompilePolicy=simple</arg>
 
@@ -451,4 +480,21 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <!-- If combined with the `error-prone` profile above, this profile
+            configures Error Prone to try and automatically fix (rather than
+            merely flag) bug pattern violations in the source code. -->
+            <id>patch</id>
+            <activation>
+                <property>
+                    <name>errorprone.patchchecks</name>
+                </property>
+            </activation>
+            <properties>
+                <error-prone.args>-XepPatchChecks:${errorprone.patchchecks} -XepPatchLocation:IN_PLACE</error-prone.args>
+            </properties>
+        </profile>
+    </profiles>
 </project>
