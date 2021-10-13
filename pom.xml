@@ -71,7 +71,7 @@
         <gravitee-plugin.version>1.18.0</gravitee-plugin.version>
         <gravitee-node.version>1.17.0
         </gravitee-node.version>
-        <error-prone.args />
+        <error-prone.args/>
         <gravitee-reporter.version>1.17.1</gravitee-reporter.version>
         <gravitee-gateway-api.version>1.27.1</gravitee-gateway-api.version>
         <gravitee-expression-language.version>1.5.0</gravitee-expression-language.version>
@@ -440,9 +440,62 @@
                         <arg>-Xmaxwarns</arg>
                         <arg>10000</arg>
                         <arg>
-                          -Xplugin:ErrorProne
-                            -XepAllErrorsAsWarnings
-                            -XepAllDisabledChecksAsWarnings
+                            -Xplugin:ErrorProne
+                            <!-- -XepAllErrorsAsWarnings-->
+                            <!-- -XepAllDisabledChecksAsWarnings-->
+                            <!-- -XepDisableWarningsInGeneratedCode-->
+                            -XepDisableAllChecks
+
+                            <!-- Cleanup normally. -->
+                            -Xep:InvalidThrows:ERROR
+                            -Xep:UnusedMethod:ERROR
+
+                            <!-- Don't start migration just yet -->
+                            -Xep:InlineMeInliner:ERROR
+                            -Xep:InlineMeSuggester:ERROR
+                            <!--                            -Xep:InlineMockitoStatements:OFF-->
+                            <!--                            -Xep:AddDefaultMethod:OFF-->
+
+                            <!-- Turn these on once. -->
+                            -Xep:MethodReferenceUsage:ERROR
+                            <!--                            -Xep:RemoveOldMethods:OFF-->
+                            <!-- -Xep:UnwrapExpressions:ERROR-->
+
+                            -XepOpt:Refaster:NamePattern=(?!TestNG)(?!Optional)(?!AssertJ)(?!Assorted)(?!Stream)(?!RxJava2Adapter)(?!Reactor)(?!Web)(?!String)(?!Stream)(?!Immutable)(?!Int)(?!Mockito)(?!Collection)(?!Comparator)(?!Time)(?!RxJava).*
+
+
+                            <!-- Turning off rules with way too many changes: -->
+                            -Xep:AndroidJdkLibsChecker:OFF
+                            -Xep:BadImport:OFF
+                            -Xep:MemberName:OFF
+                            -Xep:UngroupedOverloads:OFF
+                            <!-- Turn off some EPS rules: -->
+                            -Xep:LexicographicalAnnotationListing:OFF
+                            -Xep:LexicographicalAnnotationAttributeListing:OFF
+                            -Xep:StaticImport:OFF
+                            -Xep:MockitoStubbing:OFF
+                            -Xep:JUnitMethodDeclaration:OFF
+                            -Xep:RemoveUnusedImports:OFF
+                            -Xep:RedundantStringConversion:OFF
+                            -Xep:CannotMockFinalClass:OFF
+                            -Xep:FieldCanBeFinal:OFF
+                            -Xep:InterfaceWithOnlyStatics:OFF
+                            -Xep:Java7ApiChecker:OFF
+                            -Xep:MethodCanBeStatic:OFF
+                            -Xep:NoFunctionalReturnType:OFF
+                            -Xep:TryFailRefactoring:OFF
+                            -Xep:UnusedVariable:OFF
+                            -Xep:TestExceptionChecker:OFF
+                            -Xep:Var:OFF
+                            -Xep:RxReturnValueIgnored:OFF
+                            -Xep:ParameterName:OFF
+                            -Xep:CheckReturnValue:OFF
+                            -Xep:MissingOverride:OFF
+                            -Xep:WildcardImport:OFF
+                            -Xep:MissingOverride:OFF
+                            -Xep:ReturnMissingNullable:OFF
+
+                            <!-- Error Prone args for patch checks -->
                             ${error-prone.args}
                         </arg>
                         <arg>-XDcompilePolicy=simple</arg>
@@ -473,7 +526,8 @@
                 </property>
             </activation>
             <properties>
-                <error-prone.args>-XepPatchChecks:${errorprone.patchchecks} -XepPatchLocation:IN_PLACE</error-prone.args>
+                <error-prone.args>-XepPatchChecks:${errorprone.patchchecks} -XepPatchLocation:IN_PLACE
+                </error-prone.args>
             </properties>
         </profile>
     </profiles>
