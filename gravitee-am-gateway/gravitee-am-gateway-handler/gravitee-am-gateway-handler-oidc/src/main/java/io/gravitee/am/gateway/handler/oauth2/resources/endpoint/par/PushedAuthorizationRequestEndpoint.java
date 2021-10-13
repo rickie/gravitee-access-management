@@ -89,9 +89,7 @@ public class PushedAuthorizationRequestEndpoint implements Handler<RoutingContex
                                     .putHeader(io.gravitee.common.http.HttpHeaders.PRAGMA, "no-cache")
                                     .end(Json.encodePrettily(response));
                         },
-                        throwable -> {
-                            context.fail(throwable);
-                        }
+                        context::fail
                 );
     }
 

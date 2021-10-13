@@ -37,7 +37,7 @@ public class RoutingContextHelper {
     public static Map<String, Object> getEvaluableAttributes(RoutingContext routingContext) {
         Map<String, Object> contextData = new HashMap<>(routingContext.data());
         // remove technical attributes
-        BLACKLIST_CONTEXT_ATTRIBUTES.forEach(attribute -> contextData.remove(attribute));
+        BLACKLIST_CONTEXT_ATTRIBUTES.forEach(contextData::remove);
         return contextData;
     }
 }

@@ -70,7 +70,7 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
         LOGGER.debug("findById({})", id);
         return flowRepository.findById(id)
                 .map(this::toEntity)
-                .flatMapSingleElement(flow ->  completeFlow(flow));
+                .flatMapSingleElement(this::completeFlow);
     }
 
     @Override

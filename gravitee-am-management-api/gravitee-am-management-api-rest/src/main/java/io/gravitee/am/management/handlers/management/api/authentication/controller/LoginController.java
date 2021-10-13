@@ -90,7 +90,7 @@ public class LoginController {
                     .map(org -> Optional.ofNullable(org.getIdentities()).orElse(emptyList()))
                     .blockingGet()
                     .stream()
-                    .map(identity -> identityProviderManager.getIdentityProvider(identity))
+                    .map(identityProviderManager::getIdentityProvider)
                     .filter(Objects::nonNull)
                     .filter(IdentityProvider::isExternal)
                     .collect(Collectors.toList());

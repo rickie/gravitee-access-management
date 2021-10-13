@@ -72,7 +72,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
                                 .end(Json.encodePrettily(result))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 
@@ -96,7 +96,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
                                 .end(Json.encodePrettily(DynamicClientRegistrationResponse.fromClient(client)))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 
@@ -120,7 +120,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
                                 .end(Json.encodePrettily(DynamicClientRegistrationResponse.fromClient(client)))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 
@@ -136,7 +136,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
                 .map(this.clientSyncService::removeDynamicClientRegistred)
                 .subscribe(
                         client -> context.response().setStatusCode(HttpStatusCode.NO_CONTENT_204).end()
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 
@@ -158,7 +158,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
                                 .end(Json.encodePrettily(DynamicClientRegistrationResponse.fromClient(client)))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 

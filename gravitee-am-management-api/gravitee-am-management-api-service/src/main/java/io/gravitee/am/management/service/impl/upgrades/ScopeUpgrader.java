@@ -62,8 +62,8 @@ public class ScopeUpgrader implements Upgrader, Ordered {
     public boolean upgrade() {
         logger.info("Applying scope upgrade");
         domainService.findAll()
-                .flatMapObservable(domains -> Observable.fromIterable(domains))
-                .flatMapSingle(domain -> upgradeDomain(domain))
+                .flatMapObservable(Observable::fromIterable)
+                .flatMapSingle(this::upgradeDomain)
                 .subscribe();
         return true;
     }
@@ -85,7 +85,7 @@ public class ScopeUpgrader implements Upgrader, Ordered {
     private Single<List<Scope>> createAppScopes(Domain domain) {
         return applicationService.findByDomain(domain.getId())
                 .filter(applications -> applications != null)
-                .flatMapObservable(applications -> Observable.fromIterable(applications))
+                .flatMapObservable(Observable::fromIterable)
                 .filter(app -> app.getSettings() != null && app.getSettings().getOauth() != null)
                 .flatMap(app -> Observable.fromIterable(app.getSettings().getOauth().getScopes()))
                 .flatMapSingle(scope -> createScope(domain.getId(), scope))
@@ -95,7 +95,7 @@ public class ScopeUpgrader implements Upgrader, Ordered {
     private Single<List<Scope>> createRoleScopes(Domain domain) {
         return roleService.findByDomain(domain.getId())
                 .filter(roles -> roles != null)
-                .flatMapObservable(roles -> Observable.fromIterable(roles))
+                .flatMapObservable(Observable::fromIterable)
                 .filter(role -> role.getOauthScopes() != null)
                 .flatMap(role -> Observable.fromIterable(role.getOauthScopes()))
                 .flatMapSingle(scope -> createScope(domain.getId(), scope))

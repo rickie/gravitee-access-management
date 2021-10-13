@@ -56,5 +56,5 @@ public class AuthenticationFlowChain {
         return this;
     }
 
-    private Handler<RoutingContext> nextHandler = routingContext -> routingContext.next();
+    private Handler<RoutingContext> nextHandler = RoutingContext::next;
 }

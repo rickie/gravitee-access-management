@@ -179,7 +179,7 @@ public class ResourceServiceImpl implements ResourceService {
         return findByDomainAndClientAndUserAndResource(domain, client, userId, resourceId)
                 .switchIfEmpty(Maybe.error(new ResourceNotFoundException(resourceId)))
                 .flatMapSingle(Single::just)
-                .map(toUpdate -> newResource.update(toUpdate))
+                .map(newResource::update)
                 .map(toUpdate -> toUpdate.setUpdatedAt(new Date()))
                 .flatMap(this::validateScopes)
                 .flatMap(this::validateIconUri)

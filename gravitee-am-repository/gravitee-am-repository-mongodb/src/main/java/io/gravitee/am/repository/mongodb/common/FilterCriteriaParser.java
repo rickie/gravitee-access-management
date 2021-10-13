@@ -120,7 +120,7 @@ public final class FilterCriteriaParser {
             return null;
         }
 
-        if (specialCharsList.stream().anyMatch(s -> filterName.contains(s))) {
+        if (specialCharsList.stream().anyMatch(filterName::contains)) {
             throw new IllegalArgumentException("Invalid filter name [" + filterName + "] found in the the search query");
         }
 

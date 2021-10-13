@@ -197,7 +197,7 @@ public class IDTokenServiceImpl implements IDTokenService {
 
             // 3. If no claims requested, grab all user claims
             if (!requestForSpecificClaims) {
-                userClaims.forEach((k, v) -> idToken.addAdditionalClaim(k, v));
+                userClaims.forEach(idToken::addAdditionalClaim);
             }
         }
 
@@ -223,10 +223,10 @@ public class IDTokenServiceImpl implements IDTokenService {
 
         // get requested scopes claims
         final List<String> scopesClaims = scopes.stream()
-                .map(scope -> scope.toUpperCase())
+                .map(String::toUpperCase)
                 .filter(scope -> Scope.exists(scope) && !Scope.valueOf(scope).getClaims().isEmpty())
-                .map(scope -> Scope.valueOf(scope))
-                .map(scope -> scope.getClaims())
+                .map(Scope::valueOf)
+                .map(Scope::getClaims)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 

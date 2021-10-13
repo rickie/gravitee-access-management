@@ -117,7 +117,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
     @Override
     public Maybe<User> findByEmail(String email) {
         return selectUserByEmail(email)
-                .map(result -> createUser(result));
+                .map(this::createUser);
     }
 
     private Maybe<Map<String, Object>> selectUserByEmail(String email) {
@@ -130,7 +130,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
     @Override
     public Maybe<User> findByUsername(String username) {
         return selectUserByUsername(username)
-                .map(result -> createUser(result));
+                .map(this::createUser);
     }
 
     @Override

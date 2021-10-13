@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.common.Page;
@@ -33,6 +36,8 @@ import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
 import io.vertx.core.json.JsonObject;
+import java.util.*;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,11 +46,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.*;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -479,14 +479,14 @@ public class ResourceServiceTest {
     public void getMetadata_noResources_null() {
         TestObserver<Map<String, Map<String, Object>>> testObserver = service.getMetadata(null).test();
         testObserver.assertComplete().assertNoErrors();
-        testObserver.assertValue(map -> map.isEmpty());
+        testObserver.assertValue(Map::isEmpty);
     }
 
     @Test
     public void getMetadata_noResources_empty() {
         TestObserver<Map<String, Map<String, Object>>> testObserver = service.getMetadata(Collections.emptyList()).test();
         testObserver.assertComplete().assertNoErrors();
-        testObserver.assertValue(map -> map.isEmpty());
+        testObserver.assertValue(Map::isEmpty);
     }
 
     @Test

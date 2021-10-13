@@ -63,7 +63,7 @@ public class FactorManagerImpl extends AbstractService implements FactorManager,
         logger.info("Initializing factors for domain {}", domain.getName());
         factorService.findByDomain(domain.getId())
                 .subscribe(
-                        factor -> updateFactor(factor),
+                        this::updateFactor,
                         error -> logger.error("Unable to initialize factors for domain {}", domain.getName(), error));
     }
 
@@ -118,7 +118,7 @@ public class FactorManagerImpl extends AbstractService implements FactorManager,
         logger.info("Domain {} has received {} factor event for {}", domain.getName(), eventType, factorId);
         factorService.findById(factorId)
                 .subscribe(
-                        factor -> updateFactor(factor),
+                        this::updateFactor,
                         error -> logger.error("Unable to load factor for domain {}", domain.getName(), error),
                         () -> logger.error("No factor found with id {}", factorId));
     }

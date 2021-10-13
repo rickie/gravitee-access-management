@@ -61,7 +61,7 @@ public class ServiceProviderMetadataEndpoint implements Handler<RoutingContext> 
 
                             // add custom headers
                             if (result.getHeaders() != null) {
-                                result.getHeaders().forEach((k, v) -> response.putHeader(k, v));
+                                result.getHeaders().forEach(response::putHeader);
                             }
 
                             // send response

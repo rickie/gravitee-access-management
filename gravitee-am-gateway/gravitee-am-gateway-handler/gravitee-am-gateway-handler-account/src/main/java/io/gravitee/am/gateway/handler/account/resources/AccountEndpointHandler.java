@@ -77,7 +77,7 @@ public class AccountEndpointHandler {
         accountService.getActivity(user, criteria, page, size)
                 .subscribe(
                         activities -> AccountResponseHandler.handleDefaultResponse(routingContext, activities),
-                        error -> routingContext.fail(error)
+                        routingContext::fail
                 );
     }
 

@@ -200,7 +200,7 @@ public class JWEServiceImpl implements JWEService {
                 .filter(filter::test)
                 .filter(jwk -> jwk.getUse() == null || jwk.getUse().equals(KeyUse.ENCRYPTION.getValue()))
                 .filter(jwk -> jwe.getHeader().getKeyID() == null || jwe.getHeader().getKeyID().equals(jwk.getKid()))
-                .map(jwk -> function.apply(jwk))
+                .map(function::apply)
                 .map(decrypter -> {
                     try {
                         jwe.decrypt(decrypter);

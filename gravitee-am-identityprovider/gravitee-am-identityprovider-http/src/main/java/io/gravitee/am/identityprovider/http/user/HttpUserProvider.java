@@ -270,7 +270,7 @@ public class HttpUserProvider implements UserProvider {
         userAttributes.remove(usernameAttribute);
         userAttributes.remove("password");
         Map<String, Object> claims = new HashMap<>();
-        userAttributes.forEach((k, v) -> claims.put(k, v));
+        userAttributes.forEach(claims::put);
         user.setAdditionalInformation(claims);
         return user;
     }

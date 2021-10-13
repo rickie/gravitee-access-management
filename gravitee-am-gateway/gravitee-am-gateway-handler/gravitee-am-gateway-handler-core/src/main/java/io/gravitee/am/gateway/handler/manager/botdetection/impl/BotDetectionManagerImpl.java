@@ -162,7 +162,7 @@ public class BotDetectionManagerImpl extends AbstractService implements BotDetec
         LOGGER.info("Domain {} has received {} bot detection event for {}", domain.getName(), eventType, pluginId);
         botDetectionService.findById(pluginId)
                 .subscribe(
-                        detectionPlugin -> updateBotDetection(detectionPlugin),
+                        this::updateBotDetection,
                         error -> LOGGER.error("Unable to load bot detection for domain {}", domain.getName(), error),
                         () -> LOGGER.error("No bot detection found with id {}", pluginId));
     }

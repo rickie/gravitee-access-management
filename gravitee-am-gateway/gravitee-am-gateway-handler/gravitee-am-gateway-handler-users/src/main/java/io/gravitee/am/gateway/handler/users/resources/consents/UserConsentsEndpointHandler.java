@@ -56,7 +56,7 @@ public class UserConsentsEndpointHandler extends AbstractUserConsentEndpointHand
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .end(Json.encodePrettily(scopeApprovals)),
-                        error -> context.fail(error));
+                        context::fail);
 
     }
 
@@ -78,7 +78,7 @@ public class UserConsentsEndpointHandler extends AbstractUserConsentEndpointHand
                 })
                 .subscribe(
                         () -> context.response().setStatusCode(204).end(),
-                        error -> context.fail(error));
+                        context::fail);
 
     }
 }

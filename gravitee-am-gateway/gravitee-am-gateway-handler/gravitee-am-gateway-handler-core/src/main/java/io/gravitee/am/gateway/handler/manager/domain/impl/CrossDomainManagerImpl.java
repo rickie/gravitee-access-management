@@ -56,7 +56,7 @@ public class CrossDomainManagerImpl extends AbstractService implements CrossDoma
             domainRepository.findAllByReferenceId(domain.getReferenceId())
                     .filter(d -> !domain.getId().equals(d.getId()))
                     .toList()
-                    .subscribe(domains -> domains.forEach(d -> clientManager.deployCrossDomain(d)));
+                    .subscribe(domains -> domains.forEach(clientManager::deployCrossDomain));
         }
     }
 

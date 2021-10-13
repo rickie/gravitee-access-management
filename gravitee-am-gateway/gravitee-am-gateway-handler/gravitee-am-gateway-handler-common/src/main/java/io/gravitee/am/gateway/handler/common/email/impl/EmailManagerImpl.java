@@ -77,7 +77,7 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
         logger.info("Initializing emails for domain {}", domain.getName());
         emailRepository.findAll(ReferenceType.DOMAIN, domain.getId())
                 .subscribe(
-                        email -> updateEmail(email),
+                        this::updateEmail,
                         error -> logger.error("Unable to initialize emails for domain {}", domain.getName(), error));
     }
 

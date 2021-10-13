@@ -51,7 +51,7 @@ public class DomainUpgrader implements Upgrader, Ordered {
     public boolean upgrade() {
         LOGGER.info("Applying domain upgrade");
         domainService.findAll()
-                .flatMapObservable(domains -> Observable.fromIterable(domains))
+                .flatMapObservable(Observable::fromIterable)
                 .flatMapSingle(this::upgradeDomain)
                 .toList()
                 .subscribe();

@@ -117,7 +117,7 @@ public class CertificateManagerImpl extends AbstractService<CertificateManager> 
         logger.info("Management API has received a deploy certificate event for {}", certificateId);
         certificateService.findById(certificateId)
                 .subscribe(
-                        certificate -> loadCertificate(certificate),
+                        this::loadCertificate,
                         error -> logger.error("Unable to deploy certificate {}", certificateId, error),
                         () -> logger.error("No certificate found with id {}", certificateId));
     }

@@ -70,7 +70,7 @@ public class OpenIDScopeUpgrader implements Upgrader, Ordered {
 
     private Single<Scope> createSystemScope(String domain, io.gravitee.am.common.oidc.Scope systemScope) {
         return scopeService.findByDomainAndKey(domain, systemScope.getKey())
-                .map(scope -> Optional.of(scope))
+                .map(Optional::of)
                 .defaultIfEmpty(Optional.empty())
                 .flatMapSingle(optScope -> {
                     if (!optScope.isPresent()) {

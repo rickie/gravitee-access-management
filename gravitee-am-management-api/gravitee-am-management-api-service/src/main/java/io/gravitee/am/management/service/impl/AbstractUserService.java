@@ -183,7 +183,7 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
             additionalInformation.put(StandardClaims.EMAIL, newUser.getEmail());
         }
         if (newUser.getAdditionalInformation() != null) {
-            newUser.getAdditionalInformation().forEach((k, v) -> additionalInformation.putIfAbsent(k, v));
+            newUser.getAdditionalInformation().forEach(additionalInformation::putIfAbsent);
         }
         user.setAdditionalInformation(additionalInformation);
 
@@ -236,7 +236,7 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
             additionalInformation.put(StandardClaims.EMAIL, updateUser.getEmail());
         }
         if (updateUser.getAdditionalInformation() != null) {
-            updateUser.getAdditionalInformation().forEach((k, v) -> additionalInformation.putIfAbsent(k, v));
+            updateUser.getAdditionalInformation().forEach(additionalInformation::putIfAbsent);
         }
         user.setAdditionalInformation(additionalInformation);
         return user;
@@ -260,7 +260,7 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
             additionalInformation.put(StandardClaims.EMAIL, user.getEmail());
         }
         if (user.getAdditionalInformation() != null) {
-            user.getAdditionalInformation().forEach((k, v) -> additionalInformation.putIfAbsent(k, v));
+            user.getAdditionalInformation().forEach(additionalInformation::putIfAbsent);
         }
         idpUser.setAdditionalInformation(additionalInformation);
         return idpUser;

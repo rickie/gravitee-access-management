@@ -147,7 +147,7 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
         return extensionGrantRepository.findById(id)
                 .switchIfEmpty(Maybe.error(new ExtensionGrantNotFoundException(id)))
                 .flatMapSingle(tokenGranter -> extensionGrantRepository.findByDomainAndName(domain, updateExtensionGrant.getName())
-                        .map(extensionGrant -> Optional.of(extensionGrant))
+                        .map(Optional::of)
                         .defaultIfEmpty(Optional.empty())
                         .toSingle()
                         .flatMap(existingTokenGranter -> {

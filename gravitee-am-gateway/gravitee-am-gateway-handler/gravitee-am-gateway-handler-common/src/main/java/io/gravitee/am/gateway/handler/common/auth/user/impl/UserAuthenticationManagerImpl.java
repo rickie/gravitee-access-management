@@ -90,7 +90,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
         List<String> identities = client.getIdentities() != null ?
                 client.getIdentities()
                         .stream()
-                        .map(idp -> identityProviderManager.getIdentityProvider(idp))
+                        .map(identityProviderManager::getIdentityProvider)
                         .filter(idp -> idp != null && !idp.isExternal())
                         .map(IdentityProvider::getId)
                         .collect(Collectors.toList()) : null;
@@ -146,7 +146,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
         List<String> identities = client.getIdentities() != null ?
                 client.getIdentities()
                         .stream()
-                        .map(idp -> identityProviderManager.getIdentityProvider(idp))
+                        .map(identityProviderManager::getIdentityProvider)
                         .filter(idp -> idp != null && !idp.isExternal())
                         .map(IdentityProvider::getId)
                         .collect(Collectors.toList()) : null;

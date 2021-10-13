@@ -237,7 +237,7 @@ public abstract class AbstractLogoutEndpoint implements Handler<RoutingContext> 
         // compare values
         return registeredRedirectUris
                 .stream()
-                .anyMatch(registeredUri -> requestedRedirectUri.equals(registeredUri));
+                .anyMatch(requestedRedirectUri::equals);
     }
 
     protected Handler<AsyncResult<User>> invalidSessionHandler(RoutingContext routingContext, Client client) {

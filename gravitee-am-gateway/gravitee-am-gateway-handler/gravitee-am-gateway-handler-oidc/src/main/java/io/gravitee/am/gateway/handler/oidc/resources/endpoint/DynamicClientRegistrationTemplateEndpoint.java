@@ -52,7 +52,7 @@ public class DynamicClientRegistrationTemplateEndpoint implements Handler<Routin
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
                                 .end(Json.encodePrettily(DynamicClientRegistrationTemplate.from(templates)))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 }

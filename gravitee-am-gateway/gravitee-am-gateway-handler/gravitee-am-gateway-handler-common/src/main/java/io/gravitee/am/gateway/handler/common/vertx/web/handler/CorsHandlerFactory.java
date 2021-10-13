@@ -66,7 +66,7 @@ public class CorsHandlerFactory implements FactoryBean<CorsHandler> {
 
         return asList(property.replaceAll("\\s+","").split(","))
                 .stream()
-                .map(method -> HttpMethod.valueOf(method))
+                .map(HttpMethod::valueOf)
                 .collect(Collectors.toSet());
     }
 }

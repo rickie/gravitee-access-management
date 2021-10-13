@@ -154,7 +154,7 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
             authenticationProviderMaybe
                     .filter(provider -> provider instanceof SocialAuthenticationProvider)
                     .flatMap(provider -> ((SocialAuthenticationProvider) provider).signOutUrl(authentication))
-                    .map(request -> Optional.ofNullable(request))
+                    .map(Optional::ofNullable)
                     .switchIfEmpty(Maybe.just(Optional.empty()))
                     .flatMap(optLogoutRequest  -> {
                         if (optLogoutRequest.isPresent()) {

@@ -207,7 +207,7 @@ public class GroupServiceImpl implements GroupService {
                     }
                 })
                 .flatMap(this::setMembers)
-                .flatMap(group -> groupRepository.create(group))
+                .flatMap(groupRepository::create)
                 // create event for sync process
                 .flatMap(group -> {
                     Event event = new Event(Type.GROUP, new Payload(group.getId(), group.getReferenceType(), group.getReferenceId(), Action.CREATE));
@@ -256,7 +256,7 @@ public class GroupServiceImpl implements GroupService {
 
                     // set members and update
                     return setMembers(groupToUpdate)
-                            .flatMap(group -> groupRepository.update(group))
+                            .flatMap(groupRepository::update)
                             // create event for sync process
                             .flatMap(group -> {
                                 Event event = new Event(Type.GROUP, new Payload(group.getId(), group.getReferenceType(), group.getReferenceId(), Action.UPDATE));

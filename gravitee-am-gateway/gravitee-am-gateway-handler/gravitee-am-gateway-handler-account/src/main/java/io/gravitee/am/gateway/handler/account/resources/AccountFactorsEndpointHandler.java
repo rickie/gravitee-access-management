@@ -85,7 +85,7 @@ public class AccountFactorsEndpointHandler {
         accountService.getFactors(user.getReferenceId())
                 .subscribe(
                         factors -> AccountResponseHandler.handleDefaultResponse(routingContext, factors),
-                        error -> routingContext.fail(error)
+                        routingContext::fail
                 );
     }
 
@@ -187,7 +187,7 @@ public class AccountFactorsEndpointHandler {
                         accountService.upsertFactor(user.getId(), enrolledFactor, new DefaultUser(user))
                                 .subscribe(
                                         __ -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactor),
-                                        error -> routingContext.fail(error));
+                                        routingContext::fail);
                     });
                 });
             });
@@ -264,7 +264,7 @@ public class AccountFactorsEndpointHandler {
                     accountService.upsertFactor(user.getId(), enrolledFactor, new DefaultUser(user))
                             .subscribe(
                                     __ -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactor),
-                                    error -> routingContext.fail(error)
+                                    routingContext::fail
                             );
                 });
             });
@@ -328,7 +328,7 @@ public class AccountFactorsEndpointHandler {
         factorProvider.generateQrCode(user, enrolledFactor)
                 .subscribe(
                         barCode -> AccountResponseHandler.handleDefaultResponse(routingContext, new JsonObject().put("qrCode", barCode)),
-                        error -> routingContext.fail(error),
+                        routingContext::fail,
                         () -> routingContext.fail(404)
                 );
     }
@@ -368,7 +368,7 @@ public class AccountFactorsEndpointHandler {
                 accountService.upsertFactor(user.getId(), enrolledFactor, new DefaultUser(user))
                         .subscribe(
                             __ -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactor),
-                            error -> routingContext.fail(error)
+                            routingContext::fail
                         );
                 });
         } catch (DecodeException ex) {
@@ -383,7 +383,7 @@ public class AccountFactorsEndpointHandler {
         accountService.removeFactor(user.getId(), factorId, new DefaultUser(user))
                 .subscribe(
                         () -> AccountResponseHandler.handleNoBodyResponse(routingContext),
-                        error -> routingContext.fail(error)
+                        routingContext::fail
                 );
     }
 

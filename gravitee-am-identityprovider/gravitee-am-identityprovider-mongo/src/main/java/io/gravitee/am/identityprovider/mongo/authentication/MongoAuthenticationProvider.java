@@ -188,7 +188,7 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
     private List<String> getUserRoles(AuthenticationContext context, Document document) {
         if (roleMapper != null) {
             Map<String, Object> profile = new HashMap<>();
-            document.forEach((key, value) -> profile.put(key, value));
+            document.forEach(profile::put);
             return roleMapper.apply(context, profile);
         }
         return new ArrayList<>();

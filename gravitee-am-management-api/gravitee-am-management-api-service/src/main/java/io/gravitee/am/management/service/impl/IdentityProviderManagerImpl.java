@@ -342,7 +342,7 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
         logger.info("Management API has received a deploy identity provider event for {}", identityProviderId);
         identityProviderService.findById(identityProviderId)
                 .subscribe(
-                        identityProvider -> loadUserProvider(identityProvider),
+                        this::loadUserProvider,
                         error -> logger.error("Unable to deploy user provider  {}", identityProviderId, error),
                         () -> logger.error("No identity provider found with id {}", identityProviderId));
     }

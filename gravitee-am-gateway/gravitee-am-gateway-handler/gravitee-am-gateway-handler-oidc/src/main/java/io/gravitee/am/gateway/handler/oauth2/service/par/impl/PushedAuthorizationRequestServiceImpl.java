@@ -102,9 +102,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
                                         .Builder()
                                         .audience(oidcMetadata.getIssuer())
                                         .expirationTime(req.getExpireAt());
-                                req.getParameters().toSingleValueMap().forEach((key, value) -> {
-                                    builder.claim(key, value);
-                                });
+                                req.getParameters().toSingleValueMap().forEach(builder::claim);
                                 return Single.just(new PlainJWT(builder.build()));
                             }
                         }
@@ -175,7 +173,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
                     LOGGER.debug("JWT invalid for the request parameter", ex);
                     return Single.error(new InvalidRequestObjectException());
                 })
-                .map(jwt -> checkRequestObjectClaims(jwt))
+                .map(this::checkRequestObjectClaims)
                 .map(this::checkRequestObjectAlgorithm)
                 .flatMap(jwt -> validateSignature((SignedJWT) jwt, client));
     }

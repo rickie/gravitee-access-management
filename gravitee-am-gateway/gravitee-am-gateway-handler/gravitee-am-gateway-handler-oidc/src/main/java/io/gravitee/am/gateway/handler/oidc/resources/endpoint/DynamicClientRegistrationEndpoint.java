@@ -74,7 +74,7 @@ public class DynamicClientRegistrationEndpoint implements Handler<RoutingContext
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.CREATED_201)
                                 .end(Json.encodePrettily(DynamicClientRegistrationResponse.fromClient(client)))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 

@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
                         return Observable.fromIterable(userPage.getData())
                                 .map(user1 -> convert(user1, baseUrl, true))
                                 // set groups
-                                .flatMapSingle(user1 -> setGroups(user1))
+                                .flatMapSingle(this::setGroups)
                                 .toList()
                                 .map(users -> new ListResponse<>(users, userPage.getCurrentPage() + 1, userPage.getTotalCount(), users.size()));
                     }
@@ -260,7 +260,7 @@ public class UserServiceImpl implements UserService {
                 })
                 .map(user1 -> convert(user1, baseUrl, false))
                 // set groups
-                .flatMap(user1 -> setGroups(user1))
+                .flatMap(this::setGroups)
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof SCIMException || ex instanceof UserNotFoundException) {
                         return Single.error(ex);
@@ -531,7 +531,7 @@ public class UserServiceImpl implements UserService {
             additionalInformation.put(StandardClaims.EMAIL, user.getEmail());
         }
         if (user.getAdditionalInformation() != null) {
-            user.getAdditionalInformation().forEach((k, v) -> additionalInformation.putIfAbsent(k, v));
+            user.getAdditionalInformation().forEach(additionalInformation::putIfAbsent);
         }
         idpUser.setAdditionalInformation(additionalInformation);
         return idpUser;

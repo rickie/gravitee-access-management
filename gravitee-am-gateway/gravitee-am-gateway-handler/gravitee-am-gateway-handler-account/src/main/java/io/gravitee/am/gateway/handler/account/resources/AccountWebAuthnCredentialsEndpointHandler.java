@@ -44,7 +44,7 @@ public class AccountWebAuthnCredentialsEndpointHandler {
         accountService.getWebAuthnCredentials(user)
                         .subscribe(
                                 enrolledCredentials -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledCredentials),
-                                error -> routingContext.fail(error)
+                                routingContext::fail
                         );
     }
 
@@ -59,7 +59,7 @@ public class AccountWebAuthnCredentialsEndpointHandler {
         accountService.getWebAuthnCredential(credentialId)
                 .subscribe(
                         credential -> AccountResponseHandler.handleDefaultResponse(routingContext, credential),
-                        error -> routingContext.fail(error)
+                        routingContext::fail
                 );
     }
 }

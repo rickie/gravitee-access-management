@@ -75,7 +75,7 @@ public class IntrospectionServiceImpl implements IntrospectionService {
             introspectionResponse.setScope(accessToken.getScope());
         }
         if (accessToken.getAdditionalInformation() != null && !accessToken.getAdditionalInformation().isEmpty()) {
-            accessToken.getAdditionalInformation().forEach((k, v) -> introspectionResponse.putIfAbsent(k, v));
+            accessToken.getAdditionalInformation().forEach(introspectionResponse::putIfAbsent);
         }
 
         final Map<String, Object> cnf = accessToken.getConfirmationMethod();

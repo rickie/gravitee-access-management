@@ -16,7 +16,9 @@
 package io.gravitee.am.certificate.pkcs12.provider;
 
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyOperation;
 import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.util.Base64;
 import io.gravitee.am.certificate.api.*;
 import io.gravitee.am.certificate.pkcs12.PKCS12Configuration;
 import io.gravitee.am.common.jwt.SignatureAlgorithm;
@@ -24,9 +26,6 @@ import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.jose.RSAKey;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.Key;
@@ -40,6 +39,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -177,7 +178,7 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
         }
 
         if (nimbusJwk.getKeyOperations() != null) {
-            jwk.setKeyOps(nimbusJwk.getKeyOperations().stream().map(keyOperation -> keyOperation.identifier()).collect(Collectors.toSet()));
+            jwk.setKeyOps(nimbusJwk.getKeyOperations().stream().map(KeyOperation::identifier).collect(Collectors.toSet()));
         }
 
         if (configuration.getAlgorithm() != null && !configuration.getAlgorithm().isEmpty()) {
@@ -192,7 +193,7 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
             jwk.setX5u(nimbusJwk.getX509CertURL().toString());
         }
         if (nimbusJwk.getX509CertChain() != null) {
-            jwk.setX5c(nimbusJwk.getX509CertChain().stream().map(cert -> cert.toString()).collect(Collectors.toSet()));
+            jwk.setX5c(nimbusJwk.getX509CertChain().stream().map(Base64::toString).collect(Collectors.toSet()));
         }
         if (nimbusJwk.getX509CertThumbprint() != null) {
             jwk.setX5t(nimbusJwk.getX509CertThumbprint().toString());

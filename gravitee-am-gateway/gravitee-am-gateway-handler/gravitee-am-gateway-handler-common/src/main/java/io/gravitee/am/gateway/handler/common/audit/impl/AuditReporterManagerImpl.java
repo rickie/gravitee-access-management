@@ -35,14 +35,14 @@ import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.util.function.Tuples;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -242,7 +242,7 @@ public class AuditReporterManagerImpl extends AbstractService implements AuditRe
     public io.gravitee.am.reporter.api.provider.Reporter getReporter() {
        return reporters.entrySet()
                 .stream()
-                .map(entry -> entry.getValue())
+                .map(Entry::getValue)
                 .filter(reporter -> reporter.canSearch())
                 .findFirst()
                 .orElse(null);

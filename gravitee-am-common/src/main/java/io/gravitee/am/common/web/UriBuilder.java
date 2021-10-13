@@ -196,7 +196,7 @@ public class UriBuilder {
 
     public UriBuilder parameters(Map<String, String> parameters) {
         if (parameters != null) {
-            parameters.forEach((k, v) -> addParameter(k, v));
+            parameters.forEach(this::addParameter);
         }
         return this;
     }

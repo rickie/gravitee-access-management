@@ -91,9 +91,7 @@ public class MongoPushedAuthorizationRequestRepository extends AbstractOAuth2Mon
 
         if (par.getParameters() != null) {
             Document document = new Document();
-            par.getParameters().forEach((key, value) -> {
-                document.append(key, value);
-            });
+            par.getParameters().forEach(document::append);
             parMongo.setParameters(document);
         }
 

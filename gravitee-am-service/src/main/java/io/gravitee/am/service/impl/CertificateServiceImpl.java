@@ -42,6 +42,16 @@ import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.CertificateAuditBuilder;
 import io.reactivex.*;
 import io.reactivex.functions.Function;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.cert.X509Certificate;
+import java.util.*;
+import java.util.Map.Entry;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.BasicConstraints;
@@ -56,16 +66,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.cert.X509Certificate;
-import java.util.*;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -161,7 +161,7 @@ public class CertificateServiceImpl implements CertificateService {
                                         .entrySet()
                                         .stream()
                                         .filter(map -> map.getValue().getWidget() != null && "file".equals(map.getValue().getWidget()))
-                                        .map(map -> map.getKey())
+                                        .map(Entry::getKey)
                                         .forEach(key -> {
                                             try {
                                                 JsonNode file = objectMapper.readTree(certificateConfiguration.get(key).asText());
@@ -190,7 +190,7 @@ public class CertificateServiceImpl implements CertificateService {
                 });
 
         return certificateSingle
-                .flatMap(certificate -> certificateRepository.create(certificate))
+                .flatMap(certificateRepository::create)
                 // create event for sync process
                 .flatMap(certificate -> {
                     Event event = new Event(Type.CERTIFICATE, new Payload(certificate.getId(), ReferenceType.DOMAIN, certificate.getDomain(), Action.CREATE));
@@ -259,7 +259,7 @@ public class CertificateServiceImpl implements CertificateService {
                                     .entrySet()
                                     .stream()
                                     .filter(map -> map.getValue().getWidget() != null && "file".equals(map.getValue().getWidget()))
-                                    .map(map -> map.getKey())
+                                    .map(Entry::getKey)
                                     .forEach(key -> {
                                         try {
                                             String oldFileInformation = oldCertificateConfiguration.get(key).asText();
@@ -292,7 +292,7 @@ public class CertificateServiceImpl implements CertificateService {
                     });
 
                     return certificateSingle
-                            .flatMap(certificate -> certificateRepository.update(certificate))
+                            .flatMap(certificateRepository::update)
                             // create event for sync process
                             .flatMap(certificate1 -> {
                                 Event event = new Event(Type.CERTIFICATE, new Payload(certificate1.getId(), ReferenceType.DOMAIN, certificate1.getDomain(), Action.UPDATE));

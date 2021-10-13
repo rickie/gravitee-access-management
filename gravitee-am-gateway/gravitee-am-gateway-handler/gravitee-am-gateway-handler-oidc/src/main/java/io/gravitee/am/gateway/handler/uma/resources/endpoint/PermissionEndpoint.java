@@ -78,7 +78,7 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.CREATED_201)
                                 .end(Json.encodePrettily(permission))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 

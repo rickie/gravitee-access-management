@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
@@ -30,21 +32,19 @@ import io.gravitee.am.model.jose.*;
 import io.gravitee.am.model.login.LoginSettings;
 import io.gravitee.am.model.oidc.JWKSet;
 import io.gravitee.am.repository.management.api.ApplicationRepository;
+import io.gravitee.am.repository.mongodb.management.MongoApplicationRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.*;
 import io.reactivex.*;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static com.mongodb.client.model.Filters.*;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -504,7 +504,7 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         JWKSet jwkSet = new JWKSet();
 
         List<JWK> jwkList = jwksMongo.stream()
-                .map(jwkMongo -> convert(jwkMongo))
+                .map(MongoApplicationRepository::convert)
                 .collect(Collectors.toList());
 
         jwkSet.setKeys(jwkList);
@@ -595,7 +595,7 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         }
 
         return jwkSet.getKeys().stream()
-                .map(jwk -> convert(jwk))
+                .map(MongoApplicationRepository::convert)
                 .collect(Collectors.toList());
     }
 

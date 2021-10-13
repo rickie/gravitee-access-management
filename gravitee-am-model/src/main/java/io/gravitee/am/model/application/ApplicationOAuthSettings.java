@@ -15,10 +15,10 @@
  */
 package io.gravitee.am.model.application;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.TokenClaim;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -682,7 +682,8 @@ public class ApplicationOAuthSettings {
      * user getScopeSettings instead
      * @return
      */
-    @Deprecated
+    @InlineMe(replacement = "this.scopes")
+@Deprecated
     public List<String> getScopes() {
         return scopes;
     }
@@ -690,7 +691,8 @@ public class ApplicationOAuthSettings {
      * user setScopeSettings instead
      * @return
      */
-    @Deprecated
+    @InlineMe(replacement = "this.scopes = scopes")
+@Deprecated
     public void setScopes(List<String> scopes) {
         this.scopes = scopes;
     }
@@ -698,7 +700,8 @@ public class ApplicationOAuthSettings {
      * user getScopeSettings instead
      * @return
      */
-    @Deprecated
+    @InlineMe(replacement = "this.defaultScopes")
+@Deprecated
     public List<String> getDefaultScopes() {
         return defaultScopes;
     }
@@ -706,7 +709,8 @@ public class ApplicationOAuthSettings {
      * user setScopeSettings instead
      * @return
      */
-    @Deprecated
+    @InlineMe(replacement = "this.defaultScopes = defaultScopes")
+@Deprecated
     public void setDefaultScopes(List<String> defaultScopes) {
         this.defaultScopes = defaultScopes;
     }
@@ -714,7 +718,8 @@ public class ApplicationOAuthSettings {
      * user getScopeSettings instead
      * @return
      */
-    @Deprecated
+    @InlineMe(replacement = "this.scopeApprovals")
+@Deprecated
     public Map<String, Integer> getScopeApprovals() {
         return scopeApprovals;
     }
@@ -722,7 +727,8 @@ public class ApplicationOAuthSettings {
      * user setScopeSettings instead
      * @return
      */
-    @Deprecated
+    @InlineMe(replacement = "this.scopeApprovals = scopeApprovals")
+@Deprecated
     public void setScopeApprovals(Map<String, Integer> scopeApprovals) {
         this.scopeApprovals = scopeApprovals;
     }

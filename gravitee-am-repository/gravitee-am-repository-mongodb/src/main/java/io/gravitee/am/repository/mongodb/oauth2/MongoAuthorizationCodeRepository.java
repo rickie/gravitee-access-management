@@ -128,9 +128,7 @@ public class MongoAuthorizationCodeRepository extends AbstractOAuth2MongoReposit
 
         if (authorizationCode.getRequestParameters() != null) {
             Document document = new Document();
-            authorizationCode.getRequestParameters().forEach((key, value) -> {
-                document.append(key, value);
-            });
+            authorizationCode.getRequestParameters().forEach(document::append);
             authorizationCodeMongo.setRequestParameters(document);
         }
         return authorizationCodeMongo;

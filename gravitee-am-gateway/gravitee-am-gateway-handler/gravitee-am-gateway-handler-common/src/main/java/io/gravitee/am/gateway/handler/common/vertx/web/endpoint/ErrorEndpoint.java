@@ -125,7 +125,7 @@ public class ErrorEndpoint implements Handler<RoutingContext> {
     }
 
     private void render(RoutingContext routingContext, Client client, Map<String, String> params) {
-        params.forEach((k, v) -> routingContext.put(k, v));
+        params.forEach(routingContext::put);
         // put parameters in context (backward compatibility)
         routingContext.put(PARAM_CONTEXT_KEY, params);
 

@@ -115,7 +115,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .end(buffer)
                         ,
-                        error -> context.fail(error)
+                        context::fail
                 );
     }
 

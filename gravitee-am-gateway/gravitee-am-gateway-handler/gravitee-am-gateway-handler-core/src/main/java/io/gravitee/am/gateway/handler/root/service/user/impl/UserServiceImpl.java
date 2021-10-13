@@ -416,7 +416,7 @@ public class UserServiceImpl implements UserService {
         }
 
         return clientSyncService.findById(audience)
-                .map(client -> Optional.of(client))
+                .map(Optional::of)
                 .defaultIfEmpty(Optional.empty());
     }
 
@@ -454,7 +454,7 @@ public class UserServiceImpl implements UserService {
             additionalInformation.put(StandardClaims.EMAIL, user.getEmail());
         }
         if (user.getAdditionalInformation() != null) {
-            user.getAdditionalInformation().forEach((k, v) -> additionalInformation.putIfAbsent(k, v));
+            user.getAdditionalInformation().forEach(additionalInformation::putIfAbsent);
         }
         idpUser.setAdditionalInformation(additionalInformation);
         return idpUser;

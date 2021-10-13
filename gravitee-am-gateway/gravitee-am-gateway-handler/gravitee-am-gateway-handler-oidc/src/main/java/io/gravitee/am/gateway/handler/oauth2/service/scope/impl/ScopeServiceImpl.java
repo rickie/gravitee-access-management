@@ -49,7 +49,7 @@ public class ScopeServiceImpl implements ScopeService {
     public List<String> getDiscoveryScope() {
         return scopeManager.findAll()
                 .stream()
-                .filter(scope -> scope.isDiscovery())
+                .filter(Scope::isDiscovery)
                 .map(Scope::getKey)
                 .sorted()
                 .collect(Collectors.toList());

@@ -15,20 +15,20 @@
  */
 package io.gravitee.am.gateway.handler.uma.policy;
 
+import io.gravitee.am.gateway.handler.uma.policy.Rule;
 import io.gravitee.am.gateway.policy.Policy;
 import io.gravitee.am.gateway.policy.PolicyChainException;
 import io.gravitee.am.gateway.policy.PolicyChainProcessorFactory;
 import io.gravitee.am.plugins.policy.core.PolicyPluginManager;
 import io.gravitee.gateway.api.ExecutionContext;
 import io.reactivex.Completable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -63,7 +63,7 @@ public class DefaultRulesEngine implements RulesEngine {
     protected List<Policy> resolve(List<Rule> rules) {
         if (rules != null && ! rules.isEmpty()) {
             return rules.stream()
-                    .filter(rule -> rule.enabled())
+                    .filter(Rule::enabled)
                     .map(rule -> {
                         Policy policy = policyPluginManager.create(rule.type(), rule.condition());
                         policy.setMetadata(rule.metadata());

@@ -107,7 +107,7 @@ public class ApplicationResource extends AbstractResource {
                     }
                     return Response.ok(application1).build();
                 })
-                .subscribe(response::resume, t -> response.resume(t));
+                .subscribe(response::resume, response::resume);
     }
 
     @PATCH

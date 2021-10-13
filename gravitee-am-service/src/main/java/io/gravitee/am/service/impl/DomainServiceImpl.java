@@ -183,7 +183,7 @@ public class DomainServiceImpl implements DomainService {
 
         return environmentService.findById(environmentId, organizationId)
                 .map(Environment::getId)
-                .flatMapPublisher(envId -> domainRepository.findAllByReferenceId(envId))
+                .flatMapPublisher(domainRepository::findAllByReferenceId)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error has occurred when trying to find domains by environment", ex);
                 });

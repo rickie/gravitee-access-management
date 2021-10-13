@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.reporter.jdbc.audit;
 
+import static io.gravitee.am.reporter.jdbc.dialect.AbstractDialect.intervals;
+import static org.springframework.data.relational.core.query.Criteria.from;
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.CaseFormat;
 import io.gravitee.am.common.analytics.Type;
@@ -45,6 +50,18 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.processors.PublishProcessor;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -57,23 +74,6 @@ import org.springframework.transaction.ReactiveTransactionManager;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static io.gravitee.am.reporter.jdbc.dialect.AbstractDialect.intervals;
-import static org.springframework.data.relational.core.query.Criteria.from;
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -200,8 +200,8 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
                 successResult.putIfAbsent(k, v);
                 failureResult.putIfAbsent(k, v);
             });
-            List<Long> successData = successResult.entrySet().stream().map(e -> e.getValue()).collect(Collectors.toList());
-            List<Long> failureData = failureResult.entrySet().stream().map(e -> e.getValue()).collect(Collectors.toList());
+            List<Long> successData = successResult.entrySet().stream().map(Entry::getValue).collect(Collectors.toList());
+            List<Long> failureData = failureResult.entrySet().stream().map(Entry::getValue).collect(Collectors.toList());
             Map<Object, Object> result = new HashMap<>();
             result.put(fieldSuccess, successData);
             result.put(fieldFailure, failureData);
@@ -507,10 +507,7 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
                             }
                         })
                         .doOnError(error -> LOGGER.error("Unable to initialize Database", error))
-                        .doOnTerminate(() -> {
-                            // init bulk processor
-                            initializeBulkProcessor();
-                        }).subscribe();
+                        .doOnTerminate(this::initializeBulkProcessor).subscribe();
 
             } catch (Exception e) {
                 LOGGER.error("Unable to initialize the report schema", e);

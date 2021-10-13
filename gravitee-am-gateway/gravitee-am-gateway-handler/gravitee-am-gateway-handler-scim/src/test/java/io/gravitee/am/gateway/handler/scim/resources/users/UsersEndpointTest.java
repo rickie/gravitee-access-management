@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.scim.resources.users;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import io.gravitee.am.common.scim.filter.Filter;
@@ -24,14 +27,12 @@ import io.gravitee.am.gateway.handler.scim.resources.ErrorHandler;
 import io.gravitee.am.gateway.handler.scim.service.UserService;
 import io.reactivex.Single;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.reactivex.core.http.HttpClientRequest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -99,9 +100,7 @@ public class UsersEndpointTest extends RxWebTestBase {
         testRequest(
                 HttpMethod.GET,
                 "/Users?filter=userName%20eq%20%22bjensen%22",
-                request -> {
-                    request.query();
-                },
+                HttpClientRequest::query,
                 200,
                 "OK",
                 "UserObject");

@@ -82,7 +82,7 @@ public class RefreshTokenGranter extends AbstractTokenGranter {
                             } else if (originalScopes != null && !originalScopes.isEmpty()) {
                                 Set<String> filteredScopes = requestedScopes
                                         .stream()
-                                        .filter(requestedScope -> originalScopes.contains(requestedScope))
+                                        .filter(originalScopes::contains)
                                         .collect(Collectors.toSet());
                                 tokenRequest1.setScopes(filteredScopes);
                             }

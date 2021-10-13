@@ -143,6 +143,6 @@ public class ScopeManagerImpl extends AbstractService implements ScopeManager, I
     }
 
     public boolean isParameterizedScope(String scopeKey) {
-        return Optional.ofNullable(this.scopes.get(scopeKey)).map(scope -> scope.isParameterized()).orElse(false);
+        return Optional.ofNullable(this.scopes.get(scopeKey)).map(Scope::isParameterized).orElse(false);
     }
 }

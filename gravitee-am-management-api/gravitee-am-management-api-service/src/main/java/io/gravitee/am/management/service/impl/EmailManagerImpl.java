@@ -124,7 +124,7 @@ public class EmailManagerImpl extends AbstractService<EmailManager> implements E
         logger.info("Management API has received a deploy email event for {}", emailId);
         emailTemplateService.findById(emailId)
                 .subscribe(
-                        email -> loadEmail(email),
+                        this::loadEmail,
                         error -> logger.error("Unable to deploy email {}", emailId, error),
                         () -> logger.error("No email found with id {}", emailId));
     }

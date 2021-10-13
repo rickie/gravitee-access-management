@@ -62,7 +62,7 @@ public class FormManagerImpl extends AbstractService implements FormManager, Ini
         logger.info("Initializing forms for domain {}", domain.getName());
         formRepository.findAll(ReferenceType.DOMAIN, domain.getId())
                 .subscribe(
-                        form -> updateForm(form),
+                        this::updateForm,
                         error -> logger.error("Unable to initialize forms for domain {}", domain.getName(), error));
     }
 

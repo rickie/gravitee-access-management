@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.management.service.impl;
 
+import static java.util.Arrays.asList;
+
 import io.gravitee.am.common.event.ReporterEvent;
 import io.gravitee.am.common.utils.GraviteeContext;
 import io.gravitee.am.management.service.AuditReporterManager;
@@ -40,19 +42,17 @@ import io.reactivex.functions.BiConsumer;
 import io.reactivex.schedulers.Schedulers;
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import static java.util.Arrays.asList;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -193,8 +193,8 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
                 .entrySet()
                 .stream()
                 .filter(entry -> domain.equals(entry.getKey().getDomain()))
-                .map(entry -> entry.getValue())
-                .filter(reporter -> reporter.canSearch())
+                .map(Entry::getValue)
+                .filter(Reporter::canSearch)
                 .findFirst();
 
         if (optionalReporter.isPresent()) {
@@ -221,7 +221,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
         logger.info("Management API has received a deploy reporter event for {}", reporterId);
         reporterService.findById(reporterId)
                 .subscribe(
-                        reporter -> loadReporter(reporter),
+                        this::loadReporter,
                         error -> logger.error("Unable to deploy reporter {}", reporterId, error),
                         () -> logger.error("No reporter found with id {}", reporterId));
     }
@@ -236,7 +236,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
                                     .entrySet()
                                     .stream()
                                     .filter(entry -> reporter.getId().equals(entry.getKey().getId()))
-                                    .map(entry -> entry.getValue())
+                                    .map(Entry::getValue)
                                     .findFirst();
 
                             if (optionalAuditReporter.isPresent()) {
@@ -334,7 +334,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
                     .entrySet()
                     .stream()
                     .filter(entry -> reporterId.equals(entry.getKey().getId()))
-                    .map(entry -> entry.getValue())
+                    .map(Entry::getValue)
                     .findFirst();
 
             if (optionalReporter.isPresent()) {

@@ -107,9 +107,9 @@ public class OpenIDDiscoveryServiceImpl implements OpenIDDiscoveryService {
         openIDProviderMetadata.setTokenEndpointAuthMethodsSupported(Arrays.asList(CLIENT_SECRET_BASIC, CLIENT_SECRET_POST, PRIVATE_KEY_JWT, CLIENT_SECRET_JWT, TLS_CLIENT_AUTH, SELF_SIGNED_TLS_CLIENT_AUTH));
         openIDProviderMetadata.setClaimTypesSupported(Collections.singletonList(ClaimType.NORMAL));
         if (domain.useFapiBrazilProfile()) {
-            openIDProviderMetadata.setClaimsSupported(Stream.of(StandardClaims.claims(), CustomClaims.claims(), Collections.singletonList(Claims.acr), BRAZIL_CLAIMS).flatMap(c -> c.stream()).collect(Collectors.toList()));
+            openIDProviderMetadata.setClaimsSupported(Stream.of(StandardClaims.claims(), CustomClaims.claims(), Collections.singletonList(Claims.acr), BRAZIL_CLAIMS).flatMap(List::stream).collect(Collectors.toList()));
         } else {
-            openIDProviderMetadata.setClaimsSupported(Stream.of(StandardClaims.claims(), CustomClaims.claims(), Collections.singletonList(Claims.acr)).flatMap(c -> c.stream()).collect(Collectors.toList()));
+            openIDProviderMetadata.setClaimsSupported(Stream.of(StandardClaims.claims(), CustomClaims.claims(), Collections.singletonList(Claims.acr)).flatMap(List::stream).collect(Collectors.toList()));
         }
         openIDProviderMetadata.setCodeChallengeMethodsSupported(CodeChallengeMethod.supportedValues());
         openIDProviderMetadata.setClaimsParameterSupported(true);

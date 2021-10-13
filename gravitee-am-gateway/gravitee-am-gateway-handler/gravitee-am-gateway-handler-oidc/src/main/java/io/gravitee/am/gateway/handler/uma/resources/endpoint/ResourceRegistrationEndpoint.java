@@ -75,7 +75,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(buffer.isEmpty()?HttpStatusCode.NO_CONTENT_204:HttpStatusCode.OK_200)
                                 .end(Json.encodePrettily(buffer))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 
@@ -97,7 +97,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
                                     .setStatusCode(HttpStatusCode.CREATED_201)
                                     .end(Json.encodePrettily(ResourceResponse.from(resource, resourceLocation)));
                         }
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 
@@ -115,7 +115,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
                                 .end(Json.encodePrettily(ResourceResponse.from(resource)))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 
@@ -139,7 +139,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
                                 .end(Json.encodePrettily(ResourceResponse.from(resource)))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 
@@ -156,7 +156,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.NO_CONTENT_204)
                                 .end()
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 

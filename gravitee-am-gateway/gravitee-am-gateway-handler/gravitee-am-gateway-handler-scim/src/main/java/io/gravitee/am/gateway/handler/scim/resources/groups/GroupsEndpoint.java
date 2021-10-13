@@ -70,7 +70,7 @@ public class GroupsEndpoint extends AbstractGroupEndpoint {
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(groups)),
-                        error -> context.fail(error));
+                        context::fail);
 
     }
 
@@ -145,7 +145,7 @@ public class GroupsEndpoint extends AbstractGroupEndpoint {
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(HttpHeaders.LOCATION, group1.getMeta().getLocation())
                                     .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group1)),
-                            error -> context.fail(error));
+                            context::fail);
         } catch (DecodeException ex) {
             context.fail(new InvalidSyntaxException("Unable to parse body message", ex));
         }

@@ -107,7 +107,7 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
     public Single<List<ScopeApproval>> saveConsent(String domain, Client client, List<ScopeApproval> approvals, User principal) {
         LOGGER.debug("Save approvals for user: {}", approvals.get(0).getUserId());
         return Observable.fromIterable(approvals)
-                .flatMapSingle(approval -> scopeApprovalRepository.upsert(approval))
+                .flatMapSingle(scopeApprovalRepository::upsert)
                 .toList()
                 .doOnSuccess(__ -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).domain(domain).client(client).principal(principal).type(EventType.USER_CONSENT_CONSENTED).approvals(approvals)))
                 .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).domain(domain).client(client).principal(principal).type(EventType.USER_CONSENT_CONSENTED).throwable(throwable)))

@@ -146,7 +146,7 @@ public class SyncManager implements InitializingBean {
                 .blockingGet();
 
         // deploy security domains
-        domains.stream().forEach(domain -> securityDomainManager.deploy(domain));
+        domains.stream().forEach(securityDomainManager::deploy);
         logger.info("Security domains initialization done");
     }
 

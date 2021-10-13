@@ -115,8 +115,8 @@ public class RepositoryCredentialStore {
                     }
                 })
                 .subscribe(
-                        authenticators -> promise.complete(authenticators),
-                        error -> promise.fail(error)
+                        promise::complete,
+                        promise::fail
                 );
 
         return promise.future();
@@ -142,7 +142,7 @@ public class RepositoryCredentialStore {
                     }
                 })
                 .subscribe(
-                        () ->  promise.complete(),
+                        promise::complete,
                         error -> promise.fail(error.getMessage())
                 );
         return promise.future();

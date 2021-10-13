@@ -66,7 +66,7 @@ public class VertxHttpServerFactory implements FactoryBean<HttpServer> {
             if (httpServerConfiguration.getAuthorizedTlsCipherSuites() != null) {
                 httpServerConfiguration.getAuthorizedTlsCipherSuites()
                         .stream()
-                        .map(cipher -> cipher.trim())
+                        .map(String::trim)
                         .forEach(options::addEnabledCipherSuite);
             }
 

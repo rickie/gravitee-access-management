@@ -77,7 +77,7 @@ public class ResourceAccessPoliciesEndpoint {
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(response.isEmpty() ? HttpStatusCode.NO_CONTENT_204 : HttpStatusCode.OK_200)
                                 .end(Json.encodePrettily(response))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 
@@ -101,7 +101,7 @@ public class ResourceAccessPoliciesEndpoint {
                                     .putHeader(HttpHeaders.LOCATION, resourceLocation(basePath, p))
                                     .setStatusCode(HttpStatusCode.CREATED_201)
                                     .end(Json.encodePrettily(p))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 
@@ -119,7 +119,7 @@ public class ResourceAccessPoliciesEndpoint {
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .end(Json.encodePrettily(response))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 
@@ -140,7 +140,7 @@ public class ResourceAccessPoliciesEndpoint {
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .end(Json.encodePrettily(response))
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 
@@ -158,7 +158,7 @@ public class ResourceAccessPoliciesEndpoint {
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.NO_CONTENT_204)
                                 .end()
-                        , error -> context.fail(error)
+                        , context::fail
                 );
     }
 

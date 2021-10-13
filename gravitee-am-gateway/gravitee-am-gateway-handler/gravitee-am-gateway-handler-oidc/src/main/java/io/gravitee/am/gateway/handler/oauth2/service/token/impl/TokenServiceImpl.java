@@ -117,7 +117,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public Single<Token> introspect(String token) {
         return introspectionTokenService.introspect(token, false)
-                .map(jwt -> convertAccessToken(jwt));
+                .map(this::convertAccessToken);
     }
 
     @Override
@@ -297,7 +297,7 @@ public class TokenServiceImpl implements TokenService {
         jwt.setExp(Instant.ofEpochSecond(jwt.getIat()).plusSeconds(client.getRefreshTokenValiditySeconds()).getEpochSecond());
         // set custom claims from the current access token
         Map<String, Object> customClaims = new HashMap<>(accessToken);
-        Claims.claims().forEach(claim ->  customClaims.remove(claim));
+        Claims.claims().forEach(customClaims::remove);
         jwt.putAll(customClaims);
 
         return jwt;

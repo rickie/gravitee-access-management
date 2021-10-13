@@ -82,9 +82,9 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
     @Override
     protected Map<String, Object> defaultClaims(Map attributes) {
         return Stream.concat(StandardClaims.claims().stream(), CustomClaims.claims().stream())
-                .filter(claimName -> attributes.containsKey(claimName))
+                .filter(attributes::containsKey)
                 .filter(claimName -> attributes.get(claimName) != null) // sometimes values is null that throws a NPE during the collect phase
-                .collect(Collectors.toMap(claimName -> claimName, claimName -> attributes.get(claimName)));
+                .collect(Collectors.toMap(claimName -> claimName, attributes::get));
     }
 
     protected Maybe<User> retrieveUserFromIdToken(AuthenticationContext authContext, String idToken) {

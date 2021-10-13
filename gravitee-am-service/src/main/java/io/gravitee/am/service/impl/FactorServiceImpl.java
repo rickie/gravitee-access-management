@@ -112,7 +112,7 @@ public class FactorServiceImpl implements FactorService {
         factor.setUpdatedAt(factor.getCreatedAt());
 
         return checkFactorConfiguration(factor)
-                .flatMap(factor1 -> factorRepository.create(factor1))
+                .flatMap(factorRepository::create)
                 .flatMap(factor1 -> {
                     // create event for sync process
                     Event event = new Event(Type.FACTOR, new Payload(factor1.getId(), ReferenceType.DOMAIN, factor1.getDomain(), Action.CREATE));
@@ -157,7 +157,7 @@ public class FactorServiceImpl implements FactorService {
                     factorToUpdate.setUpdatedAt(new Date());
 
                     return  checkFactorConfiguration(factorToUpdate)
-                            .flatMap(factor1 -> factorRepository.update(factor1))
+                            .flatMap(factorRepository::update)
                             .flatMap(factor1 -> {
                                 // create event for sync process
                                 Event event = new Event(Type.FACTOR, new Payload(factor1.getId(), ReferenceType.DOMAIN, factor1.getDomain(), Action.UPDATE));

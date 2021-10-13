@@ -32,7 +32,7 @@ public final class ColumnMapRowMapper {
         Map<String, Object> claims = new HashMap(rowMetadata.getColumnNames()
                 .stream()
                 .filter(c -> row.get(c) != null)
-                .collect(Collectors.toMap(c -> c, c -> row.get(c))));
+                .collect(Collectors.toMap(c -> c, row::get)));
         return claims;
     }
 }

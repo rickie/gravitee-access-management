@@ -48,7 +48,7 @@ public class ServiceProviderConfigurationEndpointHandler implements Handler<Rout
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(config)),
-                        error -> context.fail(error));
+                        context::fail);
     }
 
     public static ServiceProviderConfigurationEndpointHandler create(ServiceProviderConfigService serviceProviderConfigService) {

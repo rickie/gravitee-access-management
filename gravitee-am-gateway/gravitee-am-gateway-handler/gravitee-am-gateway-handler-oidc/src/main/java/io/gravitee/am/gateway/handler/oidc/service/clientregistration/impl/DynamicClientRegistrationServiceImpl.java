@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.clientregistration.impl;
 
+import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
+import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.*;
+
 import com.google.common.base.Strings;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.JWTParser;
@@ -50,6 +53,13 @@ import io.reactivex.Observable;
 import io.vertx.core.json.JsonArray;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.slf4j.Logger;
@@ -57,15 +67,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.*;
-
-import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
-import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.*;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -617,10 +618,10 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
                     .onErrorResumeNext(Single.error(new InvalidClientMetadataException("Unable to parse sector_identifier_uri : "+ uri.toString())))
                     .flatMapPublisher(Flowable::fromIterable)
                     .cast(String.class)
-                    .collect(HashSet::new,(set, value)->set.add(value))
+                    .collect(HashSet::new,HashSet::add)
                     .flatMap(allowedRedirectUris -> Observable.fromIterable(request.getRedirectUris().get())
                             .filter(redirectUri -> !allowedRedirectUris.contains(redirectUri))
-                            .collect(ArrayList<String>::new, (list, missingRedirectUri)-> list.add(missingRedirectUri))
+                            .collect(ArrayList<String>::new, ArrayList::add)
                             .flatMap(missing -> {
                                 if(!missing.isEmpty()) {
                                     return Single.error(

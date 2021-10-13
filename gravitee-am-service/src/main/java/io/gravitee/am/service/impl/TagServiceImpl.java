@@ -149,7 +149,7 @@ public class TagServiceImpl implements TagService {
                 .switchIfEmpty(Maybe.error(new TagNotFoundException(tagId)))
                 .flatMapCompletable(tag -> tagRepository.delete(tagId)
                         .andThen(domainService.findAll()
-                                .flatMapObservable(domains -> Observable.fromIterable(domains))
+                                .flatMapObservable(Observable::fromIterable)
                                 .flatMapCompletable(domain -> {
                                     if (domain.getTags() != null) {
                                         domain.getTags().remove(tagId);

@@ -15,15 +15,15 @@
  */
 package io.gravitee.am.identityprovider.ldap.common.authentication;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.ldaptive.*;
+import org.ldaptive.LdapAttribute;
 import org.ldaptive.handler.HandlerResult;
 import org.ldaptive.handler.SearchEntryHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Provides post groups search handling of a search entry (i.e the authenticated user)
@@ -61,7 +61,7 @@ public class GroupSearchEntryHandler implements SearchEntryHandler {
             String[] groups = groupEntries.stream()
                     .map(groupEntry -> groupEntry.getAttributes()
                             .stream()
-                            .map(ldapAttribute -> ldapAttribute.getStringValue())
+                            .map(LdapAttribute::getStringValue)
                             .collect(Collectors.toList()))
                     .flatMap(List::stream)
                     .toArray(size -> new String[size]);
