@@ -65,6 +65,7 @@ public class DtoMapperUTests {
 
   }
 
+  @SuppressWarnings("unused")
   private AuditEntity buildAuditEntity(final String prefix) {
     AuditEntity actor = new AuditEntity();
     actor.setId(prefix + " id");

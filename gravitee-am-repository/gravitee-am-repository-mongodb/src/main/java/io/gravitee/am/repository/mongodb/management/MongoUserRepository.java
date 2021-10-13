@@ -162,6 +162,7 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
                 .first(Collections.emptyMap());
     }
 
+    @SuppressWarnings("unused")
     private List<Attribute> toModelAttributes(List<AttributeMongo> mongoAttributes) {
         if (mongoAttributes == null) {
             return null;
@@ -177,6 +178,7 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
                 }).collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unused")
     private List<AttributeMongo> toMongoAttributes(List<Attribute> modelAttributes) {
         if (modelAttributes == null) {
             return null;
@@ -192,6 +194,7 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
                 }).collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unused")
     private List<Address> toModelAddresses(List<AddressMongo> mongoAddresses) {
         if (mongoAddresses == null) {
             return null;
@@ -212,6 +215,7 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
                 }).collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unused")
     private List<AddressMongo> toMongoAddresses(List<Address> modelAddresses) {
         if (modelAddresses == null) {
             return null;
@@ -232,6 +236,7 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
                 }).collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unused")
     private List<Certificate> toModelCertificates(List<CertificateMongo> mongoCertificates) {
         if (mongoCertificates == null) {
             return null;
@@ -245,6 +250,7 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
                 }).collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unused")
     private List<CertificateMongo> toMongoCertificates(List<Certificate> modelCertificates) {
         if (modelCertificates == null) {
             return null;
