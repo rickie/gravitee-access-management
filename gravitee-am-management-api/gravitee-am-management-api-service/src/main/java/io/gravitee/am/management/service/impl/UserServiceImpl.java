@@ -23,6 +23,7 @@ import io.gravitee.am.jwt.JWTBuilder;
 import io.gravitee.am.management.service.EmailService;
 import io.gravitee.am.management.service.UserService;
 import io.gravitee.am.model.*;
+import io.gravitee.am.model.Email;
 import io.gravitee.am.model.account.AccountSettings;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.factor.EnrolledFactor;
@@ -38,15 +39,14 @@ import io.gravitee.am.service.reporter.builder.management.UserAuditBuilder;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.time.Instant;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -431,7 +431,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
 
     private String getUserRegistrationToken(User user) {
         // fetch email to get the custom expiresAfter time
-        io.gravitee.am.model.Email email = emailService.getEmailTemplate(Template.REGISTRATION_CONFIRMATION, user);
+        Email email = emailService.getEmailTemplate(Template.REGISTRATION_CONFIRMATION, user);
         return getUserRegistrationToken(user, email.getExpiresAfter());
     }
 

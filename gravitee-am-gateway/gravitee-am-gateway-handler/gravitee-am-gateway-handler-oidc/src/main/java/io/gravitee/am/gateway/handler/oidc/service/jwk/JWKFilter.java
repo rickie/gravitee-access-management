@@ -22,7 +22,9 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.util.Base64URL;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.jose.KeyType;
-
+import io.gravitee.am.model.jose.OCTKey;
+import io.gravitee.am.model.jose.OKPKey;
+import io.gravitee.am.model.jose.RSAKey;
 import java.math.BigInteger;
 import java.util.function.Predicate;
 
@@ -36,15 +38,15 @@ public class JWKFilter {
      */
     public static Predicate<JWK> RSA_KEY_ENCRYPTION() {
         return jwk -> jwk !=null && KeyType.RSA.getKeyType().equals(jwk.getKty()) &&
-                ((io.gravitee.am.model.jose.RSAKey)jwk).getN()!=null && //Filter weak keys
-                new BigInteger(((io.gravitee.am.model.jose.RSAKey)jwk).getN().getBytes()).bitLength()>=2048 && //Filter weak keys
+                ((RSAKey)jwk).getN()!=null && //Filter weak keys
+                new BigInteger(((RSAKey)jwk).getN().getBytes()).bitLength()>=2048 && //Filter weak keys
                 (KeyUse.ENCRYPTION.getValue().equals(jwk.getUse()) || jwk.getUse()==null);
     }
 
     /**
      * @return Filter to Shared Secret keys (OCT).
      */
-    public static Predicate<io.gravitee.am.model.jose.JWK> OCT_KEY_ENCRYPTION() {
+    public static Predicate<JWK> OCT_KEY_ENCRYPTION() {
         return jwk -> jwk !=null && KeyType.OCT.getKeyType().equals(jwk.getKty()) &&
                 (KeyUse.ENCRYPTION.getValue().equals(jwk.getUse()) || jwk.getUse()==null);
     }
@@ -52,17 +54,17 @@ public class JWKFilter {
     /**
      * @return Filter to retrieve AES keys, with same size as the algorithm, expected use for encryption.
      */
-    public static Predicate<io.gravitee.am.model.jose.JWK> OCT_KEY_ENCRYPTION(EncryptionMethod encryptionMethod) {
+    public static Predicate<JWK> OCT_KEY_ENCRYPTION(EncryptionMethod encryptionMethod) {
         return jwk -> jwk != null && KeyType.OCT.getKeyType().equals(jwk.getKty()) &&
-                ((io.gravitee.am.model.jose.OCTKey)jwk).getK()!=null &&
-                new Base64URL(((io.gravitee.am.model.jose.OCTKey)jwk).getK()).decode().length*8 == encryptionMethod.cekBitLength() &&
+                ((OCTKey)jwk).getK()!=null &&
+                new Base64URL(((OCTKey)jwk).getK()).decode().length*8 == encryptionMethod.cekBitLength() &&
                 (KeyUse.ENCRYPTION.getValue().equals(jwk.getUse()) || jwk.getUse() == null);
     }
 
     /**
      * @return Filter to retrieve AES keys, with same size as the algorithm, expected use for encryption.
      */
-    public static Predicate<io.gravitee.am.model.jose.JWK> OCT_KEY_ENCRYPTION(JWEAlgorithm algorithm) {
+    public static Predicate<JWK> OCT_KEY_ENCRYPTION(JWEAlgorithm algorithm) {
 
         return jwk -> {
             int expectedKeySize;//AES require same size key/alg
@@ -77,8 +79,8 @@ public class JWKFilter {
             }
 
             return jwk != null && KeyType.OCT.getKeyType().equals(jwk.getKty()) &&
-                    ((io.gravitee.am.model.jose.OCTKey)jwk).getK()!=null &&
-                    new Base64URL(((io.gravitee.am.model.jose.OCTKey)jwk).getK()).decode().length == expectedKeySize &&
+                    ((OCTKey)jwk).getK()!=null &&
+                    new Base64URL(((OCTKey)jwk).getK()).decode().length == expectedKeySize &&
                     (KeyUse.ENCRYPTION.getValue().equals(jwk.getUse()) || jwk.getUse() == null);
         };
     }
@@ -86,15 +88,15 @@ public class JWKFilter {
     /**
      * @return Filter to retrieve Elliptic or Edward Curve keys expected use for encryption.
      */
-    public static Predicate<io.gravitee.am.model.jose.JWK> CURVE_KEY_ENCRYPTION() {
+    public static Predicate<JWK> CURVE_KEY_ENCRYPTION() {
         return jwk -> jwk !=null && (KeyType.EC.getKeyType().equals(jwk.getKty()) || isOctetKeyPairEncryption(jwk)) &&
                 (KeyUse.ENCRYPTION.getValue().equals(jwk.getUse()) || jwk.getUse()==null);
     }
 
-    private static boolean isOctetKeyPairEncryption(io.gravitee.am.model.jose.JWK jwk) {
+    private static boolean isOctetKeyPairEncryption(JWK jwk) {
         //OKP keys curve can be Ed25519 (Signature only) or X25519 (Encryption only)
         if(jwk!=null && com.nimbusds.jose.jwk.KeyType.OKP.getValue().equals(jwk.getKty())) {
-            return Curve.X25519.getName().equals(((io.gravitee.am.model.jose.OKPKey)jwk).getCrv());
+            return Curve.X25519.getName().equals(((OKPKey)jwk).getCrv());
         }
         return false;
     }

@@ -16,6 +16,7 @@
 package io.gravitee.am.resource.infobip.provider;
 
 import com.infobip.ApiClient;
+import com.infobip.ApiException;
 import com.infobip.api.TfaApi;
 import com.infobip.model.TfaStartAuthenticationRequest;
 import com.infobip.model.TfaStartAuthenticationResponse;
@@ -91,7 +92,7 @@ public class InfobipResourceProvider implements MFAResourceProvider {
                     LOGGER.debug("Infobip Verification code asked with ID '{}'", sendCodeResponse.getPinId());
                     emitter.onComplete();
                 }
-            } catch (com.infobip.ApiException e) {
+            } catch (ApiException e) {
                 this.LOGGER.error("Challenge emission fails", e);
                 emitter.onError(new SendChallengeException("Unable to send challenge"));
             }
@@ -117,7 +118,7 @@ public class InfobipResourceProvider implements MFAResourceProvider {
                 } else {
                     emitter.onComplete();
                 }
-            } catch (com.infobip.ApiException e) {
+            } catch (ApiException e) {
                 LOGGER.error("Challenge verification fails", e);
                 emitter.onError(new InvalidCodeException("Invalid 2FA Code"));
             }

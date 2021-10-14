@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.bootstrap;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -71,7 +72,7 @@ public class Bootstrap {
         for (File lib : libDir.listFiles()) {
             try {
                 cpList.add(lib.toURI().toURL());
-            } catch (java.net.MalformedURLException urlEx) {
+            } catch (MalformedURLException urlEx) {
                 urlEx.printStackTrace();
             }
         }
@@ -96,7 +97,7 @@ public class Bootstrap {
                 for (File lib : libDir.listFiles()) {
                     cpList.add(lib.toURI().toURL());
                 }
-            } catch (java.net.MalformedURLException urlEx) {
+            } catch (MalformedURLException urlEx) {
                 urlEx.printStackTrace();
             }
         }

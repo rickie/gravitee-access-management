@@ -15,26 +15,6 @@
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.login;
 
-import io.gravitee.am.gateway.handler.manager.botdetection.BotDetectionManager;
-import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
-import io.gravitee.am.gateway.handler.common.vertx.core.http.VertxHttpServerRequest;
-import io.gravitee.am.gateway.handler.context.EvaluableRequest;
-import io.gravitee.am.gateway.handler.context.provider.ClientProperties;
-import io.gravitee.am.gateway.handler.root.resources.endpoint.AbstractEndpoint;
-import io.gravitee.am.model.Domain;
-import io.gravitee.am.model.IdentityProvider;
-import io.gravitee.am.model.Template;
-import io.gravitee.am.model.login.LoginSettings;
-import io.gravitee.am.model.oidc.Client;
-import io.vertx.core.Handler;
-import io.vertx.reactivex.core.MultiMap;
-import io.vertx.reactivex.ext.web.RoutingContext;
-import io.vertx.reactivex.ext.web.common.template.TemplateEngine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.*;
-
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.ACTION_KEY;
 import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.USERNAME_PARAM_KEY;
@@ -46,6 +26,26 @@ import static io.gravitee.am.gateway.handler.root.resources.handler.login.LoginS
 import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
+
+import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
+import io.gravitee.am.gateway.handler.common.vertx.core.http.VertxHttpServerRequest;
+import io.gravitee.am.gateway.handler.context.EvaluableRequest;
+import io.gravitee.am.gateway.handler.context.provider.ClientProperties;
+import io.gravitee.am.gateway.handler.manager.botdetection.BotDetectionManager;
+import io.gravitee.am.gateway.handler.root.resources.endpoint.AbstractEndpoint;
+import io.gravitee.am.model.Domain;
+import io.gravitee.am.model.IdentityProvider;
+import io.gravitee.am.model.Template;
+import io.gravitee.am.model.login.LoginSettings;
+import io.gravitee.am.model.oidc.Client;
+import io.vertx.core.Handler;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.reactivex.core.MultiMap;
+import io.vertx.reactivex.ext.web.RoutingContext;
+import io.vertx.reactivex.ext.web.common.template.TemplateEngine;
+import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -144,7 +144,7 @@ public class LoginEndpoint extends AbstractEndpoint implements Handler<RoutingCo
         final String urlIdentifierFirstRedirect = routingContext.get(REDIRECT_TO_LOGIN_IDENTIFIER);
         if (!isNullOrEmpty(urlIdentifierFirstRedirect)) {
             routingContext.response()
-                    .putHeader(io.vertx.core.http.HttpHeaders.LOCATION, urlIdentifierFirstRedirect)
+                    .putHeader(HttpHeaders.LOCATION, urlIdentifierFirstRedirect)
                     .setStatusCode(302)
                     .end();
         } else {
@@ -190,7 +190,7 @@ public class LoginEndpoint extends AbstractEndpoint implements Handler<RoutingCo
         Map<String, String> urls = (Map<String, String>) data.get(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY);
         String redirectUrl = urls.get(providerId);
         routingContext.response()
-                .putHeader(io.vertx.core.http.HttpHeaders.LOCATION, redirectUrl + (forceChoose ? "&prompt=select_account+consent" : ""))
+                .putHeader(HttpHeaders.LOCATION, redirectUrl + (forceChoose ? "&prompt=select_account+consent" : ""))
                 .setStatusCode(302)
                 .end();
     }

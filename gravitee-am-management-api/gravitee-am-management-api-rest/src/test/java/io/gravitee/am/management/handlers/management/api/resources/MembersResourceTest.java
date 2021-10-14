@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doReturn;
+
+import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Membership;
 import io.gravitee.am.model.Organization;
@@ -25,16 +30,11 @@ import io.gravitee.am.service.model.NewMembership;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import org.junit.Test;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.HashMap;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -72,7 +72,7 @@ public class MembersResourceTest extends JerseySpringTest {
         membership.setId("membership-1");
 
         doReturn(Single.just(organization)).when(organizationService).findById(organization.getId());
-        doReturn(Single.just(membership)).when(membershipService).addOrUpdate(eq(organization.getId()), any(Membership.class), any(io.gravitee.am.identityprovider.api.User.class));
+        doReturn(Single.just(membership)).when(membershipService).addOrUpdate(eq(organization.getId()), any(Membership.class), any(User.class));
 
         NewMembership newMembership = new NewMembership();
         newMembership.setMemberId("member#1");
@@ -97,7 +97,7 @@ public class MembersResourceTest extends JerseySpringTest {
         membership.setId("membership-1");
 
         doReturn(Single.just(organization)).when(organizationService).findById(organization.getId());
-        doReturn(Single.just(membership)).when(membershipService).addOrUpdate(eq(organization.getId()), any(Membership.class), any(io.gravitee.am.identityprovider.api.User.class));
+        doReturn(Single.just(membership)).when(membershipService).addOrUpdate(eq(organization.getId()), any(Membership.class), any(User.class));
 
         NewMembership newMembership = new NewMembership(); // invalid input.
 

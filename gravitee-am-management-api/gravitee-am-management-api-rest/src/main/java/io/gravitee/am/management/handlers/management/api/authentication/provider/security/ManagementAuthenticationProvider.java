@@ -17,12 +17,14 @@ package io.gravitee.am.management.handlers.management.api.authentication.provide
 
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.identityprovider.api.SimpleAuthenticationContext;
+import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.authentication.manager.idp.IdentityProviderManager;
 import io.gravitee.am.management.handlers.management.api.authentication.web.WebAuthenticationDetails;
 import io.gravitee.am.management.service.impl.IdentityProviderManagerImpl;
 import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.service.OrganizationService;
+import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +36,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.StringUtils;
-
-import java.util.*;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -79,7 +79,7 @@ public class ManagementAuthenticationProvider implements AuthenticationProvider 
         // when the AM instance start whatever is the list of IDP configured for the organization
         identities.add(IdentityProviderManagerImpl.IDP_GRAVITEE);
         Iterator<String> iter = identities.iterator();
-        io.gravitee.am.identityprovider.api.User user = null;
+        User user = null;
         AuthenticationException lastException = null;
 
         // Create a end-user authentication for underlying providers associated to the organization

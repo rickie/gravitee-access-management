@@ -208,8 +208,8 @@ public class CSRFHandlerImpl implements CSRFHandler {
 
     private void enhanceContext(RoutingContext ctx) {
         Map<String, String> _csrf = new HashMap<>();
-        _csrf.put("parameterName", io.vertx.ext.web.handler.CSRFHandler.DEFAULT_HEADER_NAME);
-        _csrf.put("token", ctx.get(io.vertx.ext.web.handler.CSRFHandler.DEFAULT_HEADER_NAME));
+        _csrf.put("parameterName", CSRFHandler.DEFAULT_HEADER_NAME);
+        _csrf.put("token", ctx.get(CSRFHandler.DEFAULT_HEADER_NAME));
         ctx.put("_csrf", _csrf);
     }
 }

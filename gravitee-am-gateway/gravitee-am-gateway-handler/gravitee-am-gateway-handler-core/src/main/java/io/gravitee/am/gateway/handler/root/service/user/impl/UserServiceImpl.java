@@ -18,6 +18,7 @@ package io.gravitee.am.gateway.handler.root.service.user.impl;
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.exception.authentication.AccountInactiveException;
 import io.gravitee.am.common.oidc.StandardClaims;
+import io.gravitee.am.common.oidc.idtoken.Claims;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.gateway.handler.common.auth.idp.IdentityProviderManager;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
@@ -45,15 +46,14 @@ import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.UserAuditBuilder;
 import io.gravitee.am.service.validators.EmailValidator;
 import io.gravitee.am.service.validators.UserValidator;
-import io.reactivex.Observable;
 import io.reactivex.*;
+import io.reactivex.Observable;
 import io.reactivex.functions.Predicate;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.StringUtils;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -480,7 +480,7 @@ public class UserServiceImpl implements UserService {
         if (additionalInformation != null) {
             Map<String, Object> extraInformation = new HashMap<>(additionalInformation);
             if (user.getLoggedAt() != null) {
-                extraInformation.put(io.gravitee.am.common.oidc.idtoken.Claims.auth_time, user.getLoggedAt().getTime() / 1000);
+                extraInformation.put(Claims.auth_time, user.getLoggedAt().getTime() / 1000);
             }
             extraInformation.put(StandardClaims.SUB, user.getId());
             extraInformation.put(StandardClaims.PREFERRED_USERNAME, user.getUsername());

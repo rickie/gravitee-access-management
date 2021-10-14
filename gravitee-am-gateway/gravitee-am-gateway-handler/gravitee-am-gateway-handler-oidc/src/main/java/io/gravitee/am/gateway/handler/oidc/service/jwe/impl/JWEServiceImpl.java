@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.jwe.impl;
 
+import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.*;
+
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.*;
 import com.nimbusds.jose.crypto.impl.*;
@@ -41,13 +43,11 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Optional;
 import java.util.function.Predicate;
-
-import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -57,7 +57,7 @@ import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils
  */
 public class JWEServiceImpl implements JWEService {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(JWEServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JWEServiceImpl.class);
 
     @Autowired
     private JWKService jwkService;

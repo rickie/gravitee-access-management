@@ -81,7 +81,7 @@ public class UserAuthProviderImpl implements UserAuthProvider {
 
             userAuthenticationManager.authenticate(client, authentication)
                     .subscribe(
-                            user -> handler.handle(Future.succeededFuture(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user))),
+                            user -> handler.handle(Future.succeededFuture(new User(user))),
                             error -> handler.handle(Future.failedFuture(error))
                     );
         });

@@ -56,118 +56,118 @@
           </excludes>
         </configuration>
       </plugin>
-      <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-          <filesets>
-            <fileset>
-              <directory>dist</directory>
-            </fileset>
-            <fileset>
-              <directory>.tmp</directory>
-            </fileset>
-            <fileset>
-              <directory>node</directory>
-            </fileset>
-            <fileset>
-              <directory>node_modules</directory>
-            </fileset>
-          </filesets>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <version>${frontend-maven-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>install node and npm</id>
-            <goals>
-              <goal>install-node-and-npm</goal>
-            </goals>
-            <configuration>
-              <nodeVersion>${node.version}</nodeVersion>
-              <npmVersion>${npm.version}</npmVersion>
-            </configuration>
-          </execution>
-          <execution>
-            <id>npm install</id>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <configuration>
-              <arguments>install</arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>npm run-script prod</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <configuration>
-              <arguments>run-script prod</arguments>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <appendAssemblyId>false</appendAssemblyId>
-              <descriptors>
-                <descriptor>assembly.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <!--Plugin used to replace version on several files -->
-      <plugin>
-        <groupId>com.google.code.maven-replacer-plugin</groupId>
-        <artifactId>replacer</artifactId>
-        <version>1.5.3</version>
-        <executions>
-          <execution>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>replace</goal>
-            </goals>
-            <configuration>
-              <includes>
-                <include>${project.basedir}/package.json</include>
-                <include>${project.basedir}/build.json</include>
-              </includes>
-              <replacements>
-                <replacement>
-                  <token>"name"(\s*):(\s*)"(.*)"</token>
-                  <value>"name": "${project.artifactId}"</value>
-                </replacement>
-                <replacement>
-                  <token>"version": "(.*)"</token>
-                  <value>"version": "${project.version}"</value>
-                </replacement>
-                <replacement>
-                  <token>'version': '(.*)'</token>
-                  <value>'version': '${project.version}'</value>
-                </replacement>
-                <replacement>
-                  <token>"description"(\s*):(\s*)"(.*)"</token>
-                  <value>"description": "${project.name}"</value>
-                </replacement>
-              </replacements>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+<!--      <plugin>-->
+<!--        <artifactId>maven-clean-plugin</artifactId>-->
+<!--        <version>2.5</version>-->
+<!--        <configuration>-->
+<!--          <filesets>-->
+<!--            <fileset>-->
+<!--              <directory>dist</directory>-->
+<!--            </fileset>-->
+<!--            <fileset>-->
+<!--              <directory>.tmp</directory>-->
+<!--            </fileset>-->
+<!--            <fileset>-->
+<!--              <directory>node</directory>-->
+<!--            </fileset>-->
+<!--            <fileset>-->
+<!--              <directory>node_modules</directory>-->
+<!--            </fileset>-->
+<!--          </filesets>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
+<!--      <plugin>-->
+<!--        <groupId>com.github.eirslett</groupId>-->
+<!--        <artifactId>frontend-maven-plugin</artifactId>-->
+<!--        <version>${frontend-maven-plugin.version}</version>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <id>install node and npm</id>-->
+<!--            <goals>-->
+<!--              <goal>install-node-and-npm</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <nodeVersion>${node.version}</nodeVersion>-->
+<!--              <npmVersion>${npm.version}</npmVersion>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--          <execution>-->
+<!--            <id>npm install</id>-->
+<!--            <goals>-->
+<!--              <goal>npm</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <arguments>install</arguments>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--          <execution>-->
+<!--            <id>npm run-script prod</id>-->
+<!--            <phase>process-resources</phase>-->
+<!--            <goals>-->
+<!--              <goal>npm</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <arguments>run-script prod</arguments>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>-->
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-assembly-plugin</artifactId>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <phase>package</phase>-->
+<!--            <goals>-->
+<!--              <goal>single</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <appendAssemblyId>false</appendAssemblyId>-->
+<!--              <descriptors>-->
+<!--                <descriptor>assembly.xml</descriptor>-->
+<!--              </descriptors>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>-->
+<!--      &lt;!&ndash;Plugin used to replace version on several files &ndash;&gt;-->
+<!--      <plugin>-->
+<!--        <groupId>com.google.code.maven-replacer-plugin</groupId>-->
+<!--        <artifactId>replacer</artifactId>-->
+<!--        <version>1.5.3</version>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <phase>generate-resources</phase>-->
+<!--            <goals>-->
+<!--              <goal>replace</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <includes>-->
+<!--                <include>${project.basedir}/package.json</include>-->
+<!--                <include>${project.basedir}/build.json</include>-->
+<!--              </includes>-->
+<!--              <replacements>-->
+<!--                <replacement>-->
+<!--                  <token>"name"(\s*):(\s*)"(.*)"</token>-->
+<!--                  <value>"name": "${project.artifactId}"</value>-->
+<!--                </replacement>-->
+<!--                <replacement>-->
+<!--                  <token>"version": "(.*)"</token>-->
+<!--                  <value>"version": "${project.version}"</value>-->
+<!--                </replacement>-->
+<!--                <replacement>-->
+<!--                  <token>'version': '(.*)'</token>-->
+<!--                  <value>'version': '${project.version}'</value>-->
+<!--                </replacement>-->
+<!--                <replacement>-->
+<!--                  <token>"description"(\s*):(\s*)"(.*)"</token>-->
+<!--                  <value>"description": "${project.name}"</value>-->
+<!--                </replacement>-->
+<!--              </replacements>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>-->
     </plugins>
   </build>
 </project>

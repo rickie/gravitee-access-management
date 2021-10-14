@@ -15,6 +15,12 @@
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.user.password;
 
+import static io.vertx.core.http.HttpHeaders.APPLICATION_X_WWW_FORM_URLENCODED;
+import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
 import io.gravitee.am.gateway.handler.common.vertx.web.handler.ErrorHandler;
 import io.gravitee.am.gateway.handler.root.service.user.UserService;
@@ -29,17 +35,12 @@ import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Completable;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.reactivex.core.buffer.Buffer;
+import io.vertx.reactivex.core.http.HttpClientRequest;
 import io.vertx.reactivex.ext.web.handler.BodyHandler;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static io.vertx.core.http.HttpHeaders.APPLICATION_X_WWW_FORM_URLENCODED;
-import static io.vertx.core.http.HttpHeaders.CONTENT_TYPE;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -193,7 +194,7 @@ public class ForgotPasswordSubmissionEndpointTest extends RxWebTestBase {
                 HttpStatusCode.FOUND_302, "Found", null);
     }
 
-    private void postEmail(io.vertx.reactivex.core.http.HttpClientRequest httpClientRequest, String email) {
+    private void postEmail(HttpClientRequest httpClientRequest, String email) {
         httpClientRequest.putHeader(CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED);
         httpClientRequest.setChunked(true);
         httpClientRequest.write(Buffer.buffer("email=" + email));

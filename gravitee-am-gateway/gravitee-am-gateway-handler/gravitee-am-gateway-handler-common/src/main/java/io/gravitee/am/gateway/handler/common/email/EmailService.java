@@ -33,10 +33,10 @@ public interface EmailService {
 
     void send(Template template, User user, Client client);
 
-    EmailWrapper createEmail(io.gravitee.am.model.Template template, Client client, List<String> recipients, Map<String, Object> params) throws IOException, TemplateException;
+    EmailWrapper createEmail(Template template, Client client, List<String> recipients, Map<String, Object> params) throws IOException, TemplateException;
 
     final class EmailWrapper {
-        final io.gravitee.am.common.email.Email email;
+        final Email email;
         long expireAt;
 
         public EmailWrapper(Email email) {

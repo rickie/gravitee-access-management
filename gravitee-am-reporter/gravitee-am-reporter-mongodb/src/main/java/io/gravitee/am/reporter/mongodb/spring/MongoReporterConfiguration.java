@@ -15,7 +15,12 @@
  */
 package io.gravitee.am.reporter.mongodb.spring;
 
+import static java.util.Arrays.asList;
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
+
 import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.WriteConcern;
@@ -27,10 +32,6 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import static java.util.Arrays.asList;
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -45,7 +46,7 @@ public class MongoReporterConfiguration {
     @Bean
     public MongoClient mongoClient() {
         // Client settings
-        com.mongodb.MongoClientSettings.Builder builder = com.mongodb.MongoClientSettings.builder();
+        MongoClientSettings.Builder builder = MongoClientSettings.builder();
         builder.writeConcern(WriteConcern.ACKNOWLEDGED);
 
         // codec configuration for pojo mapping
@@ -56,7 +57,7 @@ public class MongoReporterConfiguration {
         if ((this.configuration.getUri() != null) && (!this.configuration.getUri().isEmpty())) {
             // The builder can be configured with default options, which may be overridden by options specified in
             // the URI string.
-            com.mongodb.MongoClientSettings settings = builder
+            MongoClientSettings settings = builder
                     .codecRegistry(pojoCodecRegistry)
                     .applyConnectionString(new ConnectionString(this.configuration.getUri()))
                     .build();
@@ -77,7 +78,7 @@ public class MongoReporterConfiguration {
                 builder.credential(credential);
             }
 
-            com.mongodb.MongoClientSettings settings = builder
+            MongoClientSettings settings = builder
                     .applyToClusterSettings(builder1 -> builder1.applySettings(clusterSettings))
                     .build();
             return MongoClients.create(settings);

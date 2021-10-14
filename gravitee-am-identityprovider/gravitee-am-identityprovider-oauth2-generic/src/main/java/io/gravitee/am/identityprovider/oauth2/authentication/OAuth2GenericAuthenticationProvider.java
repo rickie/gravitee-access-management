@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.identityprovider.oauth2.authentication;
 
+import io.gravitee.am.common.oauth2.ResponseType;
 import io.gravitee.am.identityprovider.api.IdentityProviderMapper;
 import io.gravitee.am.identityprovider.api.IdentityProviderRoleMapper;
 import io.gravitee.am.identityprovider.api.oidc.OpenIDConnectIdentityProviderConfiguration;
@@ -22,12 +23,11 @@ import io.gravitee.am.identityprovider.common.oauth2.authentication.AbstractOpen
 import io.gravitee.am.identityprovider.oauth2.OAuth2GenericIdentityProviderConfiguration;
 import io.gravitee.am.identityprovider.oauth2.authentication.spring.OAuth2GenericAuthenticationProviderConfiguration;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.Assert;
-
-import java.util.Map;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -80,7 +80,7 @@ public class OAuth2GenericAuthenticationProvider extends AbstractOpenIDConnectAu
 
         // check configuration
         // a client secret is required if authorization code flow is used
-        if (io.gravitee.am.common.oauth2.ResponseType.CODE.equals(configuration.getResponseType())
+        if (ResponseType.CODE.equals(configuration.getResponseType())
                 && (configuration.getClientSecret() == null || configuration.getClientSecret().isEmpty())) {
             throw new IllegalArgumentException("A client_secret must be supplied in order to use the Authorization Code flow");
         }
@@ -121,7 +121,7 @@ public class OAuth2GenericAuthenticationProvider extends AbstractOpenIDConnectAu
                 // configuration verification
                 Assert.notNull(configuration.getUserAuthorizationUri(), "OAuth 2.0 Authorization endpoint is required");
 
-                if (configuration.getAccessTokenUri() == null && io.gravitee.am.common.oauth2.ResponseType.CODE.equals(configuration.getResponseType())) {
+                if (configuration.getAccessTokenUri() == null && ResponseType.CODE.equals(configuration.getResponseType())) {
                     throw new IllegalStateException("OAuth 2.0 token endpoint is required for the Authorization code flow");
                 }
 

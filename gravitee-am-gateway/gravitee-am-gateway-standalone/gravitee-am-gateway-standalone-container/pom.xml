@@ -153,10 +153,10 @@
             </activation>
             <dependencies>
                 <!-- GraviteeSource dependencies -->
-                <dependency>
-                    <groupId>com.graviteesource.license</groupId>
-                    <artifactId>gravitee-license-node</artifactId>
-                </dependency>
+<!--                <dependency>-->
+<!--                    <groupId>com.graviteesource.license</groupId>-->
+<!--                    <artifactId>gravitee-license-node</artifactId>-->
+<!--                </dependency>-->
             </dependencies>
         </profile>
     </profiles>

@@ -15,10 +15,14 @@
  */
 package io.gravitee.am.gateway.handler.common.jwt;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.jwt.JWT;
-import io.gravitee.am.jwt.JWTBuilder;
+import io.gravitee.am.gateway.certificate.CertificateProvider;
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.common.jwt.impl.JWTServiceImpl;
+import io.gravitee.am.jwt.JWTBuilder;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Maybe;
 import io.reactivex.observers.TestObserver;
@@ -28,9 +32,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -56,14 +57,14 @@ public class JWTServiceTest {
         when(defaultJWTBuilder.sign(any())).thenReturn("token_default");
         when(noneAlgBuilder.sign(any())).thenReturn("not_signed_jwt");
 
-        io.gravitee.am.gateway.certificate.CertificateProvider rs256CertProvider =
-                mock(io.gravitee.am.gateway.certificate.CertificateProvider.class);
-        io.gravitee.am.gateway.certificate.CertificateProvider rs512CertProvider =
-                mock(io.gravitee.am.gateway.certificate.CertificateProvider.class);
-        io.gravitee.am.gateway.certificate.CertificateProvider defaultCertProvider =
-                mock(io.gravitee.am.gateway.certificate.CertificateProvider.class);
-        io.gravitee.am.gateway.certificate.CertificateProvider noneAlgCertProvider =
-                mock(io.gravitee.am.gateway.certificate.CertificateProvider.class);
+        CertificateProvider rs256CertProvider =
+                mock(CertificateProvider.class);
+        CertificateProvider rs512CertProvider =
+                mock(CertificateProvider.class);
+        CertificateProvider defaultCertProvider =
+                mock(CertificateProvider.class);
+        CertificateProvider noneAlgCertProvider =
+                mock(CertificateProvider.class);
         when(rs256CertProvider.getJwtBuilder()).thenReturn(rs256JWTBuilder);
         when(rs512CertProvider.getJwtBuilder()).thenReturn(rs512JWTBuilder);
         when(defaultCertProvider.getJwtBuilder()).thenReturn(defaultJWTBuilder);

@@ -357,11 +357,11 @@
                 <artifactId>gravitee-cockpit-api</artifactId>
                 <version>${gravitee-cockpit-api.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.graviteesource.license</groupId>
-                <artifactId>gravitee-license-node</artifactId>
-                <version>${gravitee-license-node.version}</version>
-            </dependency>
+            <!--            <dependency>-->
+            <!--                <groupId>com.graviteesource.license</groupId>-->
+            <!--                <artifactId>gravitee-license-node</artifactId>-->
+            <!--                <version>${gravitee-license-node.version}</version>-->
+            <!--            </dependency>-->
             <dependency>
                 <groupId>tech.picnic.error-prone-support</groupId>
                 <artifactId>migration-util</artifactId>
@@ -380,13 +380,13 @@
         </dependency>
         <dependency>
             <groupId>com.google.errorprone</groupId>
-            <artifactId>error_prone_refaster</artifactId>
+            <artifactId>error_prone_type_annotations</artifactId>
             <version>HEAD-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.google.errorprone</groupId>
-            <artifactId>error_prone_type_annotations</artifactId>
-            <version>HEAD-SNAPSHOT</version>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service-annotations</artifactId>
+            <version>1.0</version>
         </dependency>
 
         <!-- Log -->
@@ -420,6 +420,11 @@
             <version>0.0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_refaster</artifactId>
+            <version>HEAD-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -446,6 +451,11 @@
                             <groupId>tech.picnic.error-prone-support</groupId>
                             <artifactId>error-prone-contrib</artifactId>
                             <version>0.0.1-SNAPSHOT</version>
+                        </path>
+                        <path>
+                            <groupId>com.google.errorprone</groupId>
+                            <artifactId>error_prone_refaster</artifactId>
+                            <version>HEAD-SNAPSHOT</version>
                         </path>
                         <path>
                             <groupId>com.google.errorprone</groupId>
@@ -481,10 +491,11 @@
                             -Xep:RemoveOldMethods:OFF
                             -Xep:UnwrapExpressions:OFF
 
+                            -Xep:Refaster:ERROR
                             -XepOpt:Refaster:NamePattern=(?!TestNG)(?!Optional)(?!AssertJ)(?!Assorted)(?!Stream)(?!RxJava2Adapter)(?!Reactor)(?!Web)(?!String)(?!Stream)(?!Immutable)(?!Int)(?!Mockito)(?!Collection)(?!Comparator)(?!Time)(?!RxJava).*
                             <!-- (?!RxJava) -->
 
-                            -Xep:CountMethods:ERROR
+                            -Xep:CountMethods:OFF
                             -XepOpt:Directory=before_run
 
                             <!-- Turning off rules with way too many changes: -->
@@ -532,6 +543,13 @@
                 <configuration>
                     <doclint>none</doclint>
                     <source>11</source>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

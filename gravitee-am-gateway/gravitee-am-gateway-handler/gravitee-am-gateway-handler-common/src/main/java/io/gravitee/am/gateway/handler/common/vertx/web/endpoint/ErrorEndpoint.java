@@ -20,8 +20,8 @@ import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.gravitee.am.gateway.handler.common.jwt.impl.JWTServiceImpl;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.Template;
+import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.exception.ClientNotFoundException;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.MediaType;
@@ -33,13 +33,13 @@ import io.vertx.core.Handler;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -94,7 +94,7 @@ public class ErrorEndpoint implements Handler<RoutingContext> {
         String errorDescription = request.getParam(ERROR_DESCRIPTION_PARAM);
         if (errorDescription != null) {
             try {
-                errorDescription = java.net.URLDecoder.decode(request.getParam(ERROR_DESCRIPTION_PARAM), StandardCharsets.UTF_8.name());
+                errorDescription = URLDecoder.decode(request.getParam(ERROR_DESCRIPTION_PARAM), StandardCharsets.UTF_8.name());
             } catch (UnsupportedEncodingException e) {
                 // unable to decode UTF-8 encoded query parameter
             }

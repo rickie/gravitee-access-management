@@ -98,7 +98,7 @@ public class UserServiceTest {
         when(user.isInactive()).thenReturn(true);
         when(user.getSource()).thenReturn("default-idp");
 
-        io.gravitee.am.identityprovider.api.User idpUser = mock(io.gravitee.am.identityprovider.api.DefaultUser.class);
+        io.gravitee.am.identityprovider.api.User idpUser = mock(DefaultUser.class);
         when(idpUser.getId()).thenReturn("idp-id");
 
         AccountSettings accountSettings = mock(AccountSettings.class);
@@ -130,7 +130,7 @@ public class UserServiceTest {
         when(user.isInactive()).thenReturn(false);
         when(user.getSource()).thenReturn("default-idp");
 
-        io.gravitee.am.identityprovider.api.User idpUser = mock(io.gravitee.am.identityprovider.api.DefaultUser.class);
+        io.gravitee.am.identityprovider.api.User idpUser = mock(DefaultUser.class);
         when(idpUser.getId()).thenReturn("idp-id");
 
         UserProvider userProvider = mock(UserProvider.class);
@@ -158,7 +158,7 @@ public class UserServiceTest {
         when(user.isInactive()).thenReturn(false);
         when(user.getSource()).thenReturn("default-idp");
 
-        io.gravitee.am.identityprovider.api.User idpUser = mock(io.gravitee.am.identityprovider.api.DefaultUser.class);
+        io.gravitee.am.identityprovider.api.User idpUser = mock(DefaultUser.class);
         when(idpUser.getId()).thenReturn("idp-id");
 
         UserProvider userProvider = mock(UserProvider.class);
@@ -186,7 +186,7 @@ public class UserServiceTest {
         when(user.isInactive()).thenReturn(false);
         when(user.getSource()).thenReturn("default-idp");
 
-        io.gravitee.am.identityprovider.api.User idpUser = mock(io.gravitee.am.identityprovider.api.DefaultUser.class);
+        io.gravitee.am.identityprovider.api.User idpUser = mock(DefaultUser.class);
         when(idpUser.getId()).thenReturn("idp-id");
 
         UserProvider userProvider = mock(UserProvider.class);
@@ -503,7 +503,7 @@ public class UserServiceTest {
         when(user.isInactive()).thenReturn(false);
         when(user.getSource()).thenReturn("default-idp");
 
-        io.gravitee.am.identityprovider.api.User idpUser = mock(io.gravitee.am.identityprovider.api.DefaultUser.class);
+        io.gravitee.am.identityprovider.api.User idpUser = mock(DefaultUser.class);
         when(idpUser.getId()).thenReturn("idp-id");
 
         UserProvider userProvider = mock(UserProvider.class);

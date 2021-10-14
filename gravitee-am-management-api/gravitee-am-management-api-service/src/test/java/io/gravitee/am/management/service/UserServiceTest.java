@@ -416,7 +416,7 @@ public class UserServiceTest {
         user.setId("user-id");
         user.setSource("idp-id");
 
-        io.gravitee.am.identityprovider.api.User idpUser = mock(io.gravitee.am.identityprovider.api.DefaultUser.class);
+        io.gravitee.am.identityprovider.api.User idpUser = mock(DefaultUser.class);
         when(idpUser.getId()).thenReturn("idp-id");
 
         UserProvider userProvider = mock(UserProvider.class);
@@ -445,7 +445,7 @@ public class UserServiceTest {
         user.setId("user-id");
         user.setSource("idp-id");
 
-        io.gravitee.am.identityprovider.api.User idpUser = mock(io.gravitee.am.identityprovider.api.DefaultUser.class);
+        io.gravitee.am.identityprovider.api.User idpUser = mock(DefaultUser.class);
         when(idpUser.getId()).thenReturn("idp-id");
 
         UserProvider userProvider = mock(UserProvider.class);

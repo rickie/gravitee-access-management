@@ -17,15 +17,15 @@ package io.gravitee.am.repository.jdbc.common;
 
 import io.gravitee.am.repository.RepositoriesTestInitializer;
 import io.gravitee.am.repository.jdbc.common.dialect.DatabaseDialectHelper;
+import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactory;
 import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
+import java.util.HashSet;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -114,7 +114,7 @@ public class JdbcRepositoriesTestInitializer implements RepositoriesTestInitiali
 
         tables.add("system_tasks");
 
-        io.r2dbc.spi.Connection connection = Flowable.fromPublisher(connectionFactory.create()).blockingFirst();
+        Connection connection = Flowable.fromPublisher(connectionFactory.create()).blockingFirst();
         connection.beginTransaction();
         tables.stream().forEach(table -> {
             Flowable.fromPublisher(connection.createStatement("delete from " + table).execute()).subscribeOn(Schedulers.single()).blockingSubscribe();

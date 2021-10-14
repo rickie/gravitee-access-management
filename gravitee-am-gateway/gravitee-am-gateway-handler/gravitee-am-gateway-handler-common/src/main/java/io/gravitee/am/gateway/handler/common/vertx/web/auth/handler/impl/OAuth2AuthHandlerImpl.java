@@ -28,6 +28,7 @@ import io.gravitee.am.model.oidc.Client;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.http.HttpHeaders;
 import io.vertx.ext.web.handler.HttpException;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
@@ -172,7 +173,7 @@ public class OAuth2AuthHandlerImpl implements OAuth2AuthHandler {
 
     private void parseAuthorization(RoutingContext context, Handler<AsyncResult<String>> handler) {
         final HttpServerRequest request = context.request();
-        final String authorization = request.headers().get(io.vertx.core.http.HttpHeaders.AUTHORIZATION);
+        final String authorization = request.headers().get(HttpHeaders.AUTHORIZATION);
         String authToken = null;
         try {
             if (authorization != null) {

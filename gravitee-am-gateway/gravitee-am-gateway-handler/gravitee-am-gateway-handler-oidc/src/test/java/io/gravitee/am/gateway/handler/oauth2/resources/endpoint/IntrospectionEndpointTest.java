@@ -19,6 +19,7 @@ import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
 import io.gravitee.am.gateway.handler.oauth2.resources.endpoint.introspection.IntrospectionEndpoint;
 import io.gravitee.am.gateway.handler.oauth2.resources.handler.ExceptionHandler;
 import io.gravitee.am.gateway.handler.oauth2.service.introspection.IntrospectionService;
+import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.http.HttpStatusCode;
 import io.vertx.core.http.HttpMethod;
 import org.junit.Test;
@@ -59,7 +60,7 @@ public class IntrospectionEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldReturnInvalidToken_noTokenProvided() throws Exception {
-        io.gravitee.am.model.oidc.Client client = new io.gravitee.am.model.oidc.Client();
+        Client client = new Client();
         client.setClientId("my-client-id");
 
         router.route().order(-1).handler(routingContext -> {

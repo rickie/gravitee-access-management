@@ -19,6 +19,7 @@ import io.gravitee.am.common.exception.jwt.ExpiredJWTException;
 import io.gravitee.am.common.exception.jwt.MalformedJWTException;
 import io.gravitee.am.common.exception.jwt.PrematureJWTException;
 import io.gravitee.am.common.exception.jwt.SignatureException;
+import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.extensiongrant.api.ExtensionGrantProvider;
@@ -31,11 +32,6 @@ import io.gravitee.am.jwt.JWTParser;
 import io.gravitee.am.repository.oauth2.model.request.TokenRequest;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -46,6 +42,10 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -97,7 +97,7 @@ public class JWTBearerExtensionGrantProvider implements ExtensionGrantProvider, 
         // set claims
         Map<String, Object> additionalInformation = new HashMap<>();
         // add sub required claim
-        additionalInformation.put(io.gravitee.am.common.jwt.Claims.sub, sub);
+        additionalInformation.put(Claims.sub, sub);
         List<Map<String, String>> claimsMapper = jwtBearerTokenGranterConfiguration.getClaimsMapper();
         if (claimsMapper != null && !claimsMapper.isEmpty()) {
             claimsMapper.forEach(claimMapper -> {

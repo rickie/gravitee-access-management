@@ -565,7 +565,7 @@ public class JWKServiceTest {
 
     @Test
     public void shouldGetJWKSet_singleKey() {
-        io.gravitee.am.model.jose.JWK key = new io.gravitee.am.model.jose.RSAKey();
+        JWK key = new RSAKey();
         key.setKid("my-test-key");
 
         CertificateProvider certificateProvider = mock(CertificateProvider.class);
@@ -593,9 +593,9 @@ public class JWKServiceTest {
 
     @Test
     public void shouldGetJWKSet_multipleKeys() {
-        io.gravitee.am.model.jose.JWK key = new io.gravitee.am.model.jose.RSAKey();
+        JWK key = new RSAKey();
         key.setKid("my-test-key");
-        io.gravitee.am.model.jose.JWK key2 = new io.gravitee.am.model.jose.RSAKey();
+        JWK key2 = new RSAKey();
         key.setKid("my-test-key-2");
 
         CertificateProvider certificateProvider = mock(CertificateProvider.class);

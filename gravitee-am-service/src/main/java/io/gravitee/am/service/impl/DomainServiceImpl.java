@@ -18,6 +18,7 @@ package io.gravitee.am.service.impl;
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
+import io.gravitee.am.common.oidc.Scope;
 import io.gravitee.am.common.utils.PathUtils;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.identityprovider.api.User;
@@ -44,14 +45,6 @@ import io.gravitee.am.service.validators.DomainValidator;
 import io.gravitee.am.service.validators.VirtualHostValidator;
 import io.gravitee.common.utils.IdGenerator;
 import io.reactivex.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -59,6 +52,13 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -455,7 +455,7 @@ public class DomainServiceImpl implements DomainService {
     }
 
     private Single<Domain> createSystemScopes(Domain domain) {
-        return Observable.fromArray(io.gravitee.am.common.oidc.Scope.values())
+        return Observable.fromArray(Scope.values())
                 .flatMapSingle(systemScope -> {
                     final String scopeKey = systemScope.getKey();
                     NewSystemScope scope = new NewSystemScope();

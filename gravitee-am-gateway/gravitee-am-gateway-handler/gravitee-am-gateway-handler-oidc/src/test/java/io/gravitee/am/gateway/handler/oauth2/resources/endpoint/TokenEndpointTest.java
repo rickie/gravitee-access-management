@@ -136,7 +136,7 @@ public class TokenEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldInvokeTokenEndpoint_withValidClientCredentials_noGrantType() throws Exception {
-        io.gravitee.am.model.oidc.Client client = new io.gravitee.am.model.oidc.Client();
+        Client client = new Client();
         client.setClientId("my-client-id");
 
         router.route().order(-1).handler(new Handler<RoutingContext>() {
@@ -189,7 +189,7 @@ public class TokenEndpointTest extends RxWebTestBase {
         // Jackson is unable to generate a JSON from a mocked interface.
         Token accessToken = new AccessToken("my-token");
 
-        when(tokenGranter.grant(any(TokenRequest.class), any(io.gravitee.am.model.oidc.Client.class))).thenReturn(Single.just(accessToken));
+        when(tokenGranter.grant(any(TokenRequest.class), any(Client.class))).thenReturn(Single.just(accessToken));
 
         testRequest(
                 HttpMethod.POST, "/oauth/token?client_id=my-client&client_secret=my-secret&grant_type=client_credentials",
@@ -212,7 +212,7 @@ public class TokenEndpointTest extends RxWebTestBase {
             }
         });
 
-        when(tokenGranter.grant(any(TokenRequest.class), any(io.gravitee.am.model.oidc.Client.class))).thenReturn(Single.error(new Exception()));
+        when(tokenGranter.grant(any(TokenRequest.class), any(Client.class))).thenReturn(Single.error(new Exception()));
 
         testRequest(
                 HttpMethod.POST, "/oauth/token?client_id=my-client&client_secret=my-secret&grant_type=client_credentials",
@@ -249,7 +249,7 @@ public class TokenEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(tokenGranter.grant(any(TokenRequest.class), any(io.gravitee.am.model.oidc.Client.class))).thenReturn(Single.error(UmaException.requestDeniedBuilder().build()));
+        when(tokenGranter.grant(any(TokenRequest.class), any(Client.class))).thenReturn(Single.error(UmaException.requestDeniedBuilder().build()));
 
         testRequest(
                 HttpMethod.POST, "/oauth/token?client_id=my-client&client_secret=my-secret&grant_type=urn:ietf:params:oauth:grant-type:uma-ticket",

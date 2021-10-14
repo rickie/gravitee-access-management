@@ -26,6 +26,7 @@ import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.model.common.event.Payload;
 import io.gravitee.am.repository.management.api.AlertTriggerRepository;
 import io.gravitee.am.repository.management.api.search.AlertTriggerCriteria;
+import io.gravitee.am.service.AlertTriggerService;
 import io.gravitee.am.service.AuditService;
 import io.gravitee.am.service.EventService;
 import io.gravitee.am.service.exception.AlertTriggerNotFoundException;
@@ -36,19 +37,18 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class AlertTriggerServiceImpl implements io.gravitee.am.service.AlertTriggerService {
+public class AlertTriggerServiceImpl implements AlertTriggerService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AlertTriggerServiceImpl.class);
 

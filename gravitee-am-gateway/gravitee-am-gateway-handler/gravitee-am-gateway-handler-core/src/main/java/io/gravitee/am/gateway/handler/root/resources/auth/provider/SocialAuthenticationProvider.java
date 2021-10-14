@@ -108,7 +108,7 @@ public class SocialAuthenticationProvider implements UserAuthProvider {
                 })
                 .subscribe(user -> {
                     eventManager.publishEvent(AuthenticationEvent.SUCCESS, new AuthenticationDetails(endUserAuthentication, domain, client, user));
-                    resultHandler.handle(Future.succeededFuture(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user)));
+                    resultHandler.handle(Future.succeededFuture(new User(user)));
                 }, error -> {
                     logger.error("Unable to authenticate social provider", error);
                     eventManager.publishEvent(AuthenticationEvent.FAILURE, new AuthenticationDetails(endUserAuthentication, domain, client, error));

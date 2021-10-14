@@ -26,6 +26,7 @@ import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.model.common.event.Payload;
 import io.gravitee.am.repository.management.api.AlertNotifierRepository;
 import io.gravitee.am.repository.management.api.search.AlertNotifierCriteria;
+import io.gravitee.am.service.AlertNotifierService;
 import io.gravitee.am.service.AuditService;
 import io.gravitee.am.service.EventService;
 import io.gravitee.am.service.exception.AlertNotifierNotFoundException;
@@ -36,19 +37,18 @@ import io.gravitee.am.service.reporter.builder.management.AlertNotifierAuditBuil
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
  * @author GraviteeSource Team
  */
 @Component
-public class AlertNotifierServiceImpl implements io.gravitee.am.service.AlertNotifierService {
+public class AlertNotifierServiceImpl implements AlertNotifierService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AlertNotifierServiceImpl.class);
 

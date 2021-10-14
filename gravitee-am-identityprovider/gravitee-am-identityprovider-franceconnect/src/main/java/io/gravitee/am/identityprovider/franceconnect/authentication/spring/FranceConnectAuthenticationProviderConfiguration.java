@@ -50,7 +50,7 @@ public class FranceConnectAuthenticationProviderConfiguration {
 
     @Bean
     @Qualifier("franceConnectWebClient")
-    public WebClient httpClient(io.gravitee.am.service.http.WebClientBuilder webClientBuilder) {
+    public WebClient httpClient(WebClientBuilder webClientBuilder) {
         WebClientOptions httpClientOptions = new WebClientOptions();
         httpClientOptions
                 .setUserAgent(DEFAULT_USER_AGENT)

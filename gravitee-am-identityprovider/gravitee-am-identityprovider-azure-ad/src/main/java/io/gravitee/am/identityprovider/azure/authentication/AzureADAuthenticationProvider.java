@@ -17,6 +17,7 @@ package io.gravitee.am.identityprovider.azure.authentication;
 
 import com.nimbusds.jwt.proc.JWTProcessor;
 import io.gravitee.am.common.jwt.SignatureAlgorithm;
+import io.gravitee.am.common.oauth2.ResponseType;
 import io.gravitee.am.common.oidc.Scope;
 import io.gravitee.am.identityprovider.api.DefaultIdentityProviderMapper;
 import io.gravitee.am.identityprovider.api.IdentityProviderMapper;
@@ -29,11 +30,10 @@ import io.gravitee.am.identityprovider.common.oauth2.jwt.jwks.remote.RemoteJWKSo
 import io.gravitee.am.identityprovider.common.oauth2.jwt.processor.JWKSKeyProcessor;
 import io.reactivex.Maybe;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
-
-import java.util.HashSet;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -94,7 +94,7 @@ public class AzureADAuthenticationProvider extends AbstractOpenIDConnectAuthenti
 
         // check configuration
         // a client secret is required if authorization code flow is used
-        if (io.gravitee.am.common.oauth2.ResponseType.CODE.equals(configuration.getResponseType())
+        if (ResponseType.CODE.equals(configuration.getResponseType())
                 && (configuration.getClientSecret() == null || configuration.getClientSecret().isEmpty())) {
             throw new IllegalArgumentException("A client_secret must be supplied in order to use the Authorization Code flow");
         }
