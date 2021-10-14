@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.POLICY_FLOW_UPGRADER;
-import static java.util.function.Function.identity;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -91,7 +90,7 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
 
         // Only ROOT, PreConsent & PostConsent are available before 3.5
         Map<ExtensionPoint, List<Policy>> policiesPerExtPoint = policies.stream().collect(Collectors.groupingBy(Policy::getExtensionPoint));
-        Map<Type, Flow> flows = flowService.defaultFlows(ReferenceType.DOMAIN, domain).stream().collect(Collectors.toMap(Flow::getType, identity()));
+        Map<Type, Flow> flows = flowService.defaultFlows(ReferenceType.DOMAIN, domain).stream().collect(Collectors.toMap(Flow::getType, java.util.function.Function.identity()));
 
         for (Map.Entry<ExtensionPoint, List<Policy>> epPolicies : policiesPerExtPoint.entrySet()) {
             // be sure that the policies are in the right execution order

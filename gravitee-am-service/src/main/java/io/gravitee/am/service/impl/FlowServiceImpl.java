@@ -45,7 +45,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.Charset.defaultCharset;
@@ -278,7 +277,7 @@ public class FlowServiceImpl implements FlowService {
                             .filter(f -> (application == null && f.getApplication() == null) || (application != null && application.equals(f.getApplication())))
                             .filter(f -> f.getId() != null)
                             .distinct()
-                            .collect(Collectors.toMap(Flow::getId, Function.identity()));
+                            .collect(Collectors.toMap(Flow::getId, java.util.function.Function.identity()));
 
                     flows.forEach(flow -> {
                         if (flow.getId() != null && mapOfExistingFlows.containsKey(flow.getId()) && mapOfExistingFlows.get(flow.getId()).getType() != flow.getType()) {

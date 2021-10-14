@@ -478,7 +478,7 @@
                             <!-- Cleanup normally. -->
                             -Xep:InvalidThrows:ERROR
                             -Xep:UnusedMethod:ERROR
-                            -Xep:UnnecessarilyFullyQualified:ERROR
+                            -Xep:UnnecessarilyFullyQualified:OFF
 
                             <!-- Don't start migration just yet -->
                             -Xep:InlineMeInliner:OFF
@@ -492,7 +492,7 @@
                             -Xep:UnwrapExpressions:OFF
 
                             -Xep:Refaster:ERROR
-                            -XepOpt:Refaster:NamePattern=(?!TestNG)(?!Optional)(?!AssertJ)(?!Assorted)(?!Stream)(?!RxJava2Adapter)(?!Reactor)(?!Web)(?!String)(?!Stream)(?!Immutable)(?!Int)(?!Mockito)(?!Collection)(?!Comparator)(?!Time)(?!RxJava).*
+                            -XepOpt:Refaster:NamePattern=(?!TestNG)(?!Optional)(?!AssertJ)(?!Assorted)(?!Stream)(?!RxJava2Adapter)(?!Reactor)(?!Web)(?!String)(?!Stream)(?!Immutable)(?!Int)(?!Mockito)(?!Collection)(?!Comparator)(?!Time).*
                             <!-- (?!RxJava) -->
 
                             -Xep:CountMethods:OFF

@@ -30,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static io.gravitee.am.gateway.handler.oauth2.service.utils.ParameterizedScopeUtils.getScopeBase;
@@ -74,7 +73,7 @@ public class UserConsentServiceImpl implements UserConsentService {
         final Map<String, ApplicationScopeSettings> scopeApprovals = client.getScopeSettings()
                 .stream()
                 .filter(s -> s.getScopeApproval() != null)
-                .collect(Collectors.toMap(ApplicationScopeSettings::getScope, Function.identity()));
+                .collect(Collectors.toMap(ApplicationScopeSettings::getScope, java.util.function.Function.identity()));
         final List<String> parameterizedScopes = client.getScopeSettings().stream().map(ApplicationScopeSettings::getScope).filter(scopeManager::isParameterizedScope).collect(Collectors.toList());
 
         approvals.forEach(a -> a.setExpiresAt(computeExpiry(scopeApprovals, a.getScope(), parameterizedScopes)));
