@@ -1,0 +1,1015 @@
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | monoToSingle(insert.then(storeIdentities).then(storeDomainRestrictions).then(storeHrids).as(trx::transactional).then(maybeToMono(findById(organization.getId()))))
+1 | Mono | as | METHOD_INVOCATION | insert.then(storeIdentities).then(storeDomainRestrictions).then(storeHrids).as(trx::transactional).then
+1 | Mono | then | METHOD_INVOCATION | insert.then(storeIdentities).then(storeDomainRestrictions).then(storeHrids).as
+1 | Mono | then | METHOD_INVOCATION | insert.then(storeIdentities).then(storeDomainRestrictions).then
+1 | Mono | then | METHOD_INVOCATION | insert.then(storeIdentities).then
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | monoToSingle(update.then(storeIdentities).then(storeDomainRestrictions).then(storeHrids).as(trx::transactional).then(maybeToMono(findById(organization.getId()))))
+1 | Mono | as | METHOD_INVOCATION | update.then(storeIdentities).then(storeDomainRestrictions).then(storeHrids).as(trx::transactional).then
+1 | Mono | then | METHOD_INVOCATION | update.then(storeIdentities).then(storeDomainRestrictions).then(storeHrids).as
+1 | Mono | then | METHOD_INVOCATION | update.then(storeIdentities).then(storeDomainRestrictions).then
+1 | Mono | then | METHOD_INVOCATION | update.then(storeIdentities).then
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToCompletable(delete.then(deleteDomainRestrictions).then(deleteIdentities).then(deleteHrids).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | delete.then(deleteDomainRestrictions).then(deleteIdentities).then(deleteHrids).as
+1 | Mono | then | METHOD_INVOCATION | delete.then(deleteDomainRestrictions).then(deleteIdentities).then
+1 | Mono | then | METHOD_INVOCATION | delete.then(deleteDomainRestrictions).then
+1 | Mono | RETURN_TYPE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | empty | METHOD_INVOCATION | Mono<Void> delete = Mono.empty()
+1 | Mono | METHOD_INVOCATION | Mono.empty()
+1 | Flux | ignoreElements | METHOD_INVOCATION | return delete.thenMany(Flux.fromIterable(identities).map((identity)->{
+    JdbcOrganization.Identity dbIdentity = new JdbcOrganization.Identity();
+    dbIdentity.setIdentity(identity);
+    dbIdentity.setOrganizationId(organization.getId());
+    return dbIdentity;
+}).concatMap((dbIdentity)->dbClient.insert().into(JdbcOrganization.Identity.class).using(dbIdentity).then())).ignoreElements();
+1 | Mono | thenMany | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(identities).map((identity)->{
+    JdbcOrganization.Identity dbIdentity = new JdbcOrganization.Identity();
+    dbIdentity.setIdentity(identity);
+    dbIdentity.setOrganizationId(organization.getId());
+    return dbIdentity;
+}).concatMap((dbIdentity)->dbClient.insert().into(JdbcOrganization.Identity.class).using(dbIdentity).then())).ignoreElements
+1 | Flux | concatMap | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(identities).map((identity)->{
+    JdbcOrganization.Identity dbIdentity = new JdbcOrganization.Identity();
+    dbIdentity.setIdentity(identity);
+    dbIdentity.setOrganizationId(organization.getId());
+    return dbIdentity;
+}).concatMap((dbIdentity)->dbClient.insert().into(JdbcOrganization.Identity.class).using(dbIdentity).then()))
+1 | Flux | map | METHOD_INVOCATION | Flux.fromIterable(identities).map((identity)->{
+    JdbcOrganization.Identity dbIdentity = new JdbcOrganization.Identity();
+    dbIdentity.setIdentity(identity);
+    dbIdentity.setOrganizationId(organization.getId());
+    return dbIdentity;
+}).concatMap
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(identities).map
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(identities)
+1 | Mono | empty | METHOD_INVOCATION | return Mono.empty();
+1 | Mono | METHOD_INVOCATION | Mono.empty()
+1 | Mono | RETURN_TYPE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | empty | METHOD_INVOCATION | Mono<Void> delete = Mono.empty()
+1 | Mono | METHOD_INVOCATION | Mono.empty()
+1 | Flux | ignoreElements | METHOD_INVOCATION | return delete.thenMany(Flux.fromIterable(domainRestrictions).map((domainRestriction)->{
+    JdbcOrganization.DomainRestriction dbDomainRestriction = new JdbcOrganization.DomainRestriction();
+    dbDomainRestriction.setDomainRestriction(domainRestriction);
+    dbDomainRestriction.setOrganizationId(organization.getId());
+    return dbDomainRestriction;
+}).concatMap((dbDomainRestriction)->dbClient.insert().into(JdbcOrganization.DomainRestriction.class).using(dbDomainRestriction).then())).ignoreElements();
+1 | Mono | thenMany | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(domainRestrictions).map((domainRestriction)->{
+    JdbcOrganization.DomainRestriction dbDomainRestriction = new JdbcOrganization.DomainRestriction();
+    dbDomainRestriction.setDomainRestriction(domainRestriction);
+    dbDomainRestriction.setOrganizationId(organization.getId());
+    return dbDomainRestriction;
+}).concatMap((dbDomainRestriction)->dbClient.insert().into(JdbcOrganization.DomainRestriction.class).using(dbDomainRestriction).then())).ignoreElements
+1 | Flux | concatMap | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(domainRestrictions).map((domainRestriction)->{
+    JdbcOrganization.DomainRestriction dbDomainRestriction = new JdbcOrganization.DomainRestriction();
+    dbDomainRestriction.setDomainRestriction(domainRestriction);
+    dbDomainRestriction.setOrganizationId(organization.getId());
+    return dbDomainRestriction;
+}).concatMap((dbDomainRestriction)->dbClient.insert().into(JdbcOrganization.DomainRestriction.class).using(dbDomainRestriction).then()))
+1 | Flux | map | METHOD_INVOCATION | Flux.fromIterable(domainRestrictions).map((domainRestriction)->{
+    JdbcOrganization.DomainRestriction dbDomainRestriction = new JdbcOrganization.DomainRestriction();
+    dbDomainRestriction.setDomainRestriction(domainRestriction);
+    dbDomainRestriction.setOrganizationId(organization.getId());
+    return dbDomainRestriction;
+}).concatMap
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(domainRestrictions).map
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(domainRestrictions)
+1 | Mono | empty | METHOD_INVOCATION | return Mono.empty();
+1 | Mono | METHOD_INVOCATION | Mono.empty()
+1 | Mono | RETURN_TYPE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | empty | METHOD_INVOCATION | Mono<Void> delete = Mono.empty()
+1 | Mono | METHOD_INVOCATION | Mono.empty()
+1 | Flux | ignoreElements | METHOD_INVOCATION | return delete.thenMany(Flux.fromIterable(dbHrids)).concatMap((hrid)->dbClient.insert().into(JdbcOrganization.Hrid.class).using(hrid).then()).ignoreElements();
+1 | Flux | concatMap | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(dbHrids)).concatMap((hrid)->dbClient.insert().into(JdbcOrganization.Hrid.class).using(hrid).then()).ignoreElements
+1 | Mono | thenMany | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(dbHrids)).concatMap
+1 | Flux | fromIterable | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(dbHrids))
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(dbHrids)
+1 | Mono | empty | METHOD_INVOCATION | return Mono.empty();
+1 | Mono | METHOD_INVOCATION | Mono.empty()
+1 | Mono | RETURN_TYPE
+1 | Mono | RETURN_TYPE
+1 | Mono | RETURN_TYPE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | action = action.then(Flux.fromIterable(scopeClaims).concatMap((claim)->{
+    JdbcScope.Claims sClaim = new JdbcScope.Claims();
+    sClaim.setClaim(claim);
+    sClaim.setScopeId(item.getId());
+    return dbClient.insert().into(JdbcScope.Claims.class).using(sClaim).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | action.then(Flux.fromIterable(scopeClaims).concatMap((claim)->{
+    JdbcScope.Claims sClaim = new JdbcScope.Claims();
+    sClaim.setClaim(claim);
+    sClaim.setScopeId(item.getId());
+    return dbClient.insert().into(JdbcScope.Claims.class).using(sClaim).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(scopeClaims).concatMap((claim)->{
+    JdbcScope.Claims sClaim = new JdbcScope.Claims();
+    sClaim.setClaim(claim);
+    sClaim.setScopeId(item.getId());
+    return dbClient.insert().into(JdbcScope.Claims.class).using(sClaim).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(scopeClaims).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(scopeClaims)
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(action.as(trx::transactional))
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | action = action.then(Flux.fromIterable(scopeClaims).concatMap((claim)->{
+    JdbcScope.Claims sClaim = new JdbcScope.Claims();
+    sClaim.setClaim(claim);
+    sClaim.setScopeId(item.getId());
+    return dbClient.insert().into(JdbcScope.Claims.class).using(sClaim).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | action.then(Flux.fromIterable(scopeClaims).concatMap((claim)->{
+    JdbcScope.Claims sClaim = new JdbcScope.Claims();
+    sClaim.setClaim(claim);
+    sClaim.setScopeId(item.getId());
+    return dbClient.insert().into(JdbcScope.Claims.class).using(sClaim).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(scopeClaims).concatMap((claim)->{
+    JdbcScope.Claims sClaim = new JdbcScope.Claims();
+    sClaim.setClaim(claim);
+    sClaim.setScopeId(item.getId());
+    return dbClient.insert().into(JdbcScope.Claims.class).using(sClaim).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(scopeClaims).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(scopeClaims)
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(deleteClaims.then(action).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | deleteClaims.then(action).as
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToCompletable(deleteClaim.then(delete).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | deleteClaim.then(delete).as
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Flux | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(insertAction.as(trx::transactional))
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | updateAction = deleteChildEntities(item.getId()).then(updateAction)
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(updateAction.as(trx::transactional))
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToCompletable(delete.then(deleteChildEntities(id)).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | delete.then(deleteChildEntities(id)).as
+1 | Mono | RETURN_TYPE
+1 | Mono | PARAM
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(addresses).concatMap((address)->{
+    JdbcUser.Address jdbcAddr = mapper.map(address, JdbcUser.Address.class);
+    jdbcAddr.setUserId(item.getId());
+    return dbClient.insert().into(JdbcUser.Address.class).using(jdbcAddr).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(addresses).concatMap((address)->{
+    JdbcUser.Address jdbcAddr = mapper.map(address, JdbcUser.Address.class);
+    jdbcAddr.setUserId(item.getId());
+    return dbClient.insert().into(JdbcUser.Address.class).using(jdbcAddr).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(addresses).concatMap((address)->{
+    JdbcUser.Address jdbcAddr = mapper.map(address, JdbcUser.Address.class);
+    jdbcAddr.setUserId(item.getId());
+    return dbClient.insert().into(JdbcUser.Address.class).using(jdbcAddr).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(addresses).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(addresses)
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(roles).concatMap((role)->{
+    JdbcUser.Role jdbcRole = new JdbcUser.Role();
+    jdbcRole.setUserId(item.getId());
+    jdbcRole.setRole(role);
+    return dbClient.insert().into(JdbcUser.Role.class).using(jdbcRole).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(roles).concatMap((role)->{
+    JdbcUser.Role jdbcRole = new JdbcUser.Role();
+    jdbcRole.setUserId(item.getId());
+    jdbcRole.setRole(role);
+    return dbClient.insert().into(JdbcUser.Role.class).using(jdbcRole).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(roles).concatMap((role)->{
+    JdbcUser.Role jdbcRole = new JdbcUser.Role();
+    jdbcRole.setUserId(item.getId());
+    jdbcRole.setRole(role);
+    return dbClient.insert().into(JdbcUser.Role.class).using(jdbcRole).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(roles).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(roles)
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(entitlements).concatMap((entitlement)->{
+    JdbcUser.Entitlements jdbcEntitlement = new JdbcUser.Entitlements();
+    jdbcEntitlement.setUserId(item.getId());
+    jdbcEntitlement.setEntitlement(entitlement);
+    return dbClient.insert().into(JdbcUser.Entitlements.class).using(jdbcEntitlement).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(entitlements).concatMap((entitlement)->{
+    JdbcUser.Entitlements jdbcEntitlement = new JdbcUser.Entitlements();
+    jdbcEntitlement.setUserId(item.getId());
+    jdbcEntitlement.setEntitlement(entitlement);
+    return dbClient.insert().into(JdbcUser.Entitlements.class).using(jdbcEntitlement).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(entitlements).concatMap((entitlement)->{
+    JdbcUser.Entitlements jdbcEntitlement = new JdbcUser.Entitlements();
+    jdbcEntitlement.setUserId(item.getId());
+    jdbcEntitlement.setEntitlement(entitlement);
+    return dbClient.insert().into(JdbcUser.Entitlements.class).using(jdbcEntitlement).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(entitlements).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(entitlements)
+1 | Mono | OTHER
+1 | Mono | METHOD_REFERENCE | Mono::then
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(attributes.get())
+1 | Mono | RETURN_TYPE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | return deleteRoles.then(deleteAddresses).then(deleteAttributes).then(deleteEntitlements);
+1 | Mono | then | METHOD_INVOCATION | deleteRoles.then(deleteAddresses).then(deleteAttributes).then
+1 | Mono | then | METHOD_INVOCATION | deleteRoles.then(deleteAddresses).then
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | action = action.then(Flux.fromIterable(tags).concatMap((tagValue)->{
+    JdbcEntrypoint.Tag tag = new JdbcEntrypoint.Tag();
+    tag.setTag(tagValue);
+    tag.setEntrypointId(item.getId());
+    return dbClient.insert().into(JdbcEntrypoint.Tag.class).using(tag).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | action.then(Flux.fromIterable(tags).concatMap((tagValue)->{
+    JdbcEntrypoint.Tag tag = new JdbcEntrypoint.Tag();
+    tag.setTag(tagValue);
+    tag.setEntrypointId(item.getId());
+    return dbClient.insert().into(JdbcEntrypoint.Tag.class).using(tag).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(tags).concatMap((tagValue)->{
+    JdbcEntrypoint.Tag tag = new JdbcEntrypoint.Tag();
+    tag.setTag(tagValue);
+    tag.setEntrypointId(item.getId());
+    return dbClient.insert().into(JdbcEntrypoint.Tag.class).using(tag).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(tags).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(tags)
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(action.as(trx::transactional))
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | action = action.then(Flux.fromIterable(tags).concatMap((tagValue)->{
+    JdbcEntrypoint.Tag tag = new JdbcEntrypoint.Tag();
+    tag.setTag(tagValue);
+    tag.setEntrypointId(item.getId());
+    return dbClient.insert().into(JdbcEntrypoint.Tag.class).using(tag).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | action.then(Flux.fromIterable(tags).concatMap((tagValue)->{
+    JdbcEntrypoint.Tag tag = new JdbcEntrypoint.Tag();
+    tag.setTag(tagValue);
+    tag.setEntrypointId(item.getId());
+    return dbClient.insert().into(JdbcEntrypoint.Tag.class).using(tag).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(tags).concatMap((tagValue)->{
+    JdbcEntrypoint.Tag tag = new JdbcEntrypoint.Tag();
+    tag.setTag(tagValue);
+    tag.setEntrypointId(item.getId());
+    return dbClient.insert().into(JdbcEntrypoint.Tag.class).using(tag).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(tags).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(tags)
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(deleteTags(item.getId()).then(action).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | deleteTags(item.getId()).then(action).as
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToCompletable(deleteTags(id).then(delete).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | deleteTags(id).then(delete).as
+1 | Mono | RETURN_TYPE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | insertResult = insertResult.then(Flux.fromIterable(resourceScopes).concatMap((scope)->{
+    JdbcResource.Scope rScope = new JdbcResource.Scope();
+    rScope.setScope(scope);
+    rScope.setResourceId(item.getId());
+    return dbClient.insert().into(JdbcResource.Scope.class).using(rScope).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | insertResult.then(Flux.fromIterable(resourceScopes).concatMap((scope)->{
+    JdbcResource.Scope rScope = new JdbcResource.Scope();
+    rScope.setScope(scope);
+    rScope.setResourceId(item.getId());
+    return dbClient.insert().into(JdbcResource.Scope.class).using(rScope).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(resourceScopes).concatMap((scope)->{
+    JdbcResource.Scope rScope = new JdbcResource.Scope();
+    rScope.setScope(scope);
+    rScope.setResourceId(item.getId());
+    return dbClient.insert().into(JdbcResource.Scope.class).using(rScope).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(resourceScopes).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(resourceScopes)
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(insertResult.as(trx::transactional))
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | updateResource = updateResource.then(Flux.fromIterable(resourceScopes).concatMap((scope)->{
+    JdbcResource.Scope rScope = new JdbcResource.Scope();
+    rScope.setScope(scope);
+    rScope.setResourceId(item.getId());
+    return dbClient.insert().into(JdbcResource.Scope.class).using(rScope).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | updateResource.then(Flux.fromIterable(resourceScopes).concatMap((scope)->{
+    JdbcResource.Scope rScope = new JdbcResource.Scope();
+    rScope.setScope(scope);
+    rScope.setResourceId(item.getId());
+    return dbClient.insert().into(JdbcResource.Scope.class).using(rScope).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(resourceScopes).concatMap((scope)->{
+    JdbcResource.Scope rScope = new JdbcResource.Scope();
+    rScope.setScope(scope);
+    rScope.setResourceId(item.getId());
+    return dbClient.insert().into(JdbcResource.Scope.class).using(rScope).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(resourceScopes).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(resourceScopes)
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(deleteScopes.then(updateResource).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | deleteScopes.then(updateResource).as
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToCompletable(delete.then(deleteScopes).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | delete.then(deleteScopes).as
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(action.as(trx::transactional))
+1 | Mono | RETURN_TYPE
+1 | Mono | PARAM
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(roles).concatMap((roleValue)->{
+    JdbcGroup.JdbcRole role = new JdbcGroup.JdbcRole();
+    role.setRole(roleValue);
+    role.setGroupId(item.getId());
+    return dbClient.insert().into(JdbcGroup.JdbcRole.class).using(role).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(roles).concatMap((roleValue)->{
+    JdbcGroup.JdbcRole role = new JdbcGroup.JdbcRole();
+    role.setRole(roleValue);
+    role.setGroupId(item.getId());
+    return dbClient.insert().into(JdbcGroup.JdbcRole.class).using(role).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(roles).concatMap((roleValue)->{
+    JdbcGroup.JdbcRole role = new JdbcGroup.JdbcRole();
+    role.setRole(roleValue);
+    role.setGroupId(item.getId());
+    return dbClient.insert().into(JdbcGroup.JdbcRole.class).using(role).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(roles).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(roles)
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(members).concatMap((memberValue)->{
+    JdbcGroup.JdbcMember member = new JdbcGroup.JdbcMember();
+    member.setMember(memberValue);
+    member.setGroupId(item.getId());
+    return dbClient.insert().into(JdbcGroup.JdbcMember.class).using(member).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(members).concatMap((memberValue)->{
+    JdbcGroup.JdbcMember member = new JdbcGroup.JdbcMember();
+    member.setMember(memberValue);
+    member.setGroupId(item.getId());
+    return dbClient.insert().into(JdbcGroup.JdbcMember.class).using(member).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(members).concatMap((memberValue)->{
+    JdbcGroup.JdbcMember member = new JdbcGroup.JdbcMember();
+    member.setMember(memberValue);
+    member.setGroupId(item.getId());
+    return dbClient.insert().into(JdbcGroup.JdbcMember.class).using(member).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(members).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(members)
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | action = deleteChildEntities(item.getId()).then(action)
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(action.as(trx::transactional))
+1 | Mono | RETURN_TYPE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | return deleteRoles.then(deleteMembers);
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToCompletable(delete.then(deleteChildEntities(id)).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | delete.then(deleteChildEntities(id)).as
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | monoToSingle(insertAction.as(trx::transactional).then(maybeToMono(findById(item.getId()))))
+1 | Mono | as | METHOD_INVOCATION | insertAction.as(trx::transactional).then
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | updateAction = updateAction.then(deleteChildEntities(item.getId()))
+1 | Mono | then | METHOD_INVOCATION | monoToSingle(updateAction.as(trx::transactional).then(maybeToMono(findById(item.getId()))))
+1 | Mono | as | METHOD_INVOCATION | updateAction.as(trx::transactional).then
+1 | Mono | as | METHOD_INVOCATION | monoToCompletable(dbClient.delete().from(JdbcDomain.class).matching(from(where("id").is(domainId))).fetch().rowsUpdated().then(deleteChildEntities(domainId)).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | dbClient.delete().from(JdbcDomain.class).matching(from(where("id").is(domainId))).fetch().rowsUpdated().then(deleteChildEntities(domainId)).as
+1 | Mono | RETURN_TYPE
+1 | Mono | PARAM
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(identities).concatMap((idp)->{
+    JdbcDomain.Identity identity = new JdbcDomain.Identity();
+    identity.setIdentity(idp);
+    identity.setDomainId(item.getId());
+    return dbClient.insert().into(JdbcDomain.Identity.class).using(identity).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(identities).concatMap((idp)->{
+    JdbcDomain.Identity identity = new JdbcDomain.Identity();
+    identity.setIdentity(idp);
+    identity.setDomainId(item.getId());
+    return dbClient.insert().into(JdbcDomain.Identity.class).using(identity).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(identities).concatMap((idp)->{
+    JdbcDomain.Identity identity = new JdbcDomain.Identity();
+    identity.setIdentity(idp);
+    identity.setDomainId(item.getId());
+    return dbClient.insert().into(JdbcDomain.Identity.class).using(identity).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(identities).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(identities)
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(tags).concatMap((tagValue)->{
+    JdbcDomain.Tag tag = new JdbcDomain.Tag();
+    tag.setTag(tagValue);
+    tag.setDomainId(item.getId());
+    return dbClient.insert().into(JdbcDomain.Tag.class).using(tag).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(tags).concatMap((tagValue)->{
+    JdbcDomain.Tag tag = new JdbcDomain.Tag();
+    tag.setTag(tagValue);
+    tag.setDomainId(item.getId());
+    return dbClient.insert().into(JdbcDomain.Tag.class).using(tag).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(tags).concatMap((tagValue)->{
+    JdbcDomain.Tag tag = new JdbcDomain.Tag();
+    tag.setTag(tagValue);
+    tag.setDomainId(item.getId());
+    return dbClient.insert().into(JdbcDomain.Tag.class).using(tag).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(tags).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(tags)
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromStream(virtualHosts.stream().map(this::toJdbcVHost)).concatMap((jdbcVHost)->{
+    jdbcVHost.setDomainId(item.getId());
+    return dbClient.insert().into(JdbcDomain.Vhost.class).using(jdbcVHost).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromStream(virtualHosts.stream().map(this::toJdbcVHost)).concatMap((jdbcVHost)->{
+    jdbcVHost.setDomainId(item.getId());
+    return dbClient.insert().into(JdbcDomain.Vhost.class).using(jdbcVHost).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromStream(virtualHosts.stream().map(this::toJdbcVHost)).concatMap((jdbcVHost)->{
+    jdbcVHost.setDomainId(item.getId());
+    return dbClient.insert().into(JdbcDomain.Vhost.class).using(jdbcVHost).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromStream | METHOD_INVOCATION | Flux.fromStream(virtualHosts.stream().map(this::toJdbcVHost)).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromStream(virtualHosts.stream().map(this::toJdbcVHost))
+1 | Mono | RETURN_TYPE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | return deleteVirtualHosts.then(deleteIdentities).then(deleteTags);
+1 | Mono | then | METHOD_INVOCATION | deleteVirtualHosts.then(deleteIdentities).then
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Flux | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(insertAction.as(trx::transactional))
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | updateAction = deleteChildEntities(item.getId()).then(updateAction)
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(updateAction.as(trx::transactional))
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToCompletable(delete.then(deleteChildEntities(id)).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | delete.then(deleteChildEntities(id)).as
+1 | Mono | RETURN_TYPE
+1 | Mono | PARAM
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(addresses).concatMap((address)->{
+    JdbcOrganizationUser.Address jdbcAddr = mapper.map(address, JdbcOrganizationUser.Address.class);
+    jdbcAddr.setUserId(item.getId());
+    return dbClient.insert().into(JdbcOrganizationUser.Address.class).using(jdbcAddr).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(addresses).concatMap((address)->{
+    JdbcOrganizationUser.Address jdbcAddr = mapper.map(address, JdbcOrganizationUser.Address.class);
+    jdbcAddr.setUserId(item.getId());
+    return dbClient.insert().into(JdbcOrganizationUser.Address.class).using(jdbcAddr).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(addresses).concatMap((address)->{
+    JdbcOrganizationUser.Address jdbcAddr = mapper.map(address, JdbcOrganizationUser.Address.class);
+    jdbcAddr.setUserId(item.getId());
+    return dbClient.insert().into(JdbcOrganizationUser.Address.class).using(jdbcAddr).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(addresses).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(addresses)
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(roles).concatMap((role)->{
+    JdbcOrganizationUser.Role jdbcRole = new JdbcOrganizationUser.Role();
+    jdbcRole.setUserId(item.getId());
+    jdbcRole.setRole(role);
+    return dbClient.insert().into(JdbcOrganizationUser.Role.class).using(jdbcRole).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(roles).concatMap((role)->{
+    JdbcOrganizationUser.Role jdbcRole = new JdbcOrganizationUser.Role();
+    jdbcRole.setUserId(item.getId());
+    jdbcRole.setRole(role);
+    return dbClient.insert().into(JdbcOrganizationUser.Role.class).using(jdbcRole).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(roles).concatMap((role)->{
+    JdbcOrganizationUser.Role jdbcRole = new JdbcOrganizationUser.Role();
+    jdbcRole.setUserId(item.getId());
+    jdbcRole.setRole(role);
+    return dbClient.insert().into(JdbcOrganizationUser.Role.class).using(jdbcRole).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(roles).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(roles)
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(entitlements).concatMap((entitlement)->{
+    JdbcOrganizationUser.Entitlements jdbcEntitlement = new JdbcOrganizationUser.Entitlements();
+    jdbcEntitlement.setUserId(item.getId());
+    jdbcEntitlement.setEntitlement(entitlement);
+    return dbClient.insert().into(JdbcOrganizationUser.Entitlements.class).using(jdbcEntitlement).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(entitlements).concatMap((entitlement)->{
+    JdbcOrganizationUser.Entitlements jdbcEntitlement = new JdbcOrganizationUser.Entitlements();
+    jdbcEntitlement.setUserId(item.getId());
+    jdbcEntitlement.setEntitlement(entitlement);
+    return dbClient.insert().into(JdbcOrganizationUser.Entitlements.class).using(jdbcEntitlement).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(entitlements).concatMap((entitlement)->{
+    JdbcOrganizationUser.Entitlements jdbcEntitlement = new JdbcOrganizationUser.Entitlements();
+    jdbcEntitlement.setUserId(item.getId());
+    jdbcEntitlement.setEntitlement(entitlement);
+    return dbClient.insert().into(JdbcOrganizationUser.Entitlements.class).using(jdbcEntitlement).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(entitlements).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(entitlements)
+1 | Mono | OTHER
+1 | Mono | METHOD_REFERENCE | Mono::then
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(attributes.get())
+1 | Mono | RETURN_TYPE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | return deleteRoles.then(deleteAddresses).then(deleteAttributes).then(deleteEntitlements);
+1 | Mono | then | METHOD_INVOCATION | deleteRoles.then(deleteAddresses).then(deleteAttributes).then
+1 | Mono | then | METHOD_INVOCATION | deleteRoles.then(deleteAddresses).then
+1 | Mono | then | METHOD_INVOCATION | monoToSingle(dbClient.insert().into(JdbcAlertNotifier.class).using(toJdbcAlertNotifier(alertNotifier)).then().then(maybeToMono(findById(alertNotifier.getId()))))
+1 | Mono | then | METHOD_INVOCATION | monoToSingle(dbClient.update().table(JdbcAlertNotifier.class).using(toJdbcAlertNotifier(alertNotifier)).matching(from(where("id").is(alertNotifier.getId()))).then().then(maybeToMono(findById(alertNotifier.getId()))))
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(insertAction.as(trx::transactional))
+1 | Mono | RETURN_TYPE
+1 | Mono | PARAM
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(jdbcPreSteps).concatMap((step)->dbClient.insert().into(JdbcFlow.JdbcStep.class).using(step).fetch().rowsUpdated()).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(jdbcPreSteps).concatMap((step)->dbClient.insert().into(JdbcFlow.JdbcStep.class).using(step).fetch().rowsUpdated()).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(jdbcPreSteps).concatMap((step)->dbClient.insert().into(JdbcFlow.JdbcStep.class).using(step).fetch().rowsUpdated()).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(jdbcPreSteps).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(jdbcPreSteps)
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(jdbcPostSteps).concatMap((step)->dbClient.insert().into(JdbcFlow.JdbcStep.class).using(step).fetch().rowsUpdated()).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(jdbcPostSteps).concatMap((step)->dbClient.insert().into(JdbcFlow.JdbcStep.class).using(step).fetch().rowsUpdated()).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(jdbcPostSteps).concatMap((step)->dbClient.insert().into(JdbcFlow.JdbcStep.class).using(step).fetch().rowsUpdated()).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(jdbcPostSteps).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(jdbcPostSteps)
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | updateAction = updateAction.then(deleteChildEntities(item.getId()))
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(updateAction.as(trx::transactional))
+1 | Mono | RETURN_TYPE
+1 | Mono | as | METHOD_INVOCATION | monoToCompletable(dbClient.delete().from(JdbcFlow.class).matching(from(where("id").is(id))).fetch().rowsUpdated().then(deleteChildEntities(id)).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | dbClient.delete().from(JdbcFlow.class).matching(from(where("id").is(id))).fetch().rowsUpdated().then(deleteChildEntities(id)).as
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | monoToSingle(insert.then(storeDomainRestrictions).then(storeHrids).as(trx::transactional).then(maybeToMono(findById(environment.getId()))))
+1 | Mono | as | METHOD_INVOCATION | insert.then(storeDomainRestrictions).then(storeHrids).as(trx::transactional).then
+1 | Mono | then | METHOD_INVOCATION | insert.then(storeDomainRestrictions).then(storeHrids).as
+1 | Mono | then | METHOD_INVOCATION | insert.then(storeDomainRestrictions).then
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | monoToSingle(update.then(storeDomainRestrictions(environment, true)).then(storeHrids(environment, true)).as(trx::transactional).then(maybeToMono(findById(environment.getId()))))
+1 | Mono | as | METHOD_INVOCATION | update.then(storeDomainRestrictions(environment, true)).then(storeHrids(environment, true)).as(trx::transactional).then
+1 | Mono | then | METHOD_INVOCATION | update.then(storeDomainRestrictions(environment, true)).then(storeHrids(environment, true)).as
+1 | Mono | then | METHOD_INVOCATION | update.then(storeDomainRestrictions(environment, true)).then
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToCompletable(delete.then(deleteDomainRestrictions).then(deleteHrids).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | delete.then(deleteDomainRestrictions).then(deleteHrids).as
+1 | Mono | then | METHOD_INVOCATION | delete.then(deleteDomainRestrictions).then
+1 | Mono | RETURN_TYPE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | empty | METHOD_INVOCATION | Mono<Void> delete = Mono.empty()
+1 | Mono | METHOD_INVOCATION | Mono.empty()
+1 | Flux | ignoreElements | METHOD_INVOCATION | return delete.thenMany(Flux.fromIterable(domainRestrictions).map((domainRestriction)->{
+    JdbcEnvironment.DomainRestriction dbDomainRestriction = new JdbcEnvironment.DomainRestriction();
+    dbDomainRestriction.setDomainRestriction(domainRestriction);
+    dbDomainRestriction.setEnvironmentId(environment.getId());
+    return dbDomainRestriction;
+}).concatMap((dbDomainRestriction)->dbClient.insert().into(JdbcEnvironment.DomainRestriction.class).using(dbDomainRestriction).then())).ignoreElements();
+1 | Mono | thenMany | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(domainRestrictions).map((domainRestriction)->{
+    JdbcEnvironment.DomainRestriction dbDomainRestriction = new JdbcEnvironment.DomainRestriction();
+    dbDomainRestriction.setDomainRestriction(domainRestriction);
+    dbDomainRestriction.setEnvironmentId(environment.getId());
+    return dbDomainRestriction;
+}).concatMap((dbDomainRestriction)->dbClient.insert().into(JdbcEnvironment.DomainRestriction.class).using(dbDomainRestriction).then())).ignoreElements
+1 | Flux | concatMap | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(domainRestrictions).map((domainRestriction)->{
+    JdbcEnvironment.DomainRestriction dbDomainRestriction = new JdbcEnvironment.DomainRestriction();
+    dbDomainRestriction.setDomainRestriction(domainRestriction);
+    dbDomainRestriction.setEnvironmentId(environment.getId());
+    return dbDomainRestriction;
+}).concatMap((dbDomainRestriction)->dbClient.insert().into(JdbcEnvironment.DomainRestriction.class).using(dbDomainRestriction).then()))
+1 | Flux | map | METHOD_INVOCATION | Flux.fromIterable(domainRestrictions).map((domainRestriction)->{
+    JdbcEnvironment.DomainRestriction dbDomainRestriction = new JdbcEnvironment.DomainRestriction();
+    dbDomainRestriction.setDomainRestriction(domainRestriction);
+    dbDomainRestriction.setEnvironmentId(environment.getId());
+    return dbDomainRestriction;
+}).concatMap
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(domainRestrictions).map
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(domainRestrictions)
+1 | Mono | empty | METHOD_INVOCATION | return Mono.empty();
+1 | Mono | METHOD_INVOCATION | Mono.empty()
+1 | Mono | RETURN_TYPE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | empty | METHOD_INVOCATION | Mono<Void> delete = Mono.empty()
+1 | Mono | METHOD_INVOCATION | Mono.empty()
+1 | Flux | ignoreElements | METHOD_INVOCATION | return delete.thenMany(Flux.fromIterable(dbHrids)).concatMap((hrid)->dbClient.insert().into(JdbcEnvironment.Hrid.class).using(hrid).then()).ignoreElements();
+1 | Flux | concatMap | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(dbHrids)).concatMap((hrid)->dbClient.insert().into(JdbcEnvironment.Hrid.class).using(hrid).then()).ignoreElements
+1 | Mono | thenMany | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(dbHrids)).concatMap
+1 | Flux | fromIterable | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(dbHrids))
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(dbHrids)
+1 | Mono | empty | METHOD_INVOCATION | return Mono.empty();
+1 | Mono | METHOD_INVOCATION | Mono.empty()
+1 | Mono | RETURN_TYPE
+1 | Mono | RETURN_TYPE
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(insertAction.as(trx::transactional))
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | updateAction = deleteChildEntities(item.getId()).then(updateAction)
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(updateAction.as(trx::transactional))
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | as | METHOD_INVOCATION | monoToCompletable(delete.then(deleteChildEntities(id)).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | delete.then(deleteChildEntities(id)).as
+1 | Mono | RETURN_TYPE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | return factors.then(identities).then(grants).then(scopeSettings);
+1 | Mono | then | METHOD_INVOCATION | factors.then(identities).then(grants).then
+1 | Mono | then | METHOD_INVOCATION | factors.then(identities).then
+1 | Mono | RETURN_TYPE
+1 | Mono | PARAM
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(identities).concatMap((idp)->{
+    JdbcApplication.Identity identity = new JdbcApplication.Identity();
+    identity.setIdentity(idp);
+    identity.setApplicationId(app.getId());
+    DatabaseClient.GenericInsertSpec<Map<String, Object>> insertSpec = dbClient.insert().into("application_identities");
+    insertSpec = addQuotedField(insertSpec, "application_id", identity.getApplicationId(), String.class);
+    insertSpec = addQuotedField(insertSpec, "identity", identity.getIdentity(), String.class);
+    return insertSpec.fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(identities).concatMap((idp)->{
+    JdbcApplication.Identity identity = new JdbcApplication.Identity();
+    identity.setIdentity(idp);
+    identity.setApplicationId(app.getId());
+    DatabaseClient.GenericInsertSpec<Map<String, Object>> insertSpec = dbClient.insert().into("application_identities");
+    insertSpec = addQuotedField(insertSpec, "application_id", identity.getApplicationId(), String.class);
+    insertSpec = addQuotedField(insertSpec, "identity", identity.getIdentity(), String.class);
+    return insertSpec.fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(identities).concatMap((idp)->{
+    JdbcApplication.Identity identity = new JdbcApplication.Identity();
+    identity.setIdentity(idp);
+    identity.setApplicationId(app.getId());
+    DatabaseClient.GenericInsertSpec<Map<String, Object>> insertSpec = dbClient.insert().into("application_identities");
+    insertSpec = addQuotedField(insertSpec, "application_id", identity.getApplicationId(), String.class);
+    insertSpec = addQuotedField(insertSpec, "identity", identity.getIdentity(), String.class);
+    return insertSpec.fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(identities).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(identities)
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(factors).concatMap((value)->{
+    JdbcApplication.Factor factor = new JdbcApplication.Factor();
+    factor.setFactor(value);
+    factor.setApplicationId(app.getId());
+    return dbClient.insert().into(JdbcApplication.Factor.class).using(factor).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(factors).concatMap((value)->{
+    JdbcApplication.Factor factor = new JdbcApplication.Factor();
+    factor.setFactor(value);
+    factor.setApplicationId(app.getId());
+    return dbClient.insert().into(JdbcApplication.Factor.class).using(factor).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(factors).concatMap((value)->{
+    JdbcApplication.Factor factor = new JdbcApplication.Factor();
+    factor.setFactor(value);
+    factor.setApplicationId(app.getId());
+    return dbClient.insert().into(JdbcApplication.Factor.class).using(factor).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(factors).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(factors)
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(grants).concatMap((value)->{
+    JdbcApplication.Grant grant = new JdbcApplication.Grant();
+    grant.setGrant(value);
+    grant.setApplicationId(app.getId());
+    return dbClient.insert().into(JdbcApplication.Grant.class).using(grant).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(grants).concatMap((value)->{
+    JdbcApplication.Grant grant = new JdbcApplication.Grant();
+    grant.setGrant(value);
+    grant.setApplicationId(app.getId());
+    return dbClient.insert().into(JdbcApplication.Grant.class).using(grant).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(grants).concatMap((value)->{
+    JdbcApplication.Grant grant = new JdbcApplication.Grant();
+    grant.setGrant(value);
+    grant.setApplicationId(app.getId());
+    return dbClient.insert().into(JdbcApplication.Grant.class).using(grant).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(grants).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(grants)
+1 | Mono | then | METHOD_INVOCATION | actionFlow = actionFlow.then(Flux.fromIterable(scopeSettings).concatMap((value)->{
+    JdbcApplication.ScopeSettings jdbcScopeSettings = mapper.map(value, JdbcApplication.ScopeSettings.class);
+    jdbcScopeSettings.setApplicationId(app.getId());
+    return dbClient.insert().into(JdbcApplication.ScopeSettings.class).using(jdbcScopeSettings).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | actionFlow.then(Flux.fromIterable(scopeSettings).concatMap((value)->{
+    JdbcApplication.ScopeSettings jdbcScopeSettings = mapper.map(value, JdbcApplication.ScopeSettings.class);
+    jdbcScopeSettings.setApplicationId(app.getId());
+    return dbClient.insert().into(JdbcApplication.ScopeSettings.class).using(jdbcScopeSettings).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(scopeSettings).concatMap((value)->{
+    JdbcApplication.ScopeSettings jdbcScopeSettings = mapper.map(value, JdbcApplication.ScopeSettings.class);
+    jdbcScopeSettings.setApplicationId(app.getId());
+    return dbClient.insert().into(JdbcApplication.ScopeSettings.class).using(jdbcScopeSettings).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(scopeSettings).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(scopeSettings)
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | map | METHOD_INVOCATION | monoToSingle(insertResult.map((result)->monitoring))
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | monoToSingle(insert.then(storeAlertNotifiers).as(trx::transactional).then(maybeToMono(findById(alertTrigger.getId()))))
+1 | Mono | as | METHOD_INVOCATION | insert.then(storeAlertNotifiers).as(trx::transactional).then
+1 | Mono | then | METHOD_INVOCATION | insert.then(storeAlertNotifiers).as
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | monoToSingle(update.then(storeAlertNotifiers).as(trx::transactional).then(maybeToMono(findById(alertTrigger.getId()))))
+1 | Mono | as | METHOD_INVOCATION | update.then(storeAlertNotifiers).as(trx::transactional).then
+1 | Mono | then | METHOD_INVOCATION | update.then(storeAlertNotifiers).as
+1 | Mono | RETURN_TYPE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | empty | METHOD_INVOCATION | Mono<Void> delete = Mono.empty()
+1 | Mono | METHOD_INVOCATION | Mono.empty()
+1 | Flux | ignoreElements | METHOD_INVOCATION | return delete.thenMany(Flux.fromIterable(alertNotifiers).map((alertNotifierId)->{
+    JdbcAlertTrigger.AlertNotifier dbAlertNotifier = new JdbcAlertTrigger.AlertNotifier();
+    dbAlertNotifier.setAlertNotifierId(alertNotifierId);
+    dbAlertNotifier.setAlertTriggerId(alertTrigger.getId());
+    return dbAlertNotifier;
+}).concatMap((dbAlertNotifier)->dbClient.insert().into(JdbcAlertTrigger.AlertNotifier.class).using(dbAlertNotifier).then())).ignoreElements();
+1 | Mono | thenMany | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(alertNotifiers).map((alertNotifierId)->{
+    JdbcAlertTrigger.AlertNotifier dbAlertNotifier = new JdbcAlertTrigger.AlertNotifier();
+    dbAlertNotifier.setAlertNotifierId(alertNotifierId);
+    dbAlertNotifier.setAlertTriggerId(alertTrigger.getId());
+    return dbAlertNotifier;
+}).concatMap((dbAlertNotifier)->dbClient.insert().into(JdbcAlertTrigger.AlertNotifier.class).using(dbAlertNotifier).then())).ignoreElements
+1 | Flux | concatMap | METHOD_INVOCATION | delete.thenMany(Flux.fromIterable(alertNotifiers).map((alertNotifierId)->{
+    JdbcAlertTrigger.AlertNotifier dbAlertNotifier = new JdbcAlertTrigger.AlertNotifier();
+    dbAlertNotifier.setAlertNotifierId(alertNotifierId);
+    dbAlertNotifier.setAlertTriggerId(alertTrigger.getId());
+    return dbAlertNotifier;
+}).concatMap((dbAlertNotifier)->dbClient.insert().into(JdbcAlertTrigger.AlertNotifier.class).using(dbAlertNotifier).then()))
+1 | Flux | map | METHOD_INVOCATION | Flux.fromIterable(alertNotifiers).map((alertNotifierId)->{
+    JdbcAlertTrigger.AlertNotifier dbAlertNotifier = new JdbcAlertTrigger.AlertNotifier();
+    dbAlertNotifier.setAlertNotifierId(alertNotifierId);
+    dbAlertNotifier.setAlertTriggerId(alertTrigger.getId());
+    return dbAlertNotifier;
+}).concatMap
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(alertNotifiers).map
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(alertNotifiers)
+1 | Mono | empty | METHOD_INVOCATION | return Mono.empty();
+1 | Mono | METHOD_INVOCATION | Mono.empty()
+1 | Mono | RETURN_TYPE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | action = action.then(Flux.fromIterable(resourceScopes).concatMap((scope)->{
+    JdbcRole.OAuthScope rScope = new JdbcRole.OAuthScope();
+    rScope.setScope(scope);
+    rScope.setRoleId(item.getId());
+    return dbClient.insert().into(JdbcRole.OAuthScope.class).using(rScope).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | action.then(Flux.fromIterable(resourceScopes).concatMap((scope)->{
+    JdbcRole.OAuthScope rScope = new JdbcRole.OAuthScope();
+    rScope.setScope(scope);
+    rScope.setRoleId(item.getId());
+    return dbClient.insert().into(JdbcRole.OAuthScope.class).using(rScope).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(resourceScopes).concatMap((scope)->{
+    JdbcRole.OAuthScope rScope = new JdbcRole.OAuthScope();
+    rScope.setScope(scope);
+    rScope.setRoleId(item.getId());
+    return dbClient.insert().into(JdbcRole.OAuthScope.class).using(rScope).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(resourceScopes).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(resourceScopes)
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(action.as(trx::transactional))
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | action = action.then(Flux.fromIterable(resourceScopes).concatMap((scope)->{
+    JdbcRole.OAuthScope rScope = new JdbcRole.OAuthScope();
+    rScope.setScope(scope);
+    rScope.setRoleId(item.getId());
+    return dbClient.insert().into(JdbcRole.OAuthScope.class).using(rScope).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | reduce | METHOD_INVOCATION | action.then(Flux.fromIterable(resourceScopes).concatMap((scope)->{
+    JdbcRole.OAuthScope rScope = new JdbcRole.OAuthScope();
+    rScope.setScope(scope);
+    rScope.setRoleId(item.getId());
+    return dbClient.insert().into(JdbcRole.OAuthScope.class).using(rScope).fetch().rowsUpdated();
+}).reduce(Integer::sum))
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(resourceScopes).concatMap((scope)->{
+    JdbcRole.OAuthScope rScope = new JdbcRole.OAuthScope();
+    rScope.setScope(scope);
+    rScope.setRoleId(item.getId());
+    return dbClient.insert().into(JdbcRole.OAuthScope.class).using(rScope).fetch().rowsUpdated();
+}).reduce
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(resourceScopes).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(resourceScopes)
+1 | Mono | as | METHOD_INVOCATION | monoToSingle(deleteScopes.then(action).as(trx::transactional))
+1 | Mono | then | METHOD_INVOCATION | deleteScopes.then(action).as
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | monoToCompletable(delete.then(deleteScopes.as(trx::transactional)))
+1 | Mono | as | METHOD_INVOCATION | delete.then(deleteScopes.as(trx::transactional))
+1 | Mono | subscribe | METHOD_INVOCATION | connectionPool.disposeLater().subscribe();
+1 | Mono | block | METHOD_INVOCATION | Connection connection = connectionPool.create().block()
+1 | Flux | IMPORT
+1 | Mono | IMPORT
+1 | Mono | LOCAL_VARIABLE
+1 | Flux | concatMap | METHOD_INVOCATION | fluxToFlowable(query.as(AuditJdbc.class).fetch().all().map(this::convert).concatMap(this::fillWithActor).concatMap(this::fillWithTarget).concatMap(this::fillWithAccessPoint).concatMap(this::fillWithOutcomes))
+1 | Flux | concatMap | METHOD_INVOCATION | query.as(AuditJdbc.class).fetch().all().map(this::convert).concatMap(this::fillWithActor).concatMap(this::fillWithTarget).concatMap(this::fillWithAccessPoint).concatMap
+1 | Flux | concatMap | METHOD_INVOCATION | query.as(AuditJdbc.class).fetch().all().map(this::convert).concatMap(this::fillWithActor).concatMap(this::fillWithTarget).concatMap
+1 | Flux | concatMap | METHOD_INVOCATION | query.as(AuditJdbc.class).fetch().all().map(this::convert).concatMap(this::fillWithActor).concatMap
+1 | Flux | map | METHOD_INVOCATION | query.as(AuditJdbc.class).fetch().all().map(this::convert).concatMap
+1 | Mono | switchIfEmpty | METHOD_INVOCATION | monoToSingle(count.as(Long.class).fetch().first().switchIfEmpty(Mono.just(0L)))
+1 | Mono | just | METHOD_INVOCATION | count.as(Long.class).fetch().first().switchIfEmpty(Mono.just(0L))
+1 | Mono | METHOD_INVOCATION | Mono.just(0L)
+1 | Flux | collectMap | METHOD_INVOCATION | monoToSingle(groupBy.fetch().all().collectMap((f)->f.get(convertFieldName(criteria)), (f)->f.get("counter")))
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | flatMap | METHOD_INVOCATION | Mono<Audit> auditMono = dbClient.select().from(auditsTable).matching(from(where("reference_id").is(referenceId).and(where("reference_type").is(referenceType.name())).and(where("id").is(id)))).as(AuditJdbc.class).fetch().first().map(this::convert).flatMap(this::fillWithActor).flatMap(this::fillWithTarget).flatMap(this::fillWithAccessPoint).flatMap(this::fillWithOutcomes)
+1 | Mono | flatMap | METHOD_INVOCATION | dbClient.select().from(auditsTable).matching(from(where("reference_id").is(referenceId).and(where("reference_type").is(referenceType.name())).and(where("id").is(id)))).as(AuditJdbc.class).fetch().first().map(this::convert).flatMap(this::fillWithActor).flatMap(this::fillWithTarget).flatMap(this::fillWithAccessPoint).flatMap
+1 | Mono | flatMap | METHOD_INVOCATION | dbClient.select().from(auditsTable).matching(from(where("reference_id").is(referenceId).and(where("reference_type").is(referenceType.name())).and(where("id").is(id)))).as(AuditJdbc.class).fetch().first().map(this::convert).flatMap(this::fillWithActor).flatMap(this::fillWithTarget).flatMap
+1 | Mono | flatMap | METHOD_INVOCATION | dbClient.select().from(auditsTable).matching(from(where("reference_id").is(referenceId).and(where("reference_type").is(referenceType.name())).and(where("id").is(id)))).as(AuditJdbc.class).fetch().first().map(this::convert).flatMap(this::fillWithActor).flatMap
+1 | Mono | map | METHOD_INVOCATION | dbClient.select().from(auditsTable).matching(from(where("reference_id").is(referenceId).and(where("reference_type").is(referenceType.name())).and(where("id").is(id)))).as(AuditJdbc.class).fetch().first().map(this::convert).flatMap
+1 | Mono | RETURN_TYPE
+1 | Mono | switchIfEmpty | METHOD_INVOCATION | return dbClient.select().from(auditEntitiesTable).matching(from(where("audit_id").is(audit.getId()).and(where("audit_field").is("actor")))).as(AuditEntityJdbc.class).fetch().first().map((entity)->fillWith(audit, entity)).switchIfEmpty(Mono.just(audit));
+1 | Mono | map | METHOD_INVOCATION | dbClient.select().from(auditEntitiesTable).matching(from(where("audit_id").is(audit.getId()).and(where("audit_field").is("actor")))).as(AuditEntityJdbc.class).fetch().first().map((entity)->fillWith(audit, entity)).switchIfEmpty
+1 | Mono | just | METHOD_INVOCATION | dbClient.select().from(auditEntitiesTable).matching(from(where("audit_id").is(audit.getId()).and(where("audit_field").is("actor")))).as(AuditEntityJdbc.class).fetch().first().map((entity)->fillWith(audit, entity)).switchIfEmpty(Mono.just(audit))
+1 | Mono | METHOD_INVOCATION | Mono.just(audit)
+1 | Mono | RETURN_TYPE
+1 | Mono | switchIfEmpty | METHOD_INVOCATION | return dbClient.select().from(auditEntitiesTable).matching(from(where("audit_id").is(audit.getId()).and(where("audit_field").is("target")))).as(AuditEntityJdbc.class).fetch().first().map((entity)->fillWith(audit, entity)).switchIfEmpty(Mono.just(audit));
+1 | Mono | map | METHOD_INVOCATION | dbClient.select().from(auditEntitiesTable).matching(from(where("audit_id").is(audit.getId()).and(where("audit_field").is("target")))).as(AuditEntityJdbc.class).fetch().first().map((entity)->fillWith(audit, entity)).switchIfEmpty
+1 | Mono | just | METHOD_INVOCATION | dbClient.select().from(auditEntitiesTable).matching(from(where("audit_id").is(audit.getId()).and(where("audit_field").is("target")))).as(AuditEntityJdbc.class).fetch().first().map((entity)->fillWith(audit, entity)).switchIfEmpty(Mono.just(audit))
+1 | Mono | METHOD_INVOCATION | Mono.just(audit)
+1 | Mono | RETURN_TYPE
+1 | Mono | switchIfEmpty | METHOD_INVOCATION | return dbClient.select().from(auditAccessPointsTable).matching(from(where("audit_id").is(audit.getId()))).as(AuditAccessPointJdbc.class).fetch().first().map((entity)->fillWith(audit, entity)).switchIfEmpty(Mono.just(audit));
+1 | Mono | map | METHOD_INVOCATION | dbClient.select().from(auditAccessPointsTable).matching(from(where("audit_id").is(audit.getId()))).as(AuditAccessPointJdbc.class).fetch().first().map((entity)->fillWith(audit, entity)).switchIfEmpty
+1 | Mono | just | METHOD_INVOCATION | dbClient.select().from(auditAccessPointsTable).matching(from(where("audit_id").is(audit.getId()))).as(AuditAccessPointJdbc.class).fetch().first().map((entity)->fillWith(audit, entity)).switchIfEmpty(Mono.just(audit))
+1 | Mono | METHOD_INVOCATION | Mono.just(audit)
+1 | Mono | RETURN_TYPE
+1 | Mono | switchIfEmpty | METHOD_INVOCATION | return dbClient.select().from(auditOutcomesTable).matching(from(where("audit_id").is(audit.getId()))).as(AuditOutcomeJdbc.class).fetch().first().map((entity)->fillWith(audit, entity)).switchIfEmpty(Mono.just(audit));
+1 | Mono | map | METHOD_INVOCATION | dbClient.select().from(auditOutcomesTable).matching(from(where("audit_id").is(audit.getId()))).as(AuditOutcomeJdbc.class).fetch().first().map((entity)->fillWith(audit, entity)).switchIfEmpty
+1 | Mono | just | METHOD_INVOCATION | dbClient.select().from(auditOutcomesTable).matching(from(where("audit_id").is(audit.getId()))).as(AuditOutcomeJdbc.class).fetch().first().map((entity)->fillWith(audit, entity)).switchIfEmpty(Mono.just(audit))
+1 | Mono | METHOD_INVOCATION | Mono.just(audit)
+1 | Flux | flatMap | METHOD_INVOCATION | Flowable.fromPublisher(Flux.fromIterable(audits).flatMap(this::insertReport, 2))
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(audits).flatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(audits)
+1 | Mono | OTHER
+1 | Mono | LOCAL_VARIABLE
+1 | Mono | then | METHOD_INVOCATION | insertAction = insertAction.then(prepateInsertEntity(audit, actor, "actor"))
+1 | Mono | then | METHOD_INVOCATION | insertAction = insertAction.then(prepateInsertEntity(audit, target, "target"))
+1 | Mono | then | METHOD_INVOCATION | insertAction = insertAction.then(insertOutcomeSpec.fetch().rowsUpdated())
+1 | Mono | then | METHOD_INVOCATION | insertAction = insertAction.then(insertAccessPointSpec.fetch().rowsUpdated())
+1 | Mono | as | METHOD_INVOCATION | return insertAction.as(trx::transactional);
+1 | Mono | RETURN_TYPE
+1 | Mono | subscribe | METHOD_INVOCATION | dbClient.execute(dialectHelper.tableExists(auditsTable)).as(Integer.class).fetch().first().switchIfEmpty(Mono.just(0)).flatMap((found)->{
+    if (found == 0) {
+        return Flux.fromIterable(sqlStatements).concatMap((statement)->dbClient.execute(statement).then()).then();
+    } else {
+        return Mono.empty();
+    }
+}).doOnError((error)->LOGGER.error("Unable to initialize Database", error)).doOnTerminate(this::initializeBulkProcessor).subscribe();
+1 | Mono | doOnTerminate | METHOD_INVOCATION | dbClient.execute(dialectHelper.tableExists(auditsTable)).as(Integer.class).fetch().first().switchIfEmpty(Mono.just(0)).flatMap((found)->{
+    if (found == 0) {
+        return Flux.fromIterable(sqlStatements).concatMap((statement)->dbClient.execute(statement).then()).then();
+    } else {
+        return Mono.empty();
+    }
+}).doOnError((error)->LOGGER.error("Unable to initialize Database", error)).doOnTerminate(this::initializeBulkProcessor).subscribe
+1 | Mono | doOnError | METHOD_INVOCATION | dbClient.execute(dialectHelper.tableExists(auditsTable)).as(Integer.class).fetch().first().switchIfEmpty(Mono.just(0)).flatMap((found)->{
+    if (found == 0) {
+        return Flux.fromIterable(sqlStatements).concatMap((statement)->dbClient.execute(statement).then()).then();
+    } else {
+        return Mono.empty();
+    }
+}).doOnError((error)->LOGGER.error("Unable to initialize Database", error)).doOnTerminate
+1 | Mono | flatMap | METHOD_INVOCATION | dbClient.execute(dialectHelper.tableExists(auditsTable)).as(Integer.class).fetch().first().switchIfEmpty(Mono.just(0)).flatMap((found)->{
+    if (found == 0) {
+        return Flux.fromIterable(sqlStatements).concatMap((statement)->dbClient.execute(statement).then()).then();
+    } else {
+        return Mono.empty();
+    }
+}).doOnError
+1 | Mono | switchIfEmpty | METHOD_INVOCATION | dbClient.execute(dialectHelper.tableExists(auditsTable)).as(Integer.class).fetch().first().switchIfEmpty(Mono.just(0)).flatMap
+1 | Mono | just | METHOD_INVOCATION | dbClient.execute(dialectHelper.tableExists(auditsTable)).as(Integer.class).fetch().first().switchIfEmpty(Mono.just(0))
+1 | Mono | METHOD_INVOCATION | Mono.just(0)
+1 | Flux | then | METHOD_INVOCATION | return Flux.fromIterable(sqlStatements).concatMap((statement)->dbClient.execute(statement).then()).then();
+1 | Flux | concatMap | METHOD_INVOCATION | Flux.fromIterable(sqlStatements).concatMap((statement)->dbClient.execute(statement).then()).then
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(sqlStatements).concatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(sqlStatements)
+1 | Mono | empty | METHOD_INVOCATION | return Mono.empty();
+1 | Mono | METHOD_INVOCATION | Mono.empty()
+1 | Mono | subscribe | METHOD_INVOCATION | connectionFactory.disposeLater().subscribe();
+1 | Flux | IMPORT
+1 | Flux | flatMap | METHOD_INVOCATION | fluxToFlowable(Flux.fromIterable(intervals.keySet()).flatMap((slot)->{
+    String beginSlot = dateTimeFormatter.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(slot), ZoneId.of(ZoneOffset.UTC.getId())));
+    String endSlot = dateTimeFormatter.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(slot + criteria.interval()), ZoneId.of(ZoneOffset.UTC.getId())));
+    String query = " SELECT " + slot + " as slot, o.status, COUNT(o.status) as attempts " + queryBuilder.toString() + whereClauseBuilder.toString() + " AND \'" + beginSlot + "\' <= a.timestamp and \'" + endSlot + "\' >= a.timestamp  GROUP BY o.status ORDER BY o.status ";
+    for (Map.Entry<String, Object> bind : bindings.entrySet()) {
+        Object value = bind.getValue();
+        if (value instanceof List) {
+            String types = ((List<String>)value).stream().collect(Collectors.joining("\',\'", "\'", "\'"));
+            query = query.replaceAll(":" + bind.getKey(), types);
+        } else if (value instanceof LocalDateTime) {
+            query = query.replaceAll(":" + bind.getKey(), "\'" + dateTimeFormatter.format((LocalDateTime)value) + "\'");
+        } else {
+            query = query.replaceAll(":" + bind.getKey(), "\'" + String.valueOf(value) + "\'");
+        }
+    }
+    return dbClient.execute(query).fetch().all();
+}))
+1 | Flux | fromIterable | METHOD_INVOCATION | Flux.fromIterable(intervals.keySet()).flatMap
+1 | Flux | METHOD_INVOCATION | Flux.fromIterable(intervals.keySet())

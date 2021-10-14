@@ -468,9 +468,10 @@
                             <!-- Cleanup normally. -->
                             -Xep:InvalidThrows:ERROR
                             -Xep:UnusedMethod:ERROR
+                            -Xep:UnnecessarilyFullyQualified:ERROR
 
                             <!-- Don't start migration just yet -->
-                            -Xep:InlineMeInliner:ERROR
+                            -Xep:InlineMeInliner:OFF
                             -Xep:InlineMeSuggester:ERROR
                             <!-- -Xep:InlineMockitoStatements:OFF-->
                             <!-- -Xep:AddDefaultMethod:OFF-->
@@ -478,10 +479,13 @@
                             <!-- Turn these on once. -->
                             -Xep:MethodReferenceUsage:ERROR
                             -Xep:RemoveOldMethods:OFF
-                            <!-- -Xep:UnwrapExpressions:ERROR -->
+                            -Xep:UnwrapExpressions:OFF
 
                             -XepOpt:Refaster:NamePattern=(?!TestNG)(?!Optional)(?!AssertJ)(?!Assorted)(?!Stream)(?!RxJava2Adapter)(?!Reactor)(?!Web)(?!String)(?!Stream)(?!Immutable)(?!Int)(?!Mockito)(?!Collection)(?!Comparator)(?!Time)(?!RxJava).*
+                            <!-- (?!RxJava) -->
 
+                            -Xep:CountMethods:ERROR
+                            -XepOpt:Directory=before_run
 
                             <!-- Turning off rules with way too many changes: -->
                             -Xep:AndroidJdkLibsChecker:OFF
