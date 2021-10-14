@@ -80,7 +80,7 @@ public class ServiceResourceResource extends AbstractResource {
                         .flatMap(__ -> resourceService.findById(resource))
                         .switchIfEmpty(Maybe.error(new FactorNotFoundException(resource)))
                         .map(res1 -> {
-                            if (!res1.getReferenceId().equalsIgnoreCase(domain) && !res1.getReferenceType().equals(ReferenceType.DOMAIN)) {
+                            if (!res1.getReferenceId().equalsIgnoreCase(domain) && res1.getReferenceType() != ReferenceType.DOMAIN) {
                                 throw new BadRequestException("Resource does not belong to domain");
                             }
                             return Response.ok(res1).build();

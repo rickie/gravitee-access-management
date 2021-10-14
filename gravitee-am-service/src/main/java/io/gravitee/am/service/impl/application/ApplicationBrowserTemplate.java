@@ -37,7 +37,7 @@ import java.util.Set;
 public class ApplicationBrowserTemplate extends ApplicationAbstractTemplate {
     @Override
     public boolean canHandle(Application application) {
-        return ApplicationType.BROWSER.equals(application.getType());
+        return ApplicationType.BROWSER == application.getType();
     }
 
     @Override

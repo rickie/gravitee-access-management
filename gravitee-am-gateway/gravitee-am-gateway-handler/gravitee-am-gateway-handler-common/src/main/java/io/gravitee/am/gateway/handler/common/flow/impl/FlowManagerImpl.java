@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.common.flow.impl;
 
+import static io.gravitee.am.gateway.handler.common.flow.FlowPredicate.alwaysTrue;
+
 import io.gravitee.am.common.event.EventManager;
 import io.gravitee.am.common.event.FlowEvent;
 import io.gravitee.am.common.policy.ExtensionPoint;
@@ -34,18 +36,16 @@ import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Single;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.*;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static io.gravitee.am.gateway.handler.common.flow.FlowPredicate.alwaysTrue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -200,13 +200,13 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
                 .stream()
                 .filter(Step::isEnabled)
                 .map(this::createPolicy)
-                .filter(policy -> policy != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         List<Policy> postPolicies = flow.getPost()
                 .stream()
                 .filter(Step::isEnabled)
                 .map(this::createPolicy)
-                .filter(policy -> policy != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         switch (flow.getType()) {
@@ -269,7 +269,7 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
                 .filter(executionFlow -> (excludeApps) ? executionFlow.getApplication() == null : client.getId().equals(executionFlow.getApplication()))
                 .filter(executionFlow -> filter.evaluate(executionFlow.condition))
                 .map(ExecutionFlow::getPolicies)
-                .filter(executionPolicies -> executionPolicies != null)
+                .filter(Objects::nonNull)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }

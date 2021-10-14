@@ -104,11 +104,11 @@ public class FlowRepositoryTest extends AbstractManagementTest {
     protected void assertFlowEqualsTo(Flow flow, Flow flowCreated, TestObserver<Flow> obs) {
         obs.assertValue(o -> o.getId().equals(flowCreated.getId()));
         obs.assertValue(o -> o.getName().equals(flow.getName()));
-        obs.assertValue(o -> o.getType().equals(flow.getType()));
+        obs.assertValue(o -> o.getType() == flow.getType());
         obs.assertValue(o -> o.getCondition().equals(flow.getCondition()));
         obs.assertValue(o -> o.getOrder().equals(flow.getOrder()));
         obs.assertValue(o -> o.getReferenceId().equals(flow.getReferenceId()));
-        obs.assertValue(o -> o.getReferenceType().equals(flow.getReferenceType()));
+        obs.assertValue(o -> o.getReferenceType() == flow.getReferenceType());
         obs.assertValue(o -> o.isEnabled() == flow.isEnabled());
 
         obs.assertValue(o -> o.getPre().size() == flow.getPre().size());

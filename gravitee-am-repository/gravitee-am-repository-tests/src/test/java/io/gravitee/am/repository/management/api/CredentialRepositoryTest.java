@@ -116,7 +116,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(c -> c.getCredentialId().equals(credential.getCredentialId()));
         testObserver.assertValue(c -> c.getPublicKey().equals(credential.getPublicKey()));
         testObserver.assertValue(c -> c.getReferenceId().equals(credential.getReferenceId()));
-        testObserver.assertValue(c -> c.getReferenceType().equals(credential.getReferenceType()));
+        testObserver.assertValue(c -> c.getReferenceType() == credential.getReferenceType());
         testObserver.assertValue(c -> c.getUserId().equals(credential.getUserId()));
         testObserver.assertValue(c -> c.getUsername().equals(credential.getUsername()));
         testObserver.assertValue(c -> c.getIpAddress().equals(credential.getIpAddress()));

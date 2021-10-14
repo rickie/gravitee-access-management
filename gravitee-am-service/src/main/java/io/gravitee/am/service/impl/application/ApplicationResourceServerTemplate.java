@@ -36,7 +36,7 @@ public class ApplicationResourceServerTemplate extends ApplicationWebTemplate {
 
     @Override
     public boolean canHandle(Application application) {
-        return ApplicationType.RESOURCE_SERVER.equals(application.getType());
+        return ApplicationType.RESOURCE_SERVER == application.getType();
     }
 
     @Override

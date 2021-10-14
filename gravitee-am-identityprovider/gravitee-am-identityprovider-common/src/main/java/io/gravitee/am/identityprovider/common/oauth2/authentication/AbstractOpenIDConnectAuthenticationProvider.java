@@ -129,7 +129,7 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
 
     protected Maybe<Token> authenticate(Authentication authentication) {
         // implicit flow, retrieve the hashValue of the URL (#access_token=....&token_type=...)
-        if (AuthenticationFlow.IMPLICIT_FLOW.equals(authenticationFlow())){
+        if (AuthenticationFlow.IMPLICIT_FLOW == authenticationFlow()){
             final String hashValue = authentication.getContext().request().parameters().getFirst(HASH_VALUE_PARAMETER);
             Map<String, String> hashValues = getParams(hashValue.substring(1));
 
@@ -189,12 +189,12 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
 
     protected Maybe<User> profile(Token token, Authentication authentication) {
         // we only have the id_token, try to decode it and create the end-user
-        if (TokenTypeHint.ID_TOKEN.equals(token.getTypeHint())) {
+        if (TokenTypeHint.ID_TOKEN == token.getTypeHint()) {
             return retrieveUserFromIdToken(authentication.getContext(), token.getValue());
         }
 
         // if it's an access token but user ask for id token verification, try to decode it and create the end-user
-        if (TokenTypeHint.ACCESS_TOKEN.equals(token.getTypeHint()) && getConfiguration().isUseIdTokenForUserInfo()) {
+        if (TokenTypeHint.ACCESS_TOKEN == token.getTypeHint() && getConfiguration().isUseIdTokenForUserInfo()) {
             if (authentication.getContext().get(ID_TOKEN_PARAMETER) != null) {
                 String idToken = String.valueOf(authentication.getContext().get(ID_TOKEN_PARAMETER));
                 return retrieveUserFromIdToken(authentication.getContext(), idToken);
@@ -248,7 +248,7 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
 
             AbstractKeyProcessor keyProcessor = null;
             // init JWT key source (Remote URL or from configuration file)
-            if (KeyResolver.JWKS_URL.equals(getConfiguration().getPublicKeyResolver())) {
+            if (KeyResolver.JWKS_URL == getConfiguration().getPublicKeyResolver()) {
                 keyProcessor = new JWKSKeyProcessor();
                 keyProcessor.setJwkSourceResolver(new RemoteJWKSourceResolver(getConfiguration().getResolverParameter()));
             } else {

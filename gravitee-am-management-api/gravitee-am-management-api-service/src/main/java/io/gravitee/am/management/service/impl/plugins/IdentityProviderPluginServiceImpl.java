@@ -61,7 +61,7 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
     public Single<List<IdentityProviderPlugin>> findAll(Boolean external, List<String> expand) {
         LOGGER.debug("List all identity provider plugins");
         return Observable.fromIterable(identityProviderPluginManager.getAll().entrySet())
-            .filter(entry -> (external != null && external) ? entry.getKey().external() : !entry.getKey().external())
+            .filter(entry -> (external != null && external) == entry.getKey().external())
             .map(entry -> convert(entry.getValue(), expand))
             .toList()
             .onErrorResumeNext(ex -> {

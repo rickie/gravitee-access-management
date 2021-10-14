@@ -66,7 +66,7 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(ap -> ap.getDomain().equals(accessPolicy.getDomain()));
         testObserver.assertValue(ap -> ap.getId().equals(apCreated.getId()));
         testObserver.assertValue(ap -> ap.getResource().equals(accessPolicy.getResource()));
-        testObserver.assertValue(ap -> ap.getType().equals(accessPolicy.getType()));
+        testObserver.assertValue(ap -> ap.getType() == accessPolicy.getType());
         testObserver.assertValue(ap -> ap.getOrder() == accessPolicy.getOrder());
     }
 

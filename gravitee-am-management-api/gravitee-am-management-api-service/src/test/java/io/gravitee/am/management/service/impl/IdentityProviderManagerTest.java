@@ -80,14 +80,14 @@ public class IdentityProviderManagerTest {
         verify(listener, times(2)).registerAuthenticationProvider(any());
 
         verify(listener).registerAuthenticationProvider(argThat(idp -> {
-            return ReferenceType.ORGANIZATION.equals(idp.getReferenceType()) &&
+            return ReferenceType.ORGANIZATION == idp.getReferenceType() &&
                     Organization.DEFAULT.equals(idp.getReferenceId()) &&
                     idp.getRoleMapper() != null &&
                     idp.getRoleMapper().containsKey("roleid");
         }));
 
         verify(listener).registerAuthenticationProvider(argThat(idp -> {
-            return ReferenceType.ORGANIZATION.equals(idp.getReferenceType()) &&
+            return ReferenceType.ORGANIZATION == idp.getReferenceType() &&
                     Organization.DEFAULT.equals(idp.getReferenceId()) &&
                     idp.getType().equals("gravitee-am-idp");
         }));
@@ -107,7 +107,7 @@ public class IdentityProviderManagerTest {
         cut.loadIdentityProviders();
 
         verify(listener).registerAuthenticationProvider(argThat(idp -> {
-            return ReferenceType.ORGANIZATION.equals(idp.getReferenceType()) &&
+            return ReferenceType.ORGANIZATION == idp.getReferenceType() &&
                     Organization.DEFAULT.equals(idp.getReferenceId()) &&
                     idp.getType().equals("gravitee-am-idp");
         }));

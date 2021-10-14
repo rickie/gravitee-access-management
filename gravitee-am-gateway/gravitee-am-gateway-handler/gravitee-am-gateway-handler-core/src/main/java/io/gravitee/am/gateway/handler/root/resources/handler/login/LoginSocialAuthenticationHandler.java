@@ -170,7 +170,7 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
                                 Maybe<Request> signInURL = ((SocialAuthenticationProvider) authenticationProvider).asyncSignInUrl(redirectUri, state);
 
                                 return signInURL.map(request -> {
-                                    if(HttpMethod.GET.equals(request.getMethod())) {
+                                    if(HttpMethod.GET == request.getMethod()) {
                                         return request.getUri();
                                     }else {
                                         // Extract body to convert it to query parameters and use POST form.

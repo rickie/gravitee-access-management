@@ -332,7 +332,7 @@ public class TokenServiceImpl implements TokenService {
         if (customClaims != null && !customClaims.isEmpty()) {
             customClaims
                     .stream()
-                    .filter(tokenClaim -> tokenTypeHint.equals(tokenClaim.getTokenType()))
+                    .filter(tokenClaim -> tokenTypeHint == tokenClaim.getTokenType())
                     .forEach(tokenClaim -> {
                         try {
                             String claimName = tokenClaim.getClaimName();

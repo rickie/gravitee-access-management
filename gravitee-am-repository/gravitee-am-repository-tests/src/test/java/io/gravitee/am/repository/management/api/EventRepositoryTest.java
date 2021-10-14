@@ -93,13 +93,13 @@ public class EventRepositoryTest extends AbstractManagementTest {
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(e -> e.getId().equals(eventCreated.getId()));
-        testObserver.assertValue(e -> e.getType().equals(Type.DOMAIN));
+        testObserver.assertValue(e -> e.getType() == Type.DOMAIN);
         testObserver.assertValue(e -> e.getPayload().keySet().size() == event.getPayload().keySet().size());
         testObserver.assertValue(e -> e.getPayload().keySet().containsAll(event.getPayload().keySet()));
         testObserver.assertValue(e -> e.getPayload().getId().equals(payload.getId()));
-        testObserver.assertValue(e -> e.getPayload().getAction().equals(payload.getAction()));
+        testObserver.assertValue(e -> e.getPayload().getAction() == payload.getAction());
         testObserver.assertValue(e -> e.getPayload().getReferenceId().equals(payload.getReferenceId()));
-        testObserver.assertValue(e -> e.getPayload().getReferenceType().equals(payload.getReferenceType()));
+        testObserver.assertValue(e -> e.getPayload().getReferenceType() == payload.getReferenceType());
     }
 
     @Test
@@ -120,7 +120,7 @@ public class EventRepositoryTest extends AbstractManagementTest {
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        testObserver.assertValue(e -> e.getType().equals(Type.DOMAIN));
+        testObserver.assertValue(e -> e.getType() == Type.DOMAIN);
     }
 
     @Test
@@ -135,7 +135,7 @@ public class EventRepositoryTest extends AbstractManagementTest {
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        testObserver.assertValue(e -> e.getType().equals(Type.DOMAIN));
+        testObserver.assertValue(e -> e.getType() == Type.DOMAIN);
 
         // delete event
         TestObserver testObserver1 = eventRepository.delete(eventCreated.getId()).test();

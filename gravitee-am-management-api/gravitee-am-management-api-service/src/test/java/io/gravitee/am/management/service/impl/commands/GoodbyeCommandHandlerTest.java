@@ -68,7 +68,7 @@ public class GoodbyeCommandHandlerTest extends TestCase {
         TestObserver<GoodbyeReply> obs = cut.handle(command).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus().equals(CommandStatus.SUCCEEDED));
+        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus() == CommandStatus.SUCCEEDED);
 
         final ArgumentCaptor<Map<String, String>> expectedAdditionalInfos = ArgumentCaptor.forClass(Map.class);
         verify(installationService, times(1)).addAdditionalInformation(expectedAdditionalInfos.capture());
@@ -85,6 +85,6 @@ public class GoodbyeCommandHandlerTest extends TestCase {
         TestObserver<GoodbyeReply> obs = cut.handle(command).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus().equals(CommandStatus.ERROR));
+        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus() == CommandStatus.ERROR);
     }
 }

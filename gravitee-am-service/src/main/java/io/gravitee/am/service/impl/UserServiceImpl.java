@@ -220,7 +220,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                     }
                     user.setFactors(enrolledFactors);
 
-                    if (enrolledFactor.getChannel() != null && EnrolledFactorChannel.Type.SMS.equals(enrolledFactor.getChannel().getType())) {
+                    if (enrolledFactor.getChannel() != null && EnrolledFactorChannel.Type.SMS == enrolledFactor.getChannel().getType()) {
                         // MFA SMS currently used, preserve the phone number into the user profile if not yet present
                         List<Attribute> phoneNumbers = user.getPhoneNumbers();
                         if (phoneNumbers == null) {
@@ -236,7 +236,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                             phoneNumbers.add(newPhoneNumber);
                         }
                     }
-                    if (enrolledFactor.getChannel() != null && EnrolledFactorChannel.Type.EMAIL.equals(enrolledFactor.getChannel().getType())) {
+                    if (enrolledFactor.getChannel() != null && EnrolledFactorChannel.Type.EMAIL == enrolledFactor.getChannel().getType()) {
                         // MFA EMAIL currently used, preserve the email into the user profile if not yet present
                         String email = user.getEmail();
                         String enrolledEmail = enrolledFactor.getChannel().getTarget();
@@ -321,16 +321,16 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                                     return false;
                                 }
                                 // check if enrolled factor was in pending activation
-                                if (oldEnrolledFactor.getStatus().equals(FactorStatus.PENDING_ACTIVATION)) {
+                                if (oldEnrolledFactor.getStatus() == FactorStatus.PENDING_ACTIVATION) {
                                     return true;
                                 }
                                 if (oldEnrolledFactor.getChannel() != null) {
                                     // check if email has changed
-                                    if (EnrolledFactorChannel.Type.EMAIL.equals(oldEnrolledFactor.getChannel().getType())) {
+                                    if (EnrolledFactorChannel.Type.EMAIL == oldEnrolledFactor.getChannel().getType()) {
                                         return emailInformationHasChanged(newUser, oldUser);
                                     }
                                     // check if phoneNumber has changed
-                                    if (EnrolledFactorChannel.Type.SMS.equals(oldEnrolledFactor.getChannel().getType())) {
+                                    if (EnrolledFactorChannel.Type.SMS == oldEnrolledFactor.getChannel().getType()) {
                                         return phoneNumberInformationHasChanged(newUser, oldUser);
                                     }
                                 }

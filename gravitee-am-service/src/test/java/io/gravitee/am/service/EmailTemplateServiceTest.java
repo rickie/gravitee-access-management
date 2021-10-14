@@ -278,7 +278,7 @@ public class EmailTemplateServiceTest {
         TestObserver<List<Email>> testObserver = emailTemplateService.copyFromClient(DOMAIN, sourceUid, targetUid).toList().test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(emails -> emails != null && emails.size() == 2 && emails.stream().filter(
-                email -> email.getReferenceType().equals(ReferenceType.DOMAIN) &&
+                email -> email.getReferenceType() == ReferenceType.DOMAIN &&
                         email.getReferenceId().equals(DOMAIN) &&
                         email.getClient().equals(targetUid) &&
                         !email.getId().equals("templateId") &&

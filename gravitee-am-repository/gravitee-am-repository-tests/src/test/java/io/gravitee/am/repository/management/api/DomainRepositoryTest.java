@@ -156,7 +156,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(d -> d.getName().equals(domain.getName()));
         testObserver.assertValue(d -> d.getPath().equals(domain.getPath()));
         testObserver.assertValue(d -> d.getReferenceId().equals(domain.getReferenceId()));
-        testObserver.assertValue(d -> d.getReferenceType().equals(domain.getReferenceType()));
+        testObserver.assertValue(d -> d.getReferenceType() == domain.getReferenceType());
         testObserver.assertValue(d -> d.isEnabled() == domain.isEnabled());
         testObserver.assertValue(d -> d.isVhostMode() == domain.isVhostMode());
         testObserver.assertValue(d -> d.getTags() != null &&
@@ -224,7 +224,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(d -> d.getName().equals(updatedDomain.getName()));
         testObserver.assertValue(d -> d.getPath().equals(updatedDomain.getPath()));
         testObserver.assertValue(d -> d.getReferenceId().equals(updatedDomain.getReferenceId()));
-        testObserver.assertValue(d -> d.getReferenceType().equals(updatedDomain.getReferenceType()));
+        testObserver.assertValue(d -> d.getReferenceType() == updatedDomain.getReferenceType());
         testObserver.assertValue(d -> d.isEnabled() == updatedDomain.isEnabled());
         testObserver.assertValue(d -> d.isVhostMode() == updatedDomain.isVhostMode());
         testObserver.assertValue(d -> d.getVhosts() != null &&

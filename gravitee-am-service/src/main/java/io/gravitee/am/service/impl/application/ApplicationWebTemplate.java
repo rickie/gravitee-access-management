@@ -38,7 +38,7 @@ public class ApplicationWebTemplate extends ApplicationAbstractTemplate {
 
     @Override
     public boolean canHandle(Application application) {
-        return ApplicationType.WEB.equals(application.getType());
+        return ApplicationType.WEB == application.getType();
     }
 
     @Override

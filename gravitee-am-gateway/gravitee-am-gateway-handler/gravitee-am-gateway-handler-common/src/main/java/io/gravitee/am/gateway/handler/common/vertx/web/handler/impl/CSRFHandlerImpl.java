@@ -144,7 +144,7 @@ public class CSRFHandlerImpl implements CSRFHandler {
 
         try {
             // validate validity
-            return !(System.currentTimeMillis() > Long.parseLong(tokens[1]) + timeout);
+            return System.currentTimeMillis() <= Long.parseLong(tokens[1]) + timeout;
         } catch (NumberFormatException e) {
             return false;
         }

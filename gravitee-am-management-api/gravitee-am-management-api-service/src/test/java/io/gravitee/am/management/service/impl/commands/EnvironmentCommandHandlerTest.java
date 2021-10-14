@@ -84,7 +84,7 @@ public class EnvironmentCommandHandlerTest {
         TestObserver<EnvironmentReply> obs = cut.handle(command).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus().equals(CommandStatus.SUCCEEDED));
+        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus() == CommandStatus.SUCCEEDED);
     }
 
     @Test
@@ -105,6 +105,6 @@ public class EnvironmentCommandHandlerTest {
 
         obs.awaitTerminalEvent();
         obs.assertNoErrors();
-        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus().equals(CommandStatus.ERROR));
+        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus() == CommandStatus.ERROR);
     }
 }

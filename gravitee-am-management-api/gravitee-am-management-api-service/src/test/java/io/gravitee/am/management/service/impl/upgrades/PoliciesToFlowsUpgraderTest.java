@@ -249,7 +249,7 @@ public class PoliciesToFlowsUpgraderTest {
 
     private Flow buildFlow(Type type, ReferenceType referenceType, String referenceId) {
         Flow flow = new Flow();
-        if (Type.ROOT.equals(type)) {
+        if (Type.ROOT == type) {
             flow.setName("ALL");
         } else {
             flow.setName(type.name());

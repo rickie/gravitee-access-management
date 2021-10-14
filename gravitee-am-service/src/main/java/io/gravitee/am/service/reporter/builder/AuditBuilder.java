@@ -249,7 +249,7 @@ public abstract class AuditBuilder<T> {
      * Some object have VALUE_EMBEDDED_OBJECT Json Token which are not supported by the JsonDiff lib
      */
     private static void clean(JsonNode current, JsonNode parent, String fieldName) {
-        if (VALUE_EMBEDDED_OBJECT.equals(current.asToken())) {
+        if (VALUE_EMBEDDED_OBJECT == current.asToken()) {
             ((ObjectNode) parent).put(fieldName, current.asText());
         }
 

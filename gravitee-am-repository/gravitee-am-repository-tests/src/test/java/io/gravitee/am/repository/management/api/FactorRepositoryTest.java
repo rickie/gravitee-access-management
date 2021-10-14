@@ -79,7 +79,7 @@ public class FactorRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(f -> f.getName().equals(factorCreated.getName()));
         testObserver.assertValue(f -> f.getConfiguration().equals(factorCreated.getConfiguration()));
         testObserver.assertValue(f -> f.getDomain().equals(factorCreated.getDomain()));
-        testObserver.assertValue(f -> f.getFactorType().equals(factorCreated.getFactorType()));
+        testObserver.assertValue(f -> f.getFactorType() == factorCreated.getFactorType());
         testObserver.assertValue(f -> f.getType().equals(factorCreated.getType()));
     }
 
@@ -101,7 +101,7 @@ public class FactorRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(f -> f.getName().equals(factor.getName()));
         testObserver.assertValue(f -> f.getConfiguration().equals(factor.getConfiguration()));
         testObserver.assertValue(f -> f.getDomain().equals(factor.getDomain()));
-        testObserver.assertValue(f -> f.getFactorType().equals(factor.getFactorType()));
+        testObserver.assertValue(f -> f.getFactorType() == factor.getFactorType());
         testObserver.assertValue(f -> f.getType().equals(factor.getType()));
     }
 
@@ -125,7 +125,7 @@ public class FactorRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(f -> f.getName().equals(updateFactor.getName()));
         testObserver.assertValue(f -> f.getConfiguration().equals(updateFactor.getConfiguration()));
         testObserver.assertValue(f -> f.getDomain().equals(updateFactor.getDomain()));
-        testObserver.assertValue(f -> f.getFactorType().equals(updateFactor.getFactorType()));
+        testObserver.assertValue(f -> f.getFactorType() == updateFactor.getFactorType());
         testObserver.assertValue(f -> f.getType().equals(updateFactor.getType()));
     }
 

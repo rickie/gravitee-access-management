@@ -90,7 +90,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
         LOGGER.debug("Find alert trigger by id: {}", id);
 
         return alertTriggerRepository.findById(id)
-                .filter(alertTrigger -> alertTrigger.getReferenceType().equals(referenceType) && alertTrigger.getReferenceId().equals(referenceId))
+                .filter(alertTrigger -> alertTrigger.getReferenceType() == referenceType && alertTrigger.getReferenceId().equals(referenceId))
                 .switchIfEmpty(Single.error(new AlertTriggerNotFoundException(id)));
     }
 

@@ -110,7 +110,7 @@ public class FormRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(e -> (e.getClient() == null && expectedForm.getClient() == null ) || e.getClient().equals(expectedForm.getClient()));
         testObserver.assertValue(e -> e.getContent().equals(expectedForm.getContent()));
         testObserver.assertValue(e -> e.getReferenceId().equals(expectedForm.getReferenceId()));
-        testObserver.assertValue(e -> e.getReferenceType().equals(expectedForm.getReferenceType()));
+        testObserver.assertValue(e -> e.getReferenceType() == expectedForm.getReferenceType());
         testObserver.assertValue(e -> e.getAssets().equals(expectedForm.getAssets()));
         testObserver.assertValue(e -> e.getTemplate().equals(expectedForm.getTemplate()));
         testObserver.assertValue(e -> e.isEnabled() == expectedForm.isEnabled());

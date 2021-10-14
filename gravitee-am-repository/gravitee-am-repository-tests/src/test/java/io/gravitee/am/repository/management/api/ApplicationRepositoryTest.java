@@ -159,7 +159,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
 
     private void assertEqualsTo(Application app, TestObserver<Application> testObserver) {
         testObserver.assertValue(a -> a.getName().equals(app.getName()));
-        testObserver.assertValue(a -> a.getType().equals(app.getType()));
+        testObserver.assertValue(a -> a.getType() == app.getType());
         testObserver.assertValue(a -> a.isEnabled() == app.isEnabled());
         testObserver.assertValue(a -> a.isTemplate() == app.isTemplate());
         testObserver.assertValue(a -> a.getFactors().containsAll(app.getFactors()));

@@ -141,13 +141,13 @@ public class AccountFactorsEndpointHandler {
                 }
 
                 // check request body parameters
-                if (FactorType.EMAIL.equals(factor.getFactorType())
+                if (FactorType.EMAIL == factor.getFactorType()
                         && StringUtils.isEmpty(account.getEmail())) {
                     routingContext.fail(new InvalidRequestException("Field [email] is required"));
                     return;
                 }
 
-                if (FactorType.SMS.equals(factor.getFactorType())
+                if (FactorType.SMS == factor.getFactorType()
                         && StringUtils.isEmpty(account.getPhoneNumber())) {
                     routingContext.fail(new InvalidRequestException("Field [phoneNumber] is required"));
                     return;
@@ -162,7 +162,7 @@ public class AccountFactorsEndpointHandler {
 
                     if (optionalEnrolledFactor.isPresent()) {
                         EnrolledFactor existingEnrolledFactor = optionalEnrolledFactor.get();
-                        if (FactorStatus.ACTIVATED.equals(existingEnrolledFactor.getStatus())) {
+                        if (FactorStatus.ACTIVATED == existingEnrolledFactor.getStatus()) {
                             AccountResponseHandler.handleDefaultResponse(routingContext, existingEnrolledFactor);
                             return;
                         }
@@ -247,7 +247,7 @@ public class AccountFactorsEndpointHandler {
 
                 // if factor is already activated, continue
                 final EnrolledFactor enrolledFactor = optionalEnrolledFactor.get();
-                if (FactorStatus.ACTIVATED.equals(enrolledFactor.getStatus())) {
+                if (FactorStatus.ACTIVATED == enrolledFactor.getStatus()) {
                     AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactor);
                     return;
                 }

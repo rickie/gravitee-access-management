@@ -72,7 +72,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(g -> g.getName().equals(group.getName()));
         testObserver.assertValue(g -> g.getDescription().equals(group.getDescription()));
         testObserver.assertValue(g -> g.getReferenceId().equals(group.getReferenceId()));
-        testObserver.assertValue(g -> g.getReferenceType().equals(group.getReferenceType()));
+        testObserver.assertValue(g -> g.getReferenceType() == group.getReferenceType());
         testObserver.assertValue(g -> g.getMembers().size() == group.getMembers().size());
         testObserver.assertValue(g -> g.getMembers().containsAll(group.getMembers()));
         testObserver.assertValue(g -> g.getRoles().size() == group.getRoles().size());
@@ -208,12 +208,12 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         List<Group> groupOfDomain = repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).toList().blockingGet();
         assertNotNull(groupOfDomain);
         assertEquals(loop, groupOfDomain.size());
-        assertEquals(loop, groupOfDomain.stream().filter(g -> g.getReferenceId().equals(DOMAIN_ID) && g.getReferenceType().equals(ReferenceType.DOMAIN)).count());
+        assertEquals(loop, groupOfDomain.stream().filter(g -> g.getReferenceId().equals(DOMAIN_ID) && g.getReferenceType() == ReferenceType.DOMAIN).count());
 
         groupOfDomain = repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).toList().blockingGet();
         assertNotNull(groupOfDomain);
         assertEquals(loop, groupOfDomain.size());
-        assertEquals(loop, groupOfDomain.stream().filter(g -> g.getReferenceId().equals(DOMAIN_ID) && g.getReferenceType().equals(ReferenceType.DOMAIN)).count());
+        assertEquals(loop, groupOfDomain.stream().filter(g -> g.getReferenceId().equals(DOMAIN_ID) && g.getReferenceType() == ReferenceType.DOMAIN).count());
     }
 
     @Test
@@ -241,7 +241,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         assertEquals(loop, groupOfDomain.getTotalCount());
         assertEquals(loop, groupOfDomain.getData().stream()
                 .filter(g -> g.getReferenceId().equals(DOMAIN_ID)
-                        && g.getReferenceType().equals(ReferenceType.DOMAIN)).count());
+                        && g.getReferenceType() == ReferenceType.DOMAIN).count());
 
         final Collection<Group> data = groupOfDomain.getData();
 
@@ -251,7 +251,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         assertEquals(0, groupOfDomain.getCurrentPage());
         assertEquals(5, groupOfDomain.getData().stream()
                 .filter(g -> g.getReferenceId().equals(DOMAIN_ID)
-                        && g.getReferenceType().equals(ReferenceType.DOMAIN)).count());
+                        && g.getReferenceType() == ReferenceType.DOMAIN).count());
 
         final Collection<Group> data1 = groupOfDomain.getData();
 
@@ -261,7 +261,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         assertEquals(1, groupOfDomain.getCurrentPage());
         assertEquals(5, groupOfDomain.getData().stream()
                 .filter(g -> g.getReferenceId().equals(DOMAIN_ID)
-                        && g.getReferenceType().equals(ReferenceType.DOMAIN)).count());
+                        && g.getReferenceType() == ReferenceType.DOMAIN).count());
 
         final Collection<Group> data2 = groupOfDomain.getData();
         Set<String> pagedData = new HashSet<>();

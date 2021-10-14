@@ -142,10 +142,10 @@ public class RoleRepositoryTest extends AbstractManagementTest {
 
     private void assertEqualsTo(Role role, TestObserver<Role> testObserver) {
         testObserver.assertValue(r -> r.getName().equals(role.getName()));
-        testObserver.assertValue(r -> r.getAssignableType().equals(role.getAssignableType()));
+        testObserver.assertValue(r -> r.getAssignableType() == role.getAssignableType());
         testObserver.assertValue(r -> r.getDescription().equals(role.getDescription()));
         testObserver.assertValue(r -> r.getReferenceId().equals(role.getReferenceId()));
-        testObserver.assertValue(r -> r.getReferenceType().equals(role.getReferenceType()));
+        testObserver.assertValue(r -> r.getReferenceType() == role.getReferenceType());
         testObserver.assertValue(r -> r.getOauthScopes().containsAll(role.getOauthScopes()));
         testObserver.assertValue(r -> r.getPermissionAcls().keySet().containsAll(role.getPermissionAcls().keySet()));
         testObserver.assertValue(r -> r.getPermissionAcls().get(Permission.APPLICATION).containsAll(role.getPermissionAcls().get(Permission.APPLICATION)));

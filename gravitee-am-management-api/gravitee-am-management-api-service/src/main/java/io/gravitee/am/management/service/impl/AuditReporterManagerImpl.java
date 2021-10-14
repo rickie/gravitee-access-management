@@ -115,7 +115,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
                 domainService
                         .findById(reporter.getDomain())
                         .flatMapSingle(domain -> {
-                            if (ReferenceType.ENVIRONMENT.equals(domain.getReferenceType())) {
+                            if (ReferenceType.ENVIRONMENT == domain.getReferenceType()) {
                                 return environmentService.findById(domain.getReferenceId()).map(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()));
                             } else {
                                 // currently domain is only linked to domainEnv
@@ -272,7 +272,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
         domainService
                 .findById(reporter.getDomain())
                 .flatMapSingle(domain -> {
-                    if (ReferenceType.ENVIRONMENT.equals(domain.getReferenceType())) {
+                    if (ReferenceType.ENVIRONMENT == domain.getReferenceType()) {
                         return environmentService.findById(domain.getReferenceId()).map(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()));
                     } else {
                         // currently domain is only linked to domainEnv

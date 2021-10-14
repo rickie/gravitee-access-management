@@ -704,7 +704,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private Single<Application> validateTokenEndpointAuthMethod(Application application) {
         ApplicationOAuthSettings oauthSettings = application.getSettings().getOauth();
         String tokenEndpointAuthMethod = oauthSettings.getTokenEndpointAuthMethod();
-        if ((ApplicationType.SERVICE.equals(application.getType()) || (oauthSettings.getGrantTypes() != null && oauthSettings.getGrantTypes().contains(GrantType.CLIENT_CREDENTIALS)))
+        if ((ApplicationType.SERVICE == application.getType() || (oauthSettings.getGrantTypes() != null && oauthSettings.getGrantTypes().contains(GrantType.CLIENT_CREDENTIALS)))
                 && (tokenEndpointAuthMethod != null && ClientAuthenticationMethod.NONE.equals(tokenEndpointAuthMethod))) {
             return Single.error(new InvalidClientMetadataException("Invalid token_endpoint_auth_method for service application (client_credentials grant type)"));
         }

@@ -110,7 +110,7 @@ public class IdentityProviderRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(idp -> idp.getType().equals(identityProvider.getType()));
         testObserver.assertValue(idp -> idp.getConfiguration().equals(identityProvider.getConfiguration()));
         testObserver.assertValue(idp -> idp.getReferenceId().equals(identityProvider.getReferenceId()));
-        testObserver.assertValue(idp -> idp.getReferenceType().equals(identityProvider.getReferenceType()));
+        testObserver.assertValue(idp -> idp.getReferenceType() == identityProvider.getReferenceType());
         testObserver.assertValue(idp -> idp.getMappers().entrySet().equals(identityProvider.getMappers().entrySet()));
         testObserver.assertValue(idp -> idp.getRoleMapper().keySet().equals(identityProvider.getRoleMapper().keySet()));
         testObserver.assertValue(idp -> idp.getRoleMapper().values().stream().filter(v -> v instanceof String[]).count() > 0);

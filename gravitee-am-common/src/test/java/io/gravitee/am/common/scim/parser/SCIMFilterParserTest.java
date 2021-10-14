@@ -48,11 +48,11 @@ public class SCIMFilterParserTest {
         assertNotNull(filter);
         assertNotNull(filter.getFilterComponents());
         // global operator should be "and"
-        assertTrue(filter.getOperator().equals(Operator.AND));
+        assertTrue(filter.getOperator() == Operator.AND);
         // left operator should be "eq"
-        assertTrue(filter.getFilterComponents().get(0).getOperator().equals(Operator.EQUALITY));
+        assertTrue(filter.getFilterComponents().get(0).getOperator() == Operator.EQUALITY);
         // right operator should be "or"
-        assertTrue(filter.getFilterComponents().get(1).getOperator().equals(Operator.OR));
+        assertTrue(filter.getFilterComponents().get(1).getOperator() == Operator.OR);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class SCIMFilterParserTest {
         Filter filter = SCIMFilterParser.parse("title pr");
         assertNotNull(filter);
         assertNull(filter.getFilterComponents());
-        assertTrue(filter.getOperator().equals(Operator.PRESENCE));
+        assertTrue(filter.getOperator() == Operator.PRESENCE);
         assertTrue("title".equals(filter.getFilterAttribute().toString()));
         assertNull(filter.getFilterValue());
     }

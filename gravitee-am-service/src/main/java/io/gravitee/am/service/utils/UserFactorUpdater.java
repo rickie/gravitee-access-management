@@ -41,7 +41,7 @@ public class UserFactorUpdater {
                         // in addition we have to know the country related to the phone number that is an information provided by the user
                         // during the factor enrollment
                         EnrolledFactorChannel.Type channelType = factor.getChannel().getType();
-                        if (EnrolledFactorChannel.Type.EMAIL.equals(channelType)) {
+                        if (EnrolledFactorChannel.Type.EMAIL == channelType) {
                             String emailFactor = factor.getChannel().getTarget();
 
                             // if new email is null or empty, do not update the factor

@@ -35,7 +35,7 @@ public class ApplicationServiceTemplate implements ApplicationTemplate {
 
     @Override
     public boolean canHandle(Application application) {
-        return ApplicationType.SERVICE.equals(application.getType());
+        return ApplicationType.SERVICE == application.getType();
     }
 
     /**

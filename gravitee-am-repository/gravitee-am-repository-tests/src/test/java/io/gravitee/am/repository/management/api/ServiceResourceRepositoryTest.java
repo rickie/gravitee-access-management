@@ -53,7 +53,7 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
         testDomain.assertValue(f -> f.getName().equals(resourceCreated.getName()));
         testDomain.assertValue(f -> f.getConfiguration().equals(resourceCreated.getConfiguration()));
         testDomain.assertValue(f -> f.getReferenceId().equals("testDomain"));
-        testDomain.assertValue(f -> f.getReferenceType().equals(resourceCreated.getReferenceType()));
+        testDomain.assertValue(f -> f.getReferenceType() == resourceCreated.getReferenceType());
         testDomain.assertValue(f -> f.getType().equals(resourceCreated.getType()));
     }
 
@@ -86,7 +86,7 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(f -> f.getName().equals(resourceCreated.getName()));
         testObserver.assertValue(f -> f.getConfiguration().equals(resourceCreated.getConfiguration()));
         testObserver.assertValue(f -> f.getReferenceId().equals(resourceCreated.getReferenceId()));
-        testObserver.assertValue(f -> f.getReferenceType().equals(resourceCreated.getReferenceType()));
+        testObserver.assertValue(f -> f.getReferenceType() == resourceCreated.getReferenceType());
         testObserver.assertValue(f -> f.getType().equals(resourceCreated.getType()));
     }
 
@@ -108,7 +108,7 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(f -> f.getName().equals(resource.getName()));
         testObserver.assertValue(f -> f.getConfiguration().equals(resource.getConfiguration()));
         testObserver.assertValue(f -> f.getReferenceId().equals(resource.getReferenceId()));
-        testObserver.assertValue(f -> f.getReferenceType().equals(resource.getReferenceType()));
+        testObserver.assertValue(f -> f.getReferenceType() == resource.getReferenceType());
         testObserver.assertValue(f -> f.getType().equals(resource.getType()));
     }
 
@@ -129,7 +129,7 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(f -> f.getId().equals(resourceCreated.getId()));
         testObserver.assertValue(f -> f.getName().equals(updateResource.getName()));
         testObserver.assertValue(f -> f.getConfiguration().equals(updateResource.getConfiguration()));
-        testObserver.assertValue(f -> f.getReferenceType().equals(updateResource.getReferenceType()));
+        testObserver.assertValue(f -> f.getReferenceType() == updateResource.getReferenceType());
         testObserver.assertValue(f -> f.getReferenceId().equals(updateResource.getReferenceId()));
         testObserver.assertValue(f -> f.getType().equals(updateResource.getType()));
     }

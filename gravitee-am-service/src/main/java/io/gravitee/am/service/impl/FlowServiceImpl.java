@@ -161,7 +161,7 @@ public class FlowServiceImpl implements FlowService {
             .flatMapSingle(oldFlow -> {
 
                 // if type isn't define, continue as the oldFlow will contains the right value
-                if (flow.getType() != null && !oldFlow.getType().equals(flow.getType())) {
+                if (flow.getType() != null && oldFlow.getType() != flow.getType()) {
                     throw new InvalidParameterException("Type of flow '" + flow.getName() +"' can't be updated");
                 }
 
@@ -176,7 +176,7 @@ public class FlowServiceImpl implements FlowService {
                     flowToUpdate.setOrder(flow.getOrder());
                 }
 
-                if (Type.ROOT.equals(flowToUpdate.getType())) {
+                if (Type.ROOT == flowToUpdate.getType()) {
                     // Pre or Post steps are not supposed to be null in the UI-Component
                     // force the ROOT post with emptyList to avoid UI issue
                     flowToUpdate.setPost(emptyList());
@@ -185,7 +185,7 @@ public class FlowServiceImpl implements FlowService {
                     // create event for sync process
                     .flatMap(flow1 -> {
                         Event event = new Event(io.gravitee.am.common.event.Type.FLOW, new Payload(flow1.getId(), flow1.getReferenceType(), flow1.getReferenceId(), Action.UPDATE));
-                        if (Type.ROOT.equals(flow1.getType())) {
+                        if (Type.ROOT == flow1.getType()) {
                             // Pre or Post steps are not supposed to be null in the UI-Component
                             // force the ROOT post with emptyList to avoid UI issue
                             flow1.setPost(emptyList());
@@ -281,7 +281,7 @@ public class FlowServiceImpl implements FlowService {
                             .collect(Collectors.toMap(Flow::getId, Function.identity()));
 
                     flows.forEach(flow -> {
-                        if (flow.getId() != null && mapOfExistingFlows.containsKey(flow.getId()) && !mapOfExistingFlows.get(flow.getId()).getType().equals(flow.getType())) {
+                        if (flow.getId() != null && mapOfExistingFlows.containsKey(flow.getId()) && mapOfExistingFlows.get(flow.getId()).getType() != flow.getType()) {
                             throw new InvalidParameterException("Type of flow '" + flow.getName() +"' can't be updated");
                         }
                     });
@@ -366,7 +366,7 @@ public class FlowServiceImpl implements FlowService {
 
     private Flow buildFlow(Type type, ReferenceType referenceType, String referenceId) {
         Flow flow = new Flow();
-        if (Type.ROOT.equals(type)) {
+        if (Type.ROOT == type) {
             flow.setName("ALL");
         } else {
             flow.setName(type.name());

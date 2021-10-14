@@ -80,7 +80,7 @@ public class BotDetectionResource extends AbstractResource {
                         .flatMap(__ -> botDetectionService.findById(botDetectionId))
                         .switchIfEmpty(Maybe.error(new BotDetectionNotFoundException(botDetectionId)))
                         .map(botDetection -> {
-                            if (!botDetection.getReferenceId().equalsIgnoreCase(domain) && !botDetection.getReferenceType().equals(ReferenceType.DOMAIN)) {
+                            if (!botDetection.getReferenceId().equalsIgnoreCase(domain) && botDetection.getReferenceType() != ReferenceType.DOMAIN) {
                                 throw new BadRequestException("BotDetection does not belong to domain");
                             }
                             return Response.ok(botDetection).build();

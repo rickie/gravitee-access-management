@@ -45,7 +45,7 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
 
         // Check the refresh_token store first. Fall back to the access token store if we don't
         // find anything. See RFC 7009, Sec 2.1: https://tools.ietf.org/html/rfc7009#section-2.1
-        if (request.getHint() != null && request.getHint().equals(TokenTypeHint.REFRESH_TOKEN)) {
+        if (request.getHint() != null && request.getHint() == TokenTypeHint.REFRESH_TOKEN) {
             return revokeRefreshToken(token, client)
                     .onErrorResumeNext(throwable -> {
                         // if the token was not issued to the client making the revocation request

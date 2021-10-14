@@ -38,7 +38,7 @@ public class ApplicationNativeTemplate extends ApplicationAbstractTemplate {
 
     @Override
     public boolean canHandle(Application application) {
-        return ApplicationType.NATIVE.equals(application.getType());
+        return ApplicationType.NATIVE == application.getType();
     }
 
     @Override

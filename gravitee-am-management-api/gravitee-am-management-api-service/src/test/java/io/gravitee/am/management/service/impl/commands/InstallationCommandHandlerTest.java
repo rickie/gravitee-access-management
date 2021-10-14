@@ -80,7 +80,7 @@ public class InstallationCommandHandlerTest extends TestCase {
         TestObserver<InstallationReply> obs = cut.handle(command).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus().equals(CommandStatus.SUCCEEDED));
+        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus() == CommandStatus.SUCCEEDED);
 
         final HashMap<String, String> expectedAdditionalInfos = new HashMap<>();
         expectedAdditionalInfos.put(CUSTOM_KEY, CUSTOM_VALUE);
@@ -106,6 +106,6 @@ public class InstallationCommandHandlerTest extends TestCase {
         TestObserver<InstallationReply> obs = cut.handle(command).test();
 
         obs.awaitTerminalEvent();
-        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus().equals(CommandStatus.ERROR));
+        obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus() == CommandStatus.ERROR);
     }
 }

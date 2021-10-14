@@ -118,7 +118,7 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(e -> e.getFrom().equals(expectedEmail.getFrom()));
         testObserver.assertValue(e -> e.getFromName().equals(expectedEmail.getFromName()));
         testObserver.assertValue(e -> e.getReferenceId().equals(expectedEmail.getReferenceId()));
-        testObserver.assertValue(e -> e.getReferenceType().equals(expectedEmail.getReferenceType()));
+        testObserver.assertValue(e -> e.getReferenceType() == expectedEmail.getReferenceType());
         testObserver.assertValue(e -> e.getSubject().equals(expectedEmail.getSubject()));
         testObserver.assertValue(e -> e.getTemplate().equals(expectedEmail.getTemplate()));
     }

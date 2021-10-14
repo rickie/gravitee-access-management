@@ -138,7 +138,7 @@ public final class SCIMFilterParser {
             throw new IllegalArgumentException(msg);
         }
         final Object filterValue;
-        if (!attributeOperator.equals(Operator.PRESENCE)) {
+        if (attributeOperator != Operator.PRESENCE) {
             filterValue = readValue();
             if (filterValue == null) {
                 final String msg = String.format(
@@ -227,7 +227,7 @@ public final class SCIMFilterParser {
                 final FilterNode rightOperand = filterStack.pop();
                 final FilterNode leftOperand = filterStack.pop();
                 final OperatorNode operatorNode = (OperatorNode)node;
-                if (operatorNode.getOperator().equals(Operator.AND)) {
+                if (operatorNode.getOperator() == Operator.AND) {
                     final Filter filter = createAndFilter(
                             Arrays.asList(leftOperand.getFilterComponent(),
                                     rightOperand.getFilterComponent()));

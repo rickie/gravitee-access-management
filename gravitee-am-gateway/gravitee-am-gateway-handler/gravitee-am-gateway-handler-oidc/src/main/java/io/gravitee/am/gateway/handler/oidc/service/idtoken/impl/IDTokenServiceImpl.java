@@ -283,7 +283,7 @@ public class IDTokenServiceImpl implements IDTokenService {
         if (customClaims != null && !customClaims.isEmpty()) {
             customClaims
                     .stream()
-                    .filter(tokenClaim -> TokenTypeHint.ID_TOKEN.equals(tokenClaim.getTokenType()))
+                    .filter(tokenClaim -> TokenTypeHint.ID_TOKEN == tokenClaim.getTokenType())
                     .forEach(tokenClaim -> {
                         try {
                             String claimName = tokenClaim.getClaimName();
