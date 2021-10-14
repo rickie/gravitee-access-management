@@ -362,6 +362,12 @@
                 <artifactId>gravitee-license-node</artifactId>
                 <version>${gravitee-license-node.version}</version>
             </dependency>
+            <dependency>
+                <groupId>tech.picnic.error-prone-support</groupId>
+                <artifactId>migration-util</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -406,6 +412,14 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- MigrationUtil -->
+        <dependency>
+            <groupId>tech.picnic.error-prone-support</groupId>
+            <artifactId>migration-util</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -433,6 +447,11 @@
                             <artifactId>error-prone-contrib</artifactId>
                             <version>0.0.1-SNAPSHOT</version>
                         </path>
+                        <path>
+                            <groupId>com.google.errorprone</groupId>
+                            <artifactId>error_prone_migration</artifactId>
+                            <version>HEAD-SNAPSHOT</version>
+                        </path>
                     </annotationProcessorPaths>
                     <compilerArgs>
                         <arg>-Xmaxerrs</arg>
@@ -453,13 +472,13 @@
                             <!-- Don't start migration just yet -->
                             -Xep:InlineMeInliner:ERROR
                             -Xep:InlineMeSuggester:ERROR
-                            <!--                            -Xep:InlineMockitoStatements:OFF-->
-                            <!--                            -Xep:AddDefaultMethod:OFF-->
+                            <!-- -Xep:InlineMockitoStatements:OFF-->
+                            <!-- -Xep:AddDefaultMethod:OFF-->
 
                             <!-- Turn these on once. -->
                             -Xep:MethodReferenceUsage:ERROR
-                            <!--                            -Xep:RemoveOldMethods:OFF-->
-                            <!-- -Xep:UnwrapExpressions:ERROR-->
+                            -Xep:RemoveOldMethods:OFF
+                            <!-- -Xep:UnwrapExpressions:ERROR -->
 
                             -XepOpt:Refaster:NamePattern=(?!TestNG)(?!Optional)(?!AssertJ)(?!Assorted)(?!Stream)(?!RxJava2Adapter)(?!Reactor)(?!Web)(?!String)(?!Stream)(?!Immutable)(?!Int)(?!Mockito)(?!Collection)(?!Comparator)(?!Time)(?!RxJava).*
 
