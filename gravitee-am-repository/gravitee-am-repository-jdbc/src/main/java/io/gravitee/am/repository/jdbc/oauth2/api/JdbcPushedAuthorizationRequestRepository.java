@@ -71,7 +71,7 @@ public class JdbcPushedAuthorizationRequestRepository extends AbstractJdbcReposi
                 .using(toJdbcEntity(par))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(parRepository.findById(par.getId()).map(this::toEntity)).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create PushedAuthorizationRequest with id {}", par.getId(), error))));
+        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(parRepository.findById(par.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create PushedAuthorizationRequest with id {}", par.getId(), error))));
     }
 
     @Override

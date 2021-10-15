@@ -156,8 +156,7 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         }
         Mono<Long> userCount = executeCount.as(Long.class).fetch().one();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(userFlux)
-                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(user -> completeUser(user).toFlowable())).collectList().flatMap(list->userCount.map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<User>(list, page, total)))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(userFlux)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(user -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeUser(user)).flux()))).collectList().flatMap(list->userCount.map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<User>(list, page, total)))));
     }
 
     @Override
@@ -371,15 +370,13 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
     }
 
     private Single<User> completeUser(User userToComplete) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.just(userToComplete)
-                .flatMap(user ->
-                        roleRepository.findByUserId(user.getId()).map(JdbcOrganizationUser.Role::getRole).toList().map(roles -> {
-                            user.setRoles(roles);
-                            return user;
-                        }))).flatMap(user->RxJava2Adapter.singleToMono(entitlementRepository.findByUserId(user.getId()).map(JdbcOrganizationUser.Entitlements::getEntitlement).toList().map((java.util.List<java.lang.String> entitlements)->{
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.just(userToComplete)).flatMap(user->RxJava2Adapter.singleToMono(roleRepository.findByUserId(user.getId()).map(JdbcOrganizationUser.Role::getRole).toList().map((java.util.List<java.lang.String> roles)->{
+user.setRoles(roles);
+return user;
+}))))).flatMap(user->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(entitlementRepository.findByUserId(user.getId()).map(JdbcOrganizationUser.Entitlements::getEntitlement).toList()).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> entitlements)->{
 user.setEntitlements(entitlements);
 return user;
-}))).flatMap(user->RxJava2Adapter.singleToMono(addressesRepository.findByUserId(user.getId()).map((io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Address jdbcAddr)->mapper.map(jdbcAddr, Address.class)).toList()).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.scim.Address> addresses)->{
+}))))).flatMap(user->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(addressesRepository.findByUserId(user.getId()).map((io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Address jdbcAddr)->mapper.map(jdbcAddr, Address.class))).collectList())).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.scim.Address> addresses)->{
 user.setAddresses(addresses);
 return user;
 }))).flatMap(user->RxJava2Adapter.flowableToFlux(attributesRepository.findByUserId(user.getId())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Attribute> attributes)->{

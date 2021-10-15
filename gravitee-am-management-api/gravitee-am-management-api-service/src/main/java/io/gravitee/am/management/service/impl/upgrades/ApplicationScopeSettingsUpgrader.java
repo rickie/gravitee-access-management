@@ -69,7 +69,7 @@ public class ApplicationScopeSettingsUpgrader implements Upgrader, Ordered {
     @Override
     public boolean upgrade() {
         final String instanceOperationId = UUID.randomUUID().toString();
-        boolean upgraded = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(systemTaskRepository.findById(TASK_ID)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.defer(() -> createSystemTask(instanceOperationId)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<SystemTask, SingleSource<Boolean>>toJdkFunction(task -> {
+        boolean upgraded = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(systemTaskRepository.findById(TASK_ID)).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.defer(()->RxJava2Adapter.singleToMono(createSystemTask(instanceOperationId)))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<SystemTask, SingleSource<Boolean>>toJdkFunction(task -> {
                     switch (SystemTaskStatus.valueOf(task.getStatus())) {
                         case INITIALIZED:
                             return processUpgrade(instanceOperationId, task, instanceOperationId);
@@ -159,7 +159,7 @@ public class ApplicationScopeSettingsUpgrader implements Upgrader, Ordered {
                     } else {
                         logger.debug("No scope to process for application '{}'", app.getId());
                     }
-                    return Single.just(app);
+                    return RxJava2Adapter.monoToSingle(Mono.just(app));
                 })).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> updateSystemTask(task, (SystemTaskStatus.FAILURE), task.getOperationId()).subscribe())).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(updateSystemTask(task, SystemTaskStatus.SUCCESS, task.getOperationId())).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> true)))
                         .onErrorResumeNext((err) -> {
                             logger.error("Unable to update status for migrate scope options task: {}", err.getMessage());

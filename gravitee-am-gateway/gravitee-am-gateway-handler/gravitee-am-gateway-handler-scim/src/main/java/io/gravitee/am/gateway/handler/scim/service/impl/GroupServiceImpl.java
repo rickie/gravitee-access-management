@@ -122,16 +122,14 @@ public class GroupServiceImpl implements GroupService {
         LOGGER.debug("Create a new group {} for domain {}", group.getDisplayName(), domain.getName());
 
         // check if user is unique
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), group.getDisplayName())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), group.getDisplayName())
                 .isEmpty()
                 .map(isEmpty -> {
                     if (!isEmpty) {
                         throw new UniquenessException("Group with display name [" + group.getDisplayName()+ "] already exists");
                     }
                     return true;
-                })
-                // set members
-                .flatMap(__ -> setMembers(group, baseUrl))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.gateway.handler.scim.model.Group, SingleSource<io.gravitee.am.model.Group>>toJdkFunction(group1 -> {
+                })).flatMap(__->RxJava2Adapter.singleToMono(setMembers(group, baseUrl))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.gateway.handler.scim.model.Group, SingleSource<io.gravitee.am.model.Group>>toJdkFunction(group1 -> {
                     io.gravitee.am.model.Group groupModel = convert(group1);
                     // set technical ID
                     groupModel.setId(RandomString.generate());
@@ -154,15 +152,14 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Single<Group> update(String groupId, Group group, String baseUrl) {
         LOGGER.debug("Update a group {} for domain {}", groupId, domain.getName());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(groupRepository.findById(groupId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new GroupNotFoundException(groupId)))))
-                .flatMapSingle(existingGroup -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), group.getDisplayName())
-                        .map(group1 -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(groupRepository.findById(groupId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new GroupNotFoundException(groupId))))))
+                .flatMapSingle(existingGroup -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), group.getDisplayName())).map(RxJavaReactorMigrationUtil.toJdkFunction(group1 -> {
                             // if display name has changed check uniqueness
                             if (!existingGroup.getId().equals(group1.getId())) {
                                 throw new UniquenessException("Group with display name [" + group.getDisplayName()+ "] already exists");
                             }
                             return existingGroup;
-                        })).defaultIfEmpty(existingGroup))
+                        })))).defaultIfEmpty(existingGroup))
                         // set members
                         .flatMapSingle(irrelevant -> setMembers(group, baseUrl))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.gateway.handler.scim.model.Group, SingleSource<io.gravitee.am.model.Group>>toJdkFunction(group1 -> {
                             io.gravitee.am.model.Group groupToUpdate = convert(group1);
@@ -187,7 +184,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Single<Group> patch(String groupId, PatchOp patchOp, String baseUrl) {
         LOGGER.debug("Patch a group {} for domain {}", groupId, domain.getName());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(get(groupId, baseUrl)).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new GroupNotFoundException(groupId))))).flatMap(v->RxJava2Adapter.singleToMono((Single<Group>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Group, Single<Group>>)group -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(get(groupId, baseUrl)).switchIfEmpty(Mono.error(new GroupNotFoundException(groupId))).flatMap(v->RxJava2Adapter.singleToMono((Single<Group>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Group, Single<Group>>)group -> {
                     ObjectNode node = objectMapper.convertValue(group, ObjectNode.class);
                     patchOp.getOperations().forEach(operation -> operation.apply(node));
                     return update(groupId, objectMapper.treeToValue(node, Group.class), baseUrl);
@@ -206,7 +203,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Completable delete(String groupId) {
         LOGGER.debug("Delete group {}", groupId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(groupRepository.findById(groupId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new GroupNotFoundException(groupId)))).flatMap(user->RxJava2Adapter.completableToMono(groupRepository.delete(groupId))).then())
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(groupRepository.findById(groupId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new GroupNotFoundException(groupId))))).flatMap(user->RxJava2Adapter.completableToMono(groupRepository.delete(groupId))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));

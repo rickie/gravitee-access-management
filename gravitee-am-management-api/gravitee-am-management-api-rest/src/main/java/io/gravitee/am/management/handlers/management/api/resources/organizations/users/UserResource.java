@@ -82,7 +82,7 @@ public class UserResource extends AbstractResource {
             @PathParam("user") String user,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)).map(RxJavaReactorMigrationUtil.toJdkFunction(UserEntity::new)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.management.handlers.management.api.model.UserEntity, SingleSource<io.gravitee.am.management.handlers.management.api.model.UserEntity>>toJdkFunction(this::enhanceIdentityProvider).apply(v))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)).map(RxJavaReactorMigrationUtil.toJdkFunction(UserEntity::new)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.management.handlers.management.api.model.UserEntity, SingleSource<io.gravitee.am.management.handlers.management.api.model.UserEntity>>toJdkFunction(this::enhanceIdentityProvider).apply(v))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -155,8 +155,8 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)
-                        .filter(existingUser -> IdentityProviderManagerImpl.IDP_GRAVITEE.equals(existingUser.getSource()))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserInvalidException("Unable to reset password"))))))).flatMap(existingUser->RxJava2Adapter.completableToMono(organizationUserService.resetPassword(organizationId, existingUser, password.getPassword(), authenticatedUser))).then()))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)).then(RxJava2Adapter.maybeToMono(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)
+                        .filter(existingUser -> IdentityProviderManagerImpl.IDP_GRAVITEE.equals(existingUser.getSource()))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserInvalidException("Unable to reset password"))))).flatMap(existingUser->RxJava2Adapter.completableToMono(organizationUserService.resetPassword(organizationId, existingUser, password.getPassword(), authenticatedUser))).then()))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
 
     }

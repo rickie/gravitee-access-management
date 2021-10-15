@@ -24,6 +24,8 @@ import io.gravitee.cockpit.api.command.installation.InstallationCommand;
 import io.gravitee.cockpit.api.command.installation.InstallationPayload;
 import io.gravitee.cockpit.api.command.installation.InstallationReply;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -56,9 +58,8 @@ public class InstallationCommandHandler implements CommandHandler<InstallationCo
 
         InstallationPayload installationPayload = command.getPayload();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(installationService.getOrInitialize().map(Installation::getAdditionalInformation)
-                .doOnSuccess(additionalInfos -> additionalInfos.put(Installation.COCKPIT_INSTALLATION_STATUS, installationPayload.getStatus()))
-                .flatMap(installationService::setAdditionalInformation)).map(RxJavaReactorMigrationUtil.toJdkFunction(installation -> new InstallationReply(command.getId(), CommandStatus.SUCCEEDED))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installation -> logger.info("Installation status is [{}].", installationPayload.getStatus()))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.info("Error occurred when updating installation status.", error))))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(installationService.getOrInitialize().map(Installation::getAdditionalInformation)
+                .doOnSuccess(additionalInfos -> additionalInfos.put(Installation.COCKPIT_INSTALLATION_STATUS, installationPayload.getStatus()))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Map<String, String>, SingleSource<Installation>>toJdkFunction(installationService::setAdditionalInformation).apply(v)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(installation -> new InstallationReply(command.getId(), CommandStatus.SUCCEEDED))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installation -> logger.info("Installation status is [{}].", installationPayload.getStatus()))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.info("Error occurred when updating installation status.", error))))
                 .onErrorReturn(throwable -> new InstallationReply(command.getId(), CommandStatus.ERROR));
     }
 }

@@ -36,6 +36,7 @@ import java.util.function.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -55,7 +56,7 @@ public class JWKServiceImpl implements JWKService {
 
     @Override
     public Single<JWKSet> getKeys() {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Flowable.fromIterable(certificateManager.providers())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(certificateProvider -> certificateProvider.getProvider().keys())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(certificateManager.providers()))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(certificateProvider -> certificateProvider.getProvider().keys())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
                     JWKSet jwkSet = new JWKSet();
                     jwkSet.setKeys(keys);
                     return jwkSet;
@@ -75,8 +76,7 @@ public class JWKServiceImpl implements JWKService {
 
     @Override
     public Maybe<JWKSet> getDomainPrivateKeys() {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(Flowable.fromIterable(certificateManager.providers())
-                .flatMap(provider -> provider.getProvider().privateKey())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromIterable(certificateManager.providers())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(provider -> provider.getProvider().privateKey())))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
                     JWKSet jwkSet = new JWKSet();
                     jwkSet.setKeys(keys);
                     return jwkSet;

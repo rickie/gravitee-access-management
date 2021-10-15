@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Implementation of the Authorization Code Grant Flow
@@ -87,7 +88,7 @@ public class AuthorizationCodeTokenGranter extends AbstractTokenGranter {
             return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Missing parameter: code")));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client)).flatMap(tokenRequest1->RxJava2Adapter.maybeToMono(authorizationCodeService.remove(code, client)).flatMap(z->authenticationFlowContextService.removeContext(z.getTransactionId(), z.getContextVersion()).onErrorResumeNext((java.lang.Throwable error)->(exitOnError) ? Maybe.error(error) : Maybe.just(new AuthenticationFlowContext())).map((io.gravitee.am.model.AuthenticationFlowContext ctx)->{
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client)).flatMap(tokenRequest1->RxJava2Adapter.maybeToMono(authorizationCodeService.remove(code, client)).flatMap(z->RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticationFlowContextService.removeContext(z.getTransactionId(), z.getContextVersion()).onErrorResumeNext((java.lang.Throwable error)->(exitOnError) ? Maybe.error(error) : Maybe.just(new AuthenticationFlowContext()))).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.AuthenticationFlowContext ctx)->{
 checkRedirectUris(tokenRequest1, z);
 checkPKCE(tokenRequest1, z);
 tokenRequest1.setSubject(z.getSubject());
@@ -101,7 +102,7 @@ decodedAuthorizationCode.put("transactionId", z.getTransactionId());
 tokenRequest1.setAuthorizationCode(decodedAuthorizationCode);
 tokenRequest1.getContext().put(ConstantKeys.AUTH_FLOW_CONTEXT_ATTRIBUTES_KEY, ctx.getData());
 return tokenRequest1;
-}).as(RxJava2Adapter::maybeToMono)).single()));
+}))).as(RxJava2Adapter::maybeToMono)).single()));
     }
 
     @Override

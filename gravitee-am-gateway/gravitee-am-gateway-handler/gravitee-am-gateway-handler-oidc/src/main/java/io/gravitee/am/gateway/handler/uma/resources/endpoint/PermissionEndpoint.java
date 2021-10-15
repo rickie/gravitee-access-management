@@ -28,6 +28,7 @@ import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.HttpStatusCode;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
@@ -68,8 +69,7 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.extractRequest(context)
-                .flatMap(this::bodyValidation)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toPermissionRequest)).flatMap(permissionRequests->RxJava2Adapter.singleToMono(permissionTicketService.create(permissionRequests, domain.getId(), client.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(PermissionTicketResponse::from)))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.extractRequest(context)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<List<PermissionTicketRequest>, SingleSource<List<PermissionTicketRequest>>>toJdkFunction(this::bodyValidation).apply(v)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toPermissionRequest)).flatMap(permissionRequests->RxJava2Adapter.singleToMono(permissionTicketService.create(permissionRequests, domain.getId(), client.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(PermissionTicketResponse::from)))
                 .subscribe(
                         permission -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")

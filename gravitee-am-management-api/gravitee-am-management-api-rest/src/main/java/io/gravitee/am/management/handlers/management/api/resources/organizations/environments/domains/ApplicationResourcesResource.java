@@ -87,18 +87,16 @@ public class ApplicationResourcesResource extends AbstractResource {
             @QueryParam("size") @DefaultValue(MAX_RESOURCES_SIZE_PER_PAGE_STRING) int size,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.LIST)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMap(__ -> applicationService.findById(application))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ApplicationNotFoundException(application))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.LIST)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
+                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->applicationService.findById(application).as(RxJava2Adapter::maybeToMono)))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new ApplicationNotFoundException(application)))))
                         .flatMapSingle(application1 -> resourceService.findByDomainAndClient(domain, application1.getId(), page, Integer.min(MAX_RESOURCES_SIZE_PER_PAGE, size)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Page<Resource>, SingleSource<Page>>toJdkFunction(pagedResources -> {
                             return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(pagedResources.getData())
-                                    .flatMapSingle(r -> resourceService.countAccessPolicyByResource(r.getId())
-                                            .map(policies -> {
+                                    .flatMapSingle(r -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resourceService.countAccessPolicyByResource(r.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(policies -> {
                                                 ResourceEntity resourceEntity = new ResourceEntity(r);
                                                 resourceEntity.setPolicies(policies);
                                                 return resourceEntity;
-                                            }))
-                                    .toList()).zipWith(RxJava2Adapter.singleToMono(Single.wrap(resourceService.getMetadata((List<Resource>) pagedResources.getData()))), RxJavaReactorMigrationUtil.toJdkBiFunction((v1, v2) -> {
+                                            }))))
+                                    .toList()).zipWith(RxJava2Adapter.singleToMono(resourceService.getMetadata((List<Resource>) pagedResources.getData())), RxJavaReactorMigrationUtil.toJdkBiFunction((v1, v2) -> {
                                         return new Page(Collections.singletonList(new ResourceListItem(v1, v2)), page, pagedResources.getTotalCount());
                                     })));
                         }).apply(v))))))

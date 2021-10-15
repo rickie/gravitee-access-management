@@ -104,7 +104,7 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
         membership.setReferenceType(user.getReferenceType());
         membership.setReferenceId(user.getReferenceId());
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(roleObs).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(String.format("Cannot add user membership to organization %s. Unable to find ORGANIZATION_USER role", user.getReferenceId())))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Role, CompletableSource>)role -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(roleObs).switchIfEmpty(Mono.error(new TechnicalManagementException(String.format("Cannot add user membership to organization %s. Unable to find ORGANIZATION_USER role", user.getReferenceId())))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Role, CompletableSource>)role -> {
                     membership.setRoleId(role.getId());
                     return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(membershipService.addOrUpdate(user.getReferenceId(), membership)).then());
                 }).apply(y)))).then());
@@ -138,7 +138,7 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
                 })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user1 -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user1.getId(), user1.getReferenceType(), user1.getReferenceId(), Action.UPDATE));
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user1)))));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(user1)));
                 }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {

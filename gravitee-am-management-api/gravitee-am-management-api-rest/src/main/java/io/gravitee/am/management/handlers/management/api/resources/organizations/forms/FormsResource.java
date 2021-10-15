@@ -67,7 +67,7 @@ public class FormsResource extends AbstractResource {
             @NotNull @QueryParam("template") Template formTemplate,
             @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formService.findByTemplate(ReferenceType.ORGANIZATION, organizationId, formTemplate.template())).map(RxJavaReactorMigrationUtil.toJdkFunction(page -> Response.ok(page).build())))).defaultIfEmpty(Response.ok(new Form(false, formTemplate.template())).build())).as(RxJava2Adapter::monoToMaybe)
+        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(formService.findByTemplate(ReferenceType.ORGANIZATION, organizationId, formTemplate.template())).map(RxJavaReactorMigrationUtil.toJdkFunction(page -> Response.ok(page).build())).defaultIfEmpty(Response.ok(new Form(false, formTemplate.template())).build())).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 

@@ -254,11 +254,11 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
     public Completable delete(String userId) {
         LOGGER.debug("Delete user {}", userId);
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(getUserRepository().findById(userId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UserNotFoundException(userId))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)user -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(getUserRepository().findById(userId)).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)user -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user.getId(), user.getReferenceType(), user.getReferenceId(), Action.DELETE));
                     /// delete WebAuthn credentials
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(credentialService.findByUserId(user.getReferenceType(), user.getReferenceId(), user.getId())).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Credential, CompletableSource>toJdkFunction(credential -> credentialService.delete(credential.getId())).apply(z)))).then())).then(RxJava2Adapter.completableToMono(getUserRepository().delete(userId))).then(RxJava2Adapter.singleToMono(eventService.create(event)).then()));
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(credentialService.findByUserId(user.getReferenceType(), user.getReferenceId(), user.getId())).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Credential, CompletableSource>toJdkFunction(credential -> credentialService.delete(credential.getId())).apply(z)))).then().then(RxJava2Adapter.completableToMono(getUserRepository().delete(userId))).then(RxJava2Adapter.singleToMono(eventService.create(event)).then()));
                 }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {

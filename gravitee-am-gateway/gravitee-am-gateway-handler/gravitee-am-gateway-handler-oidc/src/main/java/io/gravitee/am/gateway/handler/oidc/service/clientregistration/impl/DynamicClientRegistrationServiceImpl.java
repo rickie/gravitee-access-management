@@ -162,10 +162,9 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
         client.setClientName(ClientServiceImpl.DEFAULT_CLIENT_NAME);
         client.setDomain(domain.getId());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.validateClientRegistrationRequest(request)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.validateClientRegistrationRequest(request)
                 .map(req -> req.patch(client))
-                .flatMap(this::applyDefaultIdentityProvider)
-                .flatMap(this::applyDefaultCertificateProvider)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction(this::applyAccessTokenValidity).apply(v)))).flatMap(app->RxJava2Adapter.singleToMono(this.applyRegistrationAccessToken(basePath, app))).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)clientService::create).apply(v))));
+                .flatMap(this::applyDefaultIdentityProvider)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction(this::applyDefaultCertificateProvider).apply(v)))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction(this::applyAccessTokenValidity).apply(v)))).flatMap(app->RxJava2Adapter.singleToMono(this.applyRegistrationAccessToken(basePath, app))).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)clientService::create).apply(v))));
     }
 
     private Single<Client> applyAccessTokenValidity(Client client) {
@@ -186,11 +185,10 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
      * </pre>
      */
     private Single<Client> createClientFromTemplate(DynamicClientRegistrationRequest request, String basePath) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(clientService.findById(request.getSoftwareId().get())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(clientService.findById(request.getSoftwareId().get())
                 .switchIfEmpty(Maybe.error(new InvalidClientMetadataException("No template found for software_id "+request.getSoftwareId().get())))
                 .flatMapSingle(this::sanitizeTemplate)
-                .map(request::patch)
-                .flatMap(app -> this.applyRegistrationAccessToken(basePath, app))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction(clientService::create).apply(v)))).flatMap(client->RxJava2Adapter.singleToMono(copyForms(request.getSoftwareId().get(), client))).flatMap(client->RxJava2Adapter.singleToMono(copyEmails(request.getSoftwareId().get(), client))));
+                .map(request::patch)).flatMap(app->RxJava2Adapter.singleToMono(this.applyRegistrationAccessToken(basePath, app))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction(clientService::create).apply(v)))).flatMap(client->RxJava2Adapter.singleToMono(copyForms(request.getSoftwareId().get(), client))).flatMap(client->RxJava2Adapter.singleToMono(copyEmails(request.getSoftwareId().get(), client))));
     }
 
     private Single<Client> sanitizeTemplate(Client template) {
@@ -295,7 +293,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
             return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException()));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.validateRedirectUri(request, isPatch)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.validateRedirectUri(request, isPatch)
                 .flatMap(this::validateScopes)
                 .flatMap(this::validateGrantType)
                 .flatMap(this::validateResponseType)
@@ -309,8 +307,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
                 .flatMap(this::validateIdTokenEncryptionAlgorithm)
                 .flatMap(this::validateTlsClientAuth)
                 .flatMap(this::validateSelfSignedClientAuth)
-                .flatMap(this::validateAuthorizationSigningAlgorithm)
-                .flatMap(this::validateAuthorizationEncryptionAlgorithm)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction(this::validateRequestObjectSigningAlgorithm).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction(this::validateRequestObjectEncryptionAlgorithm).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono((Single<DynamicClientRegistrationRequest>)RxJavaReactorMigrationUtil.toJdkFunction((Function<DynamicClientRegistrationRequest, Single<DynamicClientRegistrationRequest>>)this::enforceWithSoftwareStatement).apply(v))));
+                .flatMap(this::validateAuthorizationSigningAlgorithm)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction(this::validateAuthorizationEncryptionAlgorithm).apply(v)))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction(this::validateRequestObjectSigningAlgorithm).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction(this::validateRequestObjectEncryptionAlgorithm).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono((Single<DynamicClientRegistrationRequest>)RxJavaReactorMigrationUtil.toJdkFunction((Function<DynamicClientRegistrationRequest, Single<DynamicClientRegistrationRequest>>)this::enforceWithSoftwareStatement).apply(v))));
     }
 
     private Single<DynamicClientRegistrationRequest> enforceWithSoftwareStatement(DynamicClientRegistrationRequest request) {
@@ -330,9 +327,8 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
                 if (jwt instanceof SignedJWT) {
                     final SignedJWT signedJWT = (SignedJWT) jwt;
                     if (isSignAlgCompliantWithFapi(signedJWT.getHeader().getAlgorithm().getName())) {
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwkService.getKeys(directoryJwksUri)
-                                .flatMap(jwk -> jwkService.getKey(jwk, signedJWT.getHeader().getKeyID()))
-                                .switchIfEmpty(Single.error(new TechnicalManagementException("Invalid jwks_uri for OpenBanking Directory")))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(jwk -> jwsService.isValidSignature(signedJWT, jwk))).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Invalid signature for software_statement"))))).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> {
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(jwkService.getKeys(directoryJwksUri)
+                                .flatMap(jwk -> jwkService.getKey(jwk, signedJWT.getHeader().getKeyID()))).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new TechnicalManagementException("Invalid jwks_uri for OpenBanking Directory"))))))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(jwk -> jwsService.isValidSignature(signedJWT, jwk))).switchIfEmpty(Mono.error(new InvalidClientMetadataException("Invalid signature for software_statement"))).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> {
                                     LOGGER.debug("software_statement is valid, check claims regarding the registration request information");
                                     JSONObject softwareStatement = signedJWT.getPayload().toJSONObject();
                                     final Number iat = softwareStatement.getAsNumber("iat");

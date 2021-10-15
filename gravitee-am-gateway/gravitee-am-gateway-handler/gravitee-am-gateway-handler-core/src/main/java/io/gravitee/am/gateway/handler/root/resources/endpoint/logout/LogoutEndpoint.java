@@ -150,16 +150,15 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
             final Authentication authentication = new EndUserAuthentication(endUser, null, authenticationContext);
 
             final Maybe<AuthenticationProvider> authenticationProviderMaybe = this.identityProviderManager.get(endUser.getSource());
-            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticationProviderMaybe
+            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticationProviderMaybe
                     .filter(provider -> provider instanceof SocialAuthenticationProvider)
                     .flatMap(provider -> ((SocialAuthenticationProvider) provider).signOutUrl(authentication))
-                    .map(Optional::ofNullable)
-                    .switchIfEmpty(Maybe.just(Optional.empty()))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Optional<Request>, MaybeSource<Optional<String>>>toJdkFunction(optLogoutRequest  -> {
+                    .map(Optional::ofNullable)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.just(Optional.empty())))))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Optional<Request>, MaybeSource<Optional<String>>>toJdkFunction(optLogoutRequest  -> {
                         if (optLogoutRequest.isPresent()) {
                             return generateLogoutCallback(routingContext, endUser, optLogoutRequest.get());
                         } else {
                             LOGGER.debug("No logout endpoint has been found in the Identity Provider configuration");
-                            return Maybe.just(Optional.<String>empty());
+                            return RxJava2Adapter.monoToMaybe(Mono.just(Optional.<String>empty()));
                         }
                     }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(endpoint -> handler.handle(Future.succeededFuture(endpoint)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> {
                         LOGGER.warn("Unable to sign the end user out of the external OIDC '{}', only sign out of AM", client.getClientId(), err);

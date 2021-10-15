@@ -72,7 +72,7 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
   public Maybe<AuthorizationCode> remove(String code, Client client) {
     return RxJava2Adapter.monoToMaybe(
         RxJava2Adapter.maybeToMono(authorizationCodeRepository
-                    .findByCode(code)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(handleInvalidCode(code)))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthorizationCode, MaybeSource<AuthorizationCode>>toJdkFunction(authorizationCode -> {
+                    .findByCode(code)).switchIfEmpty(RxJava2Adapter.maybeToMono(handleInvalidCode(code))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthorizationCode, MaybeSource<AuthorizationCode>>toJdkFunction(authorizationCode -> {
                           if (!authorizationCode.getClientId().equals(client.getClientId())) {
                             return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException(
                                     "The authorization code "

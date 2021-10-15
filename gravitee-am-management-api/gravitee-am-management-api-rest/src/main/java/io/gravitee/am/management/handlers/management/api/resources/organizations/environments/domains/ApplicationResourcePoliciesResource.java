@@ -78,9 +78,9 @@ public class ApplicationResourcePoliciesResource extends AbstractResource {
             @PathParam("resource") String resource,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ)).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMap(__ -> applicationService.findById(application))).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new ApplicationNotFoundException(application))))))).flatMap(application1->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(resourceService.findAccessPoliciesByResources(Collections.singletonList(resource)).map(AccessPolicyListItem::new)).collectList())))))
+                        .flatMap(__ -> applicationService.findById(application))).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new ApplicationNotFoundException(application))))).flatMap(application1->RxJava2Adapter.flowableToFlux(resourceService.findAccessPoliciesByResources(Collections.singletonList(resource)).map(AccessPolicyListItem::new)).collectList())))
                 .subscribe(response::resume, response::resume);
     }
 

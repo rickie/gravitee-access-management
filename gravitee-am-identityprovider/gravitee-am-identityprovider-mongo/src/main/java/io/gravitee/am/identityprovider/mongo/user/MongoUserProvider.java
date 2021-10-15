@@ -162,7 +162,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
 
     @Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UserNotFoundException(id))))).flatMap(idpUser->Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id)))).then());
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(findById(id)).switchIfEmpty(Mono.error(new UserNotFoundException(id))).flatMap(idpUser->Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id)))).then());
     }
 
     @Override

@@ -110,12 +110,12 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
                             if (extensionGrant.getIdentityProvider() == null) {
                                 return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException("No identity_provider provided")));
                             }
-                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager
+                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager
                                     .get(extensionGrant.getIdentityProvider())).flatMap(t->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction((Function<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>)authProvider -> {
                                         SimpleAuthenticationContext authenticationContext = new SimpleAuthenticationContext(tokenRequest);
                                         final Authentication authentication = new EndUserAuthentication(convert(endUser), null, authenticationContext);
                                         return authProvider.loadPreAuthenticatedUser(authentication);
-                                    }).apply(t)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(idpUser -> {
+                                    }).apply(t)))).map(RxJavaReactorMigrationUtil.toJdkFunction(idpUser -> {
                                         User user = new User();
                                         user.setId(idpUser.getId());
                                         user.setUsername(endUser.getUsername());

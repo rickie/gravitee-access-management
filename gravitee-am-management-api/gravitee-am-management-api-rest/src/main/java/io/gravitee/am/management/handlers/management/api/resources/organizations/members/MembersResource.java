@@ -71,7 +71,7 @@ public class MembersResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_MEMBER, Acl.LIST)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationService.findById(organizationId)).flatMap(organization->RxJava2Adapter.singleToMono(membershipService.findByReference(organization.getId(), ReferenceType.ORGANIZATION).toList())))).flatMap(memberships->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipService.getMetadata(memberships)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.Object>> metadata)->new MembershipListItem(memberships, metadata))))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_MEMBER, Acl.LIST)).then(RxJava2Adapter.singleToMono(organizationService.findById(organizationId)).flatMap(organization->RxJava2Adapter.singleToMono(membershipService.findByReference(organization.getId(), ReferenceType.ORGANIZATION).toList())).flatMap(memberships->RxJava2Adapter.singleToMono(membershipService.getMetadata(memberships)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.Object>> metadata)->new MembershipListItem(memberships, metadata))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -95,7 +95,7 @@ public class MembersResource extends AbstractResource {
         membership.setReferenceId(organizationId);
         membership.setReferenceType(ReferenceType.ORGANIZATION);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_MEMBER, Acl.CREATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationService.findById(organizationId)).flatMap(organization->RxJava2Adapter.singleToMono(membershipService.addOrUpdate(organizationId, membership, authenticatedUser))))).map(RxJavaReactorMigrationUtil.toJdkFunction(membership1 -> Response
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_MEMBER, Acl.CREATE)).then(RxJava2Adapter.singleToMono(organizationService.findById(organizationId)).flatMap(organization->RxJava2Adapter.singleToMono(membershipService.addOrUpdate(organizationId, membership, authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(membership1 -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/members/" + membership1.getId()))
                                 .entity(membership1)
                                 .build()))))

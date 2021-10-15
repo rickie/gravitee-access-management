@@ -87,7 +87,7 @@ public class GroupMembersResource extends AbstractResource {
             @QueryParam("size") @DefaultValue(MAX_MEMBERS_SIZE_PER_PAGE_STRING) int size,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domain))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))))
                         .flatMapSingle(irrelevant -> groupService.findMembers(ReferenceType.DOMAIN, domain, group, page, Integer.min(size, MAX_MEMBERS_SIZE_PER_PAGE)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Page<io.gravitee.am.model.User>, SingleSource<Page>>toJdkFunction(pagedMembers -> {
                             if (pagedMembers.getData() == null) {
                                 return RxJava2Adapter.monoToSingle(Mono.just(pagedMembers));
@@ -95,15 +95,14 @@ public class GroupMembersResource extends AbstractResource {
                             return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(pagedMembers.getData())
                                     .flatMapSingle(member -> {
                                         if (member.getSource() != null) {
-                                            return identityProviderService.findById(member.getSource())
+                                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(member.getSource())
                                                     .map(idP -> {
                                                         member.setSource(idP.getName());
                                                         return member;
                                                     })
-                                                    .defaultIfEmpty(member)
-                                                    .toSingle();
+                                                    .defaultIfEmpty(member)).single());
                                         }
-                                        return Single.just(member);
+                                        return RxJava2Adapter.monoToSingle(Mono.just(member));
                                     })
                                     .toSortedList(Comparator.comparing(User::getUsername))).map(RxJavaReactorMigrationUtil.toJdkFunction(members -> new Page(members, pagedMembers.getCurrentPage(), pagedMembers.getTotalCount()))));
                         }).apply(v))))))

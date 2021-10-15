@@ -116,21 +116,21 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
                         Throwable lastException = userAuthentication.getLastException();
                         if (lastException != null) {
                             if (lastException instanceof BadCredentialsException) {
-                                return Single.error(new BadCredentialsException("The credentials you entered are invalid", lastException));
+                                return RxJava2Adapter.monoToSingle(Mono.error(new BadCredentialsException("The credentials you entered are invalid", lastException)));
                             } else if (lastException instanceof UsernameNotFoundException) {
                                 // if an IdP return UsernameNotFoundException, convert it as BadCredentials in order to avoid helping attackers
-                                return Single.error(new BadCredentialsException("The credentials you entered are invalid", lastException));
+                                return RxJava2Adapter.monoToSingle(Mono.error(new BadCredentialsException("The credentials you entered are invalid", lastException)));
                             } else if (lastException instanceof AccountStatusException) {
-                                return Single.error(lastException);
+                                return RxJava2Adapter.monoToSingle(Mono.error(lastException));
                             }  else if (lastException instanceof NegotiateContinueException) {
-                                return Single.error(lastException);
+                                return RxJava2Adapter.monoToSingle(Mono.error(lastException));
                             } else {
                                 logger.error("An error occurs during user authentication", lastException);
-                                return Single.error(new InternalAuthenticationServiceException("Unable to validate credentials. The user account you are trying to access may be experiencing a problem.", lastException));
+                                return RxJava2Adapter.monoToSingle(Mono.error(new InternalAuthenticationServiceException("Unable to validate credentials. The user account you are trying to access may be experiencing a problem.", lastException)));
                             }
                         } else {
                             // if an IdP return null user, throw BadCredentials in order to avoid helping attackers
-                            return Single.error(new BadCredentialsException("The credentials you entered are invalid"));
+                            return RxJava2Adapter.monoToSingle(Mono.error(new BadCredentialsException("The credentials you entered are invalid")));
                         }
                     } else {
                         // complete user connection
@@ -197,13 +197,13 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
     }
 
     private Maybe<UserAuthentication> authenticate0(Client client, Authentication authentication, String authProvider, boolean preAuthenticated) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.completableToMono(preAuthentication(client, authentication, authProvider)).then(RxJava2Adapter.maybeToMono(loadUserByUsername0(client, authentication, authProvider, preAuthenticated))).flatMap(z->RxJava2Adapter.completableToMono(postAuthentication(client, authentication, authProvider, z)).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(z))))));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.completableToMono(preAuthentication(client, authentication, authProvider)).then(RxJava2Adapter.maybeToMono(loadUserByUsername0(client, authentication, authProvider, preAuthenticated))).flatMap(z->RxJava2Adapter.completableToMono(postAuthentication(client, authentication, authProvider, z)).then(Mono.just(z))));
     }
 
     private Maybe<UserAuthentication> loadUserByUsername0(Client client, Authentication authentication, String authProvider, boolean preAuthenticated) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.get(authProvider)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new BadCredentialsException("Unable to load authentication provider " + authProvider + ", an error occurred during the initialization stage"))))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(authenticationProvider -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.get(authProvider)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new BadCredentialsException("Unable to load authentication provider " + authProvider + ", an error occurred during the initialization stage")))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(authenticationProvider -> {
                     logger.debug("Authentication attempt using identity provider {} ({})", authenticationProvider, authenticationProvider.getClass().getName());
-                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Maybe.just(preAuthenticated)).flatMap(y->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Boolean, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(preAuth -> {
+                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Maybe.just(preAuthenticated)).flatMap(y->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Boolean, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(preAuth -> {
                                 if (preAuth) {
                                     final String username = authentication.getPrincipal().toString();
                                     return userService.findByDomainAndUsernameAndSource(domain.getId(), username, authProvider)
@@ -215,7 +215,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
                                 } else {
                                     return authenticationProvider.loadUserByUsername(authentication);
                                 }
-                            }).apply(y)))))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new UsernameNotFoundException(authentication.getPrincipal().toString())))));
+                            }).apply(y)))).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UsernameNotFoundException(authentication.getPrincipal().toString()))))));
                 }).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                     logger.debug("Successfully Authenticated: " + authentication.getPrincipal() + " with provider authentication provider " + authProvider);
                     Map<String, Object> additionalInformation = user.getAdditionalInformation() == null ? new HashMap<>() : new HashMap<>(user.getAdditionalInformation());
