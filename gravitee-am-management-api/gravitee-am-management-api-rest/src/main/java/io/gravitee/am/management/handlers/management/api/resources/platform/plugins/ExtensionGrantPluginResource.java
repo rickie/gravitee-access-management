@@ -70,7 +70,7 @@ public class ExtensionGrantPluginResource {
                           @Suspended final AsyncResponse response) {
 
         // Check that the extension grant exists
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantPluginService.findById(extensionGrantId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ExtensionGrantPluginNotFoundException(extensionGrantId))))).flatMap(z->extensionGrantPluginService.getSchema(extensionGrantId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ExtensionGrantPluginSchemaNotFoundException(extensionGrantId))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPluginSchema -> Response.ok(extensionGrantPluginSchema).build())))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantPluginService.findById(extensionGrantId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new ExtensionGrantPluginNotFoundException(extensionGrantId)))).flatMap(z->extensionGrantPluginService.getSchema(extensionGrantId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ExtensionGrantPluginSchemaNotFoundException(extensionGrantId))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPluginSchema -> Response.ok(extensionGrantPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

@@ -66,7 +66,7 @@ public class RolesResource extends AbstractResource {
             @QueryParam("type") ReferenceType type,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.LIST)).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(roleService.findAllAssignable(ReferenceType.ORGANIZATION, organizationId, type)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterRoleInfos)))).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList()))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.LIST)).then(RxJava2Adapter.flowableToFlux(roleService.findAllAssignable(ReferenceType.ORGANIZATION, organizationId, type)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterRoleInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList()))
                 .subscribe(response::resume, response::resume);
     }
 

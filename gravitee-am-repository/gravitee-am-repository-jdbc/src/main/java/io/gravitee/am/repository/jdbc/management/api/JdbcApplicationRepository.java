@@ -80,10 +80,10 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
     }
 
     private Single<Application> completeApplication(Application entity) {
-        return RxJava2Adapter.monoToSingle(Mono.just(entity).flatMap(app->RxJava2Adapter.singleToMono(identityRepository.findAllByApplicationId(app.getId()).map(JdbcApplication.Identity::getIdentity).toList()).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> idps)->{
+        return RxJava2Adapter.monoToSingle(Mono.just(entity).flatMap(app->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(identityRepository.findAllByApplicationId(app.getId()).map(JdbcApplication.Identity::getIdentity)).collectList())).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> idps)->{
 app.setIdentities(new HashSet<>(idps));
 return app;
-}))).flatMap(app->RxJava2Adapter.flowableToFlux(factorRepository.findAllByApplicationId(app.getId()).map(JdbcApplication.Factor::getFactor)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> factors)->{
+}))).flatMap(app->RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(factorRepository.findAllByApplicationId(app.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Factor::getFactor)))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> factors)->{
 app.setFactors(new HashSet<>(factors));
 return app;
 }))).flatMap(app->RxJava2Adapter.flowableToFlux(scopeRepository.findAllByApplicationId(app.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication.ScopeSettings jdbcScopeSettings)->mapper.map(jdbcScopeSettings, ApplicationScopeSettings.class))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.application.ApplicationScopeSettings> scopeSettings)->{
@@ -139,13 +139,12 @@ return app;
         String search = databaseDialectHelper.buildSearchApplicationsQuery(wildcardMatch, page, size);
         String count = databaseDialectHelper.buildCountApplicationsQuery(wildcardMatch);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.execute(search)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.execute(search)
                 .bind("domain", domain)
                 .bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase())
                 .as(JdbcApplication.class)
                 .fetch()
-                .all())
-                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> completeApplication(app).toFlowable())).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error))));
+                .all())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeApplication(app)).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error))));
     }
 
     @Override

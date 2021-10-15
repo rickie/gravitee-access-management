@@ -60,12 +60,11 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
         final String username = authentication.getPrincipal().toString();
         final String presentedPassword = authentication.getCredentials().toString();
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(selectUserByMultipleField(username)
-                .toList()).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(users -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(selectUserByMultipleField(username)).collectList())).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(users -> {
                     if (users.isEmpty()) {
-                        return Flowable.error(new UsernameNotFoundException(username));
+                        return RxJava2Adapter.fluxToFlowable(Flux.error(new UsernameNotFoundException(username)));
                     }
-                    return Flowable.fromIterable(users);
+                    return RxJava2Adapter.fluxToFlowable(Flux.fromIterable(users));
                 })).filter(RxJavaReactorMigrationUtil.toJdkPredicate(result -> {
                     // check password
                     String password = String.valueOf(result.get(configuration.getPasswordAttribute()));

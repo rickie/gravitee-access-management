@@ -41,6 +41,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -79,8 +80,8 @@ public class ApplicationResourcePoliciesResource extends AbstractResource {
             @PathParam("resource") String resource,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ)).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->applicationService.findById(application).as(RxJava2Adapter::maybeToMono)))).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new ApplicationNotFoundException(application)))).flatMap(application1->RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(resourceService.findAccessPoliciesByResources(Collections.singletonList(resource))).map(RxJavaReactorMigrationUtil.toJdkFunction(AccessPolicyListItem::new)))).collectList())))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ)).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
+                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->applicationService.findById(application).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new ApplicationNotFoundException(application))))).flatMap(application1->RxJava2Adapter.flowableToFlux(resourceService.findAccessPoliciesByResources(Collections.singletonList(resource))).map(RxJavaReactorMigrationUtil.toJdkFunction(AccessPolicyListItem::new)).collectList())))
                 .subscribe(response::resume, response::resume);
     }
 

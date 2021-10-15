@@ -134,7 +134,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
 
         Bson eqAlertEnabled = toBsonFilter("alertEnabled", criteria.isAlertEnabled());
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(toBsonFilter(criteria.isLogicalOR(), eqAlertEnabled)).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new BsonDocument())))).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(filter))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(toBsonFilter(criteria.isLogicalOR(), eqAlertEnabled)).switchIfEmpty(Mono.just(new BsonDocument())).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(filter))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
     }
 
     @Override

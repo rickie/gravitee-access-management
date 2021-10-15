@@ -40,6 +40,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -70,7 +71,7 @@ public class FlowResource extends AbstractResource {
             @PathParam("flow") String flow,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(flowService.findById(ReferenceType.DOMAIN, domain, flow)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new FlowNotFoundException(flow)))).map(RxJavaReactorMigrationUtil.toJdkFunction(FlowEntity::new))).as(RxJava2Adapter::monoToMaybe)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(flowService.findById(ReferenceType.DOMAIN, domain, flow)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new FlowNotFoundException(flow))))).map(RxJavaReactorMigrationUtil.toJdkFunction(FlowEntity::new))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 

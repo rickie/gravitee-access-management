@@ -83,7 +83,7 @@ public class GroupRolesResource extends AbstractResource {
             @PathParam("group") String group,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domain))))).flatMap(z->groupService.findById(group).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new GroupNotFoundException(group))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->groupService.findById(group).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new GroupNotFoundException(group))))
                         .flatMapSingle(group1 -> {
                             if (group1.getRoles() == null || group1.getRoles().isEmpty()) {
                                 return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()));

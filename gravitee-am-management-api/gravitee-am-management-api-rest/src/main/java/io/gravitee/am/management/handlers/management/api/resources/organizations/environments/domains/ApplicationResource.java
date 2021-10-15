@@ -97,8 +97,7 @@ public class ApplicationResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->applicationService.findById(application).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new ApplicationNotFoundException(application))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domain))))))).flatMap(z->applicationService.findById(application).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))
                         .flatMapSingle(app -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findAllPermissions(authenticatedUser, organizationId, environmentId, domain, application)).map(RxJavaReactorMigrationUtil.toJdkFunction(userPermissions -> filterApplicationInfos(app, userPermissions))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(application1 -> {
                     if (!application1.getDomain().equalsIgnoreCase(domain)) {
                         throw new BadRequestException("Application does not belong to domain");

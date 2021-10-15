@@ -78,12 +78,11 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
 
     public Maybe<User> loadUserByUsername(Authentication authentication) {
         String username = ((String) authentication.getPrincipal()).toLowerCase();
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(findUserByMultipleField(username)
-                .toList()).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(users -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(findUserByMultipleField(username)).collectList())).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(users -> {
                     if (users.isEmpty()) {
-                        return Flowable.error(new UsernameNotFoundException(username));
+                        return RxJava2Adapter.fluxToFlowable(Flux.error(new UsernameNotFoundException(username)));
                     }
-                    return Flowable.fromIterable(users);
+                    return RxJava2Adapter.fluxToFlowable(Flux.fromIterable(users));
                 })).filter(RxJavaReactorMigrationUtil.toJdkPredicate(user -> {
                     String password = user.getString(this.configuration.getPasswordField());
                     String presentedPassword = authentication.getCredentials().toString();

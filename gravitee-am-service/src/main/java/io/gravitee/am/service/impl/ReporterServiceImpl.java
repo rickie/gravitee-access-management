@@ -194,9 +194,9 @@ public class ReporterServiceImpl implements ReporterService {
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkReporterConfiguration(reporterToUpdate)).flatMap(ignore->RxJava2Adapter.singleToMono(reporterRepository.update(reporterToUpdate)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Reporter, SingleSource<Reporter>>toJdkFunction((io.gravitee.am.model.Reporter reporter1)->{
 if (!ADMIN_DOMAIN.equals(domain)) {
 Event event = new Event(Type.REPORTER, new Payload(reporter1.getId(), ReferenceType.DOMAIN, reporter1.getDomain(), Action.UPDATE));
-return eventService.create(event).flatMap((io.gravitee.am.model.common.event.Event __)->Single.just(reporter1));
+return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(Single.just(reporter1))));
 } else {
-return Single.just(reporter1);
+return RxJava2Adapter.monoToSingle(Mono.just(reporter1));
 }
 }).apply(v))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(reporter1 -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_UPDATED).oldValue(oldReporter).reporter(reporter1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_UPDATED).throwable(throwable)))));
                 })
@@ -247,7 +247,7 @@ return Single.just(reporter1);
             final JsonObject configuration = (JsonObject) Json.decodeValue(reporter.getConfiguration());
             final String reporterId = reporter.getId();
 
-            result = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(reporterRepository.findByDomain(reporter.getDomain())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(r -> r.getType().equalsIgnoreCase(REPORTER_AM_FILE))))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(r -> reporterId == null || !r.getId().equals(reporterId))).map(RxJavaReactorMigrationUtil.toJdkFunction(r -> (JsonObject) Json.decodeValue(r.getConfiguration()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(cfg ->
+            result = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(reporterRepository.findByDomain(reporter.getDomain())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(r -> r.getType().equalsIgnoreCase(REPORTER_AM_FILE))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(r -> reporterId == null || !r.getId().equals(reporterId))).map(RxJavaReactorMigrationUtil.toJdkFunction(r -> (JsonObject) Json.decodeValue(r.getConfiguration()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(cfg ->
                             cfg.containsKey(REPORTER_CONFIG_FILENAME) &&
                                     cfg.getString(REPORTER_CONFIG_FILENAME).equals(configuration.getString(REPORTER_CONFIG_FILENAME)))))
                     .count()).flatMap(v->RxJava2Adapter.singleToMono((Single<Reporter>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Long, Single<Reporter>>)reporters -> {

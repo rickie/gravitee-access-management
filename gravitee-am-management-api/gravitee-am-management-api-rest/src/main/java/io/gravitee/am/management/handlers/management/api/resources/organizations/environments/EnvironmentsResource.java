@@ -69,11 +69,10 @@ public class EnvironmentsResource extends AbstractResource {
 
         User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ENVIRONMENT, Acl.LIST)
-                .andThen(environmentService.findAll(organizationId))).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Environment, MaybeSource<Environment>>toJdkFunction(environment -> hasPermission(authenticatedUser,
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ENVIRONMENT, Acl.LIST)).thenMany(environmentService.findAll(organizationId)))).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Environment, MaybeSource<Environment>>toJdkFunction(environment -> RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(hasPermission(authenticatedUser,
                         or(of(ReferenceType.ENVIRONMENT, environment.getId(), Permission.ENVIRONMENT, Acl.READ),
                                 of(ReferenceType.ORGANIZATION, organizationId, Permission.ENVIRONMENT, Acl.READ)))
-                        .filter(Boolean::booleanValue).map(permit -> environment)).apply(e)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterEnvironmentInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList())
+                        .filter(Boolean::booleanValue)).map(RxJavaReactorMigrationUtil.toJdkFunction(permit -> environment)))).apply(e)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterEnvironmentInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList())
                 .subscribe(response::resume, response::resume);
     }
 

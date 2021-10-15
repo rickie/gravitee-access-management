@@ -70,7 +70,7 @@ public class PolicyPluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the policy exists
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(policyPluginService.findById(policyId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new PolicyPluginNotFoundException(policyId))))).flatMap(z->policyPluginService.getSchema(policyId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new PolicyPluginSchemaNotFoundException(policyId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(policyPluginService.findById(policyId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new PolicyPluginNotFoundException(policyId)))).flatMap(z->policyPluginService.getSchema(policyId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new PolicyPluginSchemaNotFoundException(policyId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -83,7 +83,7 @@ public class PolicyPluginResource {
         @Suspended final AsyncResponse response) {
 
         // Check that the policy exists
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(policyPluginService.findById(policyId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new PolicyPluginNotFoundException(policyId))))).flatMap(z->policyPluginService.getDocumentation(policyId).as(RxJava2Adapter::maybeToMono)).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginDocumentation -> Response.ok(policyPluginDocumentation).build())))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(policyPluginService.findById(policyId)).switchIfEmpty(Mono.error(new PolicyPluginNotFoundException(policyId))).flatMap(z->policyPluginService.getDocumentation(policyId).as(RxJava2Adapter::maybeToMono)).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginDocumentation -> Response.ok(policyPluginDocumentation).build())))
             .subscribe(response::resume, response::resume);
     }
 

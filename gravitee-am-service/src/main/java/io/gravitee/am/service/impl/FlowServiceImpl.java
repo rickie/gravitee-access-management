@@ -188,7 +188,7 @@ public class FlowServiceImpl implements FlowService {
                             // force the ROOT post with emptyList to avoid UI issue
                             flow1.setPost(emptyList());
                         }
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(flow1)))));
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(flow1)));
                     }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(flow1 -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_UPDATED).oldValue(oldFlow).flow(flow1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_UPDATED).throwable(throwable)))));
 
             })

@@ -150,7 +150,7 @@ public class MembershipServiceImpl implements MembershipService {
                                 updateMembership.setUpdatedAt(new Date());
                                 return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipRepository.update(updateMembership)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
                                             Event event = new Event(Type.MEMBERSHIP, new Payload(membership1.getId(), membership1.getReferenceType(), membership1.getReferenceId(), Action.UPDATE));
-                                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(Single.just(membership1))));
+                                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(membership1)))));
                                         }).apply(v)))))
                                         .onErrorResumeNext(ex -> {
                                             if (ex instanceof AbstractManagementException) {
@@ -321,24 +321,22 @@ return createInternal(membership, null);
      * @return
      */
     private Completable checkRole(String organizationId, Membership membership) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(roleService.findById(membership.getRoleId())
-                .switchIfEmpty(Maybe.error(new RoleNotFoundException(membership.getRoleId())))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Role, MaybeSource<Role>>toJdkFunction(role -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(roleService.findById(membership.getRoleId())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new RoleNotFoundException(membership.getRoleId()))))))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Role, MaybeSource<Role>>toJdkFunction(role -> {
                     // If role is a 'PRIMARY_OWNER' role, need to check if it is already assigned or not.
                     if (role.isSystem() && role.getName().endsWith("_PRIMARY_OWNER")) {
 
                         if (membership.getMemberType() == MemberType.GROUP) {
-                            return Maybe.error(new InvalidRoleException("This role cannot be assigned to a group"));
+                            return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidRoleException("This role cannot be assigned to a group")));
                         }
 
                         MembershipCriteria criteria = new MembershipCriteria();
                         criteria.setRoleId(membership.getRoleId());
-                        return membershipRepository.findByCriteria(membership.getReferenceType(), membership.getReferenceId(), criteria)
+                        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(membershipRepository.findByCriteria(membership.getReferenceType(), membership.getReferenceId(), criteria)
                                 .filter(existingMembership -> !existingMembership.isMember(membership.getMemberType(), membership.getMemberId())) // Exclude the member himself if he is already the primary owner.
-                                .count()
-                                .flatMapMaybe(count -> count >= 1 ? Maybe.error(new SinglePrimaryOwnerException(membership.getReferenceType())) : Maybe.just(role));
+                                .count()).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Long, MaybeSource<Role>>toJdkFunction(count -> count >= 1 ? Maybe.error(new SinglePrimaryOwnerException(membership.getReferenceType())) : Maybe.just(role)).apply(e)))));
                     }
 
-                    return Maybe.just(role);
+                    return RxJava2Adapter.monoToMaybe(Mono.just(role));
                 }).apply(v)))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role1 -> role1.getAssignableType() == membership.getReferenceType() &&
                         // Role can be either a system role, either an organization role, either a domain role.
                         (role1.isSystem()

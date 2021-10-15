@@ -145,7 +145,7 @@ public class BotDetectionServiceImpl implements BotDetectionService {
                     return  RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(botDetectionRepository.update(botDetectionToUpdate)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<BotDetection, SingleSource<BotDetection>>toJdkFunction(detection -> {
                                 // create event for sync process
                                 Event event = new Event(Type.BOT_DETECTION, new Payload(detection.getId(), detection.getReferenceType(), detection.getReferenceId(), Action.UPDATE));
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(detection)))));
+                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(detection)));
                             }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(detection -> auditService.report(AuditBuilder.builder(BotDetectionAuditBuilder.class).principal(principal).type(EventType.BOT_DETECTION_UPDATED).oldValue(oldBotDetection).botDetection(detection)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(BotDetectionAuditBuilder.class).principal(principal).type(EventType.BOT_DETECTION_UPDATED).throwable(throwable)))));
                 })
                 .onErrorResumeNext(ex -> {

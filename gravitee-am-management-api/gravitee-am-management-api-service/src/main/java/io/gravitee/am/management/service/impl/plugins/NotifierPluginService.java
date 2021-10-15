@@ -77,7 +77,7 @@ public class NotifierPluginService {
 
     public Single<String> getSchema(String notifierId) {
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> notifierPluginManager.getSchema(notifierId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(objectMapper::readTree)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(jsonSchema -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> notifierPluginManager.getSchema(notifierId))).map(RxJavaReactorMigrationUtil.toJdkFunction(objectMapper::readTree)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(jsonSchema -> {
                     final JsonNode propertiesNode = jsonSchema.get("properties");
                     JsonNode messageNode = null;
                     if (propertiesNode instanceof ObjectNode) {

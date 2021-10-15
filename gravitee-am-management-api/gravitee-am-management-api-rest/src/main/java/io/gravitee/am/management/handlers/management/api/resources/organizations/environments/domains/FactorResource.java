@@ -81,8 +81,8 @@ public class FactorResource extends AbstractResource {
             @PathParam("factor") String factor,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->factorService.findById(factor).as(RxJava2Adapter::maybeToMono)))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new FactorNotFoundException(factor)))).map(RxJavaReactorMigrationUtil.toJdkFunction(factor1 -> {
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
+                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->factorService.findById(factor).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new FactorNotFoundException(factor))))).map(RxJavaReactorMigrationUtil.toJdkFunction(factor1 -> {
                             if (!factor1.getDomain().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Factor does not belong to domain");
                             }

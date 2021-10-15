@@ -161,13 +161,11 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository implements
     }
 
     private Single<Environment> retrieveDomainRestrictions(Environment environment) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(domainRestrictionRepository.findAllByEnvironmentId(environment.getId())
-                .map(JdbcEnvironment.DomainRestriction::getDomainRestriction)).collectList().doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(domainRestrictions -> LOGGER.debug("findById({}) fetch {} domainRestrictions", environment.getId(), domainRestrictions.size()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment::setDomainRestrictions)).map(RxJavaReactorMigrationUtil.toJdkFunction(domainRestriction -> environment)));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(domainRestrictionRepository.findAllByEnvironmentId(environment.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcEnvironment.DomainRestriction::getDomainRestriction)))).collectList().doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(domainRestrictions -> LOGGER.debug("findById({}) fetch {} domainRestrictions", environment.getId(), domainRestrictions.size()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment::setDomainRestrictions)).map(RxJavaReactorMigrationUtil.toJdkFunction(domainRestriction -> environment)));
     }
 
     private Single<Environment> retrieveHrids(Environment environment) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(hridsRepository.findAllByEnvironmentId(environment.getId())
-                .map(JdbcEnvironment.Hrid::getHrid)).collectList().doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(hrids -> LOGGER.debug("findById({}) fetch {} hrids", environment.getId(), hrids.size()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment::setHrids)).map(RxJavaReactorMigrationUtil.toJdkFunction(hrids -> environment)));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(hridsRepository.findAllByEnvironmentId(environment.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcEnvironment.Hrid::getHrid)))).collectList().doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(hrids -> LOGGER.debug("findById({}) fetch {} hrids", environment.getId(), hrids.size()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment::setHrids)).map(RxJavaReactorMigrationUtil.toJdkFunction(hrids -> environment)));
     }
 
     private Mono<Void> storeDomainRestrictions(Environment environment, boolean deleteFirst) {
