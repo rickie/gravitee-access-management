@@ -30,6 +30,7 @@ import io.gravitee.am.gateway.handler.root.service.user.UserService;
 import io.gravitee.am.gateway.handler.root.service.user.model.ForgotPasswordParameters;
 import io.gravitee.am.gateway.handler.root.service.user.model.UserToken;
 import io.gravitee.am.identityprovider.api.DefaultUser;
+import io.gravitee.am.identityprovider.api.UserProvider;
 import io.gravitee.am.jwt.JWTParser;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.ReferenceType;
@@ -121,16 +122,15 @@ public class UserServiceImpl implements UserService {
                 : (user.getSource() == null ? DEFAULT_IDP_PREFIX + domain.getId() : user.getSource());
 
         // validate user and then check user uniqueness
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), user.getUsername(), source)
-                        .isEmpty()
-                        .flatMapMaybe(isEmpty -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), user.getUsername(), source)
+                        .isEmpty()).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Boolean, MaybeSource<UserProvider>>toJdkFunction(isEmpty -> {
                             if (!isEmpty) {
                                 return Maybe.error(new UserAlreadyExistsException(user.getUsername()));
                             }
 
                             // check if user provider exists
                             return identityProviderManager.getUserProvider(source);
-                        })).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserProviderNotFoundException(source))))))
+                        }).apply(e)))))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new UserProviderNotFoundException(source)))))
                         .flatMapSingle(userProvider -> userProvider.create(convert(user)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(idpUser -> {
                             // AM 'users' collection is not made for authentication (but only management stuff)
                             // clear password
@@ -212,12 +212,10 @@ public class UserServiceImpl implements UserService {
         }
 
         // only idp manage password, find user idp and update its password
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(identityProviderManager.getUserProvider(user.getSource())
-                .switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource())))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserProviderNotFoundException(user.getSource()))))))
                 // update the idp user
                 .flatMapSingle(userProvider -> {
-                    return userProvider.findByUsername(user.getUsername())
-                            .switchIfEmpty(Maybe.error(new UserNotFoundException(user.getUsername())))
+                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userProvider.findByUsername(user.getUsername())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(user.getUsername()))))))
                             .flatMapSingle(idpUser -> {
                                 // set password
                                 ((DefaultUser) idpUser).setCredentials(user.getPassword());
@@ -228,7 +226,7 @@ public class UserServiceImpl implements UserService {
                                     // idp user not found, create its account
                                     return userProvider.create(convert(user));
                                 }
-                                return Single.error(ex);
+                                return RxJava2Adapter.monoToSingle(Mono.error(ex));
                             });
                 })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(idpUser -> {
                     // update 'users' collection for management and audit purpose
@@ -258,7 +256,7 @@ public class UserServiceImpl implements UserService {
                             .client(user1.getClient())
                             .username(user1.getUsername())
                             .build();
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(loginAttemptService.reset(criteria)).then(RxJava2Adapter.singleToMono(Single.just(user1))));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(loginAttemptService.reset(criteria)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user1)))));
                 }).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user1 -> {
                     if (accountSettings != null && accountSettings.isDeletePasswordlessDevicesAfterResetPassword()) {
                         return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(credentialService.deleteByUserId(user1.getReferenceType(), user1.getReferenceId(), user1.getId())).then(Mono.just(user1)));
@@ -304,7 +302,7 @@ public class UserServiceImpl implements UserService {
                     if (foundUsers.size() == 1 || (foundUsers.size() > 1 && !params.isConfirmIdentityEnabled())) {
                         User user = foundUsers.get(0);
                         // check if user can update its password according to its identity provider type
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new UserInvalidException("User [ " + user.getUsername() + " ] cannot be updated because its identity provider does not support user provisioning")))).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.UserProvider, SingleSource<io.gravitee.am.model.User>>toJdkFunction(userProvider -> {
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new UserInvalidException("User [ " + user.getUsername() + " ] cannot be updated because its identity provider does not support user provisioning"))))).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.UserProvider, SingleSource<io.gravitee.am.model.User>>toJdkFunction(userProvider -> {
                                     // if user registration is not completed and force registration option is disabled throw invalid account exception
                                     if (user.isInactive() && !forceUserRegistration(domain, client)) {
                                         return RxJava2Adapter.monoToSingle(Mono.error(new AccountInactiveException("User [ " + user.getUsername() + " ] needs to complete the activation process")));
@@ -343,9 +341,8 @@ public class UserServiceImpl implements UserService {
                                             final String username = params.getUsername();
                                             final Maybe<io.gravitee.am.identityprovider.api.User> findQuery = StringUtils.isEmpty(email) ?
                                                     userProvider.findByUsername(username) : userProvider.findByEmail(email) ;
-                                            return findQuery
-                                                    .map(user -> Optional.of(new UserAuthentication(user, authProvider)))
-                                                    .defaultIfEmpty(Optional.empty())
+                                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findQuery
+                                                    .map(user -> Optional.of(new UserAuthentication(user, authProvider)))).defaultIfEmpty(Optional.empty()))
                                                     .onErrorReturnItem(Optional.empty());
                                         }).apply(a)))).defaultIfEmpty(Optional.empty()));
                             })
@@ -356,8 +353,7 @@ public class UserServiceImpl implements UserService {
                                     return RxJava2Adapter.monoToSingle(Mono.error(new UserNotFoundException()));
                                 }
                                 final UserAuthentication idpUser = optional.get();
-                                return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), idpUser.getUser().getUsername(), idpUser.getSource())
-                                        .switchIfEmpty(Maybe.defer(() -> userService.findByDomainAndExternalIdAndSource(domain.getId(), idpUser.getUser().getId(), idpUser.getSource())))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()))
+                                return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), idpUser.getUser().getUsername(), idpUser.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.defer(() -> userService.findByDomainAndExternalIdAndSource(domain.getId(), idpUser.getUser().getId(), idpUser.getSource()))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()))
                                         .flatMapSingle(optEndUser -> {
                                             if (!optEndUser.isPresent()) {
                                                 return userService.create(convert(idpUser.getUser(), idpUser.getSource()));
