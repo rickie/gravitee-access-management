@@ -207,10 +207,10 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
                                 if (preAuth) {
                                     final String username = authentication.getPrincipal().toString();
                                     return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), username, authProvider)
-                                            .switchIfEmpty(Maybe.error(new UsernameNotFoundException(username)))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(user -> {
+                                            .switchIfEmpty(Maybe.error(new UsernameNotFoundException(username)))).flatMap(a->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(user -> {
                                                 final Authentication enhanceAuthentication = new EndUserAuthentication(user, null, authentication.getContext());
                                                 return authenticationProvider.loadPreAuthenticatedUser(enhanceAuthentication);
-                                            }).apply(v)))));
+                                            }).apply(a)))));
                                 } else {
                                     return authenticationProvider.loadUserByUsername(authentication);
                                 }

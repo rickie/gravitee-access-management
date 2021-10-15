@@ -143,12 +143,12 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
                                                 userToPersist.setId(RandomString.generate());
                                                 userToPersist.setExternalId(userToPersist.getId());
                                                 return userToPersist;
-                                            })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(newOrgUser -> {
+                                            })).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(newOrgUser -> {
                                                 return userService.create(newOrgUser)
                                                         .flatMap(newlyCreatedUser -> userService.setRoles(newlyCreatedUser).andThen(Single.just(newlyCreatedUser)))
                                                         .doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).user(user1)))
                                                         .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).throwable(throwable)));
-                                            }).apply(v)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::setInternalStatus))));
+                                            }).apply(a)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::setInternalStatus))));
                                 });
 
                     }
