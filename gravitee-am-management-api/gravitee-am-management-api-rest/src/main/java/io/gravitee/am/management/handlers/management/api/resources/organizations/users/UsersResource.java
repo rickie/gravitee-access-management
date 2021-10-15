@@ -80,7 +80,7 @@ public class UsersResource extends AbstractUsersResource {
 
         io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(permissionService.findAllPermissions(authenticatedUser, ReferenceType.ORGANIZATION, organizationId)).flatMap(organizationPermissions->RxJava2Adapter.completableToMono(checkPermission(organizationPermissions, Permission.ORGANIZATION_USER, Acl.LIST)).then(RxJava2Adapter.singleToMono(Single.wrap(searchUsers(ReferenceType.ORGANIZATION, organizationId, query, filter, page, size).flatMap((io.gravitee.am.model.common.Page<io.gravitee.am.model.User> pagedUsers)->Observable.fromIterable(pagedUsers.getData()).flatMapSingle((io.gravitee.am.model.User user)->filterUserInfos(organizationPermissions, user)).toSortedList(Comparator.comparing(User::getUsername)).map((java.util.List<io.gravitee.am.model.User> users)->new Page<>(users, pagedUsers.getCurrentPage(), pagedUsers.getTotalCount()))))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(permissionService.findAllPermissions(authenticatedUser, ReferenceType.ORGANIZATION, organizationId)).flatMap(organizationPermissions->RxJava2Adapter.completableToMono(checkPermission(organizationPermissions, Permission.ORGANIZATION_USER, Acl.LIST)).then(RxJava2Adapter.singleToMono(searchUsers(ReferenceType.ORGANIZATION, organizationId, query, filter, page, size).flatMap((io.gravitee.am.model.common.Page<io.gravitee.am.model.User> pagedUsers)->Observable.fromIterable(pagedUsers.getData()).flatMapSingle((io.gravitee.am.model.User user)->filterUserInfos(organizationPermissions, user)).toSortedList(Comparator.comparing(User::getUsername)).map((java.util.List<io.gravitee.am.model.User> users)->new Page<>(users, pagedUsers.getCurrentPage(), pagedUsers.getTotalCount())))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -99,11 +99,11 @@ public class UsersResource extends AbstractUsersResource {
 
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.CREATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationService.findById(organizationId)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.CREATE)).then(RxJava2Adapter.singleToMono(organizationService.findById(organizationId)
                         .flatMap(organization -> organizationUserService.createGraviteeUser(organization, newUser, authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/users/" + user.getId()))
                                 .entity(user)
-                                .build()))))))
+                                .build()))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -120,11 +120,10 @@ public class UsersResource extends AbstractUsersResource {
             // Current user has read permission, copy all information.
             filteredUser = new User(user);
             if (user.getSource() != null) {
-                return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(user.getSource())
-                        .map(idP -> {
+                return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderService.findById(user.getSource())).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
                             filteredUser.setSource(idP.getName());
                             return filteredUser;
-                        })).defaultIfEmpty(filteredUser).single());
+                        })))).defaultIfEmpty(filteredUser).single());
             }
         } else {
             // Current user doesn't have read permission, select only few information and remove default values that could be inexact.

@@ -119,7 +119,7 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
     @Override
     public Maybe<LoginAttempt> findById(String id) {
         LOGGER.debug("Find login attempt by id {}", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new LoginAttemptNotFoundException(id))))))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)).switchIfEmpty(Mono.error(new LoginAttemptNotFoundException(id))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(ex));

@@ -138,10 +138,9 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
         ((DefaultUser)user).setId(user.getId() != null ? user.getId() : RandomString.generate());
 
        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(connectionPool.create())).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Connection, Single<User>>)cnx -> {
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(selectUserByUsername(cnx, user.getUsername())
-                            .isEmpty()).flatMap(x->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(isEmpty -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(selectUserByUsername(cnx, user.getUsername())).hasElement())).flatMap(x->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(isEmpty -> {
                                 if (!isEmpty) {
-                                    return Single.error(new UserAlreadyExistsException(user.getUsername()));
+                                    return RxJava2Adapter.monoToSingle(Mono.error(new UserAlreadyExistsException(user.getUsername())));
                                 } else {
                                     String sql;
                                     Object[] args;
@@ -191,10 +190,9 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
                                         args[4] = user.getAdditionalInformation() != null ? objectMapper.writeValueAsString(user.getAdditionalInformation()) : null;
                                     }
 
-                                    return query(cnx, sql, args)
+                                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(query(cnx, sql, args)
                                             .flatMap(Result::getRowsUpdated)
-                                            .first(0)
-                                            .map(result -> user);
+                                            .first(0)).map(RxJavaReactorMigrationUtil.toJdkFunction(result -> user)));
                                 }
                             }).apply(x))))).doFinally(() -> RxJava2Adapter.monoToCompletable(Mono.from(cnx.close())).subscribe());
                 }).apply(v))));

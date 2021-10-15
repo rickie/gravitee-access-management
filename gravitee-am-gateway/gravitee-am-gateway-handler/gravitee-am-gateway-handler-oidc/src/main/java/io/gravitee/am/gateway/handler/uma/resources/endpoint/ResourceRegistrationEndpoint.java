@@ -108,7 +108,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String resource_id = context.request().getParam(RESOURCE_ID);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.resourceService.findByDomainAndClientAndUserAndResource(domain.getId(), client.getId(), accessToken.getSub(), resource_id)).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new ResourceNotFoundException(resource_id))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.resourceService.findByDomainAndClientAndUserAndResource(domain.getId(), client.getId(), accessToken.getSub(), resource_id)).switchIfEmpty(Mono.error(new ResourceNotFoundException(resource_id))))
                 .subscribe(
                         resource -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -161,7 +161,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
     }
 
     private Single<NewResource> extractRequest(RoutingContext context) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.just(context.getBodyAsJson())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JsonObject, SingleSource<JsonObject>>toJdkFunction(this::bodyValidation).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(context.getBodyAsJson()))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JsonObject, SingleSource<JsonObject>>toJdkFunction(this::bodyValidation).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class))));
     }
 
     private Single<JsonObject> bodyValidation(JsonObject body) {

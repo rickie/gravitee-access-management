@@ -77,8 +77,7 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
     public Maybe<AlertTrigger> findById(String id) {
         LOGGER.debug("findById({})", id);
 
-        Maybe<List<String>> alertNotifierIds = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(alertTriggerAlertNotifierRepository.findByAlertTriggerId(id)
-                .map(JdbcAlertTrigger.AlertNotifier::getAlertNotifierId)).collectList());
+        Maybe<List<String>> alertNotifierIds = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(alertTriggerAlertNotifierRepository.findByAlertTriggerId(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcAlertTrigger.AlertNotifier::getAlertNotifierId)))).collectList());
 
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.alertTriggerRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).zipWith(RxJava2Adapter.maybeToMono(alertNotifierIds), RxJavaReactorMigrationUtil.toJdkBiFunction((alertTrigger, ids) -> {
                     LOGGER.debug("findById({}) fetch {} alert triggers", alertTrigger.getId(), ids.size());

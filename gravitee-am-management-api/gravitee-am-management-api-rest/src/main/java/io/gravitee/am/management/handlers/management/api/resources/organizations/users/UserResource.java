@@ -82,8 +82,8 @@ public class UserResource extends AbstractResource {
             @PathParam("user") String user,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)
-                        .map(UserEntity::new)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.management.handlers.management.api.model.UserEntity, SingleSource<io.gravitee.am.management.handlers.management.api.model.UserEntity>>toJdkFunction(this::enhanceIdentityProvider).apply(v))))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)
+                        .map(UserEntity::new)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.management.handlers.management.api.model.UserEntity, SingleSource<io.gravitee.am.management.handlers.management.api.model.UserEntity>>toJdkFunction(this::enhanceIdentityProvider).apply(v))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -156,19 +156,18 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)).then(RxJava2Adapter.maybeToMono(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)
                         .filter(existingUser -> IdentityProviderManagerImpl.IDP_GRAVITEE.equals(existingUser.getSource()))
-                        .switchIfEmpty(Maybe.error(new UserInvalidException("Unable to reset password")))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)existingUser -> organizationUserService.resetPassword(organizationId, existingUser, password.getPassword(), authenticatedUser)).apply(y)))).then()))))
+                        .switchIfEmpty(Maybe.error(new UserInvalidException("Unable to reset password")))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)existingUser -> organizationUserService.resetPassword(organizationId, existingUser, password.getPassword(), authenticatedUser)).apply(y)))).then()))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
 
     }
     private Single<UserEntity> enhanceIdentityProvider(UserEntity userEntity) {
         if (userEntity.getSource() != null) {
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(userEntity.getSource())
-                    .map(idP -> {
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderService.findById(userEntity.getSource())).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
                         userEntity.setSource(idP.getName());
                         return userEntity;
-                    })).defaultIfEmpty(userEntity).single());
+                    })))).defaultIfEmpty(userEntity).single());
         }
         return RxJava2Adapter.monoToSingle(Mono.just(userEntity));
     }

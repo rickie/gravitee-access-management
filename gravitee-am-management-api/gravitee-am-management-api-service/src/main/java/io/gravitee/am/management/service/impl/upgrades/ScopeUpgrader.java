@@ -89,16 +89,14 @@ public class ScopeUpgrader implements Upgrader, Ordered {
     }
 
     private Single<List<Scope>> createAppScopes(Domain domain) {
-        return RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(applicationService.findByDomain(domain.getId())
-                .filter(applications -> applications != null)
+        return RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(applicationService.findByDomain(domain.getId())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(applications -> applications != null)))
                 .flatMapObservable(Observable::fromIterable), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(app -> app.getSettings() != null && app.getSettings().getOauth() != null)).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<Application, ObservableSource<String>>toJdkFunction(app -> Observable.fromIterable(app.getSettings().getOauth().getScopes())).apply(z)), BackpressureStrategy.BUFFER)))
                 .flatMapSingle(scope -> createScope(domain.getId(), scope))
                 .toList();
     }
 
     private Single<List<Scope>> createRoleScopes(Domain domain) {
-        return RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(roleService.findByDomain(domain.getId())
-                .filter(roles -> roles != null)
+        return RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(roleService.findByDomain(domain.getId())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(roles -> roles != null)))
                 .flatMapObservable(Observable::fromIterable), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role -> role.getOauthScopes() != null)).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<Role, ObservableSource<String>>toJdkFunction(role -> Observable.fromIterable(role.getOauthScopes())).apply(z)), BackpressureStrategy.BUFFER)))
                 .flatMapSingle(scope -> createScope(domain.getId(), scope))
                 .toList();

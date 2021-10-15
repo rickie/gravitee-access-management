@@ -125,7 +125,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                     LOGGER.error("An error occurs while trying to find a user using its ID {}", id, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a user using its ID: %s", id), ex)));
-                })).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new UserNotFoundException(id))))));
+                })).switchIfEmpty(Mono.error(new UserNotFoundException(id))));
     }
 
     @Override
@@ -200,10 +200,10 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
         user.setCreatedAt(new Date());
         user.setUpdatedAt(user.getCreatedAt());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(Single.wrap(getUserRepository().create(user)))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)user1 -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(getUserRepository().create(user))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)user1 -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user1.getId(), user1.getReferenceType(), user1.getReferenceId(), Action.CREATE));
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(Single.just(user1))));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user1)))));
                 }).apply(v))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -218,7 +218,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
     public Single<User> update(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser) {
         LOGGER.debug("Update a user {} for {} {}", id, referenceType, referenceId);
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(getUserRepository().findById(referenceType, referenceId, id)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UserNotFoundException(id))))))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(getUserRepository().findById(referenceType, referenceId, id)).switchIfEmpty(Mono.error(new UserNotFoundException(id))))
                 .flatMapSingle(oldUser -> {
                     User tmpUser = new User();
                     tmpUser.setEmail(updateUser.getEmail());
@@ -253,12 +253,12 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
     public Completable delete(String userId) {
         LOGGER.debug("Delete user {}", userId);
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(getUserRepository().findById(userId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(userId))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)user -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(getUserRepository().findById(userId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new UserNotFoundException(userId)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)user -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user.getId(), user.getReferenceType(), user.getReferenceId(), Action.DELETE));
                     /// delete WebAuthn credentials
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(credentialService.findByUserId(user.getReferenceType(), user.getReferenceId(), user.getId())
-                            .flatMapCompletable(credential -> credentialService.delete(credential.getId()))).then(RxJava2Adapter.completableToMono(Completable.wrap(getUserRepository().delete(userId)))))).then(RxJava2Adapter.completableToMono(eventService.create(event).ignoreElement())));
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(credentialService.findByUserId(user.getReferenceType(), user.getReferenceId(), user.getId())
+                            .flatMapCompletable(credential -> credentialService.delete(credential.getId()))).then(RxJava2Adapter.completableToMono(Completable.wrap(getUserRepository().delete(userId)))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(eventService.create(event)).then()))));
                 }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {

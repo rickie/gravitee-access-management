@@ -76,11 +76,10 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
 
     @Override
     public Single<ScopeApproval> upsert(ScopeApproval scopeApproval) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeApprovalRepository.findByDomainAndUserAndClientAndScope(scopeApproval.getDomain(),
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeApprovalRepository.findByDomainAndUserAndClientAndScope(scopeApproval.getDomain(),
                 scopeApproval.getUserId(),
                 scopeApproval.getClientId(),
-                scopeApproval.getScope())
-                .map(this::toEntity)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
+                scopeApproval.getScope())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optionalApproval -> {
                     if (!optionalApproval.isPresent()) {
                         scopeApproval.setCreatedAt(new Date());
@@ -142,7 +141,7 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(scopeApprovalRepository.findById(item.getId()).map(this::toEntity)).single()));
+        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeApprovalRepository.findById(item.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).single()));
     }
 
     @Override

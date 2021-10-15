@@ -43,7 +43,9 @@ import io.gravitee.am.service.reporter.builder.management.UserAuditBuilder;
 import io.gravitee.gateway.api.Request;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,30 +83,30 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
     @Override
     public Single<User> connect(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         // save or update the user
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(saveOrUpdate(principal, afterAuthentication)).flatMap(user->RxJava2Adapter.completableToMono(checkAccountStatus(user)).then(RxJava2Adapter.singleToMono(Single.wrap(Single.defer(()->userService.enhance(user)))))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(saveOrUpdate(principal, afterAuthentication)).flatMap(user->RxJava2Adapter.completableToMono(checkAccountStatus(user)).then(RxJava2Adapter.singleToMono(Single.defer(()->userService.enhance(user))))));
     }
 
     @Override
     public Maybe<User> loadPreAuthenticatedUser(String subject, Request request) {
         // find user by its technical id
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService
-                .findById(subject)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(subject))))).flatMap(z->RxJava2Adapter.maybeToMono(identityProviderManager.get(z.getSource()).flatMap((io.gravitee.am.identityprovider.api.AuthenticationProvider authenticationProvider)->{
+                .findById(subject)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new UserNotFoundException(subject)))).flatMap(z->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.get(z.getSource()).flatMap((io.gravitee.am.identityprovider.api.AuthenticationProvider authenticationProvider)->{
 SimpleAuthenticationContext authenticationContext = new SimpleAuthenticationContext(request);
 final Authentication authentication = new EndUserAuthentication(z, null, authenticationContext);
 return authenticationProvider.loadPreAuthenticatedUser(authentication);
-}).flatMap((io.gravitee.am.identityprovider.api.User idpUser)->{
+})).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, MaybeSource<io.gravitee.am.model.User>>toJdkFunction((io.gravitee.am.identityprovider.api.User idpUser)->{
 Map<String, Object> additionalInformation = idpUser.getAdditionalInformation() == null ? new HashMap<>() : new HashMap<>(idpUser.getAdditionalInformation());
 additionalInformation.put(SOURCE_FIELD, z.getSource());
 additionalInformation.put(Parameters.CLIENT_ID, z.getClient());
 ((DefaultUser)idpUser).setAdditionalInformation(additionalInformation);
 return update(z, idpUser, false).flatMap(userService::enhance).toMaybe();
-})).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.defer(()->userService.enhance(z).toMaybe()))))));
+}).apply(v)))))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.defer(()->userService.enhance(z).toMaybe())))));
     }
 
     @Override
     public Maybe<User> loadPreAuthenticatedUser(io.gravitee.am.identityprovider.api.User principal) {
         String source = (String) principal.getAdditionalInformation().get(SOURCE_FIELD);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndExternalIdAndSource(domain.getId(), principal.getId(), source)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.defer(()->RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), principal.getUsername(), source)))))));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndExternalIdAndSource(domain.getId(), principal.getId(), source)).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), principal.getUsername(), source)))));
     }
 
     @Override
@@ -118,19 +120,18 @@ return update(z, idpUser, false).flatMap(userService::enhance).toMaybe();
         user.setAccountLockedAt(new Date());
         user.setAccountLockedUntil(new Date(System.currentTimeMillis() + (accountSettings.getAccountBlockedDuration() * 1000)));
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(userService.update(user)
-                .flatMap(user1 -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.update(user)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user1 -> {
                     // send an email if option is enabled
                     if (user1.getEmail() != null && accountSettings.isSendRecoverAccountEmail()) {
                         new Thread(() -> emailService.send(Template.BLOCKED_ACCOUNT, user1, client)).start();
                     }
                     return Single.just(user);
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).type(EventType.USER_LOCKED).domain(criteria.domain()).client(criteria.client()).principal(null).user(user1)))).then());
+                }).apply(v)))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).type(EventType.USER_LOCKED).domain(criteria.domain()).client(criteria.client()).principal(null).user(user1)))).then());
     }
 
     private Single<User> saveOrUpdate(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         String source = (String) principal.getAdditionalInformation().get(SOURCE_FIELD);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndExternalIdAndSource(domain.getId(), principal.getId(), source)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.defer(() -> userService.findByDomainAndUsernameAndSource(domain.getId(), principal.getUsername(), source))))).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UserNotFoundException(principal.getUsername()))))))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndExternalIdAndSource(domain.getId(), principal.getId(), source)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.defer(() -> userService.findByDomainAndUsernameAndSource(domain.getId(), principal.getUsername(), source)))).switchIfEmpty(Mono.error(new UserNotFoundException(principal.getUsername()))))
                 .flatMapSingle(existingUser -> update(existingUser, principal, afterAuthentication))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof UserNotFoundException) {

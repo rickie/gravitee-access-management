@@ -40,7 +40,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
     @Override
     public Single<Metadata> metadata(String providerId, String idpUrl) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderManager.get(providerId)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new IdentityProviderNotFoundException(providerId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(authenticationProvider -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderManager.get(providerId)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new IdentityProviderNotFoundException(providerId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(authenticationProvider -> {
                     Metadata metadata = authenticationProvider.metadata(idpUrl);
                     if (metadata == null) {
                         logger.debug("No metadata found for identity provider : {}", providerId);

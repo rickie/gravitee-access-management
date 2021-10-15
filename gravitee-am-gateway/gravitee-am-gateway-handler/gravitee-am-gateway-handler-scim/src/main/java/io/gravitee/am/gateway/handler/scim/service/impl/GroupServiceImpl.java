@@ -122,7 +122,7 @@ public class GroupServiceImpl implements GroupService {
         LOGGER.debug("Create a new group {} for domain {}", group.getDisplayName(), domain.getName());
 
         // check if user is unique
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), group.getDisplayName())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), group.getDisplayName())
                 .isEmpty()
                 .map(isEmpty -> {
                     if (!isEmpty) {
@@ -131,8 +131,7 @@ public class GroupServiceImpl implements GroupService {
                     return true;
                 })
                 // set members
-                .flatMap(__ -> setMembers(group, baseUrl))
-                .flatMap(group1 -> {
+                .flatMap(__ -> setMembers(group, baseUrl))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.gateway.handler.scim.model.Group, SingleSource<io.gravitee.am.model.Group>>toJdkFunction(group1 -> {
                     io.gravitee.am.model.Group groupModel = convert(group1);
                     // set technical ID
                     groupModel.setId(RandomString.generate());
@@ -141,7 +140,7 @@ public class GroupServiceImpl implements GroupService {
                     groupModel.setCreatedAt(new Date());
                     groupModel.setUpdatedAt(groupModel.getCreatedAt());
                     return groupRepository.create(groupModel);
-                })).map(RxJavaReactorMigrationUtil.toJdkFunction(group1 -> convert(group1, baseUrl, true))).flatMap(group1->RxJava2Adapter.singleToMono(setMembers(group1, baseUrl))))
+                }).apply(v)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(group1 -> convert(group1, baseUrl, true))).flatMap(group1->RxJava2Adapter.singleToMono(setMembers(group1, baseUrl))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof SCIMException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
@@ -155,9 +154,8 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Single<Group> update(String groupId, Group group, String baseUrl) {
         LOGGER.debug("Update a group {} for domain {}", groupId, domain.getName());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(groupRepository.findById(groupId)
-                .switchIfEmpty(Maybe.error(new GroupNotFoundException(groupId)))
-                .flatMapSingle(existingGroup -> groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), group.getDisplayName())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(groupRepository.findById(groupId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new GroupNotFoundException(groupId))))))
+                .flatMapSingle(existingGroup -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), group.getDisplayName())
                         .map(group1 -> {
                             // if display name has changed check uniqueness
                             if (!existingGroup.getId().equals(group1.getId())) {
@@ -167,8 +165,7 @@ public class GroupServiceImpl implements GroupService {
                         })
                         .defaultIfEmpty(existingGroup)
                         // set members
-                        .flatMapSingle(irrelevant -> setMembers(group, baseUrl))
-                        .flatMap(group1 -> {
+                        .flatMapSingle(irrelevant -> setMembers(group, baseUrl))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.gateway.handler.scim.model.Group, SingleSource<io.gravitee.am.model.Group>>toJdkFunction(group1 -> {
                             io.gravitee.am.model.Group groupToUpdate = convert(group1);
                             // set immutable attribute
                             groupToUpdate.setId(existingGroup.getId());
@@ -177,7 +174,7 @@ public class GroupServiceImpl implements GroupService {
                             groupToUpdate.setCreatedAt(existingGroup.getCreatedAt());
                             groupToUpdate.setUpdatedAt(new Date());
                             return groupRepository.update(groupToUpdate);
-                        }))).map(RxJavaReactorMigrationUtil.toJdkFunction(group1 -> convert(group1, baseUrl, false))).flatMap(group1->RxJava2Adapter.singleToMono(setMembers(group1, baseUrl))))
+                        }).apply(v))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(group1 -> convert(group1, baseUrl, false))).flatMap(group1->RxJava2Adapter.singleToMono(setMembers(group1, baseUrl))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException || ex instanceof SCIMException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
@@ -191,7 +188,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Single<Group> patch(String groupId, PatchOp patchOp, String baseUrl) {
         LOGGER.debug("Patch a group {} for domain {}", groupId, domain.getName());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(get(groupId, baseUrl)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new GroupNotFoundException(groupId))))).flatMap(v->RxJava2Adapter.singleToMono((Single<Group>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Group, Single<Group>>)group -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(get(groupId, baseUrl)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new GroupNotFoundException(groupId)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Group>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Group, Single<Group>>)group -> {
                     ObjectNode node = objectMapper.convertValue(group, ObjectNode.class);
                     patchOp.getOperations().forEach(operation -> operation.apply(node));
                     return update(groupId, objectMapper.treeToValue(node, Group.class), baseUrl);
@@ -210,7 +207,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Completable delete(String groupId) {
         LOGGER.debug("Delete group {}", groupId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(groupRepository.findById(groupId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new GroupNotFoundException(groupId))))))).flatMap(user->RxJava2Adapter.completableToMono(groupRepository.delete(groupId))).then())
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(groupRepository.findById(groupId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new GroupNotFoundException(groupId))))).flatMap(user->RxJava2Adapter.completableToMono(groupRepository.delete(groupId))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
@@ -226,8 +223,7 @@ public class GroupServiceImpl implements GroupService {
         Set<Member> members = group.getMembers() != null ? new HashSet<>(group.getMembers()) : null;
         if (members != null && !members.isEmpty()) {
             List<String> memberIds = group.getMembers().stream().map(Member::getValue).collect(Collectors.toList());
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(userRepository.findByIdIn(memberIds)
-                    .map(user -> {
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(userRepository.findByIdIn(memberIds)).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                         String display = (user.getDisplayName() != null) ? user.getDisplayName()
                                 : (user.getFirstName() != null) ? user.getFirstName() + " " + (user.getLastName() != null ? user.getLastName() : "")
                                 : user.getUsername();
@@ -237,7 +233,7 @@ public class GroupServiceImpl implements GroupService {
                         member.setDisplay(display);
                         member.setRef(usersBaseUrl + "/" + user.getId());
                         return member;
-                    })).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(existingMembers -> {
+                    })))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(existingMembers -> {
                         group.setMembers(existingMembers);
                         return group;
                     })));

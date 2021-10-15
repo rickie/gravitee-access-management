@@ -68,9 +68,8 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.extractRequest(context)
-                .flatMap(this::bodyValidation)
-                .map(this::toPermissionRequest)).flatMap(permissionRequests->RxJava2Adapter.singleToMono(permissionTicketService.create(permissionRequests, domain.getId(), client.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(PermissionTicketResponse::from)))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.extractRequest(context)
+                .flatMap(this::bodyValidation)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toPermissionRequest)))).flatMap(permissionRequests->RxJava2Adapter.singleToMono(permissionTicketService.create(permissionRequests, domain.getId(), client.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(PermissionTicketResponse::from)))
                 .subscribe(
                         permission -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")

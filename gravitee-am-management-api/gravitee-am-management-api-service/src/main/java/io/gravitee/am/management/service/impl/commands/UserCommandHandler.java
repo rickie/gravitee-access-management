@@ -77,8 +77,7 @@ public class UserCommandHandler implements CommandHandler<UserCommand, UserReply
 
         newUser.getAdditionalInformation().computeIfAbsent(StandardClaims.PICTURE, k -> userPayload.getPicture());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.createOrUpdate(ReferenceType.ORGANIZATION, userPayload.getOrganizationId(), newUser)
-                .doOnSuccess(user -> logger.info("User [{}] created with id [{}].", user.getUsername(), user.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> new UserReply(command.getId(), CommandStatus.SUCCEEDED))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.info("Error occurred when creating user [{}] for organization [{}].", userPayload.getUsername(), userPayload.getOrganizationId(), error))))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.createOrUpdate(ReferenceType.ORGANIZATION, userPayload.getOrganizationId(), newUser)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> logger.info("User [{}] created with id [{}].", user.getUsername(), user.getId()))))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> new UserReply(command.getId(), CommandStatus.SUCCEEDED))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.info("Error occurred when creating user [{}] for organization [{}].", userPayload.getUsername(), userPayload.getOrganizationId(), error))))
                 .onErrorReturn(throwable -> new UserReply(command.getId(), CommandStatus.ERROR));
     }
 }

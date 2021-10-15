@@ -67,13 +67,13 @@ public class EnvironmentServiceImpl implements EnvironmentService {
     @Override
     public Single<Environment> findById(String id, String organizationId) {
         LOGGER.debug("Find environment by id: {}", id);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(environmentRepository.findById(id, organizationId)).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new EnvironmentNotFoundException(id))))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(environmentRepository.findById(id, organizationId)).switchIfEmpty(Mono.error(new EnvironmentNotFoundException(id))));
     }
 
     @Override
     public Single<Environment> findById(String id) {
         LOGGER.debug("Find environment by id: {}", id);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(environmentRepository.findById(id)).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new EnvironmentNotFoundException(id))))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(environmentRepository.findById(id)).switchIfEmpty(Mono.error(new EnvironmentNotFoundException(id))));
     }
 
     @Override
@@ -107,8 +107,8 @@ public class EnvironmentServiceImpl implements EnvironmentService {
                     environment.setDomainRestrictions(newEnvironment.getDomainRestrictions());
                     environment.setHrids(newEnvironment.getHrids());
 
-                    return updateInternal(environment, byUser).toMaybe();
-                }).apply(v)))).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.defer(()->RxJava2Adapter.singleToMono(organizationService.findById(organizationId).map((io.gravitee.am.model.Organization organization)->{
+                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(updateInternal(environment, byUser)));
+                }).apply(v)))).switchIfEmpty(Mono.defer(()->RxJava2Adapter.singleToMono(organizationService.findById(organizationId).map((io.gravitee.am.model.Organization organization)->{
 Environment toCreate = new Environment();
 toCreate.setId(environmentId);
 toCreate.setHrids(newEnvironment.getHrids());
@@ -117,7 +117,7 @@ toCreate.setDescription(newEnvironment.getDescription());
 toCreate.setOrganizationId(organization.getId());
 toCreate.setDomainRestrictions(newEnvironment.getDomainRestrictions());
 return toCreate;
-}).flatMap((io.gravitee.am.model.Environment toCreate)->createInternal(toCreate, byUser))))))));
+}).flatMap((io.gravitee.am.model.Environment toCreate)->createInternal(toCreate, byUser))))));
     }
 
     private Single<Environment> createInternal(Environment toCreate, User createdBy) {

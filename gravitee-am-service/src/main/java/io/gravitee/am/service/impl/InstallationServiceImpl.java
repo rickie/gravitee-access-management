@@ -55,7 +55,7 @@ public class InstallationServiceImpl implements InstallationService {
 
     @Override
     public Single<Installation> get() {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.installationRepository.find()).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InstallationNotFoundException())))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.installationRepository.find()).switchIfEmpty(Mono.error(new InstallationNotFoundException())));
     }
 
     @Override

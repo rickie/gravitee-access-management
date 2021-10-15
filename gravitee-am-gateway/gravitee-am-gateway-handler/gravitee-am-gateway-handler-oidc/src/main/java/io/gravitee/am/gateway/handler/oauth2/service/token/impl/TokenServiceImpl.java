@@ -131,11 +131,10 @@ public class TokenServiceImpl implements TokenService {
                     JWT refreshToken = oAuth2Request.isSupportRefreshToken() ? createRefreshTokenJWT(oAuth2Request, client, endUser, accessToken) : null;
                     // encode and sign JWT tokens
                     // and create token response (+ enhance information)
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.zip(
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.zip(
                             jwtService.encode(accessToken, client),
                             (refreshToken != null ? jwtService.encode(refreshToken, client).map(Optional::of) : Single.just(Optional.<String>empty())),
-                            (encodedAccessToken, optionalEncodedRefreshToken) -> convert(accessToken, encodedAccessToken, optionalEncodedRefreshToken.orElse(null), oAuth2Request))
-                            .flatMap(accessToken1 -> tokenEnhancer.enhance(accessToken1, oAuth2Request, client, endUser, executionContext))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(token -> storeTokens(accessToken, refreshToken, oAuth2Request))));
+                            (encodedAccessToken, optionalEncodedRefreshToken) -> convert(accessToken, encodedAccessToken, optionalEncodedRefreshToken.orElse(null), oAuth2Request))).flatMap(accessToken1->RxJava2Adapter.singleToMono(tokenEnhancer.enhance(accessToken1, oAuth2Request, client, endUser, executionContext))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(token -> storeTokens(accessToken, refreshToken, oAuth2Request))));
 
                 }).apply(v))));
     }
@@ -144,7 +143,7 @@ public class TokenServiceImpl implements TokenService {
     public Single<Token> refresh(String refreshToken, TokenRequest tokenRequest, Client client) {
         // invalid_grant : The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is
         // invalid, expired, revoked or was issued to another client.
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(getRefreshToken(refreshToken, client)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new InvalidGrantException("Refresh token is invalid"))))).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<Token>>)refreshToken1 -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(getRefreshToken(refreshToken, client)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new InvalidGrantException("Refresh token is invalid")))).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<Token>>)refreshToken1 -> {
                     if (refreshToken1.getExpireAt().before(new Date())) {
                         throw new InvalidGrantException("Refresh token is expired");
                     }
@@ -157,7 +156,7 @@ public class TokenServiceImpl implements TokenService {
                     }
 
                     // refresh token is used only once
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(refreshTokenRepository.delete(refreshToken1.getValue())).then(RxJava2Adapter.singleToMono(Single.wrap(Single.just(refreshToken1)))));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(refreshTokenRepository.delete(refreshToken1.getValue())).then(RxJava2Adapter.singleToMono(Single.just(refreshToken1))));
                 }).apply(v))));
     }
 

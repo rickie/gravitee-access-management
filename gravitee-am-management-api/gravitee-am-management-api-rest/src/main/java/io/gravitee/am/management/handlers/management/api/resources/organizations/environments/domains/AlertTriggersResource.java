@@ -63,8 +63,7 @@ public class AlertTriggersResource extends AbstractResource {
             @PathParam("domain") String domainId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.LIST)
-                .andThen(alertTriggerService.findByDomainAndCriteria(domainId, new AlertTriggerCriteria()))).sort(Comparator.comparingInt(o -> o.getType().getOrder())).collectList())
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.LIST)).thenMany(alertTriggerService.findByDomainAndCriteria(domainId, new AlertTriggerCriteria())))).sort(Comparator.comparingInt(o -> o.getType().getOrder())).collectList())
                 .subscribe(response::resume, response::resume);
     }
 

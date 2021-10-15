@@ -55,8 +55,7 @@ public class JWKServiceImpl implements JWKService {
 
     @Override
     public Single<JWKSet> getKeys() {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Flowable.fromIterable(certificateManager.providers())
-                .flatMap(certificateProvider -> certificateProvider.getProvider().keys())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromIterable(certificateManager.providers())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(certificateProvider -> certificateProvider.getProvider().keys())))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
                     JWKSet jwkSet = new JWKSet();
                     jwkSet.setKeys(keys);
                     return jwkSet;
@@ -76,9 +75,8 @@ public class JWKServiceImpl implements JWKService {
 
     @Override
     public Maybe<JWKSet> getDomainPrivateKeys() {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(Flowable.fromIterable(certificateManager.providers())
-                .flatMap(provider -> provider.getProvider().privateKey())
-                .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Flowable.fromIterable(certificateManager.providers())
+                .flatMap(provider -> provider.getProvider().privateKey())).collectList())).map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
                     JWKSet jwkSet = new JWKSet();
                     jwkSet.setKeys(keys);
                     return jwkSet;
@@ -88,9 +86,8 @@ public class JWKServiceImpl implements JWKService {
     @Override
     public Maybe<JWKSet> getKeys(String jwksUri) {
         try{
-            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(UriBuilder.fromHttpUrl(jwksUri).build().toString())
-                    .rxSend()
-                    .map(HttpResponse::bodyAsString)).map(RxJavaReactorMigrationUtil.toJdkFunction(new JWKSetDeserializer()::convert)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<JWKSet>, MaybeSource<JWKSet>>)jwkSet -> {
+            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.getAbs(UriBuilder.fromHttpUrl(jwksUri).build().toString())
+                    .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(HttpResponse::bodyAsString)))).map(RxJavaReactorMigrationUtil.toJdkFunction(new JWKSetDeserializer()::convert)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<JWKSet>, MaybeSource<JWKSet>>)jwkSet -> {
                         if(jwkSet!=null && jwkSet.isPresent()) {
                             return RxJava2Adapter.monoToMaybe(Mono.just(jwkSet.get()));
                         }

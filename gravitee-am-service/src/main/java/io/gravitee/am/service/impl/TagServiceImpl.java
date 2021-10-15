@@ -34,6 +34,8 @@ import io.reactivex.*;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.text.Normalizer;
 import java.util.Date;
@@ -93,9 +95,8 @@ public class TagServiceImpl implements TagService {
         LOGGER.debug("Create a new tag: {}", newTag);
         String id = humanReadableId(newTag.getName());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tagRepository.findById(id, organizationId)
-                .isEmpty()
-                .flatMap(empty -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tagRepository.findById(id, organizationId)
+                .isEmpty()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Tag>>toJdkFunction(empty -> {
                     if (!empty) {
                         throw new TagAlreadyExistsException(newTag.getName());
                     } else {
@@ -108,21 +109,21 @@ public class TagServiceImpl implements TagService {
                         tag.setUpdatedAt(tag.getCreatedAt());
                         return tagRepository.create(tag);
                     }
-                })
+                }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
 
                     LOGGER.error("An error occurs while trying to create a tag", ex);
-                    return Single.error(new TechnicalManagementException("An error occurs while trying to create a tag", ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a tag", ex)));
                 })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(tag -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).tag(tag).principal(principal).type(EventType.TAG_CREATED)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).referenceId(organizationId).principal(principal).type(EventType.TAG_CREATED).throwable(throwable)))));
     }
 
     @Override
     public Single<Tag> update(String tagId, String organizationId, UpdateTag updateTag, User principal) {
         LOGGER.debug("Update an existing tag: {}", updateTag);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(tagRepository.findById(tagId, organizationId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TagNotFoundException(tagId))))))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(tagRepository.findById(tagId, organizationId)).switchIfEmpty(Mono.error(new TagNotFoundException(tagId))))
                 .flatMapSingle(oldTag -> {
                     Tag tag = new Tag();
                     tag.setId(tagId);
@@ -146,13 +147,13 @@ public class TagServiceImpl implements TagService {
     @Override
     public Completable delete(String tagId, String orgaizationId, User principal) {
         LOGGER.debug("Delete tag {}", tagId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(tagRepository.findById(tagId, orgaizationId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new TagNotFoundException(tagId))))).flatMap(tag->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(tagRepository.delete(tagId).andThen(domainService.findAll().flatMapObservable(Observable::fromIterable).flatMapCompletable((io.gravitee.am.model.Domain domain)->{
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(tagRepository.findById(tagId, orgaizationId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new TagNotFoundException(tagId)))).flatMap(tag->RxJava2Adapter.completableToMono(tagRepository.delete(tagId).andThen(domainService.findAll().flatMapObservable(Observable::fromIterable).flatMapCompletable((io.gravitee.am.model.Domain domain)->{
 if (domain.getTags() != null) {
 domain.getTags().remove(tagId);
 return domainService.update(domain.getId(), domain).toCompletable();
 }
 return Completable.complete();
-})).doOnComplete(()->auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_DELETED).tag(tag)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_DELETED).throwable(throwable))))))).then())
+})).doOnComplete(()->auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_DELETED).tag(tag)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_DELETED).throwable(throwable))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));

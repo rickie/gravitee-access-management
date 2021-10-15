@@ -125,14 +125,14 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
                         // set date fields
                         document.put(FIELD_CREATED_AT, new Date());
                         document.put(FIELD_UPDATED_AT, document.get(FIELD_CREATED_AT));
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne(document))).flatMap(success->RxJava2Adapter.singleToMono(findById(document.getString(FIELD_ID)).toSingle())));
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne(document))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(document.getString(FIELD_ID))).single()))));
                     }
                 }).apply(v))));
     }
 
     @Override
     public Single<User> update(String id, User updateUser) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UserNotFoundException(id))))))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findById(id)).switchIfEmpty(Mono.error(new UserNotFoundException(id))))
                 .flatMapSingle(oldUser -> {
                     Document document = new Document();
                     // set username (keep the original value)
@@ -162,7 +162,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
 
     @Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(id))))).flatMap(idpUser->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id)))))).then());
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new UserNotFoundException(id)))).flatMap(idpUser->Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id)))).then());
     }
 
     @Override

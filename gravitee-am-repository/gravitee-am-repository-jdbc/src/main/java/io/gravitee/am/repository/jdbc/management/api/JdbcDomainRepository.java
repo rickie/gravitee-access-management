@@ -99,11 +99,11 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
 
         whereClause = whereClause.and(alertEnableClause);
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.fluxToFlowable(dbClient.select()
                 .from(JdbcDomain.class)
                 .matching(from(whereClause))
                 .as(JdbcDomain.class)
-                .all())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(this::completeDomain)));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(this::completeDomain)));
     }
 
     @Override
@@ -198,27 +198,26 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
                 .append(" :value")
                 .toString();
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.execute(search)
+        return RxJava2Adapter.fluxToFlowable(dbClient.execute(search)
                 .bind("refType", ReferenceType.ENVIRONMENT.name())
                 .bind("refId", environmentId)
                 .bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase())
                 .as(JdbcDomain.class)
                 .fetch()
-                .all())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(this::completeDomain)));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(this::completeDomain)));
     }
 
     private Flowable<Domain> completeDomain(Domain entity) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.just(entity).flatMap(domain ->
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.just(entity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
                 identitiesRepository.findAllByDomainId(domain.getId()).map(JdbcDomain.Identity::getIdentity).toList().toFlowable().map(idps -> {
                     domain.setIdentities(new HashSet<>(idps));
                     return domain;
-                })
-        )).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
-                tagRepository.findAllByDomainId(domain.getId()).map(JdbcDomain.Tag::getTag).toList().toFlowable().map(tags -> {
+                }))))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
+                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(tagRepository.findAllByDomainId(domain.getId()).map(JdbcDomain.Tag::getTag).toList().toFlowable()).map(RxJavaReactorMigrationUtil.toJdkFunction(tags -> {
                     domain.setTags(new HashSet<>(tags));
                     return domain;
-                }))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
-                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(vHostsRepository.findAllByDomainId(domain.getId()).map(this::toVirtualHost).toList()).flux())).map(RxJavaReactorMigrationUtil.toJdkFunction(vhosts -> {
+                }))))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
+                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(vHostsRepository.findAllByDomainId(domain.getId()).map(this::toVirtualHost).toList()).flux().map(RxJavaReactorMigrationUtil.toJdkFunction(vhosts -> {
                     domain.setVhosts(vhosts);
                     return domain;
                 }))))));

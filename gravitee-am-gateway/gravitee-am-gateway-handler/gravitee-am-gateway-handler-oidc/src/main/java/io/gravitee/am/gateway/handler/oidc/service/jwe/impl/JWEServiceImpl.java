@@ -198,7 +198,7 @@ public class JWEServiceImpl implements JWEService {
 
     private Single<JWT> decrypt(JWEObject jwe, Client client, Predicate<JWK> filter, JWEDecrypterFunction<JWK, JWEDecrypter> function) {
         final Maybe<JWKSet> jwks = client != null ? jwkService.getKeys(client) : jwkService.getDomainPrivateKeys();
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(jwks
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(jwks
                 .flatMapPublisher(jwkset -> Flowable.fromIterable(jwkset.getKeys()))
                 .filter(filter::test)
                 .filter(jwk -> jwk.getUse() == null || jwk.getUse().equals(KeyUse.ENCRYPTION.getValue()))
@@ -211,8 +211,7 @@ public class JWEServiceImpl implements JWEService {
                     } catch (Exception e) {
                         return Optional.<JWT>empty();
                     }
-                }).filter(Optional::isPresent)
-                .map(Optional::get)).next().single());
+                }).filter(Optional::isPresent)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::get)))).next().single());
     }
 
     public Single<String> encryptAuthorization(String signedJwt, Client client) {
@@ -285,7 +284,7 @@ public class JWEServiceImpl implements JWEService {
     }
 
     private Single<String> encrypt(JWEObject jwe, Client client, Predicate<JWK> filter, JWEEncrypterFunction<JWK, JWEEncrypter> function) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwkService.getKeys(client)).flatMap(z->jwkService.filter(z, filter).as(RxJava2Adapter::maybeToMono)))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new InvalidClientMetadataException("no matching key found to encrypt")))))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwkService.getKeys(client)).flatMap(z->jwkService.filter(z, filter).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientMetadataException("no matching key found to encrypt"))))))
                 .flatMapSingle(jwk -> RxJava2Adapter.monoToSingle(Mono.just(function.apply(jwk))))).map(RxJavaReactorMigrationUtil.toJdkFunction(encrypter -> {
                     jwe.encrypt(encrypter);
                     return jwe.serialize();

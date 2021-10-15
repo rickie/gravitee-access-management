@@ -105,11 +105,10 @@ public class AccountServiceImpl implements AccountService {
     public Single<User> update(User user) {
         LOGGER.debug("Update a user {} for domain {}", user.getUsername(), domain.getName());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(identityProviderManager.getUserProvider(user.getSource())
-                .switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource())))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserProviderNotFoundException(user.getSource()))))))
                 .flatMapSingle(userProvider -> {
                     if (user.getExternalId() == null) {
-                        return Single.error(new InvalidRequestException("User does not exist in upstream IDP"));
+                        return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("User does not exist in upstream IDP")));
                     } else {
                         return userProvider.update(user.getExternalId(), convert(user));
                     }
@@ -158,7 +157,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Single<Credential> getWebAuthnCredential(String id) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(credentialService.findById(id)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new CredentialNotFoundException(id))))).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(credentialService.findById(id)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new CredentialNotFoundException(id)))).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
                     removeSensitiveData(credential);
                     return credential;
                 })));

@@ -180,25 +180,22 @@ public class PermissionService {
             return RxJava2Adapter.monoToSingle(Mono.error(new InvalidUserException("Specified user is invalid")));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(groupService.findByMember(user.getId())
-                .map(Group::getId)).collectList().flatMap(v->RxJava2Adapter.singleToMono((Single<Map<Membership, Map<Permission, Set<Acl>>>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<String>, Single<Map<Membership, Map<Permission, Set<Acl>>>>>)userGroupIds -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(groupService.findByMember(user.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(Group::getId)))).collectList().flatMap(v->RxJava2Adapter.singleToMono((Single<Map<Membership, Map<Permission, Set<Acl>>>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<String>, Single<Map<Membership, Map<Permission, Set<Acl>>>>>)userGroupIds -> {
                     MembershipCriteria criteria = new MembershipCriteria();
                     criteria.setUserId(user.getId());
                     criteria.setGroupIds(userGroupIds.isEmpty() ? null : userGroupIds);
                     criteria.setLogicalOR(true);
 
                     // Get all user and group memberships.
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Flowable.merge(referenceStream.map(p -> membershipService.findByCriteria(p.getKey(), p.getValue(), criteria)).collect(Collectors.toList()))
-                            .toList()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<List<Membership>, SingleSource<Map<Membership, Map<Permission, Set<Acl>>>>>toJdkFunction(allMemberships -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Flowable.merge(referenceStream.map(p -> membershipService.findByCriteria(p.getKey(), p.getValue(), criteria)).collect(Collectors.toList()))).collectList())).flatMap(z->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<List<Membership>, SingleSource<Map<Membership, Map<Permission, Set<Acl>>>>>toJdkFunction(allMemberships -> {
 
                                 if (allMemberships.isEmpty()) {
-                                    return Single.just(Collections.emptyMap());
+                                    return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap()));
                                 }
 
                                 // Get all roles.
-                                return roleService.findByIdIn(allMemberships.stream().map(Membership::getRoleId).collect(Collectors.toList()))
-                                        .map(allRoles -> permissionsPerMembership(allMemberships, allRoles));
-                            }).apply(v)))));
+                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(roleService.findByIdIn(allMemberships.stream().map(Membership::getRoleId).collect(Collectors.toList()))).map(RxJavaReactorMigrationUtil.toJdkFunction(allRoles -> permissionsPerMembership(allMemberships, allRoles))));
+                            }).apply(z)))));
                 }).apply(v))));
     }
 

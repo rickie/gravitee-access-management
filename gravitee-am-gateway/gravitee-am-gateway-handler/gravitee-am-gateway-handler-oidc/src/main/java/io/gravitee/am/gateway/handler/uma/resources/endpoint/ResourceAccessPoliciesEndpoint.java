@@ -111,7 +111,7 @@ public class ResourceAccessPoliciesEndpoint {
         final String resource = context.request().getParam(RESOURCE_ID);
         final String accessPolicyId = context.request().getParam(POLICY_ID);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(resourceService.findAccessPolicy(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId)).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new AccessPolicyNotFoundException(accessPolicyId))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(resourceService.findAccessPolicy(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId)).switchIfEmpty(Mono.error(new AccessPolicyNotFoundException(accessPolicyId))))
                 .subscribe(
                         response -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")

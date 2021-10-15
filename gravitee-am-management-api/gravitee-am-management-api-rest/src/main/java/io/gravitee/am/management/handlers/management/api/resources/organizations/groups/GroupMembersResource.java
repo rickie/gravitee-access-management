@@ -72,7 +72,7 @@ public class GroupMembersResource extends AbstractResource {
             @QueryParam("size") @DefaultValue(MAX_MEMBERS_SIZE_PER_PAGE_STRING) int size,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(groupService.findMembers(ReferenceType.ORGANIZATION, organizationId, group, page, Integer.min(size, MAX_MEMBERS_SIZE_PER_PAGE))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Page<io.gravitee.am.model.User>, SingleSource<Page<io.gravitee.am.model.User>>>toJdkFunction(pagedMembers -> {
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.READ)).then(RxJava2Adapter.singleToMono(groupService.findMembers(ReferenceType.ORGANIZATION, organizationId, group, page, Integer.min(size, MAX_MEMBERS_SIZE_PER_PAGE))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Page<io.gravitee.am.model.User>, SingleSource<Page<io.gravitee.am.model.User>>>toJdkFunction(pagedMembers -> {
                             if (pagedMembers.getData() == null) {
                                 return Single.just(pagedMembers);
                             }
@@ -91,7 +91,7 @@ public class GroupMembersResource extends AbstractResource {
                                     })
                                     .toSortedList(Comparator.comparing(User::getUsername))
                                     .map(members -> new Page<>(members, pagedMembers.getCurrentPage(), pagedMembers.getTotalCount()));
-                        }).apply(v))))))))
+                        }).apply(v))))))
                 .subscribe(response::resume, response::resume);
     }
 

@@ -44,6 +44,7 @@ import io.gravitee.am.repository.mongodb.management.internal.model.oidc.Security
 import io.gravitee.am.repository.mongodb.management.internal.model.uma.UMASettingsMongo;
 import io.reactivex.*;
 import io.reactivex.BackpressureStrategy;
+import io.reactivex.Single;
 import java.util.Collection;
 import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
@@ -133,8 +134,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
 
         Bson eqAlertEnabled = toBsonFilter("alertEnabled", criteria.isAlertEnabled());
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(toBsonFilter(criteria.isLogicalOR(), eqAlertEnabled)
-                .switchIfEmpty(Single.just(new BsonDocument()))).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> Flowable.fromPublisher(domainsCollection.find(filter)))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(toBsonFilter(criteria.isLogicalOR(), eqAlertEnabled)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.just(new BsonDocument())))))).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(filter))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
     }
 
     @Override

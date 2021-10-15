@@ -80,15 +80,14 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
     @Override
     public Single<Page<Role>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
         LOGGER.debug("findAll({}, {}, {}, {})", referenceType, referenceId, page, size);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
                 .from(JdbcRole.class)
                 .matching(from(where("reference_id").is(referenceId)
                         .and(where("reference_type").is(referenceType.name()))))
                 .orderBy(Sort.Order.asc("name"))
                 .page(PageRequest.of(page, size))
                 .as(JdbcRole.class).all())
-                .map(this::toEntity)
-                .flatMap(role -> completeWithScopes(Maybe.just(role), role.getId()).toFlowable())).collectList().flatMap(content->RxJava2Adapter.singleToMono(roleRepository.countByReference(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Role>(content, page, count)))));
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> completeWithScopes(Maybe.just(role), role.getId()).toFlowable())))).collectList().flatMap(content->RxJava2Adapter.singleToMono(roleRepository.countByReference(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Role>(content, page, count)))));
     }
 
     @Override
@@ -101,14 +100,13 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
         String search = this.databaseDialectHelper.buildSearchRoleQuery(wildcardSearch, page, size);
         String count = this.databaseDialectHelper.buildCountRoleQuery(wildcardSearch);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.execute(search)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.execute(search)
                 .bind("value", wildcardSearch ? wildcardValue : query)
                 .bind("refId", referenceId)
                 .bind("refType", referenceType.name())
                 .as(JdbcRole.class)
                 .fetch().all())
-                .map(this::toEntity)
-                .flatMap(role -> completeWithScopes(Maybe.just(role), role.getId()).toFlowable())).collectList().flatMap(data->RxJava2Adapter.singleToMono(monoToSingle(dbClient.execute(count).bind("value", wildcardSearch ? wildcardValue : query).bind("refId", referenceId).bind("refType", referenceType.name()).as(Long.class).fetch().first())).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Role>(data, page, total)))));
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> completeWithScopes(Maybe.just(role), role.getId()).toFlowable())))).collectList().flatMap(data->dbClient.execute(count).bind("value", wildcardSearch ? wildcardValue : query).bind("refId", referenceId).bind("refType", referenceType.name()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Role>(data, page, total)))));
     }
 
     @Override
@@ -233,8 +231,7 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
     }
 
     private Maybe<Role> completeWithScopes(Maybe<Role> maybeRole, String id) {
-        Maybe<List<String>> scopes = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(oauthScopeRepository.findAllByRole(id)
-                .map(JdbcRole.OAuthScope::getScope)).collectList());
+        Maybe<List<String>> scopes = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(oauthScopeRepository.findAllByRole(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcRole.OAuthScope::getScope)))).collectList());
 
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeRole).zipWith(RxJava2Adapter.maybeToMono(scopes), RxJavaReactorMigrationUtil.toJdkBiFunction((role, scope) -> {
             LOGGER.debug("findById({}) fetch {} oauth scopes", id, scope == null ? 0 : scope.size());

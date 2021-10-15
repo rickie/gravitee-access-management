@@ -73,19 +73,17 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
     }
 
     private Single<Page<Resource>> findResourcePage(String domain, int page, int size, CriteriaDefinition whereClause) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
                 .from(JdbcResource.class)
                 .matching(whereClause)
                 .orderBy(Sort.Order.asc("id"))
                 .page(PageRequest.of(page, size))
-                .as(JdbcResource.class).all())
-                .map(this::toEntity)
-                .flatMap(res -> completeWithScopes(Maybe.just(res), res.getId()).toFlowable(), MAX_CONCURRENCY)).collectList().flatMap(content->RxJava2Adapter.singleToMono(resourceRepository.countByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Resource>(content, page, count)))));
+                .as(JdbcResource.class).all())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
+                .flatMap(res -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithScopes(Maybe.just(res), res.getId())).flux()), MAX_CONCURRENCY)).collectList().flatMap(content->RxJava2Adapter.singleToMono(resourceRepository.countByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Resource>(content, page, count)))));
     }
 
     private Maybe<Resource> completeWithScopes(Maybe<Resource> maybeResource, String id) {
-        Maybe<List<String>> scopes = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(resourceScopeRepository.findAllByResourceId(id)
-                .map(JdbcResource.Scope::getScope)).collectList());
+        Maybe<List<String>> scopes = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(resourceScopeRepository.findAllByResourceId(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcResource.Scope::getScope)))).collectList());
 
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeResource).zipWith(RxJava2Adapter.maybeToMono(scopes), RxJavaReactorMigrationUtil.toJdkBiFunction((res, scope) -> {
                     LOGGER.debug("findById({}) fetch {} resource scopes", id, scope == null ? 0 : scope.size());

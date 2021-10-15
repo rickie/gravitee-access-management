@@ -74,8 +74,7 @@ public class EmailsResource extends AbstractResource {
             @NotNull @QueryParam("template") Template emailTemplate,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_EMAIL_TEMPLATE, Acl.READ)
-                .andThen(emailTemplateService.findByDomainAndTemplate(domain, emailTemplate.template()))).map(RxJavaReactorMigrationUtil.toJdkFunction(email -> Response.ok(email).build())).defaultIfEmpty(Response.ok(new Email(false, emailTemplate.template())).build()))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_EMAIL_TEMPLATE, Acl.READ)).then(RxJava2Adapter.maybeToMono(Maybe.wrap(emailTemplateService.findByDomainAndTemplate(domain, emailTemplate.template())))))).map(RxJavaReactorMigrationUtil.toJdkFunction(email -> Response.ok(email).build())).defaultIfEmpty(Response.ok(new Email(false, emailTemplate.template())).build()))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -99,12 +98,12 @@ public class EmailsResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_EMAIL_TEMPLATE, Acl.CREATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_EMAIL_TEMPLATE, Acl.CREATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapSingle(__ -> emailTemplateService.create(domain, newEmail, authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(email -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/emails/" + email.getId()))
                                 .entity(email)
-                                .build()))))))
+                                .build()))))
                 .subscribe(response::resume, response::resume);
     }
 

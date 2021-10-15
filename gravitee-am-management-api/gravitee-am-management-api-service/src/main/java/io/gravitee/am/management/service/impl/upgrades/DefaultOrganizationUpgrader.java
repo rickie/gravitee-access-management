@@ -33,6 +33,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -142,10 +143,9 @@ public class DefaultOrganizationUpgrader implements Upgrader, Ordered {
                 // Need to check that inline idp and default admin user has 'admin' role.
                 final List<String> identities = Optional.ofNullable(organization.getIdentities()).orElse(Collections.emptyList());
 
-                IdentityProvider inlineIdp = RxJava2Adapter.flowableToFlux(identityProviderService.findAll(ReferenceType.ORGANIZATION, Organization.DEFAULT)
-                        .filter(identityProvider -> identityProvider.getType().equals("inline-am-idp")
+                IdentityProvider inlineIdp = RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(identityProviderService.findAll(ReferenceType.ORGANIZATION, Organization.DEFAULT)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(identityProvider -> identityProvider.getType().equals("inline-am-idp")
                                 && !identityProvider.isExternal()
-                                && identities.contains(identityProvider.getId()))).next().block();
+                                && identities.contains(identityProvider.getId()))))).next().block();
 
                 // If inline idp doesn't exist or is not enabled, it is probably an administrator choice. So do not go further.
                 if (inlineIdp != null) {

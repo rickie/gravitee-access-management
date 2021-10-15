@@ -50,8 +50,7 @@ public abstract class AbstractMongoRepository {
 
     protected void createIndex(MongoCollection<?> collection, Document document, IndexOptions indexOptions, boolean ensure) {
         if (ensure) {
-            RxJava2Adapter.singleToMono(Single.fromPublisher(collection.createIndex(document, indexOptions))
-                    .doOnSuccess(s -> logger.debug("Created an index named: {}", s))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> logger.error("Error occurs during creation of index", throwable))).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.createIndex(document, indexOptions))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(s -> logger.debug("Created an index named: {}", s))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> logger.error("Error occurs during creation of index", throwable))).block();
         }
     }
 }

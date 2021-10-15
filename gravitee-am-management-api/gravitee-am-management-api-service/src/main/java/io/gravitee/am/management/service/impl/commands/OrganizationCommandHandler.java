@@ -60,8 +60,7 @@ public class OrganizationCommandHandler implements CommandHandler<OrganizationCo
         newOrganization.setDescription(organizationPayload.getDescription());
         newOrganization.setDomainRestrictions(organizationPayload.getDomainRestrictions());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationService.createOrUpdate(organizationPayload.getId(), newOrganization, null)
-                .map(organization -> new OrganizationReply(command.getId(), CommandStatus.SUCCEEDED))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(reply -> logger.info("Organization [{}] handled with id [{}].", organizationPayload.getName(), organizationPayload.getId()))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Error occurred when handling organization [{}] with id [{}].", organizationPayload.getName(), organizationPayload.getId(), error))))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationService.createOrUpdate(organizationPayload.getId(), newOrganization, null)).map(RxJavaReactorMigrationUtil.toJdkFunction(organization -> new OrganizationReply(command.getId(), CommandStatus.SUCCEEDED))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(reply -> logger.info("Organization [{}] handled with id [{}].", organizationPayload.getName(), organizationPayload.getId()))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Error occurred when handling organization [{}] with id [{}].", organizationPayload.getName(), organizationPayload.getId(), error))))
                 .onErrorReturn(throwable -> new OrganizationReply(command.getId(), CommandStatus.ERROR));
     }
 }

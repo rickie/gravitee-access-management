@@ -73,13 +73,12 @@ public class JdbcRefreshTokenRepository extends AbstractJdbcRepository implement
                 .using(toJdbcEntity(refreshToken))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(refreshTokenRepository.findById(refreshToken.getId()).map(this::toEntity).toSingle())).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create refreshToken with id {}", refreshToken.getId(), error))));
+        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(refreshTokenRepository.findById(refreshToken.getId()).map(this::toEntity)).single()))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create refreshToken with id {}", refreshToken.getId(), error))));
     }
 
     @Override
     public Completable bulkWrite(List<RefreshToken> refreshTokens) {
-        return RxJava2Adapter.flowableToFlux(Flowable.fromIterable(refreshTokens)
-                .flatMap(refreshToken -> create(refreshToken).toFlowable())).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to bulk load refresh tokens", error))).as(RxJava2Adapter::monoToCompletable);
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromIterable(refreshTokens)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(refreshToken -> create(refreshToken).toFlowable())))).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to bulk load refresh tokens", error))).as(RxJava2Adapter::monoToCompletable);
     }
 
     @Override

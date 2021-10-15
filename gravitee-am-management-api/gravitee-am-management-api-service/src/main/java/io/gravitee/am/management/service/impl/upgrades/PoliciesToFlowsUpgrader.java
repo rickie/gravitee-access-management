@@ -69,11 +69,11 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
         RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(policyRepository.collectionExists()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)collectionExists -> {
                     if (collectionExists) {
                         LOGGER.info("Policies collection exists, upgrading policies to flows");
-                        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(policyRepository.findAll()
-                                .groupBy(Policy::getDomain)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<GroupedFlowable<String, Policy>, CompletableSource>toJdkFunction(policiesPerDomain -> {
+                        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(policyRepository.findAll()
+                                .groupBy(Policy::getDomain)).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<GroupedFlowable<String, Policy>, CompletableSource>toJdkFunction(policiesPerDomain -> {
                                     final String domain = policiesPerDomain.getKey();
                                     return policiesPerDomain.toList().flatMapCompletable(policies -> migrateToFlows(policies, domain));
-                                }).apply(y)))).then())).then(RxJava2Adapter.completableToMono(policyRepository.deleteCollection())));
+                                }).apply(z)))).then().then(RxJava2Adapter.completableToMono(policyRepository.deleteCollection())));
                     } else {
                         LOGGER.info("Policies collection doesn't exist, skip upgrade");
                         return RxJava2Adapter.monoToCompletable(Mono.empty());

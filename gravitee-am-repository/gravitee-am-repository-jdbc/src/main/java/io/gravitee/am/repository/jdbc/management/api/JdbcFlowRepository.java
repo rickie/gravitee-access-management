@@ -217,11 +217,11 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
     }
 
     protected Single<Flow> completeFlow(Flow flow) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(dbClient.select()
                 .from(JdbcFlow.JdbcStep.class)
                 .matching(from(where("flow_id").is(flow.getId())))
                 .orderBy(Sort.Order.asc("stage_order"))
-                .as(JdbcFlow.JdbcStep.class).all())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(steps -> {
+                .as(JdbcFlow.JdbcStep.class).all().collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(steps -> {
             if (steps != null && !steps.isEmpty()) {
                 List<Step> preSteps = new ArrayList<>();
                 List<Step> postSteps = new ArrayList<>();

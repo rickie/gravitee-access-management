@@ -58,7 +58,7 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
 
     @Override
     public Single<JWT> introspect(String token, boolean offlineVerification) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(jwtService.decode(token)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(jwt -> clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).apply(e)))))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new InvalidTokenException("Invalid or unknown client for this token")))))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(jwtService.decode(token)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(jwt -> clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).apply(e)))).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidTokenException("Invalid or unknown client for this token"))))))
                 .flatMapSingle(client -> jwtService.decodeAndVerify(token, client))).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, Single<JWT>>)jwt -> {
                     // Just check the JWT signature and JWT validity if offline verification option is enabled
                     // or if the token has just been created (could not be in database so far because of async database storing process delay)
@@ -67,8 +67,7 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
                     }
 
                     // check if token is not revoked
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(accessTokenRepository.findByToken(jwt.getJti())
-                            .switchIfEmpty(Single.error(new InvalidTokenException("The token is invalid", "Token with JTI [" + jwt.getJti() + "] not found in the database", jwt)))).map(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken(jwt.getJti())).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new InvalidTokenException("The token is invalid", "Token with JTI [" + jwt.getJti() + "] not found in the database", jwt))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> {
                                 if (accessToken.getExpireAt().before(new Date())) {
                                     throw new InvalidTokenException("The token expired", "Token with JTI [" + jwt.getJti() + "] is expired", jwt);
                                 }

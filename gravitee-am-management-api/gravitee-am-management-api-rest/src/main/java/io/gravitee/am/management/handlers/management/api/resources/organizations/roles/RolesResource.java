@@ -66,9 +66,9 @@ public class RolesResource extends AbstractResource {
             @QueryParam("type") ReferenceType type,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.LIST)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(roleService.findAllAssignable(ReferenceType.ORGANIZATION, organizationId, type)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.LIST)).then(RxJava2Adapter.flowableToFlux(roleService.findAllAssignable(ReferenceType.ORGANIZATION, organizationId, type)
                         .map(this::filterRoleInfos)
-                        .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))).collectList()))))
+                        .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))).collectList()))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -86,10 +86,10 @@ public class RolesResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.CREATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(roleService.create(ReferenceType.ORGANIZATION, organizationId, newRole, authenticatedUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(role -> Response
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.CREATE)).then(RxJava2Adapter.singleToMono(roleService.create(ReferenceType.ORGANIZATION, organizationId, newRole, authenticatedUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(role -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/roles/" + role.getId()))
                                 .entity(role)
-                                .build()))))))
+                                .build()))))
                 .subscribe(response::resume, response::resume);
     }
 

@@ -81,8 +81,8 @@ public class ApplicationEmailsResource extends AbstractResource {
             @NotNull @QueryParam("template") Template emailTemplate,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_EMAIL_TEMPLATE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailTemplateService.findByDomainAndClientAndTemplate(domain, application, emailTemplate.template())
-                        .map(email -> Response.ok(email).build())).defaultIfEmpty(Response.ok(new Email(false, emailTemplate.template())).build())))).as(RxJava2Adapter::monoToMaybe)
+        checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_EMAIL_TEMPLATE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(emailTemplateService.findByDomainAndClientAndTemplate(domain, application, emailTemplate.template())
+                        .map(email -> Response.ok(email).build())).defaultIfEmpty(Response.ok(new Email(false, emailTemplate.template())).build())).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -108,14 +108,14 @@ public class ApplicationEmailsResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION_EMAIL_TEMPLATE, Acl.CREATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION_EMAIL_TEMPLATE, Acl.CREATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> applicationService.findById(application))
                         .switchIfEmpty(Maybe.error(new ApplicationNotFoundException(application)))
                         .flatMapSingle(__ -> emailTemplateService.create(domain, application, newEmail, authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(email -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/applications/" + application + "/emails/" + email.getId()))
                                 .entity(email)
-                                .build()))))))
+                                .build()))))
                 .subscribe(response::resume, response::resume);
     }
 

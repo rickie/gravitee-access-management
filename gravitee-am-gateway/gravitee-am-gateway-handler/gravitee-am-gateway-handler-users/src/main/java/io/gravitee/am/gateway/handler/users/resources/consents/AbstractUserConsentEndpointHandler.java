@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -56,8 +57,7 @@ public class AbstractUserConsentEndpointHandler {
 
         // end user
         if (!token.getSub().equals(token.getAud())) {
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findById(token.getSub())
-                    .map(user -> {
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findById(token.getSub())).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                         User principal = new DefaultUser(user.getUsername());
                         ((DefaultUser) principal).setId(user.getId());
                         Map<String, Object> additionalInformation =
@@ -68,11 +68,10 @@ public class AbstractUserConsentEndpointHandler {
                         additionalInformation.put(Claims.domain, domain.getId());
                         ((DefaultUser) principal).setAdditionalInformation(additionalInformation);
                         return principal;
-                    })).defaultIfEmpty(defaultPrincipal(context, token)).single());
+                    })))).defaultIfEmpty(defaultPrincipal(context, token)).single());
         } else {
             // revocation made oauth2 clients
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(clientSyncService.findByClientId(token.getAud())
-                    .map(client -> {
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(clientSyncService.findByClientId(token.getAud())).map(RxJavaReactorMigrationUtil.toJdkFunction(client -> {
                         User principal = new DefaultUser(client.getClientId());
                         ((DefaultUser) principal).setId(client.getId());
                         Map<String, Object> additionalInformation = new HashMap<>();
@@ -82,7 +81,7 @@ public class AbstractUserConsentEndpointHandler {
                         additionalInformation.put(Claims.domain, domain.getId());
                         ((DefaultUser) principal).setAdditionalInformation(additionalInformation);
                         return principal;
-                    })).defaultIfEmpty(defaultPrincipal(context, token)).single());
+                    })))).defaultIfEmpty(defaultPrincipal(context, token)).single());
         }
 
     }

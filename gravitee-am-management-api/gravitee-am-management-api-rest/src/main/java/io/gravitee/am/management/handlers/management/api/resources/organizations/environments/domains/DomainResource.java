@@ -72,7 +72,7 @@ public class DomainResource extends AbstractDomainResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domainId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domainId))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domainId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domainId)))))
                         .flatMapSingle(domain -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findAllPermissions(authenticatedUser, organizationId, environmentId, domainId)).map(RxJavaReactorMigrationUtil.toJdkFunction(userPermissions -> filterDomainInfos(domain, userPermissions))))))))
                 .subscribe(response::resume, response::resume);
     }
@@ -152,9 +152,8 @@ public class DomainResource extends AbstractDomainResource {
             @PathParam("domain") String domainId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domainId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domainId))))))
-                        .flatMapSingle(domain -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(entrypointService.findAll(organizationId)
-                                .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(entrypoints -> filterEntrypoints(entrypoints, domain))))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domainId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domainId)))))
+                        .flatMapSingle(domain -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(entrypointService.findAll(organizationId)).collectList())).map(RxJavaReactorMigrationUtil.toJdkFunction(entrypoints -> filterEntrypoints(entrypoints, domain))))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -264,8 +263,8 @@ public class DomainResource extends AbstractDomainResource {
         } else {
             RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(Completable.merge(requiredPermissions.stream()
                     .map(permission -> checkAnyPermission(organizationId, environmentId, domainId, permission, Acl.UPDATE))
-                    .collect(Collectors.toList()))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(domainService.patch(domainId, patchDomain, authenticatedUser)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Domain, SingleSource<Domain>>toJdkFunction(domain -> findAllPermissions(authenticatedUser, organizationId, environmentId, domainId)
-                                    .map(userPermissions -> filterDomainInfos(domain, userPermissions))).apply(v))))))))
+                    .collect(Collectors.toList()))).then(RxJava2Adapter.singleToMono(domainService.patch(domainId, patchDomain, authenticatedUser)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Domain, SingleSource<Domain>>toJdkFunction(domain -> findAllPermissions(authenticatedUser, organizationId, environmentId, domainId)
+                                    .map(userPermissions -> filterDomainInfos(domain, userPermissions))).apply(v))))))
                     .subscribe(response::resume, response::resume);
         }
     }
