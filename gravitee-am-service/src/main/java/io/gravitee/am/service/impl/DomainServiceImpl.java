@@ -24,6 +24,7 @@ import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.*;
 import io.gravitee.am.model.Application;
+import io.gravitee.am.model.Certificate;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Email;
 import io.gravitee.am.model.Environment;
@@ -344,11 +345,10 @@ public class DomainServiceImpl implements DomainService {
         LOGGER.debug("Delete security domain {}", domainId);
         return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(domainRepository.findById(domainId)).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Domain, CompletableSource>)domain -> {
                     // delete applications
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(applicationService.findByDomain(domainId)).flatMap(u->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Set<Application>, CompletableSource>toJdkFunction(applications -> {
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(applicationService.findByDomain(domainId)).flatMap(u->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Set<Application>, CompletableSource>toJdkFunction(applications -> {
                                 List<Completable> deleteApplicationsCompletable = applications.stream().map(a -> applicationService.delete(a.getId())).collect(Collectors.toList());
                                 return Completable.concat(deleteApplicationsCompletable);
-                            }).apply(u)))).then())).then(RxJava2Adapter.completableToMono(certificateService.findByDomain(domainId)
-                                    .flatMapCompletable(certificate -> certificateService.delete(certificate.getId())))).then(RxJava2Adapter.flowableToFlux(identityProviderService.findByDomain(domainId)).flatMap(b->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<IdentityProvider, CompletableSource>toJdkFunction(identityProvider ->
+                            }).apply(u)))).then().then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(certificateService.findByDomain(domainId)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Certificate, CompletableSource>toJdkFunction(certificate -> certificateService.delete(certificate.getId())).apply(y)))).then()))).then(RxJava2Adapter.flowableToFlux(identityProviderService.findByDomain(domainId)).flatMap(b->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<IdentityProvider, CompletableSource>toJdkFunction(identityProvider ->
                                         identityProviderService.delete(domainId, identityProvider.getId())).apply(b)))).then()).then(RxJava2Adapter.flowableToFlux(extensionGrantService.findByDomain(domainId)).flatMap(a->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<ExtensionGrant, CompletableSource>toJdkFunction(extensionGrant -> extensionGrantService.delete(domainId, extensionGrant.getId())).apply(a)))).then()).then(RxJava2Adapter.singleToMono(roleService.findByDomain(domainId)).flatMap(a->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Set<Role>, CompletableSource>toJdkFunction(roles -> {
                                         List<Completable> deleteRolesCompletable = roles.stream().map(r -> roleService.delete(ReferenceType.DOMAIN, domainId, r.getId())).collect(Collectors.toList());
                                         return Completable.concat(deleteRolesCompletable);
