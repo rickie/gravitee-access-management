@@ -340,7 +340,7 @@ public class UserServiceImpl implements UserService {
                     // email used in priority for backward compatibility
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(client.getIdentities())
                             .flatMapMaybe(authProvider -> {
-                                return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(authProvider)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.UserProvider, MaybeSource<Optional<io.gravitee.am.gateway.handler.root.service.user.impl.UserServiceImpl.UserAuthentication>>>toJdkFunction(userProvider -> {
+                                return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(authProvider)).flatMap(a->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.UserProvider, MaybeSource<Optional<io.gravitee.am.gateway.handler.root.service.user.impl.UserServiceImpl.UserAuthentication>>>toJdkFunction(userProvider -> {
                                             final String username = params.getUsername();
                                             final Maybe<io.gravitee.am.identityprovider.api.User> findQuery = StringUtils.isEmpty(email) ?
                                                     userProvider.findByUsername(username) : userProvider.findByEmail(email) ;
@@ -348,7 +348,7 @@ public class UserServiceImpl implements UserService {
                                                     .map(user -> Optional.of(new UserAuthentication(user, authProvider)))
                                                     .defaultIfEmpty(Optional.empty())
                                                     .onErrorReturnItem(Optional.empty());
-                                        }).apply(v)))))).defaultIfEmpty(Optional.empty()));
+                                        }).apply(a)))))).defaultIfEmpty(Optional.empty()));
                             })
                             .takeUntil((Predicate<? super Optional<UserAuthentication>>) Optional::isPresent)
                             .lastOrError()).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Optional<io.gravitee.am.gateway.handler.root.service.user.impl.UserServiceImpl.UserAuthentication>, SingleSource<io.gravitee.am.model.User>>toJdkFunction(optional -> {
