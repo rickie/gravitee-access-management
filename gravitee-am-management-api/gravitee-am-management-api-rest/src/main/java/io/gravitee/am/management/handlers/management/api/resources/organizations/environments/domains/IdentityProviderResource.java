@@ -79,7 +79,7 @@ public class IdentityProviderResource extends AbstractResource {
             @PathParam("identity") String identityProvider,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new DomainNotFoundException(domain))))).flatMap(z->identityProviderService.findById(identityProvider).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(identityProvider))).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProvider1 -> {
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->identityProviderService.findById(identityProvider).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(identityProvider))).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProvider1 -> {
                             if (identityProvider1.getReferenceType() == ReferenceType.DOMAIN
                                     && !identityProvider1.getReferenceId().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Identity provider does not belong to domain");

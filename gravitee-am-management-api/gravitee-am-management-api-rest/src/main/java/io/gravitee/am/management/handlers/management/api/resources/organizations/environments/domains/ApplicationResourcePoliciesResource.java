@@ -80,7 +80,7 @@ public class ApplicationResourcePoliciesResource extends AbstractResource {
             @PathParam("resource") String resource,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ)).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new DomainNotFoundException(domain))))).flatMap(z->applicationService.findById(application).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))).flatMap(application1->RxJava2Adapter.flowableToFlux(resourceService.findAccessPoliciesByResources(Collections.singletonList(resource))).map(RxJavaReactorMigrationUtil.toJdkFunction(AccessPolicyListItem::new)).collectList())))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ)).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById(application).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))).flatMap(application1->RxJava2Adapter.flowableToFlux(resourceService.findAccessPoliciesByResources(Collections.singletonList(resource))).map(RxJavaReactorMigrationUtil.toJdkFunction(AccessPolicyListItem::new)).collectList())))
                 .subscribe(response::resume, response::resume);
     }
 

@@ -81,7 +81,7 @@ public class ExtensionGrantResource extends AbstractResource {
             @PathParam("extensionGrant") String extensionGrant,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_EXTENSION_GRANT, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new DomainNotFoundException(domain))))).flatMap(z->extensionGrantService.findById(extensionGrant).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(extensionGrant))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrant1 -> {
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_EXTENSION_GRANT, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->extensionGrantService.findById(extensionGrant).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(extensionGrant))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrant1 -> {
                             if (!extensionGrant1.getDomain().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Extension grant does not belong to domain");
                             }

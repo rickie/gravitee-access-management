@@ -80,7 +80,7 @@ public class IdentityProvidersResource extends AbstractResource {
             @QueryParam("userProvider") boolean userProvider,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.LIST)).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.LIST)).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new DomainNotFoundException(domain))))))
                         .flatMapPublisher(__ -> identityProviderService.findByDomain(domain))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(identityProvider -> {
                             if (userProvider) {
                                 return identityProviderManager.userProviderExists(identityProvider.getId());
