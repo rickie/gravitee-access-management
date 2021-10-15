@@ -198,8 +198,8 @@ public class JWEServiceImpl implements JWEService {
 
     private Single<JWT> decrypt(JWEObject jwe, Client client, Predicate<JWK> filter, JWEDecrypterFunction<JWK, JWEDecrypter> function) {
         final Maybe<JWKSet> jwks = client != null ? jwkService.getKeys(client) : jwkService.getDomainPrivateKeys();
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(jwks
-                .flatMapPublisher(jwkset -> Flowable.fromIterable(jwkset.getKeys()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(filter::test)))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(jwk -> jwk.getUse() == null || jwk.getUse().equals(KeyUse.ENCRYPTION.getValue()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(jwk -> jwe.getHeader().getKeyID() == null || jwe.getHeader().getKeyID().equals(jwk.getKid()))).map(RxJavaReactorMigrationUtil.toJdkFunction(function::apply)).map(RxJavaReactorMigrationUtil.toJdkFunction(decrypter -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(jwks
+                .flatMapPublisher(jwkset -> Flowable.fromIterable(jwkset.getKeys()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(filter::test)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(jwk -> jwk.getUse() == null || jwk.getUse().equals(KeyUse.ENCRYPTION.getValue()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(jwk -> jwe.getHeader().getKeyID() == null || jwe.getHeader().getKeyID().equals(jwk.getKid()))).map(RxJavaReactorMigrationUtil.toJdkFunction(function::apply)).map(RxJavaReactorMigrationUtil.toJdkFunction(decrypter -> {
                     try {
                         jwe.decrypt(decrypter);
                         return Optional.<JWT>ofNullable(jwe.getPayload().toSignedJWT());

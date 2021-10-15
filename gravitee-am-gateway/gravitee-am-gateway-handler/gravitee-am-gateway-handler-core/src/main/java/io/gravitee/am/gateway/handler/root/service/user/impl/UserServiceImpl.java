@@ -122,7 +122,7 @@ public class UserServiceImpl implements UserService {
                 : (user.getSource() == null ? DEFAULT_IDP_PREFIX + domain.getId() : user.getSource());
 
         // validate user and then check user uniqueness
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), user.getUsername(), source)).hasElement())).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Boolean, MaybeSource<UserProvider>>toJdkFunction(isEmpty -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), user.getUsername(), source)).hasElement().flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Boolean, MaybeSource<UserProvider>>toJdkFunction(isEmpty -> {
                             if (!isEmpty) {
                                 return RxJava2Adapter.monoToMaybe(Mono.error(new UserAlreadyExistsException(user.getUsername())));
                             }
@@ -211,10 +211,10 @@ public class UserServiceImpl implements UserService {
         }
 
         // only idp manage password, find user idp and update its password
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UserProviderNotFoundException(user.getSource()))))))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
                 // update the idp user
                 .flatMapSingle(userProvider -> {
-                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userProvider.findByUsername(user.getUsername())).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UserNotFoundException(user.getUsername()))))))
+                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userProvider.findByUsername(user.getUsername())).switchIfEmpty(Mono.error(new UserNotFoundException(user.getUsername()))))
                             .flatMapSingle(idpUser -> {
                                 // set password
                                 ((DefaultUser) idpUser).setCredentials(user.getPassword());
@@ -351,7 +351,7 @@ public class UserServiceImpl implements UserService {
                                     return RxJava2Adapter.monoToSingle(Mono.error(new UserNotFoundException()));
                                 }
                                 final UserAuthentication idpUser = optional.get();
-                                return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), idpUser.getUser().getUsername(), idpUser.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.defer(() -> userService.findByDomainAndExternalIdAndSource(domain.getId(), idpUser.getUser().getId(), idpUser.getSource())))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()))
+                                return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), idpUser.getUser().getUsername(), idpUser.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.defer(()->RxJava2Adapter.maybeToMono(userService.findByDomainAndExternalIdAndSource(domain.getId(), idpUser.getUser().getId(), idpUser.getSource())))))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()))
                                         .flatMapSingle(optEndUser -> {
                                             if (!optEndUser.isPresent()) {
                                                 return userService.create(convert(idpUser.getUser(), idpUser.getSource()));
