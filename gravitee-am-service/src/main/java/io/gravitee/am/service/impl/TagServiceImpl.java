@@ -31,16 +31,22 @@ import io.gravitee.am.service.model.UpdateTag;
 import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.TagAuditBuilder;
 import io.reactivex.*;
+import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
+import io.reactivex.Maybe;
+import io.reactivex.functions.Function;
+import java.text.Normalizer;
+import java.util.Date;
+import java.util.Set;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import java.text.Normalizer;
-import java.util.Date;
-import java.util.Set;
-import java.util.regex.Pattern;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -67,19 +73,18 @@ public class TagServiceImpl implements TagService {
         return tagRepository.findById(id, organizationId)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a tag using its ID: {}", id, ex);
-                    return Maybe.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a tag using its ID: %s", id), ex));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a tag using its ID: %s", id), ex)));
                 });
     }
 
     @Override
     public Flowable<Tag> findAll(String organizationId) {
         LOGGER.debug("Find all tags");
-        return tagRepository.findAll(organizationId)
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(tagRepository.findAll(organizationId)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find all tags", ex);
                     return Flowable.error(new TechnicalManagementException("An error occurs while trying to find all tags", ex));
-                });
+                })));
     }
 
     @Override
@@ -87,7 +92,7 @@ public class TagServiceImpl implements TagService {
         LOGGER.debug("Create a new tag: {}", newTag);
         String id = humanReadableId(newTag.getName());
 
-        return tagRepository.findById(id, organizationId)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tagRepository.findById(id, organizationId)
                 .isEmpty()
                 .flatMap(empty -> {
                     if (!empty) {
@@ -111,15 +116,13 @@ public class TagServiceImpl implements TagService {
                     LOGGER.error("An error occurs while trying to create a tag", ex);
                     return Single.error(new TechnicalManagementException("An error occurs while trying to create a tag", ex));
                 })
-                .doOnSuccess(tag -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).tag(tag).principal(principal).type(EventType.TAG_CREATED)))
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).referenceId(organizationId).principal(principal).type(EventType.TAG_CREATED).throwable(throwable)));
+                .doOnSuccess(tag -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).tag(tag).principal(principal).type(EventType.TAG_CREATED)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).referenceId(organizationId).principal(principal).type(EventType.TAG_CREATED).throwable(throwable)))));
     }
 
     @Override
     public Single<Tag> update(String tagId, String organizationId, UpdateTag updateTag, User principal) {
         LOGGER.debug("Update an existing tag: {}", updateTag);
-        return tagRepository.findById(tagId, organizationId)
-                .switchIfEmpty(Maybe.error(new TagNotFoundException(tagId)))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(tagRepository.findById(tagId, organizationId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new TagNotFoundException(tagId))))))
                 .flatMapSingle(oldTag -> {
                     Tag tag = new Tag();
                     tag.setId(tagId);
@@ -128,26 +131,24 @@ public class TagServiceImpl implements TagService {
                     tag.setCreatedAt(oldTag.getCreatedAt());
                     tag.setUpdatedAt(new Date());
 
-                    return tagRepository.update(tag)
-                            .doOnSuccess(tag1 -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_UPDATED).tag(tag1).oldValue(oldTag)))
-                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_UPDATED).throwable(throwable)));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tagRepository.update(tag)
+                            .doOnSuccess(tag1 -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_UPDATED).tag(tag1).oldValue(oldTag)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_UPDATED).throwable(throwable)))));
                 })
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
 
                     LOGGER.error("An error occurs while trying to update a tag", ex);
-                    return Single.error(new TechnicalManagementException("An error occurs while trying to update a tag", ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a tag", ex)));
                 });
     }
 
     @Override
     public Completable delete(String tagId, String orgaizationId, User principal) {
         LOGGER.debug("Delete tag {}", tagId);
-        return tagRepository.findById(tagId, orgaizationId)
-                .switchIfEmpty(Maybe.error(new TagNotFoundException(tagId)))
-                .flatMapCompletable(tag -> tagRepository.delete(tagId)
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(tagRepository.findById(tagId, orgaizationId)
+                .switchIfEmpty(Maybe.error(new TagNotFoundException(tagId)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Tag, CompletableSource>)tag -> tagRepository.delete(tagId)
                         .andThen(domainService.findAll()
                                 .flatMapObservable(Observable::fromIterable)
                                 .flatMapCompletable(domain -> {
@@ -159,14 +160,14 @@ public class TagServiceImpl implements TagService {
                                 })
                         )
                         .doOnComplete(() -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_DELETED).tag(tag)))
-                        .doOnError(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_DELETED).throwable(throwable))))
+                        .doOnError(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_DELETED).throwable(throwable)))).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Completable.error(ex);
+                        return RxJava2Adapter.monoToCompletable(Mono.error(ex));
                     }
 
                     LOGGER.error("An error occurs while trying to delete tag {}", tagId, ex);
-                    return Completable.error(new TechnicalManagementException("An error occurs while trying to delete tag " + tagId, ex));
+                    return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException("An error occurs while trying to delete tag " + tagId, ex)));
                 });
     }
 

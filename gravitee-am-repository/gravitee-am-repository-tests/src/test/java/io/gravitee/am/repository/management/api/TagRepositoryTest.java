@@ -16,12 +16,13 @@
 package io.gravitee.am.repository.management.api;
 
 import io.gravitee.am.model.Tag;
-import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.exceptions.TechnicalException;
+import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -40,7 +41,7 @@ public class TagRepositoryTest extends AbstractManagementTest {
         tag.setName("testName");
         tag.setDescription("Description");
         tag.setOrganizationId(ORGANIZATION_ID);
-        tagRepository.create(tag).blockingGet();
+        RxJava2Adapter.singleToMono(tagRepository.create(tag)).block();
 
         // fetch domains
         TestSubscriber<Tag> testObserver1 = tagRepository.findAll(ORGANIZATION_ID).test();
@@ -56,7 +57,7 @@ public class TagRepositoryTest extends AbstractManagementTest {
         // create tag
         Tag tag = new Tag();
         tag.setName("testName");
-        Tag tagCreated = tagRepository.create(tag).blockingGet();
+        Tag tagCreated = RxJava2Adapter.singleToMono(tagRepository.create(tag)).block();
 
         // fetch domain
         TestObserver<Tag> testObserver = tagRepository.findById(tagCreated.getId()).test();
@@ -91,7 +92,7 @@ public class TagRepositoryTest extends AbstractManagementTest {
         // create tag
         Tag tag = new Tag();
         tag.setName("testName");
-        Tag tagCreated = tagRepository.create(tag).blockingGet();
+        Tag tagCreated = RxJava2Adapter.singleToMono(tagRepository.create(tag)).block();
 
         // update tag
         Tag updatedTag = new Tag();
@@ -112,7 +113,7 @@ public class TagRepositoryTest extends AbstractManagementTest {
         // create tag
         Tag tag = new Tag();
         tag.setName("testName");
-        Tag tagCreated = tagRepository.create(tag).blockingGet();
+        Tag tagCreated = RxJava2Adapter.singleToMono(tagRepository.create(tag)).block();
 
         // fetch tag
         TestObserver<Tag> testObserver = tagRepository.findById(tagCreated.getId()).test();

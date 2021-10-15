@@ -33,12 +33,14 @@ import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * <pre>
@@ -66,11 +68,10 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
-        this.extractRequest(context)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.extractRequest(context)
                 .flatMap(this::bodyValidation)
                 .map(this::toPermissionRequest)
-                .flatMap(permissionRequests -> permissionTicketService.create(permissionRequests, domain.getId(), client.getId()))
-                .map(PermissionTicketResponse::from)
+                .flatMap(permissionRequests -> permissionTicketService.create(permissionRequests, domain.getId(), client.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(PermissionTicketResponse::from)))
                 .subscribe(
                         permission -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -101,7 +102,7 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
             json = context.getBody().toJson();
         }
         catch (RuntimeException err) {
-            return Single.error(new InvalidRequestException("Unable to parse body permission request"));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Unable to parse body permission request")));
         }
 
         if(json instanceof JsonArray) {
@@ -109,7 +110,7 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
         } else {
             result = Arrays.asList(((JsonObject)json).mapTo(PermissionTicketRequest.class));
         }
-        return Single.just(result);
+        return RxJava2Adapter.monoToSingle(Mono.just(result));
     }
 
     private List<PermissionTicketRequest> convert(List<LinkedHashMap> list) {
@@ -129,9 +130,9 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
      */
     private Single<List<PermissionTicketRequest>> bodyValidation(List<PermissionTicketRequest> toValidate) {
         if(toValidate.stream().filter(invalidPermissionRequest()).count() > 0) {
-            return Single.error(new InvalidRequestException("resource_id and resource_scopes are mandatory."));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("resource_id and resource_scopes are mandatory.")));
         }
-        return Single.just(toValidate);
+        return RxJava2Adapter.monoToSingle(Mono.just(toValidate));
     }
 
     /**

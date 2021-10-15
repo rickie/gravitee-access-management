@@ -21,11 +21,12 @@ import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -44,7 +45,7 @@ public class ClientSyncServiceImpl implements ClientSyncService {
     @Override
     public Maybe<Client> findById(String id) {
         final Client client = clientManager.get(id);
-        return client != null ? Maybe.just(client) : Maybe.empty();
+        return client != null ? RxJava2Adapter.monoToMaybe(Mono.just(client)) : RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
     @Override
@@ -58,7 +59,7 @@ public class ClientSyncServiceImpl implements ClientSyncService {
                 .stream()
                 .filter(client -> !client.isTemplate() && client.getDomain().equals(domain) && client.getClientId().equals(clientId))
                 .findFirst();
-        return optClient.isPresent() ? Maybe.just(optClient.get()) : Maybe.empty();
+        return optClient.isPresent() ? RxJava2Adapter.monoToMaybe(Mono.just(optClient.get())) : RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
     @Override
@@ -67,7 +68,7 @@ public class ClientSyncServiceImpl implements ClientSyncService {
                 .stream()
                 .filter(client -> client.isTemplate() && client.getDomain().equals(domain.getId()))
                 .collect(Collectors.toList());
-        return Single.just(templates);
+        return RxJava2Adapter.monoToSingle(Mono.just(templates));
     }
 
     @Override

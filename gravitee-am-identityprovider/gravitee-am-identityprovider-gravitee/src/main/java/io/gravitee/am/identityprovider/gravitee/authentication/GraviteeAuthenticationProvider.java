@@ -20,11 +20,13 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.service.OrganizationUserService;
 import io.gravitee.am.service.authentication.crypto.password.bcrypt.BCryptPasswordEncoder;
 import io.reactivex.Maybe;
+import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.HashMap;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -43,11 +45,11 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
     public Maybe<User> loadUserByUsername(Authentication authentication) {
         final AuthenticationContext context = authentication.getContext();
         if (context == null || context.get(KEY_ORGANIZATION_ID) == null) {
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
 
         String username = ((String) authentication.getPrincipal()).toLowerCase();
-        return userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, (String)context.get(KEY_ORGANIZATION_ID), username, "gravitee")
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, (String)context.get(KEY_ORGANIZATION_ID), username, "gravitee")
                 .filter(user -> {
                     String presentedPassword = authentication.getCredentials().toString();
 
@@ -62,8 +64,7 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
                     }
 
                     return true;
-                })
-                .map(user -> {
+                })).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                     DefaultUser idpUser = new DefaultUser(user.getUsername());
                     idpUser.setId(user.getId());
                     idpUser.setCredentials(user.getPassword());
@@ -76,12 +77,12 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
                     idpUser.setEnabled(user.isEnabled());
                     idpUser.setUpdatedAt(user.getUpdatedAt());
                     return idpUser;
-                });
+                })));
     }
 
     @Override
     public Maybe<User> loadUserByUsername(String username) {
         // not relevant for Organization users
-        return Maybe.empty();
+        return RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 }

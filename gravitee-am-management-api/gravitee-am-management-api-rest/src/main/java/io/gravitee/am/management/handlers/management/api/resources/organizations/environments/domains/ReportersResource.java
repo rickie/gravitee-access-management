@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
+import static io.gravitee.am.management.service.permissions.Permissions.of;
+import static io.gravitee.am.management.service.permissions.Permissions.or;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.model.Acl;
@@ -28,24 +31,21 @@ import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.NewReporter;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.net.URI;
+import java.util.stream.Collectors;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
-import java.net.URI;
-import java.util.stream.Collectors;
-
-import static io.gravitee.am.management.service.permissions.Permissions.of;
-import static io.gravitee.am.management.service.permissions.Permissions.or;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -82,19 +82,15 @@ public class ReportersResource extends AbstractResource {
 
         User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.LIST)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.LIST)
                 .andThen(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(irrelevant -> reporterService.findByDomain(domain).toList()))
-                .flatMap(reporters ->
-                        hasAnyPermission(authenticatedUser, organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ)
-                                .map(hasPermission -> {
-                                    if (hasPermission) {
-                                        return reporters;
-                                    }
-                                    return reporters.stream().map(this::filterReporterInfos).collect(Collectors.toList());
-                                })
-                )
+                        .flatMapSingle(irrelevant -> reporterService.findByDomain(domain).toList()))).flatMap(reporters->RxJava2Adapter.singleToMono(hasAnyPermission(authenticatedUser, organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ).map((java.lang.Boolean hasPermission)->{
+if (hasPermission) {
+return reporters;
+}
+return reporters.stream().map(this::filterReporterInfos).collect(Collectors.toList());
+}))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -117,10 +113,9 @@ public class ReportersResource extends AbstractResource {
 
         User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.CREATE)
-                .andThen(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(irrelevant -> reporterService.create(domain, newReporter, authenticatedUser)))
+                        .flatMapSingle(irrelevant -> reporterService.create(domain, newReporter, authenticatedUser))))))
                    .subscribe(reporter -> response.resume(Response.created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/reporters/" + reporter.getId()))
                            .entity(reporter).build()), response::resume);
     }

@@ -25,12 +25,13 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.RoleService;
 import io.gravitee.am.service.model.UpdateRole;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -39,7 +40,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -65,9 +67,8 @@ public class RoleResource extends AbstractResource {
             @PathParam("role") String role,
             @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.READ)
-                .andThen(roleService.findById(ReferenceType.ORGANIZATION, organizationId, role)
-                        .map(this::convert))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(roleService.findById(ReferenceType.ORGANIZATION, organizationId, role)
+                        .map(this::convert)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -86,9 +87,8 @@ public class RoleResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.UPDATE)
-                .andThen(roleService.update(ReferenceType.ORGANIZATION, organizationId, role, updateRole, authenticatedUser)
-                        .map(this::convert))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(roleService.update(ReferenceType.ORGANIZATION, organizationId, role, updateRole, authenticatedUser)
+                        .map(this::convert)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -105,8 +105,7 @@ public class RoleResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.DELETE)
-                .andThen(roleService.delete(ReferenceType.ORGANIZATION, organizationId, role, authenticatedUser))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(roleService.delete(ReferenceType.ORGANIZATION, organizationId, role, authenticatedUser)))))
                 .subscribe(() -> response.resume(Response.noContent().build()),
                         response::resume);
     }

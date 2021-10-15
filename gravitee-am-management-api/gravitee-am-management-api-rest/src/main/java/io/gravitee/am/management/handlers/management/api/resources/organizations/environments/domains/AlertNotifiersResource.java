@@ -17,16 +17,17 @@ package io.gravitee.am.management.handlers.management.api.resources.organization
 
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
-import io.gravitee.am.service.AlertNotifierService;
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertNotifier;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.repository.management.api.search.AlertNotifierCriteria;
+import io.gravitee.am.service.AlertNotifierService;
 import io.gravitee.am.service.model.NewAlertNotifier;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Single;
 import io.swagger.annotations.*;
-
+import java.util.Comparator;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -35,7 +36,7 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
-import java.util.Comparator;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -65,10 +66,9 @@ public class AlertNotifiersResource extends AbstractResource {
             @PathParam("domain") String domainId,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST)
                 .andThen(alertNotifierService.findByDomainAndCriteria(domainId, new AlertNotifierCriteria()))
-                .sorted(Comparator.comparing(AlertNotifier::getCreatedAt))
-                .toList()
+                .sorted(Comparator.comparing(AlertNotifier::getCreatedAt))).collectList())
                 .subscribe(response::resume, response::resume);
     }
 
@@ -91,8 +91,7 @@ public class AlertNotifiersResource extends AbstractResource {
 
         final User authenticatedUser = this.getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.CREATE)
-                .andThen(alertNotifierService.create(ReferenceType.DOMAIN, domainId, newAlertNotifier, authenticatedUser))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(alertNotifierService.create(ReferenceType.DOMAIN, domainId, newAlertNotifier, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 

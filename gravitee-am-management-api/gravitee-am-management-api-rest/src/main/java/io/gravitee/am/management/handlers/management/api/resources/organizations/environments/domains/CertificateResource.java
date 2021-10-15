@@ -29,13 +29,13 @@ import io.gravitee.am.service.exception.CertificateNotFoundException;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.UpdateCertificate;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -44,6 +44,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -79,8 +81,7 @@ public class CertificateResource extends AbstractResource {
             @PathParam("certificate") String certificate,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.READ)
-                .andThen(domainService.findById(domain)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> certificateService.findById(certificate))
                         .switchIfEmpty(Maybe.error(new CertificateNotFoundException(certificate)))
@@ -89,7 +90,7 @@ public class CertificateResource extends AbstractResource {
                                 throw new BadRequestException("Certificate does not belong to domain");
                             }
                             return Response.ok(certificate1).build();
-                        }))
+                        })))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -110,10 +111,9 @@ public class CertificateResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
 
         // FIXME: should we create a DOMAIN_CERTIFICATE_KEY permission instead ?
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)
-                .andThen(certificateManager.getCertificateProvider(certificate)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(certificateManager.getCertificateProvider(certificate)
                         .switchIfEmpty(Maybe.error(new BadRequestException("No certificate provider found for the certificate " + certificate)))
-                        .flatMapSingle(CertificateProvider::publicKey))
+                        .flatMapSingle(CertificateProvider::publicKey)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -135,10 +135,9 @@ public class CertificateResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
 
         // FIXME: should we create a DOMAIN_CERTIFICATE_KEY permission instead ?
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)
-                .andThen(certificateManager.getCertificateProvider(certificate)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(certificateManager.getCertificateProvider(certificate)
                         .switchIfEmpty(Maybe.error(new BadRequestException("No certificate provider found for the certificate " + certificate)))
-                        .flatMapSingle(CertificateProvider::publicKeys))
+                        .flatMapSingle(CertificateProvider::publicKeys)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -162,11 +161,10 @@ public class CertificateResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.UPDATE)
-                .andThen(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapSingle(schema -> certificateService.update(domain, certificate, updateCertificate, authenticatedUser))
-                        .map(certificate1 -> Response.ok(certificate1).build()))
+                        .map(certificate1 -> Response.ok(certificate1).build())))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -187,8 +185,7 @@ public class CertificateResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.DELETE)
-                .andThen(certificateService.delete(certificate, authenticatedUser))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(certificateService.delete(certificate, authenticatedUser)))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

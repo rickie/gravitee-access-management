@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.management.service.impl.commands;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.Role;
 import io.gravitee.am.model.User;
@@ -38,11 +43,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -90,15 +92,15 @@ public class MembershipCommandHandlerTest {
         Role role = new Role();
         role.setId(UUID.random().toString());
 
-        when(userService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, membershipPayload.getOrganizationId(), membershipPayload.getUserId(), "cockpit")).thenReturn(Maybe.just(user));
-        when(roleService.findSystemRole(SystemRole.ENVIRONMENT_PRIMARY_OWNER, ReferenceType.ENVIRONMENT)).thenReturn(Maybe.just(role));
+        when(userService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, membershipPayload.getOrganizationId(), membershipPayload.getUserId(), "cockpit")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(roleService.findSystemRole(SystemRole.ENVIRONMENT_PRIMARY_OWNER, ReferenceType.ENVIRONMENT)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
         when(membershipService.addOrUpdate(eq(membershipPayload.getOrganizationId()),
                 argThat(membership -> membership.getReferenceType() == ReferenceType.ENVIRONMENT
                         && membership.getReferenceId().equals(membershipPayload.getReferenceId())
                         && membership.getMemberType() == MemberType.USER
                         && membership.getMemberId().equals(user.getId())
                         && membership.getRoleId().equals(role.getId()))))
-                .thenAnswer(i -> Single.just(i.getArgument(1)));
+                .thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(1))));
 
         TestObserver<MembershipReply> obs = cut.handle(command).test();
 
@@ -125,15 +127,15 @@ public class MembershipCommandHandlerTest {
         Role role = new Role();
         role.setId(UUID.random().toString());
 
-        when(userService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, membershipPayload.getOrganizationId(), membershipPayload.getUserId(), "cockpit")).thenReturn(Maybe.just(user));
-        when(roleService.findDefaultRole(membershipPayload.getOrganizationId(), DefaultRole.ENVIRONMENT_OWNER, ReferenceType.ENVIRONMENT)).thenReturn(Maybe.just(role));
+        when(userService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, membershipPayload.getOrganizationId(), membershipPayload.getUserId(), "cockpit")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(roleService.findDefaultRole(membershipPayload.getOrganizationId(), DefaultRole.ENVIRONMENT_OWNER, ReferenceType.ENVIRONMENT)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
         when(membershipService.addOrUpdate(eq(membershipPayload.getOrganizationId()),
                 argThat(membership -> membership.getReferenceType() == ReferenceType.ENVIRONMENT
                         && membership.getReferenceId().equals(membershipPayload.getReferenceId())
                         && membership.getMemberType() == MemberType.USER
                         && membership.getMemberId().equals(user.getId())
                         && membership.getRoleId().equals(role.getId()))))
-                .thenAnswer(i -> Single.just(i.getArgument(1)));
+                .thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(1))));
 
         TestObserver<MembershipReply> obs = cut.handle(command).test();
 
@@ -161,8 +163,8 @@ public class MembershipCommandHandlerTest {
         role.setId(UUID.random().toString());
 
         // Need to switch to lenient because we can be sure of what method will be executed (cause it's reactive and executed in //).
-        lenient().when(userService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, membershipPayload.getOrganizationId(), membershipPayload.getUserId(), "cockpit")).thenReturn(Maybe.just(user));
-        lenient().when(roleService.findDefaultRole(membershipPayload.getOrganizationId(), DefaultRole.ENVIRONMENT_OWNER, ReferenceType.ENVIRONMENT)).thenReturn(Maybe.just(role));
+        lenient().when(userService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, membershipPayload.getOrganizationId(), membershipPayload.getUserId(), "cockpit")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        lenient().when(roleService.findDefaultRole(membershipPayload.getOrganizationId(), DefaultRole.ENVIRONMENT_OWNER, ReferenceType.ENVIRONMENT)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
 
         TestObserver<MembershipReply> obs = cut.handle(command).test();
 

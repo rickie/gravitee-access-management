@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.management.service.impl.upgrades;
 
+import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.DOMAIN_IDP_UPGRADER;
+
 import io.gravitee.am.management.service.IdentityProviderManager;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.IdentityProvider;
@@ -22,13 +24,14 @@ import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.IdentityProviderService;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
-
-import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.DOMAIN_IDP_UPGRADER;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Create default mongo IDP for each domain for user management
@@ -62,15 +65,14 @@ public class DomainIdpUpgrader implements Upgrader, Ordered {
     }
 
     private Single<IdentityProvider> updateDefaultIdp(Domain domain) {
-        return identityProviderService.findById(DEFAULT_IDP_PREFIX + domain.getId())
-                .isEmpty()
-                .flatMap(isEmpty -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(identityProviderService.findById(DEFAULT_IDP_PREFIX + domain.getId())
+                .isEmpty()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<IdentityProvider>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<IdentityProvider>>)isEmpty -> {
                     if (isEmpty) {
                         logger.info("No default idp found for domain {}, update domain", domain.getName());
                         return identityProviderManager.create(domain.getId());
                     }
                     return Single.just(new IdentityProvider());
-                });
+                }).apply(v)))));
     }
 
     @Override

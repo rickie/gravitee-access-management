@@ -23,6 +23,7 @@ import io.gravitee.am.gateway.handler.oauth2.resources.auth.handler.ClientAuthHa
 import io.gravitee.am.gateway.handler.oauth2.service.assertion.ClientAssertionService;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -30,6 +31,8 @@ import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Client Authentication method : private_key_jwt
@@ -90,14 +93,13 @@ public class ClientAssertionAuthProvider implements ClientAuthProvider {
         String clientId = request.getParam(Parameters.CLIENT_ID);
         String basePath = UriBuilderRequest.resolveProxyRequest(context);
 
-        clientAssertionService.assertClient(clientAssertionType, clientAssertion, basePath)
-                .flatMap(client1 -> {
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(clientAssertionService.assertClient(clientAssertionType, clientAssertion, basePath)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client1 -> {
                     // clientId is optional, but if provided we must ensure it is the same than the logged client.
                     if(clientId != null && !clientId.equals(client1.getClientId())) {
                         return Maybe.error(new InvalidClientException("client_id parameter does not match with assertion"));
                     }
                     return Maybe.just(client1);
-                })
+                }).apply(v)))))
                 .subscribe(
                         client1 -> handler.handle(Future.succeededFuture(client1)),
                         throwable -> {

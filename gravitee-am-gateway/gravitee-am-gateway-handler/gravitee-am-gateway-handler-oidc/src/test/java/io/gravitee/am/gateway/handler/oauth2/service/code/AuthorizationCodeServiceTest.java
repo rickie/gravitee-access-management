@@ -15,11 +15,14 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.code;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidGrantException;
 import io.gravitee.am.gateway.handler.oauth2.service.code.impl.AuthorizationCodeServiceImpl;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.User;
+import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.repository.oauth2.api.AccessTokenRepository;
 import io.gravitee.am.repository.oauth2.api.AuthorizationCodeRepository;
 import io.gravitee.am.repository.oauth2.api.RefreshTokenRepository;
@@ -30,17 +33,16 @@ import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -69,7 +71,7 @@ public class AuthorizationCodeServiceTest {
         User user = new User();
         user.setUsername("my-username-id");
 
-        when(authorizationCodeRepository.create(any())).thenReturn(Single.just(new AuthorizationCode()));
+        when(authorizationCodeRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new AuthorizationCode())));
 
         TestObserver<AuthorizationCode> testObserver = authorizationCodeService.create(authorizationRequest, user).test();
         testObserver.assertComplete();
@@ -92,9 +94,9 @@ public class AuthorizationCodeServiceTest {
         authorizationCode.setCode("my-code");
         authorizationCode.setClientId("my-client-id");
 
-        when(authorizationCodeRepository.findByCode(authorizationCode.getCode())).thenReturn(Maybe.just(authorizationCode));
-        when(authorizationCodeRepository.delete(authorizationCode.getId())).thenReturn(Maybe.just(authorizationCode));
-        when(accessTokenRepository.findByAuthorizationCode(authorizationCode.getCode())).thenReturn(Observable.empty());
+        when(authorizationCodeRepository.findByCode(authorizationCode.getCode())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(authorizationCode)));
+        when(authorizationCodeRepository.delete(authorizationCode.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(authorizationCode)));
+        when(accessTokenRepository.findByAuthorizationCode(authorizationCode.getCode())).thenReturn(RxJava2Adapter.fluxToObservable(Flux.empty()));
 
         TestObserver<AuthorizationCode> testObserver = authorizationCodeService.remove(authorizationCode.getCode(), client).test();
         testObserver.assertComplete();
@@ -129,9 +131,9 @@ public class AuthorizationCodeServiceTest {
 
         List<AccessToken> tokens = Arrays.asList(accessToken, accessToken2);
 
-        when(authorizationCodeRepository.findByCode(any())).thenReturn(Maybe.empty());
+        when(authorizationCodeRepository.findByCode(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         when(accessTokenRepository.findByAuthorizationCode(anyString())).thenReturn(Observable.fromIterable(tokens));
-        when(accessTokenRepository.delete(anyString())).thenReturn(Completable.complete());
+        when(accessTokenRepository.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         TestObserver<AuthorizationCode> testObserver = authorizationCodeService.remove(authorizationCode.getCode(), client).test();
         testObserver.assertError(InvalidGrantException.class);
@@ -167,10 +169,10 @@ public class AuthorizationCodeServiceTest {
 
         List<AccessToken> tokens = Arrays.asList(accessToken, accessToken2);
 
-        when(authorizationCodeRepository.findByCode(any())).thenReturn(Maybe.empty());
+        when(authorizationCodeRepository.findByCode(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         when(accessTokenRepository.findByAuthorizationCode(anyString())).thenReturn(Observable.fromIterable(tokens));
-        when(accessTokenRepository.delete(anyString())).thenReturn(Completable.complete());
-        when(refreshTokenRepository.delete(anyString())).thenReturn(Completable.complete());
+        when(accessTokenRepository.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(refreshTokenRepository.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         TestObserver<AuthorizationCode> testObserver = authorizationCodeService.remove(authorizationCode.getCode(), client).test();
         testObserver.assertError(InvalidGrantException.class);

@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.gateway.handler.scim.service;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -36,6 +41,10 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,16 +53,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -98,8 +100,8 @@ public class UserServiceTest {
         when(newUser.getUserName()).thenReturn("username");
 
         when(domain.getId()).thenReturn(domainId);
-        when(userRepository.findByUsernameAndSource(eq(ReferenceType.DOMAIN), anyString(), anyString(), anyString())).thenReturn(Maybe.empty());
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(Maybe.empty());
+        when(userRepository.findByUsernameAndSource(eq(ReferenceType.DOMAIN), anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver<User> testObserver = userService.create(newUser, "/").test();
         testObserver.assertNotComplete();
@@ -116,8 +118,8 @@ public class UserServiceTest {
         when(newUser.getRoles()).thenReturn(Arrays.asList("role-wrong-1", "role-wrong-2"));
 
         when(domain.getId()).thenReturn(domainId);
-        when(userRepository.findByUsernameAndSource(eq(ReferenceType.DOMAIN), anyString(), anyString(), anyString())).thenReturn(Maybe.empty());
-        when(roleService.findByIdIn(newUser.getRoles())).thenReturn(Single.just(Collections.emptySet()));
+        when(userRepository.findByUsernameAndSource(eq(ReferenceType.DOMAIN), anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(roleService.findByIdIn(newUser.getRoles())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
 
         TestObserver<User> testObserver = userService.create(newUser, "/").test();
         testObserver.assertNotComplete();
@@ -136,7 +138,7 @@ public class UserServiceTest {
         io.gravitee.am.identityprovider.api.User idpUser = mock(io.gravitee.am.identityprovider.api.User.class);
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.create(any())).thenReturn(Single.just(idpUser));
+        when(userProvider.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idpUser)));
 
         io.gravitee.am.model.User createdUser = mock(io.gravitee.am.model.User.class);
 
@@ -149,10 +151,10 @@ public class UserServiceTest {
         roles.add(role2);
 
         when(domain.getId()).thenReturn(domainId);
-        when(userRepository.findByUsernameAndSource(eq(ReferenceType.DOMAIN), anyString(), anyString(), anyString())).thenReturn(Maybe.empty());
-        when(userRepository.create(any())).thenReturn(Single.just(createdUser));
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(Maybe.just(userProvider));
-        when(roleService.findByIdIn(newUser.getRoles())).thenReturn(Single.just(roles));
+        when(userRepository.findByUsernameAndSource(eq(ReferenceType.DOMAIN), anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(createdUser)));
+        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
+        when(roleService.findByIdIn(newUser.getRoles())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(roles)));
 
         TestObserver<User> testObserver = userService.create(newUser, "/").test();
         testObserver.assertNoErrors();
@@ -173,7 +175,7 @@ public class UserServiceTest {
         io.gravitee.am.identityprovider.api.User idpUser = mock(io.gravitee.am.identityprovider.api.User.class);
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.create(any())).thenReturn(Single.just(idpUser));
+        when(userProvider.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idpUser)));
 
         Set<Role> roles = new HashSet<>();
         Role role1 = new Role();
@@ -183,11 +185,11 @@ public class UserServiceTest {
         roles.add(role1);
         roles.add(role2);
 
-        when(userRepository.findById(existingUser.getId())).thenReturn(Maybe.just(existingUser));
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(Maybe.just(userProvider));
+        when(userRepository.findById(existingUser.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingUser)));
+        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
         ArgumentCaptor<io.gravitee.am.model.User> userCaptor = ArgumentCaptor.forClass(io.gravitee.am.model.User.class);
-        when(userRepository.update(any())).thenReturn(Single.just(existingUser));
-        when(groupService.findByMember(existingUser.getId())).thenReturn(Flowable.empty());
+        when(userRepository.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(existingUser)));
+        when(groupService.findByMember(existingUser.getId())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
         when(passwordValidator.isValid("user-password")).thenReturn(true);
 
         TestObserver<User> testObserver = userService.update(existingUser.getId(), scimUser, "/").test();
@@ -228,18 +230,18 @@ public class UserServiceTest {
 
         io.gravitee.am.identityprovider.api.User idpUser = mock(io.gravitee.am.identityprovider.api.User.class);
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.create(any())).thenReturn(Single.just(idpUser));
+        when(userProvider.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idpUser)));
 
         when(domain.getName()).thenReturn(domainName);
         when(objectMapper.convertValue(any(), eq(ObjectNode.class))).thenReturn(userNode);
         when(objectMapper.treeToValue(userNode, User.class)).thenReturn(patchUser);
-        when(groupService.findByMember(userId)).thenReturn(Flowable.empty());
-        when(userRepository.findById(userId)).thenReturn(Maybe.just(patchedUser));
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(Maybe.just(userProvider));
+        when(groupService.findByMember(userId)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(userRepository.findById(userId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(patchedUser)));
+        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
         doAnswer(invocation -> {
             io.gravitee.am.model.User userToUpdate = invocation.getArgument(0);
             Assert.assertTrue(userToUpdate.getDisplayName().equals("my user 2"));
-            return Single.just(userToUpdate);
+            return RxJava2Adapter.monoToSingle(Mono.just(userToUpdate));
         }).when(userRepository).update(any());
 
         TestObserver<User> testObserver = userService.patch(userId, patchOp, "/").test();

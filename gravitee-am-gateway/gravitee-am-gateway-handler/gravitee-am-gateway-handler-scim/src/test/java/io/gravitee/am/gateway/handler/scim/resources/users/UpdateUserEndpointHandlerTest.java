@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.scim.resources.users;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
@@ -34,9 +37,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 
 /**
@@ -74,7 +76,7 @@ public class UpdateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeSCIMUpdateUserEndpoint_invalid_password() throws Exception {
         router.route("/Users").handler(userEndpoint::update);
-        when(userService.update(eq(null), any(), any())).thenReturn(Single.error(new InvalidValueException("Field [password] is invalid")));
+        when(userService.update(eq(null), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("Field [password] is invalid"))));
 
         testRequest(
                 HttpMethod.PUT,
@@ -96,7 +98,7 @@ public class UpdateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldInvokeSCIMUpdateUserEndpoint_valid_password() throws Exception {
         router.route("/Users").handler(userEndpoint::update);
-        when(userService.update(any(), any(), any())).thenReturn(Single.just(getUser()));
+        when(userService.update(any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(getUser())));
 
         testRequest(
                 HttpMethod.PUT,
@@ -112,7 +114,7 @@ public class UpdateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeSCIMUpdateUserEndpoint_invalid_roles() throws Exception {
         router.route("/Users").handler(userEndpoint::update);
-        when(userService.update(any(), any(), anyString())).thenReturn(Single.error(new InvalidValueException("Role [role-1] can not be found.")));
+        when(userService.update(any(), any(), anyString())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("Role [role-1] can not be found."))));
 
         testRequest(
                 HttpMethod.PUT,
@@ -134,7 +136,7 @@ public class UpdateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturn400WhenInvalidUserException() throws Exception {
         router.route("/Users").handler(userEndpoint::update);
-        when(userService.update(any(), any(), anyString())).thenReturn(Single.error(new InvalidUserException("Invalid user infos")));
+        when(userService.update(any(), any(), anyString())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidUserException("Invalid user infos"))));
 
         testRequest(
                 HttpMethod.PUT,
@@ -156,7 +158,7 @@ public class UpdateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturn400WhenEmailFormatInvalidException() throws Exception {
         router.route("/Users").handler(userEndpoint::update);
-        when(userService.update(any(), any(), anyString())).thenReturn(Single.error(new EmailFormatInvalidException("Invalid email")));
+        when(userService.update(any(), any(), anyString())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new EmailFormatInvalidException("Invalid email"))));
 
         testRequest(
                 HttpMethod.PUT,

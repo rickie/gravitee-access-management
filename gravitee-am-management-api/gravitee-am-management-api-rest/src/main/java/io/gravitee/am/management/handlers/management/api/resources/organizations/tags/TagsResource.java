@@ -25,9 +25,9 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.TagService;
 import io.gravitee.am.service.model.NewTag;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Single;
 import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.net.URI;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -36,7 +36,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.URI;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -64,11 +65,10 @@ public class TagsResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.LIST)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.LIST)
                 .andThen(tagService.findAll(organizationId))
                 .map(this::filterTagInfos)
-                .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))
-                .toList()
+                .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))).collectList())
                 .subscribe(response::resume, response::resume);
     }
 
@@ -87,8 +87,7 @@ public class TagsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.CREATE)
-                .andThen(tagService.create(newTag, organizationId, authenticatedUser))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(tagService.create(newTag, organizationId, authenticatedUser)))))
                 .subscribe(
                         tag -> response.resume(Response
                                 .created(URI.create("/organizations/" + organizationId + "/tags/" + tag.getId()))

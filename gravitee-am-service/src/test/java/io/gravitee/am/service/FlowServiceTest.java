@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.service;
 
+import static java.util.Collections.emptyList;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.model.flow.Flow;
@@ -31,17 +34,17 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-
-import static java.util.Collections.emptyList;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -66,8 +69,8 @@ public class FlowServiceTest {
 
     @Test
     public void shouldFindAll() {
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(new Flow()));
-        TestObserver testObserver = flowService.findAll(ReferenceType.DOMAIN, DOMAIN).toList().test();
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Flow())));
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(flowService.findAll(ReferenceType.DOMAIN, DOMAIN)).collectList()).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -77,9 +80,9 @@ public class FlowServiceTest {
 
     @Test
     public void shouldNotFindAll_technicalException() {
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.error(TechnicalException::new));
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
         TestObserver testObserver = new TestObserver();
-        flowService.findAll(ReferenceType.DOMAIN, DOMAIN).toList().subscribe(testObserver);
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(flowService.findAll(ReferenceType.DOMAIN, DOMAIN)).collectList()).subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -88,8 +91,8 @@ public class FlowServiceTest {
     @Test
     public void shouldCreate() {
         Flow newFlow = mock(Flow.class);
-        when(flowRepository.create(any(Flow.class))).thenReturn(Single.just(new Flow()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(flowRepository.create(any(Flow.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Flow())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = flowService.create(ReferenceType.DOMAIN, DOMAIN, newFlow).test();
         testObserver.awaitTerminalEvent();
@@ -104,7 +107,7 @@ public class FlowServiceTest {
     @Test
     public void shouldCreate_technicalException() {
         Flow newFlow = mock(Flow.class);
-        when(flowRepository.create(any(Flow.class))).thenReturn(Single.error(TechnicalException::new));
+        when(flowRepository.create(any(Flow.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = flowService.create(ReferenceType.DOMAIN, DOMAIN, newFlow).test();
         testObserver.awaitTerminalEvent();
@@ -121,9 +124,9 @@ public class FlowServiceTest {
         when(updateFlow.getType()).thenReturn(Type.ROOT);
         Flow existingFlow = new Flow();
         existingFlow.setType(Type.ROOT);
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow")).thenReturn(Maybe.just(existingFlow));
-        when(flowRepository.update(any(Flow.class))).thenReturn(Single.just(new Flow()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingFlow)));
+        when(flowRepository.update(any(Flow.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Flow())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = flowService.update(ReferenceType.DOMAIN, DOMAIN, "my-flow", updateFlow).test();
         testObserver.awaitTerminalEvent();
@@ -143,7 +146,7 @@ public class FlowServiceTest {
         when(updateFlow.getType()).thenReturn(Type.ROOT);
         Flow existingFlow = new Flow();
         existingFlow.setType(Type.LOGIN);
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow")).thenReturn(Maybe.just(existingFlow));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingFlow)));
 
         TestObserver testObserver = flowService.update(ReferenceType.DOMAIN, DOMAIN, "my-flow", updateFlow).test();
         testObserver.awaitTerminalEvent();
@@ -167,9 +170,9 @@ public class FlowServiceTest {
         updateFlow.setPost(Arrays.asList(new Step()));
         updateFlow.setType(Type.ROOT);
 
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, ID)).thenReturn(Maybe.just(existingFlow));
-        when(flowRepository.update(any(Flow.class))).thenReturn(Single.just(new Flow()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingFlow)));
+        when(flowRepository.update(any(Flow.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Flow())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = flowService.update(ReferenceType.DOMAIN, DOMAIN, ID, updateFlow).test();
         testObserver.awaitTerminalEvent();
@@ -185,7 +188,7 @@ public class FlowServiceTest {
     @Test
     public void shouldUpdate_technicalException() {
         Flow updateFlow = Mockito.mock(Flow.class);
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow")).thenReturn(Maybe.error(TechnicalException::new));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-flow")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver();
         flowService.update(ReferenceType.DOMAIN, DOMAIN, "my-flow", updateFlow).subscribe(testObserver);
@@ -199,7 +202,7 @@ public class FlowServiceTest {
 
     @Test
     public void shouldUpdate_flowNotFound() {
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN,"my-flow")).thenReturn(Maybe.empty());
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN,"my-flow")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = new TestObserver();
         flowService.update(ReferenceType.DOMAIN, DOMAIN, "my-flow", new Flow()).subscribe(testObserver);
@@ -213,7 +216,7 @@ public class FlowServiceTest {
 
     @Test
     public void shouldDelete_flowNotFound() {
-        when(flowRepository.findById("my-flow")).thenReturn(Maybe.empty());
+        when(flowRepository.findById("my-flow")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = flowService.delete("my-flow").test();
 
@@ -226,7 +229,7 @@ public class FlowServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(flowRepository.findById("my-flow")).thenReturn(Maybe.error(TechnicalException::new));
+        when(flowRepository.findById("my-flow")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = flowService.delete("my-flow").test();
 
@@ -239,9 +242,9 @@ public class FlowServiceTest {
 
     @Test
     public void shouldDelete() {
-        when(flowRepository.findById("my-flow")).thenReturn(Maybe.just(new Flow()));
-        when(flowRepository.delete("my-flow")).thenReturn(Completable.complete());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(flowRepository.findById("my-flow")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Flow())));
+        when(flowRepository.delete("my-flow")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = flowService.delete("my-flow").test();
         testObserver.awaitTerminalEvent();
@@ -260,9 +263,9 @@ public class FlowServiceTest {
         Flow newFlow2 = new Flow();
         newFlow2.setOrder(0);
 
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.empty());
-        when(flowRepository.create(any(Flow.class))).thenReturn(Single.just(newFlow), Single.just(newFlow2));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(flowRepository.create(any(Flow.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(newFlow)), RxJava2Adapter.monoToSingle(Mono.just(newFlow2)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = flowService.createOrUpdate(ReferenceType.DOMAIN, DOMAIN, Arrays.asList(newFlow, newFlow2)).test();
         testObserver.awaitTerminalEvent();
@@ -295,11 +298,11 @@ public class FlowServiceTest {
         existingFlow2.setType(Type.ROOT);
         existingFlow2.setOrder(0);
 
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(existingFlow, existingFlow2));
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, updateFlow.getId())).thenReturn(Maybe.just(existingFlow));
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, updateFlow2.getId())).thenReturn(Maybe.just(existingFlow2));
-        when(flowRepository.update(any(Flow.class))).thenReturn(Single.just(updateFlow), Single.just(updateFlow2));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(existingFlow, existingFlow2)));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, updateFlow.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingFlow)));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, updateFlow2.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingFlow2)));
+        when(flowRepository.update(any(Flow.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updateFlow)), RxJava2Adapter.monoToSingle(Mono.just(updateFlow2)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = flowService.createOrUpdate(ReferenceType.DOMAIN, DOMAIN, Arrays.asList(updateFlow, updateFlow2)).test();
         testObserver.awaitTerminalEvent();
@@ -327,11 +330,11 @@ public class FlowServiceTest {
         updateFlow2.setType(Type.ROOT);
         updateFlow2.setOrder(0);
 
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(existingFlow));
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, updateFlow.getId())).thenReturn(Maybe.just(existingFlow));
-        when(flowRepository.update(any(Flow.class))).thenReturn(Single.just(updateFlow2));
-        when(flowRepository.create(any(Flow.class))).thenReturn(Single.just(updateFlow));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(existingFlow)));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, updateFlow.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingFlow)));
+        when(flowRepository.update(any(Flow.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updateFlow2)));
+        when(flowRepository.create(any(Flow.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updateFlow)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = flowService.createOrUpdate(ReferenceType.DOMAIN, DOMAIN, Arrays.asList(updateFlow, updateFlow2)).test();
         testObserver.awaitTerminalEvent();
@@ -360,7 +363,7 @@ public class FlowServiceTest {
         existingFlow2.setId("flow2");
         existingFlow2.setType(Type.ROOT);
 
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(existingFlow, existingFlow2));
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(existingFlow, existingFlow2)));
 
         TestObserver testObserver = flowService.createOrUpdate(ReferenceType.DOMAIN, DOMAIN, Arrays.asList(updateFlow, updateFlow2)).test();
         testObserver.awaitTerminalEvent();
@@ -400,12 +403,12 @@ public class FlowServiceTest {
         existingFlow2.setId("flow2");
         existingFlow2.setType(Type.ROOT);
 
-        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(existingFlow, existingFlow2));
-        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, existingFlow2.getId())).thenReturn(Maybe.just(existingFlow2));
-        when(flowRepository.findById(existingFlow.getId())).thenReturn(Maybe.just(existingFlow));
-        when(flowRepository.update(any(Flow.class))).thenReturn(Single.just(new Flow()));
-        when(flowRepository.delete(any())).thenReturn(Completable.complete());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(flowRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(existingFlow, existingFlow2)));
+        when(flowRepository.findById(ReferenceType.DOMAIN, DOMAIN, existingFlow2.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingFlow2)));
+        when(flowRepository.findById(existingFlow.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingFlow)));
+        when(flowRepository.update(any(Flow.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Flow())));
+        when(flowRepository.delete(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = flowService.createOrUpdate(ReferenceType.DOMAIN, DOMAIN, Arrays.asList(updateFlow2)).test();
         testObserver.awaitTerminalEvent();

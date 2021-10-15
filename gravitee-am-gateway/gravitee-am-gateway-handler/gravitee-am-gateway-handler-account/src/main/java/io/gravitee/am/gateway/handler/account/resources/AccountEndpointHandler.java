@@ -28,12 +28,13 @@ import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
 import io.gravitee.am.service.exception.UserNotFoundException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.web.RoutingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Donald Courtney (donald.courtney at graviteesource.com)
@@ -91,9 +92,8 @@ public class AccountEndpointHandler {
         User user = getUserFromContext(routingContext);
         User updatedUser = mapRequestToUser(user, routingContext);
         if (Objects.equals(user.getId(), updatedUser.getId())) {
-            accountService.update(user)
-                    .doOnSuccess(nestedResult -> AccountResponseHandler.handleUpdateUserResponse(routingContext))
-                    .doOnError(er -> AccountResponseHandler.handleUpdateUserResponse(routingContext, er.getMessage()))
+            RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(accountService.update(user)
+                    .doOnSuccess(nestedResult -> AccountResponseHandler.handleUpdateUserResponse(routingContext))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(er -> AccountResponseHandler.handleUpdateUserResponse(routingContext, er.getMessage()))))
                     .subscribe();
         } else {
             AccountResponseHandler.handleUpdateUserResponse(routingContext, "Mismatched user IDs", 401);

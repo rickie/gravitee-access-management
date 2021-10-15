@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static java.time.ZoneOffset.UTC;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcMonitoring;
 import io.gravitee.am.repository.jdbc.management.api.spring.SpringNodeMonitoringRepository;
@@ -23,15 +26,13 @@ import io.gravitee.node.api.NodeMonitoringRepository;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Mono;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
-
-import static java.time.ZoneOffset.UTC;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -54,17 +55,15 @@ public class JdbcNodeMonitoringRepository extends AbstractJdbcRepository impleme
     @Override
     public Maybe<Monitoring> findByNodeIdAndType(String nodeId, String type) {
         LOGGER.debug("findByNodeIdAndType({}, {})", nodeId, type);
-        return nodeMonitoringRepository.findByNodeIdAndType(nodeId, type)
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(nodeMonitoringRepository.findByNodeIdAndType(nodeId, type)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Flowable<Monitoring> findByTypeAndTimeFrame(String type, long from, long to) {
         LOGGER.debug("findByTypeAndTimeFrame({}, {}, {})", type, from, to);
-        return nodeMonitoringRepository.findByTypeAndTimeFrame(type,
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(nodeMonitoringRepository.findByTypeAndTimeFrame(type,
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(from), UTC),
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(to), UTC))
-                .map(this::toEntity);
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(to), UTC))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -81,7 +80,6 @@ public class JdbcNodeMonitoringRepository extends AbstractJdbcRepository impleme
     @Override
     public Single<Monitoring> update(Monitoring monitoring) {
         LOGGER.debug("Update monitoring with id '{}'", monitoring.getId());
-        return nodeMonitoringRepository.save(toJdbcEntity(monitoring))
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(nodeMonitoringRepository.save(toJdbcEntity(monitoring))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 }

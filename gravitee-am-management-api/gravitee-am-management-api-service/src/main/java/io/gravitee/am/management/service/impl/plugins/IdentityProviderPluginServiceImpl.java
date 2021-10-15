@@ -21,15 +21,18 @@ import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.plugin.IdentityProviderPlugin;
 import io.gravitee.plugin.core.api.Plugin;
 import io.gravitee.plugin.core.internal.PluginManifestProperties;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -60,13 +63,12 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
     @Override
     public Single<List<IdentityProviderPlugin>> findAll(Boolean external, List<String> expand) {
         LOGGER.debug("List all identity provider plugins");
-        return Observable.fromIterable(identityProviderPluginManager.getAll().entrySet())
-            .filter(entry -> (external != null && external) == entry.getKey().external())
+        return RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromIterable(identityProviderPluginManager.getAll().entrySet()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(entry -> (external != null && external) == entry.getKey().external())))
             .map(entry -> convert(entry.getValue(), expand))
             .toList()
             .onErrorResumeNext(ex -> {
                 LOGGER.error("An error occurs while trying to list all identity provider plugins", ex);
-                return Single.error(new TechnicalManagementException("An error occurs while trying to list all identity provider plugins", ex));
+                return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to list all identity provider plugins", ex)));
             });
     }
 

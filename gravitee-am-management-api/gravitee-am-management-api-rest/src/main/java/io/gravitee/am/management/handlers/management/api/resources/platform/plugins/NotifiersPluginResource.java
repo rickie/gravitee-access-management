@@ -23,7 +23,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
+import java.util.Comparator;
+import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -34,8 +35,7 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.util.Comparator;
-import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -59,9 +59,8 @@ public class NotifiersPluginResource {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void list(@QueryParam("expand") List<String> expand, @Suspended final AsyncResponse response) {
 
-        notifierPluginService.findAll(expand.toArray(new String[0]))
-                .sorted(Comparator.comparing(AbstractPlugin::getName))
-                .toList()
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(notifierPluginService.findAll(expand.toArray(new String[0]))
+                .sorted(Comparator.comparing(AbstractPlugin::getName))).collectList())
                 .subscribe(response::resume, response::resume);
     }
 

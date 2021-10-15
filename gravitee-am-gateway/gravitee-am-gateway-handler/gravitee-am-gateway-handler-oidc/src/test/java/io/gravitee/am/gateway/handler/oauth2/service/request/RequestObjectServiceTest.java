@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.request;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jwt.JWT;
@@ -28,17 +31,15 @@ import io.gravitee.am.gateway.handler.oidc.service.request.impl.RequestObjectSer
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.text.ParseException;
 import net.minidev.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.text.ParseException;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -59,7 +60,7 @@ public class RequestObjectServiceTest {
         String request = "request-object";
         PlainJWT plainJWT = mock(PlainJWT.class);;
 
-        when(jweService.decrypt(request, false)).thenReturn(Single.just(plainJWT));
+        when(jweService.decrypt(request, false)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(plainJWT)));
 
         TestObserver<JWT> testObserver = requestObjectService.readRequestObject(request, client, false).test();
         testObserver.assertNotComplete();
@@ -74,7 +75,7 @@ public class RequestObjectServiceTest {
         JSONObject jsonObject = new JSONObject();
         SignedJWT signedJWT = new SignedJWT(jwsHeader,  JWTClaimsSet.parse(jsonObject));
 
-        when(jweService.decrypt(request, false)).thenReturn(Single.just(signedJWT));
+        when(jweService.decrypt(request, false)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(signedJWT)));
 
         TestObserver<JWT> testObserver = requestObjectService.readRequestObject(request, client, false).test();
         testObserver.assertNotComplete();

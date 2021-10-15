@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertTrigger;
@@ -28,23 +32,21 @@ import io.gravitee.am.repository.management.api.search.AlertTriggerCriteria;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.r2dbc.core.DatabaseClient;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.reactive.TransactionalOperator;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.r2dbc.core.DatabaseClient;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -75,18 +77,16 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
     public Maybe<AlertTrigger> findById(String id) {
         LOGGER.debug("findById({})", id);
 
-        Maybe<List<String>> alertNotifierIds = alertTriggerAlertNotifierRepository.findByAlertTriggerId(id)
+        Maybe<List<String>> alertNotifierIds = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(alertTriggerAlertNotifierRepository.findByAlertTriggerId(id)
                 .map(JdbcAlertTrigger.AlertNotifier::getAlertNotifierId)
-                .toList()
-                .toMaybe();
+                .toList()));
 
-        return this.alertTriggerRepository.findById(id)
-                .map(this::toEntity)
-                .zipWith(alertNotifierIds, (alertTrigger, ids) -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.alertTriggerRepository.findById(id)
+                .map(this::toEntity)).zipWith(RxJava2Adapter.maybeToMono(Maybe.wrap(alertNotifierIds)), RxJavaReactorMigrationUtil.toJdkBiFunction((alertTrigger, ids) -> {
                     LOGGER.debug("findById({}) fetch {} alert triggers", alertTrigger.getId(), ids.size());
                     alertTrigger.setAlertNotifiers(ids);
                     return alertTrigger;
-                });
+                })));
     }
 
     @Override
@@ -182,10 +182,9 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
             execute = execute.bind(entry.getKey(), entry.getValue());
         }
 
-        return fluxToFlowable(execute
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(execute
                 .as(String.class)
-                .fetch().all())
-                .flatMapMaybe(this::findById)
+                .fetch().all())).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<String, MaybeSource<AlertTrigger>>toJdkFunction(this::findById).apply(e)))))
                 .doOnError(error -> LOGGER.error("Unable to retrieve AlertTrigger with referenceId {}, referenceType {} and criteria {}",
                         referenceId, referenceType, criteria, error));
     }

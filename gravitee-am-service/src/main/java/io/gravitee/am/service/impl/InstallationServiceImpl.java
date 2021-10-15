@@ -15,24 +15,27 @@
  */
 package io.gravitee.am.service.impl;
 
+import static io.gravitee.am.model.Installation.COCKPIT_INSTALLATION_STATUS;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Installation;
 import io.gravitee.am.repository.management.api.InstallationRepository;
 import io.gravitee.am.service.*;
 import io.gravitee.am.service.exception.InstallationNotFoundException;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Single;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
+import io.reactivex.functions.Function;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import static io.gravitee.am.model.Installation.COCKPIT_INSTALLATION_STATUS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -51,38 +54,33 @@ public class InstallationServiceImpl implements InstallationService {
 
     @Override
     public Single<Installation> get() {
-        return this.installationRepository.find()
-                .switchIfEmpty(Single.error(new InstallationNotFoundException()));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.installationRepository.find()).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new InstallationNotFoundException())))));
     }
 
     @Override
     public Single<Installation> getOrInitialize() {
-        return this.installationRepository.find()
-                .switchIfEmpty(createInternal());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.installationRepository.find()).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(createInternal()))));
     }
 
     @Override
     public Single<Installation> setAdditionalInformation(Map<String, String> additionalInformation) {
-        return get()
-                .flatMap(installation -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(get()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)installation -> {
                     Installation toUpdate = new Installation(installation);
                     toUpdate.setAdditionalInformation(additionalInformation);
 
                     return updateInternal(toUpdate);
-                });
+                }).apply(v)))));
     }
 
     @Override
     public Single<Installation> addAdditionalInformation(Map<String, String> additionalInformation) {
-        return getOrInitialize()
-                .doOnSuccess(installation -> installation.getAdditionalInformation().putAll(additionalInformation))
-                .flatMap(this::updateInternal);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getOrInitialize()
+                .doOnSuccess(installation -> installation.getAdditionalInformation().putAll(additionalInformation))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)this::updateInternal).apply(v)))));
     }
 
     @Override
     public Completable delete() {
-        return this.installationRepository.find()
-                .flatMapCompletable(installation -> installationRepository.delete(installation.getId()));
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(this.installationRepository.find()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, CompletableSource>)installation -> installationRepository.delete(installation.getId())).apply(y)))).then());
     }
 
     private Single<Installation> createInternal() {

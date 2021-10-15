@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Email;
 import io.gravitee.am.model.ReferenceType;
@@ -27,20 +31,17 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -64,29 +65,25 @@ public class JdbcEmailRepository extends AbstractJdbcRepository implements Email
     @Override
     public Flowable<Email> findAll() {
         LOGGER.debug("findAll()");
-        return emailRepository.findAll()
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Flowable<Email> findAll(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findAll({},{})", referenceType, referenceId);
-        return emailRepository.findAllByReference(referenceId, referenceType.name())
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAllByReference(referenceId, referenceType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Flowable<Email> findByClient(ReferenceType referenceType, String referenceId, String client) {
         LOGGER.debug("findByClient({}, {}, {})", referenceType, referenceId, client);
-        return emailRepository.findAllByReferenceAndClient(referenceId, referenceType.name(), client)
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAllByReferenceAndClient(referenceId, referenceType.name(), client)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Maybe<Email> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
         LOGGER.debug("findByTemplate({}, {}, {})", referenceType, referenceId, template);
-        return emailRepository.findByTemplate(referenceId, referenceType.name(), template)
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findByTemplate(referenceId, referenceType.name(), template)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -98,8 +95,7 @@ public class JdbcEmailRepository extends AbstractJdbcRepository implements Email
     @Override
     public Maybe<Email> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
         LOGGER.debug("findByClientAndTemplate({}, {}, {}, {})", referenceType, referenceId, client, template);
-        return emailRepository.findByClientAndTemplate(referenceId, referenceType.name(), client, template)
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findByClientAndTemplate(referenceId, referenceType.name(), client, template)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -111,13 +107,13 @@ public class JdbcEmailRepository extends AbstractJdbcRepository implements Email
     @Override
     public Maybe<Email> findById(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("findById({}, {}, {})", referenceType, referenceId, id);
-        return emailRepository.findById(referenceId, referenceType.name(), id).map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findById(referenceId, referenceType.name(), id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Maybe<Email> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return emailRepository.findById(id).map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -142,7 +138,7 @@ public class JdbcEmailRepository extends AbstractJdbcRepository implements Email
         insertSpec = addQuotedField(insertSpec,"updated_at", dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
@@ -169,7 +165,7 @@ public class JdbcEmailRepository extends AbstractJdbcRepository implements Email
 
         Mono<Integer> action = updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
 
     }
 

@@ -37,12 +37,13 @@ import io.gravitee.am.service.AuthenticationFlowContextService;
 import io.gravitee.common.util.MultiValueMap;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
-
-import java.util.HashMap;
-import java.util.Map;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * Implementation of the Authorization Code Grant Flow
@@ -83,51 +84,36 @@ public class AuthorizationCodeTokenGranter extends AbstractTokenGranter {
         String code = parameters.getFirst(Parameters.CODE);
 
         if (code == null || code.isEmpty()) {
-            return Single.error(new InvalidRequestException("Missing parameter: code"));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Missing parameter: code")));
         }
 
-        return super.parseRequest(tokenRequest, client)
-                .flatMap(tokenRequest1 -> authorizationCodeService.remove(code, client)
-                        .flatMap(authorizationCode ->
-                                authenticationFlowContextService.removeContext(authorizationCode.getTransactionId(), authorizationCode.getContextVersion())
-                                    .onErrorResumeNext(error -> (exitOnError) ? Maybe.error(error) : Maybe.just(new AuthenticationFlowContext()))
-                                    .map(ctx -> {
-                                        checkRedirectUris(tokenRequest1, authorizationCode);
-                                        checkPKCE( tokenRequest1, authorizationCode);
-                                        // set resource owner
-                                        tokenRequest1.setSubject(authorizationCode.getSubject());
-                                        // set original scopes
-                                        tokenRequest1.setScopes(authorizationCode.getScopes());
-                                        // set authorization code initial request parameters (step1 of authorization code flow)
-                                        if (authorizationCode.getRequestParameters() != null) {
-                                            authorizationCode.getRequestParameters().forEach((key, value) -> tokenRequest1.parameters().putIfAbsent(key, value));
-                                        }
-                                        // set decoded authorization code to the current request
-                                        Map<String, Object> decodedAuthorizationCode = new HashMap<>();
-                                        decodedAuthorizationCode.put("code", authorizationCode.getCode());
-                                        decodedAuthorizationCode.put("transactionId", authorizationCode.getTransactionId());
-                                        tokenRequest1.setAuthorizationCode(decodedAuthorizationCode);
-
-                                        // store only the AuthenticationFlowContext.data attributes in order to simplify EL templating
-                                        // and provide an up to date set of data if the enrichAuthFlow Policy ius used multiple time in a step
-                                        // {#context.attributes['authFlow']['entry']}
-                                        tokenRequest1.getContext().put(ConstantKeys.AUTH_FLOW_CONTEXT_ATTRIBUTES_KEY, ctx.getData());
-
-                                        return tokenRequest1;
-                                    })
-                        ).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client)).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(authorizationCodeService.remove(code, client).flatMap((io.gravitee.am.repository.oauth2.model.AuthorizationCode authorizationCode)->authenticationFlowContextService.removeContext(authorizationCode.getTransactionId(), authorizationCode.getContextVersion()).onErrorResumeNext((java.lang.Throwable error)->(exitOnError) ? Maybe.error(error) : Maybe.just(new AuthenticationFlowContext())).map((io.gravitee.am.model.AuthenticationFlowContext ctx)->{
+checkRedirectUris(tokenRequest1, authorizationCode);
+checkPKCE(tokenRequest1, authorizationCode);
+tokenRequest1.setSubject(authorizationCode.getSubject());
+tokenRequest1.setScopes(authorizationCode.getScopes());
+if (authorizationCode.getRequestParameters() != null) {
+authorizationCode.getRequestParameters().forEach((java.lang.String key, java.util.List<java.lang.String> value)->tokenRequest1.parameters().putIfAbsent(key, value));
+}
+Map<String, Object> decodedAuthorizationCode = new HashMap<>();
+decodedAuthorizationCode.put("code", authorizationCode.getCode());
+decodedAuthorizationCode.put("transactionId", authorizationCode.getTransactionId());
+tokenRequest1.setAuthorizationCode(decodedAuthorizationCode);
+tokenRequest1.getContext().put(ConstantKeys.AUTH_FLOW_CONTEXT_ATTRIBUTES_KEY, ctx.getData());
+return tokenRequest1;
+})).toSingle())));
     }
 
     @Override
     protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
         return userAuthenticationManager.loadPreAuthenticatedUser(tokenRequest.getSubject(), tokenRequest)
-                .onErrorResumeNext(ex -> { return Maybe.error(new InvalidGrantException()); });
+                .onErrorResumeNext(ex -> { return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException())); });
     }
 
     @Override
     protected Single<TokenRequest> resolveRequest(TokenRequest tokenRequest, Client client, User endUser) {
         // request has already been resolved during step1 of authorization code flow
-        return Single.just(tokenRequest);
+        return RxJava2Adapter.monoToSingle(Mono.just(tokenRequest));
     }
 
     private void checkRedirectUris(TokenRequest tokenRequest, AuthorizationCode authorizationCode) {

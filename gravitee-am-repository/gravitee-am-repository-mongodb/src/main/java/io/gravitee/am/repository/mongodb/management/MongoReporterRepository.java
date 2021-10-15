@@ -15,20 +15,22 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Reporter;
 import io.gravitee.am.repository.management.api.ReporterRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.ReporterMongo;
 import io.reactivex.*;
-import org.bson.Document;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (david.brassely at graviteesource.com)
@@ -48,35 +50,35 @@ public class MongoReporterRepository extends AbstractManagementMongoRepository i
 
     @Override
     public Flowable<Reporter> findAll() {
-        return Flowable.fromPublisher(reportersCollection.find()).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(reportersCollection.find())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Reporter> findByDomain(String domain) {
-        return Flowable.fromPublisher(reportersCollection.find(eq(FIELD_DOMAIN, domain))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(reportersCollection.find(eq(FIELD_DOMAIN, domain)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Reporter> findById(String id) {
-        return Observable.fromPublisher(reportersCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(reportersCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Reporter> create(Reporter item) {
         ReporterMongo reporter = convert(item);
         reporter.setId(reporter.getId() == null ? RandomString.generate() : reporter.getId());
-        return Single.fromPublisher(reportersCollection.insertOne(reporter)).flatMap(success -> findById(reporter.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(reportersCollection.insertOne(reporter))).flatMap(success->RxJava2Adapter.singleToMono(findById(reporter.getId()).toSingle())));
     }
 
     @Override
     public Single<Reporter> update(Reporter item) {
         ReporterMongo reporter = convert(item);
-        return Single.fromPublisher(reportersCollection.replaceOne(eq(FIELD_ID, reporter.getId()), reporter)).flatMap(updateResult -> findById(reporter.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(reportersCollection.replaceOne(eq(FIELD_ID, reporter.getId()), reporter))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(reporter.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(reportersCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(reportersCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private ReporterMongo convert(Reporter reporter) {

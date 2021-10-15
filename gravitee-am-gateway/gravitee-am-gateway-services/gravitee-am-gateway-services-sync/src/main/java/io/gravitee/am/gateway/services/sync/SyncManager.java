@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.services.sync;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toMap;
+
 import io.gravitee.am.common.event.Action;
 import io.gravitee.am.gateway.reactor.SecurityDomainManager;
 import io.gravitee.am.model.Domain;
@@ -25,20 +28,17 @@ import io.gravitee.am.repository.management.api.EnvironmentRepository;
 import io.gravitee.am.repository.management.api.EventRepository;
 import io.gravitee.am.repository.management.api.OrganizationRepository;
 import io.gravitee.common.event.EventManager;
+import java.text.Collator;
+import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
-
-import java.text.Collator;
-import java.util.*;
-import java.util.function.BinaryOperator;
-import java.util.stream.Collectors;
-
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toMap;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -114,7 +114,7 @@ public class SyncManager implements InitializingBean {
                 // search for events and compute them
                 logger.debug("Events synchronization");
 
-                List<Event> events = eventRepository.findByTimeFrame(lastRefreshAt - lastDelay, nextLastRefreshAt).toList().blockingGet();
+                List<Event> events = RxJava2Adapter.singleToMono(eventRepository.findByTimeFrame(lastRefreshAt - lastDelay, nextLastRefreshAt).toList()).block();
 
                 if (events != null && !events.isEmpty()) {
                     // Extract only the latest events by type and id
@@ -137,13 +137,12 @@ public class SyncManager implements InitializingBean {
 
     private void deployDomains() {
         logger.info("Starting security domains initialization ...");
-        List<Domain> domains = domainRepository.findAll()
+        List<Domain> domains = RxJava2Adapter.singleToMono(domainRepository.findAll()
                 // remove disabled domains
                 .filter(Domain::isEnabled)
                 // Can the security domain be deployed ?
                 .filter(this::canHandle)
-                .toList()
-                .blockingGet();
+                .toList()).block();
 
         // deploy security domains
         domains.stream().forEach(securityDomainManager::deploy);
@@ -169,7 +168,7 @@ public class SyncManager implements InitializingBean {
         switch (action) {
             case CREATE:
             case UPDATE:
-                Domain domain = domainRepository.findById(domainId).blockingGet();
+                Domain domain = RxJava2Adapter.maybeToMono(domainRepository.findById(domainId)).block();
                 if (domain != null) {
                     // Get deployed domain
                     Domain deployedDomain = securityDomainManager.get(domain.getId());
@@ -243,9 +242,9 @@ public class SyncManager implements InitializingBean {
         environments = getSystemValues(ENVIRONMENTS_SYSTEM_PROPERTY);
         organizations = getSystemValues(ORGANIZATIONS_SYSTEM_PROPERTY);
         if (organizations.isPresent()) {
-            final List<Organization> foundOrgs = organizationRepository.findByHrids(this.organizations.get()).toList().blockingGet();
+            final List<Organization> foundOrgs = RxJava2Adapter.singleToMono(organizationRepository.findByHrids(this.organizations.get()).toList()).block();
             this.environmentIds = foundOrgs.stream().flatMap(org ->{
-                return environmentRepository.findAll(org.getId())
+                return RxJava2Adapter.singleToMono(environmentRepository.findAll(org.getId())
                         .filter(environment1 -> {
                             if (!environments.isPresent()) {
                                 return true;
@@ -253,14 +252,13 @@ public class SyncManager implements InitializingBean {
                                 return environment1.getHrids().stream().anyMatch(h -> environments.get().contains(h));
                             }
                         })
-                        .map(io.gravitee.am.model.Environment::getId).toList().blockingGet().stream();
+                        .map(io.gravitee.am.model.Environment::getId).toList()).block().stream();
             }).distinct().collect(Collectors.toList());
         } else if (environments.isPresent()) {
-            environmentIds = environmentRepository.findAll()
+            environmentIds = RxJava2Adapter.singleToMono(environmentRepository.findAll()
                     .filter(environment1 -> environment1.getHrids().stream().anyMatch(h -> environments.get().contains(h)))
                     .map(io.gravitee.am.model.Environment::getId)
-                    .toList()
-                    .blockingGet();
+                    .toList()).block();
         }
     }
 

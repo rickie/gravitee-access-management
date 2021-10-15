@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.repository.management.api.EventRepository;
@@ -29,9 +32,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -48,7 +52,7 @@ public class EventServiceTest {
 
     @Test
     public void shouldFindByTimeFrame() {
-        when(eventRepository.findByTimeFrame(0, 1)).thenReturn(Flowable.just(new Event()));
+        when(eventRepository.findByTimeFrame(0, 1)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Event())));
         TestObserver testObserver = eventService.findByTimeFrame(0, 1).test();
 
         testObserver.awaitTerminalEvent();
@@ -59,7 +63,7 @@ public class EventServiceTest {
 
     @Test
     public void shouldFindByTimeFrame_technicalException() {
-        when(eventRepository.findByTimeFrame(0, 1)).thenReturn(Flowable.error(TechnicalException::new));
+        when(eventRepository.findByTimeFrame(0, 1)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
         TestObserver testObserver = eventService.findByTimeFrame(0, 1).test();
 
         testObserver.assertError(TechnicalManagementException.class);
@@ -69,7 +73,7 @@ public class EventServiceTest {
     @Test
     public void shouldCreate() {
         Event newEvent = Mockito.mock(Event.class);
-        when(eventRepository.create(any(Event.class))).thenReturn(Single.just(newEvent));
+        when(eventRepository.create(any(Event.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(newEvent)));
 
         TestObserver testObserver = eventService.create(newEvent).test();
         testObserver.awaitTerminalEvent();
@@ -83,7 +87,7 @@ public class EventServiceTest {
     @Test
     public void shouldNotCreate_technicalException() {
         Event newEvent = Mockito.mock(Event.class);
-        when(eventRepository.create(any(Event.class))).thenReturn(Single.error(TechnicalException::new));
+        when(eventRepository.create(any(Event.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = eventService.create(newEvent).test();
         testObserver.awaitTerminalEvent();

@@ -26,11 +26,11 @@ import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.*;
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -47,7 +47,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application application = new Application();
         application.setName("testApp");
         application.setDomain("testDomain");
-        applicationRepository.create(application).blockingGet();
+        RxJava2Adapter.singleToMono(applicationRepository.create(application)).block();
 
         // fetch applications
         TestObserver<Page<Application>> testObserver = applicationRepository.findByDomain("testDomain", 0, Integer.MAX_VALUE).test();
@@ -69,7 +69,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         ApplicationOAuthSettings oauth = new ApplicationOAuthSettings();
         settings.setOauth(oauth);
         oauth.setGrantTypes(Arrays.asList("test-grant"));
-        applicationRepository.create(application).blockingGet();
+        RxJava2Adapter.singleToMono(applicationRepository.create(application)).block();
 
         // fetch applications
         TestSubscriber<Application> testSubscriber = applicationRepository.findByDomainAndExtensionGrant("testDomain", "test-grant").test();
@@ -93,7 +93,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         settings.setOauth(oauth);
         oauth.setClientId("clientId1");
         oauth.setGrantTypes(Arrays.asList("test-grant"));
-        Application createdApplication = applicationRepository.create(application).blockingGet();
+        Application createdApplication = RxJava2Adapter.singleToMono(applicationRepository.create(application)).block();
 
         // fetch applications
         TestObserver<Application> testObserver = applicationRepository.findByDomainAndClientId("testDomain", "clientId1").test();
@@ -110,13 +110,13 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application app = new Application();
         app.setName("testClientId");
         app.setDomain("testDomainPagination");
-        applicationRepository.create(app).blockingGet();
+        RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
 
         // create app 2
         Application app2 = new Application();
         app2.setName("testClientId2");
         app2.setDomain("testDomainPagination");
-        applicationRepository.create(app2).blockingGet();
+        RxJava2Adapter.singleToMono(applicationRepository.create(app2)).block();
 
         TestObserver<Page<Application>> testObserver = applicationRepository.findByDomain("testDomainPagination", 1, 1).test();
         testObserver.awaitTerminalEvent();
@@ -130,7 +130,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create app
         Application app = buildApplication();
-        Application appCreated = applicationRepository.create(app).blockingGet();
+        Application appCreated = RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
 
         // fetch app
         TestObserver<Application> testObserver = applicationRepository.findById(appCreated.getId()).test();
@@ -145,7 +145,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
     public void testFindByIdentity() {
         // create app
         Application app = buildApplication();
-        Application appCreated = applicationRepository.create(app).blockingGet();
+        Application appCreated = RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
 
         // fetch app
         TestSubscriber<Application> testSubscriber = applicationRepository.findByIdentityProvider(appCreated.getIdentities().iterator().next()).test();
@@ -234,7 +234,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create app
         Application app = buildApplication();
-        Application appCreated = applicationRepository.create(app).blockingGet();
+        Application appCreated = RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
 
         // update app
         Application updatedApp = buildApplication();
@@ -253,7 +253,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         // create app
         Application app = new Application();
         app.setName("testClientId");
-        Application appCreated = applicationRepository.create(app).blockingGet();
+        Application appCreated = RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
 
         // fetch app
         TestObserver<Application> testObserver = applicationRepository.findById(appCreated.getId()).test();
@@ -277,12 +277,12 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application app = new Application();
         app.setDomain(domain);
         app.setName("clientId");
-        applicationRepository.create(app).blockingGet();
+        RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
 
         Application app2 = new Application();
         app2.setDomain(domain);
         app2.setName("clientId2");
-        applicationRepository.create(app2).blockingGet();
+        RxJava2Adapter.singleToMono(applicationRepository.create(app2)).block();
 
         // fetch user
         TestObserver<Page<Application>> testObserver = applicationRepository.search(domain, "clientId", 0, Integer.MAX_VALUE).test();
@@ -303,17 +303,17 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application app = new Application();
         app.setDomain(domain);
         app.setName("clientId");
-        applicationRepository.create(app).blockingGet();
+        RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
 
         Application app2 = new Application();
         app2.setDomain(domain);
         app2.setName("clientId2");
-        applicationRepository.create(app2).blockingGet();
+        RxJava2Adapter.singleToMono(applicationRepository.create(app2)).block();
 
         Application app3 = new Application();
         app3.setDomain(domain);
         app3.setName("test");
-        applicationRepository.create(app3).blockingGet();
+        RxJava2Adapter.singleToMono(applicationRepository.create(app3)).block();
 
         Application app4 = new Application();
         app4.setDomain(domain);
@@ -323,7 +323,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         ApplicationOAuthSettings oauth = new ApplicationOAuthSettings();
         settings.setOauth(oauth);
         oauth.setClientId("clientId4");
-        applicationRepository.create(app4).blockingGet();
+        RxJava2Adapter.singleToMono(applicationRepository.create(app4)).block();
 
         // fetch apps
         TestObserver<Page<Application>> testObserver = applicationRepository.search(domain, "clientId*", 0, Integer.MAX_VALUE).test();

@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.handler;
 
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.policy.ExtensionPoint;
 import io.gravitee.am.gateway.core.processor.Processor;
 import io.gravitee.am.gateway.handler.common.flow.FlowManager;
@@ -28,15 +30,14 @@ import io.reactivex.Single;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -74,7 +75,7 @@ public class PolicyChainHandlerTest {
 
     @Test
     public void shouldNotInvoke_noPolicies() {
-        when(flowManager.findByExtensionPoint(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(Single.just(Collections.emptyList()));
+        when(flowManager.findByExtensionPoint(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
         when(delegateRequest.method()).thenReturn(HttpMethod.GET);
         when(request.getDelegate()).thenReturn(delegateRequest);
         when(routingContext.request()).thenReturn(request);
@@ -93,7 +94,7 @@ public class PolicyChainHandlerTest {
 
     @Test
     public void shouldInvoke_onePolicy() {
-        when(flowManager.findByExtensionPoint(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(Single.just(Collections.singletonList(policy)));
+        when(flowManager.findByExtensionPoint(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(policy))));
         when(delegateRequest.method()).thenReturn(HttpMethod.GET);
         when(request.getDelegate()).thenReturn(delegateRequest);
         when(routingContext.request()).thenReturn(request);
@@ -114,7 +115,7 @@ public class PolicyChainHandlerTest {
 
     @Test
     public void shouldInvoke_manyPolicies() {
-        when(flowManager.findByExtensionPoint(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(Single.just(Arrays.asList(policy, policy)));
+        when(flowManager.findByExtensionPoint(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Arrays.asList(policy, policy))));
         when(delegateRequest.method()).thenReturn(HttpMethod.GET);
         when(request.getDelegate()).thenReturn(delegateRequest);
         when(routingContext.request()).thenReturn(request);

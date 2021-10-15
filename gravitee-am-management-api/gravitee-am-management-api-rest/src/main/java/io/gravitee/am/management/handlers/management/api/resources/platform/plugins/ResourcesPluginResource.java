@@ -19,7 +19,9 @@ import io.gravitee.am.management.service.ResourcePluginService;
 import io.gravitee.am.service.model.plugin.ResourcePlugin;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -30,9 +32,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -54,10 +55,9 @@ public class ResourcesPluginResource {
     public void list(@QueryParam("expand") List<String> expand,
                      @Suspended final AsyncResponse response) {
 
-        resourcePluginService.findAll(expand)
-                .map(resourcePlugins -> resourcePlugins.stream()
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resourcePluginService.findAll(expand)).map(RxJavaReactorMigrationUtil.toJdkFunction(resourcePlugins -> resourcePlugins.stream()
                         .sorted(Comparator.comparing(ResourcePlugin::getName))
-                        .collect(Collectors.toList()))
+                        .collect(Collectors.toList()))))
                 .subscribe(response::resume, response::resume);
     }
 

@@ -48,6 +48,9 @@ import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  *
@@ -69,7 +72,7 @@ public class JWEServiceImpl implements JWEService {
     public Single<String> encryptIdToken(String signedJwt, Client client) {
         //Return input without encryption if client does not require JWE or algorithm is set to none
         if (client.getIdTokenEncryptedResponseAlg() == null || JWEAlgorithm.NONE.getName().equalsIgnoreCase(client.getIdTokenEncryptedResponseAlg())) {
-            return Single.just(signedJwt);
+            return RxJava2Adapter.monoToSingle(Mono.just(signedJwt));
         }
 
         JWEObject jwe = new JWEObject(
@@ -83,10 +86,10 @@ public class JWEServiceImpl implements JWEService {
         return encrypt(jwe,client)
                 .onErrorResumeNext(throwable -> {
                     if(throwable instanceof OAuth2Exception) {
-                        return Single.error(throwable);
+                        return RxJava2Adapter.monoToSingle(Mono.error(throwable));
                     }
                     LOGGER.error(throwable.getMessage(), throwable);
-                    return Single.error(new ServerErrorException("Unable to encrypt id_token"));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new ServerErrorException("Unable to encrypt id_token")));
                 });
     }
 
@@ -94,7 +97,7 @@ public class JWEServiceImpl implements JWEService {
     public Single<String> encryptUserinfo(String signedJwt, Client client) {
         //Return input without encryption if client does not require JWE or algorithm is set to none
         if(client.getUserinfoEncryptedResponseAlg()==null || JWEAlgorithm.NONE.getName().equalsIgnoreCase(client.getUserinfoEncryptedResponseAlg())) {
-            return Single.just(signedJwt);
+            return RxJava2Adapter.monoToSingle(Mono.just(signedJwt));
         }
 
         JWEObject jwe = new JWEObject(
@@ -108,19 +111,19 @@ public class JWEServiceImpl implements JWEService {
         return encrypt(jwe,client)
                 .onErrorResumeNext(throwable -> {
                     if(throwable instanceof OAuth2Exception) {
-                        return Single.error(throwable);
+                        return RxJava2Adapter.monoToSingle(Mono.error(throwable));
                     }
                     LOGGER.error(throwable.getMessage(), throwable);
-                    return Single.error(new ServerErrorException("Unable to encrypt userinfo"));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new ServerErrorException("Unable to encrypt userinfo")));
                 });
     }
 
     @Override
     public Single<Boolean> isEncrypted(String jwt) {
         try {
-            return Single.just(JWTParser.parse(jwt) instanceof EncryptedJWT);
+            return RxJava2Adapter.monoToSingle(Mono.just(JWTParser.parse(jwt) instanceof EncryptedJWT));
         } catch (Exception ex) {
-            return Single.error(ex);
+            return RxJava2Adapter.monoToSingle(Mono.error(ex));
         }
     }
 
@@ -144,7 +147,7 @@ public class JWEServiceImpl implements JWEService {
                 if (this.domain.useFapiBrazilProfile() &&
                         !(isKeyEncCompliantWithFapiBrazil(algorithm.getName()) &&
                                 isContentEncCompliantWithFapiBrazil(jweObject.getHeader().getEncryptionMethod().getName()))) {
-                    return Single.error(new InvalidRequestObjectException("Request object must be encrypted using RSA-OAEP with A256GCM"));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException("Request object must be encrypted using RSA-OAEP with A256GCM")));
                 }
 
                 //RSA decryption
@@ -182,20 +185,20 @@ public class JWEServiceImpl implements JWEService {
                     });
                 }
 
-                return Single.error(new ServerErrorException("Unable to perform Json Web Decryption, unsupported algorithm: " + algorithm.getName()));
+                return RxJava2Adapter.monoToSingle(Mono.error(new ServerErrorException("Unable to perform Json Web Decryption, unsupported algorithm: " + algorithm.getName())));
             } else if (encRequired) {
-                return Single.error(new InvalidRequestObjectException("Request Object must be encrypted"));
+                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException("Request Object must be encrypted")));
             } else {
-                return Single.just(parsedJwt);
+                return RxJava2Adapter.monoToSingle(Mono.just(parsedJwt));
             }
         } catch (Exception ex) {
-            return Single.error(ex);
+            return RxJava2Adapter.monoToSingle(Mono.error(ex));
         }
     }
 
     private Single<JWT> decrypt(JWEObject jwe, Client client, Predicate<JWK> filter, JWEDecrypterFunction<JWK, JWEDecrypter> function) {
         final Maybe<JWKSet> jwks = client != null ? jwkService.getKeys(client) : jwkService.getDomainPrivateKeys();
-        return jwks
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(jwks
                 .flatMapPublisher(jwkset -> Flowable.fromIterable(jwkset.getKeys()))
                 .filter(filter::test)
                 .filter(jwk -> jwk.getUse() == null || jwk.getUse().equals(KeyUse.ENCRYPTION.getValue()))
@@ -210,14 +213,13 @@ public class JWEServiceImpl implements JWEService {
                     }
                 }).filter(Optional::isPresent)
                 .map(Optional::get)
-                .firstElement()
-                .toSingle();
+                .firstElement()).single());
     }
 
     public Single<String> encryptAuthorization(String signedJwt, Client client) {
         //Return input without encryption if client does not require JWE or algorithm is set to none
         if (client.getAuthorizationEncryptedResponseAlg() == null || JWEAlgorithm.NONE.getName().equals(client.getAuthorizationEncryptedResponseAlg())) {
-            return Single.just(signedJwt);
+            return RxJava2Adapter.monoToSingle(Mono.just(signedJwt));
         }
 
         JWEObject jwe = new JWEObject(
@@ -231,10 +233,10 @@ public class JWEServiceImpl implements JWEService {
         return encrypt(jwe,client)
                 .onErrorResumeNext(throwable -> {
                     if(throwable instanceof OAuth2Exception) {
-                        return Single.error(throwable);
+                        return RxJava2Adapter.monoToSingle(Mono.error(throwable));
                     }
                     LOGGER.error(throwable.getMessage(), throwable);
-                    return Single.error(new ServerErrorException("Unable to encrypt authorization"));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new ServerErrorException("Unable to encrypt authorization")));
                 });
     }
 
@@ -280,18 +282,17 @@ public class JWEServiceImpl implements JWEService {
                 );
             });
         }
-        return Single.error(new ServerErrorException("Unable to perform Json Web Encryption, unsupported algorithm: "+algorithm.getName()));
+        return RxJava2Adapter.monoToSingle(Mono.error(new ServerErrorException("Unable to perform Json Web Encryption, unsupported algorithm: "+algorithm.getName())));
     }
 
     private Single<String> encrypt(JWEObject jwe, Client client, Predicate<JWK> filter, JWEEncrypterFunction<JWK, JWEEncrypter> function) {
-        return jwkService.getKeys(client)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwkService.getKeys(client)
                 .flatMap(jwkSet -> jwkService.filter(jwkSet, filter))
                 .switchIfEmpty(Maybe.error(new InvalidClientMetadataException("no matching key found to encrypt")))
-                .flatMapSingle(jwk -> Single.just(function.apply(jwk)))
-                .map(encrypter -> {
+                .flatMapSingle(jwk -> Single.just(function.apply(jwk)))).map(RxJavaReactorMigrationUtil.toJdkFunction(encrypter -> {
                     jwe.encrypt(encrypter);
                     return jwe.serialize();
-                });
+                })));
     }
 
     @FunctionalInterface

@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.clientregistration;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.gateway.handler.oidc.service.clientregistration.impl.ClientServiceImpl;
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.Email;
@@ -29,6 +32,7 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,11 +40,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -60,7 +62,7 @@ public class ClientServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(applicationService.findById("my-client")).thenReturn(Maybe.just(new Application()));
+        when(applicationService.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
         TestObserver testObserver = clientService.findById("my-client").test();
 
         testObserver.awaitTerminalEvent();
@@ -71,7 +73,7 @@ public class ClientServiceTest {
 
     @Test
     public void shouldFindById_notExistingClient() {
-        when(applicationService.findById("my-client")).thenReturn(Maybe.empty());
+        when(applicationService.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver testObserver = clientService.findById("my-client").test();
         testObserver.awaitTerminalEvent();
 
@@ -80,7 +82,7 @@ public class ClientServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(applicationService.findById("my-client")).thenReturn(Maybe.error(TechnicalManagementException::new));
+        when(applicationService.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalManagementException::new))));
         TestObserver testObserver = new TestObserver();
         clientService.findById("my-client").subscribe(testObserver);
 
@@ -101,7 +103,7 @@ public class ClientServiceTest {
         toCreate.setDomain(DOMAIN);
         toCreate.setAuthorizedGrantTypes(Collections.singletonList("implicit"));
         toCreate.setResponseTypes(Collections.singletonList("token"));
-        when(applicationService.create(any())).thenReturn(Single.error(new InvalidRedirectUriException()));
+        when(applicationService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRedirectUriException())));
         TestObserver testObserver = clientService.create(toCreate).test();
         testObserver.awaitTerminalEvent();
 
@@ -111,7 +113,7 @@ public class ClientServiceTest {
 
     @Test
     public void create_generateUuidAsClientId() {
-        when(applicationService.create(any(Application.class))).thenReturn(Single.just(new Application()));
+        when(applicationService.create(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
 
         Client toCreate = new Client();
         toCreate.setDomain(DOMAIN);
@@ -137,7 +139,7 @@ public class ClientServiceTest {
 
     @Test
     public void update_implicitGrant_invalidRedirectUri() {
-        when(applicationService.update(any(Application.class))).thenReturn(Single.error(new InvalidRedirectUriException()));
+        when(applicationService.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRedirectUriException())));
 
         Client toUpdate = new Client();
         toUpdate.setAuthorizedGrantTypes(Collections.singletonList("implicit"));
@@ -152,7 +154,7 @@ public class ClientServiceTest {
 
     @Test
     public void update_defaultGrant_ok() {
-        when(applicationService.update(any(Application.class))).thenReturn(Single.just(new Application()));
+        when(applicationService.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
 
         Client toUpdate = new Client();
         toUpdate.setDomain(DOMAIN);
@@ -168,7 +170,7 @@ public class ClientServiceTest {
 
     @Test
     public void update_clientCredentials_ok() {
-        when(applicationService.update(any(Application.class))).thenReturn(Single.just(new Application()));
+        when(applicationService.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
 
         Client toUpdate = new Client();
         toUpdate.setDomain(DOMAIN);
@@ -185,7 +187,7 @@ public class ClientServiceTest {
 
     @Test
     public void shouldDelete() {
-        when(applicationService.delete("my-client", null)).thenReturn(Completable.complete());
+        when(applicationService.delete("my-client", null)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         Form form = new Form();
         form.setId("form-id");
         Email email = new Email();
@@ -202,7 +204,7 @@ public class ClientServiceTest {
 
     @Test
     public void shouldDelete_withoutRelatedData() {
-        when(applicationService.delete("my-client", null)).thenReturn(Completable.complete());
+        when(applicationService.delete("my-client", null)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         TestObserver testObserver = clientService.delete("my-client").test();
         testObserver.awaitTerminalEvent();
@@ -215,7 +217,7 @@ public class ClientServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(applicationService.delete("my-client", null)).thenReturn(Completable.error(TechnicalManagementException::new));
+        when(applicationService.delete("my-client", null)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(TechnicalManagementException::new)));
 
         TestObserver testObserver = clientService.delete("my-client").test();
         testObserver.awaitTerminalEvent();
@@ -226,7 +228,7 @@ public class ClientServiceTest {
 
     @Test
     public void shouldDelete_clientNotFound() {
-        when(applicationService.delete("my-client", null)).thenReturn(Completable.error(new ClientNotFoundException("my-client")));
+        when(applicationService.delete("my-client", null)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(new ClientNotFoundException("my-client"))));
 
         TestObserver testObserver = clientService.delete("my-client").test();
         testObserver.awaitTerminalEvent();
@@ -242,7 +244,7 @@ public class ClientServiceTest {
         Application client = new Application();
         client.setDomain(DOMAIN);
 
-        when(applicationService.renewClientSecret(DOMAIN, "my-client", null)).thenReturn(Single.just(new Application()));
+        when(applicationService.renewClientSecret(DOMAIN, "my-client", null)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
 
         TestObserver testObserver = clientService.renewClientSecret(DOMAIN, "my-client").test();
         testObserver.awaitTerminalEvent();
@@ -255,7 +257,7 @@ public class ClientServiceTest {
 
     @Test
     public void shouldRenewSecret_clientNotFound() {
-        when(applicationService.renewClientSecret(DOMAIN, "my-client", null)).thenReturn(Single.error(new ClientNotFoundException("my-client")));
+        when(applicationService.renewClientSecret(DOMAIN, "my-client", null)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new ClientNotFoundException("my-client"))));
 
         TestObserver testObserver = clientService.renewClientSecret(DOMAIN, "my-client").test();
         testObserver.awaitTerminalEvent();
@@ -268,7 +270,7 @@ public class ClientServiceTest {
 
     @Test
     public void shouldRenewSecret_technicalException() {
-        when(applicationService.renewClientSecret(DOMAIN, "my-client", null)).thenReturn(Single.error(TechnicalManagementException::new));
+        when(applicationService.renewClientSecret(DOMAIN, "my-client", null)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalManagementException::new))));
 
         TestObserver testObserver = clientService.renewClientSecret(DOMAIN, "my-client").test();
         testObserver.awaitTerminalEvent();

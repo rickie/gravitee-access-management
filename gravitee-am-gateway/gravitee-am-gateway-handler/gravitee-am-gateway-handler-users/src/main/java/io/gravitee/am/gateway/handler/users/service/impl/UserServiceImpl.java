@@ -24,10 +24,10 @@ import io.gravitee.am.service.exception.ScopeApprovalNotFoundException;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.HashSet;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -61,8 +61,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Maybe<ScopeApproval> consent(String consentId) {
-        return scopeApprovalService.findById(consentId)
-                .switchIfEmpty(Maybe.error(new ScopeApprovalNotFoundException(consentId)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeApprovalService.findById(consentId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ScopeApprovalNotFoundException(consentId))))));
     }
 
     @Override

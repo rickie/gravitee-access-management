@@ -21,14 +21,17 @@ import io.gravitee.am.gateway.handler.oauth2.service.request.OAuth2Request;
 import io.gravitee.am.gateway.handler.oauth2.service.token.Token;
 import io.gravitee.am.gateway.handler.oauth2.service.token.TokenEnhancer;
 import io.gravitee.am.gateway.handler.oidc.service.idtoken.IDTokenService;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.User;
+import io.gravitee.am.model.oidc.Client;
 import io.gravitee.gateway.api.ExecutionContext;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import io.reactivex.functions.Function;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -45,7 +48,7 @@ public class TokenEnhancerImpl implements TokenEnhancer {
         if (oAuth2Request.shouldGenerateIDToken()) {
             return enhanceIDToken(accessToken, client, endUser, oAuth2Request, executionContext);
         } else {
-            return Single.just(accessToken);
+            return RxJava2Adapter.monoToSingle(Mono.just(accessToken));
         }
     }
 
@@ -53,12 +56,11 @@ public class TokenEnhancerImpl implements TokenEnhancer {
         if (oAuth2Request.isSupportAtHashValue()) {
             oAuth2Request.getContext().put(Claims.at_hash, accessToken.getValue());
         }
-        return idTokenService.create(oAuth2Request, client, user, executionContext)
-                .flatMap(idToken -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(idTokenService.create(oAuth2Request, client, user, executionContext)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<Token>>)idToken -> {
                     Map<String, Object> additionalInformation = new HashMap<>(accessToken.getAdditionalInformation());
                     additionalInformation.put(ResponseType.ID_TOKEN, idToken);
                     accessToken.setAdditionalInformation(additionalInformation);
                     return Single.just(accessToken);
-                });
+                }).apply(v)))));
     }
 }

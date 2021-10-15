@@ -46,6 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -126,7 +128,7 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
         Set<ExecutionFlow> executionFlows = policies.get(extensionPoint);
         // if no flow, returns empty list
         if (executionFlows == null) {
-            return Single.just(Collections.emptyList());
+            return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()));
         }
 
         // get domain policies
@@ -134,7 +136,7 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
 
         // if client is null, executes only security domain flows
         if (client == null) {
-            return Single.just(domainExecutionPolicies);
+            return RxJava2Adapter.monoToSingle(Mono.just(domainExecutionPolicies));
         }
 
         // get application policies
@@ -142,14 +144,13 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
 
         // if client does not inherit domain flows, executes only application flows
         if (!client.isFlowsInherited()) {
-            return Single.just(applicationExecutionPolicies);
+            return RxJava2Adapter.monoToSingle(Mono.just(applicationExecutionPolicies));
         }
 
-        return Single.just(
-                Stream.concat(
+        return RxJava2Adapter.monoToSingle(Mono.just(Stream.concat(
                         domainExecutionPolicies.stream(),
                         applicationExecutionPolicies.stream()
-                ).collect(Collectors.toList()));
+                ).collect(Collectors.toList())));
     }
 
     private void updateFlow(String flowId, FlowEvent flowEvent) {

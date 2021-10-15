@@ -20,11 +20,11 @@ import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Date;
 import java.util.UUID;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -40,10 +40,10 @@ public class ExtensionGrantRepositoryTest extends AbstractManagementTest {
         // create extension grant
         ExtensionGrant extensionGrant = buildExtensionGrant();
         extensionGrant.setDomain("testDomain");
-        ExtensionGrant createdGrant = extensionGrantRepository.create(extensionGrant).blockingGet();
+        ExtensionGrant createdGrant = RxJava2Adapter.singleToMono(extensionGrantRepository.create(extensionGrant)).block();
 
         ExtensionGrant excludedElement = buildExtensionGrant();
-        extensionGrantRepository.create(excludedElement).blockingGet();
+        RxJava2Adapter.singleToMono(extensionGrantRepository.create(excludedElement)).block();
 
         // fetch extension grants
         TestSubscriber<ExtensionGrant> testSubscriber = extensionGrantRepository.findByDomain("testDomain").test();
@@ -59,7 +59,7 @@ public class ExtensionGrantRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create extension grant
         ExtensionGrant extensionGrant = buildExtensionGrant();
-        ExtensionGrant extensionGrantCreated = extensionGrantRepository.create(extensionGrant).blockingGet();
+        ExtensionGrant extensionGrantCreated = RxJava2Adapter.singleToMono(extensionGrantRepository.create(extensionGrant)).block();
 
         // fetch extension grant
         TestObserver<ExtensionGrant> testObserver = extensionGrantRepository.findById(extensionGrantCreated.getId()).test();
@@ -115,7 +115,7 @@ public class ExtensionGrantRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create extension grant
         ExtensionGrant extensionGrant = buildExtensionGrant();
-        ExtensionGrant extensionGrantCreated = extensionGrantRepository.create(extensionGrant).blockingGet();
+        ExtensionGrant extensionGrantCreated = RxJava2Adapter.singleToMono(extensionGrantRepository.create(extensionGrant)).block();
 
         // update extension grant
         ExtensionGrant updatedExtension = new ExtensionGrant();
@@ -134,7 +134,7 @@ public class ExtensionGrantRepositoryTest extends AbstractManagementTest {
     public void testDelete() throws TechnicalException {
         // create extension grant
         ExtensionGrant extensionGrant = buildExtensionGrant();
-        ExtensionGrant extensionGrantCreated = extensionGrantRepository.create(extensionGrant).blockingGet();
+        ExtensionGrant extensionGrantCreated = RxJava2Adapter.singleToMono(extensionGrantRepository.create(extensionGrant)).block();
 
         // fetch extension grant
         TestObserver<ExtensionGrant> testObserver = extensionGrantRepository.findById(extensionGrantCreated.getId()).test();

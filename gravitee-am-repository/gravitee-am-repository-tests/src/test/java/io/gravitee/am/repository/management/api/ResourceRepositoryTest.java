@@ -17,16 +17,16 @@ package io.gravitee.am.repository.management.api;
 
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.uma.Resource;
-import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.exceptions.TechnicalException;
+import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -45,7 +45,7 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create resource_set, resource_scopes being the most important field.
         Resource resource = buildResource();
-        Resource rsCreated = repository.create(resource).blockingGet();
+        Resource rsCreated = RxJava2Adapter.singleToMono(repository.create(resource)).block();
 
         // fetch resource_set
         TestObserver<Resource> testObserver = repository.findById(rsCreated.getId()).test();
@@ -81,7 +81,7 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
     public void update() throws TechnicalException {
         // create resource_set, resource_scopes being the most important field.
         Resource resource = new Resource().setResourceScopes(Arrays.asList("a","b","c"));
-        Resource rsCreated = repository.create(resource).blockingGet();
+        Resource rsCreated = RxJava2Adapter.singleToMono(repository.create(resource)).block();
         Resource toUpdate = new Resource().setId(rsCreated.getId()).setResourceScopes(Arrays.asList("d","e","f"));
 
         // fetch resource_set
@@ -97,7 +97,7 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
     public void delete() throws TechnicalException {
         // create resource_set, resource_scopes being the most important field.
         Resource resource = new Resource().setResourceScopes(Arrays.asList("a","b","c"));
-        Resource rsCreated = repository.create(resource).blockingGet();
+        Resource rsCreated = RxJava2Adapter.singleToMono(repository.create(resource)).block();
 
         // fetch resource_set
         TestObserver<Void> testObserver = repository.delete(rsCreated.getId()).test();
@@ -117,7 +117,7 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
                 .setClientId(CLIENT_ID)
                 .setUserId(USER_ID);
 
-        Resource rsCreated = repository.create(resource).blockingGet();
+        Resource rsCreated = RxJava2Adapter.singleToMono(repository.create(resource)).block();
 
         // fetch scope
         TestObserver<Resource> testObserver = repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, rsCreated.getId()).test();
@@ -134,11 +134,11 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
         Resource resource1 = new Resource().setResourceScopes(Arrays.asList("a","b","c")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId(USER_ID);
         Resource resource2 = new Resource().setResourceScopes(Arrays.asList("d","e","f")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId(USER_ID);
 
-        Resource rsCreated1 = repository.create(resource1).blockingGet();
-        Resource rsCreated2 = repository.create(resource2).blockingGet();
+        Resource rsCreated1 = RxJava2Adapter.singleToMono(repository.create(resource1)).block();
+        Resource rsCreated2 = RxJava2Adapter.singleToMono(repository.create(resource2)).block();
 
         // fetch scope
-        TestObserver<List<Resource>> testObserver = repository.findByDomainAndClientAndUser(DOMAIN_ID, CLIENT_ID, USER_ID).toList().test();
+        TestObserver<List<Resource>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findByDomainAndClientAndUser(DOMAIN_ID, CLIENT_ID, USER_ID)).collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -153,8 +153,8 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
         Resource resource1 = new Resource().setResourceScopes(Arrays.asList("a","b","c")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId(USER_ID);
         Resource resource2 = new Resource().setResourceScopes(Arrays.asList("d","e","f")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId(USER_ID);
 
-        repository.create(resource1).blockingGet();
-        repository.create(resource2).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(resource1)).block();
+        RxJava2Adapter.singleToMono(repository.create(resource2)).block();
 
         // fetch applications
         TestObserver<Page<Resource>> testObserver = repository.findByDomain(DOMAIN_ID, 0, Integer.MAX_VALUE).test();
@@ -171,8 +171,8 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
         Resource resource1 = new Resource().setResourceScopes(Arrays.asList("a","b","c")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId(USER_ID);
         Resource resource2 = new Resource().setResourceScopes(Arrays.asList("d","e","f")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId(USER_ID);
 
-        repository.create(resource1).blockingGet();
-        repository.create(resource2).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(resource1)).block();
+        RxJava2Adapter.singleToMono(repository.create(resource2)).block();
 
         TestObserver<Page<Resource>> testObserver = repository.findByDomain(DOMAIN_ID, 0, 1).test();
         testObserver.awaitTerminalEvent();
@@ -202,8 +202,8 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
         Resource resource1 = new Resource().setResourceScopes(Arrays.asList("a","b","c")).setDomain("domainA").setClientId(CLIENT_ID).setUserId(USER_ID);
         Resource resource2 = new Resource().setResourceScopes(Arrays.asList("d","e","f")).setDomain("domainB").setClientId(CLIENT_ID).setUserId(USER_ID);
 
-        Resource rsCreated1 = repository.create(resource1).blockingGet();
-        Resource rsCreated2 = repository.create(resource2).blockingGet();
+        Resource rsCreated1 = RxJava2Adapter.singleToMono(repository.create(resource1)).block();
+        Resource rsCreated2 = RxJava2Adapter.singleToMono(repository.create(resource2)).block();
 
         // fetch applications
         TestSubscriber<Resource> testSubscriber = repository.findByResources(Arrays.asList(rsCreated1.getId(),rsCreated2.getId(),"notMatching")).test();
@@ -223,11 +223,11 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
         Resource resource4 = new Resource().setResourceScopes(Arrays.asList("d")).setDomain(DOMAIN_ID).setClientId("another").setUserId(USER_ID);
         Resource resource5 = new Resource().setResourceScopes(Arrays.asList("d")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId("another");
 
-        Resource rsCreated1 = repository.create(resource1).blockingGet();
-        Resource rsCreated2 = repository.create(resource2).blockingGet();
-        Resource rsCreated3 = repository.create(resource3).blockingGet();
-        Resource rsCreated4 = repository.create(resource4).blockingGet();
-        Resource rsCreated5 = repository.create(resource5).blockingGet();
+        Resource rsCreated1 = RxJava2Adapter.singleToMono(repository.create(resource1)).block();
+        Resource rsCreated2 = RxJava2Adapter.singleToMono(repository.create(resource2)).block();
+        Resource rsCreated3 = RxJava2Adapter.singleToMono(repository.create(resource3)).block();
+        Resource rsCreated4 = RxJava2Adapter.singleToMono(repository.create(resource4)).block();
+        Resource rsCreated5 = RxJava2Adapter.singleToMono(repository.create(resource5)).block();
 
         // fetch applications
         TestSubscriber<Resource> testSubscriber = repository.findByDomainAndClientAndResources(DOMAIN_ID, CLIENT_ID, Arrays.asList(

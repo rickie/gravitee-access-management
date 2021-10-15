@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Entrypoint;
 import io.gravitee.am.model.ReferenceType;
@@ -23,14 +26,12 @@ import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import org.junit.Test;
-
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -42,7 +43,7 @@ public class FlowsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetFlows() {
-        doReturn(Flowable.just(new Flow(), new Flow())).when(flowService).findAll(ReferenceType.DOMAIN, DOMAIN_ID, true);
+        doReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Flow(), new Flow()))).when(flowService).findAll(ReferenceType.DOMAIN, DOMAIN_ID, true);
 
         final Response response = target("domains")
                 .path(DOMAIN_ID)
@@ -57,7 +58,7 @@ public class FlowsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetFlows_technicalManagementException() {
-        doReturn(Flowable.error(new TechnicalManagementException("error occurs"))).when(flowService).findAll(ReferenceType.DOMAIN, DOMAIN_ID, true);
+        doReturn(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs")))).when(flowService).findAll(ReferenceType.DOMAIN, DOMAIN_ID, true);
 
         final Response response = target("domains")
                 .path(DOMAIN_ID)

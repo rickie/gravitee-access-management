@@ -17,9 +17,11 @@ package io.gravitee.am.repository.oauth2.api;
 
 import io.gravitee.am.repository.oauth2.AbstractOAuthTest;
 import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
+import io.reactivex.Maybe;
 import io.reactivex.observers.TestObserver;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -37,7 +39,7 @@ public class AuthorizationCodeRepositoryTest extends AbstractOAuthTest {
         authorizationCode.setCode(code);
         authorizationCode.setContextVersion(1);
 
-        authorizationCodeRepository.create(authorizationCode).blockingGet();
+        RxJava2Adapter.singleToMono(authorizationCodeRepository.create(authorizationCode)).block();
 
         TestObserver<AuthorizationCode> testObserver = authorizationCodeRepository.findByCode(code).test();
         testObserver.awaitTerminalEvent();
@@ -66,8 +68,7 @@ public class AuthorizationCodeRepositoryTest extends AbstractOAuthTest {
 
         TestObserver<AuthorizationCode> testObserver = authorizationCodeRepository
                 .create(authorizationCode)
-                .toCompletable()
-                .andThen(authorizationCodeRepository.delete(code))
+                .toCompletable().as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(authorizationCodeRepository.delete(code)))).as(RxJava2Adapter::monoToMaybe)
                 .test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();

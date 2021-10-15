@@ -25,15 +25,19 @@ import io.gravitee.am.model.oidc.JWKSet;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
 import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.function.Predicate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -51,59 +55,57 @@ public class JWKServiceImpl implements JWKService {
 
     @Override
     public Single<JWKSet> getKeys() {
-        return Flowable.fromIterable(certificateManager.providers())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Flowable.fromIterable(certificateManager.providers())
                 .flatMap(certificateProvider -> certificateProvider.getProvider().keys())
-                .toList()
-                .map(keys -> {
+                .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
                     JWKSet jwkSet = new JWKSet();
                     jwkSet.setKeys(keys);
                     return jwkSet;
-                });
+                })));
     }
 
     @Override
     public Maybe<JWKSet> getKeys(Client client) {
         if(client.getJwks()!=null) {
-            return Maybe.just(client.getJwks());
+            return RxJava2Adapter.monoToMaybe(Mono.just(client.getJwks()));
         }
         else if(client.getJwksUri()!=null) {
             return getKeys(client.getJwksUri());
         }
-        return Maybe.empty();
+        return RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
     @Override
     public Maybe<JWKSet> getDomainPrivateKeys() {
-        return Flowable.fromIterable(certificateManager.providers())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(Flowable.fromIterable(certificateManager.providers())
                 .flatMap(provider -> provider.getProvider().privateKey())
                 .toList()
                 .map(keys -> {
                     JWKSet jwkSet = new JWKSet();
                     jwkSet.setKeys(keys);
                     return jwkSet;
-                }).toMaybe();
+                })));
     }
 
     @Override
     public Maybe<JWKSet> getKeys(String jwksUri) {
         try{
-            return client.getAbs(UriBuilder.fromHttpUrl(jwksUri).build().toString())
+            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(UriBuilder.fromHttpUrl(jwksUri).build().toString())
                     .rxSend()
                     .map(HttpResponse::bodyAsString)
-                    .map(new JWKSetDeserializer()::convert)
-                    .flatMapMaybe(jwkSet -> {
+                    .map(new JWKSetDeserializer()::convert)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<JWKSet>, MaybeSource<JWKSet>>)jwkSet -> {
                         if(jwkSet!=null && jwkSet.isPresent()) {
                             return Maybe.just(jwkSet.get());
                         }
                         return Maybe.empty();
-                    })
-                    .onErrorResumeNext(Maybe.error(new InvalidClientMetadataException("Unable to parse jwks from : " + jwksUri)));
+                    }).apply(e)))))
+                    .onErrorResumeNext(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientMetadataException("Unable to parse jwks from : " + jwksUri))));
         }
         catch(IllegalArgumentException | URISyntaxException ex) {
-            return Maybe.error(new InvalidClientMetadataException(jwksUri+" is not valid."));
+            return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientMetadataException(jwksUri+" is not valid.")));
         }
         catch(InvalidClientMetadataException ex) {
-            return Maybe.error(ex);
+            return RxJava2Adapter.monoToMaybe(Mono.error(ex));
         }
     }
 
@@ -111,23 +113,23 @@ public class JWKServiceImpl implements JWKService {
     public Maybe<JWK> getKey(JWKSet jwkSet, String kid) {
 
         if(jwkSet==null || jwkSet.getKeys().isEmpty() || kid==null || kid.trim().isEmpty()) {
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
 
         //Else return matching key
         Optional<JWK> jwk = jwkSet.getKeys().stream().filter(key -> kid.equals(key.getKid())).findFirst();
         if(jwk.isPresent()) {
-            return Maybe.just(jwk.get());
+            return RxJava2Adapter.monoToMaybe(Mono.just(jwk.get()));
         }
 
         //No matching key found in JWKs...
-        return Maybe.empty();
+        return RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
     @Override
     public Maybe<JWK> filter(JWKSet jwkSet, Predicate<JWK> filter) {
         if(jwkSet==null || jwkSet.getKeys()==null || jwkSet.getKeys().isEmpty()) {
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
 
         Optional<JWK> jwk = jwkSet.getKeys()
@@ -136,8 +138,8 @@ public class JWKServiceImpl implements JWKService {
                 .findFirst();
 
         if(jwk.isPresent()) {
-            return Maybe.just(jwk.get());
+            return RxJava2Adapter.monoToMaybe(Mono.just(jwk.get()));
         }
-        return Maybe.empty();
+        return RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 }

@@ -15,6 +15,14 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.management.service.permissions.PermissionAcls;
@@ -34,20 +42,13 @@ import io.gravitee.am.service.model.PatchApplication;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.junit.Test;
-
-import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -63,10 +64,10 @@ public class ApplicationResourceTest extends JerseySpringTest {
 
         final Application mockApplication = buildApplicationMock();
 
-        doReturn(Single.just(true)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
-        doReturn(Single.just(Permission.allPermissionAcls(ReferenceType.APPLICATION))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString());
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.just(mockApplication)).when(applicationService).findById(mockApplication.getId());
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(true))).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(Permission.allPermissionAcls(ReferenceType.APPLICATION)))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockApplication))).when(applicationService).findById(mockApplication.getId());
 
         // Check all data are returned when having all permissions.
         final Response response = target("domains").path(domainId).path("applications").path(mockApplication.getId()).request().get();
@@ -100,10 +101,10 @@ public class ApplicationResourceTest extends JerseySpringTest {
 
         final Application mockApplication = buildApplicationMock();
 
-        doReturn(Single.just(true)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
-        doReturn(Single.just(Permission.of(Permission.APPLICATION, Acl.READ))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString()); // only application read permission
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.just(mockApplication)).when(applicationService).findById(mockApplication.getId());
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(true))).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(Permission.of(Permission.APPLICATION, Acl.READ)))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString()); // only application read permission
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockApplication))).when(applicationService).findById(mockApplication.getId());
 
         // Check data are filtered according to permissions.
         final Response response = target("domains").path(domainId).path("applications").path(mockApplication.getId()).request().get();
@@ -136,8 +137,8 @@ public class ApplicationResourceTest extends JerseySpringTest {
 
         final String clientId = "client-id";
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.empty()).when(applicationService).findById(clientId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(applicationService).findById(clientId);
 
         final Response response = target("domains").path(domainId).path("applications").path(clientId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -148,7 +149,7 @@ public class ApplicationResourceTest extends JerseySpringTest {
         final String domainId = "domain-id";
         final String clientId = "client-id";
 
-        doReturn(Maybe.empty()).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(domainService).findById(domainId);
 
         final Response response = target("domains").path(domainId).path("applications").path(clientId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -166,10 +167,10 @@ public class ApplicationResourceTest extends JerseySpringTest {
         mockClient.setName("client-name");
         mockClient.setDomain("wrong-domain");
 
-        doReturn(Single.just(true)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
-        doReturn(Single.just(Permission.allPermissionAcls(ReferenceType.APPLICATION))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString());
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.just(mockClient)).when(applicationService).findById(applicationId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(true))).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(Permission.allPermissionAcls(ReferenceType.APPLICATION)))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockClient))).when(applicationService).findById(applicationId);
 
         final Response response = target("domains").path(domainId).path("applications").path(applicationId).request().get();
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());
@@ -186,10 +187,10 @@ public class ApplicationResourceTest extends JerseySpringTest {
         PatchApplication patchApplication = new PatchApplication();
         patchApplication.setDescription(Optional.of("New description"));
 
-        doReturn(Single.just(true)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
-        doReturn(Single.just(Permission.allPermissionAcls(ReferenceType.APPLICATION))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString());
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(mockApplication)).when(applicationService).patch(eq(domainId), eq(mockApplication.getId()), any(PatchApplication.class), any(User.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(true))).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(Permission.allPermissionAcls(ReferenceType.APPLICATION)))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(mockApplication))).when(applicationService).patch(eq(domainId), eq(mockApplication.getId()), any(PatchApplication.class), any(User.class));
 
         // heck all data are returned when having all permissions.
         final Response response = put(target("domains").path(domainId).path("applications").path(mockApplication.getId()), patchApplication);
@@ -227,10 +228,10 @@ public class ApplicationResourceTest extends JerseySpringTest {
         PatchApplication patchApplication = new PatchApplication();
         patchApplication.setDescription(Optional.of("New description"));
 
-        doReturn(Single.just(true)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
-        doReturn(Single.just(Permission.of(Permission.APPLICATION, Acl.READ))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString()); // only application read permission
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(mockApplication)).when(applicationService).patch(eq(domainId), eq(mockApplication.getId()), any(PatchApplication.class), any(User.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(true))).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(Permission.of(Permission.APPLICATION, Acl.READ)))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString()); // only application read permission
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(mockApplication))).when(applicationService).patch(eq(domainId), eq(mockApplication.getId()), any(PatchApplication.class), any(User.class));
 
         // Check all data are returned when having all permissions.
         final Response response = put(target("domains").path(domainId).path("applications").path(mockApplication.getId()), patchApplication);
@@ -267,9 +268,9 @@ public class ApplicationResourceTest extends JerseySpringTest {
         PatchApplication patchApplication = new PatchApplication();
         patchApplication.setDescription(Optional.of("New description"));
 
-        doReturn(Single.just(true)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
-        doReturn(Single.just(Permission.of(Permission.APPLICATION, Acl.READ))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString()); // only application read permission
-        doReturn(Maybe.empty()).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(true))).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(Permission.of(Permission.APPLICATION, Acl.READ)))).when(permissionService).findAllPermissions(any(User.class), any(ReferenceType.class), anyString()); // only application read permission
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(domainService).findById(domainId);
 
         final Response response = put(target("domains").path(domainId).path("applications").path(mockApplication.getId()), patchApplication);
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -286,8 +287,8 @@ public class ApplicationResourceTest extends JerseySpringTest {
         PatchApplication patchApplication = new PatchApplication();
         patchApplication.setDescription(Optional.of("New description"));
 
-        doReturn(Single.just(false)).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(false))).when(permissionService).hasPermission(any(User.class), any(PermissionAcls.class));
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
 
         final Response response = put(target("domains").path(domainId).path("applications").path(mockApplication.getId()), patchApplication);
         assertEquals(HttpStatusCode.FORBIDDEN_403, response.getStatus());
@@ -315,9 +316,9 @@ public class ApplicationResourceTest extends JerseySpringTest {
         mockClient.setName("client-name");
         mockClient.setDomain(domainId);
 
-        doReturn(Single.just(Permission.allPermissionAcls(ReferenceType.APPLICATION))).when(permissionService).findAllPermissions(any(User.class), eq(ReferenceType.APPLICATION), anyString());
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(mockClient)).when(applicationService).renewClientSecret(eq(domainId), eq(clientId), any());
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(Permission.allPermissionAcls(ReferenceType.APPLICATION)))).when(permissionService).findAllPermissions(any(User.class), eq(ReferenceType.APPLICATION), anyString());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(mockClient))).when(applicationService).renewClientSecret(eq(domainId), eq(clientId), any());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -341,8 +342,8 @@ public class ApplicationResourceTest extends JerseySpringTest {
         mockClient.setName("client-name");
         mockClient.setDomain(domainId);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.error(new ApplicationNotFoundException(clientId))).when(applicationService).renewClientSecret(eq(domainId), eq(clientId), any());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new ApplicationNotFoundException(clientId)))).when(applicationService).renewClientSecret(eq(domainId), eq(clientId), any());
 
         final Response response = target("domains")
                 .path(domainId)

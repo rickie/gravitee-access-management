@@ -15,6 +15,12 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static java.time.ZoneOffset.UTC;
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToCompletable;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.uma.PermissionTicket;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -25,22 +31,17 @@ import io.gravitee.am.repository.management.api.PermissionTicketRepository;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.time.ZoneOffset.UTC;
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToCompletable;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -64,9 +65,8 @@ public class JdbcPermissionTicketRepository extends AbstractJdbcRepository imple
     public Maybe<PermissionTicket> findById(String id) {
         LOGGER.debug("findById({})", id);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return permissionTicketRepository.findById(id)
-                .filter(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(permissionTicketRepository.findById(id)
+                .filter(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -87,7 +87,7 @@ public class JdbcPermissionTicketRepository extends AbstractJdbcRepository imple
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> permissionTicketRepository.findById(item.getId()).map(this::toEntity).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(permissionTicketRepository.findById(item.getId()).map(this::toEntity).toSingle())));
     }
 
     @Override
@@ -107,7 +107,7 @@ public class JdbcPermissionTicketRepository extends AbstractJdbcRepository imple
 
         Mono<Integer> action = updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override

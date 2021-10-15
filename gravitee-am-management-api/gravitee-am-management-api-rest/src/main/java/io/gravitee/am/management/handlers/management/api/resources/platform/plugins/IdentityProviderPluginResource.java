@@ -22,7 +22,6 @@ import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +32,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -56,9 +57,8 @@ public class IdentityProviderPluginResource {
             @PathParam("identity") String identityProviderId,
             @Suspended final AsyncResponse response) {
 
-        identityProviderPluginService.findById(identityProviderId)
-                .switchIfEmpty(Maybe.error(new IdentityProviderPluginNotFoundException(identityProviderId)))
-                .map(identityProviderPlugin -> Response.ok(identityProviderPlugin).build())
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderPluginService.findById(identityProviderId)
+                .switchIfEmpty(Maybe.error(new IdentityProviderPluginNotFoundException(identityProviderId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviderPlugin -> Response.ok(identityProviderPlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -72,11 +72,10 @@ public class IdentityProviderPluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the identity provider exists
-        identityProviderPluginService.findById(identityProviderId)
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderPluginService.findById(identityProviderId)
                 .switchIfEmpty(Maybe.error(new IdentityProviderPluginNotFoundException(identityProviderId)))
                 .flatMap(irrelevant -> identityProviderPluginService.getSchema(identityProviderId))
-                .switchIfEmpty(Maybe.error(new IdentityProviderPluginSchemaNotFoundException(identityProviderId)))
-                .map(identityProviderPluginSchema -> Response.ok(identityProviderPluginSchema).build())
+                .switchIfEmpty(Maybe.error(new IdentityProviderPluginSchemaNotFoundException(identityProviderId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviderPluginSchema -> Response.ok(identityProviderPluginSchema).build())))
                 .subscribe(response::resume, response::resume
                 );
     }

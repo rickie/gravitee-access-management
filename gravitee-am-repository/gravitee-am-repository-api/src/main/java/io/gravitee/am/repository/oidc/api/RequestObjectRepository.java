@@ -19,6 +19,8 @@ import io.gravitee.am.repository.oidc.model.RequestObject;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -33,6 +35,6 @@ public interface RequestObjectRepository {
     Completable delete(String id);
 
     default Completable purgeExpiredData() {
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 }

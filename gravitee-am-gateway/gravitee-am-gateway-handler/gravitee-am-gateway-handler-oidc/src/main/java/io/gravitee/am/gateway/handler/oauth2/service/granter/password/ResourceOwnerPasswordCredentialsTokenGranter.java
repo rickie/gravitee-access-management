@@ -15,8 +15,11 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter.password;
 
-import io.gravitee.am.common.oauth2.GrantType;
+import static io.gravitee.am.common.oauth2.Parameters.PASSWORD;
+import static io.gravitee.am.common.oauth2.Parameters.USERNAME;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
+import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.gateway.handler.common.auth.user.EndUserAuthentication;
 import io.gravitee.am.gateway.handler.common.auth.user.UserAuthenticationManager;
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidGrantException;
@@ -25,14 +28,13 @@ import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequestResolver;
 import io.gravitee.am.gateway.handler.oauth2.service.token.TokenService;
 import io.gravitee.am.identityprovider.api.SimpleAuthenticationContext;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.User;
+import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.util.MultiValueMap;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
-import static io.gravitee.am.common.oauth2.Parameters.USERNAME;
-import static io.gravitee.am.common.oauth2.Parameters.PASSWORD;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * Implementation of the Resource Owner Password Credentials Grant Flow
@@ -64,11 +66,11 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         String password = parameters.getFirst(PASSWORD);
 
         if (username == null) {
-            return Single.error(new InvalidRequestException("Missing parameter: username"));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Missing parameter: username")));
         }
 
         if (password == null) {
-            return Single.error(new InvalidRequestException("Missing parameter: password"));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Missing parameter: password")));
         }
 
         // set required parameters
@@ -83,9 +85,8 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         String username = tokenRequest.getUsername();
         String password = tokenRequest.getPassword();
 
-        return userAuthenticationManager.authenticate(client, new EndUserAuthentication(username, password, new SimpleAuthenticationContext(tokenRequest)))
-                .onErrorResumeNext(ex -> Single.error(new InvalidGrantException(ex.getMessage())))
-                .toMaybe();
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(userAuthenticationManager.authenticate(client, new EndUserAuthentication(username, password, new SimpleAuthenticationContext(tokenRequest)))
+                .onErrorResumeNext(ex -> Single.error(new InvalidGrantException(ex.getMessage())))));
     }
 
     public void setUserAuthenticationManager(UserAuthenticationManager userAuthenticationManager) {

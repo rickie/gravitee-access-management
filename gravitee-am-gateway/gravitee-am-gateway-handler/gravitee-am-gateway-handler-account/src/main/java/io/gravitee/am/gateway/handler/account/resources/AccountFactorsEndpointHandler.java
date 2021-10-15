@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.account.resources;
 
+import static io.gravitee.am.common.factor.FactorSecurityType.SHARED_SECRET;
+import static io.gravitee.am.gateway.handler.common.utils.RoutingContextHelper.getEvaluableAttributes;
+
 import io.gravitee.am.common.exception.mfa.InvalidFactorAttributeException;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.factor.FactorDataKeys;
@@ -46,16 +49,14 @@ import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.web.RoutingContext;
-import org.springframework.context.ApplicationContext;
-import org.springframework.util.StringUtils;
-
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.*;
-
-import static io.gravitee.am.common.factor.FactorSecurityType.SHARED_SECRET;
-import static io.gravitee.am.gateway.handler.common.utils.RoutingContextHelper.getEvaluableAttributes;
+import org.springframework.context.ApplicationContext;
+import org.springframework.util.StringUtils;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -400,14 +401,13 @@ public class AccountFactorsEndpointHandler {
                               EnrollmentAccount account,
                               User endUser,
                               Handler<AsyncResult<EnrolledFactor>> handler) {
-        factorProvider.enroll(endUser.getUsername())
-                .map(enrollment -> {
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(factorProvider.enroll(endUser.getUsername())).map(RxJavaReactorMigrationUtil.toJdkFunction(enrollment -> {
                     final EnrolledFactor enrolledFactor = buildEnrolledFactor(factor, enrollment, account, endUser);
                     if (factorProvider.checkSecurityFactor(enrolledFactor)) {
                         return enrolledFactor;
                     }
                     throw new InvalidFactorAttributeException("Invalid account information");
-                })
+                })))
                 .subscribe(
                         enrolledFactor -> handler.handle(Future.succeededFuture(enrolledFactor)),
                         error -> handler.handle(Future.failedFuture(error))

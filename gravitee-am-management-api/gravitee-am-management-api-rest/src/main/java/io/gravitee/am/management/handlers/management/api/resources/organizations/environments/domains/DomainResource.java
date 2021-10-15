@@ -26,21 +26,22 @@ import io.gravitee.am.service.model.PatchDomain;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -69,11 +70,10 @@ public class DomainResource extends AbstractDomainResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)
-                .andThen(domainService.findById(domainId)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domainId)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId)))
                         .flatMapSingle(domain -> findAllPermissions(authenticatedUser, organizationId, environmentId, domainId)
-                                .map(userPermissions -> filterDomainInfos(domain, userPermissions))))
+                                .map(userPermissions -> filterDomainInfos(domain, userPermissions)))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -132,8 +132,7 @@ public class DomainResource extends AbstractDomainResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.DELETE)
-                .andThen(domainService.delete(domain, authenticatedUser))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(domainService.delete(domain, authenticatedUser)))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
@@ -153,12 +152,11 @@ public class DomainResource extends AbstractDomainResource {
             @PathParam("domain") String domainId,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)
-                .andThen(domainService.findById(domainId)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domainId)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId)))
                         .flatMapSingle(domain -> entrypointService.findAll(organizationId)
                                 .toList()
-                                .map(entrypoints -> filterEntrypoints(entrypoints, domain))))
+                                .map(entrypoints -> filterEntrypoints(entrypoints, domain)))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -266,12 +264,11 @@ public class DomainResource extends AbstractDomainResource {
             // If there is no require permission, it means there is nothing to update. This is not a valid request.
             response.resume(new BadRequestException("You need to specify at least one value to update."));
         } else {
-            Completable.merge(requiredPermissions.stream()
+            RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(Completable.merge(requiredPermissions.stream()
                     .map(permission -> checkAnyPermission(organizationId, environmentId, domainId, permission, Acl.UPDATE))
-                    .collect(Collectors.toList()))
-                    .andThen(domainService.patch(domainId, patchDomain, authenticatedUser)
+                    .collect(Collectors.toList()))).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.patch(domainId, patchDomain, authenticatedUser)
                             .flatMap(domain -> findAllPermissions(authenticatedUser, organizationId, environmentId, domainId)
-                                    .map(userPermissions -> filterDomainInfos(domain, userPermissions))))
+                                    .map(userPermissions -> filterDomainInfos(domain, userPermissions)))))))
                     .subscribe(response::resume, response::resume);
         }
     }

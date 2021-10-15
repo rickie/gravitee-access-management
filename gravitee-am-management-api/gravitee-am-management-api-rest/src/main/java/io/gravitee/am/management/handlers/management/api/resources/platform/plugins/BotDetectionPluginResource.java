@@ -22,7 +22,6 @@ import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +32,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -54,9 +55,8 @@ public class BotDetectionPluginResource {
     public void get(@PathParam("botDetection") String botDetectionId,
                     @Suspended final AsyncResponse response) {
 
-        pluginService.findById(botDetectionId)
-                .switchIfEmpty(Maybe.error(new BotDetectionPluginNotFoundException(botDetectionId)))
-                .map(policyPlugin -> Response.ok(policyPlugin).build())
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(pluginService.findById(botDetectionId)
+                .switchIfEmpty(Maybe.error(new BotDetectionPluginNotFoundException(botDetectionId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -69,11 +69,10 @@ public class BotDetectionPluginResource {
                           @Suspended final AsyncResponse response) {
 
         // Check that the authenticator exists
-        pluginService.findById(botDetection)
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(pluginService.findById(botDetection)
                 .switchIfEmpty(Maybe.error(new BotDetectionPluginNotFoundException(botDetection)))
                 .flatMap(irrelevant -> pluginService.getSchema(botDetection))
-                .switchIfEmpty(Maybe.error(new BotDetectionPluginSchemaNotFoundException(botDetection)))
-                .map(policyPluginSchema -> Response.ok(policyPluginSchema).build())
+                .switchIfEmpty(Maybe.error(new BotDetectionPluginSchemaNotFoundException(botDetection)))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -48,7 +50,7 @@ public class DefaultRulesEngine implements RulesEngine {
     public Completable fire(List<Rule> rules, ExecutionContext executionContext) {
         if (rules.isEmpty()) {
             LOGGER.debug("No rules registered!");
-            return Completable.complete();
+            return RxJava2Adapter.monoToCompletable(Mono.empty());
         }
 
         return Completable.create(emitter -> {

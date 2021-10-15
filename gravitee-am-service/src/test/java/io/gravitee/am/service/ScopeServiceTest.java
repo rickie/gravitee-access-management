@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.service;
 
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.Role;
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
@@ -34,16 +38,15 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.*;
-
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -79,7 +82,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(scopeRepository.findById("my-scope")).thenReturn(Maybe.just(new Scope()));
+        when(scopeRepository.findById("my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Scope())));
         TestObserver testObserver = scopeService.findById("my-scope").test();
 
         testObserver.awaitTerminalEvent();
@@ -90,7 +93,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindById_notExistingScope() {
-        when(scopeRepository.findById("my-scope")).thenReturn(Maybe.empty());
+        when(scopeRepository.findById("my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver testObserver = scopeService.findById("my-scope").test();
         testObserver.awaitTerminalEvent();
 
@@ -99,7 +102,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(scopeRepository.findById("my-scope")).thenReturn(Maybe.error(TechnicalException::new));
+        when(scopeRepository.findById("my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
         TestObserver testObserver = new TestObserver();
         scopeService.findById("my-scope").subscribe(testObserver);
 
@@ -109,7 +112,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(scopeRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.singleton(new Scope()),0,1)));
+        when(scopeRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(new Scope()),0,1))));
         TestObserver<Page<Scope>> testObserver = scopeService.findByDomain(DOMAIN, 0, Integer.MAX_VALUE).test();
         testObserver.awaitTerminalEvent();
 
@@ -120,7 +123,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(scopeRepository.findByDomain(DOMAIN, 0, 1)).thenReturn(Single.error(TechnicalException::new));
+        when(scopeRepository.findByDomain(DOMAIN, 0, 1)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver();
         scopeService.findByDomain(DOMAIN, 0, 1).subscribe(testObserver);
@@ -131,14 +134,14 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindByDomainAndKey_technicalException() {
-        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(Maybe.error(TechnicalException::new));
+        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
         TestObserver<Scope> testObserver = scopeService.findByDomainAndKey(DOMAIN, "my-scope").test();
         testObserver.assertNotComplete().assertError(TechnicalManagementException.class);
     }
 
     @Test
     public void shouldFindByDomainAndKey() {
-        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(Maybe.just(new Scope()));
+        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Scope())));
         TestObserver<Scope> testObserver = scopeService.findByDomainAndKey(DOMAIN, "my-scope").test();
         testObserver.assertComplete().assertNoErrors().assertValue(Objects::nonNull);
     }
@@ -158,7 +161,7 @@ public class ScopeServiceTest {
     @Test
     public void shouldFindByDomainAndKeys_technicalException() {
         List<String> searchingScopes = Arrays.asList("a","b");
-        when(scopeRepository.findByDomainAndKeys(DOMAIN, searchingScopes)).thenReturn(Flowable.error(TechnicalException::new));
+        when(scopeRepository.findByDomainAndKeys(DOMAIN, searchingScopes)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
         TestObserver<List<Scope>> testObserver = scopeService.findByDomainAndKeys(DOMAIN, searchingScopes).test();
         testObserver.assertNotComplete().assertError(TechnicalManagementException.class);
     }
@@ -166,7 +169,7 @@ public class ScopeServiceTest {
     @Test
     public void shouldFindByDomainAndKeys() {
         List<String> searchingScopes = Arrays.asList("a","b");
-        when(scopeRepository.findByDomainAndKeys(DOMAIN, searchingScopes)).thenReturn(Flowable.just(new Scope()));
+        when(scopeRepository.findByDomainAndKeys(DOMAIN, searchingScopes)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Scope())));
         TestObserver<List<Scope>> testObserver = scopeService.findByDomainAndKeys(DOMAIN, searchingScopes).test();
         testObserver.assertComplete().assertNoErrors().assertValue(scopes -> scopes.size()==1);
     }
@@ -176,9 +179,9 @@ public class ScopeServiceTest {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("my-scope");
         when(newScope.getIconUri()).thenReturn("https://gravitee.io/icon");
-        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(Maybe.empty());
-        when(scopeRepository.create(any(Scope.class))).thenReturn(Single.just(new Scope()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(scopeRepository.create(any(Scope.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = scopeService.create(DOMAIN, newScope).test();
         testObserver.awaitTerminalEvent();
@@ -195,9 +198,9 @@ public class ScopeServiceTest {
     public void shouldCreate_keyUpperCase() {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("MY-SCOPE");
-        when(scopeRepository.findByDomainAndKey(DOMAIN, "MY-SCOPE")).thenReturn(Maybe.empty());
-        when(scopeRepository.create(any(Scope.class))).thenReturn(Single.just(new Scope()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(scopeRepository.findByDomainAndKey(DOMAIN, "MY-SCOPE")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(scopeRepository.create(any(Scope.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = scopeService.create(DOMAIN, newScope).test();
         testObserver.awaitTerminalEvent();
@@ -219,9 +222,9 @@ public class ScopeServiceTest {
     public void shouldCreate_whiteSpaces() {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("MY scope");
-        when(scopeRepository.findByDomainAndKey(DOMAIN, "MY_scope")).thenReturn(Maybe.empty());
-        when(scopeRepository.create(any(Scope.class))).thenReturn(Single.just(new Scope()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(scopeRepository.findByDomainAndKey(DOMAIN, "MY_scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(scopeRepository.create(any(Scope.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = scopeService.create(DOMAIN, newScope).test();
         testObserver.awaitTerminalEvent();
@@ -244,7 +247,7 @@ public class ScopeServiceTest {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("my-scope");
         when(newScope.getIconUri()).thenReturn("malformedIconUri");
-        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(Maybe.empty());
+        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = new TestObserver();
         scopeService.create(DOMAIN, newScope).subscribe(testObserver);
@@ -260,7 +263,7 @@ public class ScopeServiceTest {
     public void shouldNotCreate_technicalException() {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("my-scope");
-        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(Maybe.error(TechnicalException::new));
+        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver();
         scopeService.create(DOMAIN, newScope).subscribe(testObserver);
@@ -275,7 +278,7 @@ public class ScopeServiceTest {
     public void shouldNotCreate_existingScope() {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("my-scope");
-        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(Maybe.just(new Scope()));
+        when(scopeRepository.findByDomainAndKey(DOMAIN, "my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Scope())));
 
         TestObserver testObserver = new TestObserver();
         scopeService.create(DOMAIN, newScope).subscribe(testObserver);
@@ -303,9 +306,9 @@ public class ScopeServiceTest {
 
         ArgumentCaptor<Scope> argument = ArgumentCaptor.forClass(Scope.class);
 
-        when(scopeRepository.findById(scopeId)).thenReturn(Maybe.just(toPatch));
-        when(scopeRepository.update(argument.capture())).thenReturn(Single.just(new Scope()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(scopeRepository.findById(scopeId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(toPatch)));
+        when(scopeRepository.update(argument.capture())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = scopeService.patch(DOMAIN,scopeId, patch).test();
 
@@ -335,9 +338,9 @@ public class ScopeServiceTest {
 
         ArgumentCaptor<Scope> argument = ArgumentCaptor.forClass(Scope.class);
 
-        when(scopeRepository.findById(scopeId)).thenReturn(Maybe.just(toPatch));
-        when(scopeRepository.update(argument.capture())).thenReturn(Single.just(new Scope()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(scopeRepository.findById(scopeId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(toPatch)));
+        when(scopeRepository.update(argument.capture())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = scopeService.patch(DOMAIN,scopeId, patch).test();
 
@@ -355,7 +358,7 @@ public class ScopeServiceTest {
         Scope toPatch = new Scope();
         toPatch.setId("toPatchId");
 
-        when(scopeRepository.findById("toPatchId")).thenReturn(Maybe.error(TechnicalException::new));
+        when(scopeRepository.findById("toPatchId")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = scopeService.patch(DOMAIN,"toPatchId", new PatchScope()).test();
 
@@ -366,7 +369,7 @@ public class ScopeServiceTest {
     @Test
     public void shouldNotPatch_scopeNotFound() {
         PatchScope patchScope = new PatchScope();
-        when(scopeRepository.findById("my-scope")).thenReturn(Maybe.empty());
+        when(scopeRepository.findById("my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = new TestObserver();
         scopeService.patch(DOMAIN, "my-scope",patchScope).subscribe(testObserver);
@@ -382,7 +385,7 @@ public class ScopeServiceTest {
     public void shouldNotPatch_malformedIconUri() {
         PatchScope patchScope = new PatchScope();
         patchScope.setIconUri(Optional.of("malformedIconUri"));
-        when(scopeRepository.findById("my-scope")).thenReturn(Maybe.just(new Scope()));
+        when(scopeRepository.findById("my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Scope())));
 
         TestObserver testObserver = new TestObserver();
         scopeService.patch(DOMAIN, "my-scope",patchScope).subscribe(testObserver);
@@ -411,9 +414,9 @@ public class ScopeServiceTest {
 
         ArgumentCaptor<Scope> argument = ArgumentCaptor.forClass(Scope.class);
 
-        when(scopeRepository.findById(scopeId)).thenReturn(Maybe.just(toUpdate));
-        when(scopeRepository.update(argument.capture())).thenReturn(Single.just(new Scope()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(scopeRepository.findById(scopeId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(toUpdate)));
+        when(scopeRepository.update(argument.capture())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = scopeService.update(DOMAIN,scopeId, updateScope).test();
 
@@ -442,9 +445,9 @@ public class ScopeServiceTest {
 
         ArgumentCaptor<Scope> argument = ArgumentCaptor.forClass(Scope.class);
 
-        when(scopeRepository.findById(scopeId)).thenReturn(Maybe.just(toUpdate));
-        when(scopeRepository.update(argument.capture())).thenReturn(Single.just(new Scope()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(scopeRepository.findById(scopeId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(toUpdate)));
+        when(scopeRepository.update(argument.capture())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = scopeService.update(DOMAIN,scopeId, updateScope).test();
 
@@ -474,9 +477,9 @@ public class ScopeServiceTest {
 
         ArgumentCaptor<Scope> argument = ArgumentCaptor.forClass(Scope.class);
 
-        when(scopeRepository.findById(scopeId)).thenReturn(Maybe.just(toUpdate));
-        when(scopeRepository.update(argument.capture())).thenReturn(Single.just(new Scope()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(scopeRepository.findById(scopeId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(toUpdate)));
+        when(scopeRepository.update(argument.capture())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = scopeService.update(DOMAIN,scopeId, updateScope).test();
 
@@ -491,7 +494,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldNotUpdate() {
-        when(scopeRepository.findById("toUpdateId")).thenReturn(Maybe.error(TechnicalException::new));
+        when(scopeRepository.findById("toUpdateId")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = scopeService.update(DOMAIN,"toUpdateId", new UpdateScope()).test();
 
@@ -504,7 +507,7 @@ public class ScopeServiceTest {
         UpdateScope updateScope = new UpdateScope();
         updateScope.setIconUri("malformedIconUri");
 
-        when(scopeRepository.findById("toUpdateId")).thenReturn(Maybe.just(new Scope()));
+        when(scopeRepository.findById("toUpdateId")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Scope())));
 
         TestObserver testObserver = new TestObserver();
         scopeService.update(DOMAIN, "toUpdateId",updateScope).subscribe(testObserver);
@@ -533,9 +536,9 @@ public class ScopeServiceTest {
 
         ArgumentCaptor<Scope> argument = ArgumentCaptor.forClass(Scope.class);
 
-        when(scopeRepository.findById(scopeId)).thenReturn(Maybe.just(toUpdate));
-        when(scopeRepository.update(argument.capture())).thenReturn(Single.just(new Scope()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(scopeRepository.findById(scopeId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(toUpdate)));
+        when(scopeRepository.update(argument.capture())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = scopeService.update(DOMAIN,scopeId, updateScope).test();
 
@@ -553,7 +556,7 @@ public class ScopeServiceTest {
         Scope toUpdate = new Scope();
         toUpdate.setId("toUpdateId");
 
-        when(scopeRepository.findById("toUpdateId")).thenReturn(Maybe.error(TechnicalException::new));
+        when(scopeRepository.findById("toUpdateId")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = scopeService.update(DOMAIN,"toUpdateId", new UpdateSystemScope()).test();
 
@@ -563,7 +566,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldDelete_notExistingScope() {
-        when(scopeRepository.findById("my-scope")).thenReturn(Maybe.empty());
+        when(scopeRepository.findById("my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = new TestObserver();
         scopeService.delete("my-scope", false).subscribe(testObserver);
@@ -574,7 +577,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(scopeRepository.findById("my-scope")).thenReturn(Maybe.error(TechnicalException::new));
+        when(scopeRepository.findById("my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver();
         scopeService.delete("my-scope", false).subscribe(testObserver);
@@ -585,7 +588,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldDelete2_technicalException() {
-        when(scopeRepository.findById("my-scope")).thenReturn(Maybe.just(new Scope()));
+        when(scopeRepository.findById("my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Scope())));
 
         TestObserver testObserver = new TestObserver();
         scopeService.delete("my-scope", false).subscribe(testObserver);
@@ -596,7 +599,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldDelete3_technicalException() {
-        when(scopeRepository.findById("my-scope")).thenReturn(Maybe.just(new Scope()));
+        when(scopeRepository.findById("my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Scope())));
 
         TestObserver testObserver = new TestObserver();
         scopeService.delete("my-scope", false).subscribe(testObserver);
@@ -609,12 +612,12 @@ public class ScopeServiceTest {
     public void shouldDelete_light() {
         Scope scope = mock(Scope.class);
         when(scope.getDomain()).thenReturn(DOMAIN);
-        when(roleService.findByDomain(DOMAIN)).thenReturn(Single.just(Collections.emptySet()));
-        when(applicationService.findByDomain(DOMAIN)).thenReturn(Single.just(Collections.emptySet()));
-        when(scopeRepository.findById("my-scope")).thenReturn(Maybe.just(scope));
-        when(scopeRepository.delete("my-scope")).thenReturn(Completable.complete());
-        when(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey())).thenReturn(Completable.complete());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(roleService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
+        when(applicationService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
+        when(scopeRepository.findById("my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(scope)));
+        when(scopeRepository.delete("my-scope")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = scopeService.delete("my-scope", false).test();
         testObserver.awaitTerminalEvent();
@@ -646,14 +649,14 @@ public class ScopeServiceTest {
         when(applicationSettings.getOauth()).thenReturn(applicationOAuthSettings);
         when(application.getSettings()).thenReturn(applicationSettings);
 
-        when(roleService.findByDomain(DOMAIN)).thenReturn(Single.just(Collections.singleton(role)));
-        when(applicationService.findByDomain(DOMAIN)).thenReturn(Single.just(Collections.singleton(application)));
-        when(roleService.update(anyString(), anyString(), any(UpdateRole.class))).thenReturn(Single.just(new Role()));
-        when(applicationService.update(any())).thenReturn(Single.just(new Application()));
-        when(scopeRepository.findById("my-scope")).thenReturn(Maybe.just(scope));
-        when(scopeRepository.delete("my-scope")).thenReturn(Completable.complete());
-        when(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey())).thenReturn(Completable.complete());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(roleService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(role))));
+        when(applicationService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(application))));
+        when(roleService.update(anyString(), anyString(), any(UpdateRole.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Role())));
+        when(applicationService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
+        when(scopeRepository.findById("my-scope")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(scope)));
+        when(scopeRepository.delete("my-scope")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = scopeService.delete("my-scope", false).test();
         testObserver.awaitTerminalEvent();
@@ -674,7 +677,7 @@ public class ScopeServiceTest {
         Scope scope = new Scope();
         scope.setKey("scope-key");
         scope.setSystem(true);
-        when(scopeRepository.findById("scope-id")).thenReturn(Maybe.just(scope));
+        when(scopeRepository.findById("scope-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(scope)));
 
         TestObserver testObserver = scopeService.delete("scope-id", false).test();
         testObserver.assertError(SystemScopeDeleteException.class);
@@ -691,14 +694,14 @@ public class ScopeServiceTest {
 
     @Test
     public void validateScope_unknownScope() {
-        when(scopeRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.singleton(new Scope("valid")),0,1)));
+        when(scopeRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(new Scope("valid")),0,1))));
         TestObserver<Boolean> testObserver = scopeService.validateScope(DOMAIN,Arrays.asList("unknown")).test();
         testObserver.assertError(InvalidClientMetadataException.class);
     }
 
     @Test
     public void validateScope_validScope() {
-        when(scopeRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.singleton(new Scope("valid")),0,1)));
+        when(scopeRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(new Scope("valid")),0,1))));
         TestObserver<Boolean> testObserver = scopeService.validateScope(DOMAIN, Arrays.asList("valid")).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();

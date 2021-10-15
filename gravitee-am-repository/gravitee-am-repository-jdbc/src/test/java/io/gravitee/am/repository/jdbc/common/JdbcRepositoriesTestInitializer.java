@@ -26,6 +26,8 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Service;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -114,10 +116,10 @@ public class JdbcRepositoriesTestInitializer implements RepositoriesTestInitiali
 
         tables.add("system_tasks");
 
-        Connection connection = Flowable.fromPublisher(connectionFactory.create()).blockingFirst();
+        Connection connection = RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(connectionFactory.create())).blockFirst();
         connection.beginTransaction();
         tables.stream().forEach(table -> {
-            Flowable.fromPublisher(connection.createStatement("delete from " + table).execute()).subscribeOn(Schedulers.single()).blockingSubscribe();
+            RxJava2Adapter.fluxToFlowable(Flux.from(connection.createStatement("delete from " + table).execute())).subscribeOn(Schedulers.single()).blockingSubscribe();
         });
         connection.commitTransaction();
         connection.close();

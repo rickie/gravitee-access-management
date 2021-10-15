@@ -22,7 +22,6 @@ import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +32,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -55,9 +56,8 @@ public class ReporterPluginResource {
             @PathParam("reporter") String reporterId,
             @Suspended final AsyncResponse response) {
 
-        reporterPluginService.findById(reporterId)
-                .switchIfEmpty(Maybe.error(new ReporterPluginNotFoundException(reporterId)))
-                .map(reporterPlugin -> Response.ok(reporterPlugin).build())
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(reporterPluginService.findById(reporterId)
+                .switchIfEmpty(Maybe.error(new ReporterPluginNotFoundException(reporterId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPlugin -> Response.ok(reporterPlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -70,11 +70,10 @@ public class ReporterPluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the identity provider exists
-        reporterPluginService.findById(reporterId)
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(reporterPluginService.findById(reporterId)
                 .switchIfEmpty(Maybe.error(new ReporterPluginNotFoundException(reporterId)))
                 .flatMap(irrelevant -> reporterPluginService.getSchema(reporterId))
-                .switchIfEmpty(Maybe.error(new ReporterPluginSchemaNotFoundException(reporterId)))
-                .map(reporterPluginSchema -> Response.ok(reporterPluginSchema).build())
+                .switchIfEmpty(Maybe.error(new ReporterPluginSchemaNotFoundException(reporterId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPluginSchema -> Response.ok(reporterPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

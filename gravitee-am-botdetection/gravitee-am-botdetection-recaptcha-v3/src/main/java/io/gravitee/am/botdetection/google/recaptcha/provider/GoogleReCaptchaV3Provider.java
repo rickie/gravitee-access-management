@@ -24,12 +24,14 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.net.URI;
+import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.net.URI;
-import java.net.URL;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -70,12 +72,11 @@ public class GoogleReCaptchaV3Provider implements BotDetectionProvider  {
 
         if (token == null || "".equals(token.trim())) {
             LOGGER.debug("Recaptcha token is empty");
-            return Single.just(false);
+            return RxJava2Adapter.monoToSingle(Mono.just(false));
         }
 
-        return client.post(URI.create(configuration.getServiceUrl()).toString())
-                .rxSendForm(MultiMap.caseInsensitiveMultiMap().set("secret", configuration.getSecretKey()).set("response", token))
-                .map(buffer -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.post(URI.create(configuration.getServiceUrl()).toString())
+                .rxSendForm(MultiMap.caseInsensitiveMultiMap().set("secret", configuration.getSecretKey()).set("response", token))).map(RxJavaReactorMigrationUtil.toJdkFunction(buffer -> {
 
                     if (buffer.statusCode() != 200) {
                         LOGGER.error("An error occurred when trying to validate ReCaptcha token. (status={}/message={})", buffer.statusCode(), buffer.statusMessage());
@@ -91,10 +92,10 @@ public class GoogleReCaptchaV3Provider implements BotDetectionProvider  {
 
                     // Result should be successful and score above 0.5.
                     return (success && score >= configuration.getMinScore());
-                })
+                })))
                 .onErrorResumeNext(throwable -> {
                     LOGGER.error("An error occurred when trying to validate ReCaptcha token.", throwable);
-                    return Single.just(false);
+                    return RxJava2Adapter.monoToSingle(Mono.just(false));
                 });
     }
 }

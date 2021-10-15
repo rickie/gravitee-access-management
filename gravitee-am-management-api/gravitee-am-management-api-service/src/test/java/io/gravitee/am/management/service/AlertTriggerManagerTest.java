@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.alert.api.trigger.Trigger;
 import io.gravitee.alert.api.trigger.TriggerProvider;
 import io.gravitee.am.common.event.Action;
@@ -40,17 +43,16 @@ import io.gravitee.common.event.impl.SimpleEvent;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.env.MockEnvironment;
-
-import java.util.Collections;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -111,9 +113,9 @@ public class AlertTriggerManagerTest {
         final AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setId(ALERT_NOTIFIER_ID);
 
-        when(domainService.findAllByCriteria(new DomainCriteria())).thenReturn(Flowable.just(domain));
-        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(Flowable.just(alertTrigger));
-        when(alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)).thenReturn(Flowable.just(alertNotifier));
+        when(domainService.findAllByCriteria(new DomainCriteria())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(domain)));
+        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertTrigger)));
+        when(alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertNotifier)));
 
         this.cut.doOnConnect();
 
@@ -143,9 +145,9 @@ public class AlertTriggerManagerTest {
         final AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setId(ALERT_NOTIFIER_ID);
 
-        when(domainService.findById(domain.getId())).thenReturn(Maybe.just(domain));
-        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(Flowable.just(alertTrigger));
-        when(alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)).thenReturn(Flowable.just(alertNotifier));
+        when(domainService.findById(domain.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertTrigger)));
+        when(alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertNotifier)));
 
         this.cut.onDomainEvent(event);
 
@@ -174,9 +176,9 @@ public class AlertTriggerManagerTest {
         final AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setId(ALERT_NOTIFIER_ID);
 
-        when(domainService.findById(domain.getId())).thenReturn(Maybe.just(domain));
-        when(alertTriggerService.getById(ALERT_TRIGGER_ID)).thenReturn(Single.just(alertTrigger));
-        when(alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)).thenReturn(Flowable.just(alertNotifier));
+        when(domainService.findById(domain.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(alertTriggerService.getById(ALERT_TRIGGER_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(alertTrigger)));
+        when(alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertNotifier)));
 
         this.cut.onAlertTriggerEvent(event);
 
@@ -211,9 +213,9 @@ public class AlertTriggerManagerTest {
         final AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setId(ALERT_NOTIFIER_ID);
 
-        when(domainService.findById(domain.getId())).thenReturn(Maybe.just(domain));
-        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, alertTriggerCriteria)).thenReturn(Flowable.just(alertTrigger));
-        when(alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)).thenReturn(Flowable.just(alertNotifier));
+        when(domainService.findById(domain.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, alertTriggerCriteria)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertTrigger)));
+        when(alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertNotifier)));
 
         this.cut.onAlertNotifierEvent(event);
 
@@ -232,7 +234,7 @@ public class AlertTriggerManagerTest {
         domain.setAlertEnabled(true);
         domain.setEnabled(false);
 
-        when(domainService.findById(domain.getId())).thenReturn(Maybe.just(domain));
+        when(domainService.findById(domain.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
 
         this.cut.onAlertNotifierEvent(event);
 
@@ -251,7 +253,7 @@ public class AlertTriggerManagerTest {
         domain.setAlertEnabled(false);
         domain.setEnabled(true);
 
-        when(domainService.findById(domain.getId())).thenReturn(Maybe.just(domain));
+        when(domainService.findById(domain.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
 
         this.cut.onAlertNotifierEvent(event);
 

@@ -26,8 +26,7 @@ import io.gravitee.common.http.MediaType;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.util.stream.Collectors;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -36,7 +35,9 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
-import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -63,8 +64,7 @@ public class SystemRoleResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
 
         // No permission needed to read system role.
-        roleService.findById(ReferenceType.PLATFORM, Platform.DEFAULT, role)
-                .map(this::convert)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(roleService.findById(ReferenceType.PLATFORM, Platform.DEFAULT, role)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)))
                 .subscribe(response::resume, response::resume);
     }
 

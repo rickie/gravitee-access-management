@@ -43,6 +43,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -81,9 +84,9 @@ public class SocialAuthenticationProviderTest {
 
         Client client = new Client();
 
-        when(userAuthenticationManager.connect(any())).thenReturn(Single.just(new User()));
+        when(userAuthenticationManager.connect(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
 
-        when(authenticationProvider.loadUserByUsername(any(EndUserAuthentication.class))).thenReturn(Maybe.just(user));
+        when(authenticationProvider.loadUserByUsername(any(EndUserAuthentication.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
         when(routingContext.get("client")).thenReturn(client);
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.request()).thenReturn(httpServerRequest);
@@ -113,7 +116,7 @@ public class SocialAuthenticationProviderTest {
 
         Client client = new Client();
 
-        when(authenticationProvider.loadUserByUsername(any(EndUserAuthentication.class))).thenReturn(Maybe.error(BadCredentialsException::new));
+        when(authenticationProvider.loadUserByUsername(any(EndUserAuthentication.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(BadCredentialsException::new))));
         when(routingContext.get("client")).thenReturn(client);
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.request()).thenReturn(httpServerRequest);
@@ -143,7 +146,7 @@ public class SocialAuthenticationProviderTest {
 
         Client client = new Client();
 
-        when(authenticationProvider.loadUserByUsername(any(EndUserAuthentication.class))).thenReturn(Maybe.empty());
+        when(authenticationProvider.loadUserByUsername(any(EndUserAuthentication.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         when(routingContext.get("client")).thenReturn(client);
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.request()).thenReturn(httpServerRequest);

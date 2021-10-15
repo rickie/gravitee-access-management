@@ -39,8 +39,9 @@ import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -49,9 +50,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -88,13 +88,12 @@ public class ApplicationMembersResource extends AbstractResource {
             @PathParam("application") String application,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_MEMBER, Acl.LIST)
-                .andThen(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_MEMBER, Acl.LIST)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> applicationService.findById(application))
                         .switchIfEmpty(Maybe.error(new ApplicationNotFoundException(application)))
                         .flatMapSingle(application1 -> membershipService.findByReference(application1.getId(), ReferenceType.APPLICATION).toList())
-                        .flatMap(memberships -> membershipService.getMetadata(memberships).map(metadata -> new MembershipListItem(memberships, metadata))))
+                        .flatMap(memberships -> membershipService.getMetadata(memberships).map(metadata -> new MembershipListItem(memberships, metadata)))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -125,8 +124,7 @@ public class ApplicationMembersResource extends AbstractResource {
         membership.setReferenceId(application);
         membership.setReferenceType(ReferenceType.APPLICATION);
 
-        checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_MEMBER, Acl.CREATE)
-                .andThen(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_MEMBER, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> applicationService.findById(application))
                         .switchIfEmpty(Maybe.error(new ApplicationNotFoundException(application)))
@@ -135,7 +133,7 @@ public class ApplicationMembersResource extends AbstractResource {
                                 .andThen(Single.just(Response
                                         .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/applications/" + application + "/members/" + membership1.getId()))
                                         .entity(membership1)
-                                        .build()))))
+                                        .build())))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -159,9 +157,8 @@ public class ApplicationMembersResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.READ)
-                .andThen(permissionService.findAllPermissions(authenticatedUser, ReferenceType.APPLICATION, application)
-                        .map(Permission::flatten))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(permissionService.findAllPermissions(authenticatedUser, ReferenceType.APPLICATION, application)
+                        .map(Permission::flatten)))))
                 .subscribe(response::resume, response::resume);
     }
 

@@ -49,6 +49,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Rémi SULTAN (remi.sultan at graviteesource.com)
@@ -98,7 +100,7 @@ public class IdentifierFirstLoginEndpointTest extends RxWebTestBase {
     @Test
     public void mustInvokeIdentifierFirstLoginEndpoint() throws Exception {
         router.route(HttpMethod.GET, "/login/identifier").handler(get200AssertMockRoutingContextHandler(identifierFirstLoginEndpoint));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(Maybe.just(appClient));
+        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
         testRequest(
                 HttpMethod.GET, "/login/identifier?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.OK_200, "OK");
@@ -113,7 +115,7 @@ public class IdentifierFirstLoginEndpointTest extends RxWebTestBase {
 
     @Test
     public void mustNotInvokeIdentifierFirstLoginEndpoint_wrongClientId() throws Exception {
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(Maybe.empty());
+        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         testRequest(
                 HttpMethod.GET, "/login/identifier?client_id=" + appClient.getClientId(),
                 HttpStatusCode.BAD_REQUEST_400, "Bad Request");

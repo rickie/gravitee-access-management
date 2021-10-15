@@ -23,17 +23,18 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.reporter.api.audit.model.Audit;
 import io.gravitee.am.service.DomainService;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -59,8 +60,7 @@ public class AuditResource extends AbstractResource {
             @PathParam("audit") String audit,
             @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_AUDIT, Acl.READ)
-                .andThen(auditService.findById(ReferenceType.ORGANIZATION, organizationId, audit))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_AUDIT, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(auditService.findById(ReferenceType.ORGANIZATION, organizationId, audit)))))
                 .subscribe(response::resume, response::resume);
     }
 

@@ -15,9 +15,12 @@
  */
 package io.gravitee.am.gateway.handler.common.auth;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.exception.authentication.AccountDisabledException;
-import io.gravitee.am.gateway.handler.common.auth.user.impl.UserAuthenticationServiceImpl;
 import io.gravitee.am.gateway.handler.common.auth.user.UserAuthenticationService;
+import io.gravitee.am.gateway.handler.common.auth.user.impl.UserAuthenticationServiceImpl;
 import io.gravitee.am.gateway.handler.common.user.UserService;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Group;
@@ -26,19 +29,17 @@ import io.gravitee.am.model.User;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -74,10 +75,10 @@ public class UserAuthenticationServiceTest {
         when(createdUser.isEnabled()).thenReturn(true);
 
         when(domain.getId()).thenReturn(domainId);
-        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(Maybe.empty());
-        when(userService.findByDomainAndUsernameAndSource(domainId, username, source)).thenReturn(Maybe.empty());
-        when(userService.create(any())).thenReturn(Single.just(createdUser));
-        when(userService.enhance(createdUser)).thenReturn(Single.just(createdUser));
+        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userService.findByDomainAndUsernameAndSource(domainId, username, source)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(createdUser)));
+        when(userService.enhance(createdUser)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(createdUser)));
 
         TestObserver testObserver = userAuthenticationService.connect(user).test();
         testObserver.awaitTerminalEvent();
@@ -103,9 +104,9 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.isEnabled()).thenReturn(true);
 
         when(domain.getId()).thenReturn(domainId);
-        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(Maybe.just(mock(User.class)));
-        when(userService.update(any())).thenReturn(Single.just(updatedUser));
-        when(userService.enhance(updatedUser)).thenReturn(Single.just(updatedUser));
+        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(mock(User.class))));
+        when(userService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updatedUser)));
+        when(userService.enhance(updatedUser)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updatedUser)));
 
         TestObserver testObserver = userAuthenticationService.connect(user).test();
         testObserver.awaitTerminalEvent();
@@ -131,8 +132,8 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.isEnabled()).thenReturn(false);
 
         when(domain.getId()).thenReturn(domainId);
-        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(Maybe.just(mock(User.class)));
-        when(userService.update(any())).thenReturn(Single.just(updatedUser));
+        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(mock(User.class))));
+        when(userService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updatedUser)));
 
         TestObserver testObserver = userAuthenticationService.connect(user).test();
         testObserver.awaitTerminalEvent();
@@ -167,10 +168,10 @@ public class UserAuthenticationServiceTest {
         when(createdUser.getRoles()).thenReturn(Arrays.asList("idp-role", "idp2-role"));
 
         when(domain.getId()).thenReturn(domainId);
-        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(Maybe.empty());
-        when(userService.findByDomainAndUsernameAndSource(domainId, username, source)).thenReturn(Maybe.empty());
-        when(userService.create(any())).thenReturn(Single.just(createdUser));
-        when(userService.enhance(createdUser)).thenReturn(Single.just(createdUser));
+        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userService.findByDomainAndUsernameAndSource(domainId, username, source)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(createdUser)));
+        when(userService.enhance(createdUser)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(createdUser)));
 
         TestObserver<User> testObserver = userAuthenticationService.connect(user).test();
         testObserver.awaitTerminalEvent();
@@ -206,9 +207,9 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.getRoles()).thenReturn(Arrays.asList("idp-role", "idp2-role"));
 
         when(domain.getId()).thenReturn(domainId);
-        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(Maybe.just(mock(User.class)));
-        when(userService.update(any())).thenReturn(Single.just(updatedUser));
-        when(userService.enhance(updatedUser)).thenReturn(Single.just(updatedUser));
+        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(mock(User.class))));
+        when(userService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updatedUser)));
+        when(userService.enhance(updatedUser)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updatedUser)));
 
         TestObserver<User> testObserver = userAuthenticationService.connect(user).test();
         testObserver.awaitTerminalEvent();
@@ -245,9 +246,9 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.getRoles()).thenReturn(Arrays.asList("group-role", "group2-role"));
 
         when(domain.getId()).thenReturn(domainId);
-        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(Maybe.just(mock(User.class)));
-        when(userService.update(any())).thenReturn(Single.just(updatedUser));
-        when(userService.enhance(updatedUser)).thenReturn(Single.just(updatedUser));
+        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(mock(User.class))));
+        when(userService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updatedUser)));
+        when(userService.enhance(updatedUser)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updatedUser)));
 
         TestObserver<User> testObserver = userAuthenticationService.connect(user).test();
         testObserver.awaitTerminalEvent();
@@ -282,9 +283,9 @@ public class UserAuthenticationServiceTest {
         existingAdditionalInformation.put("op_id_token", "token1");
         existingUser.setAdditionalInformation(existingAdditionalInformation);
 
-        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(Maybe.just(existingUser));
-        when(userService.update(any())).thenReturn(Single.just(updatedUser));
-        when(userService.enhance(updatedUser)).thenReturn(Single.just(updatedUser));
+        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingUser)));
+        when(userService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updatedUser)));
+        when(userService.enhance(updatedUser)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updatedUser)));
 
         TestObserver<User> testObserver = userAuthenticationService.connect(user).test();
         testObserver.awaitTerminalEvent();
@@ -319,9 +320,9 @@ public class UserAuthenticationServiceTest {
         existingAdditionalInformation.put("op_id_token", "token1");
         existingUser.setAdditionalInformation(existingAdditionalInformation);
 
-        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(Maybe.just(existingUser));
-        when(userService.update(any())).thenReturn(Single.just(updatedUser));
-        when(userService.enhance(updatedUser)).thenReturn(Single.just(updatedUser));
+        when(userService.findByDomainAndExternalIdAndSource(domainId, id, source)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingUser)));
+        when(userService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updatedUser)));
+        when(userService.enhance(updatedUser)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(updatedUser)));
 
         TestObserver<User> testObserver = userAuthenticationService.connect(user).test();
         testObserver.awaitTerminalEvent();

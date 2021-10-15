@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Factor;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -27,9 +29,9 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -52,22 +54,19 @@ public class JdbcFactorRepository extends AbstractJdbcRepository implements Fact
     @Override
     public Flowable<Factor> findAll() {
         LOGGER.debug("findAll()");
-        return factorRepository.findAll()
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(factorRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Flowable<Factor> findByDomain(String domain) {
         LOGGER.debug("findByDomain({})", domain);
-        return factorRepository.findByDomain(domain)
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(factorRepository.findByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Maybe<Factor> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return factorRepository.findById(id)
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(factorRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -80,14 +79,13 @@ public class JdbcFactorRepository extends AbstractJdbcRepository implements Fact
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
     public Single<Factor> update(Factor item) {
         LOGGER.debug("update factor with id {}", item.getId());
-        return this.factorRepository.save(toJdbcEntity(item))
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.factorRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override

@@ -18,10 +18,11 @@ package io.gravitee.am.certificate.api;
 import io.gravitee.am.model.jose.JWK;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-
 import java.security.cert.Certificate;
 import java.util.Collections;
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -46,6 +47,6 @@ public interface CertificateProvider {
     }
 
     default Single<List<CertificateKey>> publicKeys() {
-        return Single.just(Collections.emptyList());
+        return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()));
     }
 }

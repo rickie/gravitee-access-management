@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.gateway.handler.saml2.resources.endpoint;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
 import io.gravitee.am.gateway.handler.saml2.service.sp.ServiceProviderService;
 import io.gravitee.am.identityprovider.api.Metadata;
@@ -30,11 +35,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -58,7 +60,7 @@ public class ServiceProviderMetadataEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeEndpoint_invalidProvider() throws Exception {
-        when(serviceProviderService.metadata(eq("unknown-provider"), anyString())).thenReturn(Single.error(new IdentityProviderNotFoundException("unknown-provider")));
+        when(serviceProviderService.metadata(eq("unknown-provider"), anyString())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new IdentityProviderNotFoundException("unknown-provider"))));
 
         testRequest(
                 HttpMethod.GET, "/sp/metadata/unknown-provider",
@@ -67,7 +69,7 @@ public class ServiceProviderMetadataEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeEndpoint_invalidMetadata() throws Exception {
-        when(serviceProviderService.metadata(eq("unknown-provider"), anyString())).thenReturn(Single.error(new IdentityProviderMetadataNotFoundException("unknown-provider")));
+        when(serviceProviderService.metadata(eq("unknown-provider"), anyString())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new IdentityProviderMetadataNotFoundException("unknown-provider"))));
 
         testRequest(
                 HttpMethod.GET, "/sp/metadata/unknown-provider",
@@ -81,7 +83,7 @@ public class ServiceProviderMetadataEndpointTest extends RxWebTestBase {
         Metadata metadata = mock(Metadata.class);
         when(metadata.getHeaders()).thenReturn(httpHeaders);
         when(metadata.getBody()).thenReturn("<xml></xml>");
-        when(serviceProviderService.metadata(eq("provider-id"), anyString())).thenReturn(Single.just(metadata));
+        when(serviceProviderService.metadata(eq("provider-id"), anyString())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(metadata)));
 
         testRequest(
                 HttpMethod.GET,

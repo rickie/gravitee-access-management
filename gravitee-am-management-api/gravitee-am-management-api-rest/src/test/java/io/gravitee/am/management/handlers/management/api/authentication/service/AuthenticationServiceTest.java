@@ -40,6 +40,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -87,11 +90,11 @@ public class AuthenticationServiceTest {
         user.setReferenceId(ORGANIZATION_ID);
 
         when(authenticationMock.getPrincipal()).thenReturn(userDetailsMock);
-        when(userServiceMock.findByExternalIdAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(Maybe.empty());
-        when(userServiceMock.findByUsernameAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(Maybe.empty());
-        when(userServiceMock.create(any(User.class))).thenReturn(Single.just(user));
-        when(userServiceMock.setRoles(any(), any(User.class))).thenReturn(Completable.complete());
-        when(userServiceMock.enhance(any())).thenReturn(Single.just(user));
+        when(userServiceMock.findByExternalIdAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userServiceMock.findByUsernameAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userServiceMock.create(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(userServiceMock.setRoles(any(), any(User.class))).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(userServiceMock.enhance(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
         authenticationService.onAuthenticationSuccess(authenticationMock);
 
         verify(userServiceMock, times(1)).findByExternalIdAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null);
@@ -104,9 +107,9 @@ public class AuthenticationServiceTest {
     @Test
     public void shouldUpdatedUser() {
         when(authenticationMock.getPrincipal()).thenReturn(userDetailsMock);
-        when(userServiceMock.findByExternalIdAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(Maybe.just(repositoryUserMock));
-        when(userServiceMock.update(any(User.class))).thenReturn(Single.just(new User()));
-        when(userServiceMock.enhance(any())).thenReturn(Single.just(new User()));
+        when(userServiceMock.findByExternalIdAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(repositoryUserMock)));
+        when(userServiceMock.update(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
+        when(userServiceMock.enhance(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
 
         authenticationService.onAuthenticationSuccess(authenticationMock);
 
@@ -128,14 +131,14 @@ public class AuthenticationServiceTest {
 
         when(authenticationMock.getPrincipal()).thenReturn(userDetailsMock);
 
-        when(userServiceMock.findByExternalIdAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(Maybe.just(repositoryUserMock));
-        when(userServiceMock.update(any(User.class))).thenReturn(Single.just(new User()));
-        when(userServiceMock.enhance(any())).thenReturn(Single.just(new User()));
+        when(userServiceMock.findByExternalIdAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(repositoryUserMock)));
+        when(userServiceMock.update(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
+        when(userServiceMock.enhance(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
 
-        when(roleServiceMock.findById(ReferenceType.ORGANIZATION, "organization-id", "organization-owner-role-id")).thenReturn(Single.just(new Role()));
+        when(roleServiceMock.findById(ReferenceType.ORGANIZATION, "organization-id", "organization-owner-role-id")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Role())));
 
-        when(membershipServiceMock.findByMember("user-id", MemberType.USER)).thenReturn(Flowable.just(membershipMock));
-        when(membershipServiceMock.addOrUpdate(anyString(), any(Membership.class))).thenReturn(Single.just(new Membership()));
+        when(membershipServiceMock.findByMember("user-id", MemberType.USER)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(membershipMock)));
+        when(membershipServiceMock.addOrUpdate(anyString(), any(Membership.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Membership())));
 
         authenticationService.onAuthenticationSuccess(authenticationMock);
 

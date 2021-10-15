@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.mongodb.oauth2;
 
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
@@ -26,14 +28,13 @@ import io.gravitee.common.util.MultiValueMap;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import org.bson.Document;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -59,10 +60,9 @@ public class MongoAuthorizationCodeRepository extends AbstractOAuth2MongoReposit
     }
 
     private Maybe<AuthorizationCode> findById(String id) {
-        return Observable
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
                 .fromPublisher(authorizationCodeCollection.find(eq(FIELD_ID, id)).first())
-                .firstElement()
-                .map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -71,19 +71,18 @@ public class MongoAuthorizationCodeRepository extends AbstractOAuth2MongoReposit
             authorizationCode.setId(RandomString.generate());
         }
 
-        return Single
-                .fromPublisher(authorizationCodeCollection.insertOne(convert(authorizationCode)))
-                .flatMap(success -> findById(authorizationCode.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
+                .fromPublisher(authorizationCodeCollection.insertOne(convert(authorizationCode)))).flatMap(success->RxJava2Adapter.singleToMono(findById(authorizationCode.getId()).toSingle())));
     }
 
     @Override
     public Maybe<AuthorizationCode> delete(String code) {
-        return Observable.fromPublisher(authorizationCodeCollection.findOneAndDelete(eq(FIELD_ID, code))).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(authorizationCodeCollection.findOneAndDelete(eq(FIELD_ID, code))).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<AuthorizationCode> findByCode(String code) {
-        return Observable.fromPublisher(authorizationCodeCollection.find(eq(FIELD_CODE, code)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(authorizationCodeCollection.find(eq(FIELD_CODE, code)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     private AuthorizationCode convert(AuthorizationCodeMongo authorizationCodeMongo) {

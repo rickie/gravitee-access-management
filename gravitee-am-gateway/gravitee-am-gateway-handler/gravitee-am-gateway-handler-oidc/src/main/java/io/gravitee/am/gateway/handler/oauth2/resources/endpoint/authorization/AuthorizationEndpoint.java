@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.endpoint.authorization;
 
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.ACTION_KEY;
+
 import io.gravitee.am.common.oauth2.ResponseMode;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.utils.RequestUtils;
@@ -29,6 +31,7 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.ext.auth.User;
@@ -36,8 +39,7 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.ACTION_KEY;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * The authorization endpoint is used to interact with the resource owner and obtain an authorization grant.
@@ -82,11 +84,10 @@ public class AuthorizationEndpoint implements Handler<RoutingContext> {
         io.gravitee.am.model.User endUser = ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User) authenticatedUser.getDelegate()).getUser();
 
         final String uriIdentifier = context.get(ConstantKeys.REQUEST_URI_ID_KEY);
-        parService.deleteRequestUri(uriIdentifier).onErrorResumeNext((err) -> {
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(parService.deleteRequestUri(uriIdentifier).onErrorResumeNext((err) -> {
             logger.warn("Deletion of Pushed Authorization Request with id '{}' failed", uriIdentifier, err);
             return Completable.complete();
-        })
-                .andThen(flow.run(request, client, endUser))
+        })).then(RxJava2Adapter.singleToMono(Single.wrap(flow.run(request, client, endUser)))))
                 .subscribe(
                         authorizationResponse -> {
                             try {

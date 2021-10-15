@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.root.service.user.impl;
 
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.exception.authentication.AccountInactiveException;
+import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.common.oidc.idtoken.Claims;
 import io.gravitee.am.common.utils.RandomString;
@@ -47,13 +48,19 @@ import io.gravitee.am.service.reporter.builder.management.UserAuditBuilder;
 import io.gravitee.am.service.validators.EmailValidator;
 import io.gravitee.am.service.validators.UserValidator;
 import io.reactivex.*;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.functions.Predicate;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.StringUtils;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -96,14 +103,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Maybe<UserToken> verifyToken(String token) {
-        return Maybe.fromCallable(() -> jwtParser.parse(token))
-                .flatMap(jwt -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Maybe.fromCallable(() -> jwtParser.parse(token))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<UserToken>>toJdkFunction(jwt -> {
                     return userService.findById(jwt.getSub())
                             .zipWith(clientSource(jwt.getAud()),
                                     (user, optionalClient) -> {
                                 return new UserToken(user, optionalClient.orElse(null), jwt);
                             });
-                });
+                }).apply(v)))));
     }
 
     @Override
@@ -114,8 +120,7 @@ public class UserServiceImpl implements UserService {
                 : (user.getSource() == null ? DEFAULT_IDP_PREFIX + domain.getId() : user.getSource());
 
         // validate user and then check user uniqueness
-        return userValidator.validate(user)
-                .andThen(userService.findByDomainAndUsernameAndSource(domain.getId(), user.getUsername(), source)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(Single.wrap(userService.findByDomainAndUsernameAndSource(domain.getId(), user.getUsername(), source)
                         .isEmpty()
                         .flatMapMaybe(isEmpty -> {
                             if (!isEmpty) {
@@ -159,14 +164,14 @@ public class UserServiceImpl implements UserService {
                             io.gravitee.am.identityprovider.api.User principal1 = reloadPrincipal(principal, user1);
                             auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(client).principal(principal1).type(EventType.USER_REGISTERED));
                         })
-                        .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_REGISTERED).throwable(throwable))));
+                        .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_REGISTERED).throwable(throwable)))))));
     }
 
     @Override
     public Single<RegistrationResponse> confirmRegistration(Client client, User user, io.gravitee.am.identityprovider.api.User
             principal) {
         // user has completed his account, add it to the idp
-        return identityProviderManager.getUserProvider(user.getSource())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(identityProviderManager.getUserProvider(user.getSource())
                 .switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource())))
                 // update the idp user
                 .flatMapSingle(userProvider -> {
@@ -203,8 +208,7 @@ public class UserServiceImpl implements UserService {
                     AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
                     return new RegistrationResponse(user1, accountSettings != null ? accountSettings.getRedirectUriAfterRegistration() : null, accountSettings != null ? accountSettings.isAutoLoginAfterRegistration() : false);
                 })
-                .doOnSuccess(response -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.REGISTRATION_CONFIRMATION)))
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.REGISTRATION_CONFIRMATION).throwable(throwable)));
+                .doOnSuccess(response -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.REGISTRATION_CONFIRMATION)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.REGISTRATION_CONFIRMATION).throwable(throwable)))));
 
     }
 
@@ -215,11 +219,11 @@ public class UserServiceImpl implements UserService {
 
         // if user registration is not completed and force registration option is disabled throw invalid account exception
         if (user.isInactive() && !forceUserRegistration(domain, client)) {
-            return Single.error(new AccountInactiveException("User needs to complete the activation process"));
+            return RxJava2Adapter.monoToSingle(Mono.error(new AccountInactiveException("User needs to complete the activation process")));
         }
 
         // only idp manage password, find user idp and update its password
-        return identityProviderManager.getUserProvider(user.getSource())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(identityProviderManager.getUserProvider(user.getSource())
                 .switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource())))
                 // update the idp user
                 .flatMapSingle(userProvider -> {
@@ -281,8 +285,7 @@ public class UserServiceImpl implements UserService {
                 })
                 .flatMap(userService::enhance)
                 .map(user1 -> new ResetPasswordResponse(user1, accountSettings != null ? accountSettings.getRedirectUriAfterResetPassword() : null, accountSettings != null ? accountSettings.isAutoLoginAfterResetPassword() : false))
-                .doOnSuccess(response -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_PASSWORD_RESET)))
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_PASSWORD_RESET).throwable(throwable)));
+                .doOnSuccess(response -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_PASSWORD_RESET)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_PASSWORD_RESET).throwable(throwable)))));
     }
 
     @Override
@@ -290,10 +293,10 @@ public class UserServiceImpl implements UserService {
 
         final String email = params.getEmail();
         if (email != null && !EmailValidator.isValid(email)) {
-            return Completable.error(new EmailFormatInvalidException(email));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new EmailFormatInvalidException(email)));
         }
 
-        return userService.findByDomainAndCriteria(domain.getId(), params.buildCriteria())
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(userService.findByDomainAndCriteria(domain.getId(), params.buildCriteria())
                 .flatMap(users -> {
                     List<User> foundUsers = new ArrayList<>(users);
                     // narrow users
@@ -401,8 +404,7 @@ public class UserServiceImpl implements UserService {
                     io.gravitee.am.identityprovider.api.User principal1 = reloadPrincipal(principal, user1);
                     auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(client).principal(principal1).type(EventType.FORGOT_PASSWORD_REQUESTED));
                 })
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(client).principal(principal).type(EventType.FORGOT_PASSWORD_REQUESTED).throwable(throwable)))
-                .ignoreElement();
+                .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(client).principal(principal).type(EventType.FORGOT_PASSWORD_REQUESTED).throwable(throwable)))).then());
     }
 
     @Override
@@ -412,12 +414,11 @@ public class UserServiceImpl implements UserService {
 
     private MaybeSource<Optional<Client>> clientSource(String audience) {
         if (audience == null) {
-            return Maybe.just(Optional.empty());
+            return RxJava2Adapter.monoToMaybe(Mono.just(Optional.empty()));
         }
 
-        return clientSyncService.findById(audience)
-                .map(Optional::of)
-                .defaultIfEmpty(Optional.empty());
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(clientSyncService.findById(audience)
+                .map(Optional::of)).defaultIfEmpty(Optional.empty()));
     }
 
     private boolean forceUserRegistration(Domain domain, Client client) {

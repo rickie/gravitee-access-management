@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.management.service.impl.commands;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.management.service.OrganizationUserService;
 import io.gravitee.am.model.ReferenceType;
@@ -28,17 +32,14 @@ import io.gravitee.cockpit.api.command.user.UserPayload;
 import io.gravitee.cockpit.api.command.user.UserReply;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.HashMap;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -90,7 +91,7 @@ public class UserCommandHandlerTest {
                         && newUser.getAdditionalInformation().get("info1").equals(additionalInformation.get("info1"))
                         && newUser.getAdditionalInformation().get("info2").equals(additionalInformation.get("info2"))
                         && newUser.getAdditionalInformation().get(StandardClaims.PICTURE).equals(userPayload.getPicture()))))
-                .thenReturn(Single.just(new User()));
+                .thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
 
         TestObserver<UserReply> obs = cut.handle(command).test();
 
@@ -108,7 +109,7 @@ public class UserCommandHandlerTest {
         userPayload.setOrganizationId("orga#1");
 
         when(userService.createOrUpdate(eq(ReferenceType.ORGANIZATION), eq("orga#1"), any(NewUser.class)))
-                .thenReturn(Single.error(new TechnicalException()));
+                .thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException())));
 
         TestObserver<UserReply> obs = cut.handle(command).test();
 

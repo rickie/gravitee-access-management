@@ -23,14 +23,20 @@ import io.gravitee.am.service.exception.AbstractManagementException;
 import io.gravitee.am.service.exception.CredentialNotFoundException;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.reactivex.*;
+import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
+import io.reactivex.Maybe;
+import io.reactivex.functions.Function;
+import java.util.Date;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
-import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -51,42 +57,39 @@ public class CredentialServiceImpl implements CredentialService {
         return credentialRepository.findById(id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a credential using its ID: {}", id, ex);
-                    return Maybe.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a credential using its ID: %s", id), ex));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a credential using its ID: %s", id), ex)));
                 });
     }
 
     @Override
     public Flowable<Credential> findByUserId(ReferenceType referenceType, String referenceId, String userId) {
         LOGGER.debug("Find credentials by {} {} and user id: {}", referenceType, referenceId, userId);
-        return credentialRepository.findByUserId(referenceType, referenceId, userId)
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(credentialRepository.findByUserId(referenceType, referenceId, userId)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a credential using {} {} and user id: {}", referenceType, referenceId, userId, ex);
                     return Flowable.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a credential using %s %s and user id: %s", referenceType, referenceId, userId), ex));
-                });
+                })));
     }
 
     @Override
     public Flowable<Credential> findByUsername(ReferenceType referenceType, String referenceId, String username) {
         LOGGER.debug("Find credentials by {} {} and username: {}", referenceType, referenceId, username);
-        return credentialRepository.findByUsername(referenceType, referenceId, username)
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(credentialRepository.findByUsername(referenceType, referenceId, username)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a credential using {} {} and username: {}", referenceType, referenceId, username, ex);
                     return Flowable.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a credential using %s %s and username: %s", referenceType, referenceId, username), ex));
-                });
+                })));
     }
 
     @Override
     public Flowable<Credential> findByCredentialId(ReferenceType referenceType, String referenceId, String credentialId) {
         LOGGER.debug("Find credentials by {} {} and credential ID: {}", referenceType, referenceId, credentialId);
-        return credentialRepository.findByCredentialId(referenceType, referenceId, credentialId)
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(credentialRepository.findByCredentialId(referenceType, referenceId, credentialId)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a credential using {} {} and credential ID: {}", referenceType, referenceId, credentialId, ex);
                     return Flowable.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a credential using %s %s and credential ID: %s", referenceType, referenceId, credentialId), ex));
-                });
+                })));
     }
 
     @Override
@@ -95,32 +98,31 @@ public class CredentialServiceImpl implements CredentialService {
         return credentialRepository.create(credential)
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to create a credential", ex);
-                    return Single.error(new TechnicalManagementException("An error occurs while trying to create a credential", ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a credential", ex)));
                 });
     }
 
     @Override
     public Single<Credential> update(Credential credential) {
         LOGGER.debug("Update a credential {}", credential);
-        return credentialRepository.findById(credential.getId())
-                .switchIfEmpty(Maybe.error(new CredentialNotFoundException(credential.getId())))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(credentialRepository.findById(credential.getId())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new CredentialNotFoundException(credential.getId()))))))
                 .flatMapSingle(__ -> credentialRepository.update(credential))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to update a credential", ex);
-                    return Single.error(new TechnicalManagementException("An error occurs while trying to update a credential", ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a credential", ex)));
                 });
     }
 
     @Override
     public Completable update(ReferenceType referenceType, String referenceId, String credentialId, Credential credential) {
         LOGGER.debug("Update a credential {}", credentialId);
-        return credentialRepository.findByCredentialId(referenceType, referenceId, credentialId)
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(credentialRepository.findByCredentialId(referenceType, referenceId, credentialId)
                 .flatMapSingle(credentialToUpdate -> {
                     // update only business values (i.e not set via the vert.x authenticator object)
                     credentialToUpdate.setUserId(credential.getUserId());
@@ -129,23 +131,21 @@ public class CredentialServiceImpl implements CredentialService {
                     credentialToUpdate.setUpdatedAt(new Date());
                     credentialToUpdate.setAccessedAt(credentialToUpdate.getUpdatedAt());
                     return credentialRepository.update(credentialToUpdate);
-                })
-                .ignoreElements();
+                })).ignoreElements().then());
     }
 
     @Override
     public Completable delete(String id) {
         LOGGER.debug("Delete credential {}", id);
-        return credentialRepository.findById(id)
-                .switchIfEmpty(Maybe.error(new CredentialNotFoundException(id)))
-                .flatMapCompletable(email -> credentialRepository.delete(id))
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(credentialRepository.findById(id)
+                .switchIfEmpty(Maybe.error(new CredentialNotFoundException(id)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Credential, CompletableSource>)email -> credentialRepository.delete(id)).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Completable.error(ex);
+                        return RxJava2Adapter.monoToCompletable(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to delete credential: {}", id, ex);
-                    return Completable.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to delete credential: %s", id), ex));
+                    return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to delete credential: %s", id), ex)));
                 });
     }
 
@@ -155,11 +155,11 @@ public class CredentialServiceImpl implements CredentialService {
         return credentialRepository.deleteByUserId(referenceType, referenceId, userId)
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Completable.error(ex);
+                        return RxJava2Adapter.monoToCompletable(Mono.error(ex));
                     }
                     LOGGER.error("An error has occurred while trying to delete credentials using {} {} and user id: {}", referenceType, referenceId, userId, ex);
-                    return Completable.error(new TechnicalManagementException(
-                            String.format("An error has occurred while trying to delete credentials using: %s %s and user id: %s", referenceType, referenceId, userId), ex));
+                    return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
+                            String.format("An error has occurred while trying to delete credentials using: %s %s and user id: %s", referenceType, referenceId, userId), ex)));
                 });
     }
 
@@ -169,11 +169,11 @@ public class CredentialServiceImpl implements CredentialService {
         return credentialRepository.deleteByAaguid(referenceType, referenceId, aaguid)
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Completable.error(ex);
+                        return RxJava2Adapter.monoToCompletable(Mono.error(ex));
                     }
                     LOGGER.error("An error has occurred while trying to delete credentials using {} {} and aaguid: {}", referenceType, referenceId, aaguid, ex);
-                    return Completable.error(new TechnicalManagementException(
-                            String.format("An error has occurred while trying to delete credentials using: %s %s and aaguid: %s", referenceType, referenceId, aaguid), ex));
+                    return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
+                            String.format("An error has occurred while trying to delete credentials using: %s %s and aaguid: %s", referenceType, referenceId, aaguid), ex)));
                 });
     }
 }

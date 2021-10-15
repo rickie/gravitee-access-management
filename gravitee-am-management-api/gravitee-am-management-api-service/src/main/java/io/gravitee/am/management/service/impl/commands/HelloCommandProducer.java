@@ -28,6 +28,9 @@ import io.gravitee.node.api.Node;
 import io.reactivex.Single;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -61,7 +64,7 @@ public class HelloCommandProducer implements CommandProducer<HelloCommand, Hello
     @Override
     public Single<HelloCommand> prepare(HelloCommand command) {
 
-        return installationService.getOrInitialize().map(installation -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(installationService.getOrInitialize()).map(RxJavaReactorMigrationUtil.toJdkFunction(installation -> {
             command.getPayload().getNode().setInstallationId(installation.getId());
             command.getPayload().getNode().setHostname(node.hostname());
             command.getPayload().getAdditionalInformation().putAll(installation.getAdditionalInformation());
@@ -71,21 +74,20 @@ public class HelloCommandProducer implements CommandProducer<HelloCommand, Hello
             command.getPayload().setDefaultEnvironmentId(Environment.DEFAULT);
 
             return command;
-        });
+        })));
     }
 
     @Override
     public Single<HelloReply> handleReply(HelloReply reply) {
 
         if (reply.getCommandStatus() == CommandStatus.SUCCEEDED) {
-            return installationService.get().
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(installationService.get().
                     map(Installation::getAdditionalInformation)
                     .doOnSuccess(infos -> infos.put(Installation.COCKPIT_INSTALLATION_ID, reply.getInstallationId()))
                     .doOnSuccess(infos -> infos.put(Installation.COCKPIT_INSTALLATION_STATUS, reply.getInstallationStatus()))
-                    .flatMap(installationService::setAdditionalInformation)
-                    .map(installation -> reply);
+                    .flatMap(installationService::setAdditionalInformation)).map(RxJavaReactorMigrationUtil.toJdkFunction(installation -> reply)));
         }
 
-        return Single.just(reply);
+        return RxJava2Adapter.monoToSingle(Mono.just(reply));
     }
 }

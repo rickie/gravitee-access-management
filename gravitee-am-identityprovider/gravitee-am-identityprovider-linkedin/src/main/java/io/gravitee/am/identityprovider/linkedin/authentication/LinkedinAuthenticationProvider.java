@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.identityprovider.linkedin.authentication;
 
+import static io.gravitee.am.common.oauth2.Parameters.GRANT_TYPE;
+
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
 import io.gravitee.am.common.oidc.StandardClaims;
@@ -33,15 +35,15 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
-
-import java.util.*;
-
-import static io.gravitee.am.common.oauth2.Parameters.GRANT_TYPE;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -100,7 +102,7 @@ public class LinkedinAuthenticationProvider extends AbstractSocialAuthentication
         final String authorizationCode = authentication.getContext().request().parameters().getFirst(configuration.getCodeParameter());
         if (authorizationCode == null || authorizationCode.isEmpty()) {
             LOGGER.debug("Authorization code is missing, skip authentication");
-            return Maybe.error(new BadCredentialsException("Missing authorization code"));
+            return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Missing authorization code")));
         }
         List<NameValuePair> urlParameters = new ArrayList<>();
         urlParameters.add(new BasicNameValuePair(CLIENT_ID, configuration.getClientId()));
@@ -110,12 +112,11 @@ public class LinkedinAuthenticationProvider extends AbstractSocialAuthentication
         urlParameters.add(new BasicNameValuePair(GRANT_TYPE, "authorization_code"));
         String bodyRequest = URLEncodedUtils.format(urlParameters);
 
-        return client.postAbs(configuration.getAccessTokenUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(client.postAbs(configuration.getAccessTokenUri())
                 .putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(bodyRequest.length()))
                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
                 .rxSendBuffer(Buffer.buffer(bodyRequest))
-                .toMaybe()
-                .map(httpResponse -> {
+                .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                         throw new BadCredentialsException(httpResponse.statusMessage());
                     }
@@ -123,12 +124,12 @@ public class LinkedinAuthenticationProvider extends AbstractSocialAuthentication
                     JsonObject response = httpResponse.bodyAsJsonObject();
                     String accessToken = response.getString("access_token");
                     return new Token(accessToken, TokenTypeHint.ACCESS_TOKEN);
-                });
+                })));
     }
 
     @Override
     protected Maybe<User> profile(Token accessToken, Authentication authentication) {
-        return client.getAbs(configuration.getUserProfileUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(client.getAbs(configuration.getUserProfileUri())
                 .putHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken.getValue())
                 .rxSend()
                 .toMaybe()
@@ -138,26 +139,23 @@ public class LinkedinAuthenticationProvider extends AbstractSocialAuthentication
                     }
 
                     return createUser(authentication.getContext(), httpClientResponse.bodyAsJsonObject());
-                })
-                .flatMap(user -> requestEmailAddress(accessToken).map(address -> {
-                    // ask the emailAddress and complete User description using the value
-                    address.ifPresent(value -> {
-                        ((DefaultUser) user).setEmail(value);
-                        ((DefaultUser) user).setUsername(value);
-                        user.getAdditionalInformation().put(StandardClaims.EMAIL, value);
-                        user.getAdditionalInformation().put(StandardClaims.PREFERRED_USERNAME, value);
-                    });
-                    return user;
-                }));
+                })).flatMap(z->requestEmailAddress(accessToken).map((java.util.Optional<java.lang.String> address)->{
+address.ifPresent((java.lang.String value)->{
+((DefaultUser)z).setEmail(value);
+((DefaultUser)z).setUsername(value);
+z.getAdditionalInformation().put(StandardClaims.EMAIL, value);
+z.getAdditionalInformation().put(StandardClaims.PREFERRED_USERNAME, value);
+});
+return z;
+}).as(RxJava2Adapter::maybeToMono)));
     }
 
     private Maybe<Optional<String>> requestEmailAddress(Token accessToken) {
         if (configuration.getScopes().contains(SCOPE_EMAIL)) {
-            return client.getAbs(configuration.getUserEmailAddressUri())
+            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(client.getAbs(configuration.getUserEmailAddressUri())
                     .putHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken.getValue())
                     .rxSend()
-                    .toMaybe()
-                    .map(httpClientResponse -> {
+                    .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
                         if (httpClientResponse.statusCode() == 200) {
                             String email = null;
                             JsonObject payload = httpClientResponse.bodyAsJsonObject();
@@ -177,9 +175,9 @@ public class LinkedinAuthenticationProvider extends AbstractSocialAuthentication
                             LOGGER.warn("Unable to retrieve the LinkedIn email address : {}", httpClientResponse.statusMessage());
                             return Optional.empty(); // do not reject the authentication due to missing emailAddress
                         }
-                    });
+                    })));
         } else {
-            return Maybe.just(Optional.empty());
+            return RxJava2Adapter.monoToMaybe(Mono.just(Optional.empty()));
         }
     }
 

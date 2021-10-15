@@ -29,6 +29,8 @@ import io.reactivex.Completable;
 import io.reactivex.Single;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -41,7 +43,7 @@ public class MemberResourceTest extends JerseySpringTest {
 
         final String organizationId = "orga-1";
 
-        doReturn(Single.error(new OrganizationNotFoundException(organizationId))).when(organizationService).findById(organizationId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new OrganizationNotFoundException(organizationId)))).when(organizationService).findById(organizationId);
 
         final Response response = target("/organizations")
                 .path(organizationId)
@@ -60,8 +62,8 @@ public class MemberResourceTest extends JerseySpringTest {
         Organization organization = new Organization();
         organization.setId(Organization.DEFAULT);
 
-        doReturn(Single.just(organization)).when(organizationService).findById(organization.getId());
-        doReturn(Completable.complete()).when(membershipService).delete(eq(membershipId), any(User.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(organization))).when(organizationService).findById(organization.getId());
+        doReturn(RxJava2Adapter.monoToCompletable(Mono.empty())).when(membershipService).delete(eq(membershipId), any(User.class));
 
         final Response response = target("/organizations")
                 .path(organization.getId())

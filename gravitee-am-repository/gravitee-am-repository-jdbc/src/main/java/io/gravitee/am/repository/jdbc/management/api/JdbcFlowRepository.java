@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.flow.Flow;
@@ -27,6 +31,13 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.functions.Function;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.r2dbc.core.DatabaseClient;
@@ -34,18 +45,10 @@ import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -68,9 +71,8 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
     @Override
     public Maybe<Flow> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return flowRepository.findById(id)
-                .map(this::toEntity)
-                .flatMapSingleElement(this::completeFlow);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(flowRepository.findById(id)
+                .map(this::toEntity)).flatMap(e->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Flow, SingleSource<Flow>>)this::completeFlow).apply(e)))));
     }
 
     @Override
@@ -97,8 +99,7 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
 
         insertAction = persistChildEntities(insertAction, item);
 
-        return monoToSingle(insertAction.as(trx::transactional))
-                .flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(insertAction.as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, Flow item) {
@@ -179,7 +180,7 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
         updateAction = updateAction.then(deleteChildEntities(item.getId()));
         updateAction = persistChildEntities(updateAction, item);
 
-        return monoToSingle(updateAction.as(trx::transactional)).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(updateAction.as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     private Mono<Integer> deleteChildEntities(String flowId) {
@@ -201,33 +202,30 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
     @Override
     public Maybe<Flow> findById(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("findById({}, {}, {})", referenceType, referenceId, id);
-        return flowRepository.findById(referenceType.name(), referenceId, id)
-                .map(this::toEntity)
-                .flatMap(flow -> completeFlow(flow).toMaybe());
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(flowRepository.findById(referenceType.name(), referenceId, id)
+                .map(this::toEntity)).flatMap(z->completeFlow(z).toMaybe().as(RxJava2Adapter::maybeToMono)));
     }
 
     @Override
     public Flowable<Flow> findAll(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findAll({}, {})", referenceType, referenceId);
-        return flowRepository.findAll(referenceType.name(), referenceId)
-                .map(this::toEntity)
-                .flatMap(flow -> completeFlow(flow).toFlowable());
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flowRepository.findAll(referenceType.name(), referenceId)
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(flow -> completeFlow(flow).toFlowable())));
     }
 
     @Override
     public Flowable<Flow> findByApplication(ReferenceType referenceType, String referenceId, String application) {
         LOGGER.debug("findByApplication({}, {}, {})", referenceType, referenceId, application);
-        return flowRepository.findByApplication(referenceType.name(), referenceId, application)
-                .map(this::toEntity)
-                .flatMap(flow -> completeFlow(flow).toFlowable());
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flowRepository.findByApplication(referenceType.name(), referenceId, application)
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(flow -> completeFlow(flow).toFlowable())));
     }
 
     protected Single<Flow> completeFlow(Flow flow) {
-        return fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.select()
                 .from(JdbcFlow.JdbcStep.class)
                 .matching(from(where("flow_id").is(flow.getId())))
                 .orderBy(Sort.Order.asc("stage_order"))
-                .as(JdbcFlow.JdbcStep.class).all()).toList().map(steps -> {
+                .as(JdbcFlow.JdbcStep.class).all()).toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(steps -> {
             if (steps != null && !steps.isEmpty()) {
                 List<Step> preSteps = new ArrayList<>();
                 List<Step> postSteps = new ArrayList<>();
@@ -248,6 +246,6 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
                 }
             }
             return flow;
-        });
+        })));
     }
 }

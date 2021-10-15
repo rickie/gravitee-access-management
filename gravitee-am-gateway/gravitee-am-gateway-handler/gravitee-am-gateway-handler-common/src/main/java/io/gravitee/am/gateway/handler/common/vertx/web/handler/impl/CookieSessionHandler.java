@@ -15,22 +15,25 @@
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.handler.impl;
 
+import static io.vertx.ext.web.handler.SessionHandler.DEFAULT_SESSION_TIMEOUT;
+
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User;
 import io.gravitee.am.service.UserService;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
 import io.vertx.core.Handler;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.reactivex.core.http.Cookie;
 import io.vertx.reactivex.ext.web.RoutingContext;
+import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
-
-import java.util.concurrent.TimeUnit;
-
-import static io.vertx.ext.web.handler.SessionHandler.DEFAULT_SESSION_TIMEOUT;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Session handler based on minimalistic jwt Cookie.
@@ -90,11 +93,10 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
 
         registerSession(context, session);
 
-        Single<CookieSession> sessionObs = Single.just(session);
+        Single<CookieSession> sessionObs = RxJava2Adapter.monoToSingle(Mono.just(session));
 
         if (sessionCookie != null) {
-            sessionObs = session.setValue(sessionCookie.getValue())
-                    .flatMap(currentSession -> {
+            sessionObs = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(session.setValue(sessionCookie.getValue())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<CookieSession>)RxJavaReactorMigrationUtil.toJdkFunction((Function<CookieSession, Single<CookieSession>>)currentSession -> {
                         String userId = currentSession.get(USER_ID_KEY);
                         if (!StringUtils.isEmpty(userId)) {
                             // Load the user and put it back in the context.
@@ -107,12 +109,11 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
                         } else {
                             return Single.just(currentSession);
                         }
-                    });
+                    }).apply(v)))));
         }
 
         // Need to wait the session to be ready before invoking next.
-        sessionObs
-                .doOnError(t -> logger.warn("Unable to restore the session", t))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(sessionObs).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(t -> logger.warn("Unable to restore the session", t))))
                 .doFinally(context::next)
                 .subscribe();
     }
@@ -121,7 +122,7 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
         return Single.defer(() -> {
             // Empty the session to avoid using data of another user (mainly used if user has not been found or in case of error).
             currentSession.setValue(null);
-            return Single.just(currentSession);
+            return RxJava2Adapter.monoToSingle(Mono.just(currentSession));
         });
     }
 

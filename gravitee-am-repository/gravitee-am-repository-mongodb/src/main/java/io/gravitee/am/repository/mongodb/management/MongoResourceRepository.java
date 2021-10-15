@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
@@ -23,15 +25,15 @@ import io.gravitee.am.model.uma.Resource;
 import io.gravitee.am.repository.management.api.ResourceRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.uma.ResourceMongo;
 import io.reactivex.*;
-import org.bson.Document;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static com.mongodb.client.model.Filters.*;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -62,30 +64,30 @@ public class MongoResourceRepository extends AbstractManagementMongoRepository i
 
     @Override
     public Maybe<Resource> findById(String id) {
-        return Observable.fromPublisher(resourceCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(resourceCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Resource> create(Resource item) {
         ResourceMongo resource = convert(item);
         resource.setId(resource.getId() == null ? RandomString.generate() : resource.getId());
-        return Single.fromPublisher(resourceCollection.insertOne(resource)).flatMap(success -> findById(resource.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.insertOne(resource))).flatMap(success->RxJava2Adapter.singleToMono(findById(resource.getId()).toSingle())));
     }
 
     @Override
     public Single<Resource> update(Resource item) {
         ResourceMongo resourceMongo = convert(item);
-        return Single.fromPublisher(resourceCollection.replaceOne(eq(FIELD_ID, resourceMongo.getId()), resourceMongo)).flatMap(success -> findById(resourceMongo.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.replaceOne(eq(FIELD_ID, resourceMongo.getId()), resourceMongo))).flatMap(success->RxJava2Adapter.singleToMono(findById(resourceMongo.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(resourceCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(resourceCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     @Override
     public Flowable<Resource> findByDomainAndClientAndUser(String domain, String client, String user) {
-        return Flowable.fromPublisher(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), eq(FIELD_USER_ID, user)))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), eq(FIELD_USER_ID, user))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -97,17 +99,17 @@ public class MongoResourceRepository extends AbstractManagementMongoRepository i
 
     @Override
     public Flowable<Resource> findByResources(List<String> resources) {
-        return Flowable.fromPublisher(resourceCollection.find(in(FIELD_ID, resources))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(resourceCollection.find(in(FIELD_ID, resources)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Resource> findByDomainAndClientAndResources(String domain, String client, List<String> resources) {
-        return Flowable.fromPublisher(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), in(FIELD_ID, resources)))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), in(FIELD_ID, resources))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Resource> findByDomainAndClientAndUserAndResource(String domain, String client, String user, String resource) {
-        return Observable.fromPublisher(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), eq(FIELD_USER_ID, user), eq(FIELD_ID, resource))).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), eq(FIELD_USER_ID, user), eq(FIELD_ID, resource))).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     private Resource convert(ResourceMongo resourceMongo) {

@@ -15,23 +15,24 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Installation;
 import io.gravitee.am.model.Organization;
-import io.gravitee.am.repository.management.api.InstallationRepository;
 import io.gravitee.am.repository.management.api.InstallationRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.InstallationMongo;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.eq;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -51,17 +52,15 @@ public class MongoInstallationRepository extends AbstractManagementMongoReposito
     @Override
     public Maybe<Installation> findById(String id) {
 
-        return Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first())
-                .firstElement()
-                .map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first())
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Installation> find() {
 
-        return Observable.fromPublisher(collection.find().first())
-                .firstElement()
-                .map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(collection.find().first())
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -69,20 +68,18 @@ public class MongoInstallationRepository extends AbstractManagementMongoReposito
 
         installation.setId(installation.getId() == null ? RandomString.generate() : installation.getId());
 
-        return Single.fromPublisher(collection.insertOne(convert(installation)))
-                .flatMap(success -> findById(installation.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(installation)))).flatMap(success->RxJava2Adapter.singleToMono(findById(installation.getId()).toSingle())));
     }
 
     @Override
     public Single<Installation> update(Installation installation) {
 
-        return Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, installation.getId()), convert(installation)))
-                .flatMap(updateResult -> findById(installation.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, installation.getId()), convert(installation)))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(installation.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(collection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private Installation convert(InstallationMongo installationMongo) {

@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.users.service;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.gateway.handler.users.service.impl.UserServiceImpl;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.oauth2.ScopeApproval;
@@ -24,16 +27,15 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.observers.TestObserver;
+import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Set;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -63,7 +65,7 @@ public class UserServiceTest {
         scopeApproval.setScope("");
 
         when(domain.getId()).thenReturn(domainId);
-        when(scopeApprovalService.findByDomainAndUser(domainId, userId)).thenReturn(Flowable.just(scopeApproval));
+        when(scopeApprovalService.findByDomainAndUser(domainId, userId)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(scopeApproval)));
 
         TestObserver<Set<ScopeApproval>> testObserver = userService.consents(userId).test();
 
@@ -77,7 +79,7 @@ public class UserServiceTest {
         final ScopeApproval scopeApproval = new ScopeApproval();
         scopeApproval.setId("consentId");
 
-        when(scopeApprovalService.findById("consentId")).thenReturn(Maybe.just(scopeApproval));
+        when(scopeApprovalService.findById("consentId")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(scopeApproval)));
 
         TestObserver<ScopeApproval> testObserver = userService.consent("consentId").test();
 
@@ -91,7 +93,7 @@ public class UserServiceTest {
         final ScopeApproval scopeApproval = new ScopeApproval();
         scopeApproval.setId("consentId");
 
-        when(scopeApprovalService.findById(anyString())).thenReturn(Maybe.empty());
+        when(scopeApprovalService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver<ScopeApproval> testObserver = userService.consent("consentId").test();
 
@@ -108,7 +110,7 @@ public class UserServiceTest {
         scopeApproval.setId("consentId");
 
         when(domain.getId()).thenReturn(domainId);
-        when(scopeApprovalService.revokeByUser(domainId, userId, null)).thenReturn(Completable.complete());
+        when(scopeApprovalService.revokeByUser(domainId, userId, null)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         TestObserver testObserver = userService.revokeConsents(userId).test();
 
@@ -123,7 +125,7 @@ public class UserServiceTest {
         final String consentId = "consentId";
 
         when(domain.getId()).thenReturn(domainId);
-        when(scopeApprovalService.revokeByConsent(domainId, userId, consentId, null)).thenReturn(Completable.complete());
+        when(scopeApprovalService.revokeByConsent(domainId, userId, consentId, null)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         TestObserver testObserver = userService.revokeConsent(userId, consentId).test();
 

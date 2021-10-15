@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.consent.impl;
 
+import static io.gravitee.am.gateway.handler.oauth2.service.utils.ParameterizedScopeUtils.getScopeBase;
+import static io.gravitee.am.gateway.handler.oauth2.service.utils.ParameterizedScopeUtils.isParameterizedScope;
+
 import io.gravitee.am.gateway.handler.oauth2.service.consent.UserConsentService;
 import io.gravitee.am.gateway.handler.oauth2.service.scope.ScopeManager;
 import io.gravitee.am.gateway.handler.oauth2.service.scope.ScopeService;
@@ -26,14 +29,12 @@ import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.ScopeApprovalService;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static io.gravitee.am.gateway.handler.oauth2.service.utils.ParameterizedScopeUtils.getScopeBase;
-import static io.gravitee.am.gateway.handler.oauth2.service.utils.ParameterizedScopeUtils.isParameterizedScope;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -58,12 +59,11 @@ public class UserConsentServiceImpl implements UserConsentService {
 
     @Override
     public Single<Set<String>> checkConsent(Client client, io.gravitee.am.model.User user) {
-        return scopeApprovalService.findByDomainAndUserAndClient(domain.getId(), user.getId(), client.getClientId())
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalService.findByDomainAndUserAndClient(domain.getId(), user.getId(), client.getClientId())
                 .filter(approval -> {
                     Date today = new Date();
                     return (approval.getExpiresAt().after(today) && approval.getStatus() == ScopeApproval.ApprovalStatus.APPROVED);
-                })
-                .map(ScopeApproval::getScope)
+                })).map(RxJavaReactorMigrationUtil.toJdkFunction(ScopeApproval::getScope)))
                 .collect(HashSet::new, Set::add);
     }
 
@@ -83,8 +83,7 @@ public class UserConsentServiceImpl implements UserConsentService {
 
     @Override
     public Single<List<Scope>> getConsentInformation(Set<String> consent) {
-        return scopeService.getAll()
-                .map(scopes -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(scopeService.getAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(scopes -> {
                     List<Scope> requestedScopes = new ArrayList<>();
                     for (String requestScope : consent) {
                         Scope requestedScope = scopes
@@ -96,7 +95,7 @@ public class UserConsentServiceImpl implements UserConsentService {
                         requestedScopes.add(requestedScope);
                     }
                     return requestedScopes;
-                });
+                })));
     }
 
     private Date computeExpiry(Map<String, ApplicationScopeSettings> scopeApprovals, String scope, List<String> parameterizedScopes) {

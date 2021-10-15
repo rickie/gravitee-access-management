@@ -26,9 +26,10 @@ import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.Domain;
 import io.reactivex.Single;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
 import java.util.HashMap;
 import java.util.Map;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -50,12 +51,12 @@ public class AbstractUserConsentEndpointHandler {
         JWT token = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
 
         if (token.getSub() == null) {
-            return Single.just(defaultPrincipal(context, token));
+            return RxJava2Adapter.monoToSingle(Mono.just(defaultPrincipal(context, token)));
         }
 
         // end user
         if (!token.getSub().equals(token.getAud())) {
-            return userService.findById(token.getSub())
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findById(token.getSub())
                     .map(user -> {
                         User principal = new DefaultUser(user.getUsername());
                         ((DefaultUser) principal).setId(user.getId());
@@ -68,11 +69,10 @@ public class AbstractUserConsentEndpointHandler {
                         ((DefaultUser) principal).setAdditionalInformation(additionalInformation);
                         return principal;
                     })
-                    .defaultIfEmpty(defaultPrincipal(context, token))
-                    .toSingle();
+                    .defaultIfEmpty(defaultPrincipal(context, token))).single());
         } else {
             // revocation made oauth2 clients
-            return clientSyncService.findByClientId(token.getAud())
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(clientSyncService.findByClientId(token.getAud())
                     .map(client -> {
                         User principal = new DefaultUser(client.getClientId());
                         ((DefaultUser) principal).setId(client.getId());
@@ -84,8 +84,7 @@ public class AbstractUserConsentEndpointHandler {
                         ((DefaultUser) principal).setAdditionalInformation(additionalInformation);
                         return principal;
                     })
-                    .defaultIfEmpty(defaultPrincipal(context, token))
-                    .toSingle();
+                    .defaultIfEmpty(defaultPrincipal(context, token))).single());
         }
 
     }

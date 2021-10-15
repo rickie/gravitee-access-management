@@ -19,14 +19,18 @@ import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.gateway.handler.oauth2.service.introspection.IntrospectionRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.introspection.IntrospectionResponse;
 import io.gravitee.am.gateway.handler.oauth2.service.introspection.IntrospectionService;
+import io.gravitee.am.gateway.handler.oauth2.service.token.Token;
 import io.gravitee.am.gateway.handler.oauth2.service.token.TokenService;
 import io.gravitee.am.gateway.handler.oauth2.service.token.impl.AccessToken;
 import io.gravitee.am.model.User;
 import io.gravitee.am.service.UserService;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import io.reactivex.functions.Function;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -43,8 +47,7 @@ public class IntrospectionServiceImpl implements IntrospectionService {
 
     @Override
     public Single<IntrospectionResponse> introspect(IntrospectionRequest introspectionRequest) {
-        return tokenService.introspect(introspectionRequest.getToken())
-                .flatMap(token -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tokenService.introspect(introspectionRequest.getToken())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<IntrospectionResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<IntrospectionResponse>>)token -> {
                     AccessToken accessToken = (AccessToken) token;
                     if (accessToken.getSubject() != null && !accessToken.getSubject().equals(accessToken.getClientId())) {
                         return userService
@@ -56,8 +59,8 @@ public class IntrospectionServiceImpl implements IntrospectionService {
                     } else {
                         return Single.just(convert(accessToken, null));
                     }
-                })
-                .onErrorResumeNext(Single.just(new IntrospectionResponse(false)));
+                }).apply(v)))))
+                .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(new IntrospectionResponse(false))));
     }
 
     private IntrospectionResponse convert(AccessToken accessToken, User user) {

@@ -15,20 +15,20 @@
  */
 package io.gravitee.am.repository.oauth2.api;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import io.gravitee.am.repository.jdbc.oauth2.api.JdbcRefreshTokenRepository;
 import io.gravitee.am.repository.oauth2.AbstractOAuthTest;
 import io.gravitee.am.repository.oauth2.model.RefreshToken;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -62,15 +62,15 @@ public class RefreshTokenRepositoryPurgeTest extends AbstractOAuthTest {
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
 
-        assertNotNull(refreshTokenRepository.findByToken("my-token").blockingGet());
-        assertNull(refreshTokenRepository.findByToken("my-token2").blockingGet());
+        assertNotNull(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken("my-token")).block());
+        assertNull(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken("my-token2")).block());
 
         TestObserver<Void> testPurge = refreshTokenRepository.purgeExpiredData().test();
         testPurge.awaitTerminalEvent();
         testPurge.assertNoErrors();
 
-        assertNotNull(refreshTokenRepository.findByToken("my-token").blockingGet());
-        assertNull(refreshTokenRepository.findByToken("my-token2").blockingGet());
+        assertNotNull(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken("my-token")).block());
+        assertNull(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken("my-token2")).block());
 
     }
 

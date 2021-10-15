@@ -37,12 +37,6 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.util.Collection;
@@ -51,6 +45,13 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -142,10 +143,10 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
     @Override
     public Maybe<CertificateProvider> get(String id) {
         if (id == null) {
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
         CertificateProvider certificateProvider = certificateProviderManager.get(id);
-        return certificateProvider != null ? Maybe.just(certificateProvider) : Maybe.empty();
+        return certificateProvider != null ? RxJava2Adapter.monoToMaybe(Mono.just(certificateProvider)) : RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
     @Override
@@ -161,7 +162,7 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
     public Maybe<CertificateProvider> findByAlgorithm(String algorithm) {
 
         if(algorithm==null || algorithm.trim().isEmpty()) {
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
 
         Optional<CertificateProvider> certificate = this
@@ -173,7 +174,7 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
                 )
                 .findFirst();
 
-        return certificate.isPresent()?Maybe.just(certificate.get()):Maybe.empty();
+        return certificate.isPresent()?RxJava2Adapter.monoToMaybe(Mono.just(certificate.get())):RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
     @Override
@@ -240,7 +241,7 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
 
             @Override
             public Single<io.gravitee.am.certificate.api.Key> key() {
-                return Single.just(certificateKey);
+                return RxJava2Adapter.monoToSingle(Mono.just(certificateKey));
             }
 
             @Override

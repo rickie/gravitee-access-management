@@ -18,6 +18,7 @@ package io.gravitee.am.reporter.mongodb.audit;
 import static com.mongodb.client.model.Filters.*;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.InsertOneModel;
@@ -60,6 +61,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -118,13 +123,13 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
             case COUNT:
                 return executeCount(query);
             default:
-                return Single.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated"));
+                return RxJava2Adapter.monoToSingle(Mono.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated")));
         }
     }
 
     @Override
     public Maybe<Audit> findById(ReferenceType referenceType, String referenceId, String id) {
-        return Observable.fromPublisher(reportableCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(reportableCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -139,11 +144,10 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         reportableCollection = this.mongoClient.getDatabase(this.configuration.getDatabase()).getCollection(this.configuration.getReportableCollection(), AuditMongo.class);
 
         // init bulk processor
-        disposable = bulkProcessor.buffer(
+        disposable = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(bulkProcessor.buffer(
                 configuration.getFlushInterval(),
                 TimeUnit.SECONDS,
-                configuration.getBulkActions())
-                .flatMap(this::bulk)
+                configuration.getBulkActions())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(this::bulk)))
                 .doOnError(throwable -> logger.error("An error occurs while indexing data into MongoDB", throwable))
                 .subscribe();
     }
@@ -177,7 +181,7 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         Map<Long, Long> intervals = intervals(criteria);
         String fieldSuccess = (criteria.types().get(0) + "_" + Status.SUCCESS).toLowerCase();
         String fieldFailure = (criteria.types().get(0) + "_" + Status.FAILURE).toLowerCase();
-        return Observable.fromPublisher(reportableCollection.aggregate(Arrays.asList(
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.aggregate(Arrays.asList(
                 Aggregates.match(query),
                 Aggregates.group(
                         new BasicDBObject("_id",
@@ -188,8 +192,7 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
                                         ))),
                         Accumulators.sum(fieldSuccess, new BasicDBObject("$cond", Arrays.asList(new BasicDBObject("$eq", Arrays.asList("$outcome.status", Status.SUCCESS)), 1, 0))),
                         Accumulators.sum(fieldFailure, new BasicDBObject("$cond", Arrays.asList(new BasicDBObject("$eq", Arrays.asList("$outcome.status", Status.FAILURE)), 1, 0))))), Document.class))
-                .toList()
-                .map(docs -> {
+                .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(docs -> {
                     Map<Long, Long> successResult = new HashMap<>();
                     Map<Long, Long> failureResult = new HashMap<>();
                     docs.forEach(document -> {
@@ -210,30 +213,29 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
                     result.put(fieldSuccess, successData);
                     result.put(fieldFailure, failureData);
                     return result;
-                });
+                })));
     }
 
     private Single<Map<Object, Object>> executeGroupBy(AuditReportableCriteria criteria, Bson query) {
-        return Observable.fromPublisher(reportableCollection.aggregate(
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.aggregate(
                 Arrays.asList(
                         Aggregates.match(query),
                         Aggregates.group(new BasicDBObject("_id", "$" + criteria.field()), Accumulators.sum("count", 1)),
                         Aggregates.limit(criteria.size() != null ? criteria.size() : 50)), Document.class
         ))
-                .toList()
-                .map(docs -> docs.stream().collect(Collectors.toMap(d -> ((Document) d.get("_id")).get("_id"), d -> d.get("count"))));
+                .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(docs -> docs.stream().collect(Collectors.toMap(d -> ((Document) d.get("_id")).get("_id"), d -> d.get("count"))))));
     }
 
     private Single<Map<Object, Object>> executeCount(Bson query) {
-        return Observable.fromPublisher(reportableCollection.countDocuments(query)).first(0l).map(data -> Collections.singletonMap("data", data));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.countDocuments(query)).first(0l)).map(RxJavaReactorMigrationUtil.toJdkFunction(data -> Collections.singletonMap("data", data))));
     }
 
-    private Flowable bulk(List<Audit> audits) {
+    private Flowable<BulkWriteResult> bulk(List<Audit> audits) {
         if (audits == null || audits.isEmpty()) {
-            return Flowable.empty();
+            return RxJava2Adapter.fluxToFlowable(Flux.empty());
         }
 
-        return Flowable.fromPublisher(reportableCollection.bulkWrite(this.convert(audits)));
+        return RxJava2Adapter.fluxToFlowable(Flux.from(reportableCollection.bulkWrite(this.convert(audits))));
     }
 
     private Bson query(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {

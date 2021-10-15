@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.management.service.impl.commands;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.model.Environment;
 import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.service.EnvironmentService;
@@ -26,18 +30,15 @@ import io.gravitee.cockpit.api.command.environment.EnvironmentPayload;
 import io.gravitee.cockpit.api.command.environment.EnvironmentReply;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -79,7 +80,7 @@ public class EnvironmentCommandHandlerTest {
                         && newEnvironment.getDescription().equals(environmentPayload.getDescription())
                         && newEnvironment.getName().equals(environmentPayload.getName())
                         && newEnvironment.getDomainRestrictions().equals(environmentPayload.getDomainRestrictions())),
-                isNull())).thenReturn(Single.just(new Environment()));
+                isNull())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Environment())));
 
         TestObserver<EnvironmentReply> obs = cut.handle(command).test();
 
@@ -99,7 +100,7 @@ public class EnvironmentCommandHandlerTest {
         environmentPayload.setName("Environment name");
         environmentPayload.setDomainRestrictions(Arrays.asList("domain.restriction1.io", "domain.restriction2.io"));
 
-        when(environmentService.createOrUpdate(eq("orga#1"), eq("env#1"), any(NewEnvironment.class), isNull())).thenReturn(Single.error(new TechnicalException()));
+        when(environmentService.createOrUpdate(eq("orga#1"), eq("env#1"), any(NewEnvironment.class), isNull())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException())));
 
         TestObserver<EnvironmentReply> obs = cut.handle(command).test();
 

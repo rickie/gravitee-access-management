@@ -18,13 +18,19 @@ package io.gravitee.am.gateway.handler.users.resources.consents;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.users.service.UserService;
 import io.gravitee.am.model.Domain;
+import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
 import java.util.Optional;
+import java.util.Set;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -43,13 +49,12 @@ public class UserConsentsEndpointHandler extends AbstractUserConsentEndpointHand
         final String userId = context.request().getParam("userId");
         final String clientId = context.request().getParam("clientId");
 
-        Single.just(Optional.ofNullable(clientId))
-                .flatMap(optClient -> {
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.just(Optional.ofNullable(clientId))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Set<ScopeApproval>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<String>, Single<Set<ScopeApproval>>>)optClient -> {
                     if (optClient.isPresent()) {
                         return userService.consents(userId, optClient.get());
                     }
                     return userService.consents(userId);
-                })
+                }).apply(v)))))
                 .subscribe(
                         scopeApprovals -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -67,15 +72,14 @@ public class UserConsentsEndpointHandler extends AbstractUserConsentEndpointHand
         final String userId = context.request().getParam("userId");
         final String clientId = context.request().getParam("clientId");
 
-        Single.just(Optional.ofNullable(clientId))
-                .flatMapCompletable(optClient -> {
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(Single.just(Optional.ofNullable(clientId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<String>, CompletableSource>)optClient -> {
                     if (optClient.isPresent()) {
                         return getPrincipal(context)
                                 .flatMapCompletable(principal -> userService.revokeConsents(userId, optClient.get(), principal));
                     }
                     return getPrincipal(context)
                             .flatMapCompletable(principal -> userService.revokeConsents(userId, principal));
-                })
+                }).apply(y)))).then())
                 .subscribe(
                         () -> context.response().setStatusCode(204).end(),
                         context::fail);

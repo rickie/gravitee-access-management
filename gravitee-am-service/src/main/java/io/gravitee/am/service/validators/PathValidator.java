@@ -17,9 +17,10 @@ package io.gravitee.am.service.validators;
 
 import io.gravitee.am.service.exception.InvalidPathException;
 import io.reactivex.Completable;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -32,23 +33,23 @@ public class PathValidator {
     public static Completable validate(String path) {
 
         if (path == null || "".equals(path)) {
-            return Completable.error(new InvalidPathException("Path must not be null or empty"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidPathException("Path must not be null or empty")));
         }
 
         Matcher matcher = PATH_PATTERN.matcher(path);
 
         if (!matcher.matches()) {
-            return Completable.error(new InvalidPathException("Path [" + path + "] is invalid"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidPathException("Path [" + path + "] is invalid")));
         }
 
         if (!path.startsWith("/")) {
-            return Completable.error(new InvalidPathException("Path must start with a '/'"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidPathException("Path must start with a '/'")));
         }
 
         if (path.contains("//")) {
-            return Completable.error(new InvalidPathException("Path [" + path + "] is invalid"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidPathException("Path [" + path + "] is invalid")));
         }
 
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 }

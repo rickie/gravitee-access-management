@@ -27,6 +27,8 @@ import io.reactivex.Single;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -58,10 +60,9 @@ public class OrganizationCommandHandler implements CommandHandler<OrganizationCo
         newOrganization.setDescription(organizationPayload.getDescription());
         newOrganization.setDomainRestrictions(organizationPayload.getDomainRestrictions());
 
-        return organizationService.createOrUpdate(organizationPayload.getId(), newOrganization, null)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationService.createOrUpdate(organizationPayload.getId(), newOrganization, null)
                 .map(organization -> new OrganizationReply(command.getId(), CommandStatus.SUCCEEDED))
-                .doOnSuccess(reply -> logger.info("Organization [{}] handled with id [{}].", organizationPayload.getName(), organizationPayload.getId()))
-                .doOnError(error -> logger.error("Error occurred when handling organization [{}] with id [{}].", organizationPayload.getName(), organizationPayload.getId(), error))
+                .doOnSuccess(reply -> logger.info("Organization [{}] handled with id [{}].", organizationPayload.getName(), organizationPayload.getId()))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Error occurred when handling organization [{}] with id [{}].", organizationPayload.getName(), organizationPayload.getId(), error))))
                 .onErrorReturn(throwable -> new OrganizationReply(command.getId(), CommandStatus.ERROR));
     }
 }

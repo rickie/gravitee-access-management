@@ -21,10 +21,12 @@ import io.gravitee.am.repository.management.api.PolicyRepository;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import org.springframework.stereotype.Repository;
-
 import java.util.Collections;
 import java.util.List;
+import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -35,16 +37,16 @@ public class JdbcPolicyRepository extends AbstractJdbcRepository implements Poli
 
     @Override
     public Flowable<Policy> findAll() {
-        return Flowable.empty();
+        return RxJava2Adapter.fluxToFlowable(Flux.empty());
     }
 
     @Override
     public Single<Boolean> collectionExists() {
-        return Single.just(false);
+        return RxJava2Adapter.monoToSingle(Mono.just(false));
     }
 
     @Override
     public Completable deleteCollection() {
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 }

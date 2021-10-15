@@ -20,17 +20,17 @@ import io.gravitee.am.common.event.Type;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.model.common.event.Payload;
-import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.exceptions.TechnicalException;
+import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -50,21 +50,21 @@ public class EventRepositoryTest extends AbstractManagementTest {
         event.setType(Type.DOMAIN);
         event.setCreatedAt(new Date(from));
         event.setUpdatedAt(event.getCreatedAt());
-        Event expectedEvent = eventRepository.create(event).blockingGet();
+        Event expectedEvent = RxJava2Adapter.singleToMono(eventRepository.create(event)).block();
 
         // create event before the from date
         Event eventBefore = new Event();
         eventBefore.setType(Type.DOMAIN);
         eventBefore.setCreatedAt(new Date(Instant.ofEpochMilli(from).minusSeconds(30).getEpochSecond()));
         eventBefore.setUpdatedAt(eventBefore.getCreatedAt());
-        eventRepository.create(eventBefore).blockingGet();
+        RxJava2Adapter.singleToMono(eventRepository.create(eventBefore)).block();
 
         // create event after the to date
         Event eventAfter = new Event();
         eventAfter.setType(Type.DOMAIN);
         eventAfter.setCreatedAt(new Date(Instant.ofEpochMilli(to).plusSeconds(30).getEpochSecond()));
         eventAfter.setUpdatedAt(eventAfter.getCreatedAt());
-        eventRepository.create(eventAfter).blockingGet();
+        RxJava2Adapter.singleToMono(eventRepository.create(eventAfter)).block();
 
         // fetch events
         TestSubscriber<Event> testSubscriber = eventRepository.findByTimeFrame(from, to).test();
@@ -84,7 +84,7 @@ public class EventRepositoryTest extends AbstractManagementTest {
         Payload payload = new Payload("pid", ReferenceType.ORGANIZATION, "oid", Action.BULK_CREATE);
         event.setPayload(new Payload(payload)); // duplicate the payload to avoid inner transformation that make test failing
 
-        Event eventCreated = eventRepository.create(event).blockingGet();
+        Event eventCreated = RxJava2Adapter.singleToMono(eventRepository.create(event)).block();
 
         // fetch domain
         TestObserver<Event> testObserver = eventRepository.findById(eventCreated.getId()).test();
@@ -128,7 +128,7 @@ public class EventRepositoryTest extends AbstractManagementTest {
         // create event
         Event event = new Event();
         event.setType(Type.DOMAIN);
-        Event eventCreated = eventRepository.create(event).blockingGet();
+        Event eventCreated = RxJava2Adapter.singleToMono(eventRepository.create(event)).block();
 
         // fetch event
         TestObserver<Event> testObserver = eventRepository.findById(eventCreated.getId()).test();

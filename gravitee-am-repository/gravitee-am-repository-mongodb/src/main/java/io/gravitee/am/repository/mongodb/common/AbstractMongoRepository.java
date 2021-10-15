@@ -21,6 +21,7 @@ import io.reactivex.Single;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -48,9 +49,9 @@ public abstract class AbstractMongoRepository {
 
     protected void createIndex(MongoCollection<?> collection, Document document, IndexOptions indexOptions, boolean ensure) {
         if (ensure) {
-            Single.fromPublisher(collection.createIndex(document, indexOptions))
+            RxJava2Adapter.singleToMono(Single.fromPublisher(collection.createIndex(document, indexOptions))
                     .doOnSuccess(s -> logger.debug("Created an index named: {}", s))
-                    .doOnError(throwable -> logger.error("Error occurs during creation of index", throwable)).blockingGet();
+                    .doOnError(throwable -> logger.error("Error occurs during creation of index", throwable))).block();
         }
     }
 }

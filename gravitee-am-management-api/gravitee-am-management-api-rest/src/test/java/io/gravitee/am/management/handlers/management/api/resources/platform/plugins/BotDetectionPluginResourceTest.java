@@ -15,18 +15,19 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.platform.plugins;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.plugin.BotDetectionPlugin;
 import io.gravitee.am.service.model.plugin.ResourcePlugin;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Maybe;
-import org.junit.Test;
-
 import javax.ws.rs.core.Response;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -42,7 +43,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         plugin.setDescription("desc");
         plugin.setVersion("1");
 
-        doReturn(Maybe.just(plugin)).when(botDetectionPluginService).findById("plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(plugin))).when(botDetectionPluginService).findById("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -57,7 +58,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         final BotDetectionPlugin plugin = new BotDetectionPlugin();
         plugin.setId("plugin-id");
 
-        doReturn(Maybe.empty()).when(botDetectionPluginService).findById("plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(botDetectionPluginService).findById("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -70,7 +71,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetPlugin_TechnicalException() {
-        doReturn(Maybe.error(new TechnicalManagementException())).when(botDetectionPluginService).findById("plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException()))).when(botDetectionPluginService).findById("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -88,8 +89,8 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         plugin.setDescription("desc");
         plugin.setVersion("1");
 
-        doReturn(Maybe.just(plugin)).when(botDetectionPluginService).findById("plugin-id");
-        doReturn(Maybe.just("{}")).when(botDetectionPluginService).getSchema("plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(plugin))).when(botDetectionPluginService).findById("plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just("{}"))).when(botDetectionPluginService).getSchema("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -109,7 +110,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         plugin.setDescription("desc");
         plugin.setVersion("1");
 
-        doReturn(Maybe.empty()).when(botDetectionPluginService).findById("plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(botDetectionPluginService).findById("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -129,8 +130,8 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         plugin.setDescription("desc");
         plugin.setVersion("1");
 
-        doReturn(Maybe.just(plugin)).when(botDetectionPluginService).findById("plugin-id");
-        doReturn(Maybe.empty()).when(botDetectionPluginService).getSchema("plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(plugin))).when(botDetectionPluginService).findById("plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(botDetectionPluginService).getSchema("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -150,8 +151,8 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         plugin.setDescription("desc");
         plugin.setVersion("1");
 
-        doReturn(Maybe.just(plugin)).when(botDetectionPluginService).findById("plugin-id");
-        doReturn(Maybe.error(new TechnicalManagementException())).when(botDetectionPluginService).getSchema("plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(plugin))).when(botDetectionPluginService).findById("plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException()))).when(botDetectionPluginService).getSchema("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")

@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.oauth2.Scope;
@@ -27,6 +31,10 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -35,17 +43,10 @@ import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -72,7 +73,7 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
     public Single<Page<Scope>> findByDomain(String domain, int page, int size) {
 
         LOGGER.debug("findByDomain({}, {}, {})", domain, page, size);
-        return fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.select()
                 .from("scopes")
                 .project("*")
                 .matching(from(where("domain").is(domain)))
@@ -81,9 +82,7 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
                 .as(JdbcScope.class).fetch().all())
                 .map(this::toEntity)
                 .flatMap(scope -> completeWithClaims(Maybe.just(scope), scope.getId()).toFlowable())
-                .toList()
-                .flatMap(content -> countByDomain(domain)
-                        .map((count) -> new Page<>(content, page, count)));
+                .toList()).flatMap(content->RxJava2Adapter.singleToMono(countByDomain(domain).map((java.lang.Long count)->new Page<>(content, page, count)))));
     }
 
     private Single<Long> countByDomain(String domain) {
@@ -103,65 +102,55 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
         String search = this.databaseDialectHelper.buildSearchScopeQuery(wildcardSearch, page, size);
         String count = this.databaseDialectHelper.buildCountScopeQuery(wildcardSearch);
 
-        return fluxToFlowable(dbClient.execute(search)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.execute(search)
                 .bind("domain", domain)
                 .bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase())
                 .as(JdbcScope.class)
                 .fetch().all())
                 .map(this::toEntity)
                 .flatMap(scope -> completeWithClaims(Maybe.just(scope), scope.getId()).toFlowable())
-                .toList()
-                .flatMap(data -> monoToSingle(dbClient.execute(count)
-                        .bind("domain", domain)
-                        .bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase())
-                        .as(Long.class)
-                        .fetch().first())
-                        .map(total -> new Page<>(data, page, total)));
+                .toList()).flatMap(data->RxJava2Adapter.singleToMono(monoToSingle(dbClient.execute(count).bind("domain", domain).bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first()).map((java.lang.Long total)->new Page<>(data, page, total)))));
     }
 
     private Maybe<Scope> completeWithClaims(Maybe<Scope> maybeScope, String id) {
-        Maybe<List<String>> scopeClaims = claimRepository.findByScopeId(id)
+        Maybe<List<String>> scopeClaims = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(claimRepository.findByScopeId(id)
                 .map(JdbcScope.Claims::getClaim)
-                .toList()
-                .toMaybe();
+                .toList()));
 
-        return maybeScope.zipWith(scopeClaims, (scope, claims) -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeScope).zipWith(RxJava2Adapter.maybeToMono(Maybe.wrap(scopeClaims)), RxJavaReactorMigrationUtil.toJdkBiFunction((scope, claims) -> {
             LOGGER.debug("findById({}) fetch {} scopeClaims", id, claims == null ? 0 : claims.size());
             scope.setClaims(claims);
             return scope;
-        });
+        })));
     }
 
     @Override
     public Maybe<Scope> findByDomainAndKey(String domain, String key) {
         LOGGER.debug("findByDomainAndKey({}, {})", domain, key);
-        return monoToMaybe(dbClient.select().from(JdbcScope.class)
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(monoToMaybe(dbClient.select().from(JdbcScope.class)
                 .project("*")
                 .matching(from(where("domain").is(domain)
                         .and(where(databaseDialectHelper.toSql(SqlIdentifier.quoted("key"))).is(key))))
                 .as(JdbcScope.class)
-                .first()).map(this::toEntity)
-                .flatMap(scope -> completeWithClaims(Maybe.just(scope), scope.getId()));
+                .first()).map(this::toEntity)).flatMap(z->completeWithClaims(Maybe.just(z), z.getId()).as(RxJava2Adapter::maybeToMono)));
     }
 
     @Override
     public Flowable<Scope> findByDomainAndKeys(String domain, List<String> keys) {
         LOGGER.debug("findByDomainAndKeys({}, {})", domain, keys);
-        return fluxToFlowable(dbClient.select().from(JdbcScope.class)
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select().from(JdbcScope.class)
                 .project("*")
                 .matching(from(where("domain").is(domain)
                         .and(where(databaseDialectHelper.toSql(SqlIdentifier.quoted("key"))).in(keys))))
                 .as(JdbcScope.class)
-                .all()).map(this::toEntity)
-                .flatMap(scope -> completeWithClaims(Maybe.just(scope), scope.getId()).toFlowable());
+                .all()).map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> completeWithClaims(Maybe.just(scope), scope.getId()).toFlowable())));
     }
 
     @Override
     public Maybe<Scope> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return scopeRepository.findById(id)
-                .map(this::toEntity)
-                .flatMap(scope -> completeWithClaims(Maybe.just(scope), scope.getId()));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeRepository.findById(id)
+                .map(this::toEntity)).flatMap(z->completeWithClaims(Maybe.just(z), z.getId()).as(RxJava2Adapter::maybeToMono)));
     }
 
     @Override
@@ -197,7 +186,7 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
             }).reduce(Integer::sum));
         }
 
-        return monoToSingle(action.as(trx::transactional)).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action.as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
@@ -236,8 +225,7 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
             }).reduce(Integer::sum));
         }
 
-        return monoToSingle(deleteClaims.then(action).as(trx::transactional))
-                .flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(deleteClaims.then(action).as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override

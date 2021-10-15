@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static java.util.stream.Stream.concat;
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
@@ -31,6 +36,12 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -41,20 +52,10 @@ import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import static java.util.stream.Stream.concat;
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -95,15 +96,14 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
     @Override
     public Flowable<User> findAll(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findByReference({})", referenceId);
-        return userRepository.findByReference(referenceType.name(), referenceId)
-                .map(this::toEntity)
-                .flatMap(user -> completeUser(user).toFlowable());
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(userRepository.findByReference(referenceType.name(), referenceId)
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(user -> completeUser(user).toFlowable())));
     }
 
     @Override
     public Single<Page<User>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
         LOGGER.debug("findAll({}, {}, {}, {})", referenceType, referenceId, page, size);
-        return fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.select()
                 .from(JdbcOrganizationUser.class)
                 .matching(from(where("reference_id").is(referenceId)
                         .and(where("reference_type").is(referenceType.name()))))
@@ -112,9 +112,7 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
                 .as(JdbcOrganizationUser.class).all())
                 .map(this::toEntity)
                 .flatMap(user -> completeUser(user).toFlowable(), CONCURRENT_FLATMAP)
-                .toList()
-                .flatMap(content -> userRepository.countByReference(referenceType.name(), referenceId)
-                        .map((count) -> new Page<User>(content, page, count)));
+                .toList()).flatMap(content->RxJava2Adapter.singleToMono(userRepository.countByReference(referenceType.name(), referenceId).map((java.lang.Long count)->new Page<User>(content, page, count)))));
     }
 
     @Override
@@ -127,7 +125,7 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         String search = this.databaseDialectHelper.buildSearchUserQuery(wildcardSearch, page, size, true);
         String count = this.databaseDialectHelper.buildCountUserQuery(wildcardSearch, true);
 
-        return fluxToFlowable(dbClient.execute(search)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.execute(search)
                 .bind("value", wildcardSearch ? wildcardValue : query)
                 .bind("refId", referenceId)
                 .bind("refType", referenceType.name())
@@ -135,14 +133,7 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
                 .fetch().all())
                 .map(this::toEntity)
                 .flatMap(app -> completeUser(app).toFlowable(), CONCURRENT_FLATMAP) // single thread to keep order
-                .toList()
-                .flatMap(data -> monoToSingle(dbClient.execute(count)
-                        .bind("value", wildcardSearch ? wildcardValue : query)
-                        .bind("refId", referenceId)
-                        .bind("refType", referenceType.name())
-                        .as(Long.class)
-                        .fetch().first())
-                        .map(total -> new Page<User>(data, page, total)));
+                .toList()).flatMap(data->RxJava2Adapter.singleToMono(monoToSingle(dbClient.execute(count).bind("value", wildcardSearch ? wildcardValue : query).bind("refId", referenceId).bind("refType", referenceType.name()).as(Long.class).fetch().first()).map((java.lang.Long total)->new Page<User>(data, page, total)))));
     }
 
     @Override
@@ -170,54 +161,48 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         }
         Mono<Long> userCount = executeCount.as(Long.class).fetch().one();
 
-        return fluxToFlowable(userFlux)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(userFlux)
                 .map(this::toEntity)
                 .flatMap(user -> completeUser(user).toFlowable())
-                .toList()
-                .flatMap(list -> monoToSingle(userCount).map(total -> new Page<User>(list, page, total)));
+                .toList()).flatMap(list->RxJava2Adapter.singleToMono(monoToSingle(userCount).map((java.lang.Long total)->new Page<User>(list, page, total)))));
     }
 
     @Override
     public Maybe<User> findByUsernameAndSource(ReferenceType referenceType, String referenceId, String username, String source) {
         LOGGER.debug("findByUsernameAndSource({},{},{},{})", referenceType, referenceId, username, source);
-        return userRepository.findByUsernameAndSource(referenceType.name(), referenceId, username, source)
-                .map(this::toEntity)
-                .flatMap(user -> completeUser(user).toMaybe());
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findByUsernameAndSource(referenceType.name(), referenceId, username, source)
+                .map(this::toEntity)).flatMap(z->completeUser(z).toMaybe().as(RxJava2Adapter::maybeToMono)));
     }
 
     @Override
     public Maybe<User> findByExternalIdAndSource(ReferenceType referenceType, String referenceId, String externalId, String source) {
         LOGGER.debug("findByExternalIdAndSource({},{},{},{})", referenceType, referenceId, externalId, source);
-        return userRepository.findByExternalIdAndSource(referenceType.name(), referenceId, externalId, source)
-                .map(this::toEntity)
-                .flatMap(user -> completeUser(user).toMaybe());
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findByExternalIdAndSource(referenceType.name(), referenceId, externalId, source)
+                .map(this::toEntity)).flatMap(z->completeUser(z).toMaybe().as(RxJava2Adapter::maybeToMono)));
     }
 
     @Override
     public Flowable<User> findByIdIn(List<String> ids) {
         LOGGER.debug("findByIdIn({})", ids);
         if (ids == null || ids.isEmpty()) {
-            return Flowable.empty();
+            return RxJava2Adapter.fluxToFlowable(Flux.empty());
         }
-        return userRepository.findByIdIn(ids)
-                .map(this::toEntity)
-                .flatMap(user -> completeUser(user).toFlowable(), CONCURRENT_FLATMAP);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(userRepository.findByIdIn(ids)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
+                .flatMap(user -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeUser(user)).flux()), CONCURRENT_FLATMAP);
     }
 
     @Override
     public Maybe<User> findById(ReferenceType referenceType, String referenceId, String userId) {
         LOGGER.debug("findById({},{},{})", referenceType, referenceId, userId);
-        return userRepository.findById(referenceType.name(), referenceId, userId)
-                .map(this::toEntity)
-                .flatMap(user -> completeUser(user).toMaybe());
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findById(referenceType.name(), referenceId, userId)
+                .map(this::toEntity)).flatMap(z->completeUser(z).toMaybe().as(RxJava2Adapter::maybeToMono)));
     }
 
     @Override
     public Maybe<User> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return userRepository.findById(id)
-                .map(this::toEntity)
-                .flatMap(user -> completeUser(user).toMaybe());
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findById(id)
+                .map(this::toEntity)).flatMap(z->completeUser(z).toMaybe().as(RxJava2Adapter::maybeToMono)));
     }
 
     @Override
@@ -269,8 +254,7 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
 
         insertAction = persistChildEntities(insertAction, item);
 
-        return monoToSingle(insertAction.as(trx::transactional))
-                .flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(insertAction.as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
@@ -322,8 +306,7 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         updateAction = deleteChildEntities(item.getId()).then(updateAction);
         updateAction = persistChildEntities(updateAction, item);
 
-        return monoToSingle(updateAction.as(trx::transactional))
-                .flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(updateAction.as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
@@ -399,7 +382,7 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
     }
 
     private Single<User> completeUser(User userToComplete) {
-        return Single.just(userToComplete)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.just(userToComplete)
                 .flatMap(user ->
                         roleRepository.findByUserId(user.getId()).map(JdbcOrganizationUser.Role::getRole).toList().map(roles -> {
                             user.setRoles(roles);
@@ -416,27 +399,22 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
                                 .toList().map(addresses -> {
                             user.setAddresses(addresses);
                             return user;
-                        }))
-                .flatMap(user ->
-                        attributesRepository.findByUserId(user.getId())
-                                .toList()
-                                .map(attributes -> {
-                                    Map<String, List<Attribute>> map = attributes.stream().collect(StreamUtils.toMultiMap(JdbcOrganizationUser.Attribute::getUserField, attr -> mapper.map(attr, Attribute.class)));
-                                    if (map.containsKey(ATTRIBUTE_USER_FIELD_EMAIL)) {
-                                        user.setEmails(map.get(ATTRIBUTE_USER_FIELD_EMAIL));
-                                    }
-                                    if (map.containsKey(ATTRIBUTE_USER_FIELD_PHONE)) {
-                                        user.setPhoneNumbers(map.get(ATTRIBUTE_USER_FIELD_PHONE));
-                                    }
-                                    if (map.containsKey(ATTRIBUTE_USER_FIELD_PHOTO)) {
-                                        user.setPhotos(map.get(ATTRIBUTE_USER_FIELD_PHOTO));
-                                    }
-                                    if (map.containsKey(ATTRIBUTE_USER_FIELD_IM)) {
-                                        user.setIms(map.get(ATTRIBUTE_USER_FIELD_IM));
-                                    }
-                                    return user;
-                                })
-                );
+                        }))).flatMap(user->RxJava2Adapter.singleToMono(attributesRepository.findByUserId(user.getId()).toList().map((java.util.List<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Attribute> attributes)->{
+Map<String, List<Attribute>> map = attributes.stream().collect(StreamUtils.toMultiMap(JdbcOrganizationUser.Attribute::getUserField, (io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Attribute attr)->mapper.map(attr, Attribute.class)));
+if (map.containsKey(ATTRIBUTE_USER_FIELD_EMAIL)) {
+user.setEmails(map.get(ATTRIBUTE_USER_FIELD_EMAIL));
+}
+if (map.containsKey(ATTRIBUTE_USER_FIELD_PHONE)) {
+user.setPhoneNumbers(map.get(ATTRIBUTE_USER_FIELD_PHONE));
+}
+if (map.containsKey(ATTRIBUTE_USER_FIELD_PHOTO)) {
+user.setPhotos(map.get(ATTRIBUTE_USER_FIELD_PHOTO));
+}
+if (map.containsKey(ATTRIBUTE_USER_FIELD_IM)) {
+user.setIms(map.get(ATTRIBUTE_USER_FIELD_IM));
+}
+return user;
+}))));
     }
 
 }

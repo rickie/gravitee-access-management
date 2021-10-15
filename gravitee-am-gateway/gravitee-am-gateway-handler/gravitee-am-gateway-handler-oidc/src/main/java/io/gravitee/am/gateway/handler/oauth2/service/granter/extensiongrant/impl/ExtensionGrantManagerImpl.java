@@ -37,16 +37,16 @@ import io.gravitee.am.repository.management.api.ExtensionGrantRepository;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -162,7 +162,7 @@ public class ExtensionGrantManagerImpl extends AbstractService implements Extens
             AuthenticationProvider authenticationProvider = null;
             if (extensionGrant.getIdentityProvider() != null) {
                 logger.info("\tLooking for extension grant identity provider: {}", extensionGrant.getIdentityProvider());
-                authenticationProvider = identityProviderManager.get(extensionGrant.getIdentityProvider()).blockingGet();
+                authenticationProvider = RxJava2Adapter.maybeToMono(identityProviderManager.get(extensionGrant.getIdentityProvider())).block();
                 if (authenticationProvider != null) {
                     logger.info("\tExtension grant identity provider: {}, loaded", extensionGrant.getIdentityProvider());
                 }

@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.gateway.handler.uma.resources.endpoint;
 
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
@@ -42,10 +46,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -103,7 +106,7 @@ public class ResourceRegistrationEndpointTest {
 
     @Test
     public void list_anyError() {
-        when(service.listByDomainAndClientAndUser(anyString(), anyString(), anyString())).thenReturn(Flowable.error(new RuntimeException()));
+        when(service.listByDomainAndClientAndUser(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(new RuntimeException())));
         endpoint.handle(context);
         verify(context, times(1)).fail(errCaptor.capture());
         Assert.assertTrue("Error must be propagated", errCaptor.getValue() instanceof RuntimeException);
@@ -111,7 +114,7 @@ public class ResourceRegistrationEndpointTest {
 
     @Test
     public void list_noResources() {
-        when(service.listByDomainAndClientAndUser(DOMAIN_ID, CLIENT_ID, USER_ID)).thenReturn(Flowable.empty());
+        when(service.listByDomainAndClientAndUser(DOMAIN_ID, CLIENT_ID, USER_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
         endpoint.handle(context);
         verify(response, times(1)).putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
         verify(response, times(1)).setStatusCode(intCaptor.capture());
@@ -120,7 +123,7 @@ public class ResourceRegistrationEndpointTest {
 
     @Test
     public void list_withResources() {
-        when(service.listByDomainAndClientAndUser(DOMAIN_ID, CLIENT_ID, USER_ID)).thenReturn(Flowable.just(new Resource().setId(RESOURCE_ID)));
+        when(service.listByDomainAndClientAndUser(DOMAIN_ID, CLIENT_ID, USER_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Resource().setId(RESOURCE_ID))));
         endpoint.handle(context);
         verify(response, times(1)).putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
         verify(response, times(1)).setStatusCode(intCaptor.capture());
@@ -139,7 +142,7 @@ public class ResourceRegistrationEndpointTest {
     @Test
     public void create_noResource() {
         when(context.getBodyAsJson()).thenReturn(new JsonObject("{\"id\":\"rs_id\",\"resource_scopes\":[\"scope\"]}"));
-        when(service.create(any() , eq(DOMAIN_ID), eq(CLIENT_ID), eq(USER_ID))).thenReturn(Single.error(new ResourceNotFoundException(RESOURCE_ID)));
+        when(service.create(any() , eq(DOMAIN_ID), eq(CLIENT_ID), eq(USER_ID))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new ResourceNotFoundException(RESOURCE_ID))));
         endpoint.create(context);
         verify(context).fail(errCaptor.capture());
         Assert.assertTrue(errCaptor.getValue() instanceof ResourceNotFoundException);
@@ -150,7 +153,7 @@ public class ResourceRegistrationEndpointTest {
         ArgumentCaptor<String> strCaptor = ArgumentCaptor.forClass(String.class);
         when(context.get(CONTEXT_PATH)).thenReturn(DOMAIN_PATH);
         when(context.getBodyAsJson()).thenReturn(new JsonObject("{\"id\":\"rs_id\",\"resource_scopes\":[\"scope\"]}"));
-        when(service.create(any() , eq(DOMAIN_ID), eq(CLIENT_ID), eq(USER_ID))).thenReturn(Single.just(new Resource().setId(RESOURCE_ID)));
+        when(service.create(any() , eq(DOMAIN_ID), eq(CLIENT_ID), eq(USER_ID))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Resource().setId(RESOURCE_ID))));
         when(request.host()).thenReturn("host");
         when(request.scheme()).thenReturn("http");
         endpoint.create(context);
@@ -163,7 +166,7 @@ public class ResourceRegistrationEndpointTest {
 
     @Test
     public void get_noResource() {
-        when(service.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(Maybe.empty());
+        when(service.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         endpoint.get(context);
         verify(context).fail(errCaptor.capture());
         Assert.assertTrue(errCaptor.getValue() instanceof ResourceNotFoundException);
@@ -171,7 +174,7 @@ public class ResourceRegistrationEndpointTest {
 
     @Test
     public void get_withResource() {
-        when(service.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(Maybe.just(new Resource().setId(RESOURCE_ID)));
+        when(service.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Resource().setId(RESOURCE_ID))));
         endpoint.get(context);
         verify(response, times(1)).putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
         verify(response, times(1)).setStatusCode(intCaptor.capture());
@@ -189,7 +192,7 @@ public class ResourceRegistrationEndpointTest {
     @Test
     public void update_noResource() {
         when(context.getBodyAsJson()).thenReturn(new JsonObject("{\"id\":\"rs_id\",\"resource_scopes\":[\"scope\"]}"));
-        when(service.update(any() , eq(DOMAIN_ID), eq(CLIENT_ID), eq(USER_ID), eq(RESOURCE_ID))).thenReturn(Single.error(new ResourceNotFoundException(RESOURCE_ID)));
+        when(service.update(any() , eq(DOMAIN_ID), eq(CLIENT_ID), eq(USER_ID), eq(RESOURCE_ID))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new ResourceNotFoundException(RESOURCE_ID))));
         endpoint.update(context);
         verify(context).fail(errCaptor.capture());
         Assert.assertTrue(errCaptor.getValue() instanceof ResourceNotFoundException);
@@ -198,7 +201,7 @@ public class ResourceRegistrationEndpointTest {
     @Test
     public void update_withResource() {
         when(context.getBodyAsJson()).thenReturn(new JsonObject("{\"id\":\"rs_id\",\"resource_scopes\":[\"scope\"]}"));
-        when(service.update(any() , eq(DOMAIN_ID), eq(CLIENT_ID), eq(USER_ID), eq(RESOURCE_ID))).thenReturn(Single.just(new Resource()));
+        when(service.update(any() , eq(DOMAIN_ID), eq(CLIENT_ID), eq(USER_ID), eq(RESOURCE_ID))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Resource())));
         endpoint.update(context);
         verify(response, times(1)).putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
         verify(response, times(1)).setStatusCode(intCaptor.capture());
@@ -207,7 +210,7 @@ public class ResourceRegistrationEndpointTest {
 
     @Test
     public void delete_noResource() {
-        when(service.delete(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(Completable.error(new ResourceNotFoundException(RESOURCE_ID)));
+        when(service.delete(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(new ResourceNotFoundException(RESOURCE_ID))));
         endpoint.delete(context);
         verify(context).fail(errCaptor.capture());
         Assert.assertTrue(errCaptor.getValue() instanceof ResourceNotFoundException);
@@ -215,7 +218,7 @@ public class ResourceRegistrationEndpointTest {
 
     @Test
     public void delete_withResource() {
-        when(service.delete(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(Completable.complete());
+        when(service.delete(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         endpoint.delete(context);
         verify(response, times(1)).putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
         verify(response, times(1)).setStatusCode(intCaptor.capture());

@@ -23,7 +23,11 @@ import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -34,11 +38,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -63,11 +64,10 @@ public class IdentityProvidersPluginResource {
                      @QueryParam("expand") List<String> expand,
                      @Suspended final AsyncResponse response) {
 
-        identityProviderPluginService.findAll(external, expand)
-                .map(identityProviderPlugins -> identityProviderPlugins.stream()
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(identityProviderPluginService.findAll(external, expand)).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviderPlugins -> identityProviderPlugins.stream()
                         .filter(identityProvider -> !GRAVITEE_AM_IDP.equals(identityProvider.getId()))
                         .sorted(Comparator.comparing(IdentityProviderPlugin::getName))
-                        .collect(Collectors.toList()))
+                        .collect(Collectors.toList()))))
                 .subscribe(response::resume, response::resume);
     }
 

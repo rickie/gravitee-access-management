@@ -18,19 +18,27 @@ package io.gravitee.am.management.service;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.service.permissions.PermissionAcls;
 import io.gravitee.am.model.*;
+import io.gravitee.am.model.Acl;
+import io.gravitee.am.model.Membership;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.repository.management.api.search.MembershipCriteria;
 import io.gravitee.am.service.*;
 import io.gravitee.am.service.exception.InvalidUserException;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-
+import io.reactivex.functions.Function;
 import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -64,20 +72,18 @@ public class PermissionService {
 
     public Single<Map<Permission, Set<Acl>>> findAllPermissions(User user, ReferenceType referenceType, String referenceId) {
 
-        return findMembershipPermissions(user, Collections.singletonMap(referenceType, referenceId).entrySet().stream())
-                .map(this::aclsPerPermission);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findMembershipPermissions(user, Collections.singletonMap(referenceType, referenceId).entrySet().stream())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::aclsPerPermission)));
     }
 
     public Single<Boolean> hasPermission(User user, PermissionAcls permissions) {
 
-        return haveConsistentReferenceIds(permissions)
-                .flatMap(consistent -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(haveConsistentReferenceIds(permissions)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Boolean>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<Boolean>>)consistent -> {
                     if (consistent) {
                         return findMembershipPermissions(user, permissions.referenceStream())
                                 .map(permissions::match);
                     }
                     return Single.just(false);
-                });
+                }).apply(v)))));
     }
 
     protected Single<Boolean> haveConsistentReferenceIds(PermissionAcls permissionAcls) {
@@ -87,7 +93,7 @@ public class PermissionService {
 
             if (referenceMap.size() == 1) {
                 // There is only one type. Consistency is ok.
-                return Single.just(true);
+                return RxJava2Adapter.monoToSingle(Mono.just(true));
             }
 
             // When checking acls for multiple types in same time, we need to check if tuples [ReferenceType - ReferenceId] are consistent each other.
@@ -100,7 +106,7 @@ public class PermissionService {
             String key = StringUtils.arrayToDelimitedString(new String[]{applicationId, domainId, environmentId, organizationId}, "#");
 
             if(consistencyCache.containsKey(key)) {
-                return Single.just(consistencyCache.get(key));
+                return RxJava2Adapter.monoToSingle(Mono.just(consistencyCache.get(key)));
             }
 
             List<Single<Boolean>> obs = new ArrayList<>();
@@ -117,25 +123,24 @@ public class PermissionService {
                 obs.add(isEnvironmentIdConsistent(environmentId, organizationId));
             }
 
-            return Single.merge(obs)
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.merge(obs)
                     .all(consistent -> consistent)
-                    .onErrorResumeNext(Single.just(false))
-                    .doOnSuccess(consistent -> consistencyCache.put(key, consistent));
+                    .onErrorResumeNext(Single.just(false))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(consistent -> consistencyCache.put(key, consistent))));
         } catch (Exception e){
-            return Single.just(false);
+            return RxJava2Adapter.monoToSingle(Mono.just(false));
         }
     }
 
     private Single<Boolean> isApplicationIdConsistent(String applicationId, String domainId, String environmentId, String organizationId) {
 
         if(domainId == null && environmentId == null && organizationId == null) {
-            return Single.just(true);
+            return RxJava2Adapter.monoToSingle(Mono.just(true));
         }
 
         return applicationService.findById(applicationId)
                 .flatMapSingle(application -> {
                     if (domainId != null) {
-                        return Single.just(application.getDomain().equals(domainId));
+                        return RxJava2Adapter.monoToSingle(Mono.just(application.getDomain().equals(domainId)));
                     } else {
                         // Need to fetch the domain to check if it belongs to the environment / organization.
                         return isDomainIdConsistent(application.getDomain(), environmentId, organizationId);
@@ -146,13 +151,13 @@ public class PermissionService {
     private Single<Boolean> isDomainIdConsistent(String domainId, String environmentId, String organizationId) {
 
         if(environmentId == null && organizationId == null) {
-            return Single.just(true);
+            return RxJava2Adapter.monoToSingle(Mono.just(true));
         }
 
         return domainService.findById(domainId)
                 .flatMapSingle(domain -> {
                     if (environmentId != null) {
-                        return Single.just(domain.getReferenceId().equals(environmentId) && domain.getReferenceType() == ReferenceType.ENVIRONMENT);
+                        return RxJava2Adapter.monoToSingle(Mono.just(domain.getReferenceId().equals(environmentId) && domain.getReferenceType() == ReferenceType.ENVIRONMENT));
                     } else {
                         // Need to fetch the environment to check if it belongs to the organization.
                         return isEnvironmentIdConsistent(domain.getReferenceId(), organizationId);
@@ -163,24 +168,22 @@ public class PermissionService {
     private Single<Boolean> isEnvironmentIdConsistent(String environmentId, String organizationId) {
 
         if (organizationId == null) {
-            return Single.just(true);
+            return RxJava2Adapter.monoToSingle(Mono.just(true));
         }
 
-        return environmentService.findById(environmentId, organizationId)
-                .map(environment -> true)
-                .onErrorResumeNext(Single.just(false));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentService.findById(environmentId, organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(environment -> true)))
+                .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(false)));
     }
 
     private Single<Map<Membership, Map<Permission, Set<Acl>>>> findMembershipPermissions(User user, Stream<Map.Entry<ReferenceType, String>> referenceStream) {
 
         if (user.getId() == null) {
-            return Single.error(new InvalidUserException("Specified user is invalid"));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidUserException("Specified user is invalid")));
         }
 
-        return groupService.findByMember(user.getId())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(groupService.findByMember(user.getId())
                 .map(Group::getId)
-                .toList()
-                .flatMap(userGroupIds -> {
+                .toList()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Map<Membership, Map<Permission, Set<Acl>>>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<String>, Single<Map<Membership, Map<Permission, Set<Acl>>>>>)userGroupIds -> {
                     MembershipCriteria criteria = new MembershipCriteria();
                     criteria.setUserId(user.getId());
                     criteria.setGroupIds(userGroupIds.isEmpty() ? null : userGroupIds);
@@ -199,7 +202,7 @@ public class PermissionService {
                                 return roleService.findByIdIn(allMemberships.stream().map(Membership::getRoleId).collect(Collectors.toList()))
                                         .map(allRoles -> permissionsPerMembership(allMemberships, allRoles));
                             });
-                });
+                }).apply(v)))));
     }
 
     private Map<Membership, Map<Permission, Set<Acl>>> permissionsPerMembership(List<Membership> allMemberships, Set<Role> allRoles) {

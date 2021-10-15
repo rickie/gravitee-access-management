@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.policy.enrich.profile;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.gateway.handler.context.EvaluableRequest;
 import io.gravitee.am.model.User;
 import io.gravitee.am.policy.enrich.profile.configuration.EnrichProfilePolicyConfiguration;
@@ -31,20 +34,18 @@ import io.gravitee.gateway.api.Response;
 import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.PolicyResult;
 import io.reactivex.Single;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -138,7 +139,7 @@ public class EnrichProfilePolicyTest {
         User user = mock(User.class);
         when(executionContext.getAttribute("user")).thenReturn(user);
 
-        when(userRepository.update(any())).thenReturn(Single.error(new RuntimeException("Exception thrown for test")));
+        when(userRepository.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new RuntimeException("Exception thrown for test"))));
 
 
         new EnrichProfilePolicy(configuration){
@@ -180,7 +181,7 @@ public class EnrichProfilePolicyTest {
         when(user.getAdditionalInformation()).thenReturn(additionalInformation);
         when(executionContext.getAttribute("user")).thenReturn(user);
 
-        when(userRepository.update(any())).thenReturn(Single.just(user));
+        when(userRepository.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
 
         EnrichProfilePolicy enrichProfilePolicy = new EnrichProfilePolicy(configuration);
         enrichProfilePolicy.onRequest(request, response, executionContext, policyChain);

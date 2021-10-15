@@ -19,11 +19,11 @@ import io.gravitee.am.model.SystemTask;
 import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Date;
 import java.util.UUID;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -37,7 +37,7 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
     public void testFindById() {
         // create task
         SystemTask task = buildSystemTask();
-        SystemTask systemTaskCreated = taskRepository.create(task).blockingGet();
+        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(taskRepository.create(task)).block();
 
         // fetch task
         TestObserver<SystemTask> testObserver = taskRepository.findById(systemTaskCreated.getId()).test();
@@ -83,7 +83,7 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdateIf() {
         SystemTask task = buildSystemTask();
-        SystemTask systemTaskCreated = taskRepository.create(task).blockingGet();
+        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(taskRepository.create(task)).block();
 
         SystemTask updatedSystemTask = buildSystemTask();
         updatedSystemTask.setId(systemTaskCreated.getId());
@@ -99,7 +99,7 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdateIf_mismatch() {
         SystemTask task = buildSystemTask();
-        SystemTask systemTaskCreated = taskRepository.create(task).blockingGet();
+        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(taskRepository.create(task)).block();
 
         SystemTask updatedSystemTask = buildSystemTask();
         updatedSystemTask.setId(systemTaskCreated.getId());
@@ -116,7 +116,7 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
     @Test
     public void testDelete() {
         SystemTask task = buildSystemTask();
-        SystemTask systemTaskCreated = taskRepository.create(task).blockingGet();
+        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(taskRepository.create(task)).block();
 
         // fetch SystemTask
         TestObserver<SystemTask> testObserver = taskRepository.findById(systemTaskCreated.getId()).test();

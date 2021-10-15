@@ -34,20 +34,25 @@ import io.gravitee.am.service.model.UpdateGroup;
 import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.GroupAuditBuilder;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Single;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
+import io.reactivex.functions.Function;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -83,7 +88,7 @@ public class GroupServiceImpl implements GroupService {
         return groupRepository.findAll(referenceType, referenceId, page, size)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find groups by {} {}", referenceType, referenceId, ex);
-                    return Single.error(new TechnicalManagementException(String.format("An error occurs while trying to find users by %s %s", referenceType, referenceId), ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to find users by %s %s", referenceType, referenceId), ex)));
                 });
     }
 
@@ -95,11 +100,10 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Flowable<Group> findAll(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("Find groups by {}: {}", referenceType, referenceId);
-        return groupRepository.findAll(referenceType, referenceId)
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(groupRepository.findAll(referenceType, referenceId)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find groups by {} {}", referenceType, referenceId, ex);
                     return Flowable.error(new TechnicalManagementException(String.format("An error occurs while trying to find users by %s %s", referenceType, referenceId), ex));
-                });
+                })));
     }
 
     @Override
@@ -113,33 +117,31 @@ public class GroupServiceImpl implements GroupService {
         return groupRepository.findByName(referenceType, referenceId, groupName)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a group using its name: {} for the {} {}", groupName, referenceType, referenceId, ex);
-                    return Maybe.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a user using its name: %s for the %s %s", groupName, referenceType, referenceId), ex));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a user using its name: %s for the %s %s", groupName, referenceType, referenceId), ex)));
                 });
     }
 
     @Override
     public Flowable<Group> findByMember(String memberId) {
         LOGGER.debug("Find groups by member : {}", memberId);
-        return groupRepository.findByMember(memberId)
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(groupRepository.findByMember(memberId)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a groups using member ", memberId, ex);
                     return Flowable.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a user using member: %s", memberId), ex));
-                });
+                })));
     }
 
 
     @Override
     public Single<Group> findById(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("Find group by id : {}", id);
-        return groupRepository.findById(referenceType, referenceId, id)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(groupRepository.findById(referenceType, referenceId, id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a group using its id {}", id, ex);
                     return Maybe.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a group using its id: %s", id), ex));
-                })
-                .switchIfEmpty(Single.error(new GroupNotFoundException(id)));
+                })).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new GroupNotFoundException(id))))));
     }
 
 
@@ -149,8 +151,8 @@ public class GroupServiceImpl implements GroupService {
         return groupRepository.findById(id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a group using its ID {}", id, ex);
-                    return Maybe.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a group using its ID: %s", id), ex));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a group using its ID: %s", id), ex)));
                 });
     }
 
@@ -158,8 +160,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Single<Page<User>> findMembers(ReferenceType referenceType, String referenceId, String groupId, int page, int size) {
         LOGGER.debug("Find members for group : {}", groupId);
-        return findById(referenceType, referenceId, groupId)
-                .flatMap(group -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findById(referenceType, referenceId, groupId)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Page<User>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Group, Single<Page<User>>>)group -> {
                     if (group.getMembers() == null || group.getMembers().isEmpty()) {
                         return Single.just(new Page<>(null, page, size));
                     } else {
@@ -169,25 +170,24 @@ public class GroupServiceImpl implements GroupService {
                         CommonUserService service = (group.getReferenceType() == ReferenceType.ORGANIZATION ? organizationUserService : userService);
                         return service.findByIdIn(pagedMemberIds).toList().map(users -> new Page<>(users, page, pagedMemberIds.size()));
                     }
-                });
+                }).apply(v)))));
     }
 
     @Override
     public Flowable<Group> findByIdIn(List<String> ids) {
         LOGGER.debug("Find groups for ids : {}", ids);
-        return groupRepository.findByIdIn(ids)
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(groupRepository.findByIdIn(ids)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a group using ids {}", ids, ex);
                     return Flowable.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a group using ids: %s", ids), ex));
-                });
+                })));
     }
 
     @Override
     public Single<Group> create(ReferenceType referenceType, String referenceId, NewGroup newGroup, io.gravitee.am.identityprovider.api.User principal) {
         LOGGER.debug("Create a new group {} for {} {}", newGroup.getName(), referenceType, referenceId);
 
-        return findByName(referenceType, referenceId, newGroup.getName())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findByName(referenceType, referenceId, newGroup.getName())
                 .isEmpty()
                 .map(isEmpty -> {
                     if (!isEmpty) {
@@ -221,8 +221,7 @@ public class GroupServiceImpl implements GroupService {
                         return Single.error(new TechnicalManagementException("An error occurs while trying to create a group", ex));
                     }
                 })
-                .doOnSuccess(group -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_CREATED).group(group)))
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_CREATED).throwable(throwable)));
+                .doOnSuccess(group -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_CREATED).group(group)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_CREATED).throwable(throwable)))));
     }
 
     @Override
@@ -235,9 +234,7 @@ public class GroupServiceImpl implements GroupService {
     public Single<Group> update(ReferenceType referenceType, String referenceId, String id, UpdateGroup updateGroup, io.gravitee.am.identityprovider.api.User principal) {
         LOGGER.debug("Update a group {} for {} {}", id, referenceType, referenceId);
 
-        return findById(referenceType, referenceId, id)
-                // check uniqueness
-                .flatMapMaybe(existingGroup -> groupRepository.findByName(referenceType, referenceId, updateGroup.getName())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(findById(referenceType, referenceId, id)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Group, MaybeSource<Group>>)existingGroup -> groupRepository.findByName(referenceType, referenceId, updateGroup.getName())
                         .map(Optional::of)
                         .defaultIfEmpty(Optional.empty())
                         .map(optionalGroup -> {
@@ -245,8 +242,7 @@ public class GroupServiceImpl implements GroupService {
                                 throw new GroupAlreadyExistsException(updateGroup.getName());
                             }
                             return existingGroup;
-                        })
-                )
+                        })).apply(e)))))
                 .flatMapSingle(oldGroup -> {
                     Group groupToUpdate = new Group(oldGroup);
                     groupToUpdate.setName(updateGroup.getName());
@@ -255,24 +251,23 @@ public class GroupServiceImpl implements GroupService {
                     groupToUpdate.setUpdatedAt(new Date());
 
                     // set members and update
-                    return setMembers(groupToUpdate)
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(setMembers(groupToUpdate)
                             .flatMap(groupRepository::update)
                             // create event for sync process
                             .flatMap(group -> {
                                 Event event = new Event(Type.GROUP, new Payload(group.getId(), group.getReferenceType(), group.getReferenceId(), Action.UPDATE));
                                 return eventService.create(event).flatMap(__ -> Single.just(group));
                             })
-                            .doOnSuccess(group -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_UPDATED).oldValue(oldGroup).group(group)))
-                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_UPDATED).throwable(throwable)));
+                            .doOnSuccess(group -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_UPDATED).oldValue(oldGroup).group(group)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_UPDATED).throwable(throwable)))));
 
                 })
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
 
                     LOGGER.error("An error occurs while trying to update a group", ex);
-                    return Single.error(new TechnicalManagementException("An error occurs while trying to update a group", ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a group", ex)));
                 });
     }
 
@@ -286,19 +281,17 @@ public class GroupServiceImpl implements GroupService {
     public Completable delete(ReferenceType referenceType, String referenceId, String groupId, io.gravitee.am.identityprovider.api.User principal) {
         LOGGER.debug("Delete group {}", groupId);
 
-        return findById(referenceType, referenceId, groupId)
-                .flatMapCompletable(group -> groupRepository.delete(groupId)
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(findById(referenceType, referenceId, groupId)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Group, CompletableSource>)group -> groupRepository.delete(groupId)
                         .andThen(Completable.fromSingle(eventService.create(new Event(Type.DOMAIN, new Payload(group.getId(), group.getReferenceType(), group.getReferenceId(), Action.DELETE)))))
                         .doOnComplete(() -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_DELETED).group(group)))
-                        .doOnError(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_DELETED).throwable(throwable)))
-                )
+                        .doOnError(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_DELETED).throwable(throwable)))).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Completable.error(ex);
+                        return RxJava2Adapter.monoToCompletable(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to delete group: {}", groupId, ex);
-                    return Completable.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to delete group: %s", groupId), ex));
+                    return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to delete group: %s", groupId), ex)));
                 });
     }
 
@@ -313,8 +306,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     private Single<Group> assignRoles0(ReferenceType referenceType, String referenceId, String groupId, List<String> roles, io.gravitee.am.identityprovider.api.User principal, boolean revoke) {
-        return findById(referenceType, referenceId, groupId)
-                .flatMap(oldGroup -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findById(referenceType, referenceId, groupId)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Group>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Group, Single<Group>>)oldGroup -> {
                     Group groupToUpdate = new Group(oldGroup);
                     // remove existing roles from the group
                     if (revoke) {
@@ -330,33 +322,31 @@ public class GroupServiceImpl implements GroupService {
                             .andThen(Single.defer(() -> groupRepository.update(groupToUpdate)))
                             .doOnSuccess(group1 -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_ROLES_ASSIGNED).oldValue(oldGroup).group(group1)))
                             .doOnError(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_ROLES_ASSIGNED).throwable(throwable)));
-                });
+                }).apply(v)))));
     }
 
     private Single<Group> setMembers(Group group) {
         List<String> userMembers = group.getMembers() != null ? group.getMembers().stream().filter(Objects::nonNull).distinct().collect(Collectors.toList()) : null;
         if (userMembers != null && !userMembers.isEmpty()) {
             CommonUserService service = (group.getReferenceType() == ReferenceType.ORGANIZATION ? organizationUserService : userService);
-            return service.findByIdIn(userMembers)
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(service.findByIdIn(userMembers)
                     .map(User::getId)
-                    .toList()
-                    .map(userIds -> {
+                    .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(userIds -> {
                         group.setMembers(userIds);
                         return group;
-                    });
+                    })));
         }
-        return Single.just(group);
+        return RxJava2Adapter.monoToSingle(Mono.just(group));
     }
 
     private Completable checkRoles(List<String> roles) {
-        return roleService.findByIdIn(roles)
-                .map(roles1 -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(roleService.findByIdIn(roles)).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
                     if (roles1.size() != roles.size()) {
                         // find difference between the two list
                         roles.removeAll(roles1.stream().map(Role::getId).collect(Collectors.toList()));
                         throw new RoleNotFoundException(String.join(",", roles));
                     }
                     return roles1;
-                }).toCompletable();
+                }))).toCompletable();
     }
 }

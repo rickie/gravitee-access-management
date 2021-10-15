@@ -26,6 +26,7 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.MembershipService;
 import io.gravitee.am.service.OrganizationService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -36,6 +37,7 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -61,9 +63,8 @@ public class MemberResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_MEMBER, Acl.DELETE)
-                .andThen(organizationService.findById(organizationId)
-                        .flatMapCompletable(irrelevant -> membershipService.delete(membershipId, authenticatedUser)))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_MEMBER, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(organizationService.findById(organizationId)
+                        .flatMapCompletable(irrelevant -> membershipService.delete(membershipId, authenticatedUser))))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

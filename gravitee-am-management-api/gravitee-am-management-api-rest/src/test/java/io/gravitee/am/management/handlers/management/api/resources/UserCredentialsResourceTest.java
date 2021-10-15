@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Credential;
 import io.gravitee.am.model.Domain;
@@ -24,12 +27,11 @@ import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
-import org.junit.Test;
-
 import javax.ws.rs.core.Response;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -49,8 +51,8 @@ public class UserCredentialsResourceTest extends JerseySpringTest {
         final Credential mockCredential = new Credential();
         mockCredential.setId("credential-id");
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Flowable.just(mockCredential)).when(credentialService).findByUserId(ReferenceType.DOMAIN, domainId, mockUser.getId());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.fluxToFlowable(Flux.just(mockCredential))).when(credentialService).findByUserId(ReferenceType.DOMAIN, domainId, mockUser.getId());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -66,7 +68,7 @@ public class UserCredentialsResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetUserFactors_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(Maybe.error(new TechnicalManagementException("error occurs"))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs")))).when(domainService).findById(domainId);
 
         final Response response = target("domains")
                 .path(domainId)

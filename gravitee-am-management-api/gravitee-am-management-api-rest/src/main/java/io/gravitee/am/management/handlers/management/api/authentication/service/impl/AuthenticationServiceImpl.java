@@ -35,12 +35,16 @@ import io.gravitee.am.service.exception.UserNotFoundException;
 import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.AuthenticationAuditBuilder;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
+import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-
-import java.util.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -77,7 +81,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String organizationId = details.get(Claims.organization);
 
         final String source = details.get(SOURCE);
-        io.gravitee.am.model.User endUser = userService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, organizationId, principal.getId(), source)
+        io.gravitee.am.model.User endUser = RxJava2Adapter.singleToMono(userService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, organizationId, principal.getId(), source)
                 .switchIfEmpty(Maybe.defer(() -> userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, organizationId, principal.getUsername(), source)))
                 .switchIfEmpty(Maybe.error(new UserNotFoundException(principal.getUsername())))
                 .flatMapSingle(existingUser -> {
@@ -111,8 +115,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 })
                 .flatMap(userService::enhance)
                 .doOnSuccess(user -> auditService.report(AuditBuilder.builder(AuthenticationAuditBuilder.class).principal(authentication).referenceType(ReferenceType.ORGANIZATION)
-                        .referenceId(organizationId).user(user)))
-                .blockingGet();
+                        .referenceId(organizationId).user(user)))).block();
 
         principal.setId(endUser.getId());
         principal.setUsername(endUser.getUsername());
@@ -146,19 +149,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private Completable updateRoles(User principal, io.gravitee.am.model.User existingUser) {
         // no role defined, continue
         if (principal.getRoles() == null || principal.getRoles().isEmpty()) {
-            return Completable.complete();
+            return RxJava2Adapter.monoToCompletable(Mono.empty());
         }
 
         // role to update if it's different from the current one
         final String roleId = principal.getRoles().get(0);
 
         // update membership if necessary
-        return membershipService.findByMember(existingUser.getId(), MemberType.USER)
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(membershipService.findByMember(existingUser.getId(), MemberType.USER)
                 .filter(membership -> ReferenceType.ORGANIZATION == membership.getReferenceType())
                 .firstElement()
                 .map(membership -> !membership.getRoleId().equals(roleId))
-                .switchIfEmpty(Maybe.just(false))
-                .flatMapCompletable(mustChangeOrganizationRole -> {
+                .switchIfEmpty(Maybe.just(false))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)mustChangeOrganizationRole -> {
 
                     if (!mustChangeOrganizationRole) {
                         return Completable.complete();
@@ -175,6 +177,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     return roleService.findById(existingUser.getReferenceType(), existingUser.getReferenceId(), roleId)
                             .flatMap(__ -> membershipService.addOrUpdate(existingUser.getReferenceId(), membership))
                             .ignoreElement();
-                });
+                }).apply(y)))).then());
     }
 }

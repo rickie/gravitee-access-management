@@ -26,15 +26,17 @@ import io.gravitee.am.gateway.handler.oidc.service.flow.implicit.ImplicitFlow;
 import io.gravitee.am.gateway.handler.oidc.service.idtoken.IDTokenService;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -63,9 +65,8 @@ public class CompositeFlow implements Flow, InitializingBean  {
 
     @Override
     public Single<AuthorizationResponse> run(AuthorizationRequest authorizationRequest, Client client, User endUser) {
-        return Observable
-                .fromIterable(flows)
-                .filter(flow -> flow.handle(authorizationRequest.getResponseType()))
+        return RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable
+                .fromIterable(flows), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(flow -> flow.handle(authorizationRequest.getResponseType()))))
                 .switchIfEmpty(Observable.error(new UnsupportedResponseTypeException("Unsupported response type: " + authorizationRequest.getResponseType())))
                 .flatMapSingle(flow -> flow.run(authorizationRequest, client, endUser)).singleOrError();
     }

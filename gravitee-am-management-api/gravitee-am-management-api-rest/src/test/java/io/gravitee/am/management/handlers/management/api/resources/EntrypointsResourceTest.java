@@ -15,6 +15,12 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Entrypoint;
@@ -23,19 +29,15 @@ import io.gravitee.am.service.model.NewEntrypoint;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import org.junit.Test;
-
+import java.util.Collections;
+import java.util.List;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -58,7 +60,7 @@ public class EntrypointsResourceTest extends JerseySpringTest {
         entrypoint2.setName("entrypoint-2-name");
         entrypoint2.setOrganizationId(ORGANIZATION_ID);
 
-        doReturn(Flowable.just(entrypoint, entrypoint2)).when(entrypointService).findAll(ORGANIZATION_ID);
+        doReturn(RxJava2Adapter.fluxToFlowable(Flux.just(entrypoint, entrypoint2))).when(entrypointService).findAll(ORGANIZATION_ID);
 
         final Response response = target("organizations")
                 .path(ORGANIZATION_ID)
@@ -71,7 +73,7 @@ public class EntrypointsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetEntrypoints_technicalManagementException() {
-        doReturn(Flowable.error(new TechnicalManagementException("error occurs"))).when(entrypointService).findAll(anyString());
+        doReturn(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs")))).when(entrypointService).findAll(anyString());
 
         final Response response = target("organizations")
                 .path(ORGANIZATION_ID)
@@ -90,7 +92,7 @@ public class EntrypointsResourceTest extends JerseySpringTest {
         entrypoint.setId("entrypoint-1");
         entrypoint.setName("name");
 
-        doReturn(Single.just(entrypoint)).when(entrypointService).create(eq(ORGANIZATION_ID), any(NewEntrypoint.class), any(User.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(entrypoint))).when(entrypointService).create(eq(ORGANIZATION_ID), any(NewEntrypoint.class), any(User.class));
 
         WebTarget path = target("organizations")
                 .path(ORGANIZATION_ID)

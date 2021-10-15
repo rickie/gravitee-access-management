@@ -16,16 +16,17 @@
 package io.gravitee.am.gateway.handler.common.user.impl;
 
 import io.gravitee.am.gateway.handler.common.user.UserService;
-import io.gravitee.am.model.User;
 import io.gravitee.am.model.ReferenceType;
+import io.gravitee.am.model.User;
 import io.gravitee.am.model.factor.EnrolledFactor;
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Single<List<User>> findByDomainAndCriteria(String domain, FilterCriteria criteria) {
-        return userService.search(ReferenceType.DOMAIN, domain, criteria, 0, 2).map(p -> new ArrayList<>(p.getData()));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.search(ReferenceType.DOMAIN, domain, criteria, 0, 2)).map(RxJavaReactorMigrationUtil.toJdkFunction(p -> new ArrayList<>(p.getData()))));
     }
 
     @Override

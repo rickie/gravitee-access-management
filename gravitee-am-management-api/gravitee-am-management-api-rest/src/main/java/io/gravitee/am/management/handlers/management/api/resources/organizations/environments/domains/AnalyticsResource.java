@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
+import static io.gravitee.am.management.service.permissions.Permissions.of;
+import static io.gravitee.am.management.service.permissions.Permissions.or;
+
 import io.gravitee.am.management.handlers.management.api.model.AnalyticsParam;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.management.service.AnalyticsService;
@@ -23,11 +26,10 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.analytics.AnalyticsQuery;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.PathParam;
@@ -35,9 +37,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
-
-import static io.gravitee.am.management.service.permissions.Permissions.of;
-import static io.gravitee.am.management.service.permissions.Permissions.or;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -76,8 +77,7 @@ public class AnalyticsResource extends AbstractResource {
         query.setInterval(param.getInterval());
         query.setSize(param.getSize());
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ANALYTICS, Acl.READ)
-                .andThen(analyticsService.execute(query))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ANALYTICS, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(analyticsService.execute(query)))))
                 .subscribe(response::resume, response::resume);
     }
 }

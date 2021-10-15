@@ -19,12 +19,13 @@ import io.gravitee.am.gateway.handler.oauth2.service.scope.ScopeManager;
 import io.gravitee.am.gateway.handler.oauth2.service.scope.ScopeService;
 import io.gravitee.am.model.oauth2.Scope;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -37,7 +38,7 @@ public class ScopeServiceImpl implements ScopeService {
 
     @Override
     public Single<Set<Scope>> getAll() {
-        return Single.just(scopeManager.findAll());
+        return RxJava2Adapter.monoToSingle(Mono.just(scopeManager.findAll()));
     }
 
     @Override

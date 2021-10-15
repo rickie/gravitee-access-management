@@ -33,11 +33,12 @@ import io.gravitee.am.resource.api.mfa.MFAResourceProvider;
 import io.gravitee.am.resource.api.mfa.MFAType;
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Locale;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -61,13 +62,13 @@ public class SMSFactorProvider implements FactorProvider {
             MFAChallenge challenge = new MFAChallenge(enrolledFactor.getChannel().getTarget(), code);
             return mfaProvider.verify(challenge);
         } else {
-            return Completable.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS")));
         }
     }
 
     @Override
     public Single<Enrollment> enroll(String account) {
-        return Single.just(new Enrollment(this.configuration.countries()));
+        return RxJava2Adapter.monoToSingle(Mono.just(new Enrollment(this.configuration.countries())));
     }
 
     @Override
@@ -85,7 +86,7 @@ public class SMSFactorProvider implements FactorProvider {
             MFALink link = new MFALink(MFAType.SMS, enrolledFactor.getChannel().getTarget());
             return mfaProvider.send(link);
         } else {
-            return Completable.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS")));
         }
     }
 

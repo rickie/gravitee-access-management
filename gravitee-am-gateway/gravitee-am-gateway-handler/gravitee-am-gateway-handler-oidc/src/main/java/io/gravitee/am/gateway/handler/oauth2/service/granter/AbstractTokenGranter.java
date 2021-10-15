@@ -22,13 +22,15 @@ import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequestResolver;
 import io.gravitee.am.gateway.handler.oauth2.service.token.Token;
 import io.gravitee.am.gateway.handler.oauth2.service.token.TokenService;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.User;
+import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.Objects;
 import java.util.Optional;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -57,10 +59,9 @@ public class AbstractTokenGranter implements TokenGranter {
 
     @Override
     public Single<Token> grant(TokenRequest tokenRequest, Client client) {
-        return parseRequest(tokenRequest, client)
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(parseRequest(tokenRequest, client)
                 .flatMapMaybe(tokenRequest1 -> resolveResourceOwner(tokenRequest1, client))
-                .map(Optional::of)
-                .defaultIfEmpty(Optional.empty())
+                .map(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(user -> handleRequest(tokenRequest, client, user.orElse(null)));
     }
 
@@ -76,7 +77,7 @@ public class AbstractTokenGranter implements TokenGranter {
                 && !client.getAuthorizedGrantTypes().contains(grantType)) {
             throw new UnauthorizedClientException("Unauthorized grant type: " + grantType);
         }
-        return Single.just(tokenRequest);
+        return RxJava2Adapter.monoToSingle(Mono.just(tokenRequest));
     }
 
     /**
@@ -86,7 +87,7 @@ public class AbstractTokenGranter implements TokenGranter {
      * @return Resource Owner or empty for protocol flow like client_credentials
      */
     protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
-        return Maybe.empty();
+        return RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
     /**
@@ -109,20 +110,18 @@ public class AbstractTokenGranter implements TokenGranter {
     }
 
     private Single<Token> handleRequest(TokenRequest tokenRequest, Client client, User endUser) {
-        return resolveRequest(tokenRequest, client, endUser)
-                .flatMap(tokenRequest1 -> createOAuth2Request(tokenRequest1, client, endUser))
-                .flatMap(oAuth2Request -> createAccessToken(oAuth2Request, client, endUser));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resolveRequest(tokenRequest, client, endUser)
+                .flatMap(tokenRequest1 -> createOAuth2Request(tokenRequest1, client, endUser))).flatMap(oAuth2Request->RxJava2Adapter.singleToMono(createAccessToken(oAuth2Request, client, endUser))));
     }
 
     private Single<OAuth2Request> createOAuth2Request(TokenRequest tokenRequest, Client client, User endUser) {
-        return Single.just(tokenRequest.createOAuth2Request())
-                .map(oAuth2Request -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.just(tokenRequest.createOAuth2Request())).map(RxJavaReactorMigrationUtil.toJdkFunction(oAuth2Request -> {
                     if (endUser != null) {
                         oAuth2Request.setSubject(endUser.getId());
                     }
                     oAuth2Request.setSupportRefreshToken(isSupportRefreshToken(client));
                     return oAuth2Request;
-                });
+                })));
     }
 
     private Single<Token> createAccessToken(OAuth2Request oAuth2Request, Client client, User endUser) {

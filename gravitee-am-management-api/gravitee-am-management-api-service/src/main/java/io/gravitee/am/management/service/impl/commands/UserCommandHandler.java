@@ -27,12 +27,13 @@ import io.gravitee.cockpit.api.command.user.UserCommand;
 import io.gravitee.cockpit.api.command.user.UserPayload;
 import io.gravitee.cockpit.api.command.user.UserReply;
 import io.reactivex.Single;
+import java.util.HashMap;
+import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import javax.inject.Named;
-import java.util.HashMap;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -76,10 +77,9 @@ public class UserCommandHandler implements CommandHandler<UserCommand, UserReply
 
         newUser.getAdditionalInformation().computeIfAbsent(StandardClaims.PICTURE, k -> userPayload.getPicture());
 
-        return userService.createOrUpdate(ReferenceType.ORGANIZATION, userPayload.getOrganizationId(), newUser)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.createOrUpdate(ReferenceType.ORGANIZATION, userPayload.getOrganizationId(), newUser)
                 .doOnSuccess(user -> logger.info("User [{}] created with id [{}].", user.getUsername(), user.getId()))
-                .map(user -> new UserReply(command.getId(), CommandStatus.SUCCEEDED))
-                .doOnError(error -> logger.info("Error occurred when creating user [{}] for organization [{}].", userPayload.getUsername(), userPayload.getOrganizationId(), error))
+                .map(user -> new UserReply(command.getId(), CommandStatus.SUCCEEDED))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.info("Error occurred when creating user [{}] for organization [{}].", userPayload.getUsername(), userPayload.getOrganizationId(), error))))
                 .onErrorReturn(throwable -> new UserReply(command.getId(), CommandStatus.ERROR));
     }
 }

@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.oidc.resources.endpoint;
 
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest;
 import io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationService;
@@ -32,8 +34,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -95,7 +97,7 @@ public class DynamicClientRegistrationEndpointTest {
         //Context
         HttpServerRequest serverRequest = Mockito.mock(HttpServerRequest.class);
         when(routingContext.request()).thenReturn(serverRequest);
-        when(dcrService.create(any(),any())).thenReturn(Single.error(new Exception()));
+        when(dcrService.create(any(),any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new Exception())));
 
         //Test
         endpoint.handle(routingContext);
@@ -118,7 +120,7 @@ public class DynamicClientRegistrationEndpointTest {
         when(serverResponse.putHeader(anyString(),anyString())).thenReturn(serverResponse);
         when(serverResponse.setStatusCode(201)).thenReturn(serverResponse);
 
-        when(dcrService.create(any(),any())).thenReturn(Single.just(new Client()));
+        when(dcrService.create(any(),any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Client())));
         when(clientSyncService.addDynamicClientRegistred(any())).thenReturn(new Client());
 
         //Test

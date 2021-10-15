@@ -15,6 +15,12 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.Domain;
@@ -25,17 +31,12 @@ import io.gravitee.am.service.model.NewApplication;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.junit.Test;
-
+import java.util.*;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -63,8 +64,8 @@ public class ApplicationsResourceTest extends JerseySpringTest {
 
         final Page<Application> applicationPage = new Page(new HashSet<>(Arrays.asList(mockClient, mockClient2)), 0, 2);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(applicationPage)).when(applicationService).findByDomain(domainId, 0, Integer.MAX_VALUE);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(applicationPage))).when(applicationService).findByDomain(domainId, 0, Integer.MAX_VALUE);
 
         final Response response = target("domains").path(domainId).path("applications").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -76,7 +77,7 @@ public class ApplicationsResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetApplications_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(Single.error(new TechnicalManagementException("error occurs"))).when(applicationService).findByDomain(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("error occurs")))).when(applicationService).findByDomain(domainId);
 
         final Response response = target("domains").path(domainId).path("applications").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -98,8 +99,8 @@ public class ApplicationsResourceTest extends JerseySpringTest {
         application.setName("name");
         application.setType(ApplicationType.SERVICE);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(application)).when(applicationService).create(eq(domainId), any(NewApplication.class), any());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(application))).when(applicationService).create(eq(domainId), any(NewApplication.class), any());
 
         final Response response = target("domains")
                 .path(domainId)

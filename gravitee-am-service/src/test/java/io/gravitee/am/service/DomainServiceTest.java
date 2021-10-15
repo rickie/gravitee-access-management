@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.identityprovider.api.DefaultUser;
 import io.gravitee.am.model.*;
 import io.gravitee.am.model.account.AccountSettings;
@@ -46,6 +50,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -53,12 +58,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -199,7 +202,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(domainRepository.findById("my-domain")).thenReturn(Maybe.just(new Domain()));
+        when(domainRepository.findById("my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
         TestObserver testObserver = domainService.findById("my-domain").test();
 
         testObserver.awaitTerminalEvent();
@@ -210,7 +213,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindById_notExistingDomain() {
-        when(domainRepository.findById("my-domain")).thenReturn(Maybe.empty());
+        when(domainRepository.findById("my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver testObserver = domainService.findById("my-domain").test();
         testObserver.awaitTerminalEvent();
 
@@ -219,7 +222,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(domainRepository.findById("my-domain")).thenReturn(Maybe.error(TechnicalException::new));
+        when(domainRepository.findById("my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
         TestObserver testObserver = new TestObserver();
         domainService.findById("my-domain").subscribe(testObserver);
 
@@ -229,7 +232,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindAll() {
-        when(domainRepository.findAll()).thenReturn(Flowable.just(new Domain()));
+        when(domainRepository.findAll()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Domain())));
         TestObserver<List<Domain>> testObserver = domainService.findAll().test();
         testObserver.awaitTerminalEvent();
 
@@ -240,7 +243,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindAll_technicalException() {
-        when(domainRepository.findAll()).thenReturn(Flowable.error(TechnicalException::new));
+        when(domainRepository.findAll()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver<>();
         domainService.findAll().subscribe(testObserver);
@@ -251,7 +254,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindByIdsIn() {
-        when(domainRepository.findByIdIn(Arrays.asList("1", "2"))).thenReturn(Flowable.just(new Domain()));
+        when(domainRepository.findByIdIn(Arrays.asList("1", "2"))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Domain())));
         TestSubscriber<Domain> testSubscriber = domainService.findByIdIn(Arrays.asList("1", "2")).test();
         testSubscriber.awaitTerminalEvent();
 
@@ -262,7 +265,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindByIdsIn_technicalException() {
-        when(domainRepository.findByIdIn(Arrays.asList("1", "2"))).thenReturn(Flowable.error(TechnicalException::new));
+        when(domainRepository.findByIdIn(Arrays.asList("1", "2"))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestSubscriber testSubscriber = domainService.findByIdIn(Arrays.asList("1", "2")).test();
 
@@ -274,19 +277,19 @@ public class DomainServiceTest {
     public void shouldCreate() {
         NewDomain newDomain = Mockito.mock(NewDomain.class);
         when(newDomain.getName()).thenReturn("my-domain");
-        when(environmentService.findById(ENVIRONMENT_ID)).thenReturn(Single.just(new Environment()));
-        when(domainRepository.findAll()).thenReturn(Flowable.empty());
+        when(environmentService.findById(ENVIRONMENT_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Environment())));
+        when(domainRepository.findAll()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
         Domain domain = new Domain();
         domain.setReferenceType(ReferenceType.ENVIRONMENT);
         domain.setReferenceId(ENVIRONMENT_ID);
         domain.setId("domain-id");
-        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(Maybe.empty());
-        when(domainRepository.create(any(Domain.class))).thenReturn(Single.just(domain));
-        when(scopeService.create(anyString(), any(NewSystemScope.class))).thenReturn(Single.just(new Scope()));
-        when(certificateService.create(eq(domain.getId()))).thenReturn(Single.just(new Certificate()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(membershipService.addOrUpdate(eq(ORGANIZATION_ID), any())).thenReturn(Single.just(new Membership()));
-        when(roleService.findSystemRole(SystemRole.DOMAIN_PRIMARY_OWNER, ReferenceType.DOMAIN)).thenReturn(Maybe.just(new Role()));
+        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(domainRepository.create(any(Domain.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(domain)));
+        when(scopeService.create(anyString(), any(NewSystemScope.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
+        when(certificateService.create(eq(domain.getId()))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Certificate())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(membershipService.addOrUpdate(eq(ORGANIZATION_ID), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Membership())));
+        when(roleService.findSystemRole(SystemRole.DOMAIN_PRIMARY_OWNER, ReferenceType.DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Role())));
 
         TestObserver testObserver = domainService.create(ORGANIZATION_ID, ENVIRONMENT_ID, newDomain, new DefaultUser("username")).test();
         testObserver.awaitTerminalEvent();
@@ -306,7 +309,7 @@ public class DomainServiceTest {
     public void shouldCreate_technicalException() {
         NewDomain newDomain = Mockito.mock(NewDomain.class);
         when(newDomain.getName()).thenReturn("my-domain");
-        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(Maybe.error(TechnicalException::new));
+        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver<Domain> testObserver = new TestObserver<>();
         domainService.create(ORGANIZATION_ID, ENVIRONMENT_ID, newDomain).subscribe(testObserver);
@@ -321,10 +324,10 @@ public class DomainServiceTest {
     public void shouldCreate2_technicalException() {
         NewDomain newDomain = Mockito.mock(NewDomain.class);
         when(newDomain.getName()).thenReturn("my-domain");
-        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(Maybe.empty());
-        when(environmentService.findById(ENVIRONMENT_ID)).thenReturn(Single.just(new Environment()));
-        when((domainRepository.findAll())).thenReturn(Flowable.empty());
-        when(domainRepository.create(any(Domain.class))).thenReturn(Single.error(TechnicalException::new));
+        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(environmentService.findById(ENVIRONMENT_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Environment())));
+        when((domainRepository.findAll())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(domainRepository.create(any(Domain.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver<Domain> testObserver = new TestObserver<>();
         domainService.create(ORGANIZATION_ID, ENVIRONMENT_ID, newDomain).subscribe(testObserver);
@@ -339,7 +342,7 @@ public class DomainServiceTest {
     public void shouldCreate_existingDomain() {
         NewDomain newDomain = Mockito.mock(NewDomain.class);
         when(newDomain.getName()).thenReturn("my-domain");
-        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(Maybe.just(new Domain()));
+        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
 
         TestObserver<Domain> testObserver = new TestObserver<>();
         domainService.create(ORGANIZATION_ID, ENVIRONMENT_ID, newDomain).subscribe(testObserver);
@@ -353,7 +356,7 @@ public class DomainServiceTest {
     @Test
     public void shouldPatch_domainNotFound() {
         PatchDomain patchDomain = Mockito.mock(PatchDomain.class);
-        when(domainRepository.findById("my-domain")).thenReturn(Maybe.empty());
+        when(domainRepository.findById("my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = domainService.patch("my-domain", patchDomain).test();
         testObserver.assertError(DomainNotFoundException.class);
@@ -374,12 +377,12 @@ public class DomainServiceTest {
         domain.setName("my-domain");
         domain.setPath("/test");
         when(patchDomain.patch(any())).thenReturn(domain);
-        when(domainRepository.findById("my-domain")).thenReturn(Maybe.just(domain));
-        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(Maybe.just(domain));
-        when(environmentService.findById(ENVIRONMENT_ID)).thenReturn(Single.just(new Environment()));
-        when(domainRepository.findAll()).thenReturn(Flowable.empty());
-        when(domainRepository.update(any(Domain.class))).thenReturn(Single.just(domain));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(domainRepository.findById("my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(environmentService.findById(ENVIRONMENT_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Environment())));
+        when(domainRepository.findAll()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(domainRepository.update(any(Domain.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(domain)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = domainService.patch("my-domain", patchDomain).test();
         testObserver.awaitTerminalEvent();
@@ -406,12 +409,12 @@ public class DomainServiceTest {
         accountSettings.setResetPasswordCustomForm(false);
         domain.setAccountSettings(accountSettings);
         when(patchDomain.patch(any())).thenReturn(domain);
-        when(domainRepository.findById("my-domain")).thenReturn(Maybe.just(domain));
-        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(Maybe.just(domain));
-        when(environmentService.findById(ENVIRONMENT_ID)).thenReturn(Single.just(new Environment()));
-        when(domainRepository.findAll()).thenReturn(Flowable.empty());
-        when(domainRepository.update(any(Domain.class))).thenReturn(Single.just(domain));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(domainRepository.findById("my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(environmentService.findById(ENVIRONMENT_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Environment())));
+        when(domainRepository.findAll()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(domainRepository.update(any(Domain.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(domain)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = domainService.patch("my-domain", patchDomain).test();
         testObserver.awaitTerminalEvent();
@@ -441,12 +444,12 @@ public class DomainServiceTest {
         accountSettings.setResetPasswordCustomForm(true);
         domain.setAccountSettings(accountSettings);
         when(patchDomain.patch(any())).thenReturn(domain);
-        when(domainRepository.findById("my-domain")).thenReturn(Maybe.just(domain));
-        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(Maybe.just(domain));
-        when(environmentService.findById(ENVIRONMENT_ID)).thenReturn(Single.just(new Environment()));
-        when(domainRepository.findAll()).thenReturn(Flowable.empty());
-        when(domainRepository.update(any(Domain.class))).thenReturn(Single.just(domain));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(domainRepository.findById("my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(environmentService.findById(ENVIRONMENT_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Environment())));
+        when(domainRepository.findAll()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(domainRepository.update(any(Domain.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(domain)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = domainService.patch("my-domain", patchDomain).test();
         testObserver.awaitTerminalEvent();
@@ -476,7 +479,7 @@ public class DomainServiceTest {
         accountSettings.setResetPasswordCustomForm(true);
         domain.setAccountSettings(accountSettings);
         when(patchDomain.patch(any())).thenReturn(domain);
-        when(domainRepository.findById("my-domain")).thenReturn(Maybe.just(domain));
+        when(domainRepository.findById("my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
 
         TestObserver testObserver = domainService.patch("my-domain", patchDomain).test();
         testObserver.awaitTerminalEvent();
@@ -510,8 +513,8 @@ public class DomainServiceTest {
         otherDomain.setReferenceId(ENVIRONMENT_ID);
 
         when(patchDomain.patch(any())).thenReturn(domain);
-        when(domainRepository.findById("my-domain")).thenReturn(Maybe.just(domain));
-        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(Maybe.just(otherDomain));
+        when(domainRepository.findById("my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(otherDomain)));
 
         TestObserver testObserver = domainService.patch("my-domain", patchDomain).test();
         testObserver.assertError(DomainAlreadyExistsException.class);
@@ -525,7 +528,7 @@ public class DomainServiceTest {
     @Test
     public void shouldPatch_technicalException() {
         PatchDomain patchDomain = Mockito.mock(PatchDomain.class);
-        when(domainRepository.findById("my-domain")).thenReturn(Maybe.error(TechnicalException::new));
+        when(domainRepository.findById("my-domain")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = domainService.patch("my-domain", patchDomain).test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -557,56 +560,56 @@ public class DomainServiceTest {
         alertNotifier.setReferenceType(ReferenceType.DOMAIN);
         alertNotifier.setReferenceId(DOMAIN_ID);
 
-        when(domainRepository.findById(DOMAIN_ID)).thenReturn(Maybe.just(domain));
-        when(domainRepository.delete(DOMAIN_ID)).thenReturn(Completable.complete());
-        when(applicationService.findByDomain(DOMAIN_ID)).thenReturn(Single.just(mockApplications));
-        when(applicationService.delete(anyString())).thenReturn(Completable.complete());
+        when(domainRepository.findById(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(domainRepository.delete(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(applicationService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(mockApplications)));
+        when(applicationService.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(certificate.getId()).thenReturn(CERTIFICATE_ID);
-        when(certificateService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.just(certificate));
-        when(certificateService.delete(anyString())).thenReturn(Completable.complete());
+        when(certificateService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(certificate)));
+        when(certificateService.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(identityProvider.getId()).thenReturn(IDP_ID);
-        when(identityProviderService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.just(identityProvider));
-        when(identityProviderService.delete(eq(DOMAIN_ID), anyString())).thenReturn(Completable.complete());
+        when(identityProviderService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(identityProvider)));
+        when(identityProviderService.delete(eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(extensionGrant.getId()).thenReturn(EXTENSION_GRANT_ID);
-        when(extensionGrantService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.just(extensionGrant));
-        when(extensionGrantService.delete(eq(DOMAIN_ID), anyString())).thenReturn(Completable.complete());
+        when(extensionGrantService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(extensionGrant)));
+        when(extensionGrantService.delete(eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(role.getId()).thenReturn(ROLE_ID);
-        when(roleService.findByDomain(DOMAIN_ID)).thenReturn(Single.just(Collections.singleton(role)));
-        when(roleService.delete(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), anyString())).thenReturn(Completable.complete());
+        when(roleService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(role))));
+        when(roleService.delete(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(user.getId()).thenReturn(USER_ID);
-        when(userService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.just(user));
-        when(userService.delete(anyString())).thenReturn(Completable.complete());
+        when(userService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(user)));
+        when(userService.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(scope.getId()).thenReturn(SCOPE_ID);
-        when(scopeService.findByDomain(DOMAIN_ID, 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.singleton(scope),0,1)));
-        when(scopeService.delete(SCOPE_ID, true)).thenReturn(Completable.complete());
+        when(scopeService.findByDomain(DOMAIN_ID, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(scope),0,1))));
+        when(scopeService.delete(SCOPE_ID, true)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(group.getId()).thenReturn(GROUP_ID);
-        when(groupService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.just(group));
-        when(groupService.delete(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), anyString())).thenReturn(Completable.complete());
+        when(groupService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(group)));
+        when(groupService.delete(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(form.getId()).thenReturn(FORM_ID);
-        when(formService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.just(form));
-        when(formService.delete(eq(DOMAIN_ID), anyString())).thenReturn(Completable.complete());
+        when(formService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(form)));
+        when(formService.delete(eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(email.getId()).thenReturn(EMAIL_ID);
-        when(emailTemplateService.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(Flowable.just(email));
-        when(emailTemplateService.delete(anyString())).thenReturn(Completable.complete());
+        when(emailTemplateService.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(email)));
+        when(emailTemplateService.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(reporter.getId()).thenReturn(REPORTER_ID);
-        when(reporterService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.just(reporter));
-        when(reporterService.delete(anyString())).thenReturn(Completable.complete());
+        when(reporterService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(reporter)));
+        when(reporterService.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(flow.getId()).thenReturn(FLOW_ID);
-        when(flowService.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(Flowable.just(flow));
-        when(flowService.delete(anyString())).thenReturn(Completable.complete());
+        when(flowService.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(flow)));
+        when(flowService.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(membership.getId()).thenReturn(MEMBERSHIP_ID);
-        when(membershipService.findByReference(DOMAIN_ID, ReferenceType.DOMAIN)).thenReturn(Flowable.just(membership));
-        when(membershipService.delete(anyString())).thenReturn(Completable.complete());
+        when(membershipService.findByReference(DOMAIN_ID, ReferenceType.DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(membership)));
+        when(membershipService.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(factor.getId()).thenReturn(FACTOR_ID);
-        when(factorService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.just(factor));
-        when(factorService.delete(DOMAIN_ID, FACTOR_ID)).thenReturn(Completable.complete());
-        when(resourceService.findByDomain(DOMAIN_ID)).thenReturn(Single.just(new HashSet<>(Collections.singletonList(resource))));
-        when(resourceService.delete(resource)).thenReturn(Completable.complete());
-        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(Flowable.just(alertTrigger));
-        when(alertTriggerService.delete(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(ALERT_TRIGGER_ID), isNull())).thenReturn(Completable.complete());
-        when(alertNotifierService.findByDomainAndCriteria(DOMAIN_ID, new AlertNotifierCriteria())).thenReturn(Flowable.just(alertNotifier));
-        when(alertNotifierService.delete(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(ALERT_NOTIFIER_ID), isNull())).thenReturn(Completable.complete());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(factorService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(factor)));
+        when(factorService.delete(DOMAIN_ID, FACTOR_ID)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(resourceService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Collections.singletonList(resource)))));
+        when(resourceService.delete(resource)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertTrigger)));
+        when(alertTriggerService.delete(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(ALERT_TRIGGER_ID), isNull())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(alertNotifierService.findByDomainAndCriteria(DOMAIN_ID, new AlertNotifierCriteria())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertNotifier)));
+        when(alertNotifierService.delete(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(ALERT_NOTIFIER_ID), isNull())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = domainService.delete(DOMAIN_ID).test();
         testObserver.awaitTerminalEvent();
@@ -633,26 +636,26 @@ public class DomainServiceTest {
 
     @Test
     public void shouldDeleteWithoutRelatedData() {
-        when(domainRepository.findById(DOMAIN_ID)).thenReturn(Maybe.just(domain));
-        when(domainRepository.delete(DOMAIN_ID)).thenReturn(Completable.complete());
-        when(applicationService.findByDomain(DOMAIN_ID)).thenReturn(Single.just(Collections.emptySet()));
-        when(certificateService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.empty());
-        when(identityProviderService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.empty());
-        when(extensionGrantService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.empty());
-        when(roleService.findByDomain(DOMAIN_ID)).thenReturn(Single.just(Collections.emptySet()));
-        when(userService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.empty());
-        when(scopeService.findByDomain(DOMAIN_ID, 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.emptySet(),0,1)));
-        when(groupService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.empty());
-        when(formService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.empty());
-        when(emailTemplateService.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(Flowable.empty());
-        when(reporterService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.empty());
-        when(flowService.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(Flowable.empty());
-        when(membershipService.findByReference(DOMAIN_ID, ReferenceType.DOMAIN)).thenReturn(Flowable.empty());
-        when(factorService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.empty());
-        when(resourceService.findByDomain(DOMAIN_ID)).thenReturn(Single.just(Collections.emptySet()));
-        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(Flowable.empty());
-        when(alertNotifierService.findByDomainAndCriteria(DOMAIN_ID, new AlertNotifierCriteria())).thenReturn(Flowable.empty());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(domainRepository.findById(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(domainRepository.delete(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(applicationService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
+        when(certificateService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(identityProviderService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(extensionGrantService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(roleService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
+        when(userService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(scopeService.findByDomain(DOMAIN_ID, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptySet(),0,1))));
+        when(groupService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(formService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(emailTemplateService.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(reporterService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(flowService.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(membershipService.findByReference(DOMAIN_ID, ReferenceType.DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(factorService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(resourceService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
+        when(alertTriggerService.findByDomainAndCriteria(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(alertNotifierService.findByDomainAndCriteria(DOMAIN_ID, new AlertNotifierCriteria())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = domainService.delete(DOMAIN_ID).test();
         testObserver.awaitTerminalEvent();
@@ -680,7 +683,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldNotDeleteBecauseDoesntExist() {
-        when(domainRepository.findById(DOMAIN_ID)).thenReturn(Maybe.empty());
+        when(domainRepository.findById(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = domainService.delete(DOMAIN_ID).test();
         testObserver.assertError(DomainNotFoundException.class);
@@ -689,7 +692,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(domainRepository.findById(DOMAIN_ID)).thenReturn(Maybe.error(TechnicalException::new));
+        when(domainRepository.findById(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = domainService.delete(DOMAIN_ID).test();
 
@@ -699,8 +702,8 @@ public class DomainServiceTest {
 
     @Test
     public void shouldDelete2_technicalException() {
-        when(domainRepository.findById(DOMAIN_ID)).thenReturn(Maybe.just(domain));
-        when(applicationService.findByDomain(DOMAIN_ID)).thenReturn(Single.error(TechnicalException::new));
+        when(domainRepository.findById(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(applicationService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = domainService.delete(DOMAIN_ID).test();
 
@@ -778,7 +781,7 @@ public class DomainServiceTest {
         final DomainCriteria criteria = new DomainCriteria();
         final Domain domain = new Domain();
 
-        when(domainRepository.findAllByCriteria(eq(criteria))).thenReturn(Flowable.just(domain));
+        when(domainRepository.findAllByCriteria(eq(criteria))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(domain)));
 
         final TestSubscriber<Domain> obs = domainService.findAllByCriteria(criteria).test();
 

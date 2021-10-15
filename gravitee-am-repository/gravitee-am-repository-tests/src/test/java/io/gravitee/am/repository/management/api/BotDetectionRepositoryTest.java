@@ -22,10 +22,10 @@ import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.common.utils.UUID;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.Date;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Date;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -41,7 +41,7 @@ public class BotDetectionRepositoryTest extends AbstractManagementTest {
         BotDetection botDetection = buildBotDetection();
         botDetection.setReferenceId("testDomain");
         botDetection.setReferenceType(ReferenceType.DOMAIN);
-        repository.create(botDetection).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(botDetection)).block();
 
         TestSubscriber<BotDetection> testSubscriber = repository.findByReference(ReferenceType.DOMAIN,"testDomain").test();
         testSubscriber.awaitTerminalEvent();
@@ -68,7 +68,7 @@ public class BotDetectionRepositoryTest extends AbstractManagementTest {
     @Test
     public void testFindById() throws TechnicalException {
         BotDetection bdectection = buildBotDetection();
-        BotDetection bdetectionCreated = repository.create(bdectection).blockingGet();
+        BotDetection bdetectionCreated = RxJava2Adapter.singleToMono(repository.create(bdectection)).block();
 
         TestObserver<BotDetection> testObserver = repository.findById(bdetectionCreated.getId()).test();
         testObserver.awaitTerminalEvent();
@@ -106,7 +106,7 @@ public class BotDetectionRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdate() throws TechnicalException {
         BotDetection botDetection = buildBotDetection();
-        BotDetection botDetectionCreated = repository.create(botDetection).blockingGet();
+        BotDetection botDetectionCreated = RxJava2Adapter.singleToMono(repository.create(botDetection)).block();
 
         BotDetection bDetection = buildBotDetection();
         bDetection.setId(botDetectionCreated.getId());
@@ -127,7 +127,7 @@ public class BotDetectionRepositoryTest extends AbstractManagementTest {
     @Test
     public void testDelete() throws TechnicalException {
         BotDetection botDetection = buildBotDetection();
-        BotDetection botDetectionCreated = repository.create(botDetection).blockingGet();
+        BotDetection botDetectionCreated = RxJava2Adapter.singleToMono(repository.create(botDetection)).block();
 
         TestObserver<BotDetection> testObserver = repository.findById(botDetectionCreated.getId()).test();
         testObserver.awaitTerminalEvent();

@@ -15,13 +15,16 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.revocation;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
+
+import io.gravitee.am.common.oauth2.TokenTypeHint;
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidGrantException;
 import io.gravitee.am.gateway.handler.oauth2.service.revocation.impl.RevocationTokenServiceImpl;
 import io.gravitee.am.gateway.handler.oauth2.service.token.Token;
 import io.gravitee.am.gateway.handler.oauth2.service.token.TokenService;
 import io.gravitee.am.gateway.handler.oauth2.service.token.impl.AccessToken;
 import io.gravitee.am.gateway.handler.oauth2.service.token.impl.RefreshToken;
-import io.gravitee.am.common.oauth2.TokenTypeHint;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -31,9 +34,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -58,7 +60,7 @@ public class RevocationServiceTest {
         Client client = new Client();
         client.setClientId("wrong-client-id");
 
-        when(tokenService.getAccessToken("token", client)).thenReturn(Maybe.just(accessToken));
+        when(tokenService.getAccessToken("token", client)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(accessToken)));
 
         TestObserver testObserver = revocationTokenService.revoke(revocationTokenRequest, client).test();
 
@@ -78,8 +80,8 @@ public class RevocationServiceTest {
         Client client = new Client();
         client.setClientId("client-id");
 
-        when(tokenService.getAccessToken("token", client)).thenReturn(Maybe.empty());
-        when(tokenService.getRefreshToken("token", client)).thenReturn(Maybe.empty());
+        when(tokenService.getAccessToken("token", client)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(tokenService.getRefreshToken("token", client)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = revocationTokenService.revoke(revocationTokenRequest, client).test();
 
@@ -103,8 +105,8 @@ public class RevocationServiceTest {
         AccessToken accessToken = new AccessToken("token");
         accessToken.setClientId("client-id");
 
-        when(tokenService.getAccessToken("token", client)).thenReturn(Maybe.just(accessToken));
-        when(tokenService.deleteAccessToken("token")).thenReturn(Completable.complete());
+        when(tokenService.getAccessToken("token", client)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(accessToken)));
+        when(tokenService.deleteAccessToken("token")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         TestObserver testObserver = revocationTokenService.revoke(revocationTokenRequest, client).test();
 
@@ -129,8 +131,8 @@ public class RevocationServiceTest {
         Token refreshToken = new RefreshToken("token");
         refreshToken.setClientId("client-id");
 
-        when(tokenService.getRefreshToken("token", client)).thenReturn(Maybe.just(refreshToken));
-        when(tokenService.deleteRefreshToken("token")).thenReturn(Completable.complete());
+        when(tokenService.getRefreshToken("token", client)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(refreshToken)));
+        when(tokenService.deleteRefreshToken("token")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         TestObserver testObserver = revocationTokenService.revoke(revocationTokenRequest, client).test();
 

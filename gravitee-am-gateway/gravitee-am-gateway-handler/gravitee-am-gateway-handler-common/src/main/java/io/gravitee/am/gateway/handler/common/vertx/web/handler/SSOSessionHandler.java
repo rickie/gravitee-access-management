@@ -34,10 +34,12 @@ import io.vertx.core.Handler;
 import io.vertx.ext.web.handler.HttpException;
 import io.vertx.reactivex.ext.auth.User;
 import io.vertx.reactivex.ext.web.RoutingContext;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Optional;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * SSO Session Handler to check if the user stored in the HTTP session is still "valid" upon the incoming request
@@ -75,8 +77,7 @@ public class SSOSessionHandler implements Handler<RoutingContext> {
                     // user has been disabled, invalidate session
 
                     // clear AuthenticationFlowContext. data of this context have a TTL so we can fire and forget in case on error.
-                    authenticationFlowContextService.clearContext(context.session().get(ConstantKeys.TRANSACTION_ID_KEY))
-                            .doOnError((error) -> LOGGER.info("Deletion of some authentication flow data fails '{}'", error.getMessage()))
+                    authenticationFlowContextService.clearContext(context.session().get(ConstantKeys.TRANSACTION_ID_KEY)).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.info("Deletion of some authentication flow data fails '{}'", error.getMessage()))).as(RxJava2Adapter::monoToCompletable)
                             .subscribe();
 
                     context.clearUser();
@@ -154,22 +155,22 @@ public class SSOSessionHandler implements Handler<RoutingContext> {
 
             // no client to check, continue
             if (requestedClient == null) {
-                return Completable.complete();
+                return RxJava2Adapter.monoToCompletable(Mono.empty());
             }
 
             // no client to check for the user, continue
             if (userClient == null) {
-                return Completable.complete();
+                return RxJava2Adapter.monoToCompletable(Mono.empty());
             }
 
             // if same client, nothing to do, continue
             if (userClient.getId().equals(requestedClient.getId())) {
-                return Completable.complete();
+                return RxJava2Adapter.monoToCompletable(Mono.empty());
             }
 
             // both clients are sharing the same provider, continue
             if (requestedClient.getIdentities() != null && requestedClient.getIdentities().contains(user.getSource())) {
-                return Completable.complete();
+                return RxJava2Adapter.monoToCompletable(Mono.empty());
             }
 
             // throw error
@@ -181,10 +182,9 @@ public class SSOSessionHandler implements Handler<RoutingContext> {
     }
 
     private Single<Optional<Client>> getClient(String clientId) {
-        return clientSyncService.findById(clientId)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(clientSyncService.findById(clientId)
                 .switchIfEmpty(Maybe.defer(() -> clientSyncService.findByClientId(clientId)))
                 .map(Optional::ofNullable)
-                .defaultIfEmpty(Optional.empty())
-                .toSingle();
+                .defaultIfEmpty(Optional.empty())).single());
     }
 }

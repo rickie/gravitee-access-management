@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.repository.mongodb.oauth2;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.InsertOneModel;
 import com.mongodb.client.model.WriteModel;
@@ -27,16 +30,15 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import org.bson.Document;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -63,18 +65,16 @@ public class MongoRefreshTokenRepository extends AbstractOAuth2MongoRepository i
     }
 
     private Maybe<RefreshToken> findById(String id) {
-        return Observable
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
                 .fromPublisher(refreshTokenCollection.find(eq(FIELD_ID, id)).first())
-                .firstElement()
-                .map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<RefreshToken> findByToken(String token) {
-        return Observable
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
                 .fromPublisher(refreshTokenCollection.find(eq(FIELD_TOKEN, token)).first())
-                .firstElement()
-                .map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -83,34 +83,33 @@ public class MongoRefreshTokenRepository extends AbstractOAuth2MongoRepository i
             refreshToken.setId(RandomString.generate());
         }
 
-        return Single
-                .fromPublisher(refreshTokenCollection.insertOne(convert(refreshToken)))
-                .flatMap(success -> findById(refreshToken.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
+                .fromPublisher(refreshTokenCollection.insertOne(convert(refreshToken)))).flatMap(success->RxJava2Adapter.singleToMono(findById(refreshToken.getId()).toSingle())));
     }
 
     @Override
     public Completable bulkWrite(List<RefreshToken> refreshTokens) {
-        return Completable.fromPublisher(refreshTokenCollection.bulkWrite(convert(refreshTokens)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.bulkWrite(convert(refreshTokens))));
     }
 
     @Override
     public Completable delete(String token) {
-        return Completable.fromPublisher(refreshTokenCollection.deleteOne(eq(FIELD_TOKEN, token)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteOne(eq(FIELD_TOKEN, token))));
     }
 
     @Override
     public Completable deleteByUserId(String userId) {
-        return Completable.fromPublisher(refreshTokenCollection.deleteMany(eq(FIELD_SUBJECT, userId)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteMany(eq(FIELD_SUBJECT, userId))));
     }
 
     @Override
     public Completable deleteByDomainIdClientIdAndUserId(String domainId, String clientId, String userId) {
-        return Completable.fromPublisher(refreshTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, userId))));
+        return RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, userId)))));
     }
 
     @Override
     public Completable deleteByDomainIdAndUserId(String domainId, String userId) {
-        return Completable.fromPublisher(refreshTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_SUBJECT, userId))));
+        return RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_SUBJECT, userId)))));
     }
 
     private List<WriteModel<RefreshTokenMongo>> convert(List<RefreshToken> refreshTokens) {

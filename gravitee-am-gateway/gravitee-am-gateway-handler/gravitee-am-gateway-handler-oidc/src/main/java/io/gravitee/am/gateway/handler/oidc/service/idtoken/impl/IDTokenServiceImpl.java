@@ -43,15 +43,17 @@ import io.gravitee.am.service.exception.UserNotFoundException;
 import io.gravitee.gateway.api.ExecutionContext;
 import io.gravitee.gateway.api.context.SimpleExecutionContext;
 import io.reactivex.Single;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import io.reactivex.functions.Function;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -89,8 +91,7 @@ public class IDTokenServiceImpl implements IDTokenService {
     @Override
     public Single<String> create(OAuth2Request oAuth2Request, Client client, User user, ExecutionContext executionContext) {
         // use or create execution context
-        return Single.fromCallable(() -> executionContext != null ? executionContext : createExecution(oAuth2Request, client, user))
-                .flatMap(executionContext1 -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromCallable(() -> executionContext != null ? executionContext : createExecution(oAuth2Request, client, user))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<ExecutionContext, Single<String>>)executionContext1 -> {
                     // create JWT ID Token
                     IDToken idToken = createIDTokenJWT(oAuth2Request, client, user, executionContext);
 
@@ -122,13 +123,12 @@ public class IDTokenServiceImpl implements IDTokenService {
                                 }
                                 return Single.just(signedIdToken);
                             });
-                });
+                }).apply(v)))));
     }
 
     @Override
     public Single<User> extractUser(String idToken, Client client) {
-        return jwtService.decodeAndVerify(idToken, client)
-                .flatMap(jwt -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.decodeAndVerify(idToken, client)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, Single<User>>)jwt -> {
                     return userService.findById(jwt.getSub())
                             .switchIfEmpty(Single.error(new UserNotFoundException(jwt.getSub())))
                             .map(user -> {
@@ -137,7 +137,7 @@ public class IDTokenServiceImpl implements IDTokenService {
                                 }
                                 return user;
                             });
-                });
+                }).apply(v)))));
     }
 
     public void setObjectMapper(ObjectMapper objectMapper) {

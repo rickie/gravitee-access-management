@@ -22,7 +22,6 @@ import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +32,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -55,9 +56,8 @@ public class ExtensionGrantPluginResource {
             @PathParam("extensionGrant") String extensionGrantId,
             @Suspended final AsyncResponse response) {
 
-        extensionGrantPluginService.findById(extensionGrantId)
-                .switchIfEmpty(Maybe.error(new ExtensionGrantPluginNotFoundException(extensionGrantId)))
-                .map(extensionGrantPlugin -> Response.ok(extensionGrantPlugin).build())
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantPluginService.findById(extensionGrantId)
+                .switchIfEmpty(Maybe.error(new ExtensionGrantPluginNotFoundException(extensionGrantId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPlugin -> Response.ok(extensionGrantPlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -70,11 +70,10 @@ public class ExtensionGrantPluginResource {
                           @Suspended final AsyncResponse response) {
 
         // Check that the extension grant exists
-        extensionGrantPluginService.findById(extensionGrantId)
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantPluginService.findById(extensionGrantId)
                 .switchIfEmpty(Maybe.error(new ExtensionGrantPluginNotFoundException(extensionGrantId)))
                 .flatMap(irrelevant -> extensionGrantPluginService.getSchema(extensionGrantId))
-                .switchIfEmpty(Maybe.error(new ExtensionGrantPluginSchemaNotFoundException(extensionGrantId)))
-                .map(extensionGrantPluginSchema -> Response.ok(extensionGrantPluginSchema).build())
+                .switchIfEmpty(Maybe.error(new ExtensionGrantPluginSchemaNotFoundException(extensionGrantId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPluginSchema -> Response.ok(extensionGrantPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.scim.resources.groups;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
@@ -28,9 +31,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -66,7 +68,7 @@ public class GroupsEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldListGroups() throws Exception {
-        when(groupService.list(eq(0), eq(100), anyString())).thenReturn(Single.just(new ListResponse<>()));
+        when(groupService.list(eq(0), eq(100), anyString())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new ListResponse<>())));
         testRequest(
                 HttpMethod.GET,
                 "/Groups",

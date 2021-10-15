@@ -23,7 +23,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -34,6 +33,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -60,8 +61,7 @@ public class NotifierPluginResource {
             @PathParam("notifierId") String notifierId,
             @Suspended final AsyncResponse response) {
 
-        notifierPluginService.findById(notifierId)
-                .map(notifierPlugin -> Response.ok(notifierPlugin).build())
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(notifierPluginService.findById(notifierId)).map(RxJavaReactorMigrationUtil.toJdkFunction(notifierPlugin -> Response.ok(notifierPlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -78,9 +78,8 @@ public class NotifierPluginResource {
             @PathParam("notifierId") String notifierId,
             @Suspended final AsyncResponse response) {
 
-        notifierPluginService.findById(notifierId)
-                .flatMap(notifierPlugin -> notifierPluginService.getSchema(notifierPlugin.getId()))
-                .map(notifierPluginSchema -> Response.ok(notifierPluginSchema).build())
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(notifierPluginService.findById(notifierId)
+                .flatMap(notifierPlugin -> notifierPluginService.getSchema(notifierPlugin.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(notifierPluginSchema -> Response.ok(notifierPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

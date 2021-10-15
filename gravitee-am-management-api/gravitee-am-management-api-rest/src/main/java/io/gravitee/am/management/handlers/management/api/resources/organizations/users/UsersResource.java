@@ -28,8 +28,10 @@ import io.gravitee.common.http.MediaType;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.net.URI;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Set;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -38,10 +40,9 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -78,15 +79,7 @@ public class UsersResource extends AbstractUsersResource {
 
         io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        permissionService.findAllPermissions(authenticatedUser, ReferenceType.ORGANIZATION, organizationId)
-                .flatMap(organizationPermissions ->
-                        checkPermission(organizationPermissions, Permission.ORGANIZATION_USER, Acl.LIST)
-                                .andThen(searchUsers(ReferenceType.ORGANIZATION, organizationId, query, filter, page, size)
-                                        .flatMap(pagedUsers ->
-                                                Observable.fromIterable(pagedUsers.getData())
-                                                        .flatMapSingle(user -> filterUserInfos(organizationPermissions, user))
-                                                        .toSortedList(Comparator.comparing(User::getUsername))
-                                                        .map(users -> new Page<>(users, pagedUsers.getCurrentPage(), pagedUsers.getTotalCount())))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(permissionService.findAllPermissions(authenticatedUser, ReferenceType.ORGANIZATION, organizationId)).flatMap(organizationPermissions->RxJava2Adapter.singleToMono(checkPermission(organizationPermissions, Permission.ORGANIZATION_USER, Acl.LIST).andThen(searchUsers(ReferenceType.ORGANIZATION, organizationId, query, filter, page, size).flatMap((io.gravitee.am.model.common.Page<io.gravitee.am.model.User> pagedUsers)->Observable.fromIterable(pagedUsers.getData()).flatMapSingle((io.gravitee.am.model.User user)->filterUserInfos(organizationPermissions, user)).toSortedList(Comparator.comparing(User::getUsername)).map((java.util.List<io.gravitee.am.model.User> users)->new Page<>(users, pagedUsers.getCurrentPage(), pagedUsers.getTotalCount())))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -105,13 +98,12 @@ public class UsersResource extends AbstractUsersResource {
 
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.CREATE)
-                .andThen(organizationService.findById(organizationId)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(organizationService.findById(organizationId)
                         .flatMap(organization -> organizationUserService.createGraviteeUser(organization, newUser, authenticatedUser))
                         .map(user -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/users/" + user.getId()))
                                 .entity(user)
-                                .build()))
+                                .build())))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -128,13 +120,12 @@ public class UsersResource extends AbstractUsersResource {
             // Current user has read permission, copy all information.
             filteredUser = new User(user);
             if (user.getSource() != null) {
-                return identityProviderService.findById(user.getSource())
+                return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(user.getSource())
                         .map(idP -> {
                             filteredUser.setSource(idP.getName());
                             return filteredUser;
                         })
-                        .defaultIfEmpty(filteredUser)
-                        .toSingle();
+                        .defaultIfEmpty(filteredUser)).single());
             }
         } else {
             // Current user doesn't have read permission, select only few information and remove default values that could be inexact.
@@ -145,6 +136,6 @@ public class UsersResource extends AbstractUsersResource {
             filteredUser.setPicture(user.getPicture());
         }
 
-        return Single.just(filteredUser);
+        return RxJava2Adapter.monoToSingle(Mono.just(filteredUser));
     }
 }

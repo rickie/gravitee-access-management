@@ -26,6 +26,20 @@ import io.gravitee.am.management.handlers.management.api.authentication.provider
 import io.gravitee.am.management.handlers.management.api.authentication.service.AuthenticationService;
 import io.gravitee.am.model.Environment;
 import io.gravitee.am.service.EnvironmentService;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.util.HashMap;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,21 +49,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.Key;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.util.HashMap;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 public class CockpitAuthenticationFilter extends GenericFilterBean {
 
@@ -125,7 +125,7 @@ public class CockpitAuthenticationFilter extends GenericFilterBean {
                     UsernamePasswordAuthenticationToken authentication = convertToAuthentication(jwt);
                     User principal = authenticationService.onAuthenticationSuccess(authentication);
 
-                    final Environment environment = environmentService.findById((String) jwt.get(Claims.environment), (String) jwt.get(Claims.organization)).blockingGet();
+                    final Environment environment = RxJava2Adapter.singleToMono(environmentService.findById((String) jwt.get(Claims.environment), (String) jwt.get(Claims.organization))).block();
                     String redirectPath = "";
 
                     if(environment != null) {

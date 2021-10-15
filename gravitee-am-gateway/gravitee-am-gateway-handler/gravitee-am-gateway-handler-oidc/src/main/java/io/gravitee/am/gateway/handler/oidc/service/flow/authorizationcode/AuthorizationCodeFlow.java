@@ -24,9 +24,10 @@ import io.gravitee.am.gateway.handler.oidc.service.flow.AbstractFlow;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
-
 import java.util.Collections;
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * When using the Authorization Code Flow, all tokens are returned from the Token Endpoint.
@@ -67,13 +68,12 @@ public class AuthorizationCodeFlow extends AbstractFlow {
 
     @Override
     protected Single<AuthorizationResponse> prepareResponse(AuthorizationRequest authorizationRequest, Client client, User endUser) {
-        return authorizationCodeService.create(authorizationRequest, endUser)
-                .map(code -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(authorizationCodeService.create(authorizationRequest, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(code -> {
                     AuthorizationCodeResponse response = new AuthorizationCodeResponse();
                     response.setRedirectUri(authorizationRequest.getRedirectUri());
                     response.setCode(code.getCode());
                     response.setState(authorizationRequest.getState());
                     return response;
-                });
+                })));
     }
 }

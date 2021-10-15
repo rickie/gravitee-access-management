@@ -20,6 +20,8 @@ import io.gravitee.am.identityprovider.api.UserProvider;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -29,24 +31,24 @@ public class GraviteeUserProvider implements UserProvider {
 
     @Override
     public Maybe<User> findByUsername(String username) {
-        return Maybe.empty();
+        return RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
     @Override
     public Single<User> create(User user) {
         // create will be performed by the repository layer called by the OrganizationUserService
-        return Single.just(user);
+        return RxJava2Adapter.monoToSingle(Mono.just(user));
     }
 
     @Override
     public Single<User> update(String id, User updateUser) {
         // update will be performed by the repository layer called by the OrganizationUserService
-        return Single.just(updateUser);
+        return RxJava2Adapter.monoToSingle(Mono.just(updateUser));
     }
 
     @Override
     public Completable delete(String id) {
         // delete will be performed by the repository layer called by the OrganizationUserService
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 }

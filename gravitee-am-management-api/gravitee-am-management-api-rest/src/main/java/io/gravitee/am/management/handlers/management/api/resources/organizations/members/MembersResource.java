@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.members;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.model.MembershipListItem;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
@@ -26,11 +28,11 @@ import io.gravitee.am.service.MembershipService;
 import io.gravitee.am.service.OrganizationService;
 import io.gravitee.am.service.model.NewMembership;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.net.URI;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -39,9 +41,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -69,10 +70,9 @@ public class MembersResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_MEMBER, Acl.LIST)
-                .andThen(organizationService.findById(organizationId)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_MEMBER, Acl.LIST)).then(RxJava2Adapter.singleToMono(Single.wrap(organizationService.findById(organizationId)
                         .flatMap(organization -> membershipService.findByReference(organization.getId(), ReferenceType.ORGANIZATION).toList())
-                        .flatMap(memberships -> membershipService.getMetadata(memberships).map(metadata -> new MembershipListItem(memberships, metadata))))
+                        .flatMap(memberships -> membershipService.getMetadata(memberships).map(metadata -> new MembershipListItem(memberships, metadata)))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -96,13 +96,12 @@ public class MembersResource extends AbstractResource {
         membership.setReferenceId(organizationId);
         membership.setReferenceType(ReferenceType.ORGANIZATION);
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_MEMBER, Acl.CREATE)
-                .andThen(organizationService.findById(organizationId)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_MEMBER, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(organizationService.findById(organizationId)
                         .flatMap(organization -> membershipService.addOrUpdate(organizationId, membership, authenticatedUser))
                         .map(membership1 -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/members/" + membership1.getId()))
                                 .entity(membership1)
-                                .build()))
+                                .build())))))
                 .subscribe(response::resume, response::resume);
     }
 

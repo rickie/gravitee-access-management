@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.request;
 
+import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
+
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidScopeException;
 import io.gravitee.am.gateway.handler.oauth2.service.scope.ScopeManager;
 import io.gravitee.am.gateway.handler.oauth2.service.utils.ParameterizedScopeUtils;
@@ -23,11 +25,10 @@ import io.gravitee.am.model.User;
 import io.gravitee.am.model.application.ApplicationScopeSettings;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -102,11 +103,11 @@ public abstract class AbstractRequestResolver<R extends OAuth2Request> {
         }
 
         if (!invalidScopes.isEmpty()) {
-            return Single.error(new InvalidScopeException("Invalid scope(s): " + invalidScopes.stream().collect(Collectors.joining(SCOPE_DELIMITER))));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidScopeException("Invalid scope(s): " + invalidScopes.stream().collect(Collectors.joining(SCOPE_DELIMITER)))));
         }
 
         if (resolvedScopes.isEmpty() && (requestScopes != null && !requestScopes.isEmpty())) {
-            return Single.error(new InvalidScopeException("Invalid scope(s): " + requestScopes.stream().collect(Collectors.joining(SCOPE_DELIMITER))));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidScopeException("Invalid scope(s): " + requestScopes.stream().collect(Collectors.joining(SCOPE_DELIMITER)))));
         }
 
         // only put default values if there is no requested scopes
@@ -114,7 +115,7 @@ public abstract class AbstractRequestResolver<R extends OAuth2Request> {
             request.setScopes(resolvedScopes);
         }
 
-        return Single.just(request);
+        return RxJava2Adapter.monoToSingle(Mono.just(request));
     }
 
 

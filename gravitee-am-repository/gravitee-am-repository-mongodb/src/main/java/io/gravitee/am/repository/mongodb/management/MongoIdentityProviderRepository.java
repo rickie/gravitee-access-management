@@ -15,6 +15,13 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static java.util.Objects.isNull;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.Collectors.toList;
+
 import com.mongodb.BasicDBList;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
@@ -25,23 +32,18 @@ import io.gravitee.am.repository.management.api.IdentityProviderRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.IdentityProviderMongo;
 import io.reactivex.*;
 import io.reactivex.Observable;
+import java.util.*;
+import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
+import javax.swing.text.html.Option;
 import org.bson.BsonArray;
 import org.bson.BsonString;
 import org.bson.BsonValue;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import javax.swing.text.html.Option;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static java.util.Objects.isNull;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toList;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -62,29 +64,27 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
 
     @Override
     public Flowable<IdentityProvider> findAll(ReferenceType referenceType, String referenceId) {
-        return Flowable.fromPublisher(identitiesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))))
-                .map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(identitiesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<IdentityProvider> findAll(ReferenceType referenceType) {
-        return Flowable.fromPublisher(identitiesCollection.find(eq(FIELD_REFERENCE_TYPE, referenceType.name())))
-                .map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(identitiesCollection.find(eq(FIELD_REFERENCE_TYPE, referenceType.name())))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<IdentityProvider> findAll() {
-        return Flowable.fromPublisher(identitiesCollection.find()).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(identitiesCollection.find())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<IdentityProvider> findById(String identityProviderId) {
-        return Observable.fromPublisher(identitiesCollection.find(eq(FIELD_ID, identityProviderId)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(identitiesCollection.find(eq(FIELD_ID, identityProviderId)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<IdentityProvider> findById(ReferenceType referenceType, String referenceId, String identityProviderId) {
-        return Observable.fromPublisher(identitiesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, identityProviderId))).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(identitiesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, identityProviderId))).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -94,9 +94,9 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
             var identityProvider = optionalIdp.get();
             final String id = identityProvider.getId() == null ? RandomString.generate() : identityProvider.getId();
             identityProvider.setId(id);
-            return Single.fromPublisher(identitiesCollection.insertOne(identityProvider)).flatMap(success -> findById(identityProvider.getId()).toSingle());
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(identitiesCollection.insertOne(identityProvider))).flatMap(success->RxJava2Adapter.singleToMono(findById(identityProvider.getId()).toSingle())));
         }
-        return Single.error(new TechnicalException("Identity provider must be present for create"));
+        return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException("Identity provider must be present for create")));
     }
 
     @Override
@@ -104,15 +104,14 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
         Optional<IdentityProviderMongo> optionalIdp = convert(item);
         if (optionalIdp.isPresent()) {
             var identityProvider = optionalIdp.get();
-            return Single.fromPublisher(identitiesCollection.replaceOne(eq(FIELD_ID, identityProvider.getId()), identityProvider))
-                    .flatMap(updateResult -> findById(identityProvider.getId()).toSingle());
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(identitiesCollection.replaceOne(eq(FIELD_ID, identityProvider.getId()), identityProvider))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(identityProvider.getId()).toSingle())));
         }
-        return Single.error(new TechnicalException("Identity provider must be present for update"));
+        return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException("Identity provider must be present for update")));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(identitiesCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(identitiesCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private IdentityProvider convert(IdentityProviderMongo identityProviderMongo) {

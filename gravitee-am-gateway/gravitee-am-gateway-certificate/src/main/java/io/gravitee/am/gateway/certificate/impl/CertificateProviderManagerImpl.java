@@ -23,10 +23,6 @@ import io.gravitee.am.jwt.NoJWTBuilder;
 import io.gravitee.am.jwt.NoJWTParser;
 import io.gravitee.am.model.Certificate;
 import io.gravitee.am.plugins.certificate.core.CertificatePluginManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -34,6 +30,10 @@ import java.security.PublicKey;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -77,7 +77,7 @@ public class CertificateProviderManagerImpl implements CertificateProviderManage
         // create certificate provider
         CertificateProvider certificateProvider = new CertificateProvider(provider);
         try {
-            io.gravitee.am.certificate.api.Key providerKey = provider.key().blockingGet();
+            io.gravitee.am.certificate.api.Key providerKey = RxJava2Adapter.singleToMono(provider.key()).block();
             Object keyValue = providerKey.getValue();
             if (keyValue instanceof KeyPair) {
                 PrivateKey privateKey = ((KeyPair) keyValue).getPrivate();

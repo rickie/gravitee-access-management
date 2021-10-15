@@ -15,17 +15,20 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.jwk;
 
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+
 import com.nimbusds.jose.EncryptionMethod;
 import com.nimbusds.jose.JWEAlgorithm;
 import io.gravitee.am.certificate.api.CertificateProvider;
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.oidc.service.jwk.impl.JWKServiceImpl;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.jose.ECKey;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.jose.OCTKey;
 import io.gravitee.am.model.jose.OKPKey;
 import io.gravitee.am.model.jose.RSAKey;
+import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 import io.reactivex.Flowable;
@@ -35,6 +38,10 @@ import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.HttpRequest;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,14 +49,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -146,7 +148,7 @@ public class JWKServiceTest {
 
 
         when(webClient.getAbs(any())).thenReturn(request);
-        when(request.rxSend()).thenReturn(Single.just(response));
+        when(request.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(response)));
 
         TestObserver testObserver = jwkService.getKeys(JWKS_URI).test();
 
@@ -162,7 +164,7 @@ public class JWKServiceTest {
 
 
         when(webClient.getAbs(any())).thenReturn(request);
-        when(request.rxSend()).thenReturn(Single.just(response));
+        when(request.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(response)));
         when(response.bodyAsString()).thenReturn("{\"unknown\":[]}");
 
         TestObserver testObserver = jwkService.getKeys(JWKS_URI).test();
@@ -180,7 +182,7 @@ public class JWKServiceTest {
         String bodyAsString = "{\"keys\":[{\"kty\": \"RSA\",\"use\": \"enc\",\"kid\": \"KID\",\"n\": \"modulus\",\"e\": \"exponent\"}]}";
 
         when(webClient.getAbs(any())).thenReturn(request);
-        when(request.rxSend()).thenReturn(Single.just(response));
+        when(request.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(response)));
         when(response.bodyAsString()).thenReturn(bodyAsString);
 
         TestObserver testObserver = jwkService.getKeys(JWKS_URI).test();
@@ -269,7 +271,7 @@ public class JWKServiceTest {
         String bodyAsString = "{\"keys\":[{\"kty\": \"RSA\",\"use\": \"enc\",\"kid\": \"KID\",\"n\": \"modulus\",\"e\": \"exponent\"}]}";
 
         when(webClient.getAbs(any())).thenReturn(request);
-        when(request.rxSend()).thenReturn(Single.just(response));
+        when(request.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(response)));
         when(response.bodyAsString()).thenReturn(bodyAsString);
 
         TestObserver testObserver = jwkService.getKeys(client).test();
@@ -569,7 +571,7 @@ public class JWKServiceTest {
         key.setKid("my-test-key");
 
         CertificateProvider certificateProvider = mock(CertificateProvider.class);
-        when(certificateProvider.keys()).thenReturn(Flowable.just(key));
+        when(certificateProvider.keys()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(key)));
 
         when(certificateManager.providers()).thenReturn(Collections.singletonList(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
 
@@ -599,9 +601,9 @@ public class JWKServiceTest {
         key.setKid("my-test-key-2");
 
         CertificateProvider certificateProvider = mock(CertificateProvider.class);
-        when(certificateProvider.keys()).thenReturn(Flowable.just(key));
+        when(certificateProvider.keys()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(key)));
         CertificateProvider certificateProvider2 = mock(CertificateProvider.class);
-        when(certificateProvider2.keys()).thenReturn(Flowable.just(key2));
+        when(certificateProvider2.keys()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(key2)));
 
         List<io.gravitee.am.gateway.certificate.CertificateProvider> certificateProviders = new ArrayList<>();
         certificateProviders.add(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider));

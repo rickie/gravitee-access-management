@@ -24,6 +24,8 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +33,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -56,26 +58,26 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
     @Override
     public Completable clearContext(final String transactionId) {
         if (transactionId == null) {
-            return Completable.complete();
+            return RxJava2Adapter.monoToCompletable(Mono.empty());
         }
         return authContextRepository.delete(transactionId);
     }
 
     @Override
     public Maybe<AuthenticationFlowContext> loadContext(final String transactionId, final int expectedVersion) {
-        return authContextRepository.findLastByTransactionId(transactionId).switchIfEmpty(Maybe.fromCallable(() -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authContextRepository.findLastByTransactionId(transactionId).switchIfEmpty(Maybe.fromCallable(() -> {
             AuthenticationFlowContext context = new AuthenticationFlowContext();
             context.setTransactionId(transactionId);
             context.setVersion(0);
             context.setCreatedAt(new Date());
             return context;
-        })).map(context -> {
+        }))).map(RxJavaReactorMigrationUtil.toJdkFunction(context -> {
             if (context.getVersion() > 0 && context.getVersion() < expectedVersion) {
                 LOGGER.debug("Authentication Flow Context read with version '{}' but '{}' was expected", context.getVersion(), expectedVersion);
                 throw new AuthenticationFlowConsistencyException();
             }
             return context;
-        }).retryWhen(new RetryWithDelay(consistencyRetries, retryDelay));
+        }))).retryWhen(new RetryWithDelay(consistencyRetries, retryDelay));
     }
 
     @Override
@@ -108,8 +110,7 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
 
         @Override
         public Publisher<?> apply(@NonNull Flowable<Throwable> attempts) throws Exception {
-            return attempts
-                    .flatMap((throwable) -> {
+            return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(attempts).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((throwable) -> {
                         // perform retry only on Consistency exception
                         if (throwable instanceof AuthenticationFlowConsistencyException) {
                             if (++retryCount < maxRetries) {
@@ -121,7 +122,7 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
                         }
                         // Max retries hit. Just pass the error along.
                         return Flowable.error(throwable);
-                    });
+                    })));
         }
     }
 }

@@ -40,13 +40,13 @@ import io.gravitee.am.service.ResourceService;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -97,11 +97,10 @@ public class CompositeTokenGranter implements TokenGranter, InitializingBean {
 
     @Override
     public Single<Token> grant(TokenRequest tokenRequest, Client client) {
-        return Observable
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
                 .fromIterable(tokenGranters.values())
                 .filter(tokenGranter -> tokenGranter.handle(tokenRequest.getGrantType(), client))
-                .firstElement()
-                .switchIfEmpty(Maybe.error(new UnsupportedGrantTypeException("Unsupported grant type: " + tokenRequest.getGrantType())))
+                .firstElement()).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UnsupportedGrantTypeException("Unsupported grant type: " + tokenRequest.getGrantType()))))))
                 .flatMapSingle(tokenGranter -> tokenGranter.grant(tokenRequest, client));
     }
 

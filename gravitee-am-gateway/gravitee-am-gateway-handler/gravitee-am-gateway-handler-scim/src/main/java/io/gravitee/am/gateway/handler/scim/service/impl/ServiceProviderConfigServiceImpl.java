@@ -20,8 +20,9 @@ import io.gravitee.am.gateway.handler.scim.model.ComplexType;
 import io.gravitee.am.gateway.handler.scim.model.ServiceProviderConfiguration;
 import io.gravitee.am.gateway.handler.scim.service.ServiceProviderConfigService;
 import io.reactivex.Single;
-
 import java.util.Collections;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -40,6 +41,6 @@ public class ServiceProviderConfigServiceImpl implements ServiceProviderConfigSe
         serviceProviderConfiguration.setEtag(new ComplexType(false));
         serviceProviderConfiguration.setAuthenticationSchemes(Collections.singletonList(AuthenticationScheme.OAUTH_BEARER_TOKEN));
 
-        return Single.just(serviceProviderConfiguration);
+        return RxJava2Adapter.monoToSingle(Mono.just(serviceProviderConfiguration));
     }
 }

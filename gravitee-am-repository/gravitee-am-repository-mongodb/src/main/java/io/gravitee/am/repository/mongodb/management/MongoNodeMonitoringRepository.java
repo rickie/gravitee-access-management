@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.repository.mongodb.management.internal.model.MonitoringMongo;
 import io.gravitee.node.api.Monitoring;
@@ -23,16 +25,15 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static com.mongodb.client.model.Filters.*;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -55,21 +56,18 @@ public class MongoNodeMonitoringRepository extends AbstractManagementMongoReposi
 
     @Override
     public Maybe<Monitoring> findByNodeIdAndType(String nodeId, String type) {
-        return Observable.fromPublisher(collection.find(and(eq(FIELD_NODE_ID, nodeId), eq(FIELD_TYPE, type))).first())
-                .firstElement()
-                .map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(collection.find(and(eq(FIELD_NODE_ID, nodeId), eq(FIELD_TYPE, type))).first())
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Monitoring> create(Monitoring monitoring) {
-        return Single.fromPublisher(collection.insertOne(convert(monitoring)))
-                .map(success -> monitoring);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(monitoring)))).map(RxJavaReactorMigrationUtil.toJdkFunction(success -> monitoring)));
     }
 
     @Override
     public Single<Monitoring> update(Monitoring monitoring) {
-        return Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, monitoring.getId()), convert(monitoring)))
-                .map(updateResult -> monitoring);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, monitoring.getId()), convert(monitoring)))).map(RxJavaReactorMigrationUtil.toJdkFunction(updateResult -> monitoring)));
     }
 
     @Override
@@ -82,7 +80,7 @@ public class MongoNodeMonitoringRepository extends AbstractManagementMongoReposi
             filters.add(lte(FIELD_UPDATED_AT, new Date(to)));
         }
 
-        return Flowable.fromPublisher(collection.find(and(filters))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(collection.find(and(filters)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     private Monitoring convert(MonitoringMongo monitoringMongo) {

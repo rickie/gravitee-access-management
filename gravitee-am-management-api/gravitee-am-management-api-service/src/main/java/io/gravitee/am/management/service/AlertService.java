@@ -20,6 +20,8 @@ import io.reactivex.Single;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -45,6 +47,6 @@ public class AlertService {
     public Single<Boolean> isAlertingAvailable() {
         LOGGER.debug("Get alert available status");
 
-        return Single.just(!this.triggerProviderManager.findAll().isEmpty());
+        return RxJava2Adapter.monoToSingle(Mono.just(!this.triggerProviderManager.findAll().isEmpty()));
     }
 }

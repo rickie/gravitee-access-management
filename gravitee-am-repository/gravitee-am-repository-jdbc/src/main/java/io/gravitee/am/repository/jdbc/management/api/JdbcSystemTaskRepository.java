@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.SystemTask;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -24,19 +28,16 @@ import io.gravitee.am.repository.management.api.SystemTaskRepository;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -58,12 +59,11 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
     @Override
     public Maybe<SystemTask> findById(String id) {
         LOGGER.debug("findById({}, {}, {})", id);
-        return monoToMaybe(dbClient.select()
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(monoToMaybe(dbClient.select()
                 .from(JdbcSystemTask.class)
                 .project("*")
                 .matching(from(where("id").is(id)))
-                .as(JdbcSystemTask.class).first())
-                .map(this::toEntity);
+                .as(JdbcSystemTask.class).first())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
 
     }
 
@@ -81,12 +81,12 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
         insertSpec = addQuotedField(insertSpec, "updated_at", dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
     public Single<SystemTask> update(SystemTask item) {
-        return Single.error(new IllegalStateException("SystemTask can't be updated without control on the operationId"));
+        return RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("SystemTask can't be updated without control on the operationId")));
     }
 
     @Override
@@ -107,7 +107,7 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
                 .fetch()
                 .rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override

@@ -15,18 +15,20 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Factor;
 import io.gravitee.am.repository.management.api.FactorRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.FactorMongo;
 import io.reactivex.*;
+import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.eq;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -48,35 +50,35 @@ public class MongoFactorRepository extends AbstractManagementMongoRepository imp
 
     @Override
     public Flowable<Factor> findAll() {
-        return Flowable.fromPublisher(factorsCollection.find()).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(factorsCollection.find())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Factor> findByDomain(String domain) {
-        return Flowable.fromPublisher(factorsCollection.find(eq(FIELD_DOMAIN, domain))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(factorsCollection.find(eq(FIELD_DOMAIN, domain)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Factor> findById(String factorId) {
-        return Observable.fromPublisher(factorsCollection.find(eq(FIELD_ID, factorId)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(factorsCollection.find(eq(FIELD_ID, factorId)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Factor> create(Factor item) {
         FactorMongo authenticator = convert(item);
         authenticator.setId(authenticator.getId() == null ? RandomString.generate() : authenticator.getId());
-        return Single.fromPublisher(factorsCollection.insertOne(authenticator)).flatMap(success -> findById(authenticator.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(factorsCollection.insertOne(authenticator))).flatMap(success->RxJava2Adapter.singleToMono(findById(authenticator.getId()).toSingle())));
     }
 
     @Override
     public Single<Factor> update(Factor item) {
         FactorMongo authenticator = convert(item);
-        return Single.fromPublisher(factorsCollection.replaceOne(eq(FIELD_ID, authenticator.getId()), authenticator)).flatMap(updateResult -> findById(authenticator.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(factorsCollection.replaceOne(eq(FIELD_ID, authenticator.getId()), authenticator))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(authenticator.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(factorsCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(factorsCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private Factor convert(FactorMongo factorMongo) {

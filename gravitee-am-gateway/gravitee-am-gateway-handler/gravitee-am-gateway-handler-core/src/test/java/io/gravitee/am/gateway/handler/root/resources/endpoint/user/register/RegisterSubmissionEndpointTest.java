@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.user.register;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
 import io.gravitee.am.gateway.handler.root.resources.handler.user.register.RegisterFailureHandler;
 import io.gravitee.am.gateway.handler.root.resources.handler.user.register.RegisterProcessHandler;
@@ -29,16 +33,13 @@ import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Single;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.reactivex.ext.web.handler.BodyHandler;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -76,7 +77,7 @@ public class RegisterSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.register(eq(client), any(), any())).thenReturn(Single.just(new RegistrationResponse()));
+        when(userService.register(eq(client), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new RegistrationResponse())));
 
         testRequest(
                 HttpMethod.POST, "/register?client_id=client-id",
@@ -105,7 +106,7 @@ public class RegisterSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.register(eq(client), any(), any())).thenReturn(Single.just(registrationResponse));
+        when(userService.register(eq(client), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(registrationResponse)));
 
         testRequest(
                 HttpMethod.POST, "/register?client_id=client-id",
@@ -130,7 +131,7 @@ public class RegisterSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.register(eq(client), any(), any())).thenReturn(Single.error(new UserAlreadyExistsException("test")));
+        when(userService.register(eq(client), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new UserAlreadyExistsException("test"))));
 
         testRequest(
                 HttpMethod.POST, "/register?client_id=client-id",
@@ -155,7 +156,7 @@ public class RegisterSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.register(eq(client), any(), any())).thenReturn(Single.error(new InvalidUserException("Username invalid")));
+        when(userService.register(eq(client), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidUserException("Username invalid"))));
 
         testRequest(
                 HttpMethod.POST, "/register?client_id=client-id",
@@ -180,7 +181,7 @@ public class RegisterSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.register(eq(client), any(), any())).thenReturn(Single.error(new EmailFormatInvalidException("test")));
+        when(userService.register(eq(client), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new EmailFormatInvalidException("test"))));
 
         testRequest(
                 HttpMethod.POST, "/register?client_id=client-id",

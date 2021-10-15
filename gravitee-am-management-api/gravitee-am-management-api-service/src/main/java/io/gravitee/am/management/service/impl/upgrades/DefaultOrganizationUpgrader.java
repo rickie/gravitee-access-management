@@ -23,16 +23,16 @@ import io.gravitee.am.model.permissions.DefaultRole;
 import io.gravitee.am.service.*;
 import io.gravitee.am.service.model.NewIdentityProvider;
 import io.gravitee.am.service.model.PatchOrganization;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -91,7 +91,7 @@ public class DefaultOrganizationUpgrader implements Upgrader, Ordered {
             // This call create default organization with :
             // - default roles
             // - default entry point
-            Organization organization = organizationService.createDefault().blockingGet();
+            Organization organization = RxJava2Adapter.maybeToMono(organizationService.createDefault()).block();
 
             // No existing organization, finish the following set up :
             // - retrieve information from the old admin domain
@@ -100,19 +100,19 @@ public class DefaultOrganizationUpgrader implements Upgrader, Ordered {
                 logger.info("Default organization successfully created");
 
                 // check if old domain admin exists
-                Domain adminDomain = domainService.findById(ADMIN_DOMAIN).blockingGet();
+                Domain adminDomain = RxJava2Adapter.maybeToMono(domainService.findById(ADMIN_DOMAIN)).block();
                 if (adminDomain != null) {
                     // update organization identities
                     PatchOrganization patchOrganization = new PatchOrganization();
                     patchOrganization.setIdentities(adminDomain.getIdentities() != null ? new ArrayList<>(adminDomain.getIdentities()) : null);
-                    organizationService.update(organization.getId(), patchOrganization, null).blockingGet();
+                    RxJava2Adapter.singleToMono(organizationService.update(organization.getId(), patchOrganization, null)).block();
 
                     // Must grant owner power to all existing users to be iso-functional with v2 where all users could do everything.
-                    Role organizationOwnerRole = roleService.findDefaultRole(Organization.DEFAULT, DefaultRole.ORGANIZATION_OWNER, ReferenceType.ORGANIZATION).blockingGet();
+                    Role organizationOwnerRole = RxJava2Adapter.maybeToMono(roleService.findDefaultRole(Organization.DEFAULT, DefaultRole.ORGANIZATION_OWNER, ReferenceType.ORGANIZATION)).block();
                     Page<User> userPage;
                     int page = 0;
                     do {
-                        userPage = userService.findAll(ReferenceType.ORGANIZATION, Organization.DEFAULT, page, PAGE_SIZE).blockingGet();
+                        userPage = RxJava2Adapter.singleToMono(userService.findAll(ReferenceType.ORGANIZATION, Organization.DEFAULT, page, PAGE_SIZE)).block();
                         // membership helper create membership only if
                         userPage.getData().forEach(user -> membershipHelper.setOrganizationRole(user, organizationOwnerRole));
                         page++;
@@ -134,7 +134,7 @@ public class DefaultOrganizationUpgrader implements Upgrader, Ordered {
             }
 
             // Get organization with fresh data.
-            organization = organizationService.findById(Organization.DEFAULT).blockingGet();
+            organization = RxJava2Adapter.singleToMono(organizationService.findById(Organization.DEFAULT)).block();
 
             logger.info("Check if default organization is up to date");
 
@@ -142,11 +142,11 @@ public class DefaultOrganizationUpgrader implements Upgrader, Ordered {
                 // Need to check that inline idp and default admin user has 'admin' role.
                 final List<String> identities = Optional.ofNullable(organization.getIdentities()).orElse(Collections.emptyList());
 
-                IdentityProvider inlineIdp = identityProviderService.findAll(ReferenceType.ORGANIZATION, Organization.DEFAULT)
+                IdentityProvider inlineIdp = RxJava2Adapter.maybeToMono(identityProviderService.findAll(ReferenceType.ORGANIZATION, Organization.DEFAULT)
                         .filter(identityProvider -> identityProvider.getType().equals("inline-am-idp")
                                 && !identityProvider.isExternal()
                                 && identities.contains(identityProvider.getId()))
-                        .firstElement().blockingGet();
+                        .firstElement()).block();
 
                 // If inline idp doesn't exist or is not enabled, it is probably an administrator choice. So do not go further.
                 if (inlineIdp != null) {
@@ -154,7 +154,7 @@ public class DefaultOrganizationUpgrader implements Upgrader, Ordered {
                     if (inlineIdp.getConfiguration().contains(",\"username\":\"" + ADMIN_USERNAME + "\",") && inlineIdp.getRoleMapper().isEmpty()) {
 
                         // Check the user admin exists.
-                        User adminUser = userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, Organization.DEFAULT, ADMIN_USERNAME, inlineIdp.getId()).blockingGet();
+                        User adminUser = RxJava2Adapter.maybeToMono(userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, Organization.DEFAULT, ADMIN_USERNAME, inlineIdp.getId())).block();
 
                         if (adminUser == null) {
                             // Create the admin user with organization primary owner role on the default organization.
@@ -183,12 +183,12 @@ public class DefaultOrganizationUpgrader implements Upgrader, Ordered {
         adminIdentityProvider.setName("Inline users");
         adminIdentityProvider.setConfiguration(DEFAULT_INLINE_IDP_CONFIG);
 
-        IdentityProvider createdIdentityProvider = identityProviderService.create(ReferenceType.ORGANIZATION, Organization.DEFAULT, adminIdentityProvider, null).blockingGet();
+        IdentityProvider createdIdentityProvider = RxJava2Adapter.singleToMono(identityProviderService.create(ReferenceType.ORGANIZATION, Organization.DEFAULT, adminIdentityProvider, null)).block();
 
         logger.info("Associate user-inline provider to default organization");
         PatchOrganization patchOrganization = new PatchOrganization();
         patchOrganization.setIdentities(Collections.singletonList(createdIdentityProvider.getId()));
-        organizationService.update(Organization.DEFAULT, patchOrganization, null).blockingGet();
+        RxJava2Adapter.singleToMono(organizationService.update(Organization.DEFAULT, patchOrganization, null)).block();
 
         return createdIdentityProvider;
     }
@@ -202,7 +202,7 @@ public class DefaultOrganizationUpgrader implements Upgrader, Ordered {
         newUser.setReferenceType(ReferenceType.ORGANIZATION);
         newUser.setReferenceId(Organization.DEFAULT);
 
-        return userService.create(newUser).blockingGet();
+        return RxJava2Adapter.singleToMono(userService.create(newUser)).block();
     }
 
     @Override

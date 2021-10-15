@@ -15,19 +15,20 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.platform.plugins;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.plugin.IdentityProviderPlugin;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Single;
-import org.junit.Test;
-
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -41,7 +42,7 @@ public class IdentityProvidersPluginResourceTest extends JerseySpringTest {
         identityProviderPlugin.setId("identityProvider-plugin-id");
         identityProviderPlugin.setName("identityProvider-plugin-name");
 
-        doReturn(Single.just(Collections.singletonList(identityProviderPlugin))).when(identityProviderPluginService).findAll(false, new ArrayList<>());
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(identityProviderPlugin)))).when(identityProviderPluginService).findAll(false, new ArrayList<>());
 
         final Response response = target("platform")
                 .path("plugins")
@@ -53,7 +54,7 @@ public class IdentityProvidersPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldList_technicalManagementException() {
-        doReturn(Single.error(new TechnicalManagementException("Error occurs"))).when(identityProviderPluginService).findAll(false, new ArrayList<>());
+        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("Error occurs")))).when(identityProviderPluginService).findAll(false, new ArrayList<>());
 
         final Response response = target("platform")
                 .path("plugins")

@@ -20,6 +20,7 @@ import io.r2dbc.spi.Result;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import org.springframework.context.annotation.Configuration;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -39,15 +40,14 @@ public class JdbcAuthenticationProviderConfigurationTest_MSSQL extends JdbcAuthe
 
     @Override
     protected void initData(Connection connection) {
-        Single.fromPublisher(connection.createStatement("create table users(id varchar(256), username varchar(256), password varchar(256), email varchar(256), metadata text)").execute()).blockingGet();
-        Single.fromPublisher(connection.createStatement("insert into users values('1', 'bob', 'bobspassword', null, null)").execute()).blockingGet();
-        Single.fromPublisher(connection.createStatement("insert into users(id, username, password, email, metadata) values( @id, @username, @password, @email , @metadata)")
+        RxJava2Adapter.singleToMono(Single.fromPublisher(connection.createStatement("create table users(id varchar(256), username varchar(256), password varchar(256), email varchar(256), metadata text)").execute())).block();
+        RxJava2Adapter.singleToMono(Single.fromPublisher(connection.createStatement("insert into users values('1', 'bob', 'bobspassword', null, null)").execute())).block();
+        RxJava2Adapter.singleToMono(Single.fromPublisher(connection.createStatement("insert into users(id, username, password, email, metadata) values( @id, @username, @password, @email , @metadata)")
                 .bind("id", "2")
                 .bind("username", "user01")
                 .bind("password", "user01")
                 .bind("email", "user01@acme.com")
                 .bindNull("metadata", String.class)
-                .execute()).flatMap(rp -> Single.fromPublisher(rp.getRowsUpdated()))
-                .blockingGet();
+                .execute()).flatMap(rp -> Single.fromPublisher(rp.getRowsUpdated()))).block();
     }
 }

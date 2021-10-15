@@ -15,26 +15,27 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import io.gravitee.am.repository.mongodb.common.AbstractMongoRepository;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.mongodb.client.model.Filters.*;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -82,13 +83,13 @@ public abstract class AbstractManagementMongoRepository extends AbstractMongoRep
         List<Bson> filterCriteria = Stream.of(filter).filter(Objects::nonNull).collect(Collectors.toList());
 
         if (filterCriteria.isEmpty()) {
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
 
         if (logicalOr) {
-            return Maybe.just(or(filterCriteria));
+            return RxJava2Adapter.monoToMaybe(Mono.just(or(filterCriteria)));
         } else {
-            return Maybe.just(and(filterCriteria));
+            return RxJava2Adapter.monoToMaybe(Mono.just(and(filterCriteria)));
         }
     }
 }

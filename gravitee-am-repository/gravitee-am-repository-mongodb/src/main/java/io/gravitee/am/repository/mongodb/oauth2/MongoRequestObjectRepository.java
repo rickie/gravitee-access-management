@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.mongodb.oauth2;
 
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.repository.mongodb.oauth2.internal.model.RequestObjectMongo;
@@ -24,13 +26,13 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import java.util.concurrent.TimeUnit;
-
-import static com.mongodb.client.model.Filters.eq;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -54,22 +56,20 @@ public class MongoRequestObjectRepository extends AbstractOAuth2MongoRepository 
 
     @Override
     public Maybe<RequestObject> findById(String id) {
-        return Observable
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
                 .fromPublisher(requestObjectCollection.find(eq(FIELD_ID, id)).limit(1).first())
-                .firstElement()
-                .map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<RequestObject> create(RequestObject requestObject) {
-        return Single
-                .fromPublisher(requestObjectCollection.insertOne(convert(requestObject)))
-                .flatMap(success -> findById(requestObject.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
+                .fromPublisher(requestObjectCollection.insertOne(convert(requestObject)))).flatMap(success->RxJava2Adapter.singleToMono(findById(requestObject.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(requestObjectCollection.findOneAndDelete(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(requestObjectCollection.findOneAndDelete(eq(FIELD_ID, id))));
     }
 
     private RequestObjectMongo convert(RequestObject requestObject) {

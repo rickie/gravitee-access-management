@@ -15,19 +15,20 @@
  */
 package io.gravitee.am.service.utils;
 
+import static io.gravitee.am.common.oauth2.GrantType.*;
+import static io.gravitee.am.common.oauth2.ResponseType.CODE;
+import static io.gravitee.am.common.oauth2.ResponseType.TOKEN;
+import static io.gravitee.am.common.oidc.ResponseType.*;
+
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 import io.reactivex.Single;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static io.gravitee.am.common.oauth2.GrantType.*;
-import static io.gravitee.am.common.oauth2.ResponseType.CODE;
-import static io.gravitee.am.common.oauth2.ResponseType.TOKEN;
-import static io.gravitee.am.common.oidc.ResponseType.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -54,17 +55,17 @@ public class GrantTypeUtils {
     public static Single<Application> validateGrantTypes(Application application) {
         // no application to check, continue
         if (application==null) {
-            return Single.error(new InvalidClientMetadataException("No application to validate grant"));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("No application to validate grant")));
         }
 
         // no application settings to check, continue
         if (application.getSettings() == null) {
-            return Single.just(application);
+            return RxJava2Adapter.monoToSingle(Mono.just(application));
         }
 
         // no application oauth settings to check, continue
         if (application.getSettings().getOauth() == null) {
-            return Single.just(application);
+            return RxJava2Adapter.monoToSingle(Mono.just(application));
         }
 
         // Each security domain can have multiple extension grant with the same grant_type
@@ -72,7 +73,7 @@ public class GrantTypeUtils {
         ApplicationOAuthSettings oAuthSettings = application.getSettings().getOauth();
         List<String> formattedClientGrantTypes = oAuthSettings.getGrantTypes() == null ? null : oAuthSettings.getGrantTypes().stream().map(str -> str.split(EXTENSION_GRANT_SEPARATOR)[0]).collect(Collectors.toList());
         if(!isSupportedGrantType(formattedClientGrantTypes)) {
-            return Single.error(new InvalidClientMetadataException("Missing or invalid grant type."));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Missing or invalid grant type.")));
         }
 
         //Ensure correspondance between response & grant types.
@@ -85,9 +86,9 @@ public class GrantTypeUtils {
             List<String> allowedRefreshTokenGrant = Arrays.asList(AUTHORIZATION_CODE, PASSWORD, JWT_BEARER);//, CLIENT_CREDENTIALS, HYBRID);
             //return true if there is no element in common
             if(Collections.disjoint(formattedClientGrantTypes, allowedRefreshTokenGrant)) {
-                return Single.error(new InvalidClientMetadataException(
+                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException(
                         REFRESH_TOKEN+" grant type must be associated with one of "+String.join(", ",allowedRefreshTokenGrant)
-                ));
+                )));
             }
         }
 
@@ -105,7 +106,7 @@ public class GrantTypeUtils {
         }
         */
 
-        return Single.just(application);
+        return RxJava2Adapter.monoToSingle(Mono.just(application));
     }
 
     public static List<String> getSupportedGrantTypes() {

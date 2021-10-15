@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.management.service.impl.upgrades;
 
+import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.POLICY_FLOW_UPGRADER;
+
 import io.gravitee.am.common.policy.ExtensionPoint;
 import io.gravitee.am.management.service.PolicyPluginService;
 import io.gravitee.am.model.Policy;
@@ -26,19 +28,20 @@ import io.gravitee.am.repository.management.api.PolicyRepository;
 import io.gravitee.am.service.FlowService;
 import io.gravitee.am.service.model.plugin.PolicyPlugin;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
+import io.reactivex.functions.Function;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.POLICY_FLOW_UPGRADER;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -61,8 +64,7 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
 
     @Override
     public boolean upgrade() {
-        policyRepository.collectionExists()
-                .flatMapCompletable(collectionExists -> {
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(policyRepository.collectionExists()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)collectionExists -> {
                     if (collectionExists) {
                         LOGGER.info("Policies collection exists, upgrading policies to flows");
                         return policyRepository.findAll()
@@ -76,7 +78,7 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
                         LOGGER.info("Policies collection doesn't exist, skip upgrade");
                         return Completable.complete();
                     }
-                })
+                }).apply(y)))).then())
                 .subscribe(
                         () -> LOGGER.info("Policies to flows upgrade, done."),
                         error -> LOGGER.error("An error occurs while updating policies to flows", error)
@@ -112,12 +114,11 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
 
         return Observable.fromIterable(flows.values())
                 .flatMapCompletable(flow -> flowService.create(ReferenceType.DOMAIN, domain, flow).toCompletable())
-                .doOnComplete(() -> LOGGER.info("Policies migrated to flows for domain {}", domain))
-                .doOnError((error) -> LOGGER.info("Error during policies migration for domain {}", domain, error));
+                .doOnComplete(() -> LOGGER.info("Policies migrated to flows for domain {}", domain)).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.info("Error during policies migration for domain {}", domain, error))).as(RxJava2Adapter::monoToCompletable);
     }
 
     private Step createStep(Policy policy) {
-        final PolicyPlugin policyPlugin = policyPluginService.findById(policy.getType()).blockingGet();
+        final PolicyPlugin policyPlugin = RxJava2Adapter.maybeToMono(policyPluginService.findById(policy.getType())).block();
         final Step step = new Step();
         step.setName(policyPlugin != null ? policyPlugin.getName() : policy.getType());
         step.setEnabled(policy.isEnabled());

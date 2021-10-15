@@ -17,16 +17,16 @@ package io.gravitee.am.repository.management.api;
 
 import io.gravitee.am.model.Credential;
 import io.gravitee.am.model.ReferenceType;
-import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.exceptions.TechnicalException;
+import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -41,7 +41,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
     public void findByUserId() throws TechnicalException {
         // create credential
         Credential credential = buildCredential();
-        credentialRepository.create(credential).blockingGet();
+        RxJava2Adapter.singleToMono(credentialRepository.create(credential)).block();
 
         // fetch credentials
         TestSubscriber<Credential> testObserver = credentialRepository
@@ -57,7 +57,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
     public void findByUsername() throws TechnicalException {
         // create credential
         Credential credential = buildCredential();
-        credentialRepository.create(credential).blockingGet();
+        RxJava2Adapter.singleToMono(credentialRepository.create(credential)).block();
 
         // fetch credentials
         TestSubscriber<Credential> testSubscriber = credentialRepository
@@ -73,7 +73,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
     public void findByCredentialId() throws TechnicalException {
         // create credential
         Credential credential = buildCredential();
-        credentialRepository.create(credential).blockingGet();
+        RxJava2Adapter.singleToMono(credentialRepository.create(credential)).block();
 
         // fetch credentials
         TestSubscriber<Credential> testSubscriber = credentialRepository
@@ -104,7 +104,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create credential
         Credential credential = buildCredential();
-        Credential credentialCreated = credentialRepository.create(credential).blockingGet();
+        Credential credentialCreated = RxJava2Adapter.singleToMono(credentialRepository.create(credential)).block();
 
         // fetch credential
         TestObserver<Credential> testObserver = credentialRepository.findById(credentialCreated.getId()).test();
@@ -144,7 +144,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create credential
         Credential credential = buildCredential();
-        Credential credentialCreated = credentialRepository.create(credential).blockingGet();
+        Credential credentialCreated = RxJava2Adapter.singleToMono(credentialRepository.create(credential)).block();
 
         // update credential
         Credential updateCredential = buildCredential();
@@ -163,7 +163,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
     public void testDelete() throws TechnicalException {
         // create credential
         Credential credential = buildCredential();
-        Credential credentialCreated = credentialRepository.create(credential).blockingGet();
+        Credential credentialCreated = RxJava2Adapter.singleToMono(credentialRepository.create(credential)).block();
 
         // fetch credential
         TestObserver<Credential> testObserver = credentialRepository.findById(credentialCreated.getId()).test();
@@ -188,7 +188,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         credential.setReferenceType(ReferenceType.DOMAIN);
         credential.setReferenceId("domain-id");
         credential.setUserId("user-id");
-        Credential credentialCreated = credentialRepository.create(credential).blockingGet();
+        Credential credentialCreated = RxJava2Adapter.singleToMono(credentialRepository.create(credential)).block();
 
         // fetch credential
         TestSubscriber<Credential> testSubscriber = credentialRepository.findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id").test();
@@ -218,7 +218,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         credential.setReferenceType(ReferenceType.DOMAIN);
         credential.setReferenceId("domain-id");
         credential.setUserId("user-id");
-        Credential credentialCreated = credentialRepository.create(credential).blockingGet();
+        Credential credentialCreated = RxJava2Adapter.singleToMono(credentialRepository.create(credential)).block();
 
         // fetch credential
         TestSubscriber<Credential> testSubscriber = credentialRepository.findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id").test();
@@ -250,7 +250,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         credential.setReferenceId("domain-id");
         credential.setUserId("user-id");
         credential.setAaguid("aaguid");
-        Credential credentialCreated = credentialRepository.create(credential).blockingGet();
+        Credential credentialCreated = RxJava2Adapter.singleToMono(credentialRepository.create(credential)).block();
 
         // fetch credential
         TestSubscriber<Credential> testSubscriber = credentialRepository.findByUserId(ReferenceType.DOMAIN, "domain-id", "user-id").test();

@@ -15,17 +15,18 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Certificate;
 import io.gravitee.am.model.Domain;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Maybe;
-import org.junit.Test;
-
 import javax.ws.rs.core.Response;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -45,8 +46,8 @@ public class CertificateResourceTest extends JerseySpringTest {
         mockCertificate.setName("certificate-name");
         mockCertificate.setDomain(domainId);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.just(mockCertificate)).when(certificateService).findById(certificateId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockCertificate))).when(certificateService).findById(certificateId);
 
         final Response response = target("domains").path(domainId).path("certificates").path(certificateId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -64,8 +65,8 @@ public class CertificateResourceTest extends JerseySpringTest {
 
         final String certificateId = "certificate-id";
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.empty()).when(certificateService).findById(certificateId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(certificateService).findById(certificateId);
 
         final Response response = target("domains").path(domainId).path("certificates").path(certificateId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -77,7 +78,7 @@ public class CertificateResourceTest extends JerseySpringTest {
         final String domainId = "domain-id";
         final String certificateId = "certificate-id";
 
-        doReturn(Maybe.empty()).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(domainService).findById(domainId);
 
         final Response response = target("domains").path(domainId).path("certificates").path(certificateId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -95,8 +96,8 @@ public class CertificateResourceTest extends JerseySpringTest {
         mockCertificate.setName("certificate-name");
         mockCertificate.setDomain("wrong-domain");
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.just(mockCertificate)).when(certificateService).findById(certificateId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockCertificate))).when(certificateService).findById(certificateId);
 
         final Response response = target("domains").path(domainId).path("certificates").path(certificateId).request().get();
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());

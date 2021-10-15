@@ -15,6 +15,12 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.clientregistration;
 
+import static io.gravitee.am.gateway.handler.oidc.service.clientregistration.impl.DynamicClientRegistrationServiceImpl.*;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -51,6 +57,12 @@ import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.HttpRequest;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.junit.Before;
@@ -61,19 +73,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static io.gravitee.am.gateway.handler.oidc.service.clientregistration.impl.DynamicClientRegistrationServiceImpl.*;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -136,24 +138,24 @@ public class DynamicClientRegistrationServiceTest {
         reset(domain, environment);
 
         when(domain.getId()).thenReturn(DOMAIN_ID);
-        when(identityProviderService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.empty());
-        when(certificateService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.empty());
+        when(identityProviderService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(certificateService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
         when(openIDProviderMetadata.getRegistrationEndpoint()).thenReturn("https://issuer/register");
         when(openIDDiscoveryService.getConfiguration(BASE_PATH)).thenReturn(openIDProviderMetadata);
         when(openIDProviderMetadata.getIssuer()).thenReturn("https://issuer");
-        when(jwtService.encode(any(JWT.class),any(Client.class))).thenReturn(Single.just("jwt"));
+        when(jwtService.encode(any(JWT.class),any(Client.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just("jwt")));
 
         when(clientService.create(any())).thenAnswer(i -> {
             Client res = i.getArgument(0);
             res.setId(ID_TARGET);
-            return Single.just(res);
+            return RxJava2Adapter.monoToSingle(Mono.just(res));
         });
-        when(clientService.update(any())).thenAnswer(i -> Single.just(i.getArgument(0)));
-        when(clientService.delete(any())).thenReturn(Completable.complete());
+        when(clientService.update(any())).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
+        when(clientService.delete(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         when(clientService.renewClientSecret(any(), any())).thenAnswer(i -> {
             Client toRenew = new Client();
             toRenew.setClientSecret("secretRenewed");
-            return Single.just(toRenew);
+            return RxJava2Adapter.monoToSingle(Mono.just(toRenew));
         });
 
         when(domain.useFapiBrazilProfile()).thenReturn(false);
@@ -211,7 +213,7 @@ public class DynamicClientRegistrationServiceTest {
     public void create_applyDefaultIdentiyProvider() {
         IdentityProvider identityProvider = Mockito.mock(IdentityProvider.class);
         when(identityProvider.getId()).thenReturn("identity-provider-id-123");
-        when(identityProviderService.findByDomain(DOMAIN_ID)).thenReturn(Flowable.just(identityProvider));
+        when(identityProviderService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(identityProvider)));
 
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
@@ -226,7 +228,7 @@ public class DynamicClientRegistrationServiceTest {
     public void create_applyDefaultCertificateProvider() {
         Certificate certificate = Mockito.mock(Certificate.class);
         when(certificate.getId()).thenReturn("certificate-id-123");
-        when(certificateService.findByDomain(any())).thenReturn(Flowable.just(certificate));
+        when(certificateService.findByDomain(any())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(certificate)));
 
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
@@ -622,7 +624,7 @@ public class DynamicClientRegistrationServiceTest {
         HttpResponse httpResponse = Mockito.mock(HttpResponse.class);
 
         when(webClient.getAbs(sectorUri)).thenReturn(httpRequest);
-        when(httpRequest.rxSend()).thenReturn(Single.just(httpResponse));
+        when(httpRequest.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(httpResponse)));
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -641,7 +643,7 @@ public class DynamicClientRegistrationServiceTest {
         HttpResponse httpResponse = Mockito.mock(HttpResponse.class);
 
         when(webClient.getAbs(sectorUri)).thenReturn(httpRequest);
-        when(httpRequest.rxSend()).thenReturn(Single.just(httpResponse));
+        when(httpRequest.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(httpResponse)));
         when(httpResponse.bodyAsString()).thenReturn("[\"https://not/same/redirect/uri\"]");
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -660,7 +662,7 @@ public class DynamicClientRegistrationServiceTest {
         HttpResponse httpResponse = Mockito.mock(HttpResponse.class);
 
         when(webClient.getAbs(sectorUri)).thenReturn(httpRequest);
-        when(httpRequest.rxSend()).thenReturn(Single.just(httpResponse));
+        when(httpRequest.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(httpResponse)));
         when(httpResponse.bodyAsString()).thenReturn("[\""+redirectUri+"\"]");
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -687,7 +689,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setJwksUri(Optional.of("something"));
 
-        when(jwkService.getKeys(anyString())).thenReturn(Maybe.empty());
+        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -701,7 +703,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setJwksUri(Optional.of("something"));
 
-        when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
+        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
         testObserver.assertNoErrors();
@@ -772,7 +774,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.of(Arrays.asList("https://graviee.io/callback")));
         request.setJwksUri(Optional.of("something"));
 
-        when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
+        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
 
         TestObserver<Client> testObserver = dcrService.patch(new Client(), request, BASE_PATH).test();
         testObserver.assertNoErrors();
@@ -832,7 +834,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setSoftwareId(Optional.of("123"));
 
         when(domain.isDynamicClientRegistrationTemplateEnabled()).thenReturn(true);
-        when(clientService.findById(any())).thenReturn(Maybe.empty());
+        when(clientService.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver<Client> testObserver = dcrService.create(request,BASE_PATH).test();
         testObserver.assertNotComplete();
@@ -857,7 +859,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setApplicationType(Optional.of("app"));
 
         when(domain.isDynamicClientRegistrationTemplateEnabled()).thenReturn(true);
-        when(clientService.findById("123")).thenReturn(Maybe.just(template));
+        when(clientService.findById("123")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(template)));
 
         TestObserver<Client> testObserver = dcrService.create(request,BASE_PATH).test();
         testObserver.assertNotComplete();
@@ -882,10 +884,10 @@ public class DynamicClientRegistrationServiceTest {
         request.setSoftwareId(Optional.of(ID_SOURCE));
         request.setApplicationType(Optional.of("app"));
 
-        when(formService.copyFromClient(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(Single.just(Collections.emptyList()));
-        when(emailTemplateService.copyFromClient(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(Flowable.empty());
+        when(formService.copyFromClient(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
+        when(emailTemplateService.copyFromClient(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
         when(domain.isDynamicClientRegistrationTemplateEnabled()).thenReturn(true);
-        when(clientService.findById("123")).thenReturn(Maybe.just(template));
+        when(clientService.findById("123")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(template)));
 
         TestObserver<Client> testObserver = dcrService.create(request,BASE_PATH).test();
         testObserver.assertComplete().assertNoErrors();
@@ -1071,8 +1073,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
         when(jwsService.isValidSignature(any(), any())).thenReturn(false);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1095,8 +1097,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1122,8 +1124,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1146,8 +1148,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1171,8 +1173,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1198,8 +1200,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1225,8 +1227,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1258,8 +1260,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
@@ -1294,8 +1296,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(new io.gravitee.am.model.jose.RSAKey()));
+        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();

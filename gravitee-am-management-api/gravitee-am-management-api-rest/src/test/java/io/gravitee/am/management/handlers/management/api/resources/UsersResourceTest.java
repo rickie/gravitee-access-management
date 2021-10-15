@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import com.google.common.collect.Sets;
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.*;
@@ -28,21 +33,17 @@ import io.gravitee.common.util.Maps;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.junit.Before;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -54,7 +55,7 @@ public class UsersResourceTest extends JerseySpringTest {
 
     @Before
     public void setUp() {
-        doReturn(Completable.complete()).when(userValidator).validate(any());
+        doReturn(RxJava2Adapter.monoToCompletable(Mono.empty())).when(userValidator).validate(any());
     }
 
     @Test
@@ -78,8 +79,8 @@ public class UsersResourceTest extends JerseySpringTest {
         final Set<User> users = new HashSet<>(Arrays.asList(mockUser, mockUser2));
         final Page<User> pagedUsers = new Page<>(users, 0, 2);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(pagedUsers)).when(userService).findAll(ReferenceType.DOMAIN, domainId, 0, 10);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(pagedUsers))).when(userService).findAll(ReferenceType.DOMAIN, domainId, 0, 10);
 
         final Response response = target("domains")
                 .path(domainId)
@@ -112,8 +113,8 @@ public class UsersResourceTest extends JerseySpringTest {
         final Page<User> pagedUsers = new Page<>(users, 0, 2);
 
         final Map<Permission, Set<Acl>> permissions = Maps.<Permission, Set<Acl>>builder().put(Permission.ORGANIZATION_USER, Sets.newHashSet(Acl.LIST)).build();
-        when(permissionService.findAllPermissions(any(), eq(ReferenceType.ORGANIZATION), eq(organizationId))).thenReturn(Single.just(permissions));
-        doReturn(Single.just(pagedUsers)).when(organizationUserService).findAll(ReferenceType.ORGANIZATION, organizationId, 0, 10);
+        when(permissionService.findAllPermissions(any(), eq(ReferenceType.ORGANIZATION), eq(organizationId))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(permissions)));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(pagedUsers))).when(organizationUserService).findAll(ReferenceType.ORGANIZATION, organizationId, 0, 10);
 
         final Response response = target("organizations")
                 .path("DEFAULT")
@@ -132,7 +133,7 @@ public class UsersResourceTest extends JerseySpringTest {
         final Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
 
         final Response response = target("domains")
                 .path(domainId)
@@ -149,7 +150,7 @@ public class UsersResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetUsers_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(Maybe.error(new TechnicalManagementException("error occurs"))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs")))).when(domainService).findById(domainId);
 
         final Response response = target("domains").path(domainId).path("users").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -167,8 +168,8 @@ public class UsersResourceTest extends JerseySpringTest {
         newUser.setEmail("test@test.com");
         newUser.setSource("unknown-source");
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.error(new UserProviderNotFoundException(newUser.getSource()))).when(userService).create(any(Domain.class), any(), any());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new UserProviderNotFoundException(newUser.getSource())))).when(userService).create(any(Domain.class), any(), any());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -179,9 +180,9 @@ public class UsersResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldCreateOrganizationUser() {
-        when(permissionService.hasPermission(any(), any())).thenReturn(Single.just(true));
-        when(organizationService.findById(ORGANIZATION_DEFAULT)).thenReturn(Single.just(new Organization()));
-        when(organizationUserService.createGraviteeUser(any(), any(), any())).thenReturn(Single.just(new User()));
+        when(permissionService.hasPermission(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
+        when(organizationService.findById(ORGANIZATION_DEFAULT)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Organization())));
+        when(organizationUserService.createGraviteeUser(any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
 
         final NewUser entity = new NewUser();
         entity.setUsername("test");

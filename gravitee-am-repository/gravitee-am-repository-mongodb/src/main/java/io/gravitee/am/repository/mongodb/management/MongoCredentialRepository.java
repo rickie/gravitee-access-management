@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Credential;
@@ -22,13 +25,12 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.management.api.CredentialRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.CredentialMongo;
 import io.reactivex.*;
+import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -54,88 +56,83 @@ public class MongoCredentialRepository extends AbstractManagementMongoRepository
 
     @Override
     public Flowable<Credential> findByUserId(ReferenceType referenceType, String referenceId, String userId) {
-        return Flowable.fromPublisher(
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(
                 credentialsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_USER_ID, userId)
                         )
-                ))
-                .map(this::convert);
+                ))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Credential> findByUsername(ReferenceType referenceType, String referenceId, String username) {
-        return Flowable.fromPublisher(
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(
                 credentialsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_USERNAME, username)
                         )
-                ))
-                .map(this::convert);
+                ))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Credential> findByCredentialId(ReferenceType referenceType, String referenceId, String credentialId) {
-        return Flowable.fromPublisher(
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(
                 credentialsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_CREDENTIAL_ID, credentialId)
                         )
-                ))
-                .map(this::convert);
+                ))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Credential> findById(String id) {
-        return Observable.fromPublisher(credentialsCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(credentialsCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Credential> create(Credential item) {
         CredentialMongo credential = convert(item);
         credential.setId(credential.getId() == null ? RandomString.generate() : credential.getId());
-        return Single.fromPublisher(credentialsCollection.insertOne(credential)).flatMap(success -> findById(credential.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(credentialsCollection.insertOne(credential))).flatMap(success->RxJava2Adapter.singleToMono(findById(credential.getId()).toSingle())));
     }
 
     @Override
     public Single<Credential> update(Credential item) {
         CredentialMongo credential = convert(item);
-        return Single.fromPublisher(credentialsCollection.replaceOne(eq(FIELD_ID, credential.getId()), credential)).flatMap(updateResult -> findById(credential.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(credentialsCollection.replaceOne(eq(FIELD_ID, credential.getId()), credential))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(credential.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(credentialsCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(credentialsCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     @Override
     public Completable deleteByUserId(ReferenceType referenceType, String referenceId, String userId) {
-        return Completable.fromPublisher(
-                credentialsCollection.deleteMany(
+        return RxJava2Adapter.monoToCompletable(Mono.from(credentialsCollection.deleteMany(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_USER_ID, userId)
                         )
-                ));
+                )));
     }
 
     @Override
     public Completable deleteByAaguid(ReferenceType referenceType, String referenceId, String aaguid) {
-        return Completable.fromPublisher(
-                credentialsCollection.deleteMany(
+        return RxJava2Adapter.monoToCompletable(Mono.from(credentialsCollection.deleteMany(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_AAGUID, aaguid)
                         )
-                ));
+                )));
     }
 
     private Credential convert(CredentialMongo credentialMongo) {

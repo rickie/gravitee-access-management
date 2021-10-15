@@ -31,8 +31,10 @@ import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.MediaType;
 import io.gravitee.el.TemplateEngine;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -41,15 +43,17 @@ import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.HttpRequest;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.lang.reflect.Constructor;
+import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.StringUtils;
-
-import java.lang.reflect.Constructor;
-import java.util.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -116,22 +120,21 @@ public class HttpUserProvider implements UserProvider {
             // process request
             final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, createUserURI, createUserHttpMethod, createUserHttpHeaders, createUserBody);
 
-            return requestHandler
-                    .map(httpResponse -> {
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = createResourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return convert(user.getUsername(), userAttributes);
-                    })
+                    })))
                     .onErrorResumeNext(ex -> {
                         if (ex instanceof AbstractManagementException) {
-                            return Single.error(ex);
+                            return RxJava2Adapter.monoToSingle(Mono.error(ex));
                         }
                         LOGGER.error("An error has occurred while creating user {} from the remote HTTP identity provider", user.getUsername(), ex);
-                        return Single.error(new TechnicalManagementException("An error has occurred while creating user from the remote HTTP identity provider", ex));
+                        return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error has occurred while creating user from the remote HTTP identity provider", ex)));
                     });
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while creating the user {}", user.getUsername(), ex);
-            return Single.error(new TechnicalManagementException("An error has occurred while creating the user", ex));
+            return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error has occurred while creating the user", ex)));
         }
     }
 
@@ -159,22 +162,21 @@ public class HttpUserProvider implements UserProvider {
             // process request
             final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, updateUserURI, updateUserHttpMethod, updateUserHttpHeaders, updateUserBody);
 
-            return requestHandler
-                    .map(httpResponse -> {
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = updateResourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return convert(updateUser.getUsername(), userAttributes);
-                    })
+                    })))
                     .onErrorResumeNext(ex -> {
                         if (ex instanceof AbstractManagementException) {
-                            return Single.error(ex);
+                            return RxJava2Adapter.monoToSingle(Mono.error(ex));
                         }
                         LOGGER.error("An error has occurred while updating user {} from the remote HTTP identity provider", updateUser.getUsername(), ex);
-                        return Single.error(new TechnicalManagementException("An error has occurred while updating user from the remote HTTP identity provider", ex));
+                        return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error has occurred while updating user from the remote HTTP identity provider", ex)));
                     });
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while updating the user {}", updateUser.getUsername(), ex);
-            return Single.error(new TechnicalManagementException("An error has occurred while updating the user", ex));
+            return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error has occurred while updating the user", ex)));
         }
     }
 
@@ -197,8 +199,7 @@ public class HttpUserProvider implements UserProvider {
             final String updateUserBody = deleteResourceConfiguration.getHttpBody();
             final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, deleteUserURI, deleteUserHttpMethod, deleteUserHttpHeaders, updateUserBody);
 
-            return requestHandler
-                    .flatMapCompletable(httpResponse -> {
+            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(requestHandler).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<HttpResponse<Buffer>, CompletableSource>)httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = deleteResourceConfiguration.getHttpResponseErrorConditions();
                         try {
                             processResponse(templateEngine, errorConditions, httpResponse);
@@ -206,17 +207,17 @@ public class HttpUserProvider implements UserProvider {
                         } catch (Exception ex) {
                             return Completable.error(ex);
                         }
-                    })
+                    }).apply(y)))).then())
                     .onErrorResumeNext(ex -> {
                         if (ex instanceof AbstractManagementException) {
-                            return Completable.error(ex);
+                            return RxJava2Adapter.monoToCompletable(Mono.error(ex));
                         }
                         LOGGER.error("An error has occurred while deleting user {} from the remote HTTP identity provider", id, ex);
-                        return Completable.error(new TechnicalManagementException("An error has occurred while deleting user from the remote HTTP identity provider", ex));
+                        return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException("An error has occurred while deleting user from the remote HTTP identity provider", ex)));
                     });
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while deleting the user {}", id, ex);
-            return Completable.error(new TechnicalManagementException("An error has occurred while deleting the user", ex));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException("An error has occurred while deleting the user", ex)));
         }
     }
 
@@ -236,23 +237,22 @@ public class HttpUserProvider implements UserProvider {
             final String readUserBody = readResourceConfiguration.getHttpBody();
             final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, readUserURI, readUserHttpMethod, readUserHttpHeaders, readUserBody);
 
-            return requestHandler
-                    .toMaybe()
-                    .map(httpResponse -> {
+            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(requestHandler
+                    .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = readResourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return convert(user.getUsername(), userAttributes);
-                    })
+                    })))
                     .onErrorResumeNext(ex -> {
                         if (ex instanceof AbstractManagementException) {
-                            return Maybe.error(ex);
+                            return RxJava2Adapter.monoToMaybe(Mono.error(ex));
                         }
                         LOGGER.error("An error has occurred while searching user {} from the remote HTTP identity provider", user.getUsername() != null ? user.getUsername() : user.getEmail(), ex);
-                        return Maybe.error(new TechnicalManagementException("An error has occurred while searching user from the remote HTTP identity provider", ex));
+                        return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error has occurred while searching user from the remote HTTP identity provider", ex)));
                     });
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while searching the user {}", user.getUsername() != null ? user.getUsername() : user.getEmail(), ex);
-            return Maybe.error(new TechnicalManagementException("An error has occurred while searching the user", ex));
+            return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error has occurred while searching the user", ex)));
         }
     }
 

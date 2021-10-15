@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization;
 
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.*;
+
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
@@ -32,13 +34,12 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
-import org.springframework.util.StringUtils;
-
 import java.net.URI;
 import java.text.ParseException;
 import java.util.*;
-
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.*;
+import org.springframework.util.StringUtils;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * The request Authorization Request parameter enables OpenID Connect requests to be passed in a single,
@@ -164,13 +165,12 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
             context.request().params().remove(Parameters.REQUEST);
 
 
-            return requestObjectService
+            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestObjectService
                     .readRequestObject(request, context.get(CLIENT_CONTEXT_KEY), domain.useFapiBrazilProfile())
                     .map(jwt -> preserveRequestObject(context, jwt))
-                    .flatMap(jwt -> validateRequestObjectClaims(context, jwt))
-                    .toMaybe();
+                    .flatMap(jwt -> validateRequestObjectClaims(context, jwt))));
         } else {
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
     }
 
@@ -249,13 +249,13 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
                 }
 
             } catch (OAuth2Exception e) {
-                return Single.error(e);
+                return RxJava2Adapter.monoToSingle(Mono.error(e));
             } catch (ParseException e) {
-                return Single.error(new InvalidRequestObjectException());
+                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException()));
             }
         }
 
-        return Single.just(jwt);
+        return RxJava2Adapter.monoToSingle(Mono.just(jwt));
     }
 
     private OAuth2Exception generateException(boolean throwUriException, String msg) {
@@ -271,24 +271,22 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
             context.request().params().remove(Parameters.REQUEST_URI);
 
             if (requestUri.startsWith(PushedAuthorizationRequestService.PAR_URN_PREFIX)) {
-                return parService.readFromURI(requestUri, context.get(CLIENT_CONTEXT_KEY), context.get(PROVIDER_METADATA_CONTEXT_KEY))
+                return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(parService.readFromURI(requestUri, context.get(CLIENT_CONTEXT_KEY), context.get(PROVIDER_METADATA_CONTEXT_KEY))
                         .map(jwt -> preserveRequestObject(context, jwt))
                         .flatMap(jwt -> validateRequestObjectClaims(context, jwt))
                         .map(jwt -> {
                             final String uriIdentifier = requestUri.substring(PushedAuthorizationRequestService.PAR_URN_PREFIX.length());
                             context.put(REQUEST_URI_ID_KEY, uriIdentifier);
                             return jwt;
-                        })
-                        .toMaybe();
+                        })));
             } else {
-                return requestObjectService
+                return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestObjectService
                         .readRequestObjectFromURI(requestUri, context.get(CLIENT_CONTEXT_KEY))
                         .map(jwt -> preserveRequestObject(context, jwt))
-                        .flatMap(jwt -> validateRequestObjectClaims(context, jwt))
-                        .toMaybe();
+                        .flatMap(jwt -> validateRequestObjectClaims(context, jwt))));
             }
         } else {
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
     }
 

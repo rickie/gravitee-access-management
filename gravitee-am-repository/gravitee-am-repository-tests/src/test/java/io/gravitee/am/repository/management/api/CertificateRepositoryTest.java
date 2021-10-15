@@ -16,17 +16,17 @@
 package io.gravitee.am.repository.management.api;
 
 import io.gravitee.am.model.Certificate;
-import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.exceptions.TechnicalException;
+import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -43,7 +43,7 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
         Certificate certificate = buildCertificate();
         certificate.setDomain("DomainTestFindByDomain");
 
-        certificateRepository.create(certificate).blockingGet();
+        RxJava2Adapter.singleToMono(certificateRepository.create(certificate)).block();
 
         // fetch certificates
         TestSubscriber<Certificate> testSubscriber = certificateRepository.findByDomain("DomainTestFindByDomain").test();
@@ -79,7 +79,7 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
         // create certificate
         Certificate certificate = buildCertificate();
         certificate.setName("testFindById");
-        Certificate certificateCreated = certificateRepository.create(certificate).blockingGet();
+        Certificate certificateCreated = RxJava2Adapter.singleToMono(certificateRepository.create(certificate)).block();
 
         // fetch certificate
         TestObserver<Certificate> testObserver = certificateRepository.findById(certificateCreated.getId()).test();
@@ -118,7 +118,7 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create certificate
         Certificate certificate = buildCertificate();
-        Certificate certificateCreated = certificateRepository.create(certificate).blockingGet();
+        Certificate certificateCreated = RxJava2Adapter.singleToMono(certificateRepository.create(certificate)).block();
 
         // update certificate
         Certificate updatedCertificate = new Certificate(certificateCreated);
@@ -137,7 +137,7 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
     public void testDelete() throws TechnicalException {
         // create certificate
         Certificate certificate = buildCertificate();
-        Certificate certificateCreated = certificateRepository.create(certificate).blockingGet();
+        Certificate certificateCreated = RxJava2Adapter.singleToMono(certificateRepository.create(certificate)).block();
 
         // fetch certificate
         TestObserver<Certificate> testObserver = certificateRepository.findById(certificateCreated.getId()).test();

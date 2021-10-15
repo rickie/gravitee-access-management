@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Membership;
@@ -24,13 +26,13 @@ import io.gravitee.am.repository.management.api.MembershipRepository;
 import io.gravitee.am.repository.management.api.search.MembershipCriteria;
 import io.gravitee.am.repository.mongodb.management.internal.model.MembershipMongo;
 import io.reactivex.*;
+import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -55,14 +57,12 @@ public class MongoMembershipRepository extends AbstractManagementMongoRepository
 
     @Override
     public Flowable<Membership> findByReference(String referenceId, ReferenceType referenceType) {
-        return Flowable.fromPublisher(membershipsCollection.find(and(eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_REFERENCE_TYPE, referenceType.name()))))
-                .map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(membershipsCollection.find(and(eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_REFERENCE_TYPE, referenceType.name()))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Membership> findByMember(String memberId, MemberType memberType) {
-        return Flowable.fromPublisher(membershipsCollection.find(and(eq(FIELD_MEMBER_ID, memberId), eq(FIELD_MEMBER_TYPE, memberType.name()))))
-                .map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(membershipsCollection.find(and(eq(FIELD_MEMBER_ID, memberId), eq(FIELD_MEMBER_TYPE, memberType.name()))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -84,41 +84,41 @@ public class MongoMembershipRepository extends AbstractManagementMongoRepository
             eqUserId = eq(FIELD_ROLE, criteria.getRoleId().get());
         }
 
-        return toBsonFilter(criteria.isLogicalOR(), eqGroupId, eqUserId)
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(toBsonFilter(criteria.isLogicalOR(), eqGroupId, eqUserId)
                 .map(filter -> and(eqReference, filter))
                 .switchIfEmpty(Single.just(eqReference))
-                .flatMapPublisher(filter -> Flowable.fromPublisher(membershipsCollection.find(filter))).map(this::convert);
+                .flatMapPublisher(filter -> Flowable.fromPublisher(membershipsCollection.find(filter)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Membership> findByReferenceAndMember(ReferenceType referenceType, String referenceId, MemberType memberType, String memberId) {
-        return Observable.fromPublisher(membershipsCollection.find(
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(membershipsCollection.find(
                 and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId),
                         eq(FIELD_MEMBER_TYPE, memberType.name()), eq(FIELD_MEMBER_ID, memberId))).first())
-                .firstElement().map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Membership> findById(String id) {
-        return Observable.fromPublisher(membershipsCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(membershipsCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Membership> create(Membership item) {
         MembershipMongo membership = convert(item);
         membership.setId(membership.getId() == null ? RandomString.generate() : membership.getId());
-        return Single.fromPublisher(membershipsCollection.insertOne(membership)).map(success -> convert(membership));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(membershipsCollection.insertOne(membership))).map(RxJavaReactorMigrationUtil.toJdkFunction(success -> convert(membership))));
     }
 
     @Override
     public Single<Membership> update(Membership item) {
         MembershipMongo membership = convert(item);
-        return Single.fromPublisher(membershipsCollection.replaceOne(eq(FIELD_ID, membership.getId()), membership)).map(success -> convert(membership));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(membershipsCollection.replaceOne(eq(FIELD_ID, membership.getId()), membership))).map(RxJavaReactorMigrationUtil.toJdkFunction(success -> convert(membership))));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(membershipsCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(membershipsCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private Membership convert(MembershipMongo membershipMongo) {

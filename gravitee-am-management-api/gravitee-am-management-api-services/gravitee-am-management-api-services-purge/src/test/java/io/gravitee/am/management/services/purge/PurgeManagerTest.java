@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.management.services.purge;
 
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.repository.management.api.AuthenticationFlowContextRepository;
 import io.gravitee.am.repository.management.api.LoginAttemptRepository;
 import io.gravitee.am.repository.management.api.PermissionTicketRepository;
@@ -24,17 +26,16 @@ import io.gravitee.am.repository.oauth2.api.RefreshTokenRepository;
 import io.gravitee.am.repository.oauth2.api.ScopeApprovalRepository;
 import io.gravitee.am.repository.oidc.api.RequestObjectRepository;
 import io.reactivex.Completable;
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -72,14 +73,14 @@ public class PurgeManagerTest {
 
     @Before
     public void prepare() {
-        when(accessTokenRepository.purgeExpiredData()).thenReturn(Completable.complete());
-        when(loginAttemptRepository.purgeExpiredData()).thenReturn(Completable.complete());
-        when(permissionTicketRepository.purgeExpiredData()).thenReturn(Completable.complete());
-        when(authorizationCodeRepository.purgeExpiredData()).thenReturn(Completable.complete());
-        when(scopeApprovalRepository.purgeExpiredData()).thenReturn(Completable.complete());
-        when(refreshTokenRepository.purgeExpiredData()).thenReturn(Completable.complete());
-        when(requestObjectRepository.purgeExpiredData()).thenReturn(Completable.complete());
-        when(authenticationFlowContextRepository.purgeExpiredData()).thenReturn(Completable.complete());
+        when(accessTokenRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(loginAttemptRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(permissionTicketRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(authorizationCodeRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(scopeApprovalRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(refreshTokenRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(requestObjectRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(authenticationFlowContextRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 
     @Test

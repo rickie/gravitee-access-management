@@ -15,18 +15,19 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.platform.plugins;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.service.model.plugin.BotDetectionPlugin;
 import io.gravitee.am.service.model.plugin.ResourcePlugin;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Single;
-import org.junit.Test;
-
-import javax.ws.rs.core.Response;
 import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -42,7 +43,7 @@ public class BotDetectionsPluginResourceTest extends JerseySpringTest {
         botDetectionPlugin.setDescription("desc");
         botDetectionPlugin.setVersion("1");
 
-        doReturn(Single.just(Collections.singletonList(botDetectionPlugin))).when(botDetectionPluginService).findAll();
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(botDetectionPlugin)))).when(botDetectionPluginService).findAll();
 
         final Response response = target("platform")
                 .path("plugins")

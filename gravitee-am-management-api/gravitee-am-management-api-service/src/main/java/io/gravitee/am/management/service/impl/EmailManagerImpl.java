@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.management.service.impl;
 
+import static java.lang.String.format;
+
 import freemarker.cache.StringTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
@@ -29,19 +31,18 @@ import io.gravitee.common.event.EventManager;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
-
-import static java.lang.String.format;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -80,8 +81,7 @@ public class EmailManagerImpl extends AbstractService<EmailManager> implements E
         eventManager.subscribeForEvents(this, EmailEvent.class);
 
         logger.info("Initializing emails");
-        emailTemplateService.findAll()
-                .filter(Email::isEnabled)
+        RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailTemplateService.findAll()).filter(RxJavaReactorMigrationUtil.toJdkPredicate(Email::isEnabled)))
                 .blockingIterable()
                 .forEach(this::loadEmail);
     }

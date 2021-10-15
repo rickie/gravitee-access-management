@@ -22,17 +22,18 @@ import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.analytics.AnalyticsQuery;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 public class ApplicationAnalyticsResource extends AbstractResource {
 
@@ -69,8 +70,7 @@ public class ApplicationAnalyticsResource extends AbstractResource {
         query.setInterval(param.getInterval());
         query.setSize(param.getSize());
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION_ANALYTICS, Acl.READ)
-                .andThen(applicationAnalyticsService.execute(query))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION_ANALYTICS, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(applicationAnalyticsService.execute(query)))))
                 .subscribe(response::resume, response::resume);
     }
 }

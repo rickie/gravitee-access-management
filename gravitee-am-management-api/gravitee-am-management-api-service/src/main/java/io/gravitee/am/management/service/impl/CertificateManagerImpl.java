@@ -27,13 +27,14 @@ import io.gravitee.common.event.EventListener;
 import io.gravitee.common.event.EventManager;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Maybe;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -91,22 +92,22 @@ public class CertificateManagerImpl extends AbstractService<CertificateManager> 
         CertificateProvider certificateProvider = certificateProviders.get(certificateId);
 
         if (certificateProvider != null) {
-            return Maybe.just(certificateProvider);
+            return RxJava2Adapter.monoToMaybe(Mono.just(certificateProvider));
         }
 
         // certificate can be missing as it can take sometime for the reporter events
         // to propagate across the cluster so if the next call comes
         // in quickly at a different node there is a possibility it isn't available yet.
         try {
-            Certificate certificate = certificateService.findById(certificateId).blockingGet();
+            Certificate certificate = RxJava2Adapter.maybeToMono(certificateService.findById(certificateId)).block();
             if (certificate == null) {
-                return Maybe.empty();
+                return RxJava2Adapter.monoToMaybe(Mono.empty());
             }
             // retry
             while (certificateProvider == null && System.currentTimeMillis() - startTime < retryTimeout) {
                 certificateProvider = certificateProviders.get(certificateId);
             }
-            return certificateProvider == null ? Maybe.empty() : Maybe.just(certificateProvider);
+            return certificateProvider == null ? RxJava2Adapter.monoToMaybe(Mono.empty()) : RxJava2Adapter.monoToMaybe(Mono.just(certificateProvider));
         } catch (Exception ex) {
             logger.error("An error has occurred while fetching certificate with id {}", certificateId, ex);
             throw new IllegalStateException(ex);

@@ -27,11 +27,13 @@ import io.gravitee.plugin.core.api.Plugin;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -59,25 +61,23 @@ public class NotifierPluginService {
     }
 
     public Flowable<NotifierPlugin> findAll(String... expand) {
-        return Flowable.fromIterable(notifierPluginManager.findAll())
-                .flatMapSingle(plugin -> convert(plugin, expand))
-                .onErrorResumeNext(throwable -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromIterable(notifierPluginManager.findAll())
+                .flatMapSingle(plugin -> convert(plugin, expand))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(throwable -> {
                     return Flowable.error(new TechnicalManagementException("An error occurs while trying to get notifier plugins", throwable));
-                });
+                })));
     }
 
     public Single<NotifierPlugin> findById(String notifierId) {
-        return Maybe.fromCallable(() -> notifierPluginManager.findById(notifierId))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(Maybe.fromCallable(() -> notifierPluginManager.findById(notifierId))
                 .flatMap(plugin -> convert(plugin).toMaybe())
                 .onErrorResumeNext(throwable -> {
                     return Maybe.error(new TechnicalManagementException("An error occurs while trying to get notifier plugin " + notifierId, throwable));
-                })
-                .switchIfEmpty(Single.defer(() -> Single.error(new NotifierPluginNotFoundException(notifierId))));
+                })).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.defer(() -> Single.error(new NotifierPluginNotFoundException(notifierId)))))));
     }
 
     public Single<String> getSchema(String notifierId) {
 
-        return Maybe.fromCallable(() -> notifierPluginManager.getSchema(notifierId))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(Maybe.fromCallable(() -> notifierPluginManager.getSchema(notifierId))
                 .map(objectMapper::readTree)
                 .doOnSuccess(jsonSchema -> {
                     final JsonNode propertiesNode = jsonSchema.get("properties");
@@ -97,23 +97,22 @@ public class NotifierPluginService {
                 .map(JsonNode::toString)
                 .onErrorResumeNext(throwable -> {
                     return Maybe.error(new TechnicalManagementException("An error occurs while trying to get schema for notifier plugin " + notifierId, throwable));
-                })
-                .switchIfEmpty(Single.defer(() -> Single.error(new NotifierPluginSchemaNotFoundException(notifierId))));
+                })).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.defer(() -> Single.error(new NotifierPluginSchemaNotFoundException(notifierId)))))));
     }
 
     public Maybe<String> getIcon(String notifierId) {
 
-        return Maybe.fromCallable(() -> notifierPluginManager.getIcon(notifierId))
+        return RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> notifierPluginManager.getIcon(notifierId))))
                 .onErrorResumeNext(throwable -> {
-                    return Maybe.error(new TechnicalManagementException("An error occurs while trying to get incon for notifier plugin " + notifierId, throwable));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error occurs while trying to get incon for notifier plugin " + notifierId, throwable)));
                 });
     }
 
     public Maybe<String> getDocumentation(String notifierId) {
 
-        return Maybe.fromCallable(() -> notifierPluginManager.getDocumentation(notifierId))
+        return RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> notifierPluginManager.getDocumentation(notifierId))))
                 .onErrorResumeNext(throwable -> {
-                    return Maybe.error(new TechnicalManagementException("An error occurs while trying to get documentation for notifier plugin " + notifierId, throwable));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error occurs while trying to get documentation for notifier plugin " + notifierId, throwable)));
                 });
     }
 
@@ -128,12 +127,12 @@ public class NotifierPluginService {
         if (expand != null) {
             final List<String> expandList = Arrays.asList(expand);
             if (expandList.contains(EXPAND_ICON)) {
-                return this.getIcon(notifierPlugin.getId())
+                return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(this.getIcon(notifierPlugin.getId())
                         .doOnSuccess(notifierPlugin::setIcon)
-                        .ignoreElement().andThen(Single.just(notifierPlugin));
+                        .ignoreElement()).then(RxJava2Adapter.singleToMono(Single.wrap(Single.just(notifierPlugin)))));
             }
         }
 
-        return Single.just(notifierPlugin);
+        return RxJava2Adapter.monoToSingle(Mono.just(notifierPlugin));
     }
 }

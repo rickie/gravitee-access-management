@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static java.time.ZoneOffset.UTC;
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -25,22 +30,18 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.time.ZoneOffset.UTC;
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -63,16 +64,15 @@ public class JdbcEventRepository extends AbstractJdbcRepository implements Event
     @Override
     public Flowable<Event> findByTimeFrame(long from, long to) {
         LOGGER.debug("findByTimeFrame({}, {})", from, to);
-        return eventRepository.findByTimeFrame(
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(eventRepository.findByTimeFrame(
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(from), UTC),
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(to), UTC))
-                .map(this::toEntity);
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(to), UTC))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Maybe<Event> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return eventRepository.findById(id).map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(eventRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -91,7 +91,7 @@ public class JdbcEventRepository extends AbstractJdbcRepository implements Event
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
@@ -107,7 +107,7 @@ public class JdbcEventRepository extends AbstractJdbcRepository implements Event
         updateFields = addQuotedField(updateFields,"updated_at", dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
         Mono<Integer> action = updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override

@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.factor.email.provider;
 
+import static java.util.Arrays.asList;
+
 import io.gravitee.am.common.exception.mfa.InvalidCodeException;
 import io.gravitee.am.common.factor.FactorDataKeys;
 import io.gravitee.am.factor.api.Enrollment;
@@ -37,18 +39,18 @@ import io.gravitee.am.resource.api.ResourceProvider;
 import io.gravitee.am.resource.api.email.EmailSenderProvider;
 import io.reactivex.Completable;
 import io.reactivex.Single;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Map;
-
-import static java.util.Arrays.asList;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -88,7 +90,7 @@ public class EmailFactorProvider implements FactorProvider {
 
     @Override
     public Single<Enrollment> enroll(String account) {
-        return Single.fromCallable(() -> new Enrollment(SharedSecret.generate()));
+        return RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> new Enrollment(SharedSecret.generate()))));
     }
 
     @Override
@@ -133,7 +135,7 @@ public class EmailFactorProvider implements FactorProvider {
 
         } else {
 
-            return Completable.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication with type EMAIL"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication with type EMAIL")));
         }
     }
 
@@ -151,21 +153,20 @@ public class EmailFactorProvider implements FactorProvider {
             final String recipient = enrolledFactor.getChannel().getTarget();
             EmailService.EmailWrapper emailWrapper = emailService.createEmail(Template.MFA_CHALLENGE, context.getClient(), asList(recipient), params);
 
-            return provider.sendMessage(emailWrapper.getEmail())
-                    .andThen(Single.just(enrolledFactor)
+            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(provider.sendMessage(emailWrapper.getEmail())).then(RxJava2Adapter.completableToMono(Completable.wrap(Single.just(enrolledFactor)
                             .flatMap(ef ->  {
                                 ef.setPrimary(true);
                                 ef.setStatus(FactorStatus.ACTIVATED);
                                 ef.getSecurity().putData(FactorDataKeys.KEY_EXPIRE_AT, emailWrapper.getExpireAt());
                                 return userService.addFactor(context.getUser().getId(), ef, new DefaultUser(context.getUser()));
-                            }).ignoreElement());
+                            }).ignoreElement()))));
 
         } catch (NoSuchAlgorithmException| InvalidKeyException e) {
             logger.error("Code generation fails", e);
-            return Completable.error(new TechnicalException("Code can't be sent"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Code can't be sent")));
         } catch (Exception e) {
             logger.error("Email templating fails", e);
-            return Completable.error(new TechnicalException("Email can't be sent"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Email can't be sent")));
         }
     }
 
@@ -180,11 +181,11 @@ public class EmailFactorProvider implements FactorProvider {
 
     @Override
     public Single<EnrolledFactor> changeVariableFactorSecurity(EnrolledFactor factor) {
-        return Single.fromCallable(() -> {
+        return RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             int counter = factor.getSecurity().getData(FactorDataKeys.KEY_MOVING_FACTOR, Integer.class);
             factor.getSecurity().putData(FactorDataKeys.KEY_MOVING_FACTOR, counter + 1);
             factor.getSecurity().removeData(FactorDataKeys.KEY_EXPIRE_AT);
             return factor;
-        });
+        })));
     }
 }

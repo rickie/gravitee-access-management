@@ -30,6 +30,13 @@ import io.gravitee.am.resource.api.mfa.MFAResourceProvider;
 import io.gravitee.am.resource.twilio.TwilioVerifyResourceConfiguration;
 import io.gravitee.common.util.EnvironmentUtils;
 import io.reactivex.Completable;
+import java.io.IOException;
+import java.net.*;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import javax.net.ssl.SSLContext;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -48,14 +55,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
-
-import javax.net.ssl.SSLContext;
-import java.io.IOException;
-import java.net.*;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -181,7 +182,7 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
                 channel = "email";
                 break;
             default:
-                return Completable.error(new IllegalArgumentException("Unsupported verification channel '" + target.getChannel() + "'"));
+                return RxJava2Adapter.monoToCompletable(Mono.error(new IllegalArgumentException("Unsupported verification channel '" + target.getChannel() + "'")));
         }
 
         return Completable.create((emitter) -> {

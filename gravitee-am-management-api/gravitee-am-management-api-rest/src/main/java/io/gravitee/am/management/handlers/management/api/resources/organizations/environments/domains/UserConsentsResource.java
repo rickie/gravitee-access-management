@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
+import static io.gravitee.am.management.service.permissions.Permissions.of;
+import static io.gravitee.am.management.service.permissions.Permissions.or;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.model.ApplicationEntity;
 import io.gravitee.am.management.handlers.management.api.model.ScopeApprovalEntity;
@@ -29,6 +32,7 @@ import io.gravitee.am.service.ScopeApprovalService;
 import io.gravitee.am.service.ScopeService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -36,17 +40,14 @@ import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
-import static io.gravitee.am.management.service.permissions.Permissions.of;
-import static io.gravitee.am.management.service.permissions.Permissions.or;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -86,8 +87,7 @@ public class UserConsentsResource extends AbstractResource {
             @QueryParam("clientId") String clientId,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)
-                .andThen(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapPublisher(__ -> {
                             if (clientId == null || clientId.isEmpty()) {
@@ -103,7 +103,7 @@ public class UserConsentsResource extends AbstractResource {
                                             scopeApprovalEntity.setScopeEntity(scopeEntity);
                                             return scopeApprovalEntity;
                                         })))
-                        .toList())
+                        .toList()))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -124,15 +124,14 @@ public class UserConsentsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)
-                .andThen(domainService.findById(domain)
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.completableToMono(Completable.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapCompletable(__ -> {
                             if (clientId == null || clientId.isEmpty()) {
                                 return scopeApprovalService.revokeByUser(domain, user, authenticatedUser);
                             }
                             return scopeApprovalService.revokeByUserAndClient(domain, user, clientId, authenticatedUser);
-                        }))
+                        })))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
@@ -142,15 +141,14 @@ public class UserConsentsResource extends AbstractResource {
     }
 
     private Single<ApplicationEntity> getClient(String domain, String clientId) {
-        return applicationService.findByDomainAndClientId(domain, clientId)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(applicationService.findByDomainAndClientId(domain, clientId)
                 .map(ApplicationEntity::new)
-                .defaultIfEmpty(new ApplicationEntity("unknown-id", clientId, "unknown-client-name"))
-                .toSingle()
+                .defaultIfEmpty(new ApplicationEntity("unknown-id", clientId, "unknown-client-name"))).single())
                 .cache();
     }
 
     private Single<ScopeEntity> getScope(String domain, String scopeKey) {
-        return scopeService.findByDomainAndKey(domain, scopeKey)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, scopeKey)
                 .switchIfEmpty(scopeService.findByDomainAndKey(domain, getScopeBase(scopeKey)).map(entity -> {
                     // set the right scopeKey since the one returned by the service contains the scope definition without parameter
                     entity.setId("unknown-id");
@@ -158,8 +156,7 @@ public class UserConsentsResource extends AbstractResource {
                     return entity;
                 }))
                 .map(ScopeEntity::new)
-                .defaultIfEmpty(new ScopeEntity("unknown-id", scopeKey, "unknown-scope-name", "unknown-scope-description"))
-                .toSingle()
+                .defaultIfEmpty(new ScopeEntity("unknown-id", scopeKey, "unknown-scope-name", "unknown-scope-description"))).single())
                 .cache();
     }
 

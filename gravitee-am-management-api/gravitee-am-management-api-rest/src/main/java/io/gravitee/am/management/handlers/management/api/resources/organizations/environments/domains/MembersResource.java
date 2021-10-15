@@ -32,8 +32,8 @@ import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.net.URI;
+import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -42,8 +42,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -75,12 +75,11 @@ public class MembersResource extends AbstractResource {
             @PathParam("domain") String domain,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.LIST)
-                .andThen(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.LIST)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapSingle(domain1 -> membershipService.findByReference(domain1.getId(), ReferenceType.DOMAIN).toList())
                         .flatMap(memberships -> membershipService.getMetadata(memberships)
-                                .map(metadata -> new MembershipListItem(memberships, metadata))))
+                                .map(metadata -> new MembershipListItem(memberships, metadata)))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -109,15 +108,14 @@ public class MembersResource extends AbstractResource {
         membership.setReferenceId(domain);
         membership.setReferenceType(ReferenceType.DOMAIN);
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.CREATE)
-                .andThen(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapSingle(domain1 -> membershipService.addOrUpdate(organizationId, membership, authenticatedUser))
                         .flatMap(membership1 -> membershipService.addEnvironmentUserRoleIfNecessary(organizationId, environmentId, newMembership, authenticatedUser)
                                 .andThen(Single.just(Response
                                         .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/members/" + membership1.getId()))
                                         .entity(membership1)
-                                        .build()))))
+                                        .build())))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -138,9 +136,8 @@ public class MembersResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)
-                .andThen(permissionService.findAllPermissions(authenticatedUser, ReferenceType.DOMAIN, domain)
-                        .map(Permission::flatten))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(permissionService.findAllPermissions(authenticatedUser, ReferenceType.DOMAIN, domain)
+                        .map(Permission::flatten)))))
                 .subscribe(response::resume, response::resume);
     }
 

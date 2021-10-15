@@ -26,13 +26,14 @@ import io.gravitee.common.component.Lifecycle;
 import io.gravitee.reporter.api.Reportable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -44,7 +45,7 @@ public class NoOpReporter implements AuditReporter {
     @Override
     public Single<Page<Audit>> search(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
         LOGGER.debug("NoOp Reporter call, real reporter not yet bootstrapped");
-        return Single.just(new Page<>(Collections.emptyList(), page, size));
+        return RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptyList(), page, size)));
     }
 
     @Override
@@ -58,20 +59,20 @@ public class NoOpReporter implements AuditReporter {
                 Map<Object, Object> result = new HashMap<>();
                 result.put(fieldSuccess, new ArrayList<>(Collections.nCopies(25, 0l)));
                 result.put(fieldFailure, new ArrayList<>(Collections.nCopies(25, 0l)));
-                return Single.just(result);
+                return RxJava2Adapter.monoToSingle(Mono.just(result));
             case GROUP_BY:
-                return Single.just(Collections.emptyMap());
+                return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap()));
             case COUNT:
-                return Single.just(Collections.singletonMap("data", 0l));
+                return RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonMap("data", 0l)));
             default:
-                return Single.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated"));
+                return RxJava2Adapter.monoToSingle(Mono.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated")));
         }
     }
 
     @Override
     public Maybe<Audit> findById(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("NoOp Reporter call, real reporter not yet bootstrapped");
-        return Maybe.empty();
+        return RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
     @Override

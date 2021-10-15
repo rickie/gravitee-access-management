@@ -15,24 +15,25 @@
  */
 package io.gravitee.am.gateway.handler.oidc.resources.endpoint;
 
-import io.gravitee.am.gateway.handler.oidc.service.jwk.JWKService;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
 import io.gravitee.am.gateway.handler.oauth2.resources.handler.ExceptionHandler;
+import io.gravitee.am.gateway.handler.oidc.service.jwk.JWKService;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.jose.RSAKey;
 import io.gravitee.am.model.oidc.JWKSet;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Single;
 import io.vertx.core.http.HttpMethod;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -65,7 +66,7 @@ public class ProviderJWKSetEndpointHandlerTest extends RxWebTestBase {
         JWKSet jwkSet = new JWKSet();
         jwkSet.setKeys(Collections.singletonList(jwk));
 
-        when(jwkService.getKeys()).thenReturn(Single.just(jwkSet));
+        when(jwkService.getKeys()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwkSet)));
 
         testRequest(
                 HttpMethod.GET, "/.well-known/jwks.json",
@@ -82,7 +83,7 @@ public class ProviderJWKSetEndpointHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeJWKSetEndpoint_runtimeException() throws Exception {
-        when(jwkService.getKeys()).thenReturn(Single.error(new RuntimeException()));
+        when(jwkService.getKeys()).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new RuntimeException())));
 
         testRequest(
                 HttpMethod.GET, "/.well-known/jwks.json",

@@ -27,6 +27,8 @@ import io.reactivex.Single;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -54,12 +56,11 @@ public class InstallationCommandHandler implements CommandHandler<InstallationCo
 
         InstallationPayload installationPayload = command.getPayload();
 
-        return installationService.getOrInitialize().map(Installation::getAdditionalInformation)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(installationService.getOrInitialize().map(Installation::getAdditionalInformation)
                 .doOnSuccess(additionalInfos -> additionalInfos.put(Installation.COCKPIT_INSTALLATION_STATUS, installationPayload.getStatus()))
                 .flatMap(installationService::setAdditionalInformation)
                 .map(installation -> new InstallationReply(command.getId(), CommandStatus.SUCCEEDED))
-                .doOnSuccess(installation -> logger.info("Installation status is [{}].", installationPayload.getStatus()))
-                .doOnError(error -> logger.info("Error occurred when updating installation status.", error))
+                .doOnSuccess(installation -> logger.info("Installation status is [{}].", installationPayload.getStatus()))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.info("Error occurred when updating installation status.", error))))
                 .onErrorReturn(throwable -> new InstallationReply(command.getId(), CommandStatus.ERROR));
     }
 }

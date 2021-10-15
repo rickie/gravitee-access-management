@@ -38,6 +38,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -75,7 +77,7 @@ public class RegisterConfirmationSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.confirmRegistration(eq(client), eq(user), any())).thenReturn(Single.just(new RegistrationResponse()));
+        when(userService.confirmRegistration(eq(client), eq(user), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new RegistrationResponse())));
 
         testRequest(
                 HttpMethod.POST, "/confirmRegistration?client_id=client-id",
@@ -108,7 +110,7 @@ public class RegisterConfirmationSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.confirmRegistration(eq(client), eq(user), any())).thenReturn(Single.just(registrationResponse));
+        when(userService.confirmRegistration(eq(client), eq(user), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(registrationResponse)));
 
         testRequest(
                 HttpMethod.POST, "/confirmRegistration?client_id=client-id",

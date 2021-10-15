@@ -41,6 +41,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -110,34 +113,33 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
                 .privateKey((RSAPrivateKey) ((KeyPair) certificateKey.getValue()).getPrivate())
                 .keyID(configuration.getAlias())
                 .build();
-        return Flowable.fromIterable(convert(nimbusJwk, true).collect(Collectors.toList()));
+        return RxJava2Adapter.fluxToFlowable(Flux.fromIterable(convert(nimbusJwk, true).collect(Collectors.toList())));
     }
 
     @Override
     public Single<io.gravitee.am.certificate.api.Key> key() {
-        return Single.just(certificateKey);
+        return RxJava2Adapter.monoToSingle(Mono.just(certificateKey));
     }
 
     @Override
     public Single<String> publicKey() {
         // fallback to ssh-rsa
-        return Single.just(
-                certificateKeys
+        return RxJava2Adapter.monoToSingle(Mono.just(certificateKeys
                         .stream()
                         .filter(c -> c.getFmt().equals(CertificateFormat.SSH_RSA))
                         .map(CertificateKey::getPayload)
                         .findFirst()
-                        .get());
+                        .get()));
     }
 
     @Override
     public Single<List<CertificateKey>> publicKeys() {
-        return Single.just(certificateKeys);
+        return RxJava2Adapter.monoToSingle(Mono.just(certificateKeys));
     }
 
     @Override
     public Flowable<JWK> keys() {
-        return Flowable.fromIterable(keys);
+        return RxJava2Adapter.fluxToFlowable(Flux.fromIterable(keys));
     }
 
     @Override

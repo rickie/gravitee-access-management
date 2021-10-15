@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.scim.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -33,17 +36,16 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -78,8 +80,8 @@ public class GroupServiceTest {
         when(createdGroup.getName()).thenReturn("my-group");
 
         when(domain.getId()).thenReturn(domainId);
-        when(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), newGroup.getDisplayName())).thenReturn(Maybe.empty());
-        when(groupRepository.create(any())).thenReturn(Single.just(createdGroup));
+        when(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), newGroup.getDisplayName())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(groupRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(createdGroup)));
 
         TestObserver<Group> testObserver = groupService.create(newGroup, "/").test();
         testObserver.assertNoErrors();
@@ -106,9 +108,9 @@ public class GroupServiceTest {
         when(createdGroup.getName()).thenReturn("my-group");
 
         when(domain.getId()).thenReturn(domainId);
-        when(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), newGroup.getDisplayName())).thenReturn(Maybe.empty());
-        when(userRepository.findByIdIn(any())).thenReturn(Flowable.just(user));
-        when(groupRepository.create(any())).thenReturn(Single.just(createdGroup));
+        when(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), newGroup.getDisplayName())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userRepository.findByIdIn(any())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(user)));
+        when(groupRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(createdGroup)));
 
         TestObserver<Group> testObserver = groupService.create(newGroup, "https://mydomain/scim/Groups").test();
         testObserver.assertNoErrors();
@@ -125,7 +127,7 @@ public class GroupServiceTest {
         when(newGroup.getDisplayName()).thenReturn("my-group");
 
         when(domain.getId()).thenReturn(domainId);
-        when(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), newGroup.getDisplayName())).thenReturn(Maybe.just(new io.gravitee.am.model.Group()));
+        when(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), newGroup.getDisplayName())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.Group())));
 
         TestObserver<Group> testObserver = groupService.create(newGroup, "/").test();
         testObserver.assertNotComplete();
@@ -159,12 +161,12 @@ public class GroupServiceTest {
         when(domain.getName()).thenReturn(domainName);
         when(objectMapper.convertValue(any(), eq(ObjectNode.class))).thenReturn(groupNode);
         when(objectMapper.treeToValue(groupNode, Group.class)).thenReturn(patchGroup);
-        when(groupRepository.findById(groupId)).thenReturn(Maybe.just(new io.gravitee.am.model.Group()));
-        when(groupRepository.findByName(eq(ReferenceType.DOMAIN), anyString(), anyString())).thenReturn(Maybe.empty());
+        when(groupRepository.findById(groupId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.Group())));
+        when(groupRepository.findByName(eq(ReferenceType.DOMAIN), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         doAnswer(invocation -> {
             io.gravitee.am.model.Group groupToUpdate = invocation.getArgument(0);
             Assert.assertTrue(groupToUpdate.getName().equals("my group 2"));
-            return Single.just(groupToUpdate);
+            return RxJava2Adapter.monoToSingle(Mono.just(groupToUpdate));
         }).when(groupRepository).update(any());
 
         TestObserver<Group> testObserver = groupService.patch(groupId, patchOp, "/").test();

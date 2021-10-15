@@ -15,19 +15,19 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -50,7 +50,7 @@ public class OrganizationRepositoryTest extends AbstractManagementTest {
         organization.setHrids(Arrays.asList("Hrid1", "Hrid2"));
 
         // TODO: find another way to inject data in DB. Avoid to rely on class under test for that.
-        Organization organizationCreated = organizationRepository.create(organization).blockingGet();
+        Organization organizationCreated = RxJava2Adapter.singleToMono(organizationRepository.create(organization)).block();
 
         TestObserver<Organization> obs = organizationRepository.findById(organizationCreated.getId()).test();
         obs.awaitTerminalEvent();
@@ -98,7 +98,7 @@ public class OrganizationRepositoryTest extends AbstractManagementTest {
         organization.setDomainRestrictions(Arrays.asList("ValueDom1", "ValueDom2"));
         organization.setHrids(Arrays.asList("Hrid1", "Hrid2"));
 
-        Organization organizationCreated = organizationRepository.create(organization).blockingGet();
+        Organization organizationCreated = RxJava2Adapter.singleToMono(organizationRepository.create(organization)).block();
 
         Organization organizationUpdated = new Organization();
         organizationUpdated.setId(organizationCreated.getId());
@@ -129,15 +129,15 @@ public class OrganizationRepositoryTest extends AbstractManagementTest {
         organization.setDomainRestrictions(Arrays.asList("ValueDom1", "ValueDom2"));
         organization.setHrids(Arrays.asList("Hrid1", "Hrid2"));
 
-        Organization organizationCreated = organizationRepository.create(organization).blockingGet();
+        Organization organizationCreated = RxJava2Adapter.singleToMono(organizationRepository.create(organization)).block();
 
-        assertNotNull(organizationRepository.findById(organizationCreated.getId()).blockingGet());
+        assertNotNull(RxJava2Adapter.maybeToMono(organizationRepository.findById(organizationCreated.getId())).block());
 
         TestObserver<Void> obs = organizationRepository.delete(organizationCreated.getId()).test();
         obs.awaitTerminalEvent();
         obs.assertNoValues();
 
-        assertNull(organizationRepository.findById(organizationCreated.getId()).blockingGet());
+        assertNull(RxJava2Adapter.maybeToMono(organizationRepository.findById(organizationCreated.getId())).block());
     }
 
     @Test
@@ -160,10 +160,10 @@ public class OrganizationRepositoryTest extends AbstractManagementTest {
         organization2.setDomainRestrictions(Arrays.asList("ValueDom3", "ValueDom4"));
         organization2.setHrids(Arrays.asList("Hrid3", "Hrid4"));
 
-        Organization organizationCreated = organizationRepository.create(organization).blockingGet();
-        Organization organizationCreated2 = organizationRepository.create(organization2).blockingGet();
+        Organization organizationCreated = RxJava2Adapter.singleToMono(organizationRepository.create(organization)).block();
+        Organization organizationCreated2 = RxJava2Adapter.singleToMono(organizationRepository.create(organization2)).block();
 
-        TestObserver<List<Organization>> obs = organizationRepository.findByHrids(Collections.singletonList("Hrid1")).toList().test();
+        TestObserver<List<Organization>> obs = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(organizationRepository.findByHrids(Collections.singletonList("Hrid1"))).collectList()).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();

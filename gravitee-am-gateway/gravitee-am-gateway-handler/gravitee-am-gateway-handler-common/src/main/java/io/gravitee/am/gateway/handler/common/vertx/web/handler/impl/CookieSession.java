@@ -21,10 +21,11 @@ import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.reactivex.Single;
 import io.vertx.ext.web.Session;
 import io.vertx.ext.web.sstore.AbstractSession;
-import org.springframework.util.StringUtils;
-
 import java.util.Date;
 import java.util.HashMap;
+import org.springframework.util.StringUtils;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Manage the session data using JWT cookie.
@@ -49,7 +50,7 @@ public class CookieSession extends AbstractSession {
     public String value() {
         JWT jwt = new JWT(this.data());
         jwt.setExp((System.currentTimeMillis() + this.timeout()) / 1000);
-        return this.jwtService.encode(jwt, certificateProvider).blockingGet();
+        return RxJava2Adapter.singleToMono(this.jwtService.encode(jwt, certificateProvider)).block();
     }
 
     @Override
@@ -82,11 +83,10 @@ public class CookieSession extends AbstractSession {
             setData(new HashMap<>());
         }
 
-        return this.jwtService.decodeAndVerify(payload, certificateProvider)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.jwtService.decodeAndVerify(payload, certificateProvider)
                 .doOnSuccess(jwt -> {
                     this.lastLogin = new Date(jwt.getExp() * 1000 - this.timeout());
                     this.setData(jwt);
-                })
-                .map(jwt -> this);
+                })).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> this)));
     }
 }

@@ -15,6 +15,12 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.jwe;
 
+import static com.nimbusds.jose.JWEAlgorithm.*;
+import static org.junit.Assert.fail;
+import static org.junit.runners.Parameterized.Parameters;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWEObject;
@@ -24,11 +30,15 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import io.gravitee.am.gateway.handler.oidc.service.jwe.impl.JWEServiceImpl;
 import io.gravitee.am.gateway.handler.oidc.service.jwk.JWKService;
 import io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.jose.ECKey;
+import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
 import io.reactivex.Maybe;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,17 +47,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.nimbusds.jose.JWEAlgorithm.*;
-import static org.junit.Assert.fail;
-import static org.junit.runners.Parameterized.Parameters;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -108,8 +109,8 @@ public class JWEEllipticCurveTest {
             client.setIdTokenEncryptedResponseAlg(alg);
             client.setIdTokenEncryptedResponseEnc(enc);
 
-            when(jwkService.getKeys(client)).thenReturn(Maybe.just(new JWKSet()));
-            when(jwkService.filter(any(), any())).thenReturn(Maybe.just(key));
+            when(jwkService.getKeys(client)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+            when(jwkService.filter(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(key)));
 
             TestObserver testObserver = jweService.encryptIdToken("JWT", client).test();
             testObserver.assertNoErrors();
@@ -142,8 +143,8 @@ public class JWEEllipticCurveTest {
             client.setUserinfoEncryptedResponseAlg(alg);
             client.setUserinfoEncryptedResponseEnc(enc);
 
-            when(jwkService.getKeys(client)).thenReturn(Maybe.just(new JWKSet()));
-            when(jwkService.filter(any(), any())).thenReturn(Maybe.just(key));
+            when(jwkService.getKeys(client)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+            when(jwkService.filter(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(key)));
 
             TestObserver testObserver = jweService.encryptUserinfo("JWT", client).test();
             testObserver.assertNoErrors();

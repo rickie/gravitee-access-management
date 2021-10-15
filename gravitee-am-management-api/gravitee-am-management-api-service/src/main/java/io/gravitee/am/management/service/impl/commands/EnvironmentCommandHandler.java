@@ -24,12 +24,13 @@ import io.gravitee.cockpit.api.command.environment.EnvironmentCommand;
 import io.gravitee.cockpit.api.command.environment.EnvironmentPayload;
 import io.gravitee.cockpit.api.command.environment.EnvironmentReply;
 import io.reactivex.Single;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-
-import java.util.stream.Stream;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -61,10 +62,9 @@ public class EnvironmentCommandHandler implements CommandHandler<EnvironmentComm
         newEnvironment.setDescription(environmentPayload.getDescription());
         newEnvironment.setDomainRestrictions(environmentPayload.getDomainRestrictions());
 
-        return environmentService.createOrUpdate(environmentPayload.getOrganizationId(), environmentPayload.getId(), newEnvironment, null)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentService.createOrUpdate(environmentPayload.getOrganizationId(), environmentPayload.getId(), newEnvironment, null)
                 .map(organization -> new EnvironmentReply(command.getId(), CommandStatus.SUCCEEDED))
-                .doOnSuccess(reply -> logger.info("Environment [{}] handled with id [{}].", environmentPayload.getName(), environmentPayload.getId()))
-                .doOnError(error -> logger.error("Error occurred when handling environment [{}] with id [{}].", environmentPayload.getName(), environmentPayload.getId(), error))
+                .doOnSuccess(reply -> logger.info("Environment [{}] handled with id [{}].", environmentPayload.getName(), environmentPayload.getId()))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Error occurred when handling environment [{}] with id [{}].", environmentPayload.getName(), environmentPayload.getId(), error))))
                 .onErrorReturn(throwable -> new EnvironmentReply(command.getId(), CommandStatus.ERROR));
     }
 }

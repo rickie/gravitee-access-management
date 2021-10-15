@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+import static io.gravitee.am.model.ReferenceType.DOMAIN;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
@@ -34,19 +37,18 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static com.mongodb.client.model.Filters.*;
-import static io.gravitee.am.model.ReferenceType.DOMAIN;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (david.brassely at graviteesource.com)
@@ -76,18 +78,17 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
                 eq(FIELD_REFERENCE_ID, domain),
                 or(emailQuery, emailClaimQuery));
 
-        return Flowable.fromPublisher(usersCollection.find(mongoQuery)).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(usersCollection.find(mongoQuery))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<User> findByUsernameAndDomain(String domain, String username) {
-        return Observable.fromPublisher(
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(
                 usersCollection
                         .find(and(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, domain), eq(FIELD_USERNAME, username)))
                         .limit(1)
                         .first())
-                .firstElement()
-                .map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -109,7 +110,7 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
                 return registrationsStatusRepartition(query);
         }
 
-        return Single.just(Collections.emptyMap());
+        return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap()));
     }
 
     private Single<Map<Object, Object>> usersStatusRepartition(AnalyticsQuery query) {

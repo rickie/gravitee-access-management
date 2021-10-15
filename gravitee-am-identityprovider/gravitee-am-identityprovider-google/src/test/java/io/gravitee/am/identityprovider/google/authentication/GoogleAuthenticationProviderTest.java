@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.identityprovider.google.authentication;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.jwt.SignatureAlgorithm;
 import io.gravitee.am.common.utils.RandomString;
@@ -35,6 +38,9 @@ import io.vertx.ext.web.client.impl.ClientPhase;
 import io.vertx.ext.web.client.impl.WebClientInternal;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,13 +49,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -132,7 +132,7 @@ public class GoogleAuthenticationProviderTest {
         when(configuration.getClientId()).thenReturn("testClientId");
 
         final String state = RandomString.generate();
-        Request request = (Request) provider.asyncSignInUrl("https://gravitee.io", state).blockingGet();
+        Request request = (Request) RxJava2Adapter.maybeToMono(provider.asyncSignInUrl("https://gravitee.io", state)).block();
 
         Assert.assertNotNull(request);
         assertEquals(HttpMethod.GET, request.getMethod());

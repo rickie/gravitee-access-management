@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.policy.enrich.auth;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.context.EvaluableRequest;
 import io.gravitee.am.model.AuthenticationFlowContext;
@@ -33,20 +36,18 @@ import io.gravitee.gateway.api.Response;
 import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.PolicyResult;
 import io.reactivex.Single;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -119,7 +120,7 @@ public class EnrichAuthFlowPolicyTest {
                 new Property("key", "myValue"),
                 new Property("key-tpl", "{#request.params['"+REQUEST_PARAM+"']}")));
 
-        when(authContextRepository.create(any())).then((arg) -> Single.just(arg.getArgument(0)));
+        when(authContextRepository.create(any())).then((arg) -> RxJava2Adapter.monoToSingle(Mono.just(arg.getArgument(0))));
 
         EnrichAuthFlowPolicy enrichAuthFlowPolicy = buildPolicy();
         enrichAuthFlowPolicy.onRequest(request, response, executionContext, policyChain);

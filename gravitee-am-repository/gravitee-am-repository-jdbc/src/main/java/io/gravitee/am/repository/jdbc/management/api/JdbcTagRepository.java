@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Tag;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -27,9 +29,9 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -52,22 +54,19 @@ public class JdbcTagRepository extends AbstractJdbcRepository implements TagRepo
     @Override
     public Maybe<Tag> findById(String id, String organizationId) {
         LOGGER.debug("findById({}, {})", id, organizationId);
-        return tagRepository.findById(id, organizationId)
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(tagRepository.findById(id, organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Flowable<Tag> findAll(String organizationId) {
         LOGGER.debug("findAll({})", organizationId);
-        return tagRepository.findByOrganization(organizationId)
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(tagRepository.findByOrganization(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Maybe<Tag> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return tagRepository.findById(id)
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(tagRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -80,14 +79,13 @@ public class JdbcTagRepository extends AbstractJdbcRepository implements TagRepo
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
     public Single<Tag> update(Tag item) {
         LOGGER.debug("Update tag with id {}", item.getId());
-        return tagRepository.save(toJdbcEntity(item))
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tagRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override

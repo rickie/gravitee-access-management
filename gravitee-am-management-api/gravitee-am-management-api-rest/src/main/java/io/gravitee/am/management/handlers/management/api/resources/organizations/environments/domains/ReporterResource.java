@@ -28,19 +28,20 @@ import io.gravitee.am.service.model.UpdateReporter;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
-import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -70,8 +71,7 @@ public class ReporterResource extends AbstractResource {
             @PathParam("reporter") String reporter,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ)
-                .andThen(domainService.findById(domain)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> reporterService.findById(reporter))
                         .switchIfEmpty(Maybe.error(new ReporterNotFoundException(reporter)))
@@ -80,7 +80,7 @@ public class ReporterResource extends AbstractResource {
                                 throw new BadRequestException("Reporter does not belong to domain");
                             }
                             return Response.ok(reporter1).build();
-                        }))
+                        })))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -103,10 +103,9 @@ public class ReporterResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.UPDATE)
-                .andThen(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(__ -> reporterService.update(domain, reporter, updateReporter, authenticatedUser)))
+                        .flatMapSingle(__ -> reporterService.update(domain, reporter, updateReporter, authenticatedUser))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -126,8 +125,7 @@ public class ReporterResource extends AbstractResource {
             @PathParam("reporter") String reporter,
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ)
-                .andThen(domainService.findById(domain)
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ)).then(RxJava2Adapter.completableToMono(Completable.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> reporterService.findById(reporter))
                         .map(Optional::ofNullable)
@@ -141,7 +139,7 @@ public class ReporterResource extends AbstractResource {
                                 return reporterService.delete(reporter, authenticatedUser);
                             }
                             return Completable.complete();
-                        }))
+                        })))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

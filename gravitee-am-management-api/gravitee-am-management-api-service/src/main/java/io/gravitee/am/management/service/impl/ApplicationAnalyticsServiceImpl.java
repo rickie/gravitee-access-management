@@ -23,12 +23,14 @@ import io.gravitee.am.model.analytics.*;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
 import io.gravitee.am.service.UserService;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 @Component
 public class ApplicationAnalyticsServiceImpl implements ApplicationAnalyticsService {
@@ -49,7 +51,7 @@ public class ApplicationAnalyticsServiceImpl implements ApplicationAnalyticsServ
             case COUNT:
                 return executeCount(query);
         }
-        return Single.just(new AnalyticsResponse() {});
+        return RxJava2Adapter.monoToSingle(Mono.just(new AnalyticsResponse() {}));
     }
 
     private Single<AnalyticsResponse> executeGroupBy(AnalyticsQuery query) {
@@ -62,9 +64,9 @@ public class ApplicationAnalyticsServiceImpl implements ApplicationAnalyticsServ
 
         switch (query.getField()) {
             case Field.USER_STATUS:
-                return userService.statistics(query).map(AnalyticsGroupByResponse::new);
+                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.statistics(query)).map(RxJavaReactorMigrationUtil.toJdkFunction(AnalyticsGroupByResponse::new)));
             default :
-                return Single.just(new AnalyticsResponse() {});
+                return RxJava2Adapter.monoToSingle(Mono.just(new AnalyticsResponse() {}));
         }
     }
 
@@ -79,10 +81,9 @@ public class ApplicationAnalyticsServiceImpl implements ApplicationAnalyticsServ
 
         switch (query.getField()) {
             case Field.USER:
-                return userService.countByApplication(query.getDomain(), query.getApplication()).map(AnalyticsCountResponse::new);
+                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.countByApplication(query.getDomain(), query.getApplication())).map(RxJavaReactorMigrationUtil.toJdkFunction(AnalyticsCountResponse::new)));
             default:
-                return auditService.aggregate(query.getDomain(), queryBuilder.build(), query.getType())
-                        .map(values -> new AnalyticsCountResponse((Long) values.values().iterator().next()));
+                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(auditService.aggregate(query.getDomain(), queryBuilder.build(), query.getType())).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> new AnalyticsCountResponse((Long) values.values().iterator().next()))));
         }
     }
 
@@ -94,8 +95,7 @@ public class ApplicationAnalyticsServiceImpl implements ApplicationAnalyticsServ
         queryBuilder.interval(query.getInterval());
         queryBuilder.accessPointId(query.getApplication());
 
-        return auditService.aggregate(query.getDomain(), queryBuilder.build(), query.getType())
-                .map(values -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(auditService.aggregate(query.getDomain(), queryBuilder.build(), query.getType())).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> {
                     Timestamp timestamp = new Timestamp(query.getFrom(), query.getTo(), query.getInterval());
                     List<Bucket> buckets = values
                             .entrySet()
@@ -112,7 +112,7 @@ public class ApplicationAnalyticsServiceImpl implements ApplicationAnalyticsServ
                     analyticsHistogramResponse.setTimestamp(timestamp);
                     analyticsHistogramResponse.setValues(buckets);
                     return analyticsHistogramResponse;
-                });
+                })));
     }
 
 }

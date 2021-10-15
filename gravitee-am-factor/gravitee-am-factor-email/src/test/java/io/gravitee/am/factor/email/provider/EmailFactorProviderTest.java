@@ -14,6 +14,9 @@ package io.gravitee.am.factor.email.provider; /**
  * limitations under the License.
  */
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.exception.mfa.InvalidCodeException;
 import io.gravitee.am.common.factor.FactorDataKeys;
 import io.gravitee.am.common.factor.FactorSecurityType;
@@ -32,19 +35,17 @@ import io.gravitee.common.util.Maps;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -110,8 +111,8 @@ public class EmailFactorProviderTest {
         when(user.getId()).thenReturn("id");
         when(factorContext.getUser()).thenReturn(user);
 
-        when(userService.addFactor(any(), any(), any())).thenReturn(Single.just(user));
-        when(smtpProvider.sendMessage(any())).thenReturn(Completable.complete());
+        when(userService.addFactor(any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(smtpProvider.sendMessage(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         TestObserver<Void> test = cut.sendChallenge(factorContext).test();
         test.awaitTerminalEvent();

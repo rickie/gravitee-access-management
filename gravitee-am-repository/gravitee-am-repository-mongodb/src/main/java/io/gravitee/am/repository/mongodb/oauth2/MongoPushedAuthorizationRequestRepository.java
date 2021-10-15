@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.mongodb.oauth2;
 
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
@@ -27,14 +29,14 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import org.bson.Document;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -58,23 +60,21 @@ public class MongoPushedAuthorizationRequestRepository extends AbstractOAuth2Mon
 
     @Override
     public Maybe<PushedAuthorizationRequest> findById(String id) {
-        return Observable
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
                 .fromPublisher(parCollection.find(eq(FIELD_ID, id)).limit(1).first())
-                .firstElement()
-                .map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<PushedAuthorizationRequest> create(PushedAuthorizationRequest par) {
         par.setId(par.getId() == null ? RandomString.generate() : par.getId());
-        return Single
-                .fromPublisher(parCollection.insertOne(convert(par)))
-                .flatMap(success -> findById(par.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
+                .fromPublisher(parCollection.insertOne(convert(par)))).flatMap(success->RxJava2Adapter.singleToMono(findById(par.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(parCollection.findOneAndDelete(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(parCollection.findOneAndDelete(eq(FIELD_ID, id))));
     }
 
     private PushedAuthorizationRequestMongo convert(PushedAuthorizationRequest par) {

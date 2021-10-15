@@ -15,13 +15,12 @@
  */
 package io.gravitee.am.reporter.jdbc.dialect;
 
+import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
+
 import io.gravitee.am.common.audit.Status;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
 import io.reactivex.Single;
-import org.springframework.data.r2dbc.core.DatabaseClient;
-import reactor.core.publisher.Flux;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -32,8 +31,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
-import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
+import org.springframework.data.r2dbc.core.DatabaseClient;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -52,7 +52,7 @@ public class MySQLDialect extends AbstractDialect {
         // Sequence Generator exist only since MySQL 8.x
         // process multiple queries to build the result
         Map<Long, Long> intervals = intervals(criteria);
-        return fluxToFlowable(Flux.fromIterable(intervals.keySet()).flatMap(slot -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(Flux.fromIterable(intervals.keySet()).flatMap(slot -> {
             String beginSlot = dateTimeFormatter.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(slot), ZoneId.of(ZoneOffset.UTC.getId())));
             String endSlot = dateTimeFormatter.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(slot + criteria.interval()), ZoneId.of(ZoneOffset.UTC.getId())));
             String query =
@@ -74,7 +74,7 @@ public class MySQLDialect extends AbstractDialect {
             }
 
             return dbClient.execute(query).fetch().all();
-        })).toList();
+        }))).collectList());
     }
 
     @Override

@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.management.service.impl.commands;
 
+import static io.gravitee.am.management.service.impl.commands.GoodbyeCommandHandler.DELETED_STATUS;
+import static io.gravitee.am.model.Installation.COCKPIT_INSTALLATION_STATUS;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.Installation;
 import io.gravitee.am.service.InstallationService;
 import io.gravitee.cockpit.api.command.Command;
@@ -23,6 +27,7 @@ import io.gravitee.cockpit.api.command.goodbye.GoodbyeCommand;
 import io.gravitee.cockpit.api.command.goodbye.GoodbyeReply;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,12 +35,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Map;
-
-import static io.gravitee.am.management.service.impl.commands.GoodbyeCommandHandler.DELETED_STATUS;
-import static io.gravitee.am.model.Installation.COCKPIT_INSTALLATION_STATUS;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -63,7 +64,7 @@ public class GoodbyeCommandHandlerTest extends TestCase {
     public void handle() {
         GoodbyeCommand command = new GoodbyeCommand();
         final Installation installation = new Installation();
-        when(installationService.addAdditionalInformation(any(Map.class))).thenReturn(Single.just(installation));
+        when(installationService.addAdditionalInformation(any(Map.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(installation)));
 
         TestObserver<GoodbyeReply> obs = cut.handle(command).test();
 
@@ -80,7 +81,7 @@ public class GoodbyeCommandHandlerTest extends TestCase {
     public void handleWithException() {
         GoodbyeCommand command = new GoodbyeCommand();
 
-        when(installationService.addAdditionalInformation(any(Map.class))).thenReturn(Single.error(new RuntimeException("Unexpected error")));
+        when(installationService.addAdditionalInformation(any(Map.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new RuntimeException("Unexpected error"))));
 
         TestObserver<GoodbyeReply> obs = cut.handle(command).test();
 

@@ -29,8 +29,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Value;
-
+import java.util.*;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -38,7 +37,9 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
-import java.util.*;
+import org.springframework.beans.factory.annotation.Value;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -66,20 +67,17 @@ public class CurrentUserResource extends AbstractResource {
         // Get the organization the current user is logged on.
         String organizationId = (String) authenticatedUser.getAdditionalInformation().getOrDefault(Claims.organization, Organization.DEFAULT);
 
-        final Single<List<String>> organizationPermissions = permissionService.findAllPermissions(authenticatedUser, ReferenceType.ORGANIZATION, organizationId)
-                .map(Permission::flatten);
+        final Single<List<String>> organizationPermissions = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(permissionService.findAllPermissions(authenticatedUser, ReferenceType.ORGANIZATION, organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(Permission::flatten)));
 
-        final Single<List<String>> platformPermissions = permissionService.findAllPermissions(authenticatedUser, ReferenceType.PLATFORM, Platform.DEFAULT)
-                .map(Permission::flatten);
+        final Single<List<String>> platformPermissions = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(permissionService.findAllPermissions(authenticatedUser, ReferenceType.PLATFORM, Platform.DEFAULT)).map(RxJavaReactorMigrationUtil.toJdkFunction(Permission::flatten)));
 
-        Single.zip(platformPermissions, organizationPermissions,
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.zip(platformPermissions, organizationPermissions,
                 (p, o) -> {
                     Set<String> allPermissions = new HashSet<>();
                     allPermissions.addAll(p);
                     allPermissions.addAll(o);
                     return allPermissions;
-                })
-                .map(permissions -> {
+                })).map(RxJavaReactorMigrationUtil.toJdkFunction(permissions -> {
                     // prepare profile information with role permissions
                     Map<String, Object> profile = new HashMap<>(authenticatedUser.getAdditionalInformation());
                     profile.put("permissions", permissions);
@@ -87,7 +85,7 @@ public class CurrentUserResource extends AbstractResource {
                     profile.remove(CustomClaims.ROLES);
 
                     return profile;
-                }).subscribe(response::resume, response::resume);
+                }))).subscribe(response::resume, response::resume);
     }
 
     @Path("/newsletter")

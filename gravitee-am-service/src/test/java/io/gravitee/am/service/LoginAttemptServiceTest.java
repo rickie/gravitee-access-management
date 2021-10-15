@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.service;
 
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.model.account.AccountSettings;
 import io.gravitee.am.repository.management.api.LoginAttemptRepository;
@@ -28,8 +30,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -61,8 +63,8 @@ public class LoginAttemptServiceTest {
         accountSettings.setMaxLoginAttempts(1);
         accountSettings.setAccountBlockedDuration(24 * 60 * 60 * 1000);
 
-        when(loginAttemptRepository.findByCriteria(loginAttemptCriteria)).thenReturn(Maybe.just(loginAttempt));
-        when(loginAttemptRepository.update(loginAttempt)).thenReturn(Single.just(loginAttempt));
+        when(loginAttemptRepository.findByCriteria(loginAttemptCriteria)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(loginAttempt)));
+        when(loginAttemptRepository.update(loginAttempt)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(loginAttempt)));
 
         TestObserver testObserver = loginAttemptService.loginFailed(loginAttemptCriteria, accountSettings).test();
         testObserver.awaitTerminalEvent();
@@ -86,8 +88,8 @@ public class LoginAttemptServiceTest {
         accountSettings.setMaxLoginAttempts(1);
         accountSettings.setAccountBlockedDuration(24 * 60 * 60 * 1000);
 
-        when(loginAttemptRepository.findByCriteria(loginAttemptCriteria)).thenReturn(Maybe.just(loginAttempt));
-        when(loginAttemptRepository.update(loginAttempt)).thenReturn(Single.just(loginAttempt));
+        when(loginAttemptRepository.findByCriteria(loginAttemptCriteria)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(loginAttempt)));
+        when(loginAttemptRepository.update(loginAttempt)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(loginAttempt)));
 
         TestObserver testObserver = loginAttemptService.loginFailed(loginAttemptCriteria, accountSettings).test();
         testObserver.awaitTerminalEvent();

@@ -15,6 +15,12 @@
  */
 package io.gravitee.am.repository.jdbc.oauth2.api;
 
+import static java.time.ZoneOffset.UTC;
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToCompletable;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -25,21 +31,16 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Mono;
-
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.time.ZoneOffset.UTC;
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToCompletable;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -63,29 +64,26 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
     public Flowable<ScopeApproval> findByDomainAndUserAndClient(String domain, String userId, String clientId) {
         LOGGER.debug("findByDomainAndUserAndClient({}, {}, {})", domain, userId, clientId);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return scopeApprovalRepository.findByDomainAndUserAndClient(domain, userId, clientId)
-                .filter(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now))
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalRepository.findByDomainAndUserAndClient(domain, userId, clientId)
+                .filter(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Flowable<ScopeApproval> findByDomainAndUser(String domain, String user) {
         LOGGER.debug("findByDomainAndUser({}, {}, {})", domain, user);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return scopeApprovalRepository.findByDomainAndUser(domain, user)
-                .filter(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now))
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalRepository.findByDomainAndUser(domain, user)
+                .filter(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Single<ScopeApproval> upsert(ScopeApproval scopeApproval) {
-        return scopeApprovalRepository.findByDomainAndUserAndClientAndScope(scopeApproval.getDomain(),
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeApprovalRepository.findByDomainAndUserAndClientAndScope(scopeApproval.getDomain(),
                 scopeApproval.getUserId(),
                 scopeApproval.getClientId(),
                 scopeApproval.getScope())
                 .map(this::toEntity)
-                .map(Optional::of)
-                .defaultIfEmpty(Optional.empty())
+                .map(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optionalApproval -> {
                     if (!optionalApproval.isPresent()) {
                         scopeApproval.setCreatedAt(new Date());
@@ -134,9 +132,8 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
     public Maybe<ScopeApproval> findById(String id) {
         LOGGER.debug("findById({})", id);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return scopeApprovalRepository.findById(id)
-                .filter(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now))
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeApprovalRepository.findById(id)
+                .filter(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -149,15 +146,13 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return monoToSingle(action)
-                .flatMap((i) -> scopeApprovalRepository.findById(item.getId()).map(this::toEntity).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(scopeApprovalRepository.findById(item.getId()).map(this::toEntity).toSingle())));
     }
 
     @Override
     public Single<ScopeApproval> update(ScopeApproval item) {
         LOGGER.debug("Update ScopeApproval with id {}", item.getId());
-        return scopeApprovalRepository.save(toJdbcEntity(item))
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(scopeApprovalRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override

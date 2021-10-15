@@ -15,6 +15,17 @@
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.login;
 
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.*;
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.ACTION_KEY;
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.resolveProxyRequest;
+import static io.gravitee.am.gateway.handler.root.resources.handler.login.LoginSocialAuthenticationHandler.SOCIAL_AUTHORIZE_URL_CONTEXT_KEY;
+import static io.gravitee.am.gateway.handler.root.resources.handler.login.LoginSocialAuthenticationHandler.SOCIAL_PROVIDER_CONTEXT_KEY;
+import static java.lang.Boolean.TRUE;
+import static java.util.stream.Collectors.toMap;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
 import io.gravitee.am.gateway.handler.common.vertx.utils.RequestUtils;
@@ -32,26 +43,16 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.common.template.TemplateEngine;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.*;
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.ACTION_KEY;
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.resolveProxyRequest;
-import static io.gravitee.am.gateway.handler.root.resources.handler.login.LoginSocialAuthenticationHandler.SOCIAL_AUTHORIZE_URL_CONTEXT_KEY;
-import static io.gravitee.am.gateway.handler.root.resources.handler.login.LoginSocialAuthenticationHandler.SOCIAL_PROVIDER_CONTEXT_KEY;
-import static java.lang.Boolean.TRUE;
-import static java.util.stream.Collectors.toMap;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -115,7 +116,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
         appClient.getLoginSettings().setIdentifierFirstEnabled(false);
         appClient.getLoginSettings().setHideForm(false);
         router.route(HttpMethod.GET, "/login").handler(get200AssertMockRoutingContextHandler(loginEndpoint, false, false));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(Maybe.just(appClient));
+        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
         testRequest(
                 HttpMethod.GET, "/login?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.OK_200, "OK");
@@ -132,7 +133,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY, Map.of(idp.getId(), "/some/provider/oauth/authorize"));
             routingContext.next();
         }).handler(get302AssertMockRoutingContextHandler(loginEndpoint, true, false));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(Maybe.just(appClient));
+        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
         testRequest(
                 HttpMethod.GET, "/login?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.FOUND_302, "Found");
@@ -148,7 +149,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY, Map.of(idp.getId(), "/some/provider/oauth/authorize"));
             routingContext.next();
         }).handler(get200AssertMockRoutingContextHandler(loginEndpoint, false, false));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(Maybe.just(appClient));
+        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
         testRequest(
                 HttpMethod.GET, "/login?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.OK_200, "OK");
@@ -166,7 +167,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY, Map.of(idp.getId(), "/some/provider/oauth/authorize"));
             routingContext.next();
         }).handler(get200AssertMockRoutingContextHandler(loginEndpoint, false, true));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(Maybe.just(appClient));
+        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
         testRequest(
                 HttpMethod.GET, "/login?username=username@domain.com&client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.OK_200, "OK");
@@ -184,7 +185,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY, Map.of(idp.getId(), "/some/provider/oauth/authorize"));
             routingContext.next();
         }).handler(get200AssertMockRoutingContextHandler(loginEndpoint, false, true));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(Maybe.just(appClient));
+        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
         testRequest(
                 HttpMethod.GET, "/login?username=username&client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.OK_200, "OK");
@@ -202,7 +203,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY, Map.of(idp.getId(), "/some/provider/oauth/authorize"));
             routingContext.next();
         }).handler(get302AssertMockRoutingContextHandler(loginEndpoint, false, true));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(Maybe.just(appClient));
+        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
         testRequest(
                 HttpMethod.GET, "/login?username=username@domain.com&client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.FOUND_302, "Found");
@@ -221,7 +222,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY, Map.of(idp.getId(), "/some/provider/oauth/authorize"));
             routingContext.next();
         }).handler(get302AssertMockRoutingContextHandler(loginEndpoint, false, true));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(Maybe.just(appClient));
+        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
         testRequest(
                 HttpMethod.GET, "/login?username=username@domain.com&client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.FOUND_302, "Found");
@@ -239,7 +240,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_PROVIDER_CONTEXT_KEY, List.of(idp1, idp2));
             routingContext.next();
         }).handler(get200AssertMockRoutingContextHandler(loginEndpoint, true, false));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(Maybe.just(appClient));
+        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
         testRequest(
                 HttpMethod.GET, "/login?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.OK_200, "OK");
@@ -253,7 +254,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             context.next();
         });
         ;
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(Maybe.just(appClient));
+        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
         testRequest(
                 HttpMethod.GET, "/login?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com&username=",
                 HttpStatusCode.FOUND_302, "Found");
@@ -266,7 +267,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             loginEndpoint.handle(context);
             context.next();
         });
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(Maybe.just(appClient));
+        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
         testRequest(
                 HttpMethod.GET, "/login?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.FOUND_302, "Found");
@@ -281,7 +282,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeLoginEndpoint_noClient() throws Exception {
-        when(clientSyncService.findByClientId("test")).thenReturn(Maybe.empty());
+        when(clientSyncService.findByClientId("test")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         testRequest(
                 HttpMethod.GET, "/login?client_id=test",

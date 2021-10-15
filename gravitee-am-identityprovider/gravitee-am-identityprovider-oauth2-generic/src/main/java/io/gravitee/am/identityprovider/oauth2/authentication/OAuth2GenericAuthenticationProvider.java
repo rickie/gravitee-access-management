@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.Assert;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -96,14 +97,14 @@ public class OAuth2GenericAuthenticationProvider extends AbstractOpenIDConnectAu
         // fetch OpenID Provider information
         if (configuration.getWellKnownUri() != null && !configuration.getWellKnownUri().isEmpty()) {
             try {
-                Map<String, Object> providerConfiguration = client.getAbs(configuration.getWellKnownUri())
+                Map<String, Object> providerConfiguration = RxJava2Adapter.singleToMono(client.getAbs(configuration.getWellKnownUri())
                         .rxSend()
                         .map(httpClientResponse -> {
                             if (httpClientResponse.statusCode() != 200) {
                                 throw new IllegalArgumentException("Invalid OIDC Well-Known Endpoint : " + httpClientResponse.statusMessage());
                             }
                             return httpClientResponse.bodyAsJsonObject().getMap();
-                        }).blockingGet();
+                        })).block();
 
                 if (providerConfiguration.containsKey(AUTHORIZATION_ENDPOINT)) {
                     configuration.setUserAuthorizationUri((String) providerConfiguration.get(AUTHORIZATION_ENDPOINT));

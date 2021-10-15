@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.service;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.ExtensionGrant;
 import io.gravitee.am.model.common.event.Event;
@@ -33,18 +36,18 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.Collections;
+import java.util.Date;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-import java.util.Date;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -72,7 +75,7 @@ public class ExtensionGrantServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(Maybe.just(new ExtensionGrant()));
+        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new ExtensionGrant())));
         TestObserver testObserver = extensionGrantService.findById("my-extension-grant").test();
 
         testObserver.awaitTerminalEvent();
@@ -83,7 +86,7 @@ public class ExtensionGrantServiceTest {
 
     @Test
     public void shouldFindById_notExistingExtensionGrant() {
-        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(Maybe.empty());
+        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver testObserver = extensionGrantService.findById("my-extension-grant").test();
         testObserver.awaitTerminalEvent();
 
@@ -92,7 +95,7 @@ public class ExtensionGrantServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(Maybe.error(TechnicalException::new));
+        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
         TestObserver testObserver = new TestObserver();
         extensionGrantService.findById("my-extension-grant").subscribe(testObserver);
 
@@ -102,7 +105,7 @@ public class ExtensionGrantServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(extensionGrantRepository.findByDomain(DOMAIN)).thenReturn(Flowable.just(new ExtensionGrant()));
+        when(extensionGrantRepository.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new ExtensionGrant())));
         TestSubscriber<ExtensionGrant> testSubscriber = extensionGrantService.findByDomain(DOMAIN).test();
         testSubscriber.awaitTerminalEvent();
 
@@ -113,7 +116,7 @@ public class ExtensionGrantServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(extensionGrantRepository.findByDomain(DOMAIN)).thenReturn(Flowable.error(TechnicalException::new));
+        when(extensionGrantRepository.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestSubscriber testSubscriber = extensionGrantService.findByDomain(DOMAIN).test();
 
@@ -125,9 +128,9 @@ public class ExtensionGrantServiceTest {
     public void shouldCreate() {
         NewExtensionGrant newExtensionGrant = Mockito.mock(NewExtensionGrant.class);
         when(newExtensionGrant.getName()).thenReturn("my-extension-grant");
-        when(extensionGrantRepository.findByDomainAndName(DOMAIN, "my-extension-grant")).thenReturn(Maybe.empty());
-        when(extensionGrantRepository.create(any(ExtensionGrant.class))).thenReturn(Single.just(new ExtensionGrant()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(extensionGrantRepository.findByDomainAndName(DOMAIN, "my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(extensionGrantRepository.create(any(ExtensionGrant.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new ExtensionGrant())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = extensionGrantService.create(DOMAIN, newExtensionGrant).test();
         testObserver.awaitTerminalEvent();
@@ -143,7 +146,7 @@ public class ExtensionGrantServiceTest {
     public void shouldCreate_technicalException() {
         NewExtensionGrant newExtensionGrant = Mockito.mock(NewExtensionGrant.class);
         when(newExtensionGrant.getName()).thenReturn("my-extension-grant");
-        when(extensionGrantRepository.findByDomainAndName(DOMAIN, "my-extension-grant")).thenReturn(Maybe.error(TechnicalException::new));
+        when(extensionGrantRepository.findByDomainAndName(DOMAIN, "my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver<ExtensionGrant> testObserver = new TestObserver<>();
         extensionGrantService.create(DOMAIN, newExtensionGrant).subscribe(testObserver);
@@ -158,8 +161,8 @@ public class ExtensionGrantServiceTest {
     public void shouldCreate2_technicalException() {
         NewExtensionGrant newExtensionGrant = Mockito.mock(NewExtensionGrant.class);
         when(newExtensionGrant.getName()).thenReturn("my-extension-grant");
-        when(extensionGrantRepository.findByDomainAndName(DOMAIN, "my-extension-grant")).thenReturn(Maybe.empty());
-        when(extensionGrantRepository.create(any(ExtensionGrant.class))).thenReturn(Single.error(TechnicalException::new));
+        when(extensionGrantRepository.findByDomainAndName(DOMAIN, "my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(extensionGrantRepository.create(any(ExtensionGrant.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver<ExtensionGrant> testObserver = new TestObserver<>();
         extensionGrantService.create(DOMAIN, newExtensionGrant).subscribe(testObserver);
@@ -174,7 +177,7 @@ public class ExtensionGrantServiceTest {
     public void shouldCreate_existingExtensionGrant() {
         NewExtensionGrant newExtensionGrant = Mockito.mock(NewExtensionGrant.class);
         when(newExtensionGrant.getName()).thenReturn("my-extension-grant");
-        when(extensionGrantRepository.findByDomainAndName(DOMAIN, "my-extension-grant")).thenReturn(Maybe.just(new ExtensionGrant()));
+        when(extensionGrantRepository.findByDomainAndName(DOMAIN, "my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new ExtensionGrant())));
 
         TestObserver<ExtensionGrant> testObserver = new TestObserver<>();
         extensionGrantService.create(DOMAIN, newExtensionGrant).subscribe(testObserver);
@@ -189,10 +192,10 @@ public class ExtensionGrantServiceTest {
     public void shouldUpdate() {
         UpdateExtensionGrant updateExtensionGrant = Mockito.mock(UpdateExtensionGrant.class);
         when(updateExtensionGrant.getName()).thenReturn("my-extension-grant");
-        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(Maybe.just(new ExtensionGrant()));
-        when(extensionGrantRepository.findByDomainAndName(DOMAIN, "my-extension-grant")).thenReturn(Maybe.empty());
-        when(extensionGrantRepository.update(any(ExtensionGrant.class))).thenReturn(Single.just(new ExtensionGrant()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new ExtensionGrant())));
+        when(extensionGrantRepository.findByDomainAndName(DOMAIN, "my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(extensionGrantRepository.update(any(ExtensionGrant.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new ExtensionGrant())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = extensionGrantService.update(DOMAIN, "my-extension-grant", updateExtensionGrant).test();
         testObserver.awaitTerminalEvent();
@@ -208,7 +211,7 @@ public class ExtensionGrantServiceTest {
     @Test
     public void shouldUpdate_technicalException() {
         UpdateExtensionGrant updateExtensionGrant = Mockito.mock(UpdateExtensionGrant.class);
-        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(Maybe.error(TechnicalException::new));
+        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = extensionGrantService.update(DOMAIN, "my-extension-grant", updateExtensionGrant).test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -223,8 +226,8 @@ public class ExtensionGrantServiceTest {
     public void shouldUpdate2_technicalException() {
         UpdateExtensionGrant updateExtensionGrant = Mockito.mock(UpdateExtensionGrant.class);
         when(updateExtensionGrant.getName()).thenReturn("my-extension-grant");
-        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(Maybe.just(new ExtensionGrant()));
-        when(extensionGrantRepository.findByDomainAndName(DOMAIN, "my-extension-grant")).thenReturn(Maybe.error(TechnicalException::new));
+        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new ExtensionGrant())));
+        when(extensionGrantRepository.findByDomainAndName(DOMAIN, "my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = extensionGrantService.update(DOMAIN, "my-extension-grant", updateExtensionGrant).test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -237,7 +240,7 @@ public class ExtensionGrantServiceTest {
 
     @Test
     public void shouldDelete_notExistingExtensionGrant() {
-        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(Maybe.empty());
+        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = extensionGrantService.delete(DOMAIN, "my-extension-grant").test();
 
@@ -253,8 +256,8 @@ public class ExtensionGrantServiceTest {
         ExtensionGrant extensionGrant = new ExtensionGrant();
         extensionGrant.setId("extension-grant-id");
         extensionGrant.setGrantType("extension-grant-type");
-        when(extensionGrantRepository.findById(extensionGrant.getId())).thenReturn(Maybe.just(extensionGrant));
-        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, extensionGrant.getGrantType() + "~" + extensionGrant.getId())).thenReturn(Single.just(Collections.singleton(new Application())));
+        when(extensionGrantRepository.findById(extensionGrant.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(extensionGrant)));
+        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, extensionGrant.getGrantType() + "~" + extensionGrant.getId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(new Application()))));
 
         TestObserver testObserver = extensionGrantService.delete(DOMAIN, extensionGrant.getId()).test();
 
@@ -276,10 +279,10 @@ public class ExtensionGrantServiceTest {
         extensionGrant2.setGrantType("extension-grant-type");
         extensionGrant2.setCreatedAt(new Date());
 
-        when(extensionGrantRepository.findById(extensionGrant.getId())).thenReturn(Maybe.just(extensionGrant));
-        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, extensionGrant.getGrantType() + "~" + extensionGrant.getId())).thenReturn(Single.just(Collections.emptySet()));
-        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, extensionGrant.getGrantType())).thenReturn(Single.just(Collections.singleton(new Application())));
-        when(extensionGrantRepository.findByDomain(DOMAIN)).thenReturn(Flowable.just(extensionGrant, extensionGrant2));
+        when(extensionGrantRepository.findById(extensionGrant.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(extensionGrant)));
+        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, extensionGrant.getGrantType() + "~" + extensionGrant.getId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
+        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, extensionGrant.getGrantType())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(new Application()))));
+        when(extensionGrantRepository.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(extensionGrant, extensionGrant2)));
         TestObserver testObserver = extensionGrantService.delete(DOMAIN, extensionGrant.getId()).test();
 
         testObserver.assertError(ExtensionGrantWithApplicationsException.class);
@@ -300,12 +303,12 @@ public class ExtensionGrantServiceTest {
         extensionGrant2.setGrantType("extension-grant-type");
         extensionGrant2.setCreatedAt(new Date());
 
-        when(extensionGrantRepository.findById(extensionGrant2.getId())).thenReturn(Maybe.just(extensionGrant2));
-        when(extensionGrantRepository.delete(extensionGrant2.getId())).thenReturn(Completable.complete());
-        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, extensionGrant2.getGrantType() + "~" + extensionGrant2.getId())).thenReturn(Single.just(Collections.emptySet()));
-        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, extensionGrant2.getGrantType())).thenReturn(Single.just(Collections.singleton(new Application())));
-        when(extensionGrantRepository.findByDomain(DOMAIN)).thenReturn(Flowable.just(extensionGrant, extensionGrant2));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(extensionGrantRepository.findById(extensionGrant2.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(extensionGrant2)));
+        when(extensionGrantRepository.delete(extensionGrant2.getId())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, extensionGrant2.getGrantType() + "~" + extensionGrant2.getId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
+        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, extensionGrant2.getGrantType())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(new Application()))));
+        when(extensionGrantRepository.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(extensionGrant, extensionGrant2)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
         TestObserver testObserver = extensionGrantService.delete(DOMAIN, extensionGrant2.getId()).test();
 
         testObserver.awaitTerminalEvent();
@@ -318,7 +321,7 @@ public class ExtensionGrantServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(Maybe.just(new ExtensionGrant()));
+        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new ExtensionGrant())));
 
         TestObserver testObserver = extensionGrantService.delete(DOMAIN, "my-extension-grant").test();
 
@@ -331,12 +334,12 @@ public class ExtensionGrantServiceTest {
         ExtensionGrant existingExtensionGrant = Mockito.mock(ExtensionGrant.class);
         when(existingExtensionGrant.getId()).thenReturn("my-extension-grant");
         when(existingExtensionGrant.getGrantType()).thenReturn("my-extension-grant");
-        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(Maybe.just(existingExtensionGrant));
-        when(extensionGrantRepository.delete("my-extension-grant")).thenReturn(Completable.complete());
-        when(extensionGrantRepository.findByDomain(DOMAIN)).thenReturn(Flowable.just(existingExtensionGrant));
-        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, "my-extension-grant~my-extension-grant")).thenReturn(Single.just(Collections.emptySet()));
-        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, "my-extension-grant")).thenReturn(Single.just(Collections.emptySet()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(extensionGrantRepository.findById("my-extension-grant")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingExtensionGrant)));
+        when(extensionGrantRepository.delete("my-extension-grant")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(extensionGrantRepository.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(existingExtensionGrant)));
+        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, "my-extension-grant~my-extension-grant")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
+        when(applicationService.findByDomainAndExtensionGrant(DOMAIN, "my-extension-grant")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = extensionGrantService.delete(DOMAIN, "my-extension-grant").test();
         testObserver.awaitTerminalEvent();

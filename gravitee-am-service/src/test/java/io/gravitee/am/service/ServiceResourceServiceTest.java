@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gravitee.am.model.Factor;
 import io.gravitee.am.model.ReferenceType;
@@ -34,18 +38,16 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.Date;
+import java.util.UUID;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Date;
-import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -73,7 +75,7 @@ public class ServiceResourceServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(resourceRepository.findById("my-resource")).thenReturn(Maybe.just(new ServiceResource()));
+        when(resourceRepository.findById("my-resource")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new ServiceResource())));
         TestObserver testObserver = resourceService.findById("my-resource").test();
 
         testObserver.awaitTerminalEvent();
@@ -84,7 +86,7 @@ public class ServiceResourceServiceTest {
 
     @Test
     public void shouldFindById_NotExist() {
-        when(resourceRepository.findById("my-resource")).thenReturn(Maybe.empty());
+        when(resourceRepository.findById("my-resource")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver testObserver = resourceService.findById("my-resource").test();
 
         testObserver.awaitTerminalEvent();
@@ -95,7 +97,7 @@ public class ServiceResourceServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(resourceRepository.findByReference(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(new ServiceResource()));
+        when(resourceRepository.findByReference(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new ServiceResource())));
         TestSubscriber<ServiceResource> testObserver = resourceService.findByDomain(DOMAIN).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -120,8 +122,8 @@ public class ServiceResourceServiceTest {
         record.setUpdatedAt(new Date());
 
         when(resourceRepository.create(argThat(bean -> bean.getName().equals(resource.getName()))))
-                .thenReturn(Single.just(record));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+                .thenReturn(RxJava2Adapter.monoToSingle(Mono.just(record)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver<ServiceResource> testObserver = resourceService.create(DOMAIN, resource, null).test();
         testObserver.awaitTerminalEvent();
@@ -140,7 +142,7 @@ public class ServiceResourceServiceTest {
         resource.setType("rtype");
 
         when(resourceRepository.create(argThat(bean -> bean.getName().equals(resource.getName()))))
-                .thenReturn(Single.error(new TechnicalException()));
+                .thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException())));
 
         TestObserver<ServiceResource> testObserver = resourceService.create(DOMAIN, resource, null).test();
         testObserver.awaitTerminalEvent();
@@ -166,9 +168,9 @@ public class ServiceResourceServiceTest {
         record.setCreatedAt(new Date());
         record.setUpdatedAt(new Date());
 
-        when(resourceRepository.findById(record.getId())).thenReturn(Maybe.just(record));
-        when(resourceRepository.update(argThat(bean -> bean.getId().equals(record.getId())))).thenReturn(Single.just(record));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(resourceRepository.findById(record.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(record)));
+        when(resourceRepository.update(argThat(bean -> bean.getId().equals(record.getId())))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(record)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver<ServiceResource> testObserver = resourceService.update(DOMAIN, record.getId(), resource, null).test();
         testObserver.awaitTerminalEvent();
@@ -181,7 +183,7 @@ public class ServiceResourceServiceTest {
 
     @Test
     public void shouldUpdate_returnNotFound() {
-        when(resourceRepository.findById(any())).thenReturn(Maybe.empty());
+        when(resourceRepository.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver<ServiceResource> testObserver = resourceService.update(DOMAIN, UUID.randomUUID().toString(), new UpdateServiceResource(), null).test();
         testObserver.awaitTerminalEvent();
@@ -194,7 +196,7 @@ public class ServiceResourceServiceTest {
 
     @Test
     public void shouldDelete_returnNotFound() {
-        when(resourceRepository.findById(any())).thenReturn(Maybe.empty());
+        when(resourceRepository.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver<Void> testObserver = resourceService.delete(DOMAIN, UUID.randomUUID().toString(), null).test();
         testObserver.awaitTerminalEvent();
@@ -213,10 +215,10 @@ public class ServiceResourceServiceTest {
         record.setCreatedAt(new Date());
         record.setUpdatedAt(new Date());
         
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(resourceRepository.findById(record.getId())).thenReturn(Maybe.just(record));
-        when(resourceRepository.delete(record.getId())).thenReturn(Completable.complete());
-        when(factorService.findByDomain(DOMAIN)).thenReturn(Flowable.empty());
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(resourceRepository.findById(record.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(record)));
+        when(resourceRepository.delete(record.getId())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(factorService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
 
         TestObserver<Void> testObserver = resourceService.delete(DOMAIN, record.getId(), null).test();
         testObserver.awaitTerminalEvent();
@@ -234,11 +236,11 @@ public class ServiceResourceServiceTest {
         record.setCreatedAt(new Date());
         record.setUpdatedAt(new Date());
 
-        when(resourceRepository.findById(record.getId())).thenReturn(Maybe.just(record));
+        when(resourceRepository.findById(record.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(record)));
         Factor factor = new Factor();
         factor.setName("Factor");
         factor.setConfiguration("{\"ref\": \"" + record.getId() + "\"}");
-        when(factorService.findByDomain(DOMAIN)).thenReturn(Flowable.just(factor));
+        when(factorService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(factor)));
 
         TestObserver<Void> testObserver = resourceService.delete(DOMAIN, record.getId(), null).test();
         testObserver.awaitTerminalEvent();

@@ -15,14 +15,19 @@
  */
 package io.gravitee.am.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.identityprovider.api.DefaultUser;
-import io.gravitee.am.service.exception.AlertTriggerNotFoundException;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertTrigger;
 import io.gravitee.am.model.alert.AlertTriggerType;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.repository.management.api.AlertTriggerRepository;
 import io.gravitee.am.repository.management.api.search.AlertTriggerCriteria;
+import io.gravitee.am.service.exception.AlertTriggerNotFoundException;
 import io.gravitee.am.service.impl.AlertTriggerServiceImpl;
 import io.gravitee.am.service.model.PatchAlertTrigger;
 import io.gravitee.am.service.reporter.builder.management.AlertTriggerAuditBuilder;
@@ -31,20 +36,17 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -75,7 +77,7 @@ public class AlertTriggerServiceTest {
     @Test
     public void getById() {
         final AlertTrigger alertTrigger = new AlertTrigger();
-        when(alertTriggerRepository.findById(ALERT_TRIGGER_ID)).thenReturn(Maybe.just(alertTrigger));
+        when(alertTriggerRepository.findById(ALERT_TRIGGER_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(alertTrigger)));
         final TestObserver<AlertTrigger> obs = cut.getById(ALERT_TRIGGER_ID).test();
 
         obs.awaitTerminalEvent();
@@ -84,7 +86,7 @@ public class AlertTriggerServiceTest {
 
     @Test
     public void getByIdNotFound() {
-        when(alertTriggerRepository.findById(ALERT_TRIGGER_ID)).thenReturn(Maybe.empty());
+        when(alertTriggerRepository.findById(ALERT_TRIGGER_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         final TestObserver<AlertTrigger> obs = cut.getById(ALERT_TRIGGER_ID).test();
 
         obs.awaitTerminalEvent();
@@ -95,7 +97,7 @@ public class AlertTriggerServiceTest {
     public void findByDomainAndCriteria() {
         final AlertTrigger alertTrigger = new AlertTrigger();
         final AlertTriggerCriteria criteria = new AlertTriggerCriteria();
-        when(alertTriggerRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(Flowable.just(alertTrigger));
+        when(alertTriggerRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertTrigger)));
         final TestSubscriber<AlertTrigger> obs = cut.findByDomainAndCriteria(DOMAIN_ID, criteria).test();
 
         obs.awaitTerminalEvent();
@@ -114,9 +116,9 @@ public class AlertTriggerServiceTest {
         patchAlertTrigger.setEnabled(Optional.of(true));
         patchAlertTrigger.setAlertNotifiers(Optional.of(alertNotifierIds));
 
-        when(alertTriggerRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(Flowable.empty());
-        when(alertTriggerRepository.create(any(AlertTrigger.class))).thenAnswer(i-> Single.just(i.getArgument(0)));
-        when(eventService.create(any(Event.class))).thenAnswer(i-> Single.just(i.getArgument(0)));
+        when(alertTriggerRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(alertTriggerRepository.create(any(AlertTrigger.class))).thenAnswer(i-> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
+        when(eventService.create(any(Event.class))).thenAnswer(i-> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         final TestObserver<AlertTrigger> obs = cut.createOrUpdate(ReferenceType.DOMAIN, DOMAIN_ID, patchAlertTrigger, new DefaultUser(USERNAME)).test();
 
@@ -151,9 +153,9 @@ public class AlertTriggerServiceTest {
         final AlertTrigger existingAlertTrigger = new AlertTrigger();
         existingAlertTrigger.setId(ALERT_TRIGGER_ID);
         existingAlertTrigger.setType(AlertTriggerType.TOO_MANY_LOGIN_FAILURES);
-        when(alertTriggerRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(Flowable.just(existingAlertTrigger));
-        when(alertTriggerRepository.update(any(AlertTrigger.class))).thenAnswer(i-> Single.just(i.getArgument(0)));
-        when(eventService.create(any(Event.class))).thenAnswer(i-> Single.just(i.getArgument(0)));
+        when(alertTriggerRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(existingAlertTrigger)));
+        when(alertTriggerRepository.update(any(AlertTrigger.class))).thenAnswer(i-> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
+        when(eventService.create(any(Event.class))).thenAnswer(i-> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         final TestObserver<AlertTrigger> obs = cut.createOrUpdate(ReferenceType.DOMAIN, DOMAIN_ID, patchAlertTrigger, new DefaultUser(USERNAME)).test();
 

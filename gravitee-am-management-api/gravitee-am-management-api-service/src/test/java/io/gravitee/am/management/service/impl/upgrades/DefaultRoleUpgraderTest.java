@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.service.impl.upgrades;
 
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.service.RoleService;
 import io.reactivex.Completable;
@@ -23,9 +26,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -46,13 +48,13 @@ public class DefaultRoleUpgraderTest {
 
     @Test
     public void shouldCreateSystemRoles() {
-        when(roleService.createOrUpdateSystemRoles()).thenReturn(Completable.complete());
+        when(roleService.createOrUpdateSystemRoles()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         cut.upgrade();
     }
 
     @Test
     public void shouldCreateSystemRoles_technicalError() {
-        when(roleService.createOrUpdateSystemRoles()).thenReturn(Completable.error(TechnicalException::new));
+        when(roleService.createOrUpdateSystemRoles()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(TechnicalException::new)));
         assertFalse(cut.upgrade());
     }
 }

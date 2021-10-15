@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.management.service.impl.upgrades;
 
+import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.OPENID_SCOPE_UPGRADER;
+
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.oauth2.Scope;
 import io.gravitee.am.service.DomainService;
@@ -23,15 +25,15 @@ import io.gravitee.am.service.model.NewSystemScope;
 import io.gravitee.am.service.model.UpdateSystemScope;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
-
-import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.OPENID_SCOPE_UPGRADER;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -62,16 +64,14 @@ public class OpenIDScopeUpgrader implements Upgrader, Ordered {
     }
 
     private Single<Domain> createOrUpdateSystemScopes(Domain domain) {
-        return Observable.fromArray(io.gravitee.am.common.oidc.Scope.values())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromArray(io.gravitee.am.common.oidc.Scope.values())
                 .flatMapSingle(scope -> createSystemScope(domain.getId(), scope))
-                .lastOrError()
-                .map(scope -> domain);
+                .lastOrError()).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> domain)));
     }
 
     private Single<Scope> createSystemScope(String domain, io.gravitee.am.common.oidc.Scope systemScope) {
-        return scopeService.findByDomainAndKey(domain, systemScope.getKey())
-                .map(Optional::of)
-                .defaultIfEmpty(Optional.empty())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, systemScope.getKey())
+                .map(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optScope -> {
                     if (!optScope.isPresent()) {
                         logger.info("Create a new system scope key[{}] for domain[{}]", systemScope.getKey(), domain);
@@ -93,7 +93,7 @@ public class OpenIDScopeUpgrader implements Upgrader, Ordered {
                         scope.setDiscovery(systemScope.isDiscovery());
                         return scopeService.update(domain, optScope.get().getId(), scope);
                     }
-                    return Single.just(optScope.get());
+                    return RxJava2Adapter.monoToSingle(Mono.just(optScope.get()));
                 });
     }
 

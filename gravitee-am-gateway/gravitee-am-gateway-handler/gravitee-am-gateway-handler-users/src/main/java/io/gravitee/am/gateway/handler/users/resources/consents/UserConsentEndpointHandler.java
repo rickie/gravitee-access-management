@@ -17,11 +17,17 @@ package io.gravitee.am.gateway.handler.users.resources.consents;
 
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.users.service.UserService;
+import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.Domain;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
+import io.reactivex.functions.Function;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -55,8 +61,7 @@ public class UserConsentEndpointHandler extends AbstractUserConsentEndpointHandl
         final String userId = context.request().getParam("userId");
         final String consentId = context.request().getParam("consentId");
 
-        getPrincipal(context)
-                .flatMapCompletable(principal -> userService.revokeConsent(userId, consentId, principal))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(getPrincipal(context)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)principal -> userService.revokeConsent(userId, consentId, principal)).apply(y)))).then())
                 .subscribe(
                         () -> context.response().setStatusCode(204).end(),
                         context::fail);

@@ -20,14 +20,15 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -68,7 +69,7 @@ public class EmailRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindById() {
         Email email = buildEmail();
-        Email createdEmail = repository.create(email).blockingGet();
+        Email createdEmail = RxJava2Adapter.singleToMono(repository.create(email)).block();
 
         TestObserver<Email> testObserver = repository.findById(createdEmail.getId()).test();
         testObserver.awaitTerminalEvent();
@@ -81,7 +82,7 @@ public class EmailRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindById_withRef() {
         Email email = buildEmail();
-        Email createdEmail = repository.create(email).blockingGet();
+        Email createdEmail = RxJava2Adapter.singleToMono(repository.create(email)).block();
 
         TestObserver<Email> testObserver = repository.findById(createdEmail.getReferenceType(), createdEmail.getReferenceId(), createdEmail.getId()).test();
         testObserver.awaitTerminalEvent();
@@ -94,7 +95,7 @@ public class EmailRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldUpdateEmail() {
         Email email = buildEmail();
-        Email createdEmail = repository.create(email).blockingGet();
+        Email createdEmail = RxJava2Adapter.singleToMono(repository.create(email)).block();
 
         TestObserver<Email> testObserver = repository.findById(createdEmail.getId()).test();
         testObserver.awaitTerminalEvent();
@@ -126,7 +127,7 @@ public class EmailRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldDeleteById() {
         Email email = buildEmail();
-        Email createdEmail = repository.create(email).blockingGet();
+        Email createdEmail = RxJava2Adapter.singleToMono(repository.create(email)).block();
 
         TestObserver<Email> testObserver = repository.findById(createdEmail.getId()).test();
         testObserver.awaitTerminalEvent();
@@ -153,12 +154,12 @@ public class EmailRepositoryTest extends AbstractManagementTest {
 
         final int loop = 10;
         List<Email> emails = IntStream.range(0, loop).mapToObj(__ -> buildEmail()).collect(Collectors.toList());
-        emails.forEach(email -> repository.create(email).map(e -> {
+        emails.forEach(email -> RxJava2Adapter.singleToMono(repository.create(email).map(e -> {
             email.setId(e.getId());
             return e;
-        }).blockingGet());
+        })).block());
 
-        TestSubscriber<String> testIdSubscriber = repository.findAll().map(Email::getId).test();
+        TestSubscriber<String> testIdSubscriber = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(repository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(Email::getId))).test();
         testIdSubscriber.awaitTerminalEvent();
         testIdSubscriber.assertNoErrors();
         testIdSubscriber.assertValueCount(loop);
@@ -178,15 +179,15 @@ public class EmailRepositoryTest extends AbstractManagementTest {
             email.setReferenceId(FIXED_REF_ID);
             return email;
         }).collect(Collectors.toList());
-        emails.forEach(email -> repository.create(email).map(e -> {
+        emails.forEach(email -> RxJava2Adapter.singleToMono(repository.create(email).map(e -> {
             email.setId(e.getId());
             return e;
-        }).blockingGet());
+        })).block());
 
         // random refId
-        IntStream.range(0, loop).forEach(email -> repository.create(buildEmail()).blockingGet());
+        IntStream.range(0, loop).forEach(email -> RxJava2Adapter.singleToMono(repository.create(buildEmail())).block());
 
-        TestSubscriber<String> testIdSubscriber = repository.findAll(ReferenceType.DOMAIN, FIXED_REF_ID).map(Email::getId).test();
+        TestSubscriber<String> testIdSubscriber = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(repository.findAll(ReferenceType.DOMAIN, FIXED_REF_ID)).map(RxJavaReactorMigrationUtil.toJdkFunction(Email::getId))).test();
         testIdSubscriber.awaitTerminalEvent();
         testIdSubscriber.assertNoErrors();
         testIdSubscriber.assertValueCount(loop);
@@ -207,18 +208,18 @@ public class EmailRepositoryTest extends AbstractManagementTest {
             email.setClient(FIXED_CLI_ID);
             return email;
         }).collect(Collectors.toList());
-        emails.forEach(email -> repository.create(email).map(e -> {
+        emails.forEach(email -> RxJava2Adapter.singleToMono(repository.create(email).map(e -> {
             email.setId(e.getId());
             return e;
-        }).blockingGet());
+        })).block());
 
         for (int i = 0; i < loop; i++) {
             final Email email = buildEmail();
             email.setReferenceId(FIXED_REF_ID);
-            repository.create(email).blockingGet();
+            RxJava2Adapter.singleToMono(repository.create(email)).block();
         }
 
-        TestSubscriber<String> testIdSubscriber = repository.findByClient(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID).map(Email::getId).test();
+        TestSubscriber<String> testIdSubscriber = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(repository.findByClient(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID)).map(RxJavaReactorMigrationUtil.toJdkFunction(Email::getId))).test();
         testIdSubscriber.awaitTerminalEvent();
         testIdSubscriber.assertNoErrors();
         testIdSubscriber.assertValueCount(loop);
@@ -236,14 +237,14 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         for (int i = 0; i < loop; i++) {
             final Email email = buildEmail();
             email.setReferenceId(FIXED_REF_ID);
-            repository.create(email).blockingGet();
+            RxJava2Adapter.singleToMono(repository.create(email)).block();
         }
 
         final Email email = buildEmail();
         email.setReferenceId(FIXED_REF_ID);
         email.setTemplate("MyTemplateId");
         email.setClient(null);
-        Email templateEmail = repository.create(email).blockingGet();
+        Email templateEmail = RxJava2Adapter.singleToMono(repository.create(email)).block();
 
         TestObserver<Email> testMaybe = repository.findByTemplate(ReferenceType.DOMAIN, FIXED_REF_ID, "MyTemplateId").test();
         testMaybe.awaitTerminalEvent();
@@ -263,14 +264,14 @@ public class EmailRepositoryTest extends AbstractManagementTest {
             final Email email = buildEmail();
             email.setReferenceId(FIXED_REF_ID);
             email.setClient(FIXED_CLI_ID);
-            repository.create(email).blockingGet();
+            RxJava2Adapter.singleToMono(repository.create(email)).block();
         }
 
         final Email email = buildEmail();
         email.setReferenceId(FIXED_REF_ID);
         email.setClient(FIXED_CLI_ID);
         email.setTemplate("MyTemplateId");
-        Email templateEmail = repository.create(email).blockingGet();
+        Email templateEmail = RxJava2Adapter.singleToMono(repository.create(email)).block();
 
         TestObserver<Email> testMaybe = repository.findByClientAndTemplate(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID, "MyTemplateId").test();
         testMaybe.awaitTerminalEvent();

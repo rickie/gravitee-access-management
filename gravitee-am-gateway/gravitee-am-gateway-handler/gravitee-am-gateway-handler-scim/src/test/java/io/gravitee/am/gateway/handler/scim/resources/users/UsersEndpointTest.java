@@ -33,6 +33,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -68,7 +70,7 @@ public class UsersEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldListUsers() throws Exception {
-        when(userService.list(eq(null), eq(0), eq(100), anyString())).thenReturn(Single.just(new ListResponse<>()));
+        when(userService.list(eq(null), eq(0), eq(100), anyString())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new ListResponse<>())));
         testRequest(
                 HttpMethod.GET,
                 "/Users",
@@ -96,7 +98,7 @@ public class UsersEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldListUsers_validFilter() throws Exception {
-        when(userService.list(any(Filter.class), eq(0), eq(100), anyString())).thenReturn(Single.just(new ListResponse<>()));
+        when(userService.list(any(Filter.class), eq(0), eq(100), anyString())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new ListResponse<>())));
         testRequest(
                 HttpMethod.GET,
                 "/Users?filter=userName%20eq%20%22bjensen%22",

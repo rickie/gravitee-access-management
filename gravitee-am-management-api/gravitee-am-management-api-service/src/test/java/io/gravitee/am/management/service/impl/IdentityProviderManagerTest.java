@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.management.service.impl;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.identityprovider.api.UserProvider;
 import io.gravitee.am.management.service.InMemoryIdentityProviderListener;
 import io.gravitee.am.model.Organization;
@@ -32,10 +36,8 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -72,7 +74,7 @@ public class IdentityProviderManagerTest {
         role.setId("roleid");
         role.setName("ORGANIZATION_PRIMARY_OWNER");
 
-        when(roleService.findRolesByName(any(), any(), any(), any())).thenReturn(Flowable.just(role));
+        when(roleService.findRolesByName(any(), any(), any(), any())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(role)));
         when(idpPluginManager.create(eq("gravitee-am-idp"), any())).thenReturn(mock(UserProvider.class));
 
         cut.loadIdentityProviders();

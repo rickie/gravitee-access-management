@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ExtensionGrant;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -27,9 +29,9 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -52,22 +54,19 @@ public class JdbcExtensionGrantRepository extends AbstractJdbcRepository impleme
     @Override
     public Flowable<ExtensionGrant> findByDomain(String domain) {
         LOGGER.debug("findByDomain({})", domain);
-        return extensionGrantRepository.findByDomain(domain)
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(extensionGrantRepository.findByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Maybe<ExtensionGrant> findByDomainAndName(String domain, String name) {
         LOGGER.debug("findByDomainAndName({}, {})", domain, name);
-        return extensionGrantRepository.findByDomainAndName(domain, name)
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantRepository.findByDomainAndName(domain, name)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Maybe<ExtensionGrant> findById(String id) {
         LOGGER.debug("findByDomainAndName({}, {})", id);
-        return extensionGrantRepository.findById(id)
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -80,14 +79,13 @@ public class JdbcExtensionGrantRepository extends AbstractJdbcRepository impleme
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
     public Single<ExtensionGrant> update(ExtensionGrant item) {
         LOGGER.debug("update extension grants  with id {}", item.getId());
-        return this.extensionGrantRepository.save(toJdbcEntity(item))
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.extensionGrantRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override

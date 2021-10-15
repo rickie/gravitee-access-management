@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static java.util.Optional.ofNullable;
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.am.model.ReferenceType;
@@ -26,23 +31,19 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.r2dbc.core.DatabaseClient;
-import org.springframework.data.relational.core.query.Update;
-import org.springframework.data.relational.core.sql.SqlIdentifier;
-import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Mono;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Optional.ofNullable;
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.r2dbc.core.DatabaseClient;
+import org.springframework.data.relational.core.query.Update;
+import org.springframework.data.relational.core.sql.SqlIdentifier;
+import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -69,36 +70,31 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
     @Override
     public Flowable<IdentityProvider> findAll(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findAll({}, {}", referenceType, referenceId);
-        return this.identityProviderRepository.findAll(referenceType.name(), referenceId)
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.identityProviderRepository.findAll(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Flowable<IdentityProvider> findAll(ReferenceType referenceType) {
         LOGGER.debug("findAll()");
-        return this.identityProviderRepository.findAll(referenceType.name())
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.identityProviderRepository.findAll(referenceType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Flowable<IdentityProvider> findAll() {
         LOGGER.debug("findAll()");
-        return this.identityProviderRepository.findAll()
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.identityProviderRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Maybe<IdentityProvider> findById(ReferenceType referenceType, String referenceId, String identityProviderId) {
         LOGGER.debug("findById({},{},{})", referenceType, referenceId, identityProviderId);
-        return this.identityProviderRepository.findById(referenceType.name(), referenceId, identityProviderId)
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.identityProviderRepository.findById(referenceType.name(), referenceId, identityProviderId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Maybe<IdentityProvider> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return this.identityProviderRepository.findById(id)
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.identityProviderRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -124,7 +120,7 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
@@ -150,7 +146,7 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 
         Mono<Integer> action = updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override

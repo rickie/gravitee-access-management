@@ -25,6 +25,10 @@ import io.gravitee.am.identityprovider.ldap.authentication.spring.LdapAuthentica
 import io.gravitee.am.identityprovider.ldap.common.utils.LdapUtils;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Maybe;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.ldaptive.*;
 import org.ldaptive.auth.AuthenticationRequest;
 import org.ldaptive.auth.AuthenticationResponse;
@@ -36,11 +40,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -126,7 +127,7 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
 
     @Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
-        return Maybe.fromCallable(() -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Maybe.fromCallable(() -> {
             try {
                 String username = (String) authentication.getPrincipal();
                 String password = (String) authentication.getCredentials();
@@ -143,13 +144,12 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
                 LOGGER.error("An error occurs during LDAP authentication", e);
                 throw new InternalAuthenticationServiceException(e.getMessage(), e);
             }
-        })
-        .map(ldapUser -> createUser(authentication.getContext(), ldapUser));
+        })).map(RxJavaReactorMigrationUtil.toJdkFunction(ldapUser -> createUser(authentication.getContext(), ldapUser))));
     }
 
     @Override
     public Maybe<User> loadUserByUsername(String username) {
-        return Maybe.fromCallable(() -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Maybe.fromCallable(() -> {
             try {
                 // find user
                 SearchFilter searchFilter = createSearchFilter(userSearchExecutor, username);
@@ -164,8 +164,7 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
                 LOGGER.error("An error occurs while searching for a LDAP user", e);
                 throw new InternalAuthenticationServiceException(e.getMessage(), e);
             }
-        })
-        .map(ldapUser -> createUser(new SimpleAuthenticationContext(), ldapUser));
+        })).map(RxJavaReactorMigrationUtil.toJdkFunction(ldapUser -> createUser(new SimpleAuthenticationContext(), ldapUser))));
 
     }
 

@@ -26,11 +26,12 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -81,13 +82,11 @@ public interface ApplicationService {
     Single<Set<TopApplication>> findTopApplicationsByDomain(String domain);
 
     default Single<Set<Application>> findAll() {
-        return findAll(0, Integer.MAX_VALUE)
-                .map(pagedApplications -> (pagedApplications.getData() == null) ? Collections.emptySet() : new HashSet<>(pagedApplications.getData()));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findAll(0, Integer.MAX_VALUE)).map(RxJavaReactorMigrationUtil.toJdkFunction(pagedApplications -> (pagedApplications.getData() == null) ? Collections.emptySet() : new HashSet<>(pagedApplications.getData()))));
     }
 
     default Single<Set<Application>> findByDomain(String domain) {
-        return findByDomain(domain, 0, Integer.MAX_VALUE)
-                .map(pagedApplications -> (pagedApplications.getData() == null) ? Collections.emptySet() : new HashSet<>(pagedApplications.getData()));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findByDomain(domain, 0, Integer.MAX_VALUE)).map(RxJavaReactorMigrationUtil.toJdkFunction(pagedApplications -> (pagedApplications.getData() == null) ? Collections.emptySet() : new HashSet<>(pagedApplications.getData()))));
     }
 
     default Single<Application> create(String domain, NewApplication newApplication) {

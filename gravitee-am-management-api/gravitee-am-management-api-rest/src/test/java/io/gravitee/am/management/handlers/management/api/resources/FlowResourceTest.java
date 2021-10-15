@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.management.handlers.management.api.model.FlowEntity;
@@ -25,14 +30,10 @@ import io.gravitee.am.service.exception.FlowNotFoundException;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.junit.Test;
-
 import javax.ws.rs.core.Response;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -49,7 +50,7 @@ public class FlowResourceTest extends JerseySpringTest {
         mockFlow.setId(FLOW_ID);
         mockFlow.setName("name");
 
-        doReturn(Maybe.just(mockFlow)).when(flowService).findById(ReferenceType.DOMAIN, DOMAIN_ID, FLOW_ID);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockFlow))).when(flowService).findById(ReferenceType.DOMAIN, DOMAIN_ID, FLOW_ID);
 
         final Response response = target("domains")
                 .path(DOMAIN_ID)
@@ -66,7 +67,7 @@ public class FlowResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldNotGetFlow_notFound() {
-        doReturn(Maybe.empty()).when(flowService).findById(ReferenceType.DOMAIN, DOMAIN_ID, FLOW_ID);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(flowService).findById(ReferenceType.DOMAIN, DOMAIN_ID, FLOW_ID);
 
         final Response response = target("domains")
                 .path(DOMAIN_ID)
@@ -89,7 +90,7 @@ public class FlowResourceTest extends JerseySpringTest {
         updatedFlow.setName(flowToUpdate.getName());
         updatedFlow.setType(flowToUpdate.getType());
 
-        doReturn(Single.just(updatedFlow)).when(flowService).update(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(FLOW_ID), any(Flow.class), any(User.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(updatedFlow))).when(flowService).update(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(FLOW_ID), any(Flow.class), any(User.class));
 
         final Response response = put(target("domains")
                 .path(DOMAIN_ID)
@@ -109,7 +110,7 @@ public class FlowResourceTest extends JerseySpringTest {
         flowToUpdate.setName("updatedName");
         flowToUpdate.setType(Type.LOGIN);
 
-        doReturn(Single.error(new FlowNotFoundException(FLOW_ID))).when(flowService).update(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(FLOW_ID), any(Flow.class), any(User.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new FlowNotFoundException(FLOW_ID)))).when(flowService).update(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(FLOW_ID), any(Flow.class), any(User.class));
 
         final Response response = put(target("domains")
                 .path(DOMAIN_ID)

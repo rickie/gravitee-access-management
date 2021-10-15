@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.repository.mongodb.oauth2;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.InsertOneModel;
 import com.mongodb.client.model.WriteModel;
@@ -23,16 +26,15 @@ import io.gravitee.am.repository.mongodb.oauth2.internal.model.AccessTokenMongo;
 import io.gravitee.am.repository.oauth2.api.AccessTokenRepository;
 import io.gravitee.am.repository.oauth2.model.AccessToken;
 import io.reactivex.*;
-import org.bson.Document;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -63,35 +65,32 @@ public class MongoAccessTokenRepository extends AbstractOAuth2MongoRepository im
     }
 
     private Maybe<AccessToken> findById(String id) {
-        return Observable
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
                 .fromPublisher(accessTokenCollection.find(eq(FIELD_ID, id)).limit(1).first())
-                .firstElement()
-                .map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<AccessToken> findByToken(String token) {
-        return Observable
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
                 .fromPublisher(accessTokenCollection.find(eq(FIELD_TOKEN, token)).limit(1).first())
-                .firstElement()
-                .map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<AccessToken> create(AccessToken accessToken) {
-        return Single
-                .fromPublisher(accessTokenCollection.insertOne(convert(accessToken)))
-                .flatMap(success -> findById(accessToken.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
+                .fromPublisher(accessTokenCollection.insertOne(convert(accessToken)))).flatMap(success->RxJava2Adapter.singleToMono(findById(accessToken.getId()).toSingle())));
     }
 
     @Override
     public Completable bulkWrite(List<AccessToken> accessTokens) {
-        return Completable.fromPublisher(accessTokenCollection.bulkWrite(convert(accessTokens)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.bulkWrite(convert(accessTokens))));
     }
 
     @Override
     public Completable delete(String token) {
-        return Completable.fromPublisher(accessTokenCollection.findOneAndDelete(eq(FIELD_TOKEN, token)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.findOneAndDelete(eq(FIELD_TOKEN, token))));
     }
 
     @Override
@@ -122,17 +121,17 @@ public class MongoAccessTokenRepository extends AbstractOAuth2MongoRepository im
 
     @Override
     public Completable deleteByUserId(String userId) {
-        return Completable.fromPublisher(accessTokenCollection.deleteMany(eq(FIELD_SUBJECT, userId)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.deleteMany(eq(FIELD_SUBJECT, userId))));
     }
 
     @Override
     public Completable deleteByDomainIdClientIdAndUserId(String domainId, String clientId, String userId) {
-        return Completable.fromPublisher(accessTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, userId))));
+        return RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, userId)))));
     }
 
     @Override
     public Completable deleteByDomainIdAndUserId(String domainId, String userId) {
-        return Completable.fromPublisher(accessTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_SUBJECT, userId))));
+        return RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_SUBJECT, userId)))));
     }
 
     private List<WriteModel<AccessTokenMongo>> convert(List<AccessToken> accessTokens) {

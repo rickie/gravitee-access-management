@@ -24,10 +24,12 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (david.brassely at graviteesource.com)
@@ -41,20 +43,19 @@ public class MongoPolicyRepository extends AbstractManagementMongoRepository imp
     @Override
     public Flowable<Policy> findAll() {
         MongoCollection<PolicyMongo> policiesCollection = mongoOperations.getCollection(COLLECTION_NAME, PolicyMongo.class);
-        return Flowable.fromPublisher(policiesCollection.find()).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(policiesCollection.find())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Boolean> collectionExists() {
-        return Observable.fromPublisher(mongoOperations.listCollectionNames())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromPublisher(mongoOperations.listCollectionNames())
                 .filter(collectionName -> collectionName.equalsIgnoreCase(COLLECTION_NAME))
-                .isEmpty()
-                .map(isEmpty -> !isEmpty);
+                .isEmpty()).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> !isEmpty)));
     }
 
     @Override
     public Completable deleteCollection() {
-        return Completable.fromPublisher(mongoOperations.getCollection(COLLECTION_NAME).drop());
+        return RxJava2Adapter.monoToCompletable(Mono.from(mongoOperations.getCollection(COLLECTION_NAME).drop()));
     }
 
     private Policy convert(PolicyMongo policyMongo) {

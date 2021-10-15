@@ -21,6 +21,7 @@ import io.gravitee.am.common.event.Type;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.*;
+import io.gravitee.am.model.Membership;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.model.common.event.Payload;
 import io.gravitee.am.model.membership.Member;
@@ -36,17 +37,21 @@ import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.DomainAuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.MembershipAuditBuilder;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -82,7 +87,7 @@ public class MembershipServiceImpl implements MembershipService {
         return membershipRepository.findById(id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find membership by id {}", id, ex);
-                    return Maybe.error(new TechnicalManagementException(String.format("An error occurs while trying to find membership by ID %s", id), ex));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to find membership by ID %s", id), ex)));
                 });
     }
 
@@ -97,32 +102,29 @@ public class MembershipServiceImpl implements MembershipService {
     @Override
     public Flowable<Membership> findByReference(String referenceId, ReferenceType referenceType) {
         LOGGER.debug("Find memberships by reference id {} and reference type {}", referenceId, referenceType);
-        return membershipRepository.findByReference(referenceId, referenceType)
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(membershipRepository.findByReference(referenceId, referenceType)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find memberships by reference id {} and reference type {}", referenceId, referenceType, ex);
                     return Flowable.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find memberships by reference id %s and reference type %s", referenceId, referenceType), ex));
-                });
+                })));
     }
 
     @Override
     public Flowable<Membership> findByMember(String memberId, MemberType memberType) {
         LOGGER.debug("Find memberships by member id {} and member type {}", memberId, memberType);
-        return membershipRepository.findByMember(memberId, memberType)
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(membershipRepository.findByMember(memberId, memberType)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find memberships by member id {} and member type {}", memberId, memberType, ex);
                     return Flowable.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find memberships by member id %s and member type %s", memberId, memberType), ex));
-                });
+                })));
     }
 
     @Override
     public Single<Membership> addOrUpdate(String organizationId, Membership membership, User principal) {
         LOGGER.debug("Add or update membership {}", membership);
 
-        return checkMember(organizationId, membership)
-                .andThen(checkRole(organizationId, membership))
-                .andThen(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkMember(organizationId, membership)
+                .andThen(checkRole(organizationId, membership))).then(RxJava2Adapter.singleToMono(Single.wrap(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())
                         .map(Optional::of)
                         .defaultIfEmpty(Optional.empty())
                         .flatMapSingle(optMembership -> {
@@ -161,8 +163,7 @@ public class MembershipServiceImpl implements MembershipService {
                                         .doOnSuccess(membership1 -> auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_UPDATED).oldValue(oldMembership).membership(membership1)))
                                         .doOnError(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_UPDATED).throwable(throwable)));
                             }
-                        })
-                );
+                        })))));
     }
 
     @Override
@@ -171,29 +172,26 @@ public class MembershipServiceImpl implements MembershipService {
         MembershipCriteria criteria = new MembershipCriteria();
         criteria.setUserId(userId);
 
-        return roleService.findSystemRole(SystemRole.PLATFORM_ADMIN, ReferenceType.PLATFORM)
-                .switchIfEmpty(Single.error(new RoleNotFoundException(SystemRole.PLATFORM_ADMIN.name())))
-                .flatMap(role -> findByCriteria(ReferenceType.PLATFORM, Platform.DEFAULT, criteria).firstElement()
-                        .switchIfEmpty(Single.defer(() -> {
-                            final Date now = new Date();
-                            Membership membership = new Membership();
-                            membership.setRoleId(role.getId());
-                            membership.setMemberType(MemberType.USER);
-                            membership.setMemberId(userId);
-                            membership.setReferenceType(ReferenceType.PLATFORM);
-                            membership.setReferenceId(Platform.DEFAULT);
-                            membership.setCreatedAt(now);
-                            membership.setUpdatedAt(now);
-
-                            return createInternal(membership, null);
-                        })));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(roleService.findSystemRole(SystemRole.PLATFORM_ADMIN, ReferenceType.PLATFORM)
+                .switchIfEmpty(Single.error(new RoleNotFoundException(SystemRole.PLATFORM_ADMIN.name())))).flatMap(role->RxJava2Adapter.singleToMono(findByCriteria(ReferenceType.PLATFORM, Platform.DEFAULT, criteria).firstElement().switchIfEmpty(Single.defer(()->{
+final Date now = new Date();
+Membership membership = new Membership();
+membership.setRoleId(role.getId());
+membership.setMemberType(MemberType.USER);
+membership.setMemberId(userId);
+membership.setReferenceType(ReferenceType.PLATFORM);
+membership.setReferenceId(Platform.DEFAULT);
+membership.setCreatedAt(now);
+membership.setUpdatedAt(now);
+return createInternal(membership, null);
+})))));
     }
 
 
     @Override
     public Single<Map<String, Map<String, Object>>> getMetadata(List<Membership> memberships) {
         if (memberships == null || memberships.isEmpty()) {
-            return Single.just(Collections.emptyMap());
+            return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap()));
         }
 
         List<String> userIds = memberships.stream().filter(membership -> MemberType.USER == membership.getMemberType()).map(Membership::getMemberId).distinct().collect(Collectors.toList());
@@ -215,20 +213,18 @@ public class MembershipServiceImpl implements MembershipService {
     public Completable delete(String membershipId, User principal) {
         LOGGER.debug("Delete membership {}", membershipId);
 
-        return membershipRepository.findById(membershipId)
-                .switchIfEmpty(Maybe.error(new MembershipNotFoundException(membershipId)))
-                .flatMapCompletable(membership -> membershipRepository.delete(membershipId)
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(membershipRepository.findById(membershipId)
+                .switchIfEmpty(Maybe.error(new MembershipNotFoundException(membershipId)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Membership, CompletableSource>)membership -> membershipRepository.delete(membershipId)
                         .andThen(Completable.fromSingle(eventService.create(new Event(Type.MEMBERSHIP, new Payload(membership.getId(), membership.getReferenceType(), membership.getReferenceId(), Action.DELETE)))))
                         .doOnComplete(() -> auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_DELETED).membership(membership)))
-                        .doOnError(throwable -> auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_DELETED).throwable(throwable)))
-                )
+                        .doOnError(throwable -> auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_DELETED).throwable(throwable)))).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Completable.error(ex);
+                        return RxJava2Adapter.monoToCompletable(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to delete membership: {}", membershipId, ex);
-                    return Completable.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to delete membership: %s", membershipId), ex));
+                    return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to delete membership: %s", membershipId), ex)));
                 });
     }
 
@@ -237,7 +233,7 @@ public class MembershipServiceImpl implements MembershipService {
 
         MembershipCriteria criteria = convert(newMembership);
 
-        return this.findByCriteria(ReferenceType.DOMAIN, domainId, criteria)
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(this.findByCriteria(ReferenceType.DOMAIN, domainId, criteria)
                 .switchIfEmpty(Flowable.defer(() -> roleService.findDefaultRole(organizationId, DefaultRole.DOMAIN_USER, ReferenceType.DOMAIN)
                         .flatMapSingle(role -> {
                             final Membership domainMembership = new Membership();
@@ -248,8 +244,7 @@ public class MembershipServiceImpl implements MembershipService {
                             domainMembership.setReferenceType(ReferenceType.DOMAIN);
                             return this.createInternal(domainMembership, principal);
                         }).toFlowable()))
-                .ignoreElements()
-                .andThen(addEnvironmentUserRoleIfNecessary(organizationId, environmentId, newMembership, principal));
+                .ignoreElements()).then(RxJava2Adapter.completableToMono(Completable.wrap(addEnvironmentUserRoleIfNecessary(organizationId, environmentId, newMembership, principal)))));
     }
 
     @Override
@@ -257,7 +252,7 @@ public class MembershipServiceImpl implements MembershipService {
 
         MembershipCriteria criteria = convert(newMembership);
 
-        return this.findByCriteria(ReferenceType.ENVIRONMENT, environmentId, criteria)
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(this.findByCriteria(ReferenceType.ENVIRONMENT, environmentId, criteria)
                 .switchIfEmpty(Flowable.defer(() -> roleService.findDefaultRole(organizationId, DefaultRole.ENVIRONMENT_USER, ReferenceType.ENVIRONMENT)
                         .flatMapSingle(role -> {
                             final Membership environmentMembership = new Membership();
@@ -267,12 +262,11 @@ public class MembershipServiceImpl implements MembershipService {
                             environmentMembership.setReferenceId(environmentId);
                             environmentMembership.setReferenceType(ReferenceType.ENVIRONMENT);
                             return this.createInternal(environmentMembership, principal);
-                        }).toFlowable()))
-                .ignoreElements();
+                        }).toFlowable()))).ignoreElements().then());
     }
 
     private Single<Membership> createInternal(Membership membership, User principal) {
-        return membershipRepository.create(membership)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipRepository.create(membership)
                 // create event for sync process
                 .flatMap(membership1 -> {
                     Event event = new Event(Type.MEMBERSHIP, new Payload(membership1.getId(), membership1.getReferenceType(), membership1.getReferenceId(), Action.CREATE));
@@ -285,8 +279,7 @@ public class MembershipServiceImpl implements MembershipService {
                     LOGGER.error("An error occurs while trying to create membership {}", membership, ex);
                     return Single.error(new TechnicalManagementException(String.format("An error occurs while trying to create membership %s", membership), ex));
                 })
-                .doOnSuccess(membership1 -> auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_CREATED).membership(membership1)))
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_CREATED).throwable(throwable)));
+                .doOnSuccess(membership1 -> auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_CREATED).membership(membership1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_CREATED).throwable(throwable)))));
     }
 
     private Member convert(io.gravitee.am.model.User user) {
@@ -330,11 +323,9 @@ public class MembershipServiceImpl implements MembershipService {
     private Completable checkMember(String organizationId, Membership membership) {
 
         if (MemberType.USER == membership.getMemberType()) {
-            return orgUserService.findById(ReferenceType.ORGANIZATION, organizationId, membership.getMemberId())
-                    .ignoreElement();
+            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(orgUserService.findById(ReferenceType.ORGANIZATION, organizationId, membership.getMemberId())).then());
         } else {
-            return groupService.findById(ReferenceType.ORGANIZATION, organizationId, membership.getMemberId())
-                    .ignoreElement();
+            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(groupService.findById(ReferenceType.ORGANIZATION, organizationId, membership.getMemberId())).then());
         }
     }
 
@@ -344,7 +335,7 @@ public class MembershipServiceImpl implements MembershipService {
      * @return
      */
     private Completable checkRole(String organizationId, Membership membership) {
-        return roleService.findById(membership.getRoleId())
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(roleService.findById(membership.getRoleId())
                 .switchIfEmpty(Maybe.error(new RoleNotFoundException(membership.getRoleId())))
                 .flatMap(role -> {
                     // If role is a 'PRIMARY_OWNER' role, need to check if it is already assigned or not.
@@ -370,7 +361,6 @@ public class MembershipServiceImpl implements MembershipService {
                         (role1.isSystem()
                                 || (role1.getReferenceType() == ReferenceType.ORGANIZATION && organizationId.equals(role1.getReferenceId()))
                                 || (role1.getReferenceType() == membership.getReferenceType() && membership.getReferenceId().equals(role1.getReferenceId()))))
-                .switchIfEmpty(Single.error(new InvalidRoleException("Invalid role")))
-                .ignoreElement();
+                .switchIfEmpty(Single.error(new InvalidRoleException("Invalid role")))).then());
     }
 }

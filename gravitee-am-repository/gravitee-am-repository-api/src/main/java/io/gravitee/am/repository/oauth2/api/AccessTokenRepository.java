@@ -17,8 +17,9 @@ package io.gravitee.am.repository.oauth2.api;
 
 import io.gravitee.am.repository.oauth2.model.AccessToken;
 import io.reactivex.*;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -102,6 +103,6 @@ public interface AccessTokenRepository {
     Completable deleteByDomainIdAndUserId(String domainId, String userId);
 
     default Completable purgeExpiredData() {
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 }

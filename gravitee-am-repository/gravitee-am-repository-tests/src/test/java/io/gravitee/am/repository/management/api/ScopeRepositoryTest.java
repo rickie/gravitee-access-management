@@ -17,14 +17,14 @@ package io.gravitee.am.repository.management.api;
 
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.oauth2.Scope;
-import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.exceptions.TechnicalException;
+import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.*;
 import java.util.stream.Collectors;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -41,7 +41,7 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         scope.setName("testName");
         scope.setDomain("testDomain");
         scope.setClaims(Arrays.asList("claim1", "claim2"));
-        scopeRepository.create(scope).blockingGet();
+        RxJava2Adapter.singleToMono(scopeRepository.create(scope)).block();
 
         // fetch scopes
         TestObserver<Page<Scope>> testObserver = scopeRepository.findByDomain("testDomain", 0, Integer.MAX_VALUE).test();
@@ -60,12 +60,12 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         scope.setName("firstOne");
         scope.setKey("one");
         scope.setDomain("testDomain");
-        scopeRepository.create(scope).blockingGet();
+        RxJava2Adapter.singleToMono(scopeRepository.create(scope)).block();
 
         scope.setId(null);
         scope.setName("anotherOne");
         scope.setDomain("another");
-        scopeRepository.create(scope).blockingGet();
+        RxJava2Adapter.singleToMono(scopeRepository.create(scope)).block();
 
 
         // fetch scopes
@@ -84,21 +84,21 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         scope.setName("firstOne");
         scope.setKey("one");
         scope.setDomain("testDomain");
-        Scope scopeCreated1 = scopeRepository.create(scope).blockingGet();
+        Scope scopeCreated1 = RxJava2Adapter.singleToMono(scopeRepository.create(scope)).block();
 
         scope.setId(null);
         scope.setName("anotherOne");
         scope.setDomain("another");
-        scopeRepository.create(scope).blockingGet();
+        RxJava2Adapter.singleToMono(scopeRepository.create(scope)).block();
 
         scope.setId(null);
         scope.setName("secondOne");
         scope.setKey("two");
         scope.setDomain("testDomain");
-        Scope scopeCreated2 = scopeRepository.create(scope).blockingGet();
+        Scope scopeCreated2 = RxJava2Adapter.singleToMono(scopeRepository.create(scope)).block();
 
         // fetch scopes
-        TestObserver<List<Scope>> testObserver = scopeRepository.findByDomainAndKeys("testDomain", Arrays.asList("one","two","three")).toList().test();
+        TestObserver<List<Scope>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(scopeRepository.findByDomainAndKeys("testDomain", Arrays.asList("one","two","three"))).collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -115,7 +115,7 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
     public void testFindById() {
         // create scope
         Scope scope = buildScope();
-        Scope scopeCreated = scopeRepository.create(scope).blockingGet();
+        Scope scopeCreated = RxJava2Adapter.singleToMono(scopeRepository.create(scope)).block();
 
         // fetch scope
         TestObserver<Scope> testObserver = scopeRepository.findById(scopeCreated.getId()).test();
@@ -180,7 +180,7 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
     public void testUpdate() {
         // create scope
         Scope scope = buildScope();
-        Scope scopeCreated = scopeRepository.create(scope).blockingGet();
+        Scope scopeCreated = RxJava2Adapter.singleToMono(scopeRepository.create(scope)).block();
 
         // update scope
         Scope updatedScope = buildScope();
@@ -199,7 +199,7 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         // create scope
         Scope scope = new Scope();
         scope.setName("testName");
-        Scope scopeCreated = scopeRepository.create(scope).blockingGet();
+        Scope scopeCreated = RxJava2Adapter.singleToMono(scopeRepository.create(scope)).block();
 
         // fetch scope
         TestObserver<Scope> testObserver = scopeRepository.findById(scopeCreated.getId()).test();
@@ -224,7 +224,7 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         scope.setName("testName");
         scope.setKey("testName");
         scope.setClaims(Arrays.asList("claim1", "claim2"));
-        Scope scopeCreated = scopeRepository.create(scope).blockingGet();
+        Scope scopeCreated = RxJava2Adapter.singleToMono(scopeRepository.create(scope)).block();
 
         TestObserver<Page<Scope>> testObserver = scopeRepository.search(scopeCreated.getDomain(), "*" + scopeName + "*", 0, Integer.MAX_VALUE).test();
         testObserver.awaitTerminalEvent();

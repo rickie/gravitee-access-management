@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Group;
@@ -25,18 +30,14 @@ import io.gravitee.am.service.model.NewGroup;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.junit.Test;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -61,8 +62,8 @@ public class GroupsResourceTest extends JerseySpringTest {
         final List<Group> groups = Arrays.asList(mockGroup, mockGroup2);
         final Page<User> pagedUsers = new Page(groups, 0, 2);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(pagedUsers)).when(groupService).findByDomain(domainId, 0, 10);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(pagedUsers))).when(groupService).findByDomain(domainId, 0, 10);
 
         final Response response = target("domains")
                 .path(domainId)
@@ -81,7 +82,7 @@ public class GroupsResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetGroups_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(Maybe.error(new TechnicalManagementException("error occurs"))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs")))).when(domainService).findById(domainId);
 
         final Response response = target("domains").path(domainId).path("groups").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -99,8 +100,8 @@ public class GroupsResourceTest extends JerseySpringTest {
         Group group = new Group();
         group.setId("group-id");
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(group)).when(groupService).create(any(), any(), any());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(group))).when(groupService).create(any(), any(), any());
 
         final Response response = target("domains")
                 .path(domainId)

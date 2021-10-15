@@ -28,13 +28,14 @@ import io.gravitee.common.http.MediaType;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -61,11 +62,10 @@ public class InstallationResource extends AbstractResource {
     public void get(
             @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.PLATFORM, Platform.DEFAULT, Permission.INSTALLATION, Acl.READ)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkPermission(ReferenceType.PLATFORM, Platform.DEFAULT, Permission.INSTALLATION, Acl.READ)
                 .andThen(installationService.get()
-                        .map(InstallationEntity::new))
-                .doOnSuccess(installationEntity -> installationEntity.getAdditionalInformation()
-                        .put(Installation.COCKPIT_URL, environment.getProperty("cockpit.url", DEFAULT_COCKPIT_URL)))
+                        .map(InstallationEntity::new))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installationEntity -> installationEntity.getAdditionalInformation()
+                        .put(Installation.COCKPIT_URL, environment.getProperty("cockpit.url", DEFAULT_COCKPIT_URL)))))
                 .subscribe(response::resume, response::resume);
     }
 }

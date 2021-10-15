@@ -21,7 +21,6 @@ import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -32,6 +31,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -53,9 +54,8 @@ public class ResourcePluginResource {
     public void get(@PathParam("resource") String resourceId,
                     @Suspended final AsyncResponse response) {
 
-        resourcePluginService.findById(resourceId)
-                .switchIfEmpty(Maybe.error(new ResourcePluginNotFoundException(resourceId)))
-                .map(resourcePlugin -> Response.ok(resourcePlugin).build())
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(resourcePluginService.findById(resourceId)
+                .switchIfEmpty(Maybe.error(new ResourcePluginNotFoundException(resourceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(resourcePlugin -> Response.ok(resourcePlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -67,11 +67,10 @@ public class ResourcePluginResource {
     public void getSchema(@PathParam("resource") String resourceId,
                           @Suspended final AsyncResponse response) {
 
-        resourcePluginService.findById(resourceId)
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(resourcePluginService.findById(resourceId)
                 .switchIfEmpty(Maybe.error(new ResourcePluginNotFoundException(resourceId)))
                 .flatMap(irrelevant -> resourcePluginService.getSchema(resourceId))
-                .switchIfEmpty(Maybe.error(new ResourcePluginNotFoundException(resourceId)))
-                .map(policyPluginSchema -> Response.ok(policyPluginSchema).build())
+                .switchIfEmpty(Maybe.error(new ResourcePluginNotFoundException(resourceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

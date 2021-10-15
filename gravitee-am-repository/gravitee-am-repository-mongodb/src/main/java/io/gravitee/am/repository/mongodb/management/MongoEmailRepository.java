@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Email;
@@ -22,12 +24,12 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.management.api.EmailRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.EmailMongo;
 import io.reactivex.*;
+import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (david.brassely at graviteesource.com)
@@ -50,29 +52,28 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
 
     @Override
     public Flowable<Email> findAll() {
-        return Flowable.fromPublisher(emailsCollection.find()).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(emailsCollection.find())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Email> findAll(ReferenceType referenceType, String referenceId) {
-        return Flowable.fromPublisher(emailsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))))
-                .map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(emailsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Email> findByClient(ReferenceType referenceType, String referenceId, String client) {
-        return Flowable.fromPublisher(
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(
                 emailsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_CLIENT, client))
-                )).map(this::convert);
+                ))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Email> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
-        return Observable.fromPublisher(
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(
                 emailsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
@@ -80,7 +81,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
                                 eq(FIELD_TEMPLATE, template),
                                 exists(FIELD_CLIENT, false)))
                         .first())
-                .firstElement().map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -90,7 +91,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
 
     @Override
     public Maybe<Email> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
-        return Observable.fromPublisher(
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(
                 emailsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
@@ -98,7 +99,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
                                 eq(FIELD_CLIENT, client),
                                 eq(FIELD_TEMPLATE, template)))
                         .first())
-                .firstElement().map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -108,30 +109,30 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
 
     @Override
     public Maybe<Email> findById(ReferenceType referenceType, String referenceId, String id) {
-        return Observable.fromPublisher(emailsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(emailsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Email> findById(String id) {
-        return Observable.fromPublisher(emailsCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(emailsCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Email> create(Email item) {
         EmailMongo email = convert(item);
         email.setId(email.getId() == null ? RandomString.generate() : email.getId());
-        return Single.fromPublisher(emailsCollection.insertOne(email)).flatMap(success -> findById(email.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(emailsCollection.insertOne(email))).flatMap(success->RxJava2Adapter.singleToMono(findById(email.getId()).toSingle())));
     }
 
     @Override
     public Single<Email> update(Email item) {
         EmailMongo email = convert(item);
-        return Single.fromPublisher(emailsCollection.replaceOne(eq(FIELD_ID, email.getId()), email)).flatMap(updateResult -> findById(email.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(emailsCollection.replaceOne(eq(FIELD_ID, email.getId()), email))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(email.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(emailsCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(emailsCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private Email convert(EmailMongo emailMongo) {

@@ -22,7 +22,6 @@ import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +32,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -54,9 +55,8 @@ public class FactorPluginResource {
     public void get(@PathParam("factor") String authenticatorId,
                     @Suspended final AsyncResponse response) {
 
-        authenticatorPluginService.findById(authenticatorId)
-                .switchIfEmpty(Maybe.error(new AuthenticatorPluginNotFoundException(authenticatorId)))
-                .map(policyPlugin -> Response.ok(policyPlugin).build())
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticatorPluginService.findById(authenticatorId)
+                .switchIfEmpty(Maybe.error(new AuthenticatorPluginNotFoundException(authenticatorId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -69,11 +69,10 @@ public class FactorPluginResource {
                           @Suspended final AsyncResponse response) {
 
         // Check that the authenticator exists
-        authenticatorPluginService.findById(factorId)
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticatorPluginService.findById(factorId)
                 .switchIfEmpty(Maybe.error(new AuthenticatorPluginNotFoundException(factorId)))
                 .flatMap(irrelevant -> authenticatorPluginService.getSchema(factorId))
-                .switchIfEmpty(Maybe.error(new AuthenticatorPluginSchemaNotFoundException(factorId)))
-                .map(policyPluginSchema -> Response.ok(policyPluginSchema).build())
+                .switchIfEmpty(Maybe.error(new AuthenticatorPluginSchemaNotFoundException(factorId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

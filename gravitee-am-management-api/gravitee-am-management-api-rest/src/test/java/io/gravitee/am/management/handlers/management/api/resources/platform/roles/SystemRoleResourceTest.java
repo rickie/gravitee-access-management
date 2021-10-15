@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.platform.roles;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.management.handlers.management.api.model.RoleEntity;
 import io.gravitee.am.model.Domain;
@@ -25,12 +28,10 @@ import io.gravitee.am.service.exception.RoleNotFoundException;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.junit.Test;
-
 import javax.ws.rs.core.Response;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -46,7 +47,7 @@ public class SystemRoleResourceTest extends JerseySpringTest {
         mockRole.setId(roleId);
         mockRole.setName("role-name");
 
-        doReturn(Single.just(mockRole)).when(roleService).findById(ReferenceType.PLATFORM, Platform.DEFAULT, roleId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(mockRole))).when(roleService).findById(ReferenceType.PLATFORM, Platform.DEFAULT, roleId);
 
         final Response response = target("platform").path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -60,7 +61,7 @@ public class SystemRoleResourceTest extends JerseySpringTest {
 
         final String roleId = "role-id";
 
-        doReturn(Single.error(new RoleNotFoundException(roleId))).when(roleService).findById(ReferenceType.PLATFORM, Platform.DEFAULT, roleId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new RoleNotFoundException(roleId)))).when(roleService).findById(ReferenceType.PLATFORM, Platform.DEFAULT, roleId);
 
         final Response response = target("platform").path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());

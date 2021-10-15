@@ -20,8 +20,9 @@ import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-
 import java.util.Set;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -43,7 +44,7 @@ public interface ScopeApprovalRepository extends CrudRepository<ScopeApproval, S
     Completable deleteByDomainAndUser(String domain, String user);
 
     default Completable purgeExpiredData() {
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 
 }

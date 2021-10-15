@@ -29,9 +29,10 @@ import io.gravitee.am.gateway.handler.oidc.service.idtoken.IDTokenService;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
-
 import java.util.Arrays;
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * When using the Implicit Flow, all tokens are returned from the Authorization Endpoint; the Token Endpoint is not used.
@@ -77,23 +78,21 @@ public class ImplicitFlow extends AbstractFlow {
         oAuth2Request.setSubject(endUser.getId());
         oAuth2Request.getContext().put(Claims.s_hash, authorizationRequest.getState());
         if (io.gravitee.am.common.oidc.ResponseType.ID_TOKEN.equals(authorizationRequest.getResponseType())) {
-            return idTokenService.create(oAuth2Request, client, endUser)
-                    .map(idToken -> {
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(idTokenService.create(oAuth2Request, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(idToken -> {
                         IDTokenResponse response = new IDTokenResponse();
                         response.setRedirectUri(authorizationRequest.getRedirectUri());
                         response.setIdToken(idToken);
                         response.setState(authorizationRequest.getState());
                         return response;
-                    });
+                    })));
         } else {
-            return tokenService.create(oAuth2Request, client, endUser)
-                    .map(accessToken -> {
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tokenService.create(oAuth2Request, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> {
                         ImplicitResponse response = new ImplicitResponse();
                         response.setRedirectUri(authorizationRequest.getRedirectUri());
                         response.setAccessToken(accessToken);
                         response.setState(authorizationRequest.getState());
                         return response;
-                    });
+                    })));
         }
     }
 }

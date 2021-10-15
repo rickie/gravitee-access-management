@@ -15,19 +15,19 @@
  */
 package io.gravitee.am.repository.oauth2.api;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import io.gravitee.am.repository.jdbc.oauth2.oidc.JdbcRequestObjectRepository;
 import io.gravitee.am.repository.oauth2.AbstractOAuthTest;
 import io.gravitee.am.repository.oidc.model.RequestObject;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -53,15 +53,15 @@ public class RequestObjectRepositoryPurgeTest extends AbstractOAuthTest {
         requestObjectRepository.create(object1).test().awaitTerminalEvent();
         requestObjectRepository.create(object2).test().awaitTerminalEvent();
 
-        assertNotNull(requestObjectRepository.findById(object1.getId()).blockingGet());
-        assertNull(requestObjectRepository.findById(object2.getId()).blockingGet());
+        assertNotNull(RxJava2Adapter.maybeToMono(requestObjectRepository.findById(object1.getId())).block());
+        assertNull(RxJava2Adapter.maybeToMono(requestObjectRepository.findById(object2.getId())).block());
 
         TestObserver<Void> testPurge = requestObjectRepository.purgeExpiredData().test();
         testPurge.awaitTerminalEvent();
         testPurge.assertNoErrors();
 
-        assertNotNull(requestObjectRepository.findById(object1.getId()).blockingGet());
-        assertNull(requestObjectRepository.findById(object2.getId()).blockingGet());
+        assertNotNull(RxJava2Adapter.maybeToMono(requestObjectRepository.findById(object1.getId())).block());
+        assertNull(RxJava2Adapter.maybeToMono(requestObjectRepository.findById(object2.getId())).block());
 
     }
 

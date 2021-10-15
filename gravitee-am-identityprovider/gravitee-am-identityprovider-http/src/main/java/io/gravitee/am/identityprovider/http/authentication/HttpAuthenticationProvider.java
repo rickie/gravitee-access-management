@@ -43,14 +43,16 @@ import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.HttpRequest;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.lang.reflect.Constructor;
+import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
-
-import java.lang.reflect.Constructor;
-import java.util.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -103,23 +105,22 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
             final String authenticationURI = templateEngine.getValue(resourceConfiguration.getBaseURL(), String.class);
             final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, authenticationURI, authenticationHttpMethod, authenticationHttpHeaders, authenticationBody);
 
-            return requestHandler
-                    .toMaybe()
-                    .map(httpResponse -> {
+            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(requestHandler
+                    .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = resourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return createUser(authentication.getContext(), userAttributes);
-                    })
+                    })))
                     .onErrorResumeNext(ex -> {
                         if (ex instanceof AuthenticationException) {
-                            return Maybe.error(ex);
+                            return RxJava2Adapter.monoToMaybe(Mono.error(ex));
                         }
                         LOGGER.error("An error has occurred while calling the remote HTTP identity provider {}", ex);
-                        return Maybe.error(new InternalAuthenticationServiceException("An error has occurred while calling the remote HTTP identity provider", ex));
+                        return RxJava2Adapter.monoToMaybe(Mono.error(new InternalAuthenticationServiceException("An error has occurred while calling the remote HTTP identity provider", ex)));
                     });
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while authenticating the user {}", ex);
-            return Maybe.error(new InternalAuthenticationServiceException("An error has occurred while authenticating the user", ex));
+            return RxJava2Adapter.monoToMaybe(Mono.error(new InternalAuthenticationServiceException("An error has occurred while authenticating the user", ex)));
         }
     }
 
@@ -137,22 +138,22 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
         // prepare request
         final HttpAuthResourcePathsConfiguration authResourceConfiguration = configuration.getAuthenticationResource().getPaths();
         if (authResourceConfiguration == null) {
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
         if (authResourceConfiguration.getLoadPreAuthUserResource() == null) {
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
 
         final HttpResourceConfiguration readResourceConfiguration = authResourceConfiguration.getLoadPreAuthUserResource();
 
         if (readResourceConfiguration.getBaseURL() == null) {
             LOGGER.warn("Missing pre-authenticated user resource base URL");
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
 
         if (readResourceConfiguration.getHttpMethod() == null) {
             LOGGER.warn("Missing pre-authenticated user resource HTTP method");
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
 
         try {
@@ -167,23 +168,22 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
             final String readUserBody = readResourceConfiguration.getHttpBody();
             final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, readUserURI, readUserHttpMethod, readUserHttpHeaders, readUserBody);
 
-            return requestHandler
-                    .toMaybe()
-                    .map(httpResponse -> {
+            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(requestHandler
+                    .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = readResourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return createUser(authenticationContext, userAttributes);
-                    })
+                    })))
                     .onErrorResumeNext(ex -> {
                         if (ex instanceof AbstractManagementException) {
-                            return Maybe.error(ex);
+                            return RxJava2Adapter.monoToMaybe(Mono.error(ex));
                         }
                         LOGGER.error("An error has occurred when loading pre-authenticated user {} from the remote HTTP identity provider", user.getUsername() != null ? user.getUsername() : user.getEmail(), ex);
-                        return Maybe.error(new TechnicalManagementException("An error has occurred when loading pre-authenticated user from the remote HTTP identity provider", ex));
+                        return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error has occurred when loading pre-authenticated user from the remote HTTP identity provider", ex)));
                     });
         } catch (Exception ex) {
             LOGGER.error("An error has occurred when loading pre-authenticated user {}", user.getUsername() != null ? user.getUsername() : user.getEmail(), ex);
-            return Maybe.error(new TechnicalManagementException("An error has occurred when when loading pre-authenticated user", ex));
+            return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error has occurred when when loading pre-authenticated user", ex)));
         }
     }
 

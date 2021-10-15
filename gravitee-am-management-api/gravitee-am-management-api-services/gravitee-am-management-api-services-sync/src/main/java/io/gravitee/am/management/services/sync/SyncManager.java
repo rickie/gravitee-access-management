@@ -15,18 +15,18 @@
  */
 package io.gravitee.am.management.services.sync;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toMap;
+
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.service.EventService;
 import io.gravitee.common.event.EventManager;
+import java.util.*;
+import java.util.function.BinaryOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.*;
-import java.util.function.BinaryOperator;
-
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toMap;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -62,7 +62,7 @@ public class SyncManager {
 
         // search for events and compute them
         logger.debug("Events synchronization");
-        List<Event> events = eventService.findByTimeFrame(lastRefreshAt - lastDelay, nextLastRefreshAt).blockingGet();
+        List<Event> events = RxJava2Adapter.singleToMono(eventService.findByTimeFrame(lastRefreshAt - lastDelay, nextLastRefreshAt)).block();
 
         if (events != null && !events.isEmpty()) {
             // Extract only the latest events by type and id

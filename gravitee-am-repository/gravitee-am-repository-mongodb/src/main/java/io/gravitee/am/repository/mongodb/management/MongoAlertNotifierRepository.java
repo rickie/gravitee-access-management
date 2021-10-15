@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
@@ -23,14 +25,14 @@ import io.gravitee.am.repository.management.api.AlertNotifierRepository;
 import io.gravitee.am.repository.management.api.search.AlertNotifierCriteria;
 import io.gravitee.am.repository.mongodb.management.internal.model.AlertNotifierMongo;
 import io.reactivex.*;
-import org.bson.conversions.Bson;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.mongodb.client.model.Filters.*;
+import javax.annotation.PostConstruct;
+import org.bson.conversions.Bson;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -49,17 +51,15 @@ public class MongoAlertNotifierRepository extends AbstractManagementMongoReposit
 
     @Override
     public Maybe<AlertNotifier> findById(String id) {
-        return Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first())
-                .firstElement()
-                .map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first())
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<AlertNotifier> findAll(ReferenceType referenceType, String referenceId) {
         Bson eqReference = and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId));
 
-        return Flowable.fromPublisher(collection.find(eqReference))
-                .map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(collection.find(eqReference))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -78,26 +78,24 @@ public class MongoAlertNotifierRepository extends AbstractManagementMongoReposit
         if (!filters.isEmpty()) {
             query = and(eqReference, criteria.isLogicalOR() ? or(filters) : and(filters));
         }
-        return Flowable.fromPublisher(collection.find(and(eqReference, query))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(collection.find(and(eqReference, query)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<AlertNotifier> create(AlertNotifier alertNotifier) {
         alertNotifier.setId(alertNotifier.getId() == null ? RandomString.generate() : alertNotifier.getId());
-        return Single.fromPublisher(collection.insertOne(convert(alertNotifier)))
-                .flatMap(success -> findById(alertNotifier.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(alertNotifier)))).flatMap(success->RxJava2Adapter.singleToMono(findById(alertNotifier.getId()).toSingle())));
     }
 
     @Override
     public Single<AlertNotifier> update(AlertNotifier alertNotifier) {
         AlertNotifierMongo alertNotifierMongo = convert(alertNotifier);
-        return Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, alertNotifierMongo.getId()), alertNotifierMongo))
-                .flatMap(updateResult -> findById(alertNotifierMongo.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, alertNotifierMongo.getId()), alertNotifierMongo))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(alertNotifierMongo.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(collection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private AlertNotifier convert(AlertNotifierMongo alertNotifierMongo) {

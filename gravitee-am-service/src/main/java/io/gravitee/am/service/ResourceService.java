@@ -23,8 +23,9 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -56,7 +57,6 @@ public interface ResourceService {
     Completable deleteAccessPolicy(String domain, String client, String user, String resource, String accessPolicy);
 
     default Single<Set<Resource>> findByDomain(String domain) {
-        return findByDomain(domain, 0, Integer.MAX_VALUE)
-                .map(pagedResources -> (pagedResources.getData() == null) ? Collections.emptySet() : new HashSet<>(pagedResources.getData()));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findByDomain(domain, 0, Integer.MAX_VALUE)).map(RxJavaReactorMigrationUtil.toJdkFunction(pagedResources -> (pagedResources.getData() == null) ? Collections.emptySet() : new HashSet<>(pagedResources.getData()))));
     }
 }

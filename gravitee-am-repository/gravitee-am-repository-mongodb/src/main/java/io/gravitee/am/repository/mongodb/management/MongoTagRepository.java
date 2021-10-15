@@ -15,21 +15,23 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Tag;
 import io.gravitee.am.repository.management.api.TagRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.TagMongo;
 import io.reactivex.*;
-import org.bson.Document;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -50,35 +52,35 @@ public class MongoTagRepository extends AbstractManagementMongoRepository implem
 
     @Override
     public Maybe<Tag> findById(String id, String organizationId) {
-        return Observable.fromPublisher(tagsCollection.find(and(eq(FIELD_ID, id), eq(FIELD_ORGANIZATION_ID, organizationId))).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(tagsCollection.find(and(eq(FIELD_ID, id), eq(FIELD_ORGANIZATION_ID, organizationId))).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Tag> findById(String id) {
-        return Observable.fromPublisher(tagsCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(tagsCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Tag> findAll(String organizationId) {
-        return Flowable.fromPublisher(tagsCollection.find(eq(FIELD_ORGANIZATION_ID, organizationId))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(tagsCollection.find(eq(FIELD_ORGANIZATION_ID, organizationId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Tag> create(Tag item) {
         TagMongo tag = convert(item);
         tag.setId(tag.getId() == null ? RandomString.generate() : tag.getId());
-        return Single.fromPublisher(tagsCollection.insertOne(tag)).flatMap(success -> findById(tag.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(tagsCollection.insertOne(tag))).flatMap(success->RxJava2Adapter.singleToMono(findById(tag.getId()).toSingle())));
     }
 
     @Override
     public Single<Tag> update(Tag item) {
         TagMongo tag = convert(item);
-        return Single.fromPublisher(tagsCollection.replaceOne(eq(FIELD_ID, tag.getId()), tag)).flatMap(updateResult -> findById(tag.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(tagsCollection.replaceOne(eq(FIELD_ID, tag.getId()), tag))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(tag.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(tagsCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(tagsCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private Tag convert(TagMongo tagMongo) {

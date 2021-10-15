@@ -15,6 +15,13 @@
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.mfa;
 
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.ACTION_KEY;
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.resolveProxyRequest;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.factor.FactorManager;
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
@@ -33,23 +40,17 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.common.template.TemplateEngine;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
-
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.ACTION_KEY;
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.resolveProxyRequest;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -78,7 +79,7 @@ public class MFAChallengeAlternativesEndpointTest extends RxWebTestBase {
         domain.setId(UUID.randomUUID().toString());
         domain.setPath("/");
 
-        when(clientSyncService.findByClientId(anyString())).thenReturn(Maybe.just(new Client()));
+        when(clientSyncService.findByClientId(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Client())));
 
         router.route(HttpMethod.GET, "/mfa/challenge/alternatives")
                 .handler(clientRequestParseHandler)

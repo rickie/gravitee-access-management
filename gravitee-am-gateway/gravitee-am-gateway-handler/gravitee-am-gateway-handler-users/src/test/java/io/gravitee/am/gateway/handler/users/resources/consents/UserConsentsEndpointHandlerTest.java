@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.gateway.handler.users.resources.consents;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
@@ -32,18 +36,15 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
+import java.util.Collections;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -105,7 +106,7 @@ public class UserConsentsEndpointHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldListConsents() throws Exception {
-        when(userService.consents(anyString())).thenReturn(Single.just(Collections.singleton(new ScopeApproval())));
+        when(userService.consents(anyString())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(new ScopeApproval()))));
 
         router.route("/users/:userId/consents")
                 .handler(userConsentsEndpointHandler::list)
@@ -121,8 +122,8 @@ public class UserConsentsEndpointHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldRevokeConsents() throws Exception {
-        when(userService.findById(anyString())).thenReturn(Maybe.just(new io.gravitee.am.model.User()));
-        when(userService.revokeConsents(anyString(), any(User.class))).thenReturn(Completable.complete());
+        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.User())));
+        when(userService.revokeConsents(anyString(), any(User.class))).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         router.route("/users/:userId/consents")
                 .handler(rc -> {

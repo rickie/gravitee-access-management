@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.scim.resources.groups;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
@@ -34,9 +37,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -73,7 +75,7 @@ public class CreateGroupEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldInvokeSCIMCreateGroupsEndpoint() throws Exception {
         router.route("/Groups").handler(groupsEndpoint::create);
-        when(groupService.create(any(), any())).thenReturn(Single.just(getGroup()));
+        when(groupService.create(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(getGroup())));
 
         testRequest(
                 HttpMethod.POST,
@@ -90,7 +92,7 @@ public class CreateGroupEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturn409WhenNameAlreadyExists() throws Exception {
         router.route("/Groups").handler(groupsEndpoint::create);
-        when(groupService.create(any(), any())).thenReturn(Single.error(new UniquenessException("Display name already exists")));
+        when(groupService.create(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new UniquenessException("Display name already exists"))));
 
         testRequest(
                 HttpMethod.POST,
@@ -112,7 +114,7 @@ public class CreateGroupEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturn400WhenInvalidGroupException() throws Exception {
         router.route("/Groups").handler(groupsEndpoint::create);
-        when(groupService.create(any(), any())).thenReturn(Single.error(new InvalidGroupException("Invalid group infos")));
+        when(groupService.create(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidGroupException("Invalid group infos"))));
 
         testRequest(
                 HttpMethod.POST,

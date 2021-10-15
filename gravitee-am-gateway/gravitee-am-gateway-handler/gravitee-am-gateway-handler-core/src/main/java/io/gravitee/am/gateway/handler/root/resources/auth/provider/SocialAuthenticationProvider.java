@@ -39,11 +39,11 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.web.RoutingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -89,8 +89,7 @@ public class SocialAuthenticationProvider implements UserAuthProvider {
         endUserAuthentication.getContext().set(Claims.user_agent, RequestUtils.userAgent(context.request()));
 
         // authenticate the user via the social provider
-        authenticationProvider.loadUserByUsername(endUserAuthentication)
-                .switchIfEmpty(Maybe.error(new BadCredentialsException("Unable to authenticate social provider, authentication provider has returned empty value")))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticationProvider.loadUserByUsername(endUserAuthentication)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new BadCredentialsException("Unable to authenticate social provider, authentication provider has returned empty value"))))))
                 .flatMapSingle(user -> {
                     // set source and client for the current authenticated end-user
                     Map<String, Object> additionalInformation = user.getAdditionalInformation() == null ? new HashMap<>() : new HashMap<>(user.getAdditionalInformation());

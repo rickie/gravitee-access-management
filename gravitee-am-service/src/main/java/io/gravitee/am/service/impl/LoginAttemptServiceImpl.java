@@ -27,14 +27,15 @@ import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.Date;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
-import java.util.Optional;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -52,9 +53,8 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
     @Override
     public Single<LoginAttempt> loginFailed(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
         LOGGER.debug("Add login attempt for {}", criteria);
-        return loginAttemptRepository.findByCriteria(criteria)
-                .map(Optional::of)
-                .defaultIfEmpty(Optional.empty())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findByCriteria(criteria)
+                .map(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optionalLoginAttempt -> {
                     if (optionalLoginAttempt.isPresent()) {
                         LoginAttempt loginAttempt = optionalLoginAttempt.get();
@@ -84,10 +84,10 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
                 })
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to add a login attempt", ex);
-                    return Single.error(new TechnicalManagementException("An error occurs while trying to add a login attempt", ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to add a login attempt", ex)));
                 });
     }
 
@@ -97,11 +97,11 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
         return loginAttemptRepository.delete(criteria)
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Completable.error(ex);
+                        return RxJava2Adapter.monoToCompletable(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to delete login attempt for", criteria, ex);
-                    return Completable.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to delete login attempt: %s", criteria), ex));
+                    return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to delete login attempt: %s", criteria), ex)));
                 });
     }
 
@@ -119,15 +119,14 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
     @Override
     public Maybe<LoginAttempt> findById(String id) {
         LOGGER.debug("Find login attempt by id {}", id);
-        return loginAttemptRepository.findById(id)
-                .switchIfEmpty(Maybe.error(new LoginAttemptNotFoundException(id)))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new LoginAttemptNotFoundException(id))))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Maybe.error(ex);
+                        return RxJava2Adapter.monoToMaybe(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to find login attempt by id {}", id, ex);
-                    return Maybe.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to fin login attempt by id: %s", id), ex));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to fin login attempt by id: %s", id), ex)));
                 });
     }
 }

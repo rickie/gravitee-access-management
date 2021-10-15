@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.token;
 
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.gateway.handler.oauth2.service.request.OAuth2Request;
 import io.gravitee.am.gateway.handler.oauth2.service.token.impl.AccessToken;
 import io.gravitee.am.gateway.handler.oauth2.service.token.impl.TokenEnhancerImpl;
@@ -22,15 +24,14 @@ import io.gravitee.am.gateway.handler.oidc.service.idtoken.IDTokenService;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -74,7 +75,7 @@ public class TokenEnhancerTest {
 
         String idTokenPayload = "payload";
 
-        when(idTokenService.create(oAuth2Request, client, null, null)).thenReturn(Single.just(idTokenPayload));
+        when(idTokenService.create(oAuth2Request, client, null, null)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idTokenPayload)));
 
         TestObserver<Token> testObserver = tokenEnhancer.enhance(accessToken, oAuth2Request, client, null, null).test();
 

@@ -44,6 +44,7 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -80,8 +81,7 @@ public class GroupMemberResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)
-                .andThen(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> groupService.findById(group))
                         .switchIfEmpty(Maybe.error(new GroupNotFoundException(group)))
@@ -102,7 +102,7 @@ public class GroupMemberResource extends AbstractResource {
                                     updateGroup.setMembers(groupMembers);
                                     return groupService.update(domain, group, updateGroup, authenticatedUser);
                                 })
-                        ))
+                        )))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -125,8 +125,7 @@ public class GroupMemberResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)
-                .andThen(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> groupService.findById(group))
                         .switchIfEmpty(Maybe.error(new GroupNotFoundException(group)))
@@ -147,7 +146,7 @@ public class GroupMemberResource extends AbstractResource {
                                     updateGroup.setMembers(groupMembers);
                                     return groupService.update(domain, group, updateGroup, authenticatedUser);
                                 })
-                        ))
+                        )))))
                 .subscribe(response::resume, response::resume);
     }
 }

@@ -40,6 +40,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -104,17 +107,17 @@ public class ErrorEndpoint implements Handler<RoutingContext> {
         errorParams.put(ERROR_PARAM, error);
         errorParams.put(ERROR_DESCRIPTION_PARAM, errorDescription);
 
-        Single<Map<String, String>> singlePageRendering = Single.just(errorParams);
+        Single<Map<String, String>> singlePageRendering = RxJava2Adapter.monoToSingle(Mono.just(errorParams));
 
         final String jarm = request.getParam(io.gravitee.am.common.oidc.Parameters.RESPONSE);
         if (error == null && jarm != null) {
             // extract error details from the JWT provided as response parameter
-            singlePageRendering = this.jwtService.decode(jarm).map(jwt -> {
+            singlePageRendering = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.jwtService.decode(jarm)).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> {
                 Map<String, String> result = new HashMap<>();
                 result.put(ERROR_PARAM, (String) jwt.get(ERROR_PARAM));
                 result.put(ERROR_DESCRIPTION_PARAM, (String) jwt.get(ERROR_DESCRIPTION_PARAM));
                 return result;
-            });
+            })));
         }
 
         singlePageRendering.subscribe(

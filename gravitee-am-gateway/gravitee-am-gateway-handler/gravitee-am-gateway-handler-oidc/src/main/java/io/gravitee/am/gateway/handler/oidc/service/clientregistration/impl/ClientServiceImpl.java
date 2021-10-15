@@ -33,13 +33,15 @@ import io.gravitee.am.service.utils.GrantTypeUtils;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.Collections;
+import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
-import java.util.Date;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -59,15 +61,14 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public Maybe<Client> findById(String id) {
         LOGGER.debug("Find client by ID: {}", id);
-        return applicationService.findById(id)
-                .map(application -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationService.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> {
                     Client client = application.toClient();
                     // Send an empty array in case of no grant types
                     if (client.getAuthorizedGrantTypes() == null) {
                         client.setAuthorizedGrantTypes(Collections.emptyList());
                     }
                     return client;
-                });
+                })));
     }
 
     @Override
@@ -75,7 +76,7 @@ public class ClientServiceImpl implements ClientService {
         LOGGER.debug("Create a client {} for domain {}", client, client.getDomain());
 
         if(client.getDomain()==null || client.getDomain().trim().isEmpty()) {
-            return Single.error(new InvalidClientMetadataException("No domain set on client"));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("No domain set on client")));
         }
 
         boolean clientIdGenerated = false;
@@ -107,7 +108,7 @@ public class ClientServiceImpl implements ClientService {
         client.setCreatedAt(new Date());
         client.setUpdatedAt(client.getCreatedAt());
 
-        return applicationService.create(convert(client)).map(Application::toClient);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.create(convert(client))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)));
     }
 
     @Override
@@ -115,11 +116,10 @@ public class ClientServiceImpl implements ClientService {
         LOGGER.debug("Update client {} for domain {}", client.getClientId(), client.getDomain());
 
         if(client.getDomain()==null || client.getDomain().trim().isEmpty()) {
-            return Single.error(new InvalidClientMetadataException("No domain set on client"));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("No domain set on client")));
         }
 
-        return applicationService.update(convert(client))
-                .map(Application::toClient);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.update(convert(client))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)));
     }
 
     @Override
@@ -131,8 +131,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public Single<Client> renewClientSecret(String domain, String id, User principal) {
         LOGGER.debug("Renew client secret for client {} in domain {}", id, domain);
-        return applicationService.renewClientSecret(domain, id, principal)
-                .map(Application::toClient);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.renewClientSecret(domain, id, principal)).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)));
     }
 
     private Application convert(Client client) {

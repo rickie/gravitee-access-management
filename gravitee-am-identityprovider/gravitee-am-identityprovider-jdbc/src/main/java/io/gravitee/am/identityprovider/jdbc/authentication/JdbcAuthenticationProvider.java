@@ -19,6 +19,7 @@ import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.exception.authentication.UsernameNotFoundException;
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.identityprovider.api.*;
+import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.identityprovider.jdbc.JdbcAbstractProvider;
 import io.gravitee.am.identityprovider.jdbc.authentication.spring.JdbcAuthenticationProviderConfiguration;
 import io.gravitee.am.identityprovider.jdbc.utils.ColumnMapRowMapper;
@@ -27,14 +28,17 @@ import io.r2dbc.spi.Statement;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
-import org.springframework.util.StringUtils;
-
+import io.reactivex.MaybeSource;
+import io.reactivex.functions.Function;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
+import org.springframework.util.StringUtils;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -54,7 +58,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
         final String username = authentication.getPrincipal().toString();
         final String presentedPassword = authentication.getCredentials().toString();
 
-        return selectUserByMultipleField(username)
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(selectUserByMultipleField(username)
                 .toList()
                 .flatMapPublisher(users -> {
                     if (users.isEmpty()) {
@@ -85,8 +89,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
 
                     return true;
                 })
-                .toList()
-                .flatMapMaybe(users -> {
+                .toList()).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Map<String, Object>>, MaybeSource<User>>)users -> {
                     if (users.isEmpty()) {
                         return Maybe.error(new BadCredentialsException("Bad credentials"));
                     }
@@ -94,14 +97,14 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
                         return Maybe.error(new BadCredentialsException("Bad credentials"));
                     }
                     return Maybe.just(createUser(authentication.getContext(), users.get(0)));
-                });
+                }).apply(e)))));
     }
 
     private Flowable<Map<String, Object>> selectUserByMultipleField(String username) {
         String rawQuery = configuration.getSelectUserByMultipleFieldsQuery() != null ? configuration.getSelectUserByMultipleFieldsQuery() : configuration.getSelectUserByUsernameQuery();
         String[] args = prepareIndexParameters(rawQuery);
         final String sql = String.format(rawQuery, args);
-        return Flowable.fromPublisher(connectionPool.create())
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(connectionPool.create())
                 .flatMap(connection -> {
                     Statement statement = connection.createStatement(sql);
                     for (int i = 0; i < args.length; ++i) {
@@ -109,8 +112,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
                     }
                     return Flowable.fromPublisher(statement.execute())
                             .doFinally(() -> Completable.fromPublisher(connection.close()).subscribe());
-                })
-                .flatMap(result -> result.map(ColumnMapRowMapper::mapRow));
+                })).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(result -> result.map(ColumnMapRowMapper::mapRow))));
     }
 
     private String[] prepareIndexParameters(String rawQuery) {
@@ -124,17 +126,15 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
 
     @Override
     public Maybe<User> loadUserByUsername(String username) {
-        return selectUserByUsername(username)
-                .map(attributes -> createUser(new SimpleAuthenticationContext(), attributes));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(selectUserByUsername(username)).map(RxJavaReactorMigrationUtil.toJdkFunction(attributes -> createUser(new SimpleAuthenticationContext(), attributes))));
     }
 
     private Maybe<Map<String, Object>> selectUserByUsername(String username) {
         final String sql = String.format(configuration.getSelectUserByUsernameQuery(), getIndexParameter(configuration.getUsernameAttribute()));
-        return Flowable.fromPublisher(connectionPool.create())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(connectionPool.create())
                 .flatMap(connection -> Flowable.fromPublisher(connection.createStatement(sql).bind(0, username).execute())
                         .doFinally(() -> Completable.fromPublisher(connection.close()).subscribe()))
-                .flatMap(result -> result.map(ColumnMapRowMapper::mapRow))
-                .firstElement();
+                .flatMap(result -> result.map(ColumnMapRowMapper::mapRow))).next());
     }
 
     private User createUser(AuthenticationContext authContext, Map<String, Object> claims) {

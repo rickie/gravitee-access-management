@@ -33,15 +33,16 @@ import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Maybe;
 import io.reactivex.schedulers.Schedulers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -128,9 +129,8 @@ public class ResourceManagerImpl extends AbstractService implements ResourceMana
     }
 
     private void loadResource(String resourceId) {
-        resourceService.findById(resourceId)
-                .switchIfEmpty(Maybe.error(new ResourceNotFoundException("Resource " + resourceId + " not found")))
-                .map(res -> resourcePluginManager.create(res.getType(), res.getConfiguration()))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(resourceService.findById(resourceId)
+                .switchIfEmpty(Maybe.error(new ResourceNotFoundException("Resource " + resourceId + " not found")))).map(RxJavaReactorMigrationUtil.toJdkFunction(res -> resourcePluginManager.create(res.getType(), res.getConfiguration()))))
                 .subscribe(
                         provider -> {
                             provider.start();

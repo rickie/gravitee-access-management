@@ -15,17 +15,29 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.jwe;
 
+import static com.nimbusds.jose.JWEAlgorithm.*;
+import static org.junit.Assert.fail;
+import static org.junit.runners.Parameterized.Parameters;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import com.nimbusds.jose.JWEObject;
 import com.nimbusds.jose.crypto.AESDecrypter;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
 import io.gravitee.am.gateway.handler.oidc.service.jwe.impl.JWEServiceImpl;
 import io.gravitee.am.gateway.handler.oidc.service.jwk.JWKService;
 import io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.jose.OCTKey;
+import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
 import io.reactivex.Maybe;
 import io.reactivex.observers.TestObserver;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.stream.Collectors;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,19 +46,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.stream.Collectors;
-
-import static com.nimbusds.jose.JWEAlgorithm.*;
-import static org.junit.Assert.fail;
-import static org.junit.runners.Parameterized.Parameters;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -110,8 +111,8 @@ public class JWEAesTest {
             client.setIdTokenEncryptedResponseAlg(this.alg);
             client.setIdTokenEncryptedResponseEnc(this.enc);
 
-            when(jwkService.getKeys(client)).thenReturn(Maybe.just(new JWKSet()));
-            when(jwkService.filter(any(),any())).thenReturn(Maybe.just(key));
+            when(jwkService.getKeys(client)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+            when(jwkService.filter(any(),any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(key)));
 
             TestObserver testObserver = jweService.encryptIdToken("JWT", client).test();
             testObserver.assertNoErrors();
@@ -155,8 +156,8 @@ public class JWEAesTest {
             client.setUserinfoEncryptedResponseAlg(this.alg);
             client.setUserinfoEncryptedResponseEnc(this.enc);
 
-            when(jwkService.getKeys(client)).thenReturn(Maybe.just(new JWKSet()));
-            when(jwkService.filter(any(),any())).thenReturn(Maybe.just(key));
+            when(jwkService.getKeys(client)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+            when(jwkService.filter(any(),any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(key)));
 
             TestObserver testObserver = jweService.encryptUserinfo("JWT", client).test();
             testObserver.assertNoErrors();

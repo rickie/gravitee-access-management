@@ -19,8 +19,9 @@ import io.gravitee.am.identityprovider.api.Authentication;
 import io.gravitee.am.identityprovider.api.AuthenticationProvider;
 import io.gravitee.am.identityprovider.api.common.Request;
 import io.reactivex.Maybe;
-
 import java.util.Optional;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -49,9 +50,9 @@ public interface SocialAuthenticationProvider extends AuthenticationProvider {
     default Maybe<Request> asyncSignInUrl(String redirectUri, String state) {
         Request request = signInUrl(redirectUri, state);
         if (request != null) {
-            return Maybe.just(request);
+            return RxJava2Adapter.monoToMaybe(Mono.just(request));
         } else {
-            return Maybe.<Request>empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
     }
 
@@ -62,6 +63,6 @@ public interface SocialAuthenticationProvider extends AuthenticationProvider {
      * @return
      */
     default Maybe<Request> signOutUrl(Authentication authentication) {
-        return Maybe.empty();
+        return RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 }

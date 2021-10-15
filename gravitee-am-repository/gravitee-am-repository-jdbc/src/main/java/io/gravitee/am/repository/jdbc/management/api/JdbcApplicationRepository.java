@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
@@ -32,6 +36,8 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.LocalDateTime;
+import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -40,15 +46,10 @@ import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.util.*;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -79,7 +80,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
     }
 
     private Single<Application> completeApplication(Application entity) {
-        return Single.just(entity).flatMap(app ->
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.just(entity).flatMap(app ->
                 identityRepository.findAllByApplicationId(app.getId()).map(JdbcApplication.Identity::getIdentity).toList().map(idps -> {
                     app.setIdentities(new HashSet<>(idps));
                     return app;
@@ -89,28 +90,25 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
                     app.setFactors(new HashSet<>(factors));
                     return app;
                 })
-        ).flatMap(app ->
-                scopeRepository.findAllByApplicationId(app.getId()).map(jdbcScopeSettings -> mapper.map(jdbcScopeSettings, ApplicationScopeSettings.class)).toList().map(scopeSettings -> {
-                    if (app.getSettings() != null && app.getSettings().getOauth() != null) {
-                        app.getSettings().getOauth().setScopeSettings(scopeSettings);
-                    }
-                    return app;
-                })
-        );// do not read grant tables, information already present into the settings object
+        )).flatMap(app->RxJava2Adapter.singleToMono(scopeRepository.findAllByApplicationId(app.getId()).map((io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication.ScopeSettings jdbcScopeSettings)->mapper.map(jdbcScopeSettings, ApplicationScopeSettings.class)).toList().map((java.util.List<io.gravitee.am.model.application.ApplicationScopeSettings> scopeSettings)->{
+if (app.getSettings() != null && app.getSettings().getOauth() != null) {
+app.getSettings().getOauth().setScopeSettings(scopeSettings);
+}
+return app;
+}))));// do not read grant tables, information already present into the settings object
     }
 
     @Override
     public Flowable<Application> findAll() {
         LOGGER.debug("findAll()");
-        return applicationRepository.findAll()
-                .map(this::toEntity)
-                .flatMap(app -> completeApplication(app).toFlowable());
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(applicationRepository.findAll()
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> completeApplication(app).toFlowable())));
     }
 
     @Override
     public Single<Page<Application>> findAll(int page, int size) {
         LOGGER.debug("findAll({}, {})", page, size);
-        return fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.select()
                 .from(JdbcApplication.class)
                 .page(PageRequest.of(page, size, Sort.by("id")))
                 .as(JdbcApplication.class)
@@ -118,22 +116,20 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
                 .map(this::toEntity)
                 .flatMap(app -> completeApplication(app).toFlowable(), MAX_CONCURRENCY)
                 .toList()
-                .flatMap(data -> applicationRepository.count().map(total -> new Page<Application>(data, page, total)))
-                .doOnError((error) -> LOGGER.error("Unable to retrieve all applications (page={}/size={})", page, size, error));
+                .flatMap(data -> applicationRepository.count().map(total -> new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications (page={}/size={})", page, size, error))));
     }
 
     @Override
     public Flowable<Application> findByDomain(String domain) {
         LOGGER.debug("findByDomain({})",domain);
-        return applicationRepository.findByDomain(domain)
-                .map(this::toEntity)
-                .flatMap(app -> completeApplication(app).toFlowable());
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(applicationRepository.findByDomain(domain)
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> completeApplication(app).toFlowable())));
     }
 
     @Override
     public Single<Page<Application>> findByDomain(String domain, int page, int size) {
         LOGGER.debug("findByDomain({}, {}, {})", domain, page, size);
-        return fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.select()
                 .from(JdbcApplication.class)
                 .matching(from(where("domain").is(domain)))
                 .page(PageRequest.of(page, size, Sort.by("id")))
@@ -142,8 +138,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
                 .map(this::toEntity)
                 .flatMap(app -> completeApplication(app).toFlowable(), MAX_CONCURRENCY)
                 .toList()
-                .flatMap(data -> applicationRepository.countByDomain(domain).map(total -> new Page<Application>(data, page, total)))
-                .doOnError((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error));
+                .flatMap(data -> applicationRepository.countByDomain(domain).map(total -> new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error))));
     }
 
     @Override
@@ -156,7 +151,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
         String search = databaseDialectHelper.buildSearchApplicationsQuery(wildcardMatch, page, size);
         String count = databaseDialectHelper.buildCountApplicationsQuery(wildcardMatch);
 
-        return fluxToFlowable(dbClient.execute(search)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.execute(search)
                 .bind("domain", domain)
                 .bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase())
                 .as(JdbcApplication.class)
@@ -171,16 +166,14 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
                         .as(Long.class)
                         .fetch()
                         .first())
-                        .map(total -> new Page<Application>(data, page, total)))
-                .doOnError((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error));
+                        .map(total -> new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error))));
     }
 
     @Override
     public Flowable<Application> findByCertificate(String certificate) {
         LOGGER.debug("findByCertificate({})", certificate);
-        return applicationRepository.findByCertificate(certificate)
-                .map(this::toEntity)
-                .flatMap(app -> completeApplication(app).toFlowable());
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(applicationRepository.findByCertificate(certificate)
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> completeApplication(app).toFlowable())));
     }
 
     @Override
@@ -188,38 +181,34 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
         LOGGER.debug("findByIdentityProvider({})", identityProvider);
 
         // identity is a keyword with mssql
-        return fluxToFlowable(dbClient.execute("SELECT a.* FROM applications a INNER JOIN application_identities i ON a.id = i.application_id where i." +
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.execute("SELECT a.* FROM applications a INNER JOIN application_identities i ON a.id = i.application_id where i." +
                 databaseDialectHelper.toSql(SqlIdentifier.quoted("identity")) + " = :identity")
                 .bind("identity", identityProvider).as(JdbcApplication.class).fetch().all())
-                .map(this::toEntity)
-                .flatMap(app -> completeApplication(app).toFlowable());
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> completeApplication(app).toFlowable())));
     }
 
     @Override
     public Flowable<Application> findByFactor(String factor) {
         LOGGER.debug("findByFactor({})", factor);
-        return applicationRepository.findAllByFactor(factor)
-                .map(this::toEntity)
-                .flatMap(app -> completeApplication(app).toFlowable());
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(applicationRepository.findAllByFactor(factor)
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> completeApplication(app).toFlowable())));
     }
 
     @Override
     public Flowable<Application> findByDomainAndExtensionGrant(String domain, String extensionGrant) {
         LOGGER.debug("findByDomainAndExtensionGrant({}, {})", domain, extensionGrant);
-        return applicationRepository.findAllByDomainAndGrant(domain, extensionGrant)
-                .map(this::toEntity)
-                .flatMap(app -> completeApplication(app).toFlowable());
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(applicationRepository.findAllByDomainAndGrant(domain, extensionGrant)
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> completeApplication(app).toFlowable())));
     }
 
     @Override
     public Flowable<Application> findByIdIn(List<String> ids) {
         LOGGER.debug("findByIdIn({})", ids);
         if (ids == null || ids.isEmpty()) {
-            return Flowable.empty();
+            return RxJava2Adapter.fluxToFlowable(Flux.empty());
         }
-        return applicationRepository.findByIdIn(ids)
-                .map(this::toEntity)
-                .flatMap(app -> completeApplication(app).toFlowable());
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(applicationRepository.findByIdIn(ids)
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> completeApplication(app).toFlowable())));
     }
 
     @Override
@@ -235,23 +224,21 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
     @Override
     public Maybe<Application> findByDomainAndClientId(String domain, String clientId) {
         LOGGER.debug("findByDomainAndClientId({}, {})", domain, clientId);
-        return fluxToFlowable(dbClient.execute(databaseDialectHelper.buildFindApplicationByDomainAndClient())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.execute(databaseDialectHelper.buildFindApplicationByDomainAndClient())
                 .bind("domain", domain)
                 .bind("clientId", clientId)
                 .as(JdbcApplication.class)
                 .fetch()
                 .all())
                 .map(this::toEntity)
-                .flatMap(app -> completeApplication(app).toFlowable())
-                .firstElement();
+                .flatMap(app -> completeApplication(app).toFlowable())).next());
     }
 
     @Override
     public Maybe<Application> findById(String id) {
         LOGGER.debug("findById({}", id);
-        return applicationRepository.findById(id)
-                .map(this::toEntity)
-                .flatMap(app -> completeApplication(app).toMaybe());
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationRepository.findById(id)
+                .map(this::toEntity)).flatMap(z->completeApplication(z).toMaybe().as(RxJava2Adapter::maybeToMono)));
     }
 
     @Override
@@ -280,8 +267,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
 
         insertAction = persistChildEntities(insertAction, item);
 
-        return monoToSingle(insertAction.as(trx::transactional))
-                .flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(insertAction.as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
@@ -311,8 +297,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
         updateAction = deleteChildEntities(item.getId()).then(updateAction);
         updateAction = persistChildEntities(updateAction, item);
 
-        return monoToSingle(updateAction.as(trx::transactional))
-                .flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(updateAction.as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
@@ -320,8 +305,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
         LOGGER.debug("delete({})", id);
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Integer> delete = dbClient.delete().from(JdbcApplication.class).matching(from(where("id").is(id))).fetch().rowsUpdated();
-        return monoToCompletable(delete.then(deleteChildEntities(id)).as(trx::transactional))
-                .andThen(applicationRepository.deleteById(id));
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(monoToCompletable(delete.then(deleteChildEntities(id)).as(trx::transactional))).then(RxJava2Adapter.completableToMono(Completable.wrap(applicationRepository.deleteById(id)))));
     }
 
     private Mono<Integer> deleteChildEntities(String appId) {

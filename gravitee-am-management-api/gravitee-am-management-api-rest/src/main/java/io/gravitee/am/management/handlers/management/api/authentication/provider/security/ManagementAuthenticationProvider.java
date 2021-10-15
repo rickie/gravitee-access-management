@@ -36,6 +36,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.StringUtils;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -70,7 +71,7 @@ public class ManagementAuthenticationProvider implements AuthenticationProvider 
         String organizationId = details.get(Claims.organization);
 
         // get organization identity providers
-        Organization organization = organizationService.findById(organizationId).blockingGet();
+        Organization organization = RxJava2Adapter.singleToMono(organizationService.findById(organizationId)).block();
         if (organization == null) {
             throw new InternalAuthenticationServiceException("No organization found when trying to authenticate the end-user");
         }
@@ -109,7 +110,7 @@ public class ManagementAuthenticationProvider implements AuthenticationProvider 
             }
 
             try {
-                user = authenticationProvider.loadUserByUsername(provAuthentication).blockingGet();
+                user = RxJava2Adapter.maybeToMono(authenticationProvider.loadUserByUsername(provAuthentication)).block();
                 // set user identity provider source
                 details.put(SOURCE, provider);
                 lastException = null;

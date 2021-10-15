@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Form;
@@ -22,12 +24,12 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.management.api.FormRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.FormMongo;
 import io.reactivex.*;
+import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (david.brassely at graviteesource.com)
@@ -50,71 +52,71 @@ public class MongoFormRepository extends AbstractManagementMongoRepository imple
 
     @Override
     public Flowable<Form> findAll(ReferenceType referenceType, String referenceId) {
-        return Flowable.fromPublisher(formsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(formsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Form> findAll(ReferenceType referenceType) {
-        return Flowable.fromPublisher(formsCollection.find(eq(FIELD_REFERENCE_TYPE, referenceType.name()))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(formsCollection.find(eq(FIELD_REFERENCE_TYPE, referenceType.name())))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Form> findByClient(ReferenceType referenceType, String referenceId, String client) {
-        return Flowable.fromPublisher(
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(
                 formsCollection.find(
                         and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_CLIENT, client))
-                )).map(this::convert);
+                ))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Form> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
-        return Observable.fromPublisher(
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(
                 formsCollection.find(
                         and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_TEMPLATE, template),
                                 exists(FIELD_CLIENT, false)))
                         .first())
-                .firstElement().map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Form> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
-        return Observable.fromPublisher(
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(
                 formsCollection.find(
                         and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_CLIENT, client),
                                 eq(FIELD_TEMPLATE, template)))
                         .first())
-                .firstElement().map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Form> findById(ReferenceType referenceType, String referenceId, String id) {
-        return Observable.fromPublisher(formsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(formsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Form> findById(String id) {
-        return Observable.fromPublisher(formsCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(formsCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Form> create(Form item) {
         FormMongo page = convert(item);
         page.setId(page.getId() == null ? RandomString.generate() : page.getId());
-        return Single.fromPublisher(formsCollection.insertOne(page)).flatMap(success -> findById(page.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(formsCollection.insertOne(page))).flatMap(success->RxJava2Adapter.singleToMono(findById(page.getId()).toSingle())));
     }
 
     @Override
     public Single<Form> update(Form item) {
         FormMongo page = convert(item);
-        return Single.fromPublisher(formsCollection.replaceOne(eq(FIELD_ID, page.getId()), page)).flatMap(updateResult -> findById(page.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(formsCollection.replaceOne(eq(FIELD_ID, page.getId()), page))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(page.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(formsCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(formsCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private Form convert(FormMongo pageMongo) {

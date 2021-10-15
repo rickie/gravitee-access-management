@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+import static io.gravitee.am.model.ReferenceType.DOMAIN;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
@@ -24,15 +27,14 @@ import io.gravitee.am.model.common.Page;
 import io.gravitee.am.repository.management.api.GroupRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.GroupMongo;
 import io.reactivex.*;
-import org.bson.Document;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.LinkedList;
 import java.util.List;
-
-import static com.mongodb.client.model.Filters.*;
-import static io.gravitee.am.model.ReferenceType.DOMAIN;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (david.brassely at graviteesource.com)
@@ -54,12 +56,12 @@ public class MongoGroupRepository extends AbstractManagementMongoRepository impl
 
     @Override
     public Flowable<Group> findByMember(String memberId) {
-        return Flowable.fromPublisher(groupsCollection.find(eq(FIELD_MEMBERS, memberId))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(groupsCollection.find(eq(FIELD_MEMBERS, memberId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Group> findAll(ReferenceType referenceType, String referenceId) {
-        return Flowable.fromPublisher(groupsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(groupsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -71,46 +73,45 @@ public class MongoGroupRepository extends AbstractManagementMongoRepository impl
 
     @Override
     public Flowable<Group> findByIdIn(List<String> ids) {
-        return Flowable.fromPublisher(groupsCollection.find(in(FIELD_ID, ids))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(groupsCollection.find(in(FIELD_ID, ids)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Group> findByName(ReferenceType referenceType, String referenceId, String groupName) {
-        return Observable.fromPublisher(
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(
                 groupsCollection
                         .find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_NAME, groupName)))
                         .limit(1)
                         .first())
-                .firstElement()
-                .map(this::convert);
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Group> findById(ReferenceType referenceType, String referenceId, String group) {
-        return Observable.fromPublisher(groupsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, group))).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(groupsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, group))).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Group> findById(String group) {
-        return Observable.fromPublisher(groupsCollection.find(eq(FIELD_ID, group)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(groupsCollection.find(eq(FIELD_ID, group)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Group> create(Group item) {
         GroupMongo group = convert(item);
         group.setId(group.getId() == null ? RandomString.generate() : group.getId());
-        return Single.fromPublisher(groupsCollection.insertOne(group)).flatMap(success -> findById(group.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(groupsCollection.insertOne(group))).flatMap(success->RxJava2Adapter.singleToMono(findById(group.getId()).toSingle())));
     }
 
     @Override
     public Single<Group> update(Group item) {
         GroupMongo group = convert(item);
-        return Single.fromPublisher(groupsCollection.replaceOne(eq(FIELD_ID, group.getId()), group)).flatMap(success -> findById(group.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(groupsCollection.replaceOne(eq(FIELD_ID, group.getId()), group))).flatMap(success->RxJava2Adapter.singleToMono(findById(group.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(groupsCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(groupsCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private Group convert(GroupMongo groupMongo) {

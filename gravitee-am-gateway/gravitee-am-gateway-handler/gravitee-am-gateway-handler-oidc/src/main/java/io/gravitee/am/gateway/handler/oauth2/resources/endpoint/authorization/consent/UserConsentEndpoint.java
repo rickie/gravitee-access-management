@@ -26,18 +26,20 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -90,8 +92,7 @@ public class UserConsentEndpoint implements Handler<RoutingContext> {
         if (prompt) {
             consentInformation = userConsentService.getConsentInformation(requestedConsents);
         } else {
-            consentInformation = userConsentService.checkConsent(client, user)
-                    .flatMap(approvedConsent -> {
+            consentInformation = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userConsentService.checkConsent(client, user)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<List<Scope>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Set<String>, Single<List<Scope>>>)approvedConsent -> {
                         // user approved consent, continue
                         if (approvedConsent.containsAll(requestedConsents)) {
                             //redirectToAuthorize
@@ -101,7 +102,7 @@ public class UserConsentEndpoint implements Handler<RoutingContext> {
                         Set<String> requiredConsent = requestedConsents.stream().filter(requestedScope -> !approvedConsent.contains(requestedScope)).collect(Collectors.toSet());
 
                         return userConsentService.getConsentInformation(requiredConsent);
-                    });
+                    }).apply(v)))));
         }
 
         consentInformation.subscribe(

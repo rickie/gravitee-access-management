@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Domain;
@@ -25,16 +30,12 @@ import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Ignore;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -56,8 +57,8 @@ public class EmailResourceTest extends JerseySpringTest {
         updateEmail.setContent("content");
         updateEmail.setExpiresAfter(1000);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(new Email())).when(emailTemplateService).update(eq(domainId), eq(emailId), any(), any(User.class));
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(new Email()))).when(emailTemplateService).update(eq(domainId), eq(emailId), any(), any(User.class));
 
         final Response response = target("domains")
                 .path(domainId)
@@ -74,8 +75,8 @@ public class EmailResourceTest extends JerseySpringTest {
         final Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Completable.complete()).when(emailTemplateService).delete(eq(emailId), any());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToCompletable(Mono.empty())).when(emailTemplateService).delete(eq(emailId), any());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -92,8 +93,8 @@ public class EmailResourceTest extends JerseySpringTest {
         final Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Completable.error(new EmailNotFoundException(emailId))).when(emailTemplateService).delete(eq(emailId), any());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToCompletable(Mono.error(new EmailNotFoundException(emailId)))).when(emailTemplateService).delete(eq(emailId), any());
 
         final Response response = target("domains")
                 .path(domainId)

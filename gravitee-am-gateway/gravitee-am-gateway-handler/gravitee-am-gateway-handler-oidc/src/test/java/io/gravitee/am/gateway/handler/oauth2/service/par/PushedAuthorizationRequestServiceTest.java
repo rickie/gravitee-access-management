@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.par;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jwt.JWT;
@@ -41,18 +44,16 @@ import io.gravitee.common.util.LinkedMultiValueMap;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.Date;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.Date;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -112,7 +113,7 @@ public class PushedAuthorizationRequestServiceTest {
         par.setId("parid");
         par.setClient(client.getId());
 
-        when(repository.create(any())).thenReturn(Single.just(par));
+        when(repository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(par)));
 
         final TestObserver<PushedAuthorizationRequestResponse> observer = cut.registerParameters(par, client).test();
 
@@ -157,7 +158,7 @@ public class PushedAuthorizationRequestServiceTest {
         par.setId("parid");
         par.setClient(client.getId());
 
-        when(jweService.decrypt(any(), anyBoolean())).thenReturn(Single.error(new ParseException("parse error",1)));
+        when(jweService.decrypt(any(), anyBoolean())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new ParseException("parse error",1))));
 
         final TestObserver<PushedAuthorizationRequestResponse> observer = cut.registerParameters(par, client).test();
 
@@ -183,7 +184,7 @@ public class PushedAuthorizationRequestServiceTest {
         par.setId("parid");
         par.setClient(client.getId());
 
-        when(jweService.decrypt(any(), anyBoolean())).thenReturn(Single.just(parse));
+        when(jweService.decrypt(any(), anyBoolean())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(parse)));
 
         final TestObserver<PushedAuthorizationRequestResponse> observer = cut.registerParameters(par, client).test();
 
@@ -215,7 +216,7 @@ public class PushedAuthorizationRequestServiceTest {
         final String ID = "parid";
         final String requestUri = PushedAuthorizationRequestService.PAR_URN_PREFIX + ID;
 
-        when(repository.findById(ID)).thenReturn(Maybe.empty());
+        when(repository.findById(ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         final TestObserver<JWT> testObserver = cut.readFromURI(requestUri, createClient(), new OpenIDProviderMetadata()).test();
 
@@ -233,7 +234,7 @@ public class PushedAuthorizationRequestServiceTest {
         PushedAuthorizationRequest par = new PushedAuthorizationRequest();
         par.setExpireAt(new Date(Instant.now().minusSeconds(10).toEpochMilli()));
 
-        when(repository.findById(ID)).thenReturn(Maybe.just(par));
+        when(repository.findById(ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(par)));
 
         final TestObserver<JWT> testObserver = cut.readFromURI(requestUri, createClient(), new OpenIDProviderMetadata()).test();
 
@@ -254,7 +255,7 @@ public class PushedAuthorizationRequestServiceTest {
         par.setExpireAt(new Date(Instant.now().plusSeconds(10).toEpochMilli()));
 
         when(domain.usePlainFapiProfile()).thenReturn(true);
-        when(repository.findById(ID)).thenReturn(Maybe.just(par));
+        when(repository.findById(ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(par)));
 
         final TestObserver<JWT> testObserver = cut.readFromURI(requestUri, createClient(), new OpenIDProviderMetadata()).test();
 
@@ -278,7 +279,7 @@ public class PushedAuthorizationRequestServiceTest {
         parameters.add("key2", "value2");
         par.setParameters(parameters);
 
-        when(repository.findById(ID)).thenReturn(Maybe.just(par));
+        when(repository.findById(ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(par)));
 
         final TestObserver<JWT> testObserver = cut.readFromURI(requestUri, createClient(), new OpenIDProviderMetadata()).test();
 
@@ -305,7 +306,7 @@ public class PushedAuthorizationRequestServiceTest {
         parameters.add(Parameters.REQUEST, "some-jwt");
         par.setParameters(parameters);
 
-        when(repository.findById(ID)).thenReturn(Maybe.just(par));
+        when(repository.findById(ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(par)));
 
         JWTClaimsSet claimsSet = new JWTClaimsSet
                 .Builder()
@@ -315,12 +316,12 @@ public class PushedAuthorizationRequestServiceTest {
                 .build();
         final SignedJWT signedJwt = mock(SignedJWT.class);
         when(signedJwt.getJWTClaimsSet()).thenReturn(claimsSet);
-        when(jweService.decrypt(any(), anyBoolean())).thenReturn(Single.just(signedJwt));
+        when(jweService.decrypt(any(), anyBoolean())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(signedJwt)));
         final JWSHeader jwsHeaders = new JWSHeader.Builder(JWSAlgorithm.RS256).build();
         when(signedJwt.getHeader()).thenReturn(jwsHeaders);
 
-        when(jwkService.getKeys(any(Client.class))).thenReturn(Maybe.just(mock(JWKSet.class)));
-        when(jwkService.getKey(any(), any())).thenReturn(Maybe.just(mock(JWK.class)));
+        when(jwkService.getKeys(any(Client.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(mock(JWKSet.class))));
+        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(mock(JWK.class))));
         when( jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         final Client client = createClient();

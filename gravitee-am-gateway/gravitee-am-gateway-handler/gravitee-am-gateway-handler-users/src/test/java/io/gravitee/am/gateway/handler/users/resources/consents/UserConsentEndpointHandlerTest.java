@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.gateway.handler.users.resources.consents;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
@@ -38,10 +42,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 
 /**
@@ -110,7 +112,7 @@ public class UserConsentEndpointHandlerTest extends RxWebTestBase {
         JWT jwt = new JWT();
         jwt.setAud("client-id");
 
-        when(userService.consent(anyString())).thenReturn(Maybe.error(new ScopeApprovalNotFoundException("consentId")));
+        when(userService.consent(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(new ScopeApprovalNotFoundException("consentId"))));
 
         router.route("/users/:userId/consents/:consentId")
                 .handler(userConsentEndpointHandler::get)
@@ -129,7 +131,7 @@ public class UserConsentEndpointHandlerTest extends RxWebTestBase {
         JWT jwt = new JWT();
         jwt.setAud("client-id");
 
-        when(userService.consent(anyString())).thenReturn(Maybe.just(new ScopeApproval()));
+        when(userService.consent(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new ScopeApproval())));
 
         router.route("/users/:userId/consents/:consentId")
                 .handler(userConsentEndpointHandler::get)
@@ -145,8 +147,8 @@ public class UserConsentEndpointHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldRevokeConsent() throws Exception {
-        when(userService.findById(anyString())).thenReturn(Maybe.just(new User()));
-        when(userService.revokeConsent(anyString(), anyString(), any())).thenReturn(Completable.complete());
+        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new User())));
+        when(userService.revokeConsent(anyString(), anyString(), any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         router.route("/users/:userId/consents/:consentId")
                 .handler(rc -> {

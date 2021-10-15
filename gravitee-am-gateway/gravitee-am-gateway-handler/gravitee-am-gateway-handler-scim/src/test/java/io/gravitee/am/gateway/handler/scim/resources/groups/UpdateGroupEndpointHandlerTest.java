@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.gateway.handler.scim.resources.groups;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
@@ -32,10 +36,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 
 /**
@@ -73,7 +75,7 @@ public class UpdateGroupEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldInvokeSCIMUpdateGroupEndpoint() throws Exception {
         router.route("/Groups").handler(groupEndpoint::update);
-        when(groupService.update(any(), any(), any())).thenReturn(Single.just(getGroup()));
+        when(groupService.update(any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(getGroup())));
 
         testRequest(
                 HttpMethod.PUT,
@@ -89,7 +91,7 @@ public class UpdateGroupEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturn400WhenInvalidGroupException() throws Exception {
         router.route("/Groups").handler(groupEndpoint::update);
-        when(groupService.update(any(), any(), anyString())).thenReturn(Single.error(new InvalidGroupException("Invalid group infos")));
+        when(groupService.update(any(), any(), anyString())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidGroupException("Invalid group infos"))));
 
         testRequest(
                 HttpMethod.PUT,

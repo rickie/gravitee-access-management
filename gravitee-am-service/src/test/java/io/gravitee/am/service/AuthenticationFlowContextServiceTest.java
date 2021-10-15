@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.AuthenticationFlowContext;
 import io.gravitee.am.repository.management.api.AuthenticationFlowContextRepository;
 import io.gravitee.am.service.exception.AuthenticationFlowConsistencyException;
@@ -27,9 +30,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -48,7 +50,7 @@ public class AuthenticationFlowContextServiceTest {
     @Test
     public void testLoadContext_UnknownSessionId() {
         // if sessionId is unknown load default Context
-        when(authFlowContextRepository.findLastByTransactionId(any())).thenReturn(Maybe.empty());
+        when(authFlowContextRepository.findLastByTransactionId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver<AuthenticationFlowContext> testObserver = service.loadContext(SESSION_ID, 1).test();
         testObserver.awaitTerminalEvent();
@@ -64,7 +66,7 @@ public class AuthenticationFlowContextServiceTest {
         context.setTransactionId(SESSION_ID);
 
         // if sessionId is unknown load default Context
-        when(authFlowContextRepository.findLastByTransactionId(any())).thenReturn(Maybe.just(context));
+        when(authFlowContextRepository.findLastByTransactionId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(context)));
 
         TestObserver<AuthenticationFlowContext> testObserver = service.loadContext(SESSION_ID, 1).test();
         testObserver.awaitTerminalEvent();
@@ -81,7 +83,7 @@ public class AuthenticationFlowContextServiceTest {
         context.setTransactionId(SESSION_ID);
 
         // if sessionId is unknown load default Context
-        when(authFlowContextRepository.findLastByTransactionId(any())).thenReturn(Maybe.just(context));
+        when(authFlowContextRepository.findLastByTransactionId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(context)));
 
         TestObserver<AuthenticationFlowContext> testObserver = service.loadContext(SESSION_ID, 2).test();
         testObserver.awaitTerminalEvent();
@@ -91,7 +93,7 @@ public class AuthenticationFlowContextServiceTest {
 
     @Test
     public void testClearContext() {
-        when(authFlowContextRepository.delete(SESSION_ID)).thenReturn(Completable.complete());
+        when(authFlowContextRepository.delete(SESSION_ID)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         TestObserver<Void> testObserver = service.clearContext(SESSION_ID).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();

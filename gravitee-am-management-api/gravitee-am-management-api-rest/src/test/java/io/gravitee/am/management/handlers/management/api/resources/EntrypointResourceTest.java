@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Entrypoint;
@@ -22,18 +27,13 @@ import io.gravitee.am.service.exception.EntrypointNotFoundException;
 import io.gravitee.am.service.model.UpdateEntrypoint;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Single;
-import org.junit.Test;
-
-import javax.ws.rs.core.Response;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -57,7 +57,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
         mockEntrypoint.setCreatedAt(new Date());
         mockEntrypoint.setUpdatedAt(new Date());
 
-        doReturn(Single.just(mockEntrypoint)).when(entrypointService).findById(ENTRYPOINT_ID, ORGANIZATION_ID);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(mockEntrypoint))).when(entrypointService).findById(ENTRYPOINT_ID, ORGANIZATION_ID);
 
         final Response response = target("organizations")
                 .path(ORGANIZATION_ID)
@@ -78,7 +78,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
     @Test
     public void shouldNotGetEntrypoint_notFound() {
 
-        doReturn(Single.error(new EntrypointNotFoundException(ENTRYPOINT_ID))).when(entrypointService).findById(ENTRYPOINT_ID, ORGANIZATION_ID);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new EntrypointNotFoundException(ENTRYPOINT_ID)))).when(entrypointService).findById(ENTRYPOINT_ID, ORGANIZATION_ID);
 
         final Response response = target("organizations")
                 .path(ORGANIZATION_ID)
@@ -100,7 +100,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
         mockEntrypoint.setOrganizationId(ORGANIZATION_ID);
         mockEntrypoint.setName("name");
 
-        doReturn(Single.just(mockEntrypoint)).when(entrypointService).update(eq(ENTRYPOINT_ID), eq(ORGANIZATION_ID), any(UpdateEntrypoint.class), any(User.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(mockEntrypoint))).when(entrypointService).update(eq(ENTRYPOINT_ID), eq(ORGANIZATION_ID), any(UpdateEntrypoint.class), any(User.class));
 
         final Response response = put(target("organizations")
                 .path(ORGANIZATION_ID)
@@ -122,7 +122,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
         updateEntrypoint.setUrl("https://auth.company.com");
         updateEntrypoint.setTags(Collections.emptyList());
 
-        doReturn(Single.error(new EntrypointNotFoundException(ENTRYPOINT_ID))).when(entrypointService).update(eq(ENTRYPOINT_ID), eq(ORGANIZATION_ID), any(UpdateEntrypoint.class), any(User.class));
+        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new EntrypointNotFoundException(ENTRYPOINT_ID)))).when(entrypointService).update(eq(ENTRYPOINT_ID), eq(ORGANIZATION_ID), any(UpdateEntrypoint.class), any(User.class));
 
         final Response response = put(target("organizations")
                 .path(ORGANIZATION_ID)

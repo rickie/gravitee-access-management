@@ -25,16 +25,19 @@ import io.gravitee.am.service.exception.InvalidPermissionRequestException;
 import io.gravitee.am.service.exception.InvalidPermissionTicketException;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
+import io.reactivex.functions.Function;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -58,7 +61,7 @@ public class PermissionTicketServiceImpl implements PermissionTicketService {
         //Get list of requested resources (same Id may appear twice with difference scopes)
         List<String> requestedResourcesIds = requestedPermission.stream().map(PermissionRequest::getResourceId).distinct().collect(Collectors.toList());
         //Compare with current registered resource set and return permission ticket if everything's correct.
-        return resourceService.findByDomainAndClientAndResources(domain, client, requestedResourcesIds)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resourceService.findByDomainAndClientAndResources(domain, client, requestedResourcesIds)
                 .toList()
                 .flatMap(fetchedResourceSet ->
                     this.validatePermissionRequest(requestedPermission, fetchedResourceSet, requestedResourcesIds)
@@ -72,7 +75,7 @@ public class PermissionTicketServiceImpl implements PermissionTicketService {
                                         .setCreatedAt(new Date())
                                         .setExpireAt(new Date(System.currentTimeMillis()+umaPermissionValidity));
                             })
-                ).flatMap(repository::create);
+                )).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<PermissionTicket>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PermissionTicket, Single<PermissionTicket>>)repository::create).apply(v)))));
     }
 
     @Override
@@ -82,9 +85,8 @@ public class PermissionTicketServiceImpl implements PermissionTicketService {
 
     @Override
     public Single<PermissionTicket> remove(String id) {
-        return repository.findById(id)
-                .switchIfEmpty(Maybe.error(new InvalidPermissionTicketException()))
-                .flatMapSingle(permissionTicket -> repository.delete(permissionTicket.getId()).andThen(Single.just(permissionTicket)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(repository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new InvalidPermissionTicketException())))))
+                .flatMapSingle(permissionTicket -> RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(repository.delete(permissionTicket.getId())).then(RxJava2Adapter.singleToMono(Single.wrap(Single.just(permissionTicket))))));
     }
 
     /**
@@ -98,12 +100,12 @@ public class PermissionTicketServiceImpl implements PermissionTicketService {
     private Single<List<PermissionRequest>> validatePermissionRequest(List<PermissionRequest> requestedPermissions, List<Resource> registeredResources, List<String> requestedResourcesIds) {
         //Check fetched resources is not empty
         if(registeredResources==null || registeredResources.isEmpty()) {
-            return Single.error(InvalidPermissionRequestException.INVALID_RESOURCE_ID);
+            return RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_ID));
         }
 
         //Resources must belong to the same resource owner
         if (registeredResources.size() > 1 && registeredResources.stream().map(Resource::getUserId).distinct().count() > 1) {
-            return Single.error(InvalidPermissionRequestException.INVALID_RESOURCE_OWNER);
+            return RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_OWNER));
         }
 
         //Build map with resource ID as key.
@@ -111,14 +113,14 @@ public class PermissionTicketServiceImpl implements PermissionTicketService {
 
         //If the fetched resources does not contains all the requested ids, then return an invalid resource id error.
         if(!resourceSetMap.keySet().containsAll(requestedResourcesIds)) {
-            return Single.error(InvalidPermissionRequestException.INVALID_RESOURCE_ID);
+            return RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_ID));
         }
 
         //If current resource set does not contains all the requested scopes, then return an invalid scope error.
         for(PermissionRequest requestResourceScope:requestedPermissions) {
             Resource fetchedResource = resourceSetMap.get(requestResourceScope.getResourceId());
             if(!fetchedResource.getResourceScopes().containsAll(requestResourceScope.getResourceScopes())) {
-                return Single.error(InvalidPermissionRequestException.INVALID_SCOPE_RESOURCE);
+                return RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_SCOPE_RESOURCE));
             }
         }
 
@@ -128,7 +130,7 @@ public class PermissionTicketServiceImpl implements PermissionTicketService {
         }
 
         //Everything is matching.
-        return Single.just(requestedPermissions);
+        return RxJava2Adapter.monoToSingle(Mono.just(requestedPermissions));
     }
 
     /**

@@ -15,21 +15,21 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import static org.junit.Assert.assertTrue;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.node.api.Monitoring;
 import io.gravitee.node.api.NodeMonitoringRepository;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
-
-import static org.junit.Assert.assertTrue;
+import org.junit.Assert;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -58,7 +58,7 @@ public class NodeMonitoringRepositoryTest extends AbstractManagementTest {
     public void testUpdate() {
         // create idp
         Monitoring monitoring = buildMonitoring();
-        Monitoring monitoringCreated = nodeMonitoringRepository.create(monitoring).blockingGet();
+        Monitoring monitoringCreated = RxJava2Adapter.singleToMono(nodeMonitoringRepository.create(monitoring)).block();
 
         // update idp
         Monitoring updatedMonitoring = buildMonitoring();
@@ -82,13 +82,13 @@ public class NodeMonitoringRepositoryTest extends AbstractManagementTest {
         for (int i = 0; i < 10; i++) {
             monitoringToCreate = buildMonitoring();
             monitoringToCreate.setType((i % 2 == 0) ? MONITORING_TYPE : "HEALTH_CHECK");
-            nodeMonitoringRepository.create(monitoringToCreate).blockingGet();
+            RxJava2Adapter.singleToMono(nodeMonitoringRepository.create(monitoringToCreate)).block();
         }
 
         monitoringToCreate = buildMonitoring();
         monitoringToCreate.setNodeId(NODE_ID);
         monitoringToCreate.setType(MONITORING_TYPE);
-        final Monitoring monitoringCreated = nodeMonitoringRepository.create(monitoringToCreate).blockingGet();
+        final Monitoring monitoringCreated = RxJava2Adapter.singleToMono(nodeMonitoringRepository.create(monitoringToCreate)).block();
 
         TestObserver<Monitoring> obs = nodeMonitoringRepository.findByNodeIdAndType(NODE_ID, MONITORING_TYPE).test();
         obs.awaitTerminalEvent();
@@ -117,7 +117,7 @@ public class NodeMonitoringRepositoryTest extends AbstractManagementTest {
                 monitoringToCreate.setType("HEALTH_CHECK");
             }
 
-            nodeMonitoringRepository.create(monitoringToCreate).blockingGet();
+            RxJava2Adapter.singleToMono(nodeMonitoringRepository.create(monitoringToCreate)).block();
         }
 
         TestSubscriber<Monitoring> obs = nodeMonitoringRepository.findByTypeAndTimeFrame(MONITORING_TYPE, from, to).test();

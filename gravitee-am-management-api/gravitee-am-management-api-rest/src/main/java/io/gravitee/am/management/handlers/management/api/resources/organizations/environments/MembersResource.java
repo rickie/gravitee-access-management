@@ -22,11 +22,11 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.MembershipService;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -35,7 +35,8 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -61,9 +62,8 @@ public class MembersResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, Permission.ENVIRONMENT, Acl.READ)
-                .andThen(permissionService.findAllPermissions(authenticatedUser, ReferenceType.ENVIRONMENT, environmentId)
-                        .map(Permission::flatten))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.ENVIRONMENT, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(permissionService.findAllPermissions(authenticatedUser, ReferenceType.ENVIRONMENT, environmentId)
+                        .map(Permission::flatten)))))
                 .subscribe(response::resume, response::resume);
     }
 }

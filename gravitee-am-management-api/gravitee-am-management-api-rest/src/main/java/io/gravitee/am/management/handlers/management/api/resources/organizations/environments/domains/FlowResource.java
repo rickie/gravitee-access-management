@@ -26,12 +26,11 @@ import io.gravitee.am.service.FlowService;
 import io.gravitee.am.service.exception.FlowNotFoundException;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -39,6 +38,8 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -68,10 +69,9 @@ public class FlowResource extends AbstractResource {
             @PathParam("flow") String flow,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.READ)
-                .andThen(flowService.findById(ReferenceType.DOMAIN, domain, flow)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(flowService.findById(ReferenceType.DOMAIN, domain, flow)
                         .switchIfEmpty(Maybe.error(new FlowNotFoundException(flow)))
-                        .map(FlowEntity::new))
+                        .map(FlowEntity::new)))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -94,9 +94,8 @@ public class FlowResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.UPDATE)
-                .andThen(flowService.update(ReferenceType.DOMAIN, domain, flow, convert(updateFlow), authenticatedUser)
-                        .map(FlowEntity::new))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(flowService.update(ReferenceType.DOMAIN, domain, flow, convert(updateFlow), authenticatedUser)
+                        .map(FlowEntity::new)))))
                 .subscribe(response::resume, response::resume);
     }
 

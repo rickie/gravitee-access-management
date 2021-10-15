@@ -15,11 +15,12 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.request;
 
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.User;
+import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -28,8 +29,7 @@ import java.util.List;
 public class AuthorizationRequestResolver extends AbstractRequestResolver<AuthorizationRequest> {
 
     public Single<AuthorizationRequest> resolve(AuthorizationRequest authorizationRequest, Client client, User endUser) {
-        return resolveAuthorizedScopes(authorizationRequest, client, endUser)
-                .flatMap(request -> resolveRedirectUri(request, client));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resolveAuthorizedScopes(authorizationRequest, client, endUser)).flatMap(request->RxJava2Adapter.singleToMono(resolveRedirectUri(request, client))));
     }
 
     /**
@@ -50,6 +50,6 @@ public class AuthorizationRequestResolver extends AbstractRequestResolver<Author
         if (requestedRedirectUri == null || requestedRedirectUri.isEmpty()) {
             authorizationRequest.setRedirectUri(registeredClientRedirectUris.iterator().next());
         }
-        return Single.just(authorizationRequest);
+        return RxJava2Adapter.monoToSingle(Mono.just(authorizationRequest));
     }
 }

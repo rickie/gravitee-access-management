@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.management.service.impl.upgrades;
 
+import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.DOMAIN_UPGRADER;
+
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.model.PatchDomain;
@@ -22,15 +24,14 @@ import io.gravitee.am.service.model.openid.PatchClientRegistrationSettings;
 import io.gravitee.am.service.model.openid.PatchOIDCSettings;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
-
-import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.DOMAIN_UPGRADER;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -61,7 +62,7 @@ public class DomainUpgrader implements Upgrader, Ordered {
 
     private Single<Domain> upgradeDomain(Domain domain) {
         if(domain.getOidc()!=null) {
-            return Single.just(domain);
+            return RxJava2Adapter.monoToSingle(Mono.just(domain));
         }
 
         PatchClientRegistrationSettings clientRegistrationPatch = new PatchClientRegistrationSettings();

@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.management.service.impl.commands;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.service.OrganizationService;
@@ -26,18 +30,15 @@ import io.gravitee.cockpit.api.command.organization.OrganizationPayload;
 import io.gravitee.cockpit.api.command.organization.OrganizationReply;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -78,7 +79,7 @@ public class OrganizationCommandHandlerTest {
                         && newOrganization.getDescription().equals(organizationPayload.getDescription())
                         && newOrganization.getName().equals(organizationPayload.getName())
                         && newOrganization.getDomainRestrictions().equals(organizationPayload.getDomainRestrictions())),
-                isNull())).thenReturn(Single.just(new Organization()));
+                isNull())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Organization())));
 
         TestObserver<OrganizationReply> obs = cut.handle(command).test();
 
@@ -97,7 +98,7 @@ public class OrganizationCommandHandlerTest {
         organizationPayload.setName("Organization name");
         organizationPayload.setDomainRestrictions(Arrays.asList("domain.restriction1.io", "domain.restriction2.io"));
 
-        when(organizationService.createOrUpdate(eq("orga#1"), any(NewOrganization.class), isNull())).thenReturn(Single.error(new TechnicalException()));
+        when(organizationService.createOrUpdate(eq("orga#1"), any(NewOrganization.class), isNull())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException())));
 
         TestObserver<OrganizationReply> obs = cut.handle(command).test();
 

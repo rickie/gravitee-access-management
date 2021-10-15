@@ -15,18 +15,19 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Maybe;
-import org.junit.Test;
-
 import javax.ws.rs.core.Response;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -47,8 +48,8 @@ public class IdentityProviderResourceTest extends JerseySpringTest {
         mockIdentityProvider.setReferenceType(ReferenceType.DOMAIN);
         mockIdentityProvider.setReferenceId(domainId);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.just(mockIdentityProvider)).when(identityProviderService).findById(identityProviderId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockIdentityProvider))).when(identityProviderService).findById(identityProviderId);
 
         final Response response = target("domains").path(domainId).path("identities").path(identityProviderId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -66,8 +67,8 @@ public class IdentityProviderResourceTest extends JerseySpringTest {
 
         final String identityProviderId = "identityProvider-id";
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.empty()).when(identityProviderService).findById(identityProviderId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(identityProviderService).findById(identityProviderId);
 
         final Response response = target("domains").path(domainId).path("identities").path(identityProviderId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -79,7 +80,7 @@ public class IdentityProviderResourceTest extends JerseySpringTest {
         final String domainId = "domain-id";
         final String identityProviderId = "identityProvider-id";
 
-        doReturn(Maybe.empty()).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(domainService).findById(domainId);
 
         final Response response = target("domains").path(domainId).path("identities").path(identityProviderId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -98,8 +99,8 @@ public class IdentityProviderResourceTest extends JerseySpringTest {
         mockIdentityProvider.setReferenceType(ReferenceType.DOMAIN);
         mockIdentityProvider.setReferenceId("wrong-domain");
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.just(mockIdentityProvider)).when(identityProviderService).findById(identityProviderId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockIdentityProvider))).when(identityProviderService).findById(identityProviderId);
 
         final Response response = target("domains").path(domainId).path("identities").path(identityProviderId).request().get();
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());

@@ -21,12 +21,20 @@ import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.exception.authentication.UsernameNotFoundException;
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.identityprovider.api.*;
+import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.identityprovider.mongo.MongoIdentityProviderConfiguration;
 import io.gravitee.am.identityprovider.mongo.authentication.spring.MongoAuthenticationProviderConfiguration;
 import io.gravitee.am.service.authentication.crypto.password.PasswordEncoder;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
+import io.reactivex.functions.Function;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -34,11 +42,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -71,7 +77,7 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
 
     public Maybe<User> loadUserByUsername(Authentication authentication) {
         String username = ((String) authentication.getPrincipal()).toLowerCase();
-        return findUserByMultipleField(username)
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(findUserByMultipleField(username)
                 .toList()
                 .flatMapPublisher(users -> {
                     if (users.isEmpty()) {
@@ -103,8 +109,7 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
 
                     return true;
                 })
-                .toList()
-                .flatMapMaybe(users -> {
+                .toList()).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Document>, MaybeSource<User>>)users -> {
                     if (users.isEmpty()) {
                         return Maybe.error(new BadCredentialsException("Bad credentials"));
                     }
@@ -112,7 +117,7 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
                         return Maybe.error(new BadCredentialsException("Bad credentials"));
                     }
                     return Maybe.just(this.createUser(authentication.getContext(), users.get(0)));
-                });
+                }).apply(e)))));
     }
 
     private Flowable<Document> findUserByMultipleField(String value) {
@@ -121,13 +126,12 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
         String rawQuery = findQuery.replaceAll("\\?", value);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return Flowable.fromPublisher(usersCol.find(query));
+        return RxJava2Adapter.fluxToFlowable(Flux.from(usersCol.find(query)));
     }
 
     public Maybe<User> loadUserByUsername(String username) {
         final String encodedUsername = username.toLowerCase();
-        return findUserByUsername(encodedUsername)
-                .map(document -> createUser(new SimpleAuthenticationContext(), document));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findUserByUsername(encodedUsername)).map(RxJavaReactorMigrationUtil.toJdkFunction(document -> createUser(new SimpleAuthenticationContext(), document))));
     }
 
     private Maybe<Document> findUserByUsername(String username) {
@@ -135,7 +139,7 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
         String rawQuery = this.configuration.getFindUserByUsernameQuery().replaceAll("\\?", username);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return Observable.fromPublisher(usersCol.find(query).first()).firstElement();
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCol.find(query).first()), BackpressureStrategy.BUFFER).next());
     }
 
     private User createUser(AuthenticationContext authContext, Document document) {

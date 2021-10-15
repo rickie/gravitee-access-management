@@ -17,13 +17,13 @@ package io.gravitee.am.repository.management.api;
 
 import io.gravitee.am.model.uma.PermissionRequest;
 import io.gravitee.am.model.uma.PermissionTicket;
-import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.exceptions.TechnicalException;
+import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Arrays;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -40,7 +40,7 @@ public class PermissionTicketRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create permission_ticket
         PermissionTicket permissionTicket = new PermissionTicket().setPermissionRequest(Arrays.asList(permission));
-        PermissionTicket ptCreated = repository.create(permissionTicket).blockingGet();
+        PermissionTicket ptCreated = RxJava2Adapter.singleToMono(repository.create(permissionTicket)).block();
 
         // fetch permission_ticket
         TestObserver<PermissionTicket> testObserver = repository.findById(ptCreated.getId()).test();
@@ -56,7 +56,7 @@ public class PermissionTicketRepositoryTest extends AbstractManagementTest {
         // create resource_set, resource_scopes being the most important field.
         PermissionRequest source = new PermissionRequest().setResourceId("one").setResourceScopes(Arrays.asList("c","d"));
         PermissionTicket permissionTicket = new PermissionTicket().setPermissionRequest(Arrays.asList(source));
-        PermissionTicket ptCreated = repository.create(permissionTicket).blockingGet();
+        PermissionTicket ptCreated = RxJava2Adapter.singleToMono(repository.create(permissionTicket)).block();
         PermissionTicket toUpdate = new PermissionTicket().setId(ptCreated.getId()).setPermissionRequest(Arrays.asList(permission));
 
         // fetch permission_ticket
@@ -72,7 +72,7 @@ public class PermissionTicketRepositoryTest extends AbstractManagementTest {
     public void delete() throws TechnicalException {
         // create permission_ticket
         PermissionTicket permissionTicket = new PermissionTicket().setPermissionRequest(Arrays.asList(permission));
-        PermissionTicket ptCreated = repository.create(permissionTicket).blockingGet();
+        PermissionTicket ptCreated = RxJava2Adapter.singleToMono(repository.create(permissionTicket)).block();
 
         // fetch permission_ticket
         TestObserver<Void> testObserver = repository.delete(ptCreated.getId()).test();

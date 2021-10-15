@@ -15,19 +15,21 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Environment;
 import io.gravitee.am.repository.management.api.EnvironmentRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.EnvironmentMongo;
 import io.reactivex.*;
+import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -48,31 +50,28 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
     @Override
     public Flowable<Environment> findAll() {
 
-        return Flowable.fromPublisher(collection.find()).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(collection.find())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Environment> findAll(String organizationId) {
 
-        return Flowable.fromPublisher(collection.find(eq(FIELD_ORGANIZATION_ID, organizationId)))
-                .map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(collection.find(eq(FIELD_ORGANIZATION_ID, organizationId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Environment> findById(String id, String organizationId) {
 
-        return Observable.fromPublisher(collection.find(and(eq(FIELD_ID, id), eq(FIELD_ORGANIZATION_ID, organizationId))).first())
-                .firstElement()
-                .map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(collection.find(and(eq(FIELD_ID, id), eq(FIELD_ORGANIZATION_ID, organizationId))).first())
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
 
     @Override
     public Maybe<Environment> findById(String id) {
 
-        return Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first())
-                .firstElement()
-                .map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first())
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -80,20 +79,18 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
 
         environment.setId(environment.getId() == null ? RandomString.generate() : environment.getId());
 
-        return Single.fromPublisher(collection.insertOne(convert(environment)))
-                .flatMap(success -> findById(environment.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(environment)))).flatMap(success->RxJava2Adapter.singleToMono(findById(environment.getId()).toSingle())));
     }
 
     @Override
     public Single<Environment> update(Environment environment) {
 
-        return Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, environment.getId()), convert(environment)))
-                .flatMap(updateResult -> findById(environment.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, environment.getId()), convert(environment)))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(environment.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(collection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id))));
     }
 
     @Override

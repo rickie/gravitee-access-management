@@ -15,22 +15,22 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.flow.Flow;
 import io.gravitee.am.model.flow.Step;
 import io.gravitee.am.model.flow.Type;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -50,10 +50,10 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         flow2.setReferenceType(ReferenceType.DOMAIN);
         flow2.setReferenceId("DOMAIN1");
 
-        Flow flowCreated = flowRepository.create(flow).blockingGet();
-        Flow flow2Created = flowRepository.create(flow2).blockingGet();
+        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
+        Flow flow2Created = RxJava2Adapter.singleToMono(flowRepository.create(flow2)).block();
 
-        TestObserver<List<Flow>> obs = flowRepository.findAll(ReferenceType.DOMAIN, "DOMAIN1").toList().test();
+        TestObserver<List<Flow>> obs = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(flowRepository.findAll(ReferenceType.DOMAIN, "DOMAIN1")).collectList()).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -73,10 +73,10 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         flow2.setReferenceId("DOMAIN1");
         flow2.setApplication("APP1");
 
-        Flow flowCreated = flowRepository.create(flow).blockingGet();
-        Flow flow2Created = flowRepository.create(flow2).blockingGet();
+        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
+        Flow flow2Created = RxJava2Adapter.singleToMono(flowRepository.create(flow2)).block();
 
-        TestObserver<List<Flow>> obs = flowRepository.findByApplication(ReferenceType.DOMAIN, "DOMAIN1", "APP1").toList().test();
+        TestObserver<List<Flow>> obs = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(flowRepository.findByApplication(ReferenceType.DOMAIN, "DOMAIN1", "APP1")).collectList()).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -91,7 +91,7 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         flow.setReferenceType(ReferenceType.DOMAIN);
         flow.setReferenceId("DOMAIN1");
 
-        Flow flowCreated = flowRepository.create(flow).blockingGet();
+        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
 
         TestObserver<Flow> obs = flowRepository.findById(ReferenceType.DOMAIN, "DOMAIN1", flowCreated.getId()).test();
         obs.awaitTerminalEvent();
@@ -140,7 +140,7 @@ public class FlowRepositoryTest extends AbstractManagementTest {
     public void testFindByWithStep() {
         Flow flow = buildFlow(1,1);
 
-        Flow flowCreated = flowRepository.create(flow).blockingGet();
+        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
 
         TestObserver<Flow> obs = flowRepository.findById(flowCreated.getId()).test();
         obs.awaitTerminalEvent();
@@ -154,7 +154,7 @@ public class FlowRepositoryTest extends AbstractManagementTest {
     public void testFindByWithMultipleStep() {
         Flow flow = buildFlow(4,3);
 
-        Flow flowCreated = flowRepository.create(flow).blockingGet();
+        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
 
         TestObserver<Flow> obs = flowRepository.findById(flowCreated.getId()).test();
         obs.awaitTerminalEvent();
@@ -170,7 +170,7 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         flow.setName("ROOT");
         flow.setOrder(5);
 
-        Flow flowCreated = flowRepository.create(flow).blockingGet();
+        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
 
         TestObserver<Flow> obs = flowRepository.findById(flowCreated.getId()).test();
         obs.awaitTerminalEvent();
@@ -201,7 +201,7 @@ public class FlowRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdateWithStep() {
         Flow flow = buildFlow(1,1);
-        Flow flowCreated = flowRepository.create(flow).blockingGet();
+        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
 
         Flow flowUpdated = buildFlow(2,3);
         flowUpdated.setId(flowCreated.getId());
@@ -220,7 +220,7 @@ public class FlowRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdateWithoutStep() {
         Flow flow = buildFlow(1,1);
-        Flow flowCreated = flowRepository.create(flow).blockingGet();
+        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
 
         Flow flowUpdated = buildFlow(0,0);
         flowUpdated.setId(flowCreated.getId());
@@ -241,15 +241,15 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         Flow flow = new Flow();
         flow.setName("ROOT");
         flow.setOrder(5);
-        Flow flowCreated = flowRepository.create(flow).blockingGet();
+        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
 
-        assertNotNull(flowRepository.findById(flowCreated.getId()).blockingGet());
+        assertNotNull(RxJava2Adapter.maybeToMono(flowRepository.findById(flowCreated.getId())).block());
 
         TestObserver<Void> obs = flowRepository.delete(flowCreated.getId()).test();
         obs.awaitTerminalEvent();
         obs.assertNoValues();
 
-        assertNull(flowRepository.findById(flowCreated.getId()).blockingGet());
+        assertNull(RxJava2Adapter.maybeToMono(flowRepository.findById(flowCreated.getId())).block());
     }
 
     private Flow buildFlow(int nbPreSteps, int nbPostSteps) {

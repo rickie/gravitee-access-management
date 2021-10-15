@@ -21,10 +21,10 @@ import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.common.utils.UUID;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.Date;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Date;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -39,7 +39,7 @@ public class FactorRepositoryTest extends AbstractManagementTest {
         // create factor
         Factor factor = buildFactor();
         factor.setDomain("testDomain");
-        factorRepository.create(factor).blockingGet();
+        RxJava2Adapter.singleToMono(factorRepository.create(factor)).block();
 
         // fetch factors
         TestSubscriber<Factor> testSubscriber = factorRepository.findByDomain("testDomain").test();
@@ -67,7 +67,7 @@ public class FactorRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create factor
         Factor factor = buildFactor();
-        Factor factorCreated = factorRepository.create(factor).blockingGet();
+        Factor factorCreated = RxJava2Adapter.singleToMono(factorRepository.create(factor)).block();
 
         // fetch factor
         TestObserver<Factor> testObserver = factorRepository.findById(factorCreated.getId()).test();
@@ -109,7 +109,7 @@ public class FactorRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create factor
         Factor factor = buildFactor();
-        Factor factorCreated = factorRepository.create(factor).blockingGet();
+        Factor factorCreated = RxJava2Adapter.singleToMono(factorRepository.create(factor)).block();
 
         // update factor
         Factor updateFactor = buildFactor();
@@ -133,7 +133,7 @@ public class FactorRepositoryTest extends AbstractManagementTest {
     public void testDelete() throws TechnicalException {
         // create factor
         Factor factor = buildFactor();
-        Factor factorCreated = factorRepository.create(factor).blockingGet();
+        Factor factorCreated = RxJava2Adapter.singleToMono(factorRepository.create(factor)).block();
 
         // fetch factor
         TestObserver<Factor> testObserver = factorRepository.findById(factorCreated.getId()).test();

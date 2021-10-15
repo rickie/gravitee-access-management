@@ -19,6 +19,8 @@ import io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -33,6 +35,6 @@ public interface PushedAuthorizationRequestRepository {
     Completable delete(String id);
 
     default Completable purgeExpiredData() {
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 }

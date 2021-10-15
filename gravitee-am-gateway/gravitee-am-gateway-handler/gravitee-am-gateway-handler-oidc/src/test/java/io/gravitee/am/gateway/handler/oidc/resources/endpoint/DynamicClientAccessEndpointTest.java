@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.oidc.resources.endpoint;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
 import io.gravitee.am.gateway.handler.oauth2.resources.handler.ExceptionHandler;
@@ -29,9 +32,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -64,8 +66,8 @@ public class DynamicClientAccessEndpointTest extends RxWebTestBase {
         client.setId("my-test-client_id");
         client.setClientId("my-test-client_id");
 
-        when(clientSyncService.findByClientId("my-test-client_id")).thenReturn(Maybe.just(client));
-        when(clientSyncService.findByClientId("unknown")).thenReturn(Maybe.empty());
+        when(clientSyncService.findByClientId("my-test-client_id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findByClientId("unknown")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
     @Test
@@ -84,7 +86,7 @@ public class DynamicClientAccessEndpointTest extends RxWebTestBase {
 
     @Test
     public void delete() throws Exception{
-        when(dcrService.delete(any())).thenReturn(Single.just(new Client()));
+        when(dcrService.delete(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Client())));
         when(clientSyncService.removeDynamicClientRegistred(any())).thenReturn(new Client());
 
         testRequest(
@@ -101,7 +103,7 @@ public class DynamicClientAccessEndpointTest extends RxWebTestBase {
 
     @Test
     public void renewClientSecret() throws Exception{
-        when(dcrService.renewSecret(any(), any())).thenReturn(Single.just(new Client()));
+        when(dcrService.renewSecret(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Client())));
         when(clientSyncService.addDynamicClientRegistred(any())).thenReturn(new Client());
 
         testRequest(

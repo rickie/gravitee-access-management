@@ -15,21 +15,21 @@
  */
 package io.gravitee.am.repository.oauth2.api;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import io.gravitee.am.repository.jdbc.oauth2.api.JdbcPushedAuthorizationRequestRepository;
 import io.gravitee.am.repository.oauth2.AbstractOAuthTest;
 import io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest;
 import io.gravitee.am.repository.oidc.model.RequestObject;
 import io.gravitee.common.util.LinkedMultiValueMap;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -58,15 +58,15 @@ public class PushedAuthorizationRequestRepositoryPurgeTest extends AbstractOAuth
         parRepository.create(object1).test().awaitTerminalEvent();
         parRepository.create(object2).test().awaitTerminalEvent();
 
-        assertNotNull(parRepository.findById(object1.getId()).blockingGet());
-        assertNull(parRepository.findById(object2.getId()).blockingGet());
+        assertNotNull(RxJava2Adapter.maybeToMono(parRepository.findById(object1.getId())).block());
+        assertNull(RxJava2Adapter.maybeToMono(parRepository.findById(object2.getId())).block());
 
         TestObserver<Void> testPurge = parRepository.purgeExpiredData().test();
         testPurge.awaitTerminalEvent();
         testPurge.assertNoErrors();
 
-        assertNotNull(parRepository.findById(object1.getId()).blockingGet());
-        assertNull(parRepository.findById(object2.getId()).blockingGet());
+        assertNotNull(RxJava2Adapter.maybeToMono(parRepository.findById(object1.getId())).block());
+        assertNull(RxJava2Adapter.maybeToMono(parRepository.findById(object2.getId())).block());
 
     }
 

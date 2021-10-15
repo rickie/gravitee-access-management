@@ -29,9 +29,12 @@ import io.gravitee.am.service.model.NewScope;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.net.URI;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -40,10 +43,9 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -84,13 +86,12 @@ public class ScopesResource extends AbstractResource {
             @QueryParam("q") String query,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.LIST)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.LIST)
                 .andThen(query != null ? scopeService.search(domain, query, page, Math.min(size, MAX_SCOPES_SIZE_PER_PAGE)) : scopeService.findByDomain(domain, page, Math.min(size, MAX_SCOPES_SIZE_PER_PAGE))
-                ).map(searchPage -> new Page(
+                )).map(RxJavaReactorMigrationUtil.toJdkFunction(searchPage -> new Page(
                     searchPage.getData().stream().map(this::filterScopeInfos).sorted(Comparator.comparing(Scope::getKey)).collect(Collectors.toList()),
                     searchPage.getCurrentPage(),
-                    searchPage.getTotalCount())
-                )
+                    searchPage.getTotalCount()))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -114,15 +115,14 @@ public class ScopesResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.CREATE)
-                .andThen(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapSingle(irrelevant -> scopeService.create(domain, newScope, authenticatedUser)
                                 .map(scope -> Response
                                         .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/scopes/" + scope.getId()))
                                         .entity(scope)
                                         .build())
-                        ))
+                        )))))
                 .subscribe(response::resume, response::resume);
     }
 

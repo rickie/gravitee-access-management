@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
@@ -27,17 +30,16 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -63,35 +65,35 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
 
     @Override
     public Maybe<LoginAttempt> findById(String id) {
-        return Observable.fromPublisher(loginAttemptsCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(loginAttemptsCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<LoginAttempt> findByCriteria(LoginAttemptCriteria criteria) {
-        return Observable.fromPublisher(loginAttemptsCollection.find(query(criteria)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(loginAttemptsCollection.find(query(criteria)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<LoginAttempt> create(LoginAttempt item) {
         LoginAttemptMongo loginAttempt = convert(item);
         loginAttempt.setId(loginAttempt.getId() == null ? RandomString.generate() : loginAttempt.getId());
-        return Single.fromPublisher(loginAttemptsCollection.insertOne(loginAttempt)).flatMap(success -> findById(loginAttempt.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(loginAttemptsCollection.insertOne(loginAttempt))).flatMap(success->RxJava2Adapter.singleToMono(findById(loginAttempt.getId()).toSingle())));
     }
 
     @Override
     public Single<LoginAttempt> update(LoginAttempt item) {
         LoginAttemptMongo loginAttempt = convert(item);
-        return Single.fromPublisher(loginAttemptsCollection.replaceOne(eq(FIELD_ID, loginAttempt.getId()), loginAttempt)).flatMap(success -> findById(loginAttempt.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(loginAttemptsCollection.replaceOne(eq(FIELD_ID, loginAttempt.getId()), loginAttempt))).flatMap(success->RxJava2Adapter.singleToMono(findById(loginAttempt.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(loginAttemptsCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(loginAttemptsCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     @Override
     public Completable delete(LoginAttemptCriteria criteria) {
-        return Completable.fromPublisher(loginAttemptsCollection.deleteOne(query(criteria)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(loginAttemptsCollection.deleteOne(query(criteria))));
     }
 
     private Bson query(LoginAttemptCriteria criteria) {

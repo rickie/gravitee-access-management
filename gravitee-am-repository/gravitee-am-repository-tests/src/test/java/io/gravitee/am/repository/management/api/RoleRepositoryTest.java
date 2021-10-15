@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import static org.junit.Assert.assertTrue;
+
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.Platform;
 import io.gravitee.am.model.ReferenceType;
@@ -24,14 +26,12 @@ import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertTrue;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -50,10 +50,10 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         role.setName("testName");
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setReferenceId("testDomain");
-        roleRepository.create(role).blockingGet();
+        RxJava2Adapter.singleToMono(roleRepository.create(role)).block();
 
         // fetch roles
-        TestObserver<List<Role>> testObserver = roleRepository.findAll(ReferenceType.DOMAIN, "testDomain").toList().test();
+        TestObserver<List<Role>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(roleRepository.findAll(ReferenceType.DOMAIN, "testDomain")).collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -70,7 +70,7 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         role.setReferenceType(ReferenceType.PLATFORM);
         role.setReferenceId(Platform.DEFAULT);
         role.setAssignableType(ReferenceType.ORGANIZATION);
-        roleRepository.create(role).blockingGet();
+        RxJava2Adapter.singleToMono(roleRepository.create(role)).block();
 
         Role role2 = new Role();
         final String NAME_2 = "testName2";
@@ -78,7 +78,7 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         role2.setReferenceType(ReferenceType.PLATFORM);
         role2.setReferenceId(Platform.DEFAULT);
         role2.setAssignableType(ReferenceType.ORGANIZATION);
-        roleRepository.create(role2).blockingGet();
+        RxJava2Adapter.singleToMono(roleRepository.create(role2)).block();
 
         Role role3 = new Role();
         final String NAME_3 = "testName3";
@@ -86,7 +86,7 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         role3.setReferenceType(ReferenceType.PLATFORM);
         role3.setReferenceId(Platform.DEFAULT);
         role3.setAssignableType(ReferenceType.ORGANIZATION);
-        roleRepository.create(role3).blockingGet();
+        RxJava2Adapter.singleToMono(roleRepository.create(role3)).block();
 
         Role role4 = new Role();
         final String NAME_4 = "testName4";
@@ -94,10 +94,10 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         role4.setReferenceType(ReferenceType.PLATFORM);
         role4.setReferenceId(Platform.DEFAULT);
         role4.setAssignableType(ReferenceType.ENVIRONMENT);
-        roleRepository.create(role4).blockingGet();
+        RxJava2Adapter.singleToMono(roleRepository.create(role4)).block();
 
         // fetch roles 1 & 2
-        TestObserver<List<Role>> testObserver = roleRepository.findByNamesAndAssignableType(ReferenceType.PLATFORM, Platform.DEFAULT, Arrays.asList(NAME_1, NAME_2), ReferenceType.ORGANIZATION).toList().test();
+        TestObserver<List<Role>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(roleRepository.findByNamesAndAssignableType(ReferenceType.PLATFORM, Platform.DEFAULT, Arrays.asList(NAME_1, NAME_2), ReferenceType.ORGANIZATION)).collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -109,7 +109,7 @@ public class RoleRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create role
         Role role = buildRole();
-        Role roleCreated = roleRepository.create(role).blockingGet();
+        Role roleCreated = RxJava2Adapter.singleToMono(roleRepository.create(role)).block();
 
         // fetch role
         TestObserver<Role> testObserver = roleRepository.findById(roleCreated.getId()).test();
@@ -157,7 +157,7 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         Role role = buildRole();
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setReferenceId(DOMAIN_ID);
-        Role roleCreated = roleRepository.create(role).blockingGet();
+        Role roleCreated = RxJava2Adapter.singleToMono(roleRepository.create(role)).block();
 
         // fetch role
         TestObserver<Role> testObserver = roleRepository.findById(ReferenceType.DOMAIN, DOMAIN_ID, roleCreated.getId()).test();
@@ -175,20 +175,20 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         role1.setName("testName1");
         role1.setReferenceType(ReferenceType.DOMAIN);
         role1.setReferenceId(DOMAIN_ID);
-        Role roleCreated1 = roleRepository.create(role1).blockingGet();
+        Role roleCreated1 = RxJava2Adapter.singleToMono(roleRepository.create(role1)).block();
 
         Role role2 = new Role();
         role2.setName("testName2");
         role2.setReferenceType(ReferenceType.DOMAIN);
         role2.setReferenceId(DOMAIN_ID);
-        Role roleCreated2 = roleRepository.create(role2).blockingGet();
+        Role roleCreated2 = RxJava2Adapter.singleToMono(roleRepository.create(role2)).block();
 
         // Role 3 is on domain#2.
         Role role3 = new Role();
         role3.setName("testName3");
         role3.setReferenceType(ReferenceType.DOMAIN);
         role3.setReferenceId("domain#2");
-        roleRepository.create(role3).blockingGet();
+        RxJava2Adapter.singleToMono(roleRepository.create(role3)).block();
 
         // fetch role
         TestSubscriber<Role> testObserver = roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN_ID).test();
@@ -224,7 +224,7 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         // create role
         Role role = new Role();
         role.setName("testName");
-        Role roleCreated = roleRepository.create(role).blockingGet();
+        Role roleCreated = RxJava2Adapter.singleToMono(roleRepository.create(role)).block();
 
         // update role
         Role updatedRole = new Role();
@@ -244,7 +244,7 @@ public class RoleRepositoryTest extends AbstractManagementTest {
         // create role
         Role role = new Role();
         role.setName("testName");
-        Role roleCreated = roleRepository.create(role).blockingGet();
+        Role roleCreated = RxJava2Adapter.singleToMono(roleRepository.create(role)).block();
 
         // fetch role
         TestObserver<Role> testObserver = roleRepository.findById(roleCreated.getId()).test();

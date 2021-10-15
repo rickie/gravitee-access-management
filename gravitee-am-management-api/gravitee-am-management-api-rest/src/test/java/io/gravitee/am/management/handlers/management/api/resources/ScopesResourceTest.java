@@ -15,6 +15,12 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.common.Page;
@@ -26,19 +32,14 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.junit.Test;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -63,7 +64,7 @@ public class ScopesResourceTest extends JerseySpringTest {
 
         final Set<Scope> scopes = new HashSet<>(Arrays.asList(mockScope, mockScope2));
 
-        doReturn(Single.just(new Page<>(scopes,0, 2))).when(scopeService).findByDomain(domainId, 0, 50);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(scopes,0, 2)))).when(scopeService).findByDomain(domainId, 0, 50);
 
         final Response response = target("domains").path(domainId).path("scopes").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -75,7 +76,7 @@ public class ScopesResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetScopes_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(Single.error(new TechnicalManagementException("error occurs"))).when(scopeService).findByDomain(domainId, 0, 50);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("error occurs")))).when(scopeService).findByDomain(domainId, 0, 50);
 
         final Response response = target("domains").path(domainId).path("scopes").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -98,8 +99,8 @@ public class ScopesResourceTest extends JerseySpringTest {
         scope.setKey("scope-key");
         scope.setName("scope-name");
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(scope)).when(scopeService).create(eq(domainId), any(NewScope.class), any());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(scope))).when(scopeService).create(eq(domainId), any(NewScope.class), any());
 
         final Response response = target("domains")
                 .path(domainId)

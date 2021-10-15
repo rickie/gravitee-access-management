@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.util.function.Tuples;
 
 /**
@@ -84,13 +85,12 @@ public class AuditReporterManagerImpl extends AbstractService implements AuditRe
             deploymentId = id;
 
             // Start reporters
-            reporterRepository.findByDomain(domain.getId()).toList()
+            RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(reporterRepository.findByDomain(domain.getId()).toList()
                     .flatMap(reporters ->
                             environmentService
                                     .findById(domain.getReferenceId())
                                     .map(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))
-                                    .map(ctx -> Tuples.of(reporters, ctx)))
-                    .subscribeOn(Schedulers.io())
+                                    .map(ctx -> Tuples.of(reporters, ctx)))).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))
                     .subscribe(tupleReportersContext -> {
                                 if (!tupleReportersContext.getT1().isEmpty()) {
                                     tupleReportersContext.getT1().forEach(reporter -> {
@@ -159,13 +159,12 @@ public class AuditReporterManagerImpl extends AbstractService implements AuditRe
     private void updateReporter(String reporterId, ReporterEvent reporterEvent) {
         final String eventType = reporterEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} reporter event for {}", domain.getName(), eventType, reporterId);
-        reporterRepository.findById(reporterId)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(reporterRepository.findById(reporterId)
                 .flatMapSingle(reporter ->
                         environmentService
                                 .findById(domain.getReferenceId())
                                 .map(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))
-                                .map(ctx -> Tuples.of(reporter, ctx)))
-                .subscribeOn(Schedulers.io())
+                                .map(ctx -> Tuples.of(reporter, ctx)))).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))
                 .subscribe(
                         tupleReporterContext -> {
                             updateReporterProvider(tupleReporterContext.getT1(), tupleReporterContext.getT2());
@@ -177,13 +176,12 @@ public class AuditReporterManagerImpl extends AbstractService implements AuditRe
     private void deployReporter(String reporterId, ReporterEvent reporterEvent) {
         final String eventType = reporterEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} reporter event for {}", domain.getName(), eventType, reporterId);
-        reporterRepository.findById(reporterId)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(reporterRepository.findById(reporterId)
                 .flatMapSingle(reporter ->
                         environmentService
                                 .findById(domain.getReferenceId())
                                 .map(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))
-                                .map(ctx -> Tuples.of(reporter, ctx)))
-                .subscribeOn(Schedulers.io())
+                                .map(ctx -> Tuples.of(reporter, ctx)))).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))
                 .subscribe(
                         tupleReporterContext -> {
                             if (reporters.containsKey(reporterId)) {

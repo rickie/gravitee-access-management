@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Reporter;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -27,9 +29,9 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -52,22 +54,19 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
     @Override
     public Flowable<Reporter> findAll() {
         LOGGER.debug("findAll()");
-        return reporterRepository.findAll()
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(reporterRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Flowable<Reporter> findByDomain(String domain) {
         LOGGER.debug("findByDomain({})", domain);
-        return reporterRepository.findByDomain(domain)
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(reporterRepository.findByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Maybe<Reporter> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return reporterRepository.findById(id)
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(reporterRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -80,14 +79,13 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return monoToSingle(insertResult).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(insertResult)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
     public Single<Reporter> update(Reporter item) {
         LOGGER.debug("Update reporter with id '{}'", item.getId());
-        return reporterRepository.save(toJdbcEntity(item))
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(reporterRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override

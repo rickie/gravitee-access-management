@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.User;
@@ -22,14 +26,11 @@ import io.gravitee.am.model.factor.EnrolledFactor;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.junit.Test;
-
-import javax.ws.rs.core.Response;
 import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -50,9 +51,9 @@ public class UserFactorResourceTest extends JerseySpringTest {
         mockUser.setId("user-id-1");
         mockUser.setFactors(Collections.singletonList(enrolledFactor));
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.just(mockUser)).when(userService).findById(mockUser.getId());
-        doReturn(Single.just(mockUser)).when(userService).enrollFactors(any(), any(), any());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockUser))).when(userService).findById(mockUser.getId());
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(mockUser))).when(userService).enrollFactors(any(), any(), any());
 
         final Response response = target("domains")
                 .path(domainId)

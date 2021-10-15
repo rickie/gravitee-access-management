@@ -15,8 +15,11 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter.refresh;
 
-import io.gravitee.am.common.oauth2.GrantType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
+import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidGrantException;
 import io.gravitee.am.gateway.handler.oauth2.service.request.OAuth2Request;
 import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest;
@@ -28,16 +31,14 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.util.LinkedMultiValueMap;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -74,8 +75,8 @@ public class RefreshTokenGranterTest {
         when(tokenRequest.parameters()).thenReturn(parameters);
         when(tokenRequest.createOAuth2Request()).thenReturn(oAuth2Request);
 
-        when(tokenService.create(any(), any(), any())).thenReturn(Single.just(accessToken));
-        when(tokenService.refresh(refreshToken, tokenRequest, client)).thenReturn(Single.just(new RefreshToken(refreshToken)));
+        when(tokenService.create(any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(accessToken)));
+        when(tokenService.refresh(refreshToken, tokenRequest, client)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new RefreshToken(refreshToken))));
 
         TestObserver<Token> testObserver = granter.grant(tokenRequest, client).test();
         testObserver.assertComplete();
@@ -107,7 +108,7 @@ public class RefreshTokenGranterTest {
 
         when(tokenRequest.parameters()).thenReturn(parameters);
 
-        when(tokenService.refresh(refreshToken, tokenRequest, client)).thenReturn(Single.error(new InvalidGrantException()));
+        when(tokenService.refresh(refreshToken, tokenRequest, client)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException())));
 
         granter.grant(tokenRequest, client).test().assertError(InvalidGrantException.class);
     }

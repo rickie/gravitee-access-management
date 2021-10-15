@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.service;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.model.Form;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.event.Event;
@@ -27,17 +30,17 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -79,11 +82,11 @@ public class FormServiceTest {
         Form formTwo = new Form(formOne);
         formTwo.setTemplate("error");
 
-        when(formRepository.findByClientAndTemplate(ReferenceType.DOMAIN, DOMAIN, targetUid, "login")).thenReturn(Maybe.empty());
-        when(formRepository.findByClientAndTemplate(ReferenceType.DOMAIN, DOMAIN, targetUid, "error")).thenReturn(Maybe.empty());
-        when(formRepository.create(any())).thenAnswer(i -> Single.just(i.getArgument(0)));
-        when(formRepository.findByClient(ReferenceType.DOMAIN, DOMAIN, sourceUid)).thenReturn(Flowable.just(formOne, formTwo));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(formRepository.findByClientAndTemplate(ReferenceType.DOMAIN, DOMAIN, targetUid, "login")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(formRepository.findByClientAndTemplate(ReferenceType.DOMAIN, DOMAIN, targetUid, "error")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(formRepository.create(any())).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
+        when(formRepository.findByClient(ReferenceType.DOMAIN, DOMAIN, sourceUid)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(formOne, formTwo)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver<List<Form>> testObserver = formService.copyFromClient(DOMAIN, sourceUid, targetUid).test();
         testObserver.assertComplete().assertNoErrors();
@@ -109,8 +112,8 @@ public class FormServiceTest {
         formOne.setContent("formContent");
         formOne.setAssets("formAsset");
 
-        when(formRepository.findByClientAndTemplate(ReferenceType.DOMAIN, DOMAIN, targetUid, "login")).thenReturn(Maybe.just(new Form()));
-        when(formRepository.findByClient(ReferenceType.DOMAIN, DOMAIN, sourceUid)).thenReturn(Flowable.just(formOne));
+        when(formRepository.findByClientAndTemplate(ReferenceType.DOMAIN, DOMAIN, targetUid, "login")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Form())));
+        when(formRepository.findByClient(ReferenceType.DOMAIN, DOMAIN, sourceUid)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(formOne)));
 
         TestObserver<List<Form>> testObserver = formService.copyFromClient(DOMAIN, sourceUid, targetUid).test();
         testObserver.assertNotComplete();
@@ -121,7 +124,7 @@ public class FormServiceTest {
     public void shouldFindAll() {
 
         Form form = new Form();
-        when(formRepository.findAll(ReferenceType.ORGANIZATION)).thenReturn(Flowable.just(form));
+        when(formRepository.findAll(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(form)));
 
         TestSubscriber<Form> obs = formService.findAll(ReferenceType.ORGANIZATION).test();
 
@@ -133,7 +136,7 @@ public class FormServiceTest {
     @Test
     public void shouldFindAll_noForm() {
 
-        when(formRepository.findAll(ReferenceType.ORGANIZATION)).thenReturn(Flowable.empty());
+        when(formRepository.findAll(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
 
         TestSubscriber<Form> obs = formService.findAll(ReferenceType.ORGANIZATION).test();
 
@@ -146,7 +149,7 @@ public class FormServiceTest {
     @Test
     public void shouldFindAll_TechnicalException() {
 
-        when(formRepository.findAll(ReferenceType.ORGANIZATION)).thenReturn(Flowable.error(TechnicalException::new));
+        when(formRepository.findAll(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestSubscriber<Form> obs = formService.findAll(ReferenceType.ORGANIZATION).test();
 

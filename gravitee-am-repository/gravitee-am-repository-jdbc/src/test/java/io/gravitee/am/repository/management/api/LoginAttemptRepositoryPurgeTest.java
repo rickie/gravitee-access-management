@@ -15,21 +15,21 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.repository.jdbc.management.api.JdbcLoginAttemptRepository;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -58,15 +58,15 @@ public class LoginAttemptRepositoryPurgeTest extends AbstractManagementTest {
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
 
-        assertNull(repository.findById(attemptExpired.getId()).blockingGet());
-        assertNull(repository.findById(attemptExpired2.getId()).blockingGet());
-        assertNotNull(repository.findById(attemptNotExpired.getId()).blockingGet());
+        assertNull(RxJava2Adapter.maybeToMono(repository.findById(attemptExpired.getId())).block());
+        assertNull(RxJava2Adapter.maybeToMono(repository.findById(attemptExpired2.getId())).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(repository.findById(attemptNotExpired.getId())).block());
 
         TestObserver<Void> test = repository.purgeExpiredData().test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
 
-        assertNotNull(repository.findById(attemptNotExpired.getId()).blockingGet());
+        assertNotNull(RxJava2Adapter.maybeToMono(repository.findById(attemptNotExpired.getId())).block());
     }
 
     private LoginAttempt buildLoginAttempt(Instant expiredAt) {

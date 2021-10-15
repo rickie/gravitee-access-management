@@ -15,22 +15,22 @@
  */
 package io.gravitee.am.management.service.impl.utils;
 
+import static io.gravitee.am.model.permissions.DefaultRole.ORGANIZATION_OWNER;
+import static io.gravitee.am.model.permissions.DefaultRole.ORGANIZATION_USER;
+import static io.gravitee.am.model.permissions.SystemRole.ORGANIZATION_PRIMARY_OWNER;
+
 import io.gravitee.am.model.*;
 import io.gravitee.am.model.permissions.SystemRole;
 import io.gravitee.am.service.RoleService;
 import io.reactivex.Flowable;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
-
-import java.util.*;
-
-import static io.gravitee.am.model.permissions.DefaultRole.ORGANIZATION_OWNER;
-import static io.gravitee.am.model.permissions.DefaultRole.ORGANIZATION_USER;
-import static io.gravitee.am.model.permissions.SystemRole.ORGANIZATION_PRIMARY_OWNER;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -125,12 +125,12 @@ public class InlineOrganizationProviderConfiguration extends OrganizationProvide
                 ORGANIZATION_OWNER.name(),
                 ORGANIZATION_USER.name());
 
-        final Map<String, Role> organizationRoles = Flowable.merge(
+        final Map<String, Role> organizationRoles = RxJava2Adapter.singleToMono(Flowable.merge(
                 roleService.findRolesByName(ReferenceType.PLATFORM, Platform.DEFAULT, ReferenceType.ORGANIZATION, roleNames),
                 roleService.findRolesByName(ReferenceType.ORGANIZATION, Organization.DEFAULT, ReferenceType.ORGANIZATION, roleNames))
                 .collect(HashMap<String, Role>::new, (acc, role) -> {
                     acc.put(role.getName(), role);
-                }).blockingGet();
+                })).block();
 
         users.forEach((username, def) -> {
             Role role = organizationRoles.get(def.getRole());

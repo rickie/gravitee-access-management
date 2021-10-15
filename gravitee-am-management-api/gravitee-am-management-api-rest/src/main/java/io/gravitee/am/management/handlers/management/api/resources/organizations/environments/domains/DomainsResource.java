@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
+import static io.gravitee.am.management.service.permissions.Permissions.of;
+import static io.gravitee.am.management.service.permissions.Permissions.or;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.service.IdentityProviderManager;
 import io.gravitee.am.model.Acl;
@@ -27,19 +30,17 @@ import io.gravitee.am.service.model.NewDomain;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Single;
 import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.net.URI;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.util.stream.Collectors;
-
-import static io.gravitee.am.management.service.permissions.Permissions.of;
-import static io.gravitee.am.management.service.permissions.Permissions.or;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -80,7 +81,7 @@ public class DomainsResource extends AbstractDomainResource {
             @Suspended final AsyncResponse response) {
 
         User authenticatedUser = getAuthenticatedUser();
-        checkAnyPermission(organizationId, environmentId, Permission.DOMAIN, Acl.LIST)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN, Acl.LIST)
                 .andThen(query != null ? domainService.search(organizationId, environmentId, query) : domainService.findAllByEnvironment(organizationId, environmentId))
                 .flatMapMaybe(domain -> hasPermission(authenticatedUser,
                         or(of(ReferenceType.DOMAIN, domain.getId(), Permission.DOMAIN, Acl.READ),
@@ -89,8 +90,7 @@ public class DomainsResource extends AbstractDomainResource {
                         .filter(Boolean::booleanValue).map(permit -> domain))
                 .map(this::filterDomainInfos)
                 .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))
-                .toList()
-                .map(domains -> new Page<Domain>(domains.stream().skip((long) page * size).limit(size).collect(Collectors.toList()), page, domains.size()))
+                .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(domains -> new Page<Domain>(domains.stream().skip((long) page * size).limit(size).collect(Collectors.toList()), page, domains.size()))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -112,12 +112,11 @@ public class DomainsResource extends AbstractDomainResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, Permission.DOMAIN, Acl.CREATE)
-                .andThen(domainService.create(organizationId, environmentId, newDomain, authenticatedUser)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.create(organizationId, environmentId, newDomain, authenticatedUser)
                         // create default idp (ignore if mongodb isn't the repositories backend)
                         .flatMap(domain -> identityProviderManager.create(domain.getId()).map(__ -> domain))
                         // create default reporter
-                        .flatMap(domain -> reporterService.createDefault(domain.getId()).map(__ -> domain)))
+                        .flatMap(domain -> reporterService.createDefault(domain.getId()).map(__ -> domain))))))
                 .subscribe(domain -> response.resume(Response.created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain.getId()))
                         .entity(domain).build()), response::resume);
     }
@@ -138,13 +137,7 @@ public class DomainsResource extends AbstractDomainResource {
                     @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        domainService.findByHrid(environmentId, hrid)
-                .flatMap(domain ->
-                        checkAnyPermission(authenticatedUser, organizationId, environmentId, domain.getId(), Permission.DOMAIN, Acl.READ)
-                                .andThen(Single.defer(() ->
-                                        findAllPermissions(authenticatedUser, organizationId, environmentId, domain.getId())
-                                                .map(userPermissions -> filterDomainInfos(domain, userPermissions))))
-                ).subscribe(response::resume, response::resume);
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(domainService.findByHrid(environmentId, hrid)).flatMap(domain->RxJava2Adapter.singleToMono(checkAnyPermission(authenticatedUser, organizationId, environmentId, domain.getId(), Permission.DOMAIN, Acl.READ).andThen(Single.defer(()->findAllPermissions(authenticatedUser, organizationId, environmentId, domain.getId()).map((java.util.Map<io.gravitee.am.model.ReferenceType, java.util.Map<io.gravitee.am.model.permissions.Permission, java.util.Set<io.gravitee.am.model.Acl>>> userPermissions)->filterDomainInfos(domain, userPermissions))))))).subscribe(response::resume, response::resume);
     }
 
 

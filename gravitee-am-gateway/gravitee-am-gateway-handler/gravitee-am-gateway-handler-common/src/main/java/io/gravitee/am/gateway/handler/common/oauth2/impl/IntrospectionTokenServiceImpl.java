@@ -24,13 +24,16 @@ import io.gravitee.am.gateway.handler.common.oauth2.IntrospectionTokenService;
 import io.gravitee.am.repository.oauth2.api.AccessTokenRepository;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
+import java.time.Instant;
+import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-
-import java.time.Instant;
-import java.util.Date;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -53,11 +56,10 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
 
     @Override
     public Single<JWT> introspect(String token, boolean offlineVerification) {
-        return jwtService.decode(token)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.decode(token)
                 .flatMapMaybe(jwt -> clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud()))
                 .switchIfEmpty(Maybe.error(new InvalidTokenException("Invalid or unknown client for this token")))
-                .flatMapSingle(client -> jwtService.decodeAndVerify(token, client))
-                .flatMap(jwt -> {
+                .flatMapSingle(client -> jwtService.decodeAndVerify(token, client))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, Single<JWT>>)jwt -> {
                     // Just check the JWT signature and JWT validity if offline verification option is enabled
                     // or if the token has just been created (could not be in database so far because of async database storing process delay)
                     if (offlineVerification || Instant.now().isBefore(Instant.ofEpochSecond(jwt.getIat() + OFFLINE_VERIFICATION_TIMER_SECONDS))) {
@@ -73,11 +75,11 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
                                 }
                                 return jwt;
                             });
-                })
+                }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof JWTException) {
                         LOGGER.debug("An error occurs while decoding JWT access token : {}", token, ex);
-                        return Single.error(new InvalidTokenException(ex.getMessage(), ex));
+                        return RxJava2Adapter.monoToSingle(Mono.error(new InvalidTokenException(ex.getMessage(), ex)));
                     }
                     if (ex instanceof InvalidTokenException) {
                         InvalidTokenException invalidTokenException = (InvalidTokenException) ex;
@@ -86,7 +88,7 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
                         LOGGER.debug("An error occurs while checking JWT access token validity: {}\n\t - details: {}\n\t - decoded jwt: {}",
                                 token, details != null ? details : "none", jwt != null ? jwt.toString() : "{}", invalidTokenException);
                     }
-                    return Single.error(ex);
+                    return RxJava2Adapter.monoToSingle(Mono.error(ex));
                 });
     }
 }

@@ -34,9 +34,7 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
-
+import io.reactivex.functions.Function;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -46,6 +44,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -84,10 +87,10 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
 
                 LOGGER.debug("Found {} statements to execute", sqlStatements.size());
 
-                Flowable.just(tableExists(configuration.getProtocol(), configuration.getUsersTable()))
+                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.just(tableExists(configuration.getProtocol(), configuration.getUsersTable()))
                         .flatMapSingle(statement -> query(statement, new Object[0])
                                 .flatMap(Result::getRowsUpdated)
-                                .first(0)).flatMap(total -> {
+                                .first(0))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(total -> {
                                     if (total == 0) {
                                         return Flowable.fromIterable(sqlStatements)
                                                 .flatMapSingle(statement -> query(statement, new Object[0])
@@ -96,7 +99,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
                                     } else {
                                         return Flowable.empty();
                                     }
-                                })
+                                })))
                         .doOnError(error -> LOGGER.error("Unable to initialize Database", error))
                         .subscribe();
 
@@ -116,21 +119,18 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
 
     @Override
     public Maybe<User> findByEmail(String email) {
-        return selectUserByEmail(email)
-                .map(this::createUser);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(selectUserByEmail(email)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::createUser)));
     }
 
     private Maybe<Map<String, Object>> selectUserByEmail(String email) {
         final String sql = String.format(configuration.getSelectUserByEmailQuery(), getIndexParameter(1, configuration.getEmailAttribute()));
-        return query(sql, email)
-                .flatMap(result -> result.map(ColumnMapRowMapper::mapRow))
-                .firstElement();
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(query(sql, email)
+                .flatMap(result -> result.map(ColumnMapRowMapper::mapRow))).next());
     }
 
     @Override
     public Maybe<User> findByUsername(String username) {
-        return selectUserByUsername(username)
-                .map(this::createUser);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(selectUserByUsername(username)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::createUser)));
     }
 
     @Override
@@ -138,8 +138,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
         // set technical id
         ((DefaultUser)user).setId(user.getId() != null ? user.getId() : RandomString.generate());
 
-       return Single.fromPublisher(connectionPool.create())
-                .flatMap(cnx -> {
+       return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(connectionPool.create())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Connection, Single<User>>)cnx -> {
                     return selectUserByUsername(cnx, user.getUsername())
                             .isEmpty()
                             .flatMap(isEmpty -> {
@@ -200,14 +199,13 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
                                             .map(result -> user);
                                 }
                             }).doFinally(() -> Completable.fromPublisher(cnx.close()).subscribe());
-                });
+                }).apply(v)))));
     }
 
     private Maybe<Map<String, Object>> selectUserByUsername(Connection cnx, String username) {
         final String sql = String.format(configuration.getSelectUserByUsernameQuery(), getIndexParameter(1, configuration.getUsernameAttribute()));
-        return query(cnx, sql, username)
-                .flatMap(result -> result.map(ColumnMapRowMapper::mapRow))
-                .firstElement();
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(query(cnx, sql, username)
+                .flatMap(result -> result.map(ColumnMapRowMapper::mapRow))).next());
     }
 
     @Override
@@ -260,16 +258,15 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
             args[1] = id;
         }
 
-        return query(sql, args)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(query(sql, args)
                 .flatMap(Result::getRowsUpdated)
-                .first(0)
-                .flatMap(rowsUpdated -> {
+                .first(0)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Integer, Single<User>>)rowsUpdated -> {
                     if (rowsUpdated == 0) {
                         return Single.error(new UserNotFoundException(id));
                     }
                     ((DefaultUser) updateUser).setId(id);
                     return Single.just(updateUser);
-                });
+                }).apply(v)))));
     }
 
     @Override
@@ -279,21 +276,19 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
                 configuration.getIdentifierAttribute(),
                 getIndexParameter(1, configuration.getIdentifierAttribute()));
 
-        return query(sql, id)
-                .flatMap(Result::getRowsUpdated)
-                .flatMapCompletable(rowsUpdated -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(query(sql, id)
+                .flatMap(Result::getRowsUpdated)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Integer, Completable>)rowsUpdated -> {
                     if (rowsUpdated == 0) {
                         return Completable.error(new UserNotFoundException(id));
                     }
                     return Completable.complete();
-                });
+                }).apply(y)))).then());
     }
 
     private Maybe<Map<String, Object>> selectUserByUsername(String username) {
         final String sql = String.format(configuration.getSelectUserByUsernameQuery(), getIndexParameter(1, configuration.getUsernameAttribute()));
-        return query(sql, username)
-                .flatMap(result -> result.map(ColumnMapRowMapper::mapRow))
-                .firstElement();
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(query(sql, username)
+                .flatMap(result -> result.map(ColumnMapRowMapper::mapRow))).next());
     }
 
     private Flowable<Result> query(Connection connection, String sql, Object... args) {
@@ -302,15 +297,14 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
             Object arg = args[i];
             bind(statement, i, arg, arg != null ? arg.getClass() : String.class);
         }
-        return Flowable.fromPublisher(statement.execute());
+        return RxJava2Adapter.fluxToFlowable(Flux.from(statement.execute()));
     }
 
     private Flowable<Result> query(String sql, Object... args) {
-        return Single.fromPublisher(connectionPool.create())
-                .toFlowable()
-                .flatMap(connection ->
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Single.fromPublisher(connectionPool.create())
+                .toFlowable()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(connection ->
                         query(connection, sql, args)
-                                .doFinally(() -> Completable.fromPublisher(connection.close()).subscribe()));
+                                .doFinally(() -> Completable.fromPublisher(connection.close()).subscribe()))));
     }
 
     private User createUser(Map<String, Object> claims) {

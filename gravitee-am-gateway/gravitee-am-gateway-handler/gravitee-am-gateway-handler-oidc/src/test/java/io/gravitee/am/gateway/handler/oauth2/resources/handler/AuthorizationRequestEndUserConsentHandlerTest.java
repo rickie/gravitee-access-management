@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.handler;
 
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY;
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
 import io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization.AuthorizationRequestEndUserConsentHandler;
 import io.gravitee.am.gateway.handler.oauth2.service.consent.UserConsentService;
@@ -26,17 +31,13 @@ import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Single;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.Session;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -109,7 +110,7 @@ public class AuthorizationRequestEndUserConsentHandlerTest extends RxWebTestBase
         authorizationRequest.setClientId(clientId);
         authorizationRequest.setScopes(Collections.singleton(autoApproveScope));
 
-        when(userConsentService.checkConsent(any(), any())).thenReturn(Single.just(Collections.emptySet()));
+        when(userConsentService.checkConsent(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
 
         router.route().order(-1).handler(routingContext -> {
             routingContext.setUser(new io.vertx.reactivex.ext.auth.User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user)));
@@ -146,7 +147,7 @@ public class AuthorizationRequestEndUserConsentHandlerTest extends RxWebTestBase
         authorizationRequest.setClientId(clientId);
         authorizationRequest.setScopes(Collections.singleton(autoApproveScope));
 
-        when(userConsentService.checkConsent(any(), any())).thenReturn(Single.just(Collections.singleton(autoApproveScope)));
+        when(userConsentService.checkConsent(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(autoApproveScope))));
 
         router.route().order(-1).handler(routingContext -> {
             routingContext.put("client", client);

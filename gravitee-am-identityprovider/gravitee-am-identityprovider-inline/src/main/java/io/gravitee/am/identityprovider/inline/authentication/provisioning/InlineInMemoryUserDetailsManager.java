@@ -17,9 +17,10 @@ package io.gravitee.am.identityprovider.inline.authentication.provisioning;
 
 import io.gravitee.am.identityprovider.inline.model.User;
 import io.reactivex.Maybe;
-
 import java.util.HashMap;
 import java.util.Map;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -36,6 +37,6 @@ public class InlineInMemoryUserDetailsManager {
 
     public Maybe<User> loadUserByUsername(String username) {
         User user = users.get(username.toLowerCase());
-        return (user != null) ? Maybe.just(user) : Maybe.empty();
+        return (user != null) ? RxJava2Adapter.monoToMaybe(Mono.just(user)) : RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 }

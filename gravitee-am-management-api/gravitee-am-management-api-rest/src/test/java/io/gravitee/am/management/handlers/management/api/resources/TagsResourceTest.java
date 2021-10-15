@@ -15,6 +15,12 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Tag;
 import io.gravitee.am.service.exception.TechnicalManagementException;
@@ -22,20 +28,16 @@ import io.gravitee.am.service.model.NewTag;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import org.junit.Test;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -57,7 +59,7 @@ public class TagsResourceTest extends JerseySpringTest {
         mockRole2.setName("role-2-name");
         mockRole2.setOrganizationId(ORGANIZATION_ID);
 
-        doReturn(Flowable.just(mockRole, mockRole2)).when(tagService).findAll(anyString());
+        doReturn(RxJava2Adapter.fluxToFlowable(Flux.just(mockRole, mockRole2))).when(tagService).findAll(anyString());
 
         final Response response = target("organizations")
                 .path("DEFAULT")
@@ -70,7 +72,7 @@ public class TagsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetTags_technicalManagementException() {
-        doReturn(Flowable.error(new TechnicalManagementException("error occurs"))).when(tagService).findAll(anyString());
+        doReturn(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs")))).when(tagService).findAll(anyString());
 
         final Response response = target("organizations")
                 .path("DEFAULT")
@@ -87,7 +89,7 @@ public class TagsResourceTest extends JerseySpringTest {
         tag.setId("tag-id");
         tag.setName("tag-name");
 
-        doReturn(Single.just(tag)).when(tagService).create(any(), anyString(), any());
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(tag))).when(tagService).create(any(), anyString(), any());
 
         final Response response = target("organizations")
                 .path("DEFAULT")

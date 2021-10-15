@@ -22,6 +22,8 @@ import io.gravitee.am.resource.api.mfa.MFAResourceProvider;
 import io.gravitee.am.resource.mock.MFAResourceConfiguration;
 import io.reactivex.Completable;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -35,15 +37,15 @@ public class MFAMockProvider implements MFAResourceProvider {
     @Override
     public Completable send(MFALink target) {
         System.out.println("MFAMockProvider: SEND CODE " + configuration.getCode());
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 
     @Override
     public Completable verify(MFAChallenge challenge) {
         System.out.println("MFAMockProvider: VERIFY CODE " + configuration.getCode());
         if (!configuration.getCode().equals(challenge.getCode())) {
-            return Completable.error(new InvalidCodeException("Invalid 2FA code"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidCodeException("Invalid 2FA code")));
         }
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 }

@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.uma.resources.endpoint;
 
+import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.*;
+import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.RESOURCE_REGISTRATION_PATH;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
@@ -34,12 +37,9 @@ import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
 import java.util.Arrays;
 import java.util.stream.Collectors;
-
-import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.*;
-import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.RESOURCE_REGISTRATION_PATH;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * <pre>
@@ -67,9 +67,8 @@ public class ResourceAccessPoliciesEndpoint {
         final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         final String resource = context.request().getParam(RESOURCE_ID);
 
-        resourceService.findAccessPolicies(domain.getId(), client.getId(), accessToken.getSub(), resource)
-                .map(AccessPolicy::getId)
-                .toList()
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(resourceService.findAccessPolicies(domain.getId(), client.getId(), accessToken.getSub(), resource)
+                .map(AccessPolicy::getId)).collectList())
                 .subscribe(
                         response -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -111,8 +110,7 @@ public class ResourceAccessPoliciesEndpoint {
         final String resource = context.request().getParam(RESOURCE_ID);
         final String accessPolicyId = context.request().getParam(POLICY_ID);
 
-        resourceService.findAccessPolicy(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId)
-                .switchIfEmpty(Single.error(new AccessPolicyNotFoundException(accessPolicyId)))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(resourceService.findAccessPolicy(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new AccessPolicyNotFoundException(accessPolicyId))))))
                 .subscribe(
                         response -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")

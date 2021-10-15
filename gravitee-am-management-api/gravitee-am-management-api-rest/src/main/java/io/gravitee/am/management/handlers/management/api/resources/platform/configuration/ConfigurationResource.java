@@ -23,13 +23,14 @@ import io.gravitee.common.http.MediaType;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -66,8 +67,7 @@ public class ConfigurationResource {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void getAlertServiceStatus(@Suspended final AsyncResponse response) {
 
-        alertService.isAlertingAvailable()
-                .map(AlertServiceStatusEntity::new)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(alertService.isAlertingAvailable()).map(RxJavaReactorMigrationUtil.toJdkFunction(AlertServiceStatusEntity::new)))
                 .subscribe(response::resume, response::resume);
     }
 

@@ -15,18 +15,19 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.platform.plugins;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.plugin.ResourcePlugin;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.junit.Test;
-
 import javax.ws.rs.core.Response;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -42,7 +43,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
         resourcePlugin.setDescription("res-desc");
         resourcePlugin.setVersion("1");
 
-        doReturn(Maybe.just(resourcePlugin)).when(resourcePluginService).findById("res-plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(resourcePlugin))).when(resourcePluginService).findById("res-plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -60,7 +61,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
         resourcePlugin.setDescription("res-desc");
         resourcePlugin.setVersion("1");
 
-        doReturn(Maybe.empty()).when(resourcePluginService).findById("res-plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(resourcePluginService).findById("res-plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -72,7 +73,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetPlugin_TechnicalException() {
-        doReturn(Maybe.error(new TechnicalManagementException())).when(resourcePluginService).findById("res-plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException()))).when(resourcePluginService).findById("res-plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -90,8 +91,8 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
         resourcePlugin.setDescription("res-desc");
         resourcePlugin.setVersion("1");
 
-        doReturn(Maybe.just(resourcePlugin)).when(resourcePluginService).findById("res-plugin-id");
-        doReturn(Maybe.just("{}")).when(resourcePluginService).getSchema("res-plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(resourcePlugin))).when(resourcePluginService).findById("res-plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just("{}"))).when(resourcePluginService).getSchema("res-plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -111,7 +112,7 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
         resourcePlugin.setDescription("res-desc");
         resourcePlugin.setVersion("1");
 
-        doReturn(Maybe.empty()).when(resourcePluginService).findById("res-plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(resourcePluginService).findById("res-plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -131,8 +132,8 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
         resourcePlugin.setDescription("res-desc");
         resourcePlugin.setVersion("1");
 
-        doReturn(Maybe.just(resourcePlugin)).when(resourcePluginService).findById("res-plugin-id");
-        doReturn(Maybe.empty()).when(resourcePluginService).getSchema("res-plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(resourcePlugin))).when(resourcePluginService).findById("res-plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(resourcePluginService).getSchema("res-plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -152,8 +153,8 @@ public class ResourcePluginResourceTest extends JerseySpringTest {
         resourcePlugin.setDescription("res-desc");
         resourcePlugin.setVersion("1");
 
-        doReturn(Maybe.just(resourcePlugin)).when(resourcePluginService).findById("res-plugin-id");
-        doReturn(Maybe.error(new TechnicalManagementException())).when(resourcePluginService).getSchema("res-plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(resourcePlugin))).when(resourcePluginService).findById("res-plugin-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException()))).when(resourcePluginService).getSchema("res-plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")

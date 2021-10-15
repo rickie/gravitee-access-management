@@ -19,9 +19,11 @@ import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.oauth2.AbstractOAuthTest;
 import io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest;
 import io.gravitee.common.util.LinkedMultiValueMap;
+import io.reactivex.Maybe;
 import io.reactivex.observers.TestObserver;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -81,8 +83,7 @@ public class PushedAuthorizationRequestRepositoryTest extends AbstractOAuthTest 
                 .ignoreElement()
                 .andThen(repository.findById(id))
                 .ignoreElement()
-                .andThen(repository.delete(id))
-                .andThen(repository.findById(id))
+                .andThen(repository.delete(id)).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(repository.findById(id)))).as(RxJava2Adapter::monoToMaybe)
                 .test();
 
         observer.awaitTerminalEvent();

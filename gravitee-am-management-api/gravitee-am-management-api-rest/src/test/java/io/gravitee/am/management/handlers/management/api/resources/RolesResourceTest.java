@@ -15,6 +15,12 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Role;
@@ -26,19 +32,14 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.junit.Test;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -65,8 +66,8 @@ public class RolesResourceTest extends JerseySpringTest {
         final Set<Role> roles = new HashSet<>(Arrays.asList(mockRole, mockRole2));
         final Page<Role> pagedRoles = new Page<>(roles, 0, 2);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(pagedRoles)).when(roleService).findByDomain(domainId, 0, 50);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(pagedRoles))).when(roleService).findByDomain(domainId, 0, 50);
 
         final Response response = target("domains").path(domainId).path("roles").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -93,9 +94,9 @@ public class RolesResourceTest extends JerseySpringTest {
         final Set<Role> roles = new HashSet<>(Arrays.asList(mockRole, mockRole2));
         final Page<Role> pagedRoles = new Page<>(roles, 0, 2);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(roles)).when(roleService).findByDomain(domainId);
-        doReturn(Single.just(pagedRoles)).when(roleService).searchByDomain(domainId, "*role-2-name*", 0, 50);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(roles))).when(roleService).findByDomain(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(pagedRoles))).when(roleService).searchByDomain(domainId, "*role-2-name*", 0, 50);
 
         final Response response = target("domains").path(domainId).path("roles").queryParam("q", "*role-2-name*").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -106,7 +107,7 @@ public class RolesResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetRoles_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(Single.error(new TechnicalManagementException("error occurs"))).when(roleService).findByDomain(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("error occurs")))).when(roleService).findByDomain(domainId);
 
         final Response response = target("domains").path(domainId).path("roles").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -125,8 +126,8 @@ public class RolesResourceTest extends JerseySpringTest {
         role.setId("role-id");
         role.setName("role-name");
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Single.just(role)).when(roleService).create(eq(domainId), any(), any());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(role))).when(roleService).create(eq(domainId), any(), any());
 
         final Response response = target("domains")
                 .path(domainId)

@@ -15,12 +15,12 @@
  */
 package io.gravitee.am.reporter.jdbc.dialect;
 
+import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
+
 import com.google.common.base.CaseFormat;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
 import io.reactivex.Single;
-import org.springframework.data.r2dbc.core.DatabaseClient;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -31,8 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
+import org.springframework.data.r2dbc.core.DatabaseClient;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -240,7 +240,7 @@ public abstract class AbstractDialect implements DialectHelper {
     public Single<List<Map<String, Object>>> buildAndProcessHistogram(DatabaseClient dbClient, ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
         SearchQuery searchQuery = buildHistogramQuery(referenceType, referenceId, criteria);
         DatabaseClient.GenericExecuteSpec histogram = dbClient.execute(searchQuery.getQuery());
-        return fluxToFlowable(histogram.fetch().all()).toList();
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(histogram.fetch().all())).collectList());
     }
 
 }

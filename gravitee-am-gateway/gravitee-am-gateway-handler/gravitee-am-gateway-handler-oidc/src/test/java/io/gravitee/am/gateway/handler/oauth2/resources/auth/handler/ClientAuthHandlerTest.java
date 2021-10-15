@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.auth.handler;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.common.oidc.ClientAuthenticationMethod;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
@@ -30,11 +35,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -87,7 +89,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         final String clientId = "client-id";
         Client client = mock(Client.class);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
-        when(clientSyncService.findByClientId(clientId)).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(clientId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
 
         testRequest(
                 HttpMethod.POST,
@@ -104,7 +106,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         when(client.getClientId()).thenReturn(clientId);
         when(client.getClientSecret()).thenReturn(clientSecret);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.CLIENT_SECRET_POST);
-        when(clientSyncService.findByClientId(clientId)).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(clientId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
 
         testRequest(
                 HttpMethod.POST,
@@ -120,7 +122,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         when(client.getClientId()).thenReturn(clientId);
         when(client.getClientSecret()).thenReturn(clientSecret);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
-        when(clientSyncService.findByClientId(clientId)).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(clientId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
 
         testRequest(
                 HttpMethod.POST,
@@ -137,7 +139,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         when(client.getClientId()).thenReturn(clientId);
         when(client.getClientSecret()).thenReturn(clientSecret);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
-        when(clientSyncService.findByClientId(clientId)).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(clientId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
 
         testRequest(
                 HttpMethod.POST,
@@ -154,7 +156,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
     public void shouldInvoke_clientCredentials_privateJWT_privateJWTTokenAuthMethod() throws Exception {
         final String clientId = "client-id";
         Client client = mock(Client.class);
-        when(clientAssertionService.assertClient(eq("type"), eq("myToken"), anyString())).thenReturn(Maybe.just(client));
+        when(clientAssertionService.assertClient(eq("type"), eq("myToken"), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
 
         testRequest(
                 HttpMethod.POST,
@@ -169,7 +171,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         Client client = mock(Client.class);
         when(client.isTlsClientCertificateBoundAccessTokens()).thenReturn(true);
 
-        when(clientAssertionService.assertClient(eq("type"), eq("myToken"), anyString())).thenReturn(Maybe.just(client));
+        when(clientAssertionService.assertClient(eq("type"), eq("myToken"), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
 
         testRequest(
                 HttpMethod.POST,
@@ -181,7 +183,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
     public void shouldInvoke_clientCredentials_clientSecret_clientSecretJWTTokenAuthMethod() throws Exception {
         final String clientId = "client-id";
         Client client = mock(Client.class);
-        when(clientAssertionService.assertClient(eq("type"), eq("myToken"), anyString())).thenReturn(Maybe.just(client));
+        when(clientAssertionService.assertClient(eq("type"), eq("myToken"), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
 
         testRequest(
                 HttpMethod.POST,
@@ -194,7 +196,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         final String clientId = "public-client-id";
         Client client = mock(Client.class);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.NONE);
-        when(clientSyncService.findByClientId(clientId)).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(clientId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
 
         testRequest(
                 HttpMethod.POST,
@@ -207,7 +209,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         final String clientId = "public-client-id";
         Client client = mock(Client.class);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.NONE);
-        when(clientSyncService.findByClientId(clientId)).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(clientId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
         testRequest(
                 HttpMethod.POST,
                 "/oauth/token?client_id=public-client-id",

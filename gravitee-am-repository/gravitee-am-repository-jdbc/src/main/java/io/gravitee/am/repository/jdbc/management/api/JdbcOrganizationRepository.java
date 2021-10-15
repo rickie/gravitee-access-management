@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Environment;
 import io.gravitee.am.model.Organization;
@@ -29,18 +33,15 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -70,8 +71,7 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
     public Flowable<Organization> findByHrids(List<String> hrids) {
         LOGGER.debug("findByHrids({})", hrids);
 
-        return organizationRepository.findByHrids(hrids)
-                .map(this::toOrganization);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(organizationRepository.findByHrids(hrids)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toOrganization)));
     }
 
     @Override
@@ -83,22 +83,19 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
     public Maybe<Organization> findById(String organizationId) {
         LOGGER.debug("findById({})", organizationId);
 
-        Maybe<List<String>> identities = identitiesRepository.findAllByOrganizationId(organizationId)
+        Maybe<List<String>> identities = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(identitiesRepository.findAllByOrganizationId(organizationId)
                 .map(JdbcOrganization.Identity::getIdentity)
-                .toList()
-                .toMaybe();
+                .toList()));
 
-        Maybe<List<String>> domains = domainRestrictionRepository.findAllByOrganizationId(organizationId)
+        Maybe<List<String>> domains = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(domainRestrictionRepository.findAllByOrganizationId(organizationId)
                 .map(JdbcOrganization.DomainRestriction::getDomainRestriction)
-                .toList()
-                .toMaybe();
+                .toList()));
 
-        Maybe<List<String>> hrids = hridsRepository.findAllByOrganizationId(organizationId)
+        Maybe<List<String>> hrids = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(hridsRepository.findAllByOrganizationId(organizationId)
                 .map(JdbcOrganization.Hrid::getHrid)
-                .toList()
-                .toMaybe();
+                .toList()));
 
-        return organizationRepository.findById(organizationId)
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(organizationRepository.findById(organizationId)
                 .map(this::toOrganization)
                 .zipWith(identities, (org, idp) -> {
                     LOGGER.debug("findById({}) fetch {} identities", organizationId, idp.size());
@@ -108,11 +105,11 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
                     LOGGER.debug("findById({}) fetch {} domainRestrictions", organizationId, domain.size());
                     org.setDomainRestrictions(domain);
                     return org;
-                }).zipWith(hrids, (org, hrid) -> {
+                })).zipWith(RxJava2Adapter.maybeToMono(Maybe.wrap(hrids)), RxJavaReactorMigrationUtil.toJdkBiFunction((org, hrid) -> {
                     LOGGER.debug("findById({}) fetch {} hrids", organizationId, hrid.size());
                     org.setHrids(hrid);
                     return org;
-                });
+                })));
     }
 
     @Override

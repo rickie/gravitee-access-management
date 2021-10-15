@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static org.springframework.data.relational.core.sql.SqlIdentifier.quoted;
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Group;
 import io.gravitee.am.model.ReferenceType;
@@ -28,6 +33,10 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -36,18 +45,10 @@ import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static org.springframework.data.relational.core.sql.SqlIdentifier.quoted;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -82,8 +83,8 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
                 .fetch()
                 .all());
 
-        return flow.map(this::toEntity)
-                .flatMap(group -> completeWithMembersAndRole(Maybe.just(group), group.getId()).toFlowable(), CONCURRENT_FLATMAP);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flow).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
+                .flatMap(group -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithMembersAndRole(Maybe.just(group), group.getId())).flux()), CONCURRENT_FLATMAP);
     }
 
     @Override
@@ -98,8 +99,8 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
                 .fetch()
                 .all());
 
-        return flow.map(this::toEntity)
-                .flatMap(group -> completeWithMembersAndRole(Maybe.just(group), group.getId()).toFlowable(), CONCURRENT_FLATMAP);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flow).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
+                .flatMap(group -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithMembersAndRole(Maybe.just(group), group.getId())).flux()), CONCURRENT_FLATMAP);
     }
 
     @Override
@@ -115,7 +116,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
                 .fetch()
                 .first());
 
-        return fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.select()
                 .from(databaseDialectHelper.toSql(quoted("groups")) )
                 .matching(from(where("reference_id").is(referenceId)
                         .and(where("reference_type").is(referenceType.name()))))
@@ -124,15 +125,14 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
                 .as(JdbcGroup.class).fetch().all())
                 .map(this::toEntity)
                 .flatMap(group -> completeWithMembersAndRole(Maybe.just(group), group.getId()).toFlowable(), CONCURRENT_FLATMAP)
-                .toList()
-                .flatMap(content -> counter.map((count) -> new Page<Group>(content, page, count)));
+                .toList()).flatMap(content->RxJava2Adapter.singleToMono(counter.map((java.lang.Long count)->new Page<Group>(content, page, count)))));
     }
 
     @Override
     public Flowable<Group> findByIdIn(List<String> ids) {
         LOGGER.debug("findByIdIn with ids {}", ids);
         if (ids == null || ids.isEmpty()) {
-            return Flowable.empty();
+            return RxJava2Adapter.fluxToFlowable(Flux.empty());
         }
         Flowable<JdbcGroup> flow = fluxToFlowable(dbClient.execute("SELECT * FROM " +
                 databaseDialectHelper.toSql(quoted("groups")) +
@@ -142,7 +142,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
                 .fetch()
                 .all());
 
-        return flow.map(this::toEntity).flatMap(group -> completeWithMembersAndRole(Maybe.just(group), group.getId()).toFlowable(), CONCURRENT_FLATMAP);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flow).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))).flatMap(group -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithMembersAndRole(Maybe.just(group), group.getId())).flux()), CONCURRENT_FLATMAP);
     }
 
     @Override
@@ -158,8 +158,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
                 .fetch()
                 .first());
 
-        return maybe.map(this::toEntity)
-                .flatMap(group -> completeWithMembersAndRole(Maybe.just(group), group.getId()));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybe.map(this::toEntity)).flatMap(z->completeWithMembersAndRole(Maybe.just(z), z.getId()).as(RxJava2Adapter::maybeToMono)));
     }
 
     @Override
@@ -175,7 +174,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
                 .fetch()
                 .first());
 
-        return completeWithMembersAndRole(maybe.map(this::toEntity), id);
+        return completeWithMembersAndRole(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybe).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), id);
     }
 
     @Override
@@ -189,30 +188,28 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
                 .fetch()
                 .first());
 
-        return completeWithMembersAndRole(maybe.map(this::toEntity), id);
+        return completeWithMembersAndRole(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybe).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), id);
     }
 
     private Maybe<Group> completeWithMembersAndRole(Maybe<Group> maybeGroup, String id) {
-        Maybe<List<String>> members = memberRepository.findAllByGroup(id)
+        Maybe<List<String>> members = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(memberRepository.findAllByGroup(id)
                 .map(JdbcGroup.JdbcMember::getMember)
-                .toList()
-                .toMaybe();
+                .toList()));
 
-        Maybe<List<String>> roles = roleRepository.findAllByGroup(id)
+        Maybe<List<String>> roles = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(roleRepository.findAllByGroup(id)
                 .map(JdbcGroup.JdbcRole::getRole)
-                .toList()
-                .toMaybe();
+                .toList()));
 
-        return maybeGroup
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeGroup
                 .zipWith(members, (grp, member) -> {
                     LOGGER.debug("findById({}) fetch {} group members", id, member == null ? 0 : member.size());
                     grp.setMembers(member);
                     return grp;
-                }).zipWith(roles, (grp, role) -> {
+                })).zipWith(RxJava2Adapter.maybeToMono(Maybe.wrap(roles)), RxJavaReactorMigrationUtil.toJdkBiFunction((grp, role) -> {
                     LOGGER.debug("findById({}) fetch {} group roles", id, role == null ? 0 : role.size());
                     grp.setRoles(role);
                     return grp;
-                });
+                })));
     }
 
     @Override
@@ -234,8 +231,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
 
         action = persistChildEntities(action, item);
 
-        return monoToSingle(action.as(trx::transactional))
-                .flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action.as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, Group item) {
@@ -285,8 +281,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
         action = deleteChildEntities(item.getId()).then(action);
         action = persistChildEntities(action, item);
 
-        return monoToSingle(action.as(trx::transactional))
-                .flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action.as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     private Mono<Integer> deleteChildEntities(String groupId) {

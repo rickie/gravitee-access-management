@@ -15,22 +15,22 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import io.gravitee.am.model.Environment;
 import io.gravitee.am.model.Form;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -48,7 +48,7 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
         Environment environment = buildEnv();
 
         // TODO: find another way to inject data in DB. Avoid to rely on class under test for that.
-        Environment envCreated = environmentRepository.create(environment).blockingGet();
+        Environment envCreated = RxJava2Adapter.singleToMono(environmentRepository.create(environment)).block();
 
         TestObserver<Environment> obs = environmentRepository.findById(envCreated.getId()).test();
         obs.awaitTerminalEvent();
@@ -92,7 +92,7 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
     public void testUpdate() {
         Environment env = buildEnv();
 
-        Environment envCreated = environmentRepository.create(env).blockingGet();
+        Environment envCreated = RxJava2Adapter.singleToMono(environmentRepository.create(env)).block();
 
         Environment envUpdated = new Environment();
         envUpdated.setId(envCreated.getId());
@@ -122,15 +122,15 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
         env.setDomainRestrictions(Arrays.asList("ValueDom1", "ValueDom2"));
         env.setHrids(Arrays.asList("Hrid1", "Hrid2"));
 
-        Environment envCreated = environmentRepository.create(env).blockingGet();
+        Environment envCreated = RxJava2Adapter.singleToMono(environmentRepository.create(env)).block();
 
-        assertNotNull(environmentRepository.findById(envCreated.getId()).blockingGet());
+        assertNotNull(RxJava2Adapter.maybeToMono(environmentRepository.findById(envCreated.getId())).block());
 
         TestObserver<Void> obs = environmentRepository.delete(envCreated.getId()).test();
         obs.awaitTerminalEvent();
         obs.assertNoValues();
 
-        assertNull(environmentRepository.findById(envCreated.getId()).blockingGet());
+        assertNull(RxJava2Adapter.maybeToMono(environmentRepository.findById(envCreated.getId())).block());
     }
 
     @Test
@@ -139,15 +139,15 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
         for (int i = 0; i < loop; i++) {
             final Environment environment = buildEnv();
             environment.setOrganizationId(FIXED_REF_ID);
-            environmentRepository.create(environment).blockingGet();
+            RxJava2Adapter.singleToMono(environmentRepository.create(environment)).block();
         }
 
         for (int i = 0; i < loop; i++) {
             // random ref id
-            environmentRepository.create(buildEnv()).blockingGet();
+            RxJava2Adapter.singleToMono(environmentRepository.create(buildEnv())).block();
         }
 
-        TestObserver<List<Environment>> testObserver = environmentRepository.findAll(FIXED_REF_ID).toList().test();
+        TestObserver<List<Environment>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(environmentRepository.findAll(FIXED_REF_ID)).collectList()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(l -> l.size() == loop);
@@ -159,10 +159,10 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
         final int loop = 10;
         for (int i = 0; i < loop; i++) {
             // random ref id
-            environmentRepository.create(buildEnv()).blockingGet();
+            RxJava2Adapter.singleToMono(environmentRepository.create(buildEnv())).block();
         }
 
-        TestObserver<List<Environment>> testObserver = environmentRepository.findAll().toList().test();
+        TestObserver<List<Environment>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(environmentRepository.findAll()).collectList()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(l -> l.size() == loop);

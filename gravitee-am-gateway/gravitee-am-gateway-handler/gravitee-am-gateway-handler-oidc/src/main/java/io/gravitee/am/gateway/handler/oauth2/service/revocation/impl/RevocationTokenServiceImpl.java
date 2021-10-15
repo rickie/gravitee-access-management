@@ -16,17 +16,23 @@
 package io.gravitee.am.gateway.handler.oauth2.service.revocation.impl;
 
 import io.gravitee.am.common.exception.oauth2.InvalidTokenException;
+import io.gravitee.am.common.oauth2.TokenTypeHint;
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidGrantException;
 import io.gravitee.am.gateway.handler.oauth2.service.revocation.RevocationTokenRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.revocation.RevocationTokenService;
+import io.gravitee.am.gateway.handler.oauth2.service.token.Token;
 import io.gravitee.am.gateway.handler.oauth2.service.token.TokenService;
-import io.gravitee.am.common.oauth2.TokenTypeHint;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
+import io.reactivex.functions.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -51,7 +57,7 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
                         // if the token was not issued to the client making the revocation request
                         // the request is refused and the client is informed of the error
                         if (throwable instanceof InvalidGrantException) {
-                            return Completable.error(throwable);
+                            return RxJava2Adapter.monoToCompletable(Mono.error(throwable));
                         }
 
                         // Note: invalid tokens do not cause an error response since the client
@@ -74,9 +80,9 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
                         // Log the result anyway for posterity.
                         if (throwable instanceof InvalidTokenException) {
                             logger.debug("No access token {} found in the token store.", token);
-                            return Completable.complete();
+                            return RxJava2Adapter.monoToCompletable(Mono.empty());
                         }
-                        return Completable.error(throwable);
+                        return RxJava2Adapter.monoToCompletable(Mono.error(throwable));
                     });
         }
 
@@ -87,7 +93,7 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
                     // if the token was not issued to the client making the revocation request
                     // the request is refused and the client is informed of the error
                     if (throwable instanceof InvalidGrantException) {
-                        return Completable.error(throwable);
+                        return RxJava2Adapter.monoToCompletable(Mono.error(throwable));
                     }
 
                     // Note: invalid tokens do not cause an error response since the client
@@ -110,17 +116,16 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
                     // Log the result anyway for posterity.
                     if (throwable instanceof InvalidTokenException) {
                         logger.debug("No refresh token {} found in the token store.", token);
-                        return Completable.complete();
+                        return RxJava2Adapter.monoToCompletable(Mono.empty());
                     }
-                    return Completable.error(throwable);
+                    return RxJava2Adapter.monoToCompletable(Mono.error(throwable));
                 });
 
     }
 
     private Completable revokeAccessToken(String token, Client client) {
-        return tokenService.getAccessToken(token, client)
-                .switchIfEmpty(Maybe.error(new InvalidTokenException("Unknown access token")))
-                .flatMapCompletable(accessToken -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(tokenService.getAccessToken(token, client)
+                .switchIfEmpty(Maybe.error(new InvalidTokenException("Unknown access token")))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, CompletableSource>)accessToken -> {
                     String tokenClientId = accessToken.getClientId();
                     if (!client.getClientId().equals(tokenClientId)) {
                         logger.debug("Revoke FAILED: requesting client = {}, token's client = {}.", client.getClientId(), tokenClientId);
@@ -128,13 +133,12 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
                     }
 
                     return tokenService.deleteAccessToken(accessToken.getValue());
-                });
+                }).apply(y)))).then());
     }
 
     private Completable revokeRefreshToken(String token, Client client) {
-        return tokenService.getRefreshToken(token, client)
-                .switchIfEmpty(Maybe.error(new InvalidTokenException("Unknown refresh token")))
-                .flatMapCompletable(refreshToken -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(tokenService.getRefreshToken(token, client)
+                .switchIfEmpty(Maybe.error(new InvalidTokenException("Unknown refresh token")))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, CompletableSource>)refreshToken -> {
                     String tokenClientId = refreshToken.getClientId();
                     if (!client.getClientId().equals(tokenClientId)) {
                         logger.debug("Revoke FAILED: requesting client = {}, token's client = {}.", client.getClientId(), tokenClientId);
@@ -142,6 +146,6 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
                     }
 
                     return tokenService.deleteRefreshToken(refreshToken.getValue());
-                });
+                }).apply(y)))).then());
     }
 }

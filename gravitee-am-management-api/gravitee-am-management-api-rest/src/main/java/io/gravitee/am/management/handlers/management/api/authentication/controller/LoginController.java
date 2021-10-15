@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.handlers.management.api.authentication.controller;
 
+import static io.gravitee.am.management.handlers.management.api.authentication.provider.generator.RedirectCookieGenerator.DEFAULT_REDIRECT_COOKIE_NAME;
+import static java.util.Collections.emptyList;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.identityprovider.api.common.Request;
 import io.gravitee.am.identityprovider.api.social.SocialAuthenticationProvider;
@@ -25,6 +28,12 @@ import io.gravitee.am.service.OrganizationService;
 import io.gravitee.am.service.ReCaptchaService;
 import io.gravitee.common.http.HttpHeaders;
 import io.reactivex.Maybe;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.QueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,16 +43,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.QueryParam;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static io.gravitee.am.management.handlers.management.api.authentication.provider.generator.RedirectCookieGenerator.DEFAULT_REDIRECT_COOKIE_NAME;
-import static java.util.Collections.emptyList;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -86,9 +86,8 @@ public class LoginController {
         // fetch domain social identity providers
         List<IdentityProvider> socialProviders = null;
         try {
-            socialProviders = organizationService.findById(organizationId)
-                    .map(org -> Optional.ofNullable(org.getIdentities()).orElse(emptyList()))
-                    .blockingGet()
+            socialProviders = RxJava2Adapter.singleToMono(organizationService.findById(organizationId)
+                    .map(org -> Optional.ofNullable(org.getIdentities()).orElse(emptyList()))).block()
                     .stream()
                     .map(identityProviderManager::getIdentityProvider)
                     .filter(Objects::nonNull)
@@ -112,7 +111,7 @@ public class LoginController {
                 SocialAuthenticationProvider socialAuthenticationProvider = (SocialAuthenticationProvider) identityProviderManager.get(identityId);
                 if (socialAuthenticationProvider != null) {
                     final Maybe<Request> maybe = socialAuthenticationProvider.asyncSignInUrl(buildRedirectUri(request, identityId), RandomString.generate());
-                    authorizeUrls.put(identityId, maybe.blockingGet().getUri());
+                    authorizeUrls.put(identityId, RxJava2Adapter.maybeToMono(maybe).block().getUri());
                 }
             });
 

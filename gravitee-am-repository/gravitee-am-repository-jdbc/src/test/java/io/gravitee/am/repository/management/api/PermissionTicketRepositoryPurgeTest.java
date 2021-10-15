@@ -21,14 +21,14 @@ import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.repository.jdbc.management.api.JdbcPermissionTicketRepository;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.NoSuchElementException;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -45,11 +45,11 @@ public class PermissionTicketRepositoryPurgeTest extends AbstractManagementTest 
     public void testPurge() throws TechnicalException {
         // create permission_ticket
         PermissionTicket permissionTicketNoExpireAt = new PermissionTicket().setPermissionRequest(Arrays.asList(permission));
-        PermissionTicket ptValid = repository.create(permissionTicketNoExpireAt).blockingGet();
+        PermissionTicket ptValid = RxJava2Adapter.singleToMono(repository.create(permissionTicketNoExpireAt)).block();
         PermissionTicket permissionTicket = new PermissionTicket().setPermissionRequest(Arrays.asList(permission));
         Instant now = Instant.now();
         permissionTicket.setExpireAt(new Date(now.plus(10, ChronoUnit.MINUTES).toEpochMilli()));
-        PermissionTicket ptValid2 = repository.create(permissionTicket).blockingGet();
+        PermissionTicket ptValid2 = RxJava2Adapter.singleToMono(repository.create(permissionTicket)).block();
         PermissionTicket permissionTicketExpired = new PermissionTicket().setPermissionRequest(Arrays.asList(permission));
         permissionTicketExpired.setExpireAt(new Date(now.minus(10, ChronoUnit.MINUTES).toEpochMilli()));
         TestObserver<PermissionTicket> test = repository.create(permissionTicketExpired).test();

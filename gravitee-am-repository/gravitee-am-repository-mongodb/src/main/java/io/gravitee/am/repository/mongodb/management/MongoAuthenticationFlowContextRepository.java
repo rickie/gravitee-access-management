@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
@@ -22,14 +24,14 @@ import io.gravitee.am.model.AuthenticationFlowContext;
 import io.gravitee.am.repository.management.api.AuthenticationFlowContextRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.AuthenticationFlowContextMongo;
 import io.reactivex.*;
-import org.bson.Document;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
-import static com.mongodb.client.model.Filters.*;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -54,35 +56,34 @@ public class MongoAuthenticationFlowContextRepository extends AbstractManagement
 
     @Override
     public Maybe<AuthenticationFlowContext> findById(String id) {
-        return Observable.fromPublisher(authContextCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(authContextCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<AuthenticationFlowContext> findLastByTransactionId(String transactionId) {
-        return Observable.fromPublisher(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<AuthenticationFlowContext> findByTransactionId(String transactionId) {
-        return Flowable.fromPublisher(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<AuthenticationFlowContext> create(AuthenticationFlowContext context) {
         AuthenticationFlowContextMongo contextMongo = convert(context);
         contextMongo.setId(context.getTransactionId() + "-" + context.getVersion());
-        return Single.fromPublisher(authContextCollection.insertOne(contextMongo))
-                .flatMap(success -> findById(contextMongo.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(authContextCollection.insertOne(contextMongo))).flatMap(success->RxJava2Adapter.singleToMono(findById(contextMongo.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String transactionId) {
-        return Completable.fromPublisher(authContextCollection.deleteMany(eq(FIELD_TRANSACTION_ID, transactionId)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(authContextCollection.deleteMany(eq(FIELD_TRANSACTION_ID, transactionId))));
     }
 
     @Override
     public Completable delete(String transactionId, int version) {
-        return Completable.fromPublisher(authContextCollection.deleteOne(and(eq(FIELD_TRANSACTION_ID, transactionId), eq(FIELD_VERSION, version))));
+        return RxJava2Adapter.monoToCompletable(Mono.from(authContextCollection.deleteOne(and(eq(FIELD_TRANSACTION_ID, transactionId), eq(FIELD_VERSION, version)))));
     }
 
     private AuthenticationFlowContext convert(AuthenticationFlowContextMongo entity) {

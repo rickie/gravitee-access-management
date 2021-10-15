@@ -30,6 +30,7 @@ import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.jwt.DefaultJWTParser;
 import io.gravitee.am.jwt.JWTParser;
 import io.gravitee.am.repository.oauth2.model.request.TokenRequest;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import java.io.ByteArrayInputStream;
@@ -46,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -74,7 +76,7 @@ public class JWTBearerExtensionGrantProvider implements ExtensionGrantProvider, 
         if (assertion == null) {
             throw new InvalidGrantException("Assertion value is missing");
         }
-        return Observable.fromCallable(() -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromCallable(() -> {
             try {
                 JWT jwt = jwtParser.parse(assertion);
                 return createUser(jwt);
@@ -85,7 +87,7 @@ public class JWTBearerExtensionGrantProvider implements ExtensionGrantProvider, 
                 LOGGER.error(ex.getMessage(), ex.getCause());
                 throw new InvalidGrantException(ex.getMessage(), ex);
             }
-        }).firstElement();
+        }), BackpressureStrategy.BUFFER).next());
     }
 
     public User createUser(JWT jwt) {

@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Credential;
 import io.gravitee.am.model.Domain;
@@ -22,12 +25,10 @@ import io.gravitee.am.model.User;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import org.junit.Test;
-
 import javax.ws.rs.core.Response;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -47,8 +48,8 @@ public class UserCredentialResourceTest extends JerseySpringTest {
         final User mockUser = new User();
         mockUser.setId("user-id");
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.just(mockCredential)).when(credentialService).findById("credential-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockCredential))).when(credentialService).findById("credential-id");
 
         final Response response = target("domains")
                 .path(domainId)
@@ -71,8 +72,8 @@ public class UserCredentialResourceTest extends JerseySpringTest {
         final User mockUser = new User();
         mockUser.setId("user-id");
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Completable.complete()).when(credentialService).delete("credential-id");
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToCompletable(Mono.empty())).when(credentialService).delete("credential-id");
 
         final Response response = target("domains")
                 .path(domainId)

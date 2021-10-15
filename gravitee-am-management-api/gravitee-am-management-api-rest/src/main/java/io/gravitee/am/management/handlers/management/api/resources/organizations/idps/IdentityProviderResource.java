@@ -24,12 +24,12 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.IdentityProviderService;
 import io.gravitee.am.service.model.UpdateIdentityProvider;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -38,6 +38,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -63,8 +65,7 @@ public class IdentityProviderResource extends AbstractResource {
             @PathParam("identity") String identityProvider,
             @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.READ)
-                .andThen(identityProviderService.findById(ReferenceType.ORGANIZATION, organizationId, identityProvider))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(identityProviderService.findById(ReferenceType.ORGANIZATION, organizationId, identityProvider)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -83,8 +84,7 @@ public class IdentityProviderResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.UPDATE)
-                .andThen(identityProviderService.update(ReferenceType.ORGANIZATION, organizationId, identity, updateIdentityProvider, authenticatedUser))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(identityProviderService.update(ReferenceType.ORGANIZATION, organizationId, identity, updateIdentityProvider, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -101,8 +101,7 @@ public class IdentityProviderResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.DELETE)
-                .andThen(identityProviderService.delete(ReferenceType.ORGANIZATION, organizationId, identity, authenticatedUser))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(identityProviderService.delete(ReferenceType.ORGANIZATION, organizationId, identity, authenticatedUser)))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

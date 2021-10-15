@@ -37,12 +37,16 @@ import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
 import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
 import java.util.*;
+import java.util.Map;
 import java.util.stream.Collectors;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * The Client sends the UserInfo Request using either HTTP GET or HTTP POST.
@@ -83,14 +87,12 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String subject = accessToken.getSub();
-        userService.findById(subject)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.findById(subject)
                 .switchIfEmpty(Maybe.error(new InvalidTokenException("No user found for this token")))
                 // enhance user information
                 .flatMapSingle(user -> enhance(user, accessToken))
                 // process user claims
-                .map(user -> processClaims(user, accessToken))
-                // encode response
-                .flatMap(claims -> {
+                .map(user -> processClaims(user, accessToken))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Map<String, Object>, Single<String>>)claims -> {
                         if (!expectSignedOrEncryptedUserInfo(client)) {
                             context.response().putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
                             return Single.just(Json.encodePrettily(claims));
@@ -107,8 +109,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
                             return jwtService.encodeUserinfo(jwt,client)//Sign if needed, else return unsigned JWT
                                     .flatMap(userinfo -> jweService.encryptUserinfo(userinfo,client));//Encrypt if needed, else return JWT
                         }
-                    }
-                )
+                    }).apply(v)))))
                 .subscribe(
                         buffer -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -227,11 +228,10 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
      */
     private Single<User> enhance(User user, JWT accessToken) {
         if (!loadRoles(user, accessToken) && !loadGroups(accessToken)) {
-            return Single.just(user);
+            return RxJava2Adapter.monoToSingle(Mono.just(user));
         }
 
-        return userService.enhance(user)
-                .map(user1 -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.enhance(user)).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> {
                     Map<String, Object> userClaims = user.getAdditionalInformation() == null ?
                             new HashMap<>() :
                             new HashMap<>(user.getAdditionalInformation());
@@ -244,7 +244,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
                     }
                     user1.setAdditionalInformation(userClaims);
                     return user1;
-                });
+                })));
     }
 
     /**

@@ -24,18 +24,19 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.OrganizationService;
 import io.gravitee.am.service.model.PatchOrganization;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -57,8 +58,7 @@ public class SettingsResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_SETTINGS, Acl.READ)
-                .andThen(organizationService.findById(organizationId))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_SETTINGS, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(organizationService.findById(organizationId)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -76,8 +76,7 @@ public class SettingsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_SETTINGS, Acl.UPDATE)
-                .andThen(organizationService.update(organizationId, patchOrganization, authenticatedUser))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_SETTINGS, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(organizationService.update(organizationId, patchOrganization, authenticatedUser)))))
                 .subscribe(organization -> response.resume(Response.ok(organization).build()), response::resume);
     }
 }

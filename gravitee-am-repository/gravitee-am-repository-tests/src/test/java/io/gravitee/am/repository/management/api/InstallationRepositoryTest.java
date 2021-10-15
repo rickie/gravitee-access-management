@@ -21,11 +21,11 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.*;
 import java.util.stream.Collectors;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -40,7 +40,7 @@ public class InstallationRepositoryTest extends AbstractManagementTest {
     public void testFindById() {
         // create idp
         Installation installation = buildInstallation();
-        Installation installationCreated = installationRepository.create(installation).blockingGet();
+        Installation installationCreated = RxJava2Adapter.singleToMono(installationRepository.create(installation)).block();
 
         // fetch idp
         TestObserver<Installation> testObserver = installationRepository.findById(installationCreated.getId()).test();
@@ -73,7 +73,7 @@ public class InstallationRepositoryTest extends AbstractManagementTest {
     public void testUpdate() {
         // create idp
         Installation installation = buildInstallation();
-        Installation installationCreated = installationRepository.create(installation).blockingGet();
+        Installation installationCreated = RxJava2Adapter.singleToMono(installationRepository.create(installation)).block();
 
         // update idp
         Installation updatedInstallation = buildInstallation();
@@ -95,7 +95,7 @@ public class InstallationRepositoryTest extends AbstractManagementTest {
     public void testDelete() {
         // create idp
         Installation installation = buildInstallation();
-        Installation installationCreated = installationRepository.create(installation).blockingGet();
+        Installation installationCreated = RxJava2Adapter.singleToMono(installationRepository.create(installation)).block();
 
         // delete idp
         TestObserver<Void> testObserver1 = installationRepository.delete(installationCreated.getId()).test();

@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter.password;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.gateway.handler.common.auth.user.UserAuthenticationManager;
 import io.gravitee.am.gateway.handler.oauth2.service.request.OAuth2Request;
@@ -29,17 +32,15 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.util.LinkedMultiValueMap;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -83,9 +84,9 @@ public class ResourceOwnerPasswordCredentialsTokenGranterTest {
         when(tokenRequest.parameters()).thenReturn(parameters);
         when(tokenRequest.createOAuth2Request()).thenReturn(new OAuth2Request());
 
-        when(tokenRequestResolver.resolve(any(), any(), any())).thenReturn(Single.just(tokenRequest));
-        when(tokenService.create(any(), any(), any())).thenReturn(Single.just(accessToken));
-        when(userAuthenticationManager.authenticate(any(Client.class), any(Authentication.class))).thenReturn(Single.just(new User()));
+        when(tokenRequestResolver.resolve(any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(tokenRequest)));
+        when(tokenService.create(any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(accessToken)));
+        when(userAuthenticationManager.authenticate(any(Client.class), any(Authentication.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
 
         TestObserver<Token> testObserver = granter.grant(tokenRequest, client).test();
         testObserver.assertComplete();

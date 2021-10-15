@@ -24,15 +24,16 @@ import io.gravitee.am.gateway.handler.oauth2.service.granter.AbstractTokenGrante
 import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequestResolver;
 import io.gravitee.am.gateway.handler.oauth2.service.token.TokenService;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.User;
+import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * Implementation of the Refresh Token Grant Flow
@@ -61,35 +62,24 @@ public class RefreshTokenGranter extends AbstractTokenGranter {
         String refreshToken = tokenRequest.parameters().getFirst(Parameters.REFRESH_TOKEN);
 
         if (refreshToken == null || refreshToken.isEmpty()) {
-            return Single.error(new InvalidRequestException("A refresh token must be supplied."));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("A refresh token must be supplied.")));
         }
 
-        return super.parseRequest(tokenRequest, client)
-                .flatMap(tokenRequest1 -> getTokenService().refresh(refreshToken, tokenRequest, client)
-                        .map(refreshToken1 -> {
-                            // set resource owner
-                            if (refreshToken1.getSubject() != null) {
-                                tokenRequest1.setSubject(refreshToken1.getSubject());
-                            }
-                            // set scopes
-                            // The requested scope MUST NOT include any scope
-                            // not originally granted by the resource owner, and if omitted is
-                            // treated as equal to the scope originally granted by the resource owner.
-                            final Set<String> originalScopes = (refreshToken1.getScope() != null ? new HashSet(Arrays.asList(refreshToken1.getScope().split("\\s+"))) : null);
-                            final Set<String> requestedScopes = tokenRequest1.getScopes();
-                            if (requestedScopes == null || requestedScopes.isEmpty()) {
-                                tokenRequest1.setScopes(originalScopes);
-                            } else if (originalScopes != null && !originalScopes.isEmpty()) {
-                                Set<String> filteredScopes = requestedScopes
-                                        .stream()
-                                        .filter(originalScopes::contains)
-                                        .collect(Collectors.toSet());
-                                tokenRequest1.setScopes(filteredScopes);
-                            }
-                            // set decoded refresh token to the current request
-                            tokenRequest1.setRefreshToken(refreshToken1.getAdditionalInformation());
-                            return tokenRequest1;
-                        }));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client)).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(getTokenService().refresh(refreshToken, tokenRequest, client).map((io.gravitee.am.gateway.handler.oauth2.service.token.Token refreshToken1)->{
+if (refreshToken1.getSubject() != null) {
+tokenRequest1.setSubject(refreshToken1.getSubject());
+}
+final Set<String> originalScopes = (refreshToken1.getScope() != null ? new HashSet(Arrays.asList(refreshToken1.getScope().split("\\s+"))) : null);
+final Set<String> requestedScopes = tokenRequest1.getScopes();
+if (requestedScopes == null || requestedScopes.isEmpty()) {
+tokenRequest1.setScopes(originalScopes);
+} else if (originalScopes != null && !originalScopes.isEmpty()) {
+Set<String> filteredScopes = requestedScopes.stream().filter(originalScopes::contains).collect(Collectors.toSet());
+tokenRequest1.setScopes(filteredScopes);
+}
+tokenRequest1.setRefreshToken(refreshToken1.getAdditionalInformation());
+return tokenRequest1;
+}))));
     }
 
     @Override
@@ -97,16 +87,16 @@ public class RefreshTokenGranter extends AbstractTokenGranter {
         final String subject = tokenRequest.getSubject();
 
         if (subject == null) {
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
 
         return userAuthenticationManager.loadPreAuthenticatedUser(subject, tokenRequest)
-                .onErrorResumeNext(ex -> { return Maybe.error(new InvalidGrantException()); });
+                .onErrorResumeNext(ex -> { return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException())); });
     }
 
     @Override
     protected Single<TokenRequest> resolveRequest(TokenRequest tokenRequest, Client client, User endUser) {
         // request has already been resolved during parse request step
-        return Single.just(tokenRequest);
+        return RxJava2Adapter.monoToSingle(Mono.just(tokenRequest));
     }
 }

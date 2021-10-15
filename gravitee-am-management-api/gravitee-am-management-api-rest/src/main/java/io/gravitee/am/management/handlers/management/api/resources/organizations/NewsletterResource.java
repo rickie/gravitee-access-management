@@ -25,10 +25,10 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.service.OrganizationUserService;
 import io.gravitee.am.service.UserService;
 import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
@@ -36,10 +36,11 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Defines the REST resources to manage Newsletter.
@@ -73,17 +74,16 @@ public class NewsletterResource extends AbstractResource {
         // Get the organization the current user is logged on.
         String organizationId = (String) authenticatedUser.getAdditionalInformation().getOrDefault(Claims.organization, Organization.DEFAULT);
 
-        userService.findById(ReferenceType.ORGANIZATION, organizationId, authenticatedUser.getId())
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.findById(ReferenceType.ORGANIZATION, organizationId, authenticatedUser.getId())
                 .flatMap(user -> {
                     user.setEmail(emailValue.getEmail());
                     user.setNewsletter(true);
                     return userService.update(user);
-                })
-                .doOnSuccess(endUser -> {
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(endUser -> {
                     Map<String, Object> object = new HashMap<>();
                     object.put("email", endUser.getEmail());
                     newsletterService.subscribe(object);
-                })
+                })))
                 .subscribe(response::resume, response::resume);
     }
 

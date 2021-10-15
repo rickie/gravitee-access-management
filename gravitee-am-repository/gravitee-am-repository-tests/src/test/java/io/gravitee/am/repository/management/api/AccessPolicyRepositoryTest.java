@@ -18,15 +18,15 @@ package io.gravitee.am.repository.management.api;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.uma.policy.AccessPolicy;
 import io.gravitee.am.model.uma.policy.AccessPolicyType;
-import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.exceptions.TechnicalException;
+import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -53,7 +53,7 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
         accessPolicy.setOrder(Integer.MAX_VALUE);
         accessPolicy.setResource("resource");
         accessPolicy.setType(AccessPolicyType.GROOVY);
-        AccessPolicy apCreated = repository.create(accessPolicy).blockingGet();
+        AccessPolicy apCreated = RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
 
         TestObserver<AccessPolicy> testObserver = repository.findById(apCreated.getId()).test();
         testObserver.awaitTerminalEvent();
@@ -74,7 +74,7 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
     public void update() throws TechnicalException {
         AccessPolicy accessPolicy = new AccessPolicy();
         accessPolicy.setName("accessPolicyName");
-        AccessPolicy apCreated = repository.create(accessPolicy).blockingGet();
+        AccessPolicy apCreated = RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
 
         AccessPolicy toUpdate = new AccessPolicy();
         toUpdate.setId(apCreated.getId());
@@ -92,7 +92,7 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
     public void delete() throws TechnicalException {
         AccessPolicy accessPolicy = new AccessPolicy();
         accessPolicy.setName("accessPolicyName");
-        AccessPolicy apCreated = repository.create(accessPolicy).blockingGet();
+        AccessPolicy apCreated = RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
 
         // fetch resource_set
         TestObserver<Void> testObserver = repository.delete(apCreated.getId()).test();
@@ -109,12 +109,12 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
         accessPolicy.setName("accessPolicyName");
         final String DOMAIN_SINGLE = DOMAIN_ID + "single";
         accessPolicy.setDomain(DOMAIN_SINGLE);
-        repository.create(accessPolicy).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
 
         AccessPolicy accessPolicyOtherDomain = new AccessPolicy();
         accessPolicyOtherDomain.setName("accessPolicyName");
         accessPolicyOtherDomain.setDomain(DOMAIN_ID+"-other");
-        repository.create(accessPolicyOtherDomain).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(accessPolicyOtherDomain)).block();
 
         TestObserver<Page<AccessPolicy>> testObserver = repository.findByDomain(DOMAIN_SINGLE, 0, 20).test();
         testObserver.awaitTerminalEvent();
@@ -135,14 +135,14 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
             accessPolicy.setCreatedAt(new Date());
             accessPolicy.setUpdatedAt(new Date());
 
-            repository.create(accessPolicy).blockingGet();
+            RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
             Thread.sleep(100l);
         }
 
         AccessPolicy accessPolicyOtherDomain = new AccessPolicy();
         accessPolicyOtherDomain.setName("accessPolicyName");
         accessPolicyOtherDomain.setDomain(DOMAIN_ID+"-other");
-        repository.create(accessPolicyOtherDomain).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(accessPolicyOtherDomain)).block();
 
         // list all in one page
         TestObserver<Page<AccessPolicy>> testObserver = repository.findByDomain(DOMAIN10, 0, totalCount+1).test();
@@ -183,21 +183,21 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
         accessPolicy.setName("accessPolicyName");
         accessPolicy.setDomain(DOMAIN_ID);
         accessPolicy.setResource(RESOURCE_ID);
-        repository.create(accessPolicy).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
 
         AccessPolicy accessPolicy2 = new AccessPolicy();
         accessPolicy2.setName("accessPolicyName");
         accessPolicy2.setDomain(DOMAIN_ID);
         accessPolicy2.setResource(RESOURCE_ID);
-        repository.create(accessPolicy2).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(accessPolicy2)).block();
 
         AccessPolicy accessPolicy3 = new AccessPolicy();
         accessPolicy3.setName("accessPolicyName");
         accessPolicy3.setDomain(DOMAIN_ID+"-other");
         accessPolicy3.setResource(RESOURCE_ID+"-other");
-        repository.create(accessPolicy3).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(accessPolicy3)).block();
 
-        TestObserver<List<AccessPolicy>> testObserver = repository.findByDomainAndResource(DOMAIN_ID, RESOURCE_ID).toList().test();
+        TestObserver<List<AccessPolicy>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findByDomainAndResource(DOMAIN_ID, RESOURCE_ID)).collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -212,21 +212,21 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
         accessPolicy.setName("accessPolicyName");
         accessPolicy.setDomain(DOMAIN_ID);
         accessPolicy.setResource(RESOURCE_ID);
-        repository.create(accessPolicy).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
 
         AccessPolicy accessPolicy2 = new AccessPolicy();
         accessPolicy2.setName("accessPolicyName");
         accessPolicy2.setDomain(DOMAIN_ID);
         accessPolicy2.setResource(RESOURCE_ID+"2");
-        repository.create(accessPolicy2).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(accessPolicy2)).block();
 
         AccessPolicy accessPolicy3 = new AccessPolicy();
         accessPolicy3.setName("accessPolicyName");
         accessPolicy3.setDomain(DOMAIN_ID+"-other");
         accessPolicy3.setResource(RESOURCE_ID+"-other");
-        repository.create(accessPolicy3).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(accessPolicy3)).block();
 
-        TestObserver<List<AccessPolicy>> testObserver = repository.findByResources(Arrays.asList(RESOURCE_ID, RESOURCE_ID+"2")).toList().test();
+        TestObserver<List<AccessPolicy>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findByResources(Arrays.asList(RESOURCE_ID, RESOURCE_ID+"2"))).collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();

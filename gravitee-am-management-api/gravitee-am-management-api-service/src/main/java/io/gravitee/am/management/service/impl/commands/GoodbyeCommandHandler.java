@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.management.service.impl.commands;
 
+import static io.gravitee.am.model.Installation.COCKPIT_INSTALLATION_STATUS;
+
 import io.gravitee.am.model.Installation;
 import io.gravitee.am.service.InstallationService;
 import io.gravitee.cockpit.api.command.Command;
@@ -23,13 +25,12 @@ import io.gravitee.cockpit.api.command.CommandStatus;
 import io.gravitee.cockpit.api.command.goodbye.GoodbyeCommand;
 import io.gravitee.cockpit.api.command.goodbye.GoodbyeReply;
 import io.reactivex.Single;
+import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
-
-import static io.gravitee.am.model.Installation.COCKPIT_INSTALLATION_STATUS;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -55,10 +56,9 @@ public class GoodbyeCommandHandler implements CommandHandler<GoodbyeCommand, Goo
 
     @Override
     public Single<GoodbyeReply> handle(GoodbyeCommand command) {
-        return installationService.addAdditionalInformation(Collections.singletonMap(COCKPIT_INSTALLATION_STATUS, DELETED_STATUS))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(installationService.addAdditionalInformation(Collections.singletonMap(COCKPIT_INSTALLATION_STATUS, DELETED_STATUS))
                 .flatMap(installation -> Single.just(new GoodbyeReply(command.getId(), CommandStatus.SUCCEEDED)))
-                .doOnSuccess(reply -> logger.info("Installation has been removed."))
-                .doOnError(error -> logger.error("Error occurred when deleting installation.", error))
+                .doOnSuccess(reply -> logger.info("Installation has been removed."))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Error occurred when deleting installation.", error))))
                 .onErrorReturn(throwable -> new GoodbyeReply(command.getId(), CommandStatus.ERROR));
     }
 }

@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -87,11 +88,11 @@ public abstract class JdbcUserProvider_Test {
     public void shouldUpdate() {
         DefaultUser user = new DefaultUser("userToUpdate");
         user.setCredentials("password");
-        User createdUser = userProvider.create(user).blockingGet();
+        User createdUser = RxJava2Adapter.singleToMono(userProvider.create(user)).block();
 
         DefaultUser updateUser = new DefaultUser("userToUpdate");
         updateUser.setCredentials("password2");
-        userProvider.update(createdUser.getId(), updateUser).blockingGet();
+        RxJava2Adapter.singleToMono(userProvider.update(createdUser.getId(), updateUser)).block();
 
         TestObserver<User> testObserver = userProvider.findByUsername("userToUpdate").test();
         testObserver.awaitTerminalEvent();
@@ -113,7 +114,7 @@ public abstract class JdbcUserProvider_Test {
     @Test
     public void shouldDelete() {
         DefaultUser user = new DefaultUser("userToDelete");
-        User createdUser = userProvider.create(user).blockingGet();
+        User createdUser = RxJava2Adapter.singleToMono(userProvider.create(user)).block();
         userProvider.delete(createdUser.getId()).blockingGet();
 
         TestObserver<User> testObserver = userProvider.findByUsername("userToDelete").test();

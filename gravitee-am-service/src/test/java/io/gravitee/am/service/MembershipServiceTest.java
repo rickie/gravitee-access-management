@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.identityprovider.api.DefaultUser;
 import io.gravitee.am.model.*;
 import io.gravitee.am.model.common.event.Event;
@@ -35,10 +39,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -91,11 +94,11 @@ public class MembershipServiceTest {
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setAssignableType(ReferenceType.DOMAIN);
 
-        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(Single.just(user));
-        when(roleService.findById(role.getId())).thenReturn(Maybe.just(role));
-        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(Maybe.empty());
-        when(membershipRepository.create(any())).thenReturn(Single.just(new Membership()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(roleService.findById(role.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
+        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(membershipRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Membership())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = membershipService.addOrUpdate(ORGANIZATION_ID, membership).test();
         testObserver.awaitTerminalEvent();
@@ -126,12 +129,12 @@ public class MembershipServiceTest {
         role.setReferenceType(ReferenceType.PLATFORM);
         role.setAssignableType(ReferenceType.DOMAIN);
 
-        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(Single.just(user));
-        when(roleService.findById(role.getId())).thenReturn(Maybe.just(role));
-        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(Maybe.empty());
-        when(membershipRepository.create(any())).thenReturn(Single.just(new Membership()));
-        when(membershipRepository.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), argThat(criteria -> criteria.getRoleId().isPresent()))).thenReturn(Flowable.empty());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(roleService.findById(role.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
+        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(membershipRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Membership())));
+        when(membershipRepository.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), argThat(criteria -> criteria.getRoleId().isPresent()))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = membershipService.addOrUpdate(ORGANIZATION_ID, membership).test();
         testObserver.awaitTerminalEvent();
@@ -160,11 +163,11 @@ public class MembershipServiceTest {
         group.setReferenceId(DOMAIN_ID);
         group.setReferenceType(ReferenceType.DOMAIN);
 
-        when(groupService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(Single.just(group));
-        when(roleService.findById(role.getId())).thenReturn(Maybe.just(role));
-        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(Maybe.empty());
-        when(membershipRepository.create(any())).thenReturn(Single.just(new Membership()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(groupService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(group)));
+        when(roleService.findById(role.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
+        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(membershipRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Membership())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = membershipService.addOrUpdate(ORGANIZATION_ID, membership).test();
         testObserver.awaitTerminalEvent();
@@ -189,9 +192,9 @@ public class MembershipServiceTest {
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setAssignableType(ReferenceType.DOMAIN);
 
-        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(Single.error(new UserNotFoundException("user-id")));
-        when(roleService.findById(role.getId())).thenReturn(Maybe.just(role));
-        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(Maybe.empty());
+        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new UserNotFoundException("user-id"))));
+        when(roleService.findById(role.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
+        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = membershipService.addOrUpdate(ORGANIZATION_ID, membership).test();
         testObserver.awaitTerminalEvent();
@@ -224,10 +227,10 @@ public class MembershipServiceTest {
         role.setReferenceType(ReferenceType.PLATFORM);
         role.setAssignableType(ReferenceType.DOMAIN);
 
-        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(Single.just(user));
-        when(roleService.findById(role.getId())).thenReturn(Maybe.just(role));
-        when(membershipRepository.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), argThat(criteria -> criteria.getRoleId().isPresent()))).thenReturn(Flowable.just(new Membership()));
-        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(Maybe.empty());
+        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(roleService.findById(role.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
+        when(membershipRepository.findByCriteria(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), argThat(criteria -> criteria.getRoleId().isPresent()))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Membership())));
+        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = membershipService.addOrUpdate(ORGANIZATION_ID, membership).test();
         testObserver.awaitTerminalEvent();
@@ -256,9 +259,9 @@ public class MembershipServiceTest {
         role.setReferenceType(ReferenceType.PLATFORM);
         role.setAssignableType(ReferenceType.DOMAIN);
 
-        when(groupService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(Single.just(group));
-        when(roleService.findById(role.getId())).thenReturn(Maybe.just(role));
-        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(Maybe.empty());
+        when(groupService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(group)));
+        when(roleService.findById(role.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
+        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = membershipService.addOrUpdate(ORGANIZATION_ID, membership).test();
         testObserver.awaitTerminalEvent();
@@ -281,9 +284,9 @@ public class MembershipServiceTest {
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setAssignableType(ReferenceType.DOMAIN);
 
-        when(groupService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(Single.error(new GroupNotFoundException("group-id")));
-        when(roleService.findById(role.getId())).thenReturn(Maybe.just(role));
-        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(Maybe.empty());
+        when(groupService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new GroupNotFoundException("group-id"))));
+        when(roleService.findById(role.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
+        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = membershipService.addOrUpdate(ORGANIZATION_ID, membership).test();
         testObserver.awaitTerminalEvent();
@@ -314,9 +317,9 @@ public class MembershipServiceTest {
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setAssignableType(ReferenceType.DOMAIN);
 
-        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(Single.just(user));
-        when(roleService.findById(role.getId())).thenReturn(Maybe.empty());
-        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(Maybe.empty());
+        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(roleService.findById(role.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = membershipService.addOrUpdate(ORGANIZATION_ID, membership).test();
         testObserver.awaitTerminalEvent();
@@ -348,9 +351,9 @@ public class MembershipServiceTest {
         // Scope application can't be use for domain.
         role.setAssignableType(ReferenceType.APPLICATION);
 
-        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(Single.just(user));
-        when(roleService.findById(role.getId())).thenReturn(Maybe.just(role));
-        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(Maybe.empty());
+        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(roleService.findById(role.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
+        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = membershipService.addOrUpdate(ORGANIZATION_ID, membership).test();
         testObserver.awaitTerminalEvent();
@@ -382,9 +385,9 @@ public class MembershipServiceTest {
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setAssignableType(ReferenceType.DOMAIN);
 
-        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(Single.just(user));
-        when(roleService.findById(role.getId())).thenReturn(Maybe.just(role));
-        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(Maybe.empty());
+        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(roleService.findById(role.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
+        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = membershipService.addOrUpdate(ORGANIZATION_ID, membership).test();
         testObserver.awaitTerminalEvent();
@@ -416,9 +419,9 @@ public class MembershipServiceTest {
         role.setReferenceType(ReferenceType.ORGANIZATION);
         role.setAssignableType(ReferenceType.DOMAIN);
 
-        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(Single.just(user));
-        when(roleService.findById(role.getId())).thenReturn(Maybe.just(role));
-        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(Maybe.empty());
+        when(userService.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(roleService.findById(role.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
+        when(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = membershipService.addOrUpdate(ORGANIZATION_ID, membership).test();
         testObserver.awaitTerminalEvent();
@@ -446,10 +449,10 @@ public class MembershipServiceTest {
         Role environmentUserRole = new Role();
         environmentUserRole.setId("role#1");
 
-        when(membershipRepository.findByCriteria(eq(ReferenceType.ENVIRONMENT), eq("env#1"), any(MembershipCriteria.class))).thenReturn(Flowable.empty());
-        when(roleService.findDefaultRole("orga#1", DefaultRole.ENVIRONMENT_USER, ReferenceType.ENVIRONMENT)).thenReturn(Maybe.just(environmentUserRole));
-        when(membershipRepository.create(any())).thenReturn(Single.just(new Membership()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(membershipRepository.findByCriteria(eq(ReferenceType.ENVIRONMENT), eq("env#1"), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(roleService.findDefaultRole("orga#1", DefaultRole.ENVIRONMENT_USER, ReferenceType.ENVIRONMENT)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(environmentUserRole)));
+        when(membershipRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Membership())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver<Void> completable = membershipService.addEnvironmentUserRoleIfNecessary("orga#1", "env#1", membership, principal).test();
 
@@ -475,7 +478,7 @@ public class MembershipServiceTest {
         Role environmentUserRole = new Role();
         environmentUserRole.setId("role#1");
 
-        when(membershipRepository.findByCriteria(eq(ReferenceType.ENVIRONMENT), eq("env#1"), any(MembershipCriteria.class))).thenReturn(Flowable.just(new Membership()));
+        when(membershipRepository.findByCriteria(eq(ReferenceType.ENVIRONMENT), eq("env#1"), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Membership())));
 
         TestObserver<Void> completable = membershipService.addEnvironmentUserRoleIfNecessary("orga#1", "env#1", membership, principal).test();
 
@@ -504,12 +507,12 @@ public class MembershipServiceTest {
         Role environmentUserRole = new Role();
         environmentUserRole.setId("role#1");
 
-        when(membershipRepository.findByCriteria(eq(ReferenceType.DOMAIN), eq("domain#1"), any(MembershipCriteria.class))).thenReturn(Flowable.empty());
-        when(roleService.findDefaultRole("orga#1", DefaultRole.DOMAIN_USER, ReferenceType.DOMAIN)).thenReturn(Maybe.just(environmentUserRole));
-        when(membershipRepository.create(any())).thenReturn(Single.just(new Membership()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(membershipRepository.findByCriteria(eq(ReferenceType.ENVIRONMENT), eq("env#1"), any(MembershipCriteria.class))).thenReturn(Flowable.empty());
-        when(roleService.findDefaultRole("orga#1", DefaultRole.ENVIRONMENT_USER, ReferenceType.ENVIRONMENT)).thenReturn(Maybe.just(environmentUserRole));
+        when(membershipRepository.findByCriteria(eq(ReferenceType.DOMAIN), eq("domain#1"), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(roleService.findDefaultRole("orga#1", DefaultRole.DOMAIN_USER, ReferenceType.DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(environmentUserRole)));
+        when(membershipRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Membership())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(membershipRepository.findByCriteria(eq(ReferenceType.ENVIRONMENT), eq("env#1"), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(roleService.findDefaultRole("orga#1", DefaultRole.ENVIRONMENT_USER, ReferenceType.ENVIRONMENT)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(environmentUserRole)));
 
         TestObserver<Void> completable = membershipService.addDomainUserRoleIfNecessary("orga#1", "env#1", "domain#1", membership, principal).test();
 
@@ -535,8 +538,8 @@ public class MembershipServiceTest {
         Role environmentUserRole = new Role();
         environmentUserRole.setId("role#1");
 
-        when(membershipRepository.findByCriteria(eq(ReferenceType.ENVIRONMENT), eq("env#1"), any(MembershipCriteria.class))).thenReturn(Flowable.just(new Membership()));
-        when(membershipRepository.findByCriteria(eq(ReferenceType.DOMAIN), eq("domain#1"), any(MembershipCriteria.class))).thenReturn(Flowable.just(new Membership()));
+        when(membershipRepository.findByCriteria(eq(ReferenceType.ENVIRONMENT), eq("env#1"), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Membership())));
+        when(membershipRepository.findByCriteria(eq(ReferenceType.DOMAIN), eq("domain#1"), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Membership())));
 
         TestObserver<Void> completable = membershipService.addDomainUserRoleIfNecessary("orga#1", "env#1", "domain#1", membership, principal).test();
 
@@ -554,10 +557,10 @@ public class MembershipServiceTest {
         final String userId = "userId";
         final Role platformAdminRole = new Role();
         platformAdminRole.setId("platform-admin");
-        when(roleService.findSystemRole(SystemRole.PLATFORM_ADMIN, ReferenceType.PLATFORM)).thenReturn(Maybe.just(platformAdminRole));
-        when(membershipRepository.findByCriteria(eq(ReferenceType.PLATFORM), eq(Platform.DEFAULT), argThat(criteria -> criteria != null && criteria.getUserId().get().equals(userId)))).thenReturn(Flowable.empty());
-        when(membershipRepository.create(any(Membership.class))).thenAnswer((i->Single.just(i.getArgument(0))));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(roleService.findSystemRole(SystemRole.PLATFORM_ADMIN, ReferenceType.PLATFORM)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(platformAdminRole)));
+        when(membershipRepository.findByCriteria(eq(ReferenceType.PLATFORM), eq(Platform.DEFAULT), argThat(criteria -> criteria != null && criteria.getUserId().get().equals(userId)))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(membershipRepository.create(any(Membership.class))).thenAnswer((i->RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         final TestObserver<Membership> obs = membershipService.setPlatformAdmin(userId).test();
 
@@ -576,7 +579,7 @@ public class MembershipServiceTest {
     public void shouldNotSetPlatformAdmin_roleNotFound() {
 
         final String userId = "userId";
-        when(roleService.findSystemRole(SystemRole.PLATFORM_ADMIN, ReferenceType.PLATFORM)).thenReturn(Maybe.empty());
+        when(roleService.findSystemRole(SystemRole.PLATFORM_ADMIN, ReferenceType.PLATFORM)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         final TestObserver<Membership> obs = membershipService.setPlatformAdmin(userId).test();
 
@@ -591,8 +594,8 @@ public class MembershipServiceTest {
         final Membership alreadyExisting = new Membership();
         final Role platformAdminRole = new Role();
         platformAdminRole.setId("platform-admin");
-        when(roleService.findSystemRole(SystemRole.PLATFORM_ADMIN, ReferenceType.PLATFORM)).thenReturn(Maybe.just(platformAdminRole));
-        when(membershipRepository.findByCriteria(eq(ReferenceType.PLATFORM), eq(Platform.DEFAULT), argThat(criteria -> criteria != null && criteria.getUserId().get().equals(userId)))).thenReturn(Flowable.just(alreadyExisting));
+        when(roleService.findSystemRole(SystemRole.PLATFORM_ADMIN, ReferenceType.PLATFORM)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(platformAdminRole)));
+        when(membershipRepository.findByCriteria(eq(ReferenceType.PLATFORM), eq(Platform.DEFAULT), argThat(criteria -> criteria != null && criteria.getUserId().get().equals(userId)))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alreadyExisting)));
 
         final TestObserver<Membership> obs = membershipService.setPlatformAdmin(userId).test();
 

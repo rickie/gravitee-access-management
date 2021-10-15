@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.SystemTask;
@@ -24,12 +27,11 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -48,29 +50,29 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
 
     @Override
     public Maybe<SystemTask> findById(String id) {
-        return Observable.fromPublisher(systemTaskCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(SystemTaskMongo::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(systemTaskCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(SystemTaskMongo::convert)));
     }
 
     @Override
     public Single<SystemTask> create(SystemTask item) {
         SystemTaskMongo task = SystemTaskMongo.convert(item);
         task.setId(task.getId() == null ? RandomString.generate() : task.getId());
-        return Single.fromPublisher(systemTaskCollection.insertOne(task)).flatMap(success -> findById(task.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.insertOne(task))).flatMap(success->RxJava2Adapter.singleToMono(findById(task.getId()).toSingle())));
     }
 
     @Override
     public Single<SystemTask> update(SystemTask item) {
-        return Single.error(new IllegalStateException("SystemTask can't be updated without control on the operationId"));
+        return RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("SystemTask can't be updated without control on the operationId")));
     }
 
     @Override
     public Single<SystemTask> updateIf(SystemTask item, String operationId) {
         SystemTaskMongo task = SystemTaskMongo.convert(item);
-        return Single.fromPublisher(systemTaskCollection.replaceOne(and(eq(FIELD_ID, task.getId()), eq(FIELD_OPERATION_ID, operationId)), task)).flatMap(updateResult -> findById(task.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.replaceOne(and(eq(FIELD_ID, task.getId()), eq(FIELD_OPERATION_ID, operationId)), task))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(task.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(systemTaskCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(systemTaskCollection.deleteOne(eq(FIELD_ID, id))));
     }
 }

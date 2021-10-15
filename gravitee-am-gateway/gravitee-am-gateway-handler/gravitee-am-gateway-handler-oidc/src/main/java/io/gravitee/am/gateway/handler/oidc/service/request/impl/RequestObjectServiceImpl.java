@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.request.impl;
 
+import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.isSignAlgCompliantWithFapi;
+
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
@@ -35,18 +37,20 @@ import io.gravitee.am.repository.oidc.api.RequestObjectRepository;
 import io.gravitee.am.repository.oidc.model.RequestObject;
 import io.gravitee.common.utils.UUID;
 import io.reactivex.*;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
-
-import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.isSignAlgCompliantWithFapi;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -97,24 +101,22 @@ public class RequestObjectServiceImpl implements RequestObjectService {
                 // Extract the identifier
                 String identifier = requestUri.substring(RESOURCE_OBJECT_URN_PREFIX.length());
 
-                return requestObjectRepository.findById(identifier)
-                        .switchIfEmpty(Single.error(new InvalidRequestObjectException()))
-                        .flatMap((Function<RequestObject, Single<JWT>>) req -> {
+                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(requestObjectRepository.findById(identifier)
+                        .switchIfEmpty(Single.error(new InvalidRequestObjectException()))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<RequestObject, Single<JWT>>)(Function<RequestObject, Single<JWT>>)req -> {
                             if (req.getExpireAt().after(new Date())) {
                                 return readRequestObject(req.getPayload(), client, false);
                             }
 
                             return Single.error(new InvalidRequestObjectException());
-                        });
+                        }).apply(v)))));
             } else {
-                return webClient.getAbs(UriBuilder.fromHttpUrl(requestUri).build().toString())
+                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(webClient.getAbs(UriBuilder.fromHttpUrl(requestUri).build().toString())
                         .rxSend()
-                        .map(HttpResponse::bodyAsString)
-                        .flatMap((Function<String, Single<JWT>>) s -> readRequestObject(s, client, false));
+                        .map(HttpResponse::bodyAsString)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<JWT>>)(Function<String, Single<JWT>>)s -> readRequestObject(s, client, false)).apply(v)))));
             }
         }
         catch (IllegalArgumentException | URISyntaxException ex) {
-            return Single.error(new InvalidRequestObjectException(requestUri+" is not valid."));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException(requestUri+" is not valid.")));
         }
     }
 
@@ -159,15 +161,14 @@ public class RequestObjectServiceImpl implements RequestObjectService {
     }
 
     private Single<JWT> validateSignature(SignedJWT jwt, Client client) {
-        return jwkService.getKeys(client)
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwkService.getKeys(client)
                 .switchIfEmpty(Maybe.error(new InvalidRequestObjectException()))
                 .flatMap(new Function<JWKSet, MaybeSource<JWK>>() {
                     @Override
                     public MaybeSource<JWK> apply(JWKSet jwkSet) throws Exception {
                         return jwkService.getKey(jwkSet, jwt.getHeader().getKeyID());
                     }
-                })
-                .switchIfEmpty(Maybe.error(new InvalidRequestObjectException("Invalid key ID")))
+                })).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new InvalidRequestObjectException("Invalid key ID"))))))
                 .flatMapSingle(new Function<JWK, SingleSource<JWT>>() {
                     @Override
                     public SingleSource<JWT> apply(JWK jwk) throws Exception {
@@ -176,11 +177,11 @@ public class RequestObjectServiceImpl implements RequestObjectService {
                         // JOSE Header MUST match the value of the request_object_signing_alg
                         // set during Client Registration
                         if (!jwt.getHeader().getAlgorithm().getName().equals(client.getRequestObjectSigningAlg())) {
-                            return Single.error(new InvalidRequestObjectException("Invalid request object signing algorithm"));
+                            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException("Invalid request object signing algorithm")));
                         } else if (jwsService.isValidSignature(jwt, jwk)) {
-                            return Single.just(jwt);
+                            return RxJava2Adapter.monoToSingle(Mono.just(jwt));
                         } else {
-                            return Single.error(new InvalidRequestObjectException("Invalid signature"));
+                            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException("Invalid signature")));
                         }
                     }
                 });
@@ -191,13 +192,13 @@ public class RequestObjectServiceImpl implements RequestObjectService {
         // none, and the signature is correct as in clause 6.3 of [OIDC].
         if (! (jwt instanceof SignedJWT) ||
                 (jwt.getHeader().getAlgorithm() != null && "none".equalsIgnoreCase(jwt.getHeader().getAlgorithm().getName()))) {
-            return Completable.error(new InvalidRequestObjectException("Request object must be signed"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidRequestObjectException("Request object must be signed")));
         }
 
         if (this.domain.usePlainFapiProfile() && !isSignAlgCompliantWithFapi(jwt.getHeader().getAlgorithm().getName())) {
-            return Completable.error(new InvalidRequestObjectException("Request object must be signed with PS256"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidRequestObjectException("Request object must be signed with PS256")));
         }
 
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 }

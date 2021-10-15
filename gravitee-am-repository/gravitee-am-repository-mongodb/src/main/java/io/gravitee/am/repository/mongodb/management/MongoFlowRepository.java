@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
@@ -23,15 +26,14 @@ import io.gravitee.am.model.flow.Type;
 import io.gravitee.am.repository.management.api.FlowRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.FlowMongo;
 import io.reactivex.*;
-import org.bson.Document;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -54,19 +56,19 @@ public class MongoFlowRepository extends AbstractManagementMongoRepository imple
 
     @Override
     public Flowable<Flow> findAll(ReferenceType referenceType, String referenceId) {
-        return Flowable.fromPublisher(
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(
                 flowsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId)
                         )
                 )
-        ).map(this::convert);
+        )).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Flow> findByApplication(ReferenceType referenceType, String referenceId, String application) {
-        return Flowable.fromPublisher(
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(
                 flowsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
@@ -74,42 +76,42 @@ public class MongoFlowRepository extends AbstractManagementMongoRepository imple
                                 eq(FIELD_APPLICATION, application)
                         )
                 )
-        ).map(this::convert);
+        )).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Flow> findById(ReferenceType referenceType, String referenceId, String id) {
-        return Observable.fromPublisher(
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(
                 flowsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_ID, id)
                         )
-                ).first()).firstElement().map(this::convert);
+                ).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Flow> findById(String id) {
-        return Observable.fromPublisher(flowsCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(flowsCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Flow> create(Flow item) {
         FlowMongo flow = convert(item);
         flow.setId(flow.getId() == null ? RandomString.generate() : flow.getId());
-        return Single.fromPublisher(flowsCollection.insertOne(flow)).flatMap(success -> findById(flow.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(flowsCollection.insertOne(flow))).flatMap(success->RxJava2Adapter.singleToMono(findById(flow.getId()).toSingle())));
     }
 
     @Override
     public Single<Flow> update(Flow item) {
         FlowMongo flow = convert(item);
-        return Single.fromPublisher(flowsCollection.replaceOne(eq(FIELD_ID, flow.getId()), flow)).flatMap(updateResult -> findById(flow.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(flowsCollection.replaceOne(eq(FIELD_ID, flow.getId()), flow))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(flow.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(flowsCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(flowsCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private FlowMongo convert(Flow flow) {

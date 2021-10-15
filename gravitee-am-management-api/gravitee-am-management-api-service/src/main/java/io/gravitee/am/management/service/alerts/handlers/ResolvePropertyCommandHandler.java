@@ -22,14 +22,16 @@ import io.gravitee.alert.api.trigger.command.ResolvePropertyCommand;
 import io.gravitee.am.service.ApplicationService;
 import io.gravitee.am.service.DomainService;
 import io.reactivex.Single;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -73,18 +75,15 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
         if (commandProperties != null) {
             commandProperties.forEach((key, value) -> {
                 if (RESOLVE_DOMAIN_PROPERTIES_KEY.equals(key)) {
-                    obs.add(resolveDomainProperties(value)
-                            .doOnSuccess(domainProperties -> values.put(key, domainProperties)));
+                    obs.add(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resolveDomainProperties(value)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(domainProperties -> values.put(key, domainProperties)))));
                 } else if (RESOLVE_APPLICATION_PROPERTIES_KEY.equals(key)) {
-                    obs.add(resolveApplicationProperties(value)
-                            .doOnSuccess(appProperties -> values.put(key, appProperties)));
+                    obs.add(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resolveApplicationProperties(value)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(appProperties -> values.put(key, appProperties)))));
                 }
             });
         }
 
-        return Single.merge(obs)
-                .ignoreElements()
-                .andThen(Single.just(values));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(Single.merge(obs)
+                .ignoreElements()).then(RxJava2Adapter.singleToMono(Single.wrap(Single.just(values)))));
     }
 
     private Single<Map<String, Object>> resolveDomainProperties(String domainId) {
@@ -98,9 +97,9 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
                     properties.put("description", domain.getDescription());
                     properties.put("tags", domain.getTags());
 
-                    return Single.just(properties);
+                    return RxJava2Adapter.monoToSingle(Mono.just(properties));
                 })
-                .onErrorResumeNext(Single.just(properties));
+                .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(properties)));
     }
 
     private Single<Map<String, Object>> resolveApplicationProperties(String applicationId) {
@@ -115,8 +114,8 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
                     properties.put("type", application.getType());
                     properties.put("metadata", application.getMetadata());
 
-                    return Single.just(properties);
+                    return RxJava2Adapter.monoToSingle(Mono.just(properties));
                 })
-                .onErrorResumeNext(Single.just(properties));
+                .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(properties)));
     }
 }

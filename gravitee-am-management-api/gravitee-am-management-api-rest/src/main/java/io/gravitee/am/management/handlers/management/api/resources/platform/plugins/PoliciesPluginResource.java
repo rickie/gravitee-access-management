@@ -19,7 +19,9 @@ import io.gravitee.am.management.service.PolicyPluginService;
 import io.gravitee.am.service.model.plugin.PolicyPlugin;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -30,9 +32,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -53,10 +54,9 @@ public class PoliciesPluginResource {
             notes = "There is no particular permission needed. User must be authenticated.")
     public void list(@Suspended final AsyncResponse response, @QueryParam("expand") List<String> expand) {
 
-        policyPluginService.findAll(expand)
-                .map(policyPlugins -> policyPlugins.stream()
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(policyPluginService.findAll(expand)).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugins -> policyPlugins.stream()
                         .sorted(Comparator.comparing(PolicyPlugin::getName))
-                        .collect(Collectors.toList()))
+                        .collect(Collectors.toList()))))
                 .subscribe(response::resume, response::resume);
     }
 

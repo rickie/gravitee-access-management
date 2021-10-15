@@ -33,15 +33,20 @@ import io.gravitee.am.service.model.UpdateUser;
 import io.gravitee.am.service.utils.UserFactorUpdater;
 import io.gravitee.am.service.validators.UserValidator;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
+import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -72,11 +77,10 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
     public Flowable<User> findByIdIn(List<String> ids) {
         String userIds = String.join(",", ids);
         LOGGER.debug("Find users by ids: {}", userIds);
-        return getUserRepository().findByIdIn(ids)
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(getUserRepository().findByIdIn(ids)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find users by ids {}", userIds, ex);
                     return Flowable.error(new TechnicalManagementException(String.format("An error occurs while trying to find users by ids %s", userIds), ex));
-                });
+                })));
     }
 
     @Override
@@ -85,7 +89,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
         return getUserRepository().findAll(referenceType, referenceId, page, size)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find users by {} {}", referenceType, referenceId, ex);
-                    return Single.error(new TechnicalManagementException(String.format("An error occurs while trying to find users by %s %s", referenceType, referenceId), ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to find users by %s %s", referenceType, referenceId), ex)));
                 });
     }
 
@@ -95,7 +99,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
         return getUserRepository().search(referenceType, referenceId, query, page, size)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to search users for {} {} and query {}", referenceType, referenceId, query, ex);
-                    return Single.error(new TechnicalManagementException(String.format("An error occurs while trying to find users for %s %s and query %s", referenceType, referenceId, query), ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to find users for %s %s and query %s", referenceType, referenceId, query), ex)));
                 });
     }
 
@@ -105,23 +109,22 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
         return getUserRepository().search(referenceType, referenceId, filterCriteria, page, size)
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof IllegalArgumentException) {
-                        return Single.error(new InvalidParameterException(ex.getMessage()));
+                        return RxJava2Adapter.monoToSingle(Mono.error(new InvalidParameterException(ex.getMessage())));
                     }
                     LOGGER.error("An error occurs while trying to search users for {} {} and filter {}", referenceType, referenceId, filterCriteria, ex);
-                    return Single.error(new TechnicalManagementException(String.format("An error occurs while trying to find users for %s %s and filter %s", referenceType, referenceId, filterCriteria), ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to find users for %s %s and filter %s", referenceType, referenceId, filterCriteria), ex)));
                 });
     }
 
     @Override
     public Single<User> findById(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("Find user by id : {}", id);
-        return getUserRepository().findById(referenceType, referenceId, id)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(getUserRepository().findById(referenceType, referenceId, id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a user using its ID {}", id, ex);
                     return Maybe.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a user using its ID: %s", id), ex));
-                })
-                .switchIfEmpty(Single.error(new UserNotFoundException(id)));
+                })).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new UserNotFoundException(id))))));
     }
 
     @Override
@@ -130,8 +133,8 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
         return getUserRepository().findByUsernameAndSource(referenceType, referenceId, username, source)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a user using its username: {} for the {} {}  and source {}", username, referenceType, referenceId, source, ex);
-                    return Maybe.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a user using its username: %s for the %s %s and source %s", username, referenceType, referenceId, source), ex));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a user using its username: %s for the %s %s and source %s", username, referenceType, referenceId, source), ex)));
                 });
     }
 
@@ -141,8 +144,8 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
         return getUserRepository().findByExternalIdAndSource(referenceType, referenceId, externalId, source)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a user using its externalId: {} for the {} {} and source {}", externalId, referenceType, referenceId, source, ex);
-                    return Maybe.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a user using its externalId: %s for the %s %s and source %s", externalId, referenceType, referenceId, source), ex));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a user using its externalId: %s for the %s %s and source %s", externalId, referenceType, referenceId, source), ex)));
                 });
     }
 
@@ -150,9 +153,8 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
     @Override
     public Single<User> create(ReferenceType referenceType, String referenceId, NewUser newUser) {
         LOGGER.debug("Create a new user {} for {} {}", newUser, referenceType, referenceId);
-        return getUserRepository().findByUsernameAndSource(referenceType, referenceId, newUser.getUsername(), newUser.getSource())
-                .isEmpty()
-                .flatMap(isEmpty -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserRepository().findByUsernameAndSource(referenceType, referenceId, newUser.getUsername(), newUser.getSource())
+                .isEmpty()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
                     if (!isEmpty) {
                         return Single.error(new UserAlreadyExistsException(newUser.getUsername()));
                     } else {
@@ -180,13 +182,13 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                         user.setUpdatedAt(user.getCreatedAt());
                         return create(user);
                     }
-                })
+                }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     } else {
                         LOGGER.error("An error occurs while trying to create a user", ex);
-                        return Single.error(new TechnicalManagementException("An error occurs while trying to create a user", ex));
+                        return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a user", ex)));
                     }
                 });
     }
@@ -198,19 +200,18 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
         user.setCreatedAt(new Date());
         user.setUpdatedAt(user.getCreatedAt());
 
-        return userValidator.validate(user)
-                .andThen(getUserRepository().create(user))
-                .flatMap(user1 -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userValidator.validate(user)
+                .andThen(getUserRepository().create(user))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)user1 -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user1.getId(), user1.getReferenceType(), user1.getReferenceId(), Action.CREATE));
                     return eventService.create(event).flatMap(__ -> Single.just(user1));
-                })
+                }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to create a user", ex);
-                    return Single.error(new TechnicalManagementException("An error occurs while trying to create a user", ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a user", ex)));
                 });
     }
 
@@ -218,8 +219,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
     public Single<User> update(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser) {
         LOGGER.debug("Update a user {} for {} {}", id, referenceType, referenceId);
 
-        return getUserRepository().findById(referenceType, referenceId, id)
-                .switchIfEmpty(Maybe.error(new UserNotFoundException(id)))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(getUserRepository().findById(referenceType, referenceId, id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(id))))))
                 .flatMapSingle(oldUser -> {
                     User tmpUser = new User();
                     tmpUser.setEmail(updateUser.getEmail());
@@ -242,11 +242,11 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                 })
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
 
                     LOGGER.error("An error occurs while trying to update a user", ex);
-                    return Single.error(new TechnicalManagementException("An error occurs while trying to update a user", ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a user", ex)));
                 });
     }
 
@@ -254,9 +254,8 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
     public Completable delete(String userId) {
         LOGGER.debug("Delete user {}", userId);
 
-        return getUserRepository().findById(userId)
-                .switchIfEmpty(Maybe.error(new UserNotFoundException(userId)))
-                .flatMapCompletable(user -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(getUserRepository().findById(userId)
+                .switchIfEmpty(Maybe.error(new UserNotFoundException(userId)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)user -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user.getId(), user.getReferenceType(), user.getReferenceId(), Action.DELETE));
                     /// delete WebAuthn credentials
@@ -264,15 +263,15 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                             .flatMapCompletable(credential -> credentialService.delete(credential.getId()))
                             .andThen(getUserRepository().delete(userId))
                             .andThen(eventService.create(event).ignoreElement());
-                })
+                }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Completable.error(ex);
+                        return RxJava2Adapter.monoToCompletable(Mono.error(ex));
                     }
 
                     LOGGER.error("An error occurs while trying to delete user: {}", userId, ex);
-                    return Completable.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to delete user: %s", userId), ex));
+                    return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to delete user: %s", userId), ex)));
                 });
     }
 
@@ -281,9 +280,8 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
         LOGGER.debug("Enhance user {}", user.getId());
 
         // fetch user groups
-        return groupService.findByMember(user.getId())
-                .toList()
-                .flatMap(groups -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(groupService.findByMember(user.getId())
+                .toList()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Group>, Single<User>>)groups -> {
                     Set<String> roles = new HashSet<>();
                     if (groups != null && !groups.isEmpty()) {
                         // set groups
@@ -309,13 +307,13 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
 
                     }
                     return Single.just(user);
-                })
+                }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to enhance user {}", user.getId(), ex);
-                    return Single.error(new TechnicalManagementException(String.format("An error occurs while trying to enhance user %s", user.getId()), ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to enhance user %s", user.getId()), ex)));
                 });
     }
 

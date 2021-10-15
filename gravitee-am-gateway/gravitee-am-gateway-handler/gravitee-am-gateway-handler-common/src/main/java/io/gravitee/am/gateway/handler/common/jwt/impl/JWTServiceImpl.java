@@ -24,13 +24,14 @@ import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -55,8 +56,7 @@ public class JWTServiceImpl implements JWTService {
 
     @Override
     public Single<String> encode(JWT jwt, Client client) {
-        return certificateManager.get(client.getCertificate())
-                .defaultIfEmpty(certificateManager.defaultCertificateProvider())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificateManager.get(client.getCertificate())).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
                 .flatMapSingle(certificateProvider -> encode(jwt, certificateProvider));
     }
 
@@ -67,9 +67,8 @@ public class JWTServiceImpl implements JWTService {
             return encode(jwt,certificateManager.noneAlgorithmCertificateProvider());
         }
 
-        return certificateManager.findByAlgorithm(client.getUserinfoSignedResponseAlg())
-                .switchIfEmpty(certificateManager.get(client.getCertificate()))
-                .defaultIfEmpty(certificateManager.defaultCertificateProvider())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificateManager.findByAlgorithm(client.getUserinfoSignedResponseAlg())
+                .switchIfEmpty(certificateManager.get(client.getCertificate()))).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
                 .flatMapSingle(certificateProvider -> encode(jwt, certificateProvider));
     }
 
@@ -85,23 +84,20 @@ public class JWTServiceImpl implements JWTService {
             signedResponseAlg = JWSAlgorithm.RS256.getName();
         }
 
-        return certificateManager.findByAlgorithm(signedResponseAlg)
-                .switchIfEmpty(certificateManager.get(client.getCertificate()))
-                .defaultIfEmpty(certificateManager.defaultCertificateProvider())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificateManager.findByAlgorithm(signedResponseAlg)
+                .switchIfEmpty(certificateManager.get(client.getCertificate()))).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
                 .flatMapSingle(certificateProvider -> encode(jwt, certificateProvider));
     }
 
     @Override
     public Single<JWT> decodeAndVerify(String jwt, Client client) {
-        return certificateManager.get(client.getCertificate())
-                .defaultIfEmpty(certificateManager.defaultCertificateProvider())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificateManager.get(client.getCertificate())).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
                 .flatMapSingle(certificateProvider -> decodeAndVerify(jwt, certificateProvider));
     }
 
     @Override
     public Single<JWT> decodeAndVerify(String jwt, CertificateProvider certificateProvider) {
-        return decode(certificateProvider, jwt)
-                .map(JWT::new);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(decode(certificateProvider, jwt)).map(RxJavaReactorMigrationUtil.toJdkFunction(JWT::new)));
     }
 
     @Override

@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.uma.policy.AccessPolicy;
@@ -26,6 +31,11 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,18 +43,9 @@ import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -67,28 +68,26 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
     @Override
     public Single<Page<AccessPolicy>> findByDomain(String domain, int page, int size) {
         LOGGER.debug("findByDomain(domain:{}, page:{}, size:{})", domain, page, size);
-        return fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.select()
                 .from(JdbcAccessPolicy.class)
                 .project("*") // required for mssql to work with to order column name
                 .matching(from(where("domain").is(domain)))
                 .orderBy(Sort.Order.desc("updated_at"))
                 .page(PageRequest.of(page, size))
                 .as(JdbcAccessPolicy.class).all()).toList()
-                .map(content -> content.stream().map(this::toAccessPolicy).collect(Collectors.toList()))
-                .flatMap(content -> accessPolicyRepository.countByDomain(domain)
-                        .map((count) -> new Page<AccessPolicy>(content, page, count)));
+                .map(content -> content.stream().map(this::toAccessPolicy).collect(Collectors.toList()))).flatMap(content->RxJava2Adapter.singleToMono(accessPolicyRepository.countByDomain(domain).map((java.lang.Long count)->new Page<AccessPolicy>(content, page, count)))));
     }
 
     @Override
     public Flowable<AccessPolicy> findByDomainAndResource(String domain, String resource) {
         LOGGER.debug("findByDomainAndResource(domain:{}, resources:{})", domain, resource);
-        return accessPolicyRepository.findByDomainAndResource(domain, resource).map(this::toAccessPolicy);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(accessPolicyRepository.findByDomainAndResource(domain, resource)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy)));
     }
 
     @Override
     public Flowable<AccessPolicy> findByResources(List<String> resources) {
         LOGGER.debug("findByResources({})", resources);
-        return accessPolicyRepository.findByResourceIn(resources).map(this::toAccessPolicy);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(accessPolicyRepository.findByResourceIn(resources)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy)));
     }
 
     @Override
@@ -100,8 +99,7 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
     @Override
     public Maybe<AccessPolicy> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return accessPolicyRepository.findById(id)
-                .map(this::toAccessPolicy);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(accessPolicyRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy)));
     }
 
     @Override
@@ -125,7 +123,7 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
@@ -148,7 +146,7 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
         updateFields = addQuotedField(updateFields,"updated_at", dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
         Mono<Integer> action = updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override

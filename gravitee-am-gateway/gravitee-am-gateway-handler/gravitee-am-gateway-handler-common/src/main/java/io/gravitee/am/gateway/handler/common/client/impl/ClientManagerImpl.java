@@ -29,14 +29,15 @@ import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -63,8 +64,7 @@ public class ClientManagerImpl extends AbstractService implements ClientManager,
     public void afterPropertiesSet() throws Exception {
         logger.info("Initializing applications for domain {}", domain.getName());
         Flowable<Application> applicationsSource = domain.isMaster() ? applicationRepository.findAll() : applicationRepository.findByDomain(domain.getId());
-        applicationsSource
-                .map(Application::toClient)
+        RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(applicationsSource).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)))
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         client -> {
@@ -144,8 +144,7 @@ public class ClientManagerImpl extends AbstractService implements ClientManager,
 
     private void deployClient(String applicationId) {
         logger.info("Deploying application {} for domain {}", applicationId, domain.getName());
-        applicationRepository.findById(applicationId)
-                .map(Application::toClient)
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationRepository.findById(applicationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)))
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         client -> {

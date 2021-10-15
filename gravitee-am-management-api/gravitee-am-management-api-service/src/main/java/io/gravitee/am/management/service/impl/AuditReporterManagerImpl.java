@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -112,7 +113,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
             logger.info("Initializing audit reporter : {} for domain {}", reporter.getName(), reporter.getDomain());
             try {
                 AuditReporterLauncher launcher = new AuditReporterLauncher(reporter);
-                domainService
+                RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(domainService
                         .findById(reporter.getDomain())
                         .flatMapSingle(domain -> {
                             if (ReferenceType.ENVIRONMENT == domain.getReferenceType()) {
@@ -121,8 +122,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
                                 // currently domain is only linked to domainEnv
                                 return Single.error(new EnvironmentNotFoundException("Domain " + reporter.getDomain() +" should be lined to an Environment"));
                             }
-                        })
-                        .subscribeOn(Schedulers.io())
+                        })).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))
                         .subscribe(launcher);
             } catch (Exception ex) {
                 logger.error("An error has occurred while loading audit reporter: {} [{}]", reporter.getName(), reporter.getType(), ex);
@@ -205,7 +205,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
         // to propagate across the cluster so if there are at least one reporter for the domain, return the NoOpReporter to avoid
         // too long waiting time that may lead to unexpected even on the UI.
         try {
-            List<io.gravitee.am.model.Reporter> reporters = reporterService.findByDomain(domain).toList().blockingGet();
+            List<io.gravitee.am.model.Reporter> reporters = RxJava2Adapter.singleToMono(reporterService.findByDomain(domain).toList()).block();
             if (reporters.isEmpty()) {
                 throw new ReporterNotFoundForDomainException(domain);
             }
@@ -269,7 +269,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
 
     private void loadReporter(io.gravitee.am.model.Reporter reporter) {
         AuditReporterLauncher launcher = new AuditReporterLauncher(reporter);
-        domainService
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(domainService
                 .findById(reporter.getDomain())
                 .flatMapSingle(domain -> {
                     if (ReferenceType.ENVIRONMENT == domain.getReferenceType()) {
@@ -278,8 +278,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
                         // currently domain is only linked to domainEnv
                         return Single.error(new EnvironmentNotFoundException("Domain " + reporter.getDomain() +" should be lined to an Environment"));
                     }
-                })
-                .subscribeOn(Schedulers.io())
+                })).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))
                 .subscribe(launcher);
     }
 

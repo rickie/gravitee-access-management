@@ -28,6 +28,8 @@ import io.gravitee.common.http.MediaType;
 import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * OAuth 2.0 Token Introspection Endpoint
@@ -58,13 +60,12 @@ public class IntrospectionEndpoint implements Handler<RoutingContext> {
             throw new InvalidClientException();
         }
 
-        introspectionService
-                .introspect(createRequest(context))
-                .doOnSuccess(introspectionResponse -> context.response()
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(introspectionService
+                .introspect(createRequest(context))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(introspectionResponse -> context.response()
                         .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                         .putHeader(HttpHeaders.PRAGMA, "no-cache")
                         .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                        .end(Json.encodePrettily(introspectionResponse)))
+                        .end(Json.encodePrettily(introspectionResponse)))))
                 .subscribe();
     }
 

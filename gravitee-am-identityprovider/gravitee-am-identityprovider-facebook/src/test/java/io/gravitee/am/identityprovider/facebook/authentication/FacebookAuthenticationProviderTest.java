@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.identityprovider.facebook.authentication;
 
+import static io.gravitee.am.identityprovider.facebook.model.FacebookUser.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.common.utils.RandomString;
@@ -33,6 +37,10 @@ import io.vertx.ext.web.client.impl.ClientPhase;
 import io.vertx.ext.web.client.impl.WebClientInternal;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,15 +48,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-
-import static io.gravitee.am.identityprovider.facebook.model.FacebookUser.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -115,7 +115,7 @@ public class FacebookAuthenticationProviderTest {
         when(configuration.getScopes()).thenReturn(Collections.emptySet());
 
         final String state = RandomString.generate();
-        Request request = (Request)cut.asyncSignInUrl("https://gravitee.io", state).blockingGet();
+        Request request = (Request)RxJava2Adapter.maybeToMono(cut.asyncSignInUrl("https://gravitee.io", state)).block();
 
         assertNotNull(request);
         assertEquals(HttpMethod.GET, request.getMethod());

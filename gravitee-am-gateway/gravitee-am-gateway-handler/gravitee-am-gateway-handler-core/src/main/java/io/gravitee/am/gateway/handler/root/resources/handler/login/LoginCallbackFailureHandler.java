@@ -30,11 +30,12 @@ import io.gravitee.common.http.HttpStatusCode;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.core.http.HttpServerResponse;
 import io.vertx.reactivex.ext.web.RoutingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * In case of login callback failures, the user will be redirected to the login page with error message
@@ -83,8 +84,7 @@ public class LoginCallbackFailureHandler implements Handler<RoutingContext> {
             // logout user if exists
             if (context.user() != null) {
                 // clear AuthenticationFlowContext. data of this context have a TTL so we can fire and forget in case on error.
-                authenticationFlowContextService.clearContext(context.session().get(ConstantKeys.TRANSACTION_ID_KEY))
-                        .doOnError((error) -> logger.info("Deletion of some authentication flow data fails '{}'", error.getMessage()))
+                authenticationFlowContextService.clearContext(context.session().get(ConstantKeys.TRANSACTION_ID_KEY)).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> logger.info("Deletion of some authentication flow data fails '{}'", error.getMessage()))).as(RxJava2Adapter::monoToCompletable)
                         .subscribe();
 
                 context.clearUser();

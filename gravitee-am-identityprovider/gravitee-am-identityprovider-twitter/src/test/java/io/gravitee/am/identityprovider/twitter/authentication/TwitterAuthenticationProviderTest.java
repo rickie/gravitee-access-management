@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.identityprovider.twitter.authentication;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.common.utils.RandomString;
@@ -33,6 +37,8 @@ import io.vertx.ext.web.client.impl.ClientPhase;
 import io.vertx.ext.web.client.impl.WebClientInternal;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,13 +47,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -98,7 +98,7 @@ public class TwitterAuthenticationProviderTest {
                         "&oauth_token_secret=veNRnAWe6inFuo8o2u8SLLZLjolYDmDP7SzL0YfYI" +
                         "&oauth_callback_confirmed=true");
 
-        Request request = provider.asyncSignInUrl("https://gravitee.io", RandomString.generate()).blockingGet();
+        Request request = RxJava2Adapter.maybeToMono(provider.asyncSignInUrl("https://gravitee.io", RandomString.generate())).block();
 
         assertNotNull(request);
         assertEquals(HttpMethod.GET, request.getMethod());
@@ -112,7 +112,7 @@ public class TwitterAuthenticationProviderTest {
         when(httpResponse.statusCode())
                 .thenReturn(HttpStatusCode.BAD_REQUEST_400);
 
-        provider.asyncSignInUrl("https://gravitee.io", RandomString.generate()).blockingGet();
+        RxJava2Adapter.maybeToMono(provider.asyncSignInUrl("https://gravitee.io", RandomString.generate())).block();
     }
 
     @Test(expected = IllegalStateException.class)
@@ -162,7 +162,7 @@ public class TwitterAuthenticationProviderTest {
                 );
 
         // init token secret
-        provider.asyncSignInUrl("https://gravitee.io", RandomString.generate()).blockingGet();
+        RxJava2Adapter.maybeToMono(provider.asyncSignInUrl("https://gravitee.io", RandomString.generate())).block();
 
         TestObserver<User> obs = provider.loadUserByUsername(authentication).test();
 
@@ -208,7 +208,7 @@ public class TwitterAuthenticationProviderTest {
                 .thenReturn("[ { code: 89, message: 'Invalid or expired token.' } ]");
 
         // init token secret
-        provider.asyncSignInUrl("https://gravitee.io", RandomString.generate()).blockingGet();
+        RxJava2Adapter.maybeToMono(provider.asyncSignInUrl("https://gravitee.io", RandomString.generate())).block();
 
         TestObserver<User> obs = provider.loadUserByUsername(authentication).test();
 

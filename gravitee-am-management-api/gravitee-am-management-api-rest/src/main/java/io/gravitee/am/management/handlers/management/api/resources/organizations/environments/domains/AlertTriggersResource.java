@@ -17,26 +17,25 @@ package io.gravitee.am.management.handlers.management.api.resources.organization
 
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
-import io.gravitee.am.service.AlertTriggerService;
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertTrigger;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.repository.management.api.search.AlertTriggerCriteria;
+import io.gravitee.am.service.AlertTriggerService;
 import io.gravitee.am.service.model.PatchAlertTrigger;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Flowable;
 import io.swagger.annotations.*;
-
+import java.util.Comparator;
+import java.util.List;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
-
-import java.util.Comparator;
-import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -63,10 +62,9 @@ public class AlertTriggersResource extends AbstractResource {
             @PathParam("domain") String domainId,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.LIST)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.LIST)
                 .andThen(alertTriggerService.findByDomainAndCriteria(domainId, new AlertTriggerCriteria()))
-                .sorted(Comparator.comparingInt(o -> o.getType().getOrder()))
-                .toList()
+                .sorted(Comparator.comparingInt(o -> o.getType().getOrder()))).collectList())
                 .subscribe(response::resume, response::resume);
     }
 
@@ -89,10 +87,9 @@ public class AlertTriggersResource extends AbstractResource {
 
         final User authenticatedUser = this.getAuthenticatedUser();
 
-        checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.UPDATE)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.UPDATE)
                 .andThen(Flowable.fromIterable(patchAlertTriggers))
-                .flatMapSingle(patchAlertTrigger -> alertTriggerService.createOrUpdate(ReferenceType.DOMAIN, domainId, patchAlertTrigger, authenticatedUser))
-                .toList()
+                .flatMapSingle(patchAlertTrigger -> alertTriggerService.createOrUpdate(ReferenceType.DOMAIN, domainId, patchAlertTrigger, authenticatedUser))).collectList())
                 .subscribe(response::resume, response::resume);
     }
 }

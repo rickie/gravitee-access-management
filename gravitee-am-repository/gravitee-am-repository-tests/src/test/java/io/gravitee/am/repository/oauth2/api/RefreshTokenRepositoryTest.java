@@ -15,17 +15,18 @@
  */
 package io.gravitee.am.repository.oauth2.api;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.oauth2.AbstractOAuthTest;
 import io.gravitee.am.repository.oauth2.model.RefreshToken;
+import io.reactivex.Maybe;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -54,8 +55,7 @@ public class RefreshTokenRepositoryTest extends AbstractOAuthTest {
 
         TestObserver<RefreshToken> observer = refreshTokenRepository
                 .create(token)
-                .toCompletable()
-                .andThen(refreshTokenRepository.findByToken("my-token"))
+                .toCompletable().as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(refreshTokenRepository.findByToken("my-token")))).as(RxJava2Adapter::monoToMaybe)
                 .test();
 
         observer.awaitTerminalEvent();
@@ -74,8 +74,7 @@ public class RefreshTokenRepositoryTest extends AbstractOAuthTest {
         TestObserver<RefreshToken> testObserver = refreshTokenRepository
                 .create(token)
                 .toCompletable()
-                .andThen(refreshTokenRepository.delete("my-token"))
-                .andThen(refreshTokenRepository.findByToken("my-token"))
+                .andThen(refreshTokenRepository.delete("my-token")).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(refreshTokenRepository.findByToken("my-token")))).as(RxJava2Adapter::monoToMaybe)
                 .test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoValues();
@@ -99,14 +98,13 @@ public class RefreshTokenRepositoryTest extends AbstractOAuthTest {
 
         TestObserver<RefreshToken> testObserver = refreshTokenRepository
                 .bulkWrite(Arrays.asList(token1, token2))
-                .andThen(refreshTokenRepository.deleteByDomainIdClientIdAndUserId("domain-id", "client-id", "user-id"))
-                .andThen(refreshTokenRepository.findByToken("my-token"))
+                .andThen(refreshTokenRepository.deleteByDomainIdClientIdAndUserId("domain-id", "client-id", "user-id")).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(refreshTokenRepository.findByToken("my-token")))).as(RxJava2Adapter::monoToMaybe)
                 .test();
         testObserver.awaitTerminalEvent();
 
         assertEquals(0, testObserver.valueCount());
 
-        assertNotNull(refreshTokenRepository.findByToken("my-token2").blockingGet());
+        assertNotNull(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken("my-token2")).block());
     }
 
     @Test
@@ -127,13 +125,12 @@ public class RefreshTokenRepositoryTest extends AbstractOAuthTest {
 
         TestObserver<RefreshToken> testObserver = refreshTokenRepository
                 .bulkWrite(Arrays.asList(token1, token2))
-                .andThen(refreshTokenRepository.deleteByDomainIdAndUserId("domain-id", "user-id"))
-                .andThen(refreshTokenRepository.findByToken("my-token"))
+                .andThen(refreshTokenRepository.deleteByDomainIdAndUserId("domain-id", "user-id")).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(refreshTokenRepository.findByToken("my-token")))).as(RxJava2Adapter::monoToMaybe)
                 .test();
         testObserver.awaitTerminalEvent();
         assertEquals(0, testObserver.valueCount());
 
-        assertNotNull(refreshTokenRepository.findByToken("my-token2").blockingGet());
+        assertNotNull(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken("my-token2")).block());
     }
 
 }

@@ -19,12 +19,12 @@ import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -48,7 +48,7 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindById() {
         LoginAttempt attempt = buildLoginAttempt();
-        LoginAttempt createdAttempt = repository.create(attempt).blockingGet();
+        LoginAttempt createdAttempt = RxJava2Adapter.singleToMono(repository.create(attempt)).block();
 
         TestObserver<LoginAttempt> testObserver = repository.findById(createdAttempt.getId()).test();
         testObserver.awaitTerminalEvent();
@@ -60,10 +60,10 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindByCriteria() {
         LoginAttempt attempt = buildLoginAttempt();
-        LoginAttempt createdAttempt = repository.create(attempt).blockingGet();
+        LoginAttempt createdAttempt = RxJava2Adapter.singleToMono(repository.create(attempt)).block();
 
         LoginAttempt unexpectedAttempt = buildLoginAttempt();
-        repository.create(unexpectedAttempt).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(unexpectedAttempt)).block();
 
         TestObserver<LoginAttempt> testObserver = repository.findByCriteria(new LoginAttemptCriteria.Builder()
                 .client(attempt.getClient())
@@ -81,7 +81,7 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldNotFindByCriteria_invalidDomain() {
         LoginAttempt attempt = buildLoginAttempt();
-        repository.create(attempt).blockingGet();
+        RxJava2Adapter.singleToMono(repository.create(attempt)).block();
 
         TestObserver<LoginAttempt> testObserver = repository.findByCriteria(new LoginAttemptCriteria.Builder()
                 .client(attempt.getClient())
@@ -99,7 +99,7 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
     public void shouldDeleteByCriteria() {
         // should be deleted
         LoginAttempt attempt = buildLoginAttempt();
-        LoginAttempt createdAttempt = repository.create(attempt).blockingGet();
+        LoginAttempt createdAttempt = RxJava2Adapter.singleToMono(repository.create(attempt)).block();
 
         TestObserver<LoginAttempt> testObserver = repository.findById(createdAttempt.getId()).test();
         testObserver.awaitTerminalEvent();
@@ -108,7 +108,7 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
 
         // shouldn't be deleted
         LoginAttempt unexpectedAttempt = buildLoginAttempt();
-        LoginAttempt createdUnexpectedAttempt = repository.create(unexpectedAttempt).blockingGet();
+        LoginAttempt createdUnexpectedAttempt = RxJava2Adapter.singleToMono(repository.create(unexpectedAttempt)).block();
 
         testObserver = repository.findById(createdUnexpectedAttempt.getId()).test();
         testObserver.awaitTerminalEvent();
@@ -142,7 +142,7 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldDeleteById() {
         LoginAttempt attempt = buildLoginAttempt();
-        LoginAttempt createdAttempt = repository.create(attempt).blockingGet();
+        LoginAttempt createdAttempt = RxJava2Adapter.singleToMono(repository.create(attempt)).block();
 
         TestObserver<LoginAttempt> testObserver = repository.findById(createdAttempt.getId()).test();
         testObserver.awaitTerminalEvent();
@@ -162,7 +162,7 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldUpdate() {
         LoginAttempt attempt = buildLoginAttempt();
-        LoginAttempt createdAttempt = repository.create(attempt).blockingGet();
+        LoginAttempt createdAttempt = RxJava2Adapter.singleToMono(repository.create(attempt)).block();
 
         TestObserver<LoginAttempt> testObserver = repository.findById(createdAttempt.getId()).test();
         testObserver.awaitTerminalEvent();

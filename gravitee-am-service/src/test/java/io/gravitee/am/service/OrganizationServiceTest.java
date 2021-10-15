@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.audit.Status;
@@ -35,18 +39,17 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -82,7 +85,7 @@ public class OrganizationServiceTest {
     public void shouldFindById() {
 
         Organization organization = new Organization();
-        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(Maybe.just(organization));
+        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(organization)));
 
         TestObserver<Organization> obs = cut.findById(ORGANIZATION_ID).test();
 
@@ -94,7 +97,7 @@ public class OrganizationServiceTest {
     @Test
     public void shouldFindById_notExistingOrganization() {
 
-        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(Maybe.empty());
+        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver<Organization> obs = cut.findById(ORGANIZATION_ID).test();
 
@@ -105,7 +108,7 @@ public class OrganizationServiceTest {
     @Test
     public void shouldFindById_technicalException() {
 
-        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(Maybe.error(TechnicalException::new));
+        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver<Organization> obs = cut.findById(ORGANIZATION_ID).test();
 
@@ -119,10 +122,10 @@ public class OrganizationServiceTest {
         Organization defaultOrganization = new Organization();
         defaultOrganization.setId("DEFAULT");
 
-        when(organizationRepository.count()).thenReturn(Single.just(0L));
-        when(organizationRepository.create(argThat(organization -> organization.getId().equals(Organization.DEFAULT)))).thenReturn(Single.just(defaultOrganization));
-        when(roleService.createDefaultRoles("DEFAULT")).thenReturn(Completable.complete());
-        when(entrypointService.createDefaults(defaultOrganization)).thenReturn(Flowable.just(new Entrypoint()));
+        when(organizationRepository.count()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(0L)));
+        when(organizationRepository.create(argThat(organization -> organization.getId().equals(Organization.DEFAULT)))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(defaultOrganization)));
+        when(roleService.createDefaultRoles("DEFAULT")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(entrypointService.createDefaults(defaultOrganization)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Entrypoint())));
 
         TestObserver<Organization> obs = cut.createDefault().test();
 
@@ -145,7 +148,7 @@ public class OrganizationServiceTest {
         Organization defaultOrganization = new Organization();
         defaultOrganization.setId(Organization.DEFAULT);
 
-        when(organizationRepository.count()).thenReturn(Single.just(1L));
+        when(organizationRepository.count()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(1L)));
 
         TestObserver<Organization> obs = cut.createDefault().test();
 
@@ -164,8 +167,8 @@ public class OrganizationServiceTest {
         Organization defaultOrganization = new Organization();
         defaultOrganization.setId("DEFAULT");
 
-        when(organizationRepository.count()).thenReturn(Single.just(0L));
-        when(organizationRepository.create(argThat(organization -> organization.getId().equals(Organization.DEFAULT)))).thenReturn(Single.error(new TechnicalManagementException()));
+        when(organizationRepository.count()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(0L)));
+        when(organizationRepository.create(argThat(organization -> organization.getId().equals(Organization.DEFAULT)))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException())));
 
         TestObserver<Organization> obs = cut.createDefault().test();
 
@@ -186,10 +189,10 @@ public class OrganizationServiceTest {
     @Test
     public void shouldCreate() {
 
-        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(Maybe.empty());
-        when(organizationRepository.create(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenAnswer(i -> Single.just(i.getArgument(0)));
-        when(roleService.createDefaultRoles(ORGANIZATION_ID)).thenReturn(Completable.complete());
-        when(entrypointService.createDefaults(any(Organization.class))).thenReturn(Flowable.just(new Entrypoint()));
+        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(organizationRepository.create(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
+        when(roleService.createDefaultRoles(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(entrypointService.createDefaults(any(Organization.class))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Entrypoint())));
 
         NewOrganization newOrganization = new NewOrganization();
         newOrganization.setName("TestName");
@@ -228,8 +231,8 @@ public class OrganizationServiceTest {
     @Test
     public void shouldCreate_error() {
 
-        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(Maybe.empty());
-        when(organizationRepository.create(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenReturn(Single.error(new TechnicalManagementException()));
+        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(organizationRepository.create(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException())));
 
         NewOrganization newOrganization = new NewOrganization();
         newOrganization.setName("TestName");
@@ -262,8 +265,8 @@ public class OrganizationServiceTest {
         Organization existingOrganization = new Organization();
         existingOrganization.setId(ORGANIZATION_ID);
 
-        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(Maybe.just(existingOrganization));
-        when(organizationRepository.update(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingOrganization)));
+        when(organizationRepository.update(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         NewOrganization newOrganization = new NewOrganization();
         newOrganization.setName("TestName");
@@ -305,8 +308,8 @@ public class OrganizationServiceTest {
         Organization existingOrganization = new Organization();
         existingOrganization.setId(ORGANIZATION_ID);
 
-        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(Maybe.just(existingOrganization));
-        when(organizationRepository.update(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenReturn(Single.error(new TechnicalManagementException()));
+        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingOrganization)));
+        when(organizationRepository.update(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException())));
 
         NewOrganization newOrganization = new NewOrganization();
         newOrganization.setName("TestName");
@@ -339,8 +342,8 @@ public class OrganizationServiceTest {
         Organization existingOrganization = new Organization();
         existingOrganization.setId(ORGANIZATION_ID);
 
-        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(Maybe.just(existingOrganization));
-        when(organizationRepository.update(argThat(toUpdate -> toUpdate.getIdentities() != null))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingOrganization)));
+        when(organizationRepository.update(argThat(toUpdate -> toUpdate.getIdentities() != null))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         PatchOrganization patchOrganization = new PatchOrganization();
         List<String> identities = Collections.singletonList("test");
@@ -355,7 +358,7 @@ public class OrganizationServiceTest {
     @Test
     public void shouldUpdate_notExistingOrganization() {
 
-        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(Maybe.empty());
+        when(organizationRepository.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         PatchOrganization patchOrganization = new PatchOrganization();
         patchOrganization.setIdentities(Collections.singletonList("test"));

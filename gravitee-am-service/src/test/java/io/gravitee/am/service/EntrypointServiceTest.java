@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.identityprovider.api.DefaultUser;
@@ -34,18 +38,16 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -79,7 +81,7 @@ public class EntrypointServiceTest {
     public void shouldFindById() {
 
         Entrypoint entrypoint = new Entrypoint();
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.just(entrypoint));
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(entrypoint)));
 
         TestObserver<Entrypoint> obs = cut.findById(ENTRYPOINT_ID, ORGANIZATION_ID).test();
 
@@ -91,7 +93,7 @@ public class EntrypointServiceTest {
     @Test
     public void shouldFindById_notExistingEntrypoint() {
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.empty());
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver<Entrypoint> obs = cut.findById(ENTRYPOINT_ID, ORGANIZATION_ID).test();
 
@@ -102,7 +104,7 @@ public class EntrypointServiceTest {
     @Test
     public void shouldFindById_technicalException() {
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.error(TechnicalException::new));
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver<Entrypoint> obs = cut.findById(ENTRYPOINT_ID, ORGANIZATION_ID).test();
 
@@ -116,8 +118,8 @@ public class EntrypointServiceTest {
         Organization organization = new Organization();
         organization.setId(ORGANIZATION_ID);
 
-        when(organizationService.findById(ORGANIZATION_ID)).thenReturn(Single.just(organization));
-        when(entrypointRepository.create(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(organizationService.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(organization)));
+        when(entrypointRepository.create(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         TestSubscriber<Entrypoint> obs = cut.createDefaults(organization).test();
 
@@ -143,9 +145,9 @@ public class EntrypointServiceTest {
         organization.setId(ORGANIZATION_ID);
         organization.setDomainRestrictions(Arrays.asList("domain1.gravitee.io", "domain2.gravitee.io"));
 
-        when(organizationService.findById(ORGANIZATION_ID)).thenReturn(Single.just(organization));
-        when(entrypointRepository.create(argThat(e -> e != null && e.getUrl().equals("https://domain1.gravitee.io") && e.isDefaultEntrypoint()))).thenAnswer(i -> Single.just(i.getArgument(0)));
-        when(entrypointRepository.create(argThat(e -> e != null && e.getUrl().equals("https://domain2.gravitee.io") && !e.isDefaultEntrypoint()))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(organizationService.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(organization)));
+        when(entrypointRepository.create(argThat(e -> e != null && e.getUrl().equals("https://domain1.gravitee.io") && e.isDefaultEntrypoint()))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
+        when(entrypointRepository.create(argThat(e -> e != null && e.getUrl().equals("https://domain2.gravitee.io") && !e.isDefaultEntrypoint()))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         TestSubscriber<Entrypoint> obs = cut.createDefaults(organization).test();
 
@@ -181,8 +183,8 @@ public class EntrypointServiceTest {
         newEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         newEntrypoint.setUrl("https://auth.company.com");
 
-        when(organizationService.findById(ORGANIZATION_ID)).thenReturn(Single.just(organization));
-        when(entrypointRepository.create(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(organizationService.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(organization)));
+        when(entrypointRepository.create(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         TestObserver<Entrypoint> obs = cut.create(ORGANIZATION_ID, newEntrypoint, user).test();
 
@@ -218,7 +220,7 @@ public class EntrypointServiceTest {
         newEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         newEntrypoint.setUrl("invalid");
 
-        when(entrypointRepository.create(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(entrypointRepository.create(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         TestObserver<Entrypoint> obs = cut.create(ORGANIZATION_ID, newEntrypoint, user).test();
 
@@ -244,9 +246,9 @@ public class EntrypointServiceTest {
         updateEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         updateEntrypoint.setUrl("https://auth.company.com");
 
-        when(organizationService.findById(ORGANIZATION_ID)).thenReturn(Single.just(new Organization()));
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.just(existingEntrypoint));
-        when(entrypointRepository.update(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(organizationService.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Organization())));
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingEntrypoint)));
+        when(entrypointRepository.update(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         TestObserver<Entrypoint> obs = cut.update(ENTRYPOINT_ID, ORGANIZATION_ID, updateEntrypoint, user).test();
 
@@ -287,8 +289,8 @@ public class EntrypointServiceTest {
         updateEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         updateEntrypoint.setUrl("invalid");
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.just(existingEntrypoint));
-        when(entrypointRepository.update(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingEntrypoint)));
+        when(entrypointRepository.update(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         TestObserver<Entrypoint> obs = cut.update(ENTRYPOINT_ID, ORGANIZATION_ID, updateEntrypoint, user).test();
 
@@ -304,7 +306,7 @@ public class EntrypointServiceTest {
         DefaultUser user = new DefaultUser("test");
         user.setId(USER_ID);
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.empty());
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver<Entrypoint> obs = cut.update(ENTRYPOINT_ID, ORGANIZATION_ID, new UpdateEntrypoint(), user).test();
 
@@ -334,9 +336,9 @@ public class EntrypointServiceTest {
         updateEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         updateEntrypoint.setUrl("https://changed.com");
 
-        when(organizationService.findById(ORGANIZATION_ID)).thenReturn(Single.just(new Organization()));
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.just(existingEntrypoint));
-        when(entrypointRepository.update(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(organizationService.findById(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Organization())));
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingEntrypoint)));
+        when(entrypointRepository.update(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         TestObserver<Entrypoint> obs = cut.update(ENTRYPOINT_ID, ORGANIZATION_ID, updateEntrypoint, user).test();
 
@@ -382,8 +384,8 @@ public class EntrypointServiceTest {
         updateEntrypoint.setTags(Collections.emptyList());
         updateEntrypoint.setUrl("https://changed.com");
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.just(existingEntrypoint));
-        when(entrypointRepository.update(any(Entrypoint.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingEntrypoint)));
+        when(entrypointRepository.update(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         TestObserver<Entrypoint> obs;
 
@@ -417,8 +419,8 @@ public class EntrypointServiceTest {
         existingEntrypoint.setId(ENTRYPOINT_ID);
         existingEntrypoint.setOrganizationId(ORGANIZATION_ID);
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.just(existingEntrypoint));
-        when(entrypointRepository.delete(ENTRYPOINT_ID)).thenReturn(Completable.complete());
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingEntrypoint)));
+        when(entrypointRepository.delete(ENTRYPOINT_ID)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         TestObserver<Void> obs = cut.delete(ENTRYPOINT_ID, ORGANIZATION_ID, user).test();
 
@@ -443,7 +445,7 @@ public class EntrypointServiceTest {
         DefaultUser user = new DefaultUser("test");
         user.setId(USER_ID);
 
-        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Maybe.empty());
+        when(entrypointRepository.findById(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver<Void> obs = cut.delete(ENTRYPOINT_ID, ORGANIZATION_ID, user).test();
 

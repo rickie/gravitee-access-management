@@ -39,6 +39,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -67,8 +68,7 @@ public class GroupMemberResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE)
-                .andThen(groupService.findById(ReferenceType.ORGANIZATION, organizationId, group)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(groupService.findById(ReferenceType.ORGANIZATION, organizationId, group)
                         .flatMap(group1 -> userService.findById(ReferenceType.ORGANIZATION, organizationId, userId)
                                 .flatMap(user -> {
                                     if (group1.getMembers() != null && group1.getMembers().contains(userId)) {
@@ -84,7 +84,7 @@ public class GroupMemberResource extends AbstractResource {
                                     updateGroup.setRoles(group1.getRoles());
                                     updateGroup.setMembers(groupMembers);
                                     return groupService.update(ReferenceType.ORGANIZATION, organizationId, group, updateGroup, authenticatedUser);
-                                })))
+                                }))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -103,8 +103,7 @@ public class GroupMemberResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE)
-                .andThen(groupService.findById(ReferenceType.ORGANIZATION, organizationId, group)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(groupService.findById(ReferenceType.ORGANIZATION, organizationId, group)
                         .flatMap(group1 -> userService.findById(ReferenceType.ORGANIZATION, organizationId, userId)
                                 .flatMap(user -> {
                                     if (group1.getMembers() == null || !group1.getMembers().contains(userId)) {
@@ -120,7 +119,7 @@ public class GroupMemberResource extends AbstractResource {
                                     updateGroup.setRoles(group1.getRoles());
                                     updateGroup.setMembers(groupMembers);
                                     return groupService.update(ReferenceType.ORGANIZATION, organizationId, group, updateGroup, authenticatedUser);
-                                })))
+                                }))))))
                 .subscribe(response::resume, response::resume);
     }
 }

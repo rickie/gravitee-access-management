@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.management.service.impl.upgrades;
 
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.*;
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
 import io.gravitee.am.model.application.ApplicationSettings;
@@ -25,17 +27,16 @@ import io.gravitee.common.util.Maps;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.UUID;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.UUID;
-
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -59,7 +60,7 @@ public class ApplicationScopeSettingsUpgraderTest {
     public void shouldIgnore_IfTaskCompleted() {
         final SystemTask task = new SystemTask();
         task.setStatus(SystemTaskStatus.SUCCESS.name());
-        when(systemTaskRepository.findById(any())).thenReturn(Maybe.just(task));
+        when(systemTaskRepository.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(task)));
 
         upgrader.upgrade();
 
@@ -69,10 +70,10 @@ public class ApplicationScopeSettingsUpgraderTest {
 
     @Test
     public void shouldUpgrade() {
-        when(systemTaskRepository.findById(anyString())).thenReturn(Maybe.empty());
+        when(systemTaskRepository.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         final SystemTask task = new SystemTask();
         task.setStatus(SystemTaskStatus.INITIALIZED.name());
-        when(systemTaskRepository.create(any())).thenReturn(Single.just(task));
+        when(systemTaskRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(task)));
 
         final Application appNoSettings = new Application();
         appNoSettings.setSettings(null);
@@ -102,11 +103,11 @@ public class ApplicationScopeSettingsUpgraderTest {
         appScopesWithOptions.setSettings(settingsWithScopesWithOptions);
 
         when(applicationRepository.findAll()).thenReturn(Flowable.fromArray(appNoSettings, appNoOauthSetings, appNoScopes, appScopes, appScopesWithOptions));
-        when(applicationRepository.update(any())).thenReturn(Single.just(new Application()));
+        when(applicationRepository.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
         when(systemTaskRepository.updateIf(any(), anyString())).thenAnswer((args) -> {
             SystemTask sysTask = args.getArgument(0);
             sysTask.setOperationId(args.getArgument(1));
-            return Single.just(sysTask);
+            return RxJava2Adapter.monoToSingle(Mono.just(sysTask));
         });
 
         upgrader.upgrade();
@@ -160,8 +161,8 @@ public class ApplicationScopeSettingsUpgraderTest {
         finalizedTask.setStatus(SystemTaskStatus.SUCCESS.name());
 
         // first call no task, then ongoing and finally the successful one
-        when(systemTaskRepository.findById(any())).thenReturn(Maybe.empty(), Maybe.just(ongoingTask), Maybe.just(finalizedTask));
-        when(systemTaskRepository.create(any())).thenReturn(Single.error(new Exception()));
+        when(systemTaskRepository.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()), RxJava2Adapter.monoToMaybe(Mono.just(ongoingTask)), RxJava2Adapter.monoToMaybe(Mono.just(finalizedTask)));
+        when(systemTaskRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new Exception())));
 
         upgrader.upgrade();
 

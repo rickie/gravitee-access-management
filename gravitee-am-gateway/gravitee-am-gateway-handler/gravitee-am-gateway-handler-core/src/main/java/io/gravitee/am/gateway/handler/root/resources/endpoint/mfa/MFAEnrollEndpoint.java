@@ -15,13 +15,15 @@
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.mfa;
 
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+
 import io.gravitee.am.common.factor.FactorSecurityType;
 import io.gravitee.am.factor.api.Enrollment;
 import io.gravitee.am.factor.api.FactorProvider;
+import io.gravitee.am.gateway.handler.common.factor.FactorManager;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.utils.RequestUtils;
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
-import io.gravitee.am.gateway.handler.common.factor.FactorManager;
 import io.gravitee.am.gateway.handler.manager.form.FormManager;
 import io.gravitee.am.gateway.handler.root.resources.endpoint.AbstractEndpoint;
 import io.gravitee.am.model.Template;
@@ -42,15 +44,14 @@ import io.vertx.reactivex.core.http.HttpServerResponse;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.common.template.TemplateEngine;
 import io.vertx.reactivex.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -200,8 +201,7 @@ public class MFAEnrollEndpoint extends AbstractEndpoint implements Handler<Routi
 
     private void load(Map<io.gravitee.am.model.Factor, FactorProvider> providers, User user, Handler<AsyncResult<List<Factor>>> handler) {
         Observable.fromIterable(providers.entrySet())
-                .flatMapSingle(entry -> entry.getValue().enroll(user.getUsername())
-                        .map(enrollment -> new Factor(entry.getKey(), enrollment))
+                .flatMapSingle(entry -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(entry.getValue().enroll(user.getUsername())).map(RxJavaReactorMigrationUtil.toJdkFunction(enrollment -> new Factor(entry.getKey(), enrollment))))
                 )
                 .toList()
                 .subscribe(

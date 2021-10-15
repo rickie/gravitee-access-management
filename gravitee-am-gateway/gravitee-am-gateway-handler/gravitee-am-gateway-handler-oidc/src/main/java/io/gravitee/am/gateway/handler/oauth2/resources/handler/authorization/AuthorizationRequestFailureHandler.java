@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization;
 
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+import static io.gravitee.am.service.utils.ResponseTypeUtils.isHybridFlow;
+import static io.gravitee.am.service.utils.ResponseTypeUtils.isImplicitFlow;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestObjectException;
 import io.gravitee.am.common.exception.oauth2.OAuth2Exception;
 import io.gravitee.am.common.oauth2.Parameters;
@@ -36,19 +40,15 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.handler.HttpException;
 import io.vertx.reactivex.ext.web.RoutingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
-import static io.gravitee.am.service.utils.ResponseTypeUtils.isHybridFlow;
-import static io.gravitee.am.service.utils.ResponseTypeUtils.isImplicitFlow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * If the request fails due to a missing, invalid, or mismatching redirection URI, or if the client identifier is missing or invalid,
@@ -182,9 +182,7 @@ public class AuthorizationRequestFailureHandler implements Handler<RoutingContex
             jwtException.setExp(Instant.now().plusSeconds(this.codeValidityInSec).getEpochSecond());
 
             // Sign if needed, else return unsigned JWT
-            jwtService.encodeAuthorization(jwtException.build(), client)
-                    // Encrypt if needed, else return JWT
-                    .flatMap(authorization -> jweService.encryptAuthorization(authorization, client))
+            RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.encodeAuthorization(jwtException.build(), client)).flatMap(authorization->RxJava2Adapter.singleToMono(jweService.encryptAuthorization(authorization, client))))
                     .subscribe(
                             jwt -> handler.handle(Future.succeededFuture(
                                     jwtException.buildRedirectUri(

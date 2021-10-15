@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import static java.time.ZoneOffset.UTC;
+
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
@@ -30,14 +32,12 @@ import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-
-import static java.time.ZoneOffset.UTC;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -57,7 +57,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user.setUsername("testsUsername");
         user.setReferenceType(ReferenceType.ORGANIZATION);
         user.setReferenceId("testOrga");
-        organizationUserRepository.create(user).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user)).block();
 
         // fetch users
         TestSubscriber<User> testSubscriber = organizationUserRepository.findAll(ReferenceType.ORGANIZATION, "testOrga").test();
@@ -76,7 +76,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user.setSource("sourceid");
         user.setReferenceType(ReferenceType.ORGANIZATION);
         user.setReferenceId("testOrga");
-        organizationUserRepository.create(user).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user)).block();
 
         // fetch users
         TestObserver<User> testObserver = organizationUserRepository.findByUsernameAndSource(ReferenceType.ORGANIZATION, "testOrga", user.getUsername(), user.getSource()).test();
@@ -94,7 +94,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user.setUsername("testsUsername");
         user.setReferenceType(ReferenceType.ORGANIZATION);
         user.setReferenceId("testFindByAll");
-        organizationUserRepository.create(user).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user)).block();
 
         // fetch users
         TestObserver<Page<User>> testObserver = organizationUserRepository.findAll(ReferenceType.ORGANIZATION, user.getReferenceId(), 0, 10).test();
@@ -109,7 +109,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create user
         User user = buildUser();
-        User userCreated = organizationUserRepository.create(user).blockingGet();
+        User userCreated = RxJava2Adapter.singleToMono(organizationUserRepository.create(user)).block();
 
         // fetch user
         TestObserver<User> testObserver = organizationUserRepository.findById(userCreated.getId()).test();
@@ -139,7 +139,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
     public void testFindByIdIn() throws TechnicalException {
         // create user
         User user = buildUser();
-        User userCreated = organizationUserRepository.create(user).blockingGet();
+        User userCreated = RxJava2Adapter.singleToMono(organizationUserRepository.create(user)).block();
 
         // fetch user
         TestSubscriber<User> testObserver = organizationUserRepository.findByIdIn(Arrays.asList(userCreated.getId())).test();
@@ -154,7 +154,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
     public void shouldFindByExternalIdAndSource() throws TechnicalException {
         // create user
         User user = buildUser();
-        User userCreated = organizationUserRepository.create(user).blockingGet();
+        User userCreated = RxJava2Adapter.singleToMono(organizationUserRepository.create(user)).block();
 
         // fetch user
         TestObserver<User> testObserver = organizationUserRepository.findByExternalIdAndSource(userCreated.getReferenceType(), userCreated.getReferenceId(), userCreated.getExternalId(), userCreated.getSource()).test();
@@ -186,7 +186,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
     public void shouldNotFindByUnkownExternalIdAndSource() throws TechnicalException {
         // create user
         User user = buildUser();
-        User userCreated = organizationUserRepository.create(user).blockingGet();
+        User userCreated = RxJava2Adapter.singleToMono(organizationUserRepository.create(user)).block();
 
         // fetch user
         TestObserver<User> testObserver = organizationUserRepository.findByExternalIdAndSource(userCreated.getReferenceType(), userCreated.getReferenceId(), userCreated.getExternalId()+"unknown", userCreated.getSource()).test();
@@ -264,7 +264,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user.setUsername("testsUsername");
         user.setReferenceType(ReferenceType.ORGANIZATION);
         user.setReferenceId(ORGANIZATION_ID);
-        User userCreated = organizationUserRepository.create(user).blockingGet();
+        User userCreated = RxJava2Adapter.singleToMono(organizationUserRepository.create(user)).block();
 
         // fetch user
         TestObserver<User> testObserver = organizationUserRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userCreated.getId()).test();
@@ -302,7 +302,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user.setReferenceType(ReferenceType.ORGANIZATION);
         user.setReferenceId("organizationId");
         user.setUsername("testsUsername");
-        User userCreated = organizationUserRepository.create(user).blockingGet();
+        User userCreated = RxJava2Adapter.singleToMono(organizationUserRepository.create(user)).block();
 
         // update user
         User updatedUser = new User();
@@ -326,7 +326,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user.setReferenceType(ReferenceType.ORGANIZATION);
         user.setReferenceId("organizationId");
         user.setUsername("testsUsername");
-        User userCreated = organizationUserRepository.create(user).blockingGet();
+        User userCreated = RxJava2Adapter.singleToMono(organizationUserRepository.create(user)).block();
 
         // fetch user
         TestObserver<User> testObserver = organizationUserRepository.findById(userCreated.getId()).test();
@@ -401,19 +401,19 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user1.setReferenceType(ReferenceType.ORGANIZATION);
         user1.setReferenceId(organization);
         user1.setUsername("testUsername1");
-        organizationUserRepository.create(user1).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user1)).block();
 
         User user2 = new User();
         user2.setReferenceType(ReferenceType.ORGANIZATION);
         user2.setReferenceId(organization);
         user2.setUsername("testUsername2");
-        organizationUserRepository.create(user2).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user2)).block();
 
         User user3 = new User();
         user3.setReferenceType(ReferenceType.ORGANIZATION);
         user3.setReferenceId(organization);
         user3.setUsername("testUsername3");
-        organizationUserRepository.create(user3).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user3)).block();
 
         // fetch user (page 0)
         TestObserver<Page<User>> testObserverP0 = organizationUserRepository.search(ReferenceType.ORGANIZATION, organization, "testUsername*", 0, 2).test();
@@ -448,7 +448,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user1.setUsername("testUsername1");
         user1.setCreatedAt(now);
         user1.setUpdatedAt(now);
-        organizationUserRepository.create(user1).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user1)).block();
 
         User user2 = new User();
         user2.setReferenceType(ReferenceType.ORGANIZATION);
@@ -456,7 +456,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user2.setUsername("testUsername2");
         user2.setCreatedAt(now);
         user2.setUpdatedAt(now);
-        organizationUserRepository.create(user2).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user2)).block();
 
         User user3 = new User();
         user3.setReferenceType(ReferenceType.ORGANIZATION);
@@ -464,7 +464,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user3.setUsername("testUsername3");
         user3.setCreatedAt(now);
         user3.setUpdatedAt(now);
-        organizationUserRepository.create(user3).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user3)).block();
 
         // fetch user (page 0)
         FilterCriteria criteriaName = new FilterCriteria();
@@ -505,19 +505,19 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user1.setReferenceType(ReferenceType.ORGANIZATION);
         user1.setReferenceId(organization);
         user1.setUsername("testUsername1");
-        organizationUserRepository.create(user1).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user1)).block();
 
         User user2 = new User();
         user2.setReferenceType(ReferenceType.ORGANIZATION);
         user2.setReferenceId(organization);
         user2.setUsername("testUsername2");
-        organizationUserRepository.create(user2).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user2)).block();
 
         User user3 = new User();
         user3.setReferenceType(ReferenceType.ORGANIZATION);
         user3.setReferenceId(organization);
         user3.setUsername("testUsername3");
-        organizationUserRepository.create(user3).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user3)).block();
 
         // fetch user (page 0)
         FilterCriteria criteria = new FilterCriteria();
@@ -550,20 +550,20 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user1.setReferenceId(organization);
         user1.setUsername("testUsername1");
         user1.setAdditionalInformation(Collections.singletonMap("given_name", "gname1"));
-        organizationUserRepository.create(user1).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user1)).block();
 
         User user2 = new User();
         user2.setReferenceType(ReferenceType.ORGANIZATION);
         user2.setReferenceId(organization);
         user2.setAdditionalInformation(Collections.singletonMap("given_name", "gname2"));
-        organizationUserRepository.create(user2).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user2)).block();
 
         User user3 = new User();
         user3.setReferenceType(ReferenceType.ORGANIZATION);
         user3.setReferenceId(organization);
         user3.setUsername("testUsername3");
         user3.setAdditionalInformation(Collections.singletonMap("given_name", "no"));
-        organizationUserRepository.create(user3).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user3)).block();
 
         // fetch user (page 0)
         FilterCriteria criteria = new FilterCriteria();
@@ -596,13 +596,13 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user1.setReferenceId(organization);
         user1.setUsername("testUsername1");
         user1.setAdditionalInformation(Collections.singletonMap("given_name", "gname1"));
-        organizationUserRepository.create(user1).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user1)).block();
 
         User user2 = new User();
         user2.setReferenceType(ReferenceType.ORGANIZATION);
         user2.setReferenceId(organization);
         user2.setAdditionalInformation(Collections.singletonMap("given_name", "gname2"));
-        organizationUserRepository.create(user2).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user2)).block();
 
         FilterCriteria criteria = new FilterCriteria();
         criteria.setFilterName("name.givenName");
@@ -628,13 +628,13 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user1.setReferenceId(organization);
         user1.setUsername("testUsername1");
         user1.setAdditionalInformation(Collections.singletonMap("given_name", "gname1"));
-        organizationUserRepository.create(user1).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user1)).block();
 
         User user2 = new User();
         user2.setReferenceType(ReferenceType.ORGANIZATION);
         user2.setReferenceId(organization);
         user2.setUsername("testUsername2");
-        organizationUserRepository.create(user2).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user2)).block();
 
         FilterCriteria criteria = new FilterCriteria();
         criteria.setFilterName("name.givenName");
@@ -659,14 +659,14 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user1.setReferenceId(organization);
         user1.setUsername("testUsername1");
         user1.setAdditionalInformation(Collections.singletonMap("given_name", "gname1"));
-        organizationUserRepository.create(user1).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user1)).block();
 
         User user2 = new User();
         user2.setReferenceType(ReferenceType.ORGANIZATION);
         user2.setReferenceId(organization);
         user2.setUsername("testUsername2");
         user2.setAdditionalInformation(Collections.singletonMap("given_name", "theother"));
-        organizationUserRepository.create(user2).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user2)).block();
 
         FilterCriteria criteria = new FilterCriteria();
         criteria.setFilterName("name.givenName");
@@ -694,7 +694,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user.setDisplayName("displayName");
         user.setUsername("testUsername");
         user.setEmail("user.name@mail.com");
-        organizationUserRepository.create(user).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user)).block();
 
         User user2 = new User();
         user2.setReferenceType(ReferenceType.ORGANIZATION);
@@ -704,7 +704,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user2.setDisplayName("displayName2");
         user2.setUsername("testUsername2");
         user2.setEmail("user.name@mail.com2");
-        organizationUserRepository.create(user2).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user2)).block();
 
         // fetch user
         TestObserver<Page<User>> testObserver = organizationUserRepository.search(ReferenceType.ORGANIZATION, organization, query, 0, 10).test();
@@ -728,7 +728,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user.setDisplayName("displayName");
         user.setUsername("testUsername");
         user.setEmail("user.name@mail.com");
-        organizationUserRepository.create(user).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user)).block();
 
         User user2 = new User();
         user2.setReferenceType(ReferenceType.ORGANIZATION);
@@ -738,7 +738,7 @@ public class OrganizationUserRepositoryTest extends AbstractManagementTest {
         user2.setDisplayName("displayName2");
         user2.setUsername("testUsername2");
         user2.setEmail("user.name@mail.com2");
-        organizationUserRepository.create(user2).blockingGet();
+        RxJava2Adapter.singleToMono(organizationUserRepository.create(user2)).block();
 
         // fetch user
         TestObserver<Page<User>> testObserver = organizationUserRepository.search(ReferenceType.ORGANIZATION, organization, query, 0, 10).test();

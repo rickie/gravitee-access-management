@@ -20,12 +20,12 @@ import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.BaseTestConsumer;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -41,7 +41,7 @@ public class EntrypointRepositoryTest extends AbstractManagementTest {
     public void testFindAll() {
 
         Entrypoint entrypoint = buildEntrypoint();
-        Entrypoint cratedEntrypoint =entrypointRepository.create(entrypoint).blockingGet();
+        Entrypoint cratedEntrypoint =RxJava2Adapter.singleToMono(entrypointRepository.create(entrypoint)).block();
 
         TestSubscriber<Entrypoint> testObserver1 = entrypointRepository.findAll(ORGANIZATION_ID).test();
         testObserver1.awaitTerminalEvent();
@@ -80,7 +80,7 @@ public class EntrypointRepositoryTest extends AbstractManagementTest {
     public void testFindById() {
 
         Entrypoint entrypoint = buildEntrypoint();
-        Entrypoint entrypointCreated = entrypointRepository.create(entrypoint).blockingGet();
+        Entrypoint entrypointCreated = RxJava2Adapter.singleToMono(entrypointRepository.create(entrypoint)).block();
 
         TestObserver<Entrypoint> testObserver = entrypointRepository.findById(entrypointCreated.getId()).test();
         testObserver.awaitTerminalEvent();
@@ -111,7 +111,7 @@ public class EntrypointRepositoryTest extends AbstractManagementTest {
     public void testUpdate() {
 
         Entrypoint entrypoint = buildEntrypoint();
-        Entrypoint entrypointCreated = entrypointRepository.create(entrypoint).blockingGet();
+        Entrypoint entrypointCreated = RxJava2Adapter.singleToMono(entrypointRepository.create(entrypoint)).block();
 
         Entrypoint updatedEntrypoint = buildEntrypoint();
         updatedEntrypoint.setId(entrypointCreated.getId());
@@ -129,7 +129,7 @@ public class EntrypointRepositoryTest extends AbstractManagementTest {
     public void testDelete() {
 
         Entrypoint entrypoint = buildEntrypoint();
-        Entrypoint entrypointCreated = entrypointRepository.create(entrypoint).blockingGet();
+        Entrypoint entrypointCreated = RxJava2Adapter.singleToMono(entrypointRepository.create(entrypoint)).block();
 
         TestObserver<Entrypoint> testObserver = entrypointRepository.findById(entrypointCreated.getId()).test();
         testObserver.awaitTerminalEvent();

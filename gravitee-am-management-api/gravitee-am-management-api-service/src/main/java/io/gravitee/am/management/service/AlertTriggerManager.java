@@ -37,12 +37,15 @@ import io.gravitee.common.event.EventManager;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
+import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -90,9 +93,8 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
 
     void doOnConnect() {
         LOGGER.info("Connected to alerting system. Sync alert triggers...");
-        domainService.findAllByCriteria(new DomainCriteria())
-                .doOnNext(domain -> LOGGER.info("Sending alert triggers for domain {}", domain.getName()))
-                .flatMap(this::prepareAETriggers)
+        RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(domainService.findAllByCriteria(new DomainCriteria())
+                .doOnNext(domain -> LOGGER.info("Sending alert triggers for domain {}", domain.getName()))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(this::prepareAETriggers)))
                 .flatMapSingle(this::registerAETrigger)
                 .count()
                 .subscribe(count -> LOGGER.info("{} alert triggers synchronized with the alerting system.", count),
@@ -120,9 +122,8 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
 
         final Payload payload = (Payload) event.content();
         domainService.findById(payload.getReferenceId())
-                .flatMapSingle(domain -> alertTriggerService.getById(payload.getId())
-                        .flatMap(alertTrigger -> this.prepareAETrigger(domain, alertTrigger))
-                        .flatMap(this::registerAETrigger))
+                .flatMapSingle(domain -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(alertTriggerService.getById(payload.getId())
+                        .flatMap(alertTrigger -> this.prepareAETrigger(domain, alertTrigger))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Trigger>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Trigger, Single<Trigger>>)this::registerAETrigger).apply(v))))))
                 .subscribe(aeTrigger -> LOGGER.info("Alert trigger [{}] synchronized with the alerting system.", aeTrigger.getId()),
                         throwable -> LOGGER.error("An error occurred when trying to synchronize alert trigger [{}] with alerting system", payload.getId(), throwable));
     }
@@ -136,8 +137,7 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
         alertTriggerCriteria.setEnabled(true);
         alertTriggerCriteria.setAlertNotifierIds(Collections.singletonList(payload.getId()));
 
-        domainService.findById(payload.getReferenceId())
-                .filter(domain -> domain.isEnabled() && domain.isAlertEnabled())
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(payload.getReferenceId())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(domain -> domain.isEnabled() && domain.isAlertEnabled())))
                 .flatMapPublisher(domain -> this.alertTriggerService.findByDomainAndCriteria(domain.getId(), alertTriggerCriteria)
                         .flatMapSingle(alertTrigger -> prepareAETrigger(domain, alertTrigger))
                         .flatMapSingle(this::registerAETrigger))
@@ -150,7 +150,7 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
         return Single.defer(() -> {
             triggerProvider.register(trigger);
             LOGGER.debug("Alert trigger [{}] has been pushed to alert system.", trigger.getId());
-            return Single.just(trigger);
+            return RxJava2Adapter.monoToSingle(Mono.just(trigger));
         });
     }
 
@@ -164,9 +164,8 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
         alertNotifierCriteria.setEnabled(true);
         alertNotifierCriteria.setIds(alertTrigger.getAlertNotifiers());
 
-        return alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(alertNotifierService.findByReferenceAndCriteria(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria)
                 .toList()
-                .map(alertNotifiers -> AlertTriggerFactory.create(alertTrigger, alertNotifiers, environment))
-                .doOnSuccess(trigger -> trigger.setEnabled(domain.isEnabled() && domain.isAlertEnabled() && trigger.isEnabled()));
+                .map(alertNotifiers -> AlertTriggerFactory.create(alertTrigger, alertNotifiers, environment))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(trigger -> trigger.setEnabled(domain.isEnabled() && domain.isAlertEnabled() && trigger.isEnabled()))));
     }
 }

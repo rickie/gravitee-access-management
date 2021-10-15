@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.identityprovider.common.oauth2.authentication;
 
+import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
+
 import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
 import io.gravitee.am.common.web.UriBuilder;
@@ -25,13 +27,12 @@ import io.gravitee.am.identityprovider.api.social.SocialIdentityProviderConfigur
 import io.gravitee.common.http.HttpMethod;
 import io.reactivex.Maybe;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
-
-import java.util.*;
-
-import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -78,21 +79,20 @@ public abstract class AbstractSocialAuthenticationProvider<T extends SocialIdent
             Request request = new Request();
             request.setMethod(HttpMethod.GET);
             request.setUri(endpoint);
-            return Maybe.just(request);
+            return RxJava2Adapter.monoToMaybe(Mono.just(request));
         } else {
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
     }
 
     @Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
-        return authenticate(authentication)
-                .flatMap(accessToken -> profile(accessToken, authentication));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticate(authentication)).flatMap(z->profile(z, authentication).as(RxJava2Adapter::maybeToMono)));
     }
 
     @Override
     public Maybe<User> loadUserByUsername(String username) {
-        return Maybe.empty();
+        return RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
 

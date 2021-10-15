@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.repository.jdbc.oauth2.api;
 
+import static java.time.ZoneOffset.UTC;
+import static org.springframework.data.relational.core.query.Criteria.from;
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcLoginAttempt;
@@ -25,18 +30,14 @@ import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.LocalDateTime;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.util.Map;
-
-import static java.time.ZoneOffset.UTC;
-import static org.springframework.data.relational.core.query.Criteria.from;
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -77,32 +78,25 @@ public class JdbcAuthorizationCodeRepository extends AbstractJdbcRepository impl
 
         Mono<Integer> insertAction = insertSpec.fetch().rowsUpdated();
 
-        return monoToSingle(insertAction).flatMap((i) -> authorizationCodeRepository.findById(authorizationCode.getId()).map(this::toEntity).toSingle())
-                .doOnError((error) -> LOGGER.error("Unable to create authorizationCode with id {}", authorizationCode.getId(), error));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(insertAction).flatMap((i) -> authorizationCodeRepository.findById(authorizationCode.getId()).map(this::toEntity).toSingle())).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create authorizationCode with id {}", authorizationCode.getId(), error))));
     }
 
     @Override
     public Maybe<AuthorizationCode> delete(String id) {
         LOGGER.debug("delete({})", id);
-        return authorizationCodeRepository.findById(id).map(this::toEntity)
-                .flatMap(authCode ->
-                    monoToMaybe(dbClient.delete()
-                            .from(JdbcAuthorizationCode.class)
-                            .matching(from(where("id").is(id))).fetch().rowsUpdated())
-                            .map(i -> authCode));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authorizationCodeRepository.findById(id).map(this::toEntity)).flatMap(z->monoToMaybe(dbClient.delete().from(JdbcAuthorizationCode.class).matching(from(where("id").is(id))).fetch().rowsUpdated()).map((java.lang.Integer i)->z).as(RxJava2Adapter::maybeToMono)));
     }
 
     @Override
     public Maybe<AuthorizationCode> findByCode(String code) {
         LOGGER.debug("findByCode({})", code);
-        return authorizationCodeRepository.findByCode(code, LocalDateTime.now(UTC))
-                .map(this::toEntity)
-                .doOnError(error -> LOGGER.error("Unable to retrieve AuthorizationCode with code {}", code));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authorizationCodeRepository.findByCode(code, LocalDateTime.now(UTC))
+                .map(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve AuthorizationCode with code {}", code))));
     }
 
     public Completable purgeExpiredData() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);
-        return monoToCompletable(dbClient.delete().from(JdbcAuthorizationCode.class).matching(where("expire_at").lessThan(now)).then()).doOnError(error -> LOGGER.error("Unable to purge authorization tokens", error));
+        return monoToCompletable(dbClient.delete().from(JdbcAuthorizationCode.class).matching(where("expire_at").lessThan(now)).then()).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to purge authorization tokens", error))).as(RxJava2Adapter::monoToCompletable);
     }
 }

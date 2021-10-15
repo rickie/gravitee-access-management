@@ -20,6 +20,8 @@ import io.gravitee.common.service.Service;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -28,7 +30,7 @@ import io.reactivex.Single;
 public interface UserProvider extends Service<UserProvider> {
 
     default Maybe<User> findByEmail(String email) {
-        return Maybe.empty();
+        return RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
     Maybe<User> findByUsername(String username);

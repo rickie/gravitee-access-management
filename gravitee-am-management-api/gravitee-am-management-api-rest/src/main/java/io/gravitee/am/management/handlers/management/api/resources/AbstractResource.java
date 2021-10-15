@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static io.gravitee.am.management.service.permissions.Permissions.of;
+import static io.gravitee.am.management.service.permissions.Permissions.or;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.service.PermissionService;
 import io.gravitee.am.management.service.permissions.PermissionAcls;
@@ -23,19 +28,18 @@ import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.permissions.Permission;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-
+import io.reactivex.functions.Function;
+import java.util.*;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
-import java.util.*;
-
-import static io.gravitee.am.management.service.permissions.Permissions.of;
-import static io.gravitee.am.management.service.permissions.Permissions.or;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -96,8 +100,7 @@ public abstract class AbstractResource {
 
     private Completable checkPermissions(User authenticatedUser, PermissionAcls permissionAcls) {
 
-        return hasPermission(authenticatedUser, permissionAcls)
-                .flatMapCompletable(this::checkPermission);
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(hasPermission(authenticatedUser, permissionAcls)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)this::checkPermission).apply(y)))).then());
     }
 
     protected Single<Boolean> hasPermission(User user, ReferenceType referenceType, String referenceId, Permission permission, Acl... acls) {
@@ -152,10 +155,10 @@ public abstract class AbstractResource {
 
         List<Single<Map<Permission, Set<Acl>>>> permissionObs = new ArrayList<>();
 
-        permissionObs.add(applicationId != null ? permissionService.findAllPermissions(user, ReferenceType.APPLICATION, applicationId) : Single.just(emptyMap()));
-        permissionObs.add(domainId != null ? permissionService.findAllPermissions(user, ReferenceType.DOMAIN, domainId) : Single.just(emptyMap()));
-        permissionObs.add(environmentId != null ? permissionService.findAllPermissions(user, ReferenceType.ENVIRONMENT, environmentId) : Single.just(emptyMap()));
-        permissionObs.add(organizationId != null ? permissionService.findAllPermissions(user, ReferenceType.ORGANIZATION, organizationId) : Single.just(emptyMap()));
+        permissionObs.add(applicationId != null ? permissionService.findAllPermissions(user, ReferenceType.APPLICATION, applicationId) : RxJava2Adapter.monoToSingle(Mono.just(emptyMap())));
+        permissionObs.add(domainId != null ? permissionService.findAllPermissions(user, ReferenceType.DOMAIN, domainId) : RxJava2Adapter.monoToSingle(Mono.just(emptyMap())));
+        permissionObs.add(environmentId != null ? permissionService.findAllPermissions(user, ReferenceType.ENVIRONMENT, environmentId) : RxJava2Adapter.monoToSingle(Mono.just(emptyMap())));
+        permissionObs.add(organizationId != null ? permissionService.findAllPermissions(user, ReferenceType.ORGANIZATION, organizationId) : RxJava2Adapter.monoToSingle(Mono.just(emptyMap())));
 
         return Single.zip(permissionObs, objects -> {
             Map<ReferenceType, Map<Permission, Set<Acl>>> permissionsPerType = new HashMap<>();
@@ -171,9 +174,9 @@ public abstract class AbstractResource {
     private Completable checkPermission(Boolean hasPermission) {
 
         if (!hasPermission) {
-            return Completable.error(new ForbiddenException("Permission denied"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new ForbiddenException("Permission denied")));
         }
 
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 }

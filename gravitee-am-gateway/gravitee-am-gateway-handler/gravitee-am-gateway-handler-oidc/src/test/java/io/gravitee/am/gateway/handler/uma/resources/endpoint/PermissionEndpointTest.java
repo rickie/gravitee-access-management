@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.uma.resources.endpoint;
 
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
@@ -36,8 +38,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -115,7 +117,7 @@ public class PermissionEndpointTest {
         when(context.response()).thenReturn(response);
         when(response.putHeader(anyString(),anyString())).thenReturn(response);
         when(response.setStatusCode(anyInt())).thenReturn(response);
-        when(permissionTicketService.create(anyList(), eq(DOMAIN_ID), eq(CLIENT_ID))).thenReturn(Single.just(success));
+        when(permissionTicketService.create(anyList(), eq(DOMAIN_ID), eq(CLIENT_ID))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(success)));
         endpoint.handle(context);
         verify(response, times(1)).putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
         verify(context.response(), times(1)).setStatusCode(intCaptor.capture());
@@ -133,7 +135,7 @@ public class PermissionEndpointTest {
         when(context.response()).thenReturn(response);
         when(response.putHeader(anyString(),anyString())).thenReturn(response);
         when(response.setStatusCode(anyInt())).thenReturn(response);
-        when(permissionTicketService.create(anyList(), eq(DOMAIN_ID), eq(CLIENT_ID))).thenReturn(Single.just(success));
+        when(permissionTicketService.create(anyList(), eq(DOMAIN_ID), eq(CLIENT_ID))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(success)));
         endpoint.handle(context);
         verify(response, times(1)).putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
         verify(context.response(), times(1)).setStatusCode(intCaptor.capture());

@@ -72,8 +72,10 @@ import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.transaction.ReactiveTransactionManager;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -126,7 +128,7 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
         LOGGER.debug("search on ({}, {})", referenceType, referenceType);
         if (!ready) {
             LOGGER.debug("Reporter not yet bootstrapped");
-            return Single.just(new Page<>(Collections.emptyList(), page, size));
+            return RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptyList(), page, size)));
         }
 
         SearchQuery searchQuery = dialectHelper.buildSearchQuery(referenceType, referenceId, criteria);
@@ -140,16 +142,15 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
 
         Mono<Long> total = count.as(Long.class).fetch().first();
 
-        return fluxToFlowable(query.as(AuditJdbc.class).fetch().all()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(query.as(AuditJdbc.class).fetch().all()
                 .map(this::convert)
                 .concatMap(this::fillWithActor)
                 .concatMap(this::fillWithTarget)
                 .concatMap(this::fillWithAccessPoint)
                 .concatMap(this::fillWithOutcomes))
                 .toList()
-                .flatMap(content -> monoToSingle(total).map(value -> new Page<Audit>(content, page, value)))
-                .doOnError(error -> LOGGER.error("Unable to retrieve reports for referenceType {} and referenceId {}",
-                        referenceType, referenceId, error));
+                .flatMap(content -> monoToSingle(total).map(value -> new Page<Audit>(content, page, value)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve reports for referenceType {} and referenceId {}",
+                        referenceType, referenceId, error))));
     }
 
     @Override
@@ -166,7 +167,7 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
                 SearchQuery searchQuery = dialectHelper.buildSearchQuery(referenceType, referenceId, criteria);
                 return executeCount(searchQuery);
             default:
-                return Single.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated"));
+                return RxJava2Adapter.monoToSingle(Mono.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated")));
         }
     }
 
@@ -180,10 +181,10 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
             Map<Object, Object> result = new HashMap<>();
             result.put(fieldSuccess, intervals.values().stream().collect(Collectors.toList()));
             result.put(fieldFailure, intervals.values().stream().collect(Collectors.toList()));
-            return Single.just(result);
+            return RxJava2Adapter.monoToSingle(Mono.just(result));
         }
 
-        return dialectHelper.buildAndProcessHistogram(dbClient, referenceType, referenceId, criteria).map(stats -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(dialectHelper.buildAndProcessHistogram(dbClient, referenceType, referenceId, criteria)).map(RxJavaReactorMigrationUtil.toJdkFunction(stats -> {
             Map<Long, Long> successResult = new TreeMap<>();
             Map<Long, Long> failureResult = new TreeMap<>();
             stats.forEach(slotValue -> {
@@ -206,7 +207,7 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
             result.put(fieldSuccess, successData);
             result.put(fieldFailure, failureData);
             return result;
-        });
+        })));
     }
 
     /**
@@ -218,15 +219,14 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
     private Single<Map<Object, Object>> executeCount(SearchQuery searchQuery) {
         if (!ready) {
             LOGGER.debug("Reporter not yet bootstrapped");
-            return Single.just(Collections.singletonMap("data", 0l));
+            return RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonMap("data", 0l)));
         }
 
         DatabaseClient.GenericExecuteSpec count = dbClient.execute(searchQuery.getCount());
         for (Map.Entry<String, Object> bind : searchQuery.getBindings().entrySet()) {
             count = count.bind(bind.getKey(), bind.getValue());
         }
-        return monoToSingle(count.as(Long.class).fetch().first().switchIfEmpty(Mono.just(0l)))
-                .map(data -> Collections.singletonMap("data", data));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(count.as(Long.class).fetch().first().switchIfEmpty(Mono.just(0l)))).map(RxJavaReactorMigrationUtil.toJdkFunction(data -> Collections.singletonMap("data", data))));
     }
 
     /**
@@ -239,7 +239,7 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
     private Single<Map<Object, Object>> executeGroupBy(SearchQuery searchQuery, AuditReportableCriteria criteria) {
         if (!ready) {
             LOGGER.debug("Reporter not yet bootstrapped");
-            return Single.just(Collections.emptyMap());
+            return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap()));
         }
         DatabaseClient.GenericExecuteSpec groupBy = dbClient.execute(searchQuery.getQuery());
         for (Map.Entry<String, Object> bind : searchQuery.getBindings().entrySet()) {
@@ -261,7 +261,7 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
         LOGGER.debug("findById({},{},{})", referenceType, referenceId, id);
         if (!ready) {
             LOGGER.debug("Reporter not yet bootstrapped");
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
 
         Mono<Audit> auditMono = dbClient.select().from(auditsTable).matching(
@@ -277,9 +277,8 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
                 .flatMap(this::fillWithAccessPoint)
                 .flatMap(this::fillWithOutcomes);
 
-        return monoToMaybe(auditMono)
-                .doOnError(error -> LOGGER.error("Unable to retrieve the Report with referenceType {}, referenceId {} and id {}",
-                        referenceType, referenceId, id, error));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(monoToMaybe(auditMono)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve the Report with referenceType {}, referenceId {} and id {}",
+                        referenceType, referenceId, id, error))));
     }
 
     private Mono<Audit> fillWithActor(Audit audit) {
@@ -380,12 +379,12 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
         bulkProcessor.onNext((Audit) reportable);
     }
 
-    private Flowable bulk(List<Audit> audits) {
+    private Flowable<Audit> bulk(List<Audit> audits) {
         if (audits == null || audits.isEmpty()) {
-            return Flowable.empty();
+            return RxJava2Adapter.fluxToFlowable(Flux.empty());
         }
 
-        return Flowable.fromPublisher(Flux.fromIterable(audits).flatMap(this::insertReport, 2))
+        return RxJava2Adapter.fluxToFlowable(Flux.from(Flux.fromIterable(audits).flatMap(this::insertReport, 2)))
                 .doOnError(error -> LOGGER.error("Error during bulk loading", error));
     }
 
@@ -519,11 +518,10 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
 
     protected void initializeBulkProcessor() {
         if (!lifecycle.stopped()) {
-            disposable = bulkProcessor.buffer(
+            disposable = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(bulkProcessor.buffer(
                     configuration.getFlushInterval(),
                     TimeUnit.SECONDS,
-                    configuration.getBulkActions())
-                    .flatMap(JdbcAuditReporter.this::bulk)
+                    configuration.getBulkActions())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(JdbcAuditReporter.this::bulk)))
                     .doOnError(error -> LOGGER.error("An error occurs while indexing data into report_audits_{} table of {} database",
                             configuration.getTableSuffix(), configuration.getDatabase(), error))
                     .subscribe();

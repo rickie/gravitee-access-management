@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.service;
 
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.gravitee.am.model.Application;
@@ -38,8 +40,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -73,7 +77,7 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(certificateRepository.findById("my-certificate")).thenReturn(Maybe.just(new Certificate()));
+        when(certificateRepository.findById("my-certificate")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Certificate())));
         TestObserver testObserver = certificateService.findById("my-certificate").test();
 
         testObserver.awaitTerminalEvent();
@@ -84,7 +88,7 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldFindById_notExistingCertificate() {
-        when(certificateRepository.findById("my-certificate")).thenReturn(Maybe.empty());
+        when(certificateRepository.findById("my-certificate")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver testObserver = certificateService.findById("my-certificate").test();
         testObserver.awaitTerminalEvent();
 
@@ -93,7 +97,7 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(certificateRepository.findById("my-certificate")).thenReturn(Maybe.error(TechnicalException::new));
+        when(certificateRepository.findById("my-certificate")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
         TestObserver testObserver = new TestObserver();
         certificateService.findById("my-certificate").subscribe(testObserver);
 
@@ -103,7 +107,7 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(certificateRepository.findByDomain(DOMAIN)).thenReturn(Flowable.just(new Certificate()));
+        when(certificateRepository.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Certificate())));
         TestSubscriber<Certificate> testSubscriber = certificateService.findByDomain(DOMAIN).test();
         testSubscriber.awaitTerminalEvent();
 
@@ -114,7 +118,7 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(certificateRepository.findByDomain(DOMAIN)).thenReturn(Flowable.error(TechnicalException::new));
+        when(certificateRepository.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestSubscriber testObserver = certificateService.findByDomain(DOMAIN).test();
 
@@ -128,10 +132,10 @@ public class CertificateServiceTest {
         Certificate certificate = Mockito.mock(Certificate.class);
         when(certificate.getDomain()).thenReturn(DOMAIN);
 
-        when(certificateRepository.findById("my-certificate")).thenReturn(Maybe.just(certificate));
-        when(applicationService.findByCertificate("my-certificate")).thenReturn(Flowable.empty());
-        when(certificateRepository.delete("my-certificate")).thenReturn(Completable.complete());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(certificateRepository.findById("my-certificate")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(certificate)));
+        when(applicationService.findByCertificate("my-certificate")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(certificateRepository.delete("my-certificate")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = certificateService.delete("my-certificate").test();
         testObserver.awaitTerminalEvent();
@@ -147,7 +151,7 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(certificateRepository.findById("my-certificate")).thenReturn(Maybe.error(TechnicalException::new));
+        when(certificateRepository.findById("my-certificate")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = certificateService.delete("my-certificate").test();
 
@@ -161,7 +165,7 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldDelete_notFound() {
-        when(certificateRepository.findById("my-certificate")).thenReturn(Maybe.empty());
+        when(certificateRepository.findById("my-certificate")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = certificateService.delete("my-certificate").test();
 
@@ -175,8 +179,8 @@ public class CertificateServiceTest {
 
     @Test
     public void shouldDelete_certificateWithClients() {
-        when(certificateRepository.findById("my-certificate")).thenReturn(Maybe.just(new Certificate()));
-        when(applicationService.findByCertificate("my-certificate")).thenReturn(Flowable.just(new Application()));
+        when(certificateRepository.findById("my-certificate")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Certificate())));
+        when(applicationService.findByCertificate("my-certificate")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Application())));
 
         TestObserver testObserver = certificateService.delete("my-certificate").test();
 
@@ -194,7 +198,7 @@ public class CertificateServiceTest {
         when(objectMapper.readValue(anyString(), eq(CertificateSchema.class))).thenReturn(new CertificateSchema());
         when(objectMapper.createObjectNode()).thenReturn(mock(ObjectNode.class));
         when(certificatePluginService.getSchema(CertificateServiceImpl.DEFAULT_CERTIFICATE_PLUGIN))
-                .thenReturn(Maybe.just("{\n" +
+                .thenReturn(RxJava2Adapter.monoToMaybe(Mono.just("{\n" +
                         "  \"type\" : \"object\",\n" +
                         "  \"id\" : \"urn:jsonschema:io:gravitee:am:certificate:pkcs12:PKCS12Configuration\",\n" +
                         "  \"properties\" : {\n" +
@@ -226,7 +230,7 @@ public class CertificateServiceTest {
                         "    \"alias\",\n" +
                         "    \"keypass\"\n" +
                         "  ]\n" +
-                        "}"));
+                        "}")));
         TestObserver testObserver = certificateService.create("my-domain").test();
         testObserver.awaitTerminalEvent();
 

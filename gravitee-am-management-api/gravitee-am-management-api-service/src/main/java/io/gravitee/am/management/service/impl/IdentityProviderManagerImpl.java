@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.service.impl;
 
+import static io.gravitee.am.management.service.impl.utils.InlineOrganizationProviderConfiguration.MEMORY_TYPE;
+import static io.gravitee.am.service.utils.BackendConfigurationUtils.getMongoDatabaseName;
+
 import com.google.common.io.BaseEncoding;
 import io.gravitee.am.common.event.IdentityProviderEvent;
 import io.gravitee.am.identityprovider.api.UserProvider;
@@ -35,14 +38,6 @@ import io.gravitee.common.event.EventManager;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -51,9 +46,15 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
-
-import static io.gravitee.am.management.service.impl.utils.InlineOrganizationProviderConfiguration.MEMORY_TYPE;
-import static io.gravitee.am.service.utils.BackendConfigurationUtils.getMongoDatabaseName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -203,10 +204,10 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
     @Override
     public Maybe<UserProvider> getUserProvider(String userProvider) {
         if (userProvider == null) {
-            return Maybe.empty();
+            return RxJava2Adapter.monoToMaybe(Mono.empty());
         }
         UserProvider userProvider1 = userProviders.get(userProvider);
-        return (userProvider1 != null) ? Maybe.just(userProvider1) : Maybe.empty();
+        return (userProvider1 != null) ? RxJava2Adapter.monoToMaybe(Mono.just(userProvider1)) : RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
     @Override
@@ -270,7 +271,7 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
                     "\"passwordEncoder\":\"BCrypt\"}";
             newIdentityProvider.setConfiguration(providerConfig);
         } else {
-            return Single.error(new IllegalStateException("Unable to create Default IdentityProvider with " + managementBackend + " backend"));
+            return RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("Unable to create Default IdentityProvider with " + managementBackend + " backend")));
         }
         return identityProviderService.create(referenceType, referenceId, newIdentityProvider, null);
     }

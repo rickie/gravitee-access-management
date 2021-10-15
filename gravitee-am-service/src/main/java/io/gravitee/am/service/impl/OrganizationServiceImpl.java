@@ -31,13 +31,14 @@ import io.gravitee.am.service.reporter.builder.management.OrganizationAuditBuild
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.Collections;
+import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
-import java.util.Date;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -69,8 +70,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public Single<Organization> findById(String id) {
         LOGGER.debug("Find organization by id: {}", id);
-        return organizationRepository.findById(id)
-                .switchIfEmpty(Single.error(new OrganizationNotFoundException(id)));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(organizationRepository.findById(id)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new OrganizationNotFoundException(id))))));
     }
 
     @Override
@@ -84,15 +84,14 @@ public class OrganizationServiceImpl implements OrganizationService {
         organization.setDomainRestrictions(Collections.emptyList());
 
         // No need to create default organization if one or more organizations already exist.
-        return organizationRepository.count()
-                .filter(aLong -> aLong == 0)
-                .flatMap(aLong -> createInternal(organization, null).toMaybe());
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(organizationRepository.count()
+                .filter(aLong -> aLong == 0)).flatMap(z->createInternal(organization, null).toMaybe().as(RxJava2Adapter::maybeToMono)));
     }
 
     @Override
     public Single<Organization> createOrUpdate(String organizationId, NewOrganization newOrganization, User byUser) {
 
-        return organizationRepository.findById(organizationId)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(organizationRepository.findById(organizationId)
                 .flatMap(organization -> {
                     Organization toUpdate = new Organization(organization);
                     toUpdate.setName(newOrganization.getName());
@@ -101,8 +100,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                     toUpdate.setHrids(newOrganization.getHrids());
 
                     return updateInternal(toUpdate, byUser, organization).toMaybe();
-                })
-                .switchIfEmpty(Single.defer(() -> {
+                })).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.defer(() -> {
                     Organization toCreate = new Organization();
                     toCreate.setId(organizationId);
                     toCreate.setHrids(newOrganization.getHrids());
@@ -111,14 +109,13 @@ public class OrganizationServiceImpl implements OrganizationService {
                     toCreate.setDomainRestrictions(newOrganization.getDomainRestrictions());
 
                     return createInternal(toCreate, byUser);
-                }));
+                })))));
     }
 
     @Override
     public Single<Organization> update(String organizationId, PatchOrganization patchOrganization, User updatedBy) {
 
-        return findById(organizationId)
-                .flatMap(organization -> updateInternal(patchOrganization.patch(organization), updatedBy, organization));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findById(organizationId)).flatMap(organization->RxJava2Adapter.singleToMono(updateInternal(patchOrganization.patch(organization), updatedBy, organization))));
     }
 
     private Single<Organization> createInternal(Organization toCreate, User owner) {
@@ -129,21 +126,19 @@ public class OrganizationServiceImpl implements OrganizationService {
         toCreate.setUpdatedAt(now);
 
         // Creates an organization and set ownership.
-        return organizationRepository.create(toCreate)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationRepository.create(toCreate)
                 .flatMap(createdOrganization ->
                         Completable.mergeArrayDelayError(entrypointService.createDefaults(createdOrganization).ignoreElements(),
                                 roleService.createDefaultRoles(createdOrganization.getId()))
                                 .andThen(Single.just(createdOrganization)))
-                .doOnSuccess(organization -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(organization).principal(owner)))
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(toCreate).principal(owner).throwable(throwable)));
+                .doOnSuccess(organization -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(organization).principal(owner)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(toCreate).principal(owner).throwable(throwable)))));
     }
 
     private Single<Organization> updateInternal(Organization organization, User updatedBy, Organization previous) {
 
         organization.setUpdatedAt(new Date());
 
-        return organizationRepository.update(organization)
-                .doOnSuccess(updated -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_UPDATED).organization(updated).principal(updatedBy).oldValue(previous)))
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_UPDATED).organization(previous).principal(updatedBy).throwable(throwable)));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationRepository.update(organization)
+                .doOnSuccess(updated -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_UPDATED).organization(updated).principal(updatedBy).oldValue(previous)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_UPDATED).organization(previous).principal(updatedBy).throwable(throwable)))));
     }
 }

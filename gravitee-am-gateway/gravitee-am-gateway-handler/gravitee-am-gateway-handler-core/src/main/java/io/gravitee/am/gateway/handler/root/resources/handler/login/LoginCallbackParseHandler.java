@@ -34,6 +34,8 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -108,12 +110,11 @@ public class LoginCallbackParseHandler implements Handler<RoutingContext> {
             return;
         }
 
-        jwtService.decodeAndVerify(state, certificateManager.defaultCertificateProvider())
-                .doOnSuccess(stateJwt -> {
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.decodeAndVerify(state, certificateManager.defaultCertificateProvider())).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(stateJwt -> {
                     final MultiMap initialQueryParams = RequestUtils.getQueryParams((String) stateJwt.getOrDefault("q", ""), false);
                     context.put(ConstantKeys.PARAM_CONTEXT_KEY, initialQueryParams);
                     context.put(ConstantKeys.PROVIDER_ID_PARAM_KEY, stateJwt.get("p"));
-                })
+                })))
                 .subscribe(
                         stateJwt -> handler.handle(Future.succeededFuture(true)),
                         ex -> {

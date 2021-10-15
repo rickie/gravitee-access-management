@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.management.service.impl.commands;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.model.Environment;
 import io.gravitee.am.model.Installation;
 import io.gravitee.am.model.Organization;
@@ -31,10 +35,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -74,7 +76,7 @@ public class HelloCommandProducerTest {
         installation.getAdditionalInformation().put(CUSTOM_KEY, CUSTOM_VALUE);
 
         when(node.hostname()).thenReturn(HOSTNAME);
-        when(installationService.getOrInitialize()).thenReturn(Single.just(installation));
+        when(installationService.getOrInitialize()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(installation)));
 
         final HelloCommand command = new HelloCommand();
         final HelloPayload payload = new HelloPayload();
@@ -100,7 +102,7 @@ public class HelloCommandProducerTest {
     @Test
     public void produceWithException() {
 
-        when(installationService.getOrInitialize()).thenReturn(Single.error(new TechnicalException()));
+        when(installationService.getOrInitialize()).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException())));
         final TestObserver<HelloCommand> obs = cut.prepare(new HelloCommand()).test();
 
         obs.awaitTerminalEvent();

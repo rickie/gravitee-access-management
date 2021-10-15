@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.service.impl.upgrades;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Role;
@@ -27,16 +30,14 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.*;
 import io.gravitee.am.service.model.NewScope;
 import io.reactivex.Single;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -92,12 +93,12 @@ public class ScopeUpgraderTest {
         role.setId("role-id");
         role.setOauthScopes(Collections.singletonList(roleScope.getKey()));
 
-        when(domainService.findAll()).thenReturn(Single.just(Collections.singletonList(domain)));
-        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.emptySet(),0 ,0)))
-                .thenReturn(Single.just(new Page<>(Collections.singleton(domainScope),0, 1)));
-        when(applicationService.findByDomain(domain.getId())).thenReturn(Single.just(Collections.singleton(app)));
-        when(roleService.findByDomain(domain.getId())).thenReturn(Single.just(Collections.singleton(role)));
-        when(scopeService.create(any(String.class), any(NewScope.class))).thenReturn(Single.just(new Scope()));
+        when(domainService.findAll()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(domain))));
+        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptySet(),0 ,0))))
+                .thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(domainScope),0, 1))));
+        when(applicationService.findByDomain(domain.getId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(app))));
+        when(roleService.findByDomain(domain.getId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(role))));
+        when(scopeService.create(any(String.class), any(NewScope.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
 
         scopeUpgrader.upgrade();
 
@@ -120,8 +121,8 @@ public class ScopeUpgraderTest {
         domain.setId(domainId);
         domain.setName(domainName);
 
-        when(domainService.findAll()).thenReturn(Single.just(Collections.singletonList(domain)));
-        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.singleton(domainScope), 0, 1)));
+        when(domainService.findAll()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(domain))));
+        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(domainScope), 0, 1))));
 
         scopeUpgrader.upgrade();
 
@@ -146,11 +147,11 @@ public class ScopeUpgraderTest {
         domain.setId(domainId);
         domain.setName(domainName);
 
-        when(domainService.findAll()).thenReturn(Single.just(Collections.singletonList(domain)));
-        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.emptySet(), 0, 0)))
-                .thenReturn(Single.just(new Page<>(Collections.singleton(domainScope), 0, 0)));
-        when(applicationService.findByDomain(domain.getId())).thenReturn(Single.just(Collections.emptySet()));
-        when(roleService.findByDomain(domain.getId())).thenReturn(Single.just(Collections.emptySet()));
+        when(domainService.findAll()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(domain))));
+        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptySet(), 0, 0))))
+                .thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(domainScope), 0, 0))));
+        when(applicationService.findByDomain(domain.getId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
+        when(roleService.findByDomain(domain.getId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
 
         scopeUpgrader.upgrade();
 
@@ -181,10 +182,10 @@ public class ScopeUpgraderTest {
         role.setId("role-id");
         role.setPermissionAcls(null);
 
-        when(domainService.findAll()).thenReturn(Single.just(Collections.singletonList(domain)));
-        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.emptySet(),0, Integer.MAX_VALUE))).thenReturn(Single.just(new Page<>(Collections.singleton(domainScope), 0, Integer.MAX_VALUE)));
-        when(applicationService.findByDomain(domain.getId())).thenReturn(Single.just(Collections.singleton(app)));
-        when(roleService.findByDomain(domain.getId())).thenReturn(Single.just(Collections.singleton(role)));
+        when(domainService.findAll()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(domain))));
+        when(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptySet(),0, Integer.MAX_VALUE)))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(domainScope), 0, Integer.MAX_VALUE))));
+        when(applicationService.findByDomain(domain.getId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(app))));
+        when(roleService.findByDomain(domain.getId())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(role))));
 
         scopeUpgrader.upgrade();
 

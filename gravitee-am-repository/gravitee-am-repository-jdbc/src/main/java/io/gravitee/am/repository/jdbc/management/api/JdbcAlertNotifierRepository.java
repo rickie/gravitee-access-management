@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertNotifier;
@@ -30,10 +34,8 @@ import io.reactivex.Single;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.stereotype.Component;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -57,8 +59,7 @@ public class JdbcAlertNotifierRepository extends AbstractJdbcRepository implemen
     public Maybe<AlertNotifier> findById(String id) {
         LOGGER.debug("findById({})", id);
 
-        return this.alertNotifierRepository.findById(id)
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.alertNotifierRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -114,12 +115,11 @@ public class JdbcAlertNotifierRepository extends AbstractJdbcRepository implemen
 
         whereClause = whereClause.and(referenceClause.and(criteria.isLogicalOR() ? idsClause.or(enableClause) : idsClause.and(enableClause)));
 
-        return fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
                 .from(JdbcAlertNotifier.class)
                 .matching(from(whereClause))
                 .as(JdbcAlertNotifier.class)
-                .all())
-                .map(this::toEntity)
+                .all())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
                 .doOnError(error -> LOGGER.error("Unable to retrieve AlertNotifier with referenceId {}, referenceType {} and criteria {}",
                         referenceId, referenceType, criteria, error));
     }

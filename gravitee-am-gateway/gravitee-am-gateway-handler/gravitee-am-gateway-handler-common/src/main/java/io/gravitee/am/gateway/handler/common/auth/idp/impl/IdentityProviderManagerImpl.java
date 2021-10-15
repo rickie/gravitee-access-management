@@ -31,13 +31,14 @@ import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Maybe;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -70,7 +71,7 @@ public class IdentityProviderManagerImpl extends AbstractService implements Iden
     @Override
     public Maybe<AuthenticationProvider> get(String id) {
         AuthenticationProvider authenticationProvider = providers.get(id);
-        return (authenticationProvider != null) ? Maybe.just(authenticationProvider) : Maybe.empty();
+        return (authenticationProvider != null) ? RxJava2Adapter.monoToMaybe(Mono.just(authenticationProvider)) : RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
     @Override
@@ -81,7 +82,7 @@ public class IdentityProviderManagerImpl extends AbstractService implements Iden
     @Override
     public Maybe<UserProvider> getUserProvider(String id) {
         UserProvider userProvider = userProviders.get(id);
-        return (userProvider != null) ? Maybe.just(userProvider) : Maybe.empty();
+        return (userProvider != null) ? RxJava2Adapter.monoToMaybe(Mono.just(userProvider)) : RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 
     @Override

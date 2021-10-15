@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.gateway.handler.common.auth;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.exception.authentication.AccountDisabledException;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.exception.authentication.InternalAuthenticationServiceException;
@@ -38,19 +42,16 @@ import io.gravitee.common.event.EventManager;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -121,10 +122,10 @@ public class UserAuthenticationManagerTest {
             io.gravitee.am.identityprovider.api.User idpUser = invocation.getArgument(0);
             User user = new User();
             user.setUsername(idpUser.getUsername());
-            return Single.just(user);
+            return RxJava2Adapter.monoToSingle(Mono.just(user));
         });
 
-        when(identityProviderManager.get("idp-1")).thenReturn(Maybe.just(new AuthenticationProvider() {
+        when(identityProviderManager.get("idp-1")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new AuthenticationProvider() {
             @Override
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(Authentication authentication) {
                 return Maybe.just(new DefaultUser("username"));
@@ -134,7 +135,7 @@ public class UserAuthenticationManagerTest {
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(String username) {
                 return Maybe.empty();
             }
-        }));
+        })));
 
         TestObserver<User> observer = userAuthenticationManager.authenticate(client, new Authentication() {
             @Override
@@ -169,7 +170,7 @@ public class UserAuthenticationManagerTest {
         identityProvider.setId("idp-1");
         when(identityProviderManager.getIdentityProvider("idp-1")).thenReturn(identityProvider);
 
-        when(identityProviderManager.get("idp-1")).thenReturn(Maybe.just(new AuthenticationProvider() {
+        when(identityProviderManager.get("idp-1")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new AuthenticationProvider() {
             @Override
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(Authentication authentication) {
                 throw new BadCredentialsException();
@@ -179,7 +180,7 @@ public class UserAuthenticationManagerTest {
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(String username) {
                 return Maybe.empty();
             }
-        }));
+        })));
 
         TestObserver<User> observer = userAuthenticationManager.authenticate(client, new Authentication() {
             @Override
@@ -220,11 +221,11 @@ public class UserAuthenticationManagerTest {
             io.gravitee.am.identityprovider.api.User idpUser = invocation.getArgument(0);
             User user = new User();
             user.setUsername(idpUser.getUsername());
-            return Single.just(user);
+            return RxJava2Adapter.monoToSingle(Mono.just(user));
         });
 
         when(identityProviderManager.getIdentityProvider("idp-1")).thenReturn(identityProvider);
-        when(identityProviderManager.get("idp-1")).thenReturn(Maybe.just(new AuthenticationProvider() {
+        when(identityProviderManager.get("idp-1")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new AuthenticationProvider() {
             @Override
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(Authentication authentication) {
                 throw new BadCredentialsException();
@@ -234,10 +235,10 @@ public class UserAuthenticationManagerTest {
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(String username) {
                 return Maybe.empty();
             }
-        }));
+        })));
 
         when(identityProviderManager.getIdentityProvider("idp-2")).thenReturn(identityProvider2);
-        when(identityProviderManager.get("idp-2")).thenReturn(Maybe.just(new AuthenticationProvider() {
+        when(identityProviderManager.get("idp-2")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new AuthenticationProvider() {
             @Override
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(Authentication authentication) {
                 return Maybe.just(new DefaultUser("username"));
@@ -247,7 +248,7 @@ public class UserAuthenticationManagerTest {
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(String username) {
                 return Maybe.empty();
             }
-        }));
+        })));
 
         TestObserver<User> observer = userAuthenticationManager.authenticate(client, new Authentication() {
             @Override
@@ -284,10 +285,10 @@ public class UserAuthenticationManagerTest {
 
         when(userAuthenticationService.connect(any(), eq(true))).then(invocation -> {
             io.gravitee.am.identityprovider.api.User idpUser = invocation.getArgument(0);
-            return Single.error(new AccountDisabledException(idpUser.getUsername()));
+            return RxJava2Adapter.monoToSingle(Mono.error(new AccountDisabledException(idpUser.getUsername())));
         });
 
-        when(identityProviderManager.get("idp-1")).thenReturn(Maybe.just(new AuthenticationProvider() {
+        when(identityProviderManager.get("idp-1")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new AuthenticationProvider() {
             @Override
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(Authentication authentication) {
                 return Maybe.just(new DefaultUser("username"));
@@ -297,7 +298,7 @@ public class UserAuthenticationManagerTest {
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(String username) {
                 return Maybe.empty();
             }
-        }));
+        })));
 
         TestObserver<User> observer = userAuthenticationManager.authenticate(client, new Authentication() {
             @Override
@@ -352,7 +353,7 @@ public class UserAuthenticationManagerTest {
         IdentityProvider identityProvider = new IdentityProvider();
         identityProvider.setId("idp-1");
         when(identityProviderManager.getIdentityProvider("idp-1")).thenReturn(identityProvider);
-        when(identityProviderManager.get("idp-1")).thenReturn(Maybe.just(new AuthenticationProvider() {
+        when(identityProviderManager.get("idp-1")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new AuthenticationProvider() {
             @Override
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(Authentication authentication) {
                 return Maybe.error(new UsernameNotFoundException("username"));
@@ -362,9 +363,9 @@ public class UserAuthenticationManagerTest {
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(String username) {
                 return Maybe.empty();
             }
-        }));
+        })));
 
-        when(loginAttemptService.checkAccount(any(), any())).thenReturn(Maybe.empty());
+        when(loginAttemptService.checkAccount(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver<User> observer = userAuthenticationManager.authenticate(client, new Authentication() {
             @Override
             public Object getCredentials() {
@@ -404,7 +405,7 @@ public class UserAuthenticationManagerTest {
         IdentityProvider identityProvider = new IdentityProvider();
         identityProvider.setId("idp-1");
         when(identityProviderManager.getIdentityProvider("idp-1")).thenReturn(identityProvider);
-        when(identityProviderManager.get("idp-1")).thenReturn(Maybe.just(new AuthenticationProvider() {
+        when(identityProviderManager.get("idp-1")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new AuthenticationProvider() {
             @Override
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(Authentication authentication) {
                 return Maybe.error(new BadCredentialsException("username"));
@@ -414,11 +415,11 @@ public class UserAuthenticationManagerTest {
             public Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(String username) {
                 return Maybe.empty();
             }
-        }));
+        })));
 
         when(domain.getId()).thenReturn("domain-id");
-        when(userService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(Maybe.empty());
-        when(loginAttemptService.checkAccount(any(), any())).thenReturn(Maybe.empty());
+        when(userService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(loginAttemptService.checkAccount(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver<User> observer = userAuthenticationManager.authenticate(client, new Authentication() {
             @Override
             public Object getCredentials() {

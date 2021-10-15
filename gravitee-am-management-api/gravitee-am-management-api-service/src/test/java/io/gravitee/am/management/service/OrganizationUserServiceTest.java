@@ -15,6 +15,12 @@
  */
 package io.gravitee.am.management.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.identityprovider.api.UserProvider;
 import io.gravitee.am.management.service.impl.OrganizationUserServiceImpl;
@@ -33,20 +39,16 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.HashMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.HashMap;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -85,10 +87,10 @@ public class OrganizationUserServiceTest {
         user.setId(userId);
         user.setSource("source-idp");
 
-        when(commonUserService.findById(any(), any(), any())).thenReturn(Single.just(user));
-        when(identityProviderManager.getUserProvider(any())).thenReturn(Maybe.empty());
-        when(commonUserService.delete(anyString())).thenReturn(Completable.complete());
-        when(membershipService.findByMember(any(), any())).thenReturn(Flowable.empty());
+        when(commonUserService.findById(any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(identityProviderManager.getUserProvider(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(commonUserService.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(membershipService.findByMember(any(), any())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
 
         organizationUserService.delete(ReferenceType.ORGANIZATION, organization, userId)
                 .test()
@@ -114,11 +116,11 @@ public class OrganizationUserServiceTest {
         Membership m3 = mock(Membership.class);
         when(m3.getId()).thenReturn("m3");
 
-        when(commonUserService.findById(any(), any(), any())).thenReturn(Single.just(user));
-        when(identityProviderManager.getUserProvider(any())).thenReturn(Maybe.empty());
-        when(commonUserService.delete(anyString())).thenReturn(Completable.complete());
-        when(membershipService.findByMember(any(), any())).thenReturn(Flowable.just(m1, m2, m3));
-        when(membershipService.delete(anyString())).thenReturn(Completable.complete());
+        when(commonUserService.findById(any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(identityProviderManager.getUserProvider(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(commonUserService.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(membershipService.findByMember(any(), any())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(m1, m2, m3)));
+        when(membershipService.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         organizationUserService.delete(ReferenceType.ORGANIZATION, organization, userId)
                 .test()
@@ -146,14 +148,14 @@ public class OrganizationUserServiceTest {
         newUser.setPassword("Test123!");
         newUser.setEmail("email@acme.fr");
         when(passwordValidator.isValid(any())).thenReturn(true);
-        when(commonUserService.findByUsernameAndSource(any(), any(), anyString(), anyString())).thenReturn(Maybe.empty());
+        when(commonUserService.findByUsernameAndSource(any(), any(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         final UserProvider provider = mock(UserProvider.class);
-        when(identityProviderManager.getUserProvider(any())).thenReturn(Maybe.just(provider));
-        when(provider.create(any())).thenReturn(Single.just(mock(io.gravitee.am.identityprovider.api.User.class)));
+        when(identityProviderManager.getUserProvider(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(provider)));
+        when(provider.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(mock(io.gravitee.am.identityprovider.api.User.class))));
 
-        doReturn(Completable.complete()).when(userValidator).validate(any());
-        when(commonUserService.create(any())).thenReturn(Single.just(mock(User.class)));
-        when(commonUserService.setRoles(any())).thenReturn(Completable.complete());
+        doReturn(RxJava2Adapter.monoToCompletable(Mono.empty())).when(userValidator).validate(any());
+        when(commonUserService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(mock(User.class))));
+        when(commonUserService.setRoles(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         TestObserver<User> testObserver = organizationUserService.createGraviteeUser(new Organization(), newUser, null).test();
         testObserver.awaitTerminalEvent();
@@ -186,7 +188,7 @@ public class OrganizationUserServiceTest {
         Organization organization = new Organization();
         organization.setId("orgaid");
 
-        when(commonUserService.findByUsernameAndSource(ReferenceType.ORGANIZATION, organization.getId(), newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.just(new User()));
+        when(commonUserService.findByUsernameAndSource(ReferenceType.ORGANIZATION, organization.getId(), newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new User())));
 
         TestObserver<User> testObserver = organizationUserService.createGraviteeUser(organization, newUser, null).test();
         testObserver.awaitTerminalEvent();
@@ -200,8 +202,8 @@ public class OrganizationUserServiceTest {
         Organization organization = new Organization();
         organization.setId("orgaid");
 
-        when(commonUserService.findByUsernameAndSource(ReferenceType.ORGANIZATION, organization.getId(), newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.empty());
-        when(identityProviderManager.getUserProvider(newUser.getSource())).thenReturn(Maybe.empty());
+        when(commonUserService.findByUsernameAndSource(ReferenceType.ORGANIZATION, organization.getId(), newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(identityProviderManager.getUserProvider(newUser.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver<User> testObserver = organizationUserService.createGraviteeUser(organization, newUser, null).test();
         testObserver.awaitTerminalEvent();
@@ -213,8 +215,8 @@ public class OrganizationUserServiceTest {
         NewUser newUser = newOrganizationUser();
         newUser.setPassword(null);
 
-        when(commonUserService.findByUsernameAndSource(any(), any(),  any(),  any())).thenReturn(Maybe.empty());
-        when(identityProviderManager.getUserProvider(any())).thenReturn(Maybe.just(mock(UserProvider.class)));
+        when(commonUserService.findByUsernameAndSource(any(), any(),  any(),  any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(identityProviderManager.getUserProvider(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(mock(UserProvider.class))));
         TestObserver<User> testObserver = organizationUserService.createGraviteeUser(new Organization(), newUser, null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidPasswordException.class);
@@ -239,8 +241,8 @@ public class OrganizationUserServiceTest {
 
         User user = new User();
         user.setId("user#1");
-        when(commonUserService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getExternalId(), newUser.getSource())).thenReturn(Maybe.just(user));
-        when(commonUserService.update(any(User.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(commonUserService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getExternalId(), newUser.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(commonUserService.update(any(User.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         TestObserver<User> obs = organizationUserService.createOrUpdate(ReferenceType.ORGANIZATION, "orga#1", newUser).test();
 
@@ -277,9 +279,9 @@ public class OrganizationUserServiceTest {
 
         User user = new User();
         user.setId("user#1");
-        when(commonUserService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getExternalId(), newUser.getSource())).thenReturn(Maybe.empty());
-        when(commonUserService.findByUsernameAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.just(user));
-        when(commonUserService.update(any(User.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(commonUserService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getExternalId(), newUser.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(commonUserService.findByUsernameAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(commonUserService.update(any(User.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         TestObserver<User> obs = organizationUserService.createOrUpdate(ReferenceType.ORGANIZATION, "orga#1", newUser).test();
 
@@ -314,9 +316,9 @@ public class OrganizationUserServiceTest {
         additionalInformation.put(StandardClaims.PICTURE, "https://gravitee.io/my-picture");
         newUser.setAdditionalInformation(additionalInformation);
 
-        when(commonUserService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getExternalId(), newUser.getSource())).thenReturn(Maybe.empty());
-        when(commonUserService.findByUsernameAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.empty());
-        when(commonUserService.create(any(User.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(commonUserService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getExternalId(), newUser.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(commonUserService.findByUsernameAndSource(ReferenceType.ORGANIZATION, "orga#1", newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(commonUserService.create(any(User.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         TestObserver<User> obs = organizationUserService.createOrUpdate(ReferenceType.ORGANIZATION, "orga#1", newUser).test();
 
@@ -357,7 +359,7 @@ public class OrganizationUserServiceTest {
         user.setUsername("username");
         user.setSource("gravitee");
 
-        when(commonUserService.update(any())).thenReturn(Single.just(user));
+        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
 
         final TestObserver<Void> testObserver = organizationUserService.resetPassword("org#1", user, "Test123!", null).test();
         testObserver.awaitTerminalEvent();

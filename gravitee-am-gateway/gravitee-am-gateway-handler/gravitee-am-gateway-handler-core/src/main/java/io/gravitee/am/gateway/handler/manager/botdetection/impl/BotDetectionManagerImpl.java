@@ -17,10 +17,10 @@ package io.gravitee.am.gateway.handler.manager.botdetection.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.gravitee.am.botdetection.api.BotDetectionContext;
 import io.gravitee.am.botdetection.api.BotDetectionProvider;
 import io.gravitee.am.common.event.BotDetectionEvent;
 import io.gravitee.am.common.event.EventManager;
-import io.gravitee.am.botdetection.api.BotDetectionContext;
 import io.gravitee.am.gateway.handler.manager.botdetection.BotDetectionManager;
 import io.gravitee.am.model.BotDetection;
 import io.gravitee.am.model.Domain;
@@ -35,17 +35,18 @@ import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Single;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -131,7 +132,7 @@ public class BotDetectionManagerImpl extends AbstractService implements BotDetec
             return botDetectionProvider.validate(context);
         } else {
             LOGGER.error("No BotDetectionProvider matches the pluginId '{}'", context.getPluginId());
-            return Single.just(false);
+            return RxJava2Adapter.monoToSingle(Mono.just(false));
         }
     }
 

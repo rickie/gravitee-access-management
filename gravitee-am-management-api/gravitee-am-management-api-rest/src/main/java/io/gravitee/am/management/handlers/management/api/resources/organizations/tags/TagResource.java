@@ -25,13 +25,13 @@ import io.gravitee.am.service.TagService;
 import io.gravitee.am.service.exception.TagNotFoundException;
 import io.gravitee.am.service.model.UpdateTag;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -40,6 +40,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -64,9 +66,8 @@ public class TagResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("tag") String tagId, @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.READ)
-                .andThen(tagService.findById(tagId, organizationId)
-                        .switchIfEmpty(Maybe.error(new TagNotFoundException(tagId))))
+        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(tagService.findById(tagId, organizationId)
+                        .switchIfEmpty(Maybe.error(new TagNotFoundException(tagId)))))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -85,8 +86,7 @@ public class TagResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.UPDATE)
-                .andThen(tagService.update(tagId, organizationId, tagToUpdate, authenticatedUser))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(tagService.update(tagId, organizationId, tagToUpdate, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -102,8 +102,7 @@ public class TagResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.DELETE)
-                .andThen(tagService.delete(tag, organizationId, authenticatedUser))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(tagService.delete(tag, organizationId, authenticatedUser)))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

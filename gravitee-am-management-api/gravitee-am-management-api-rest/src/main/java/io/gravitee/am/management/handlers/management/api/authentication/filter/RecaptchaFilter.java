@@ -15,26 +15,26 @@
  */
 package io.gravitee.am.management.handlers.management.api.authentication.filter;
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gravitee.am.service.ReCaptchaService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
-import org.springframework.web.filter.GenericFilterBean;
-
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.web.filter.GenericFilterBean;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -69,7 +69,7 @@ public class RecaptchaFilter extends GenericFilterBean {
                 reCaptchaToken = httpRequest.getParameter(DEFAULT_RECAPTCHA_HEADER_NAME);
             }
 
-            if(!reCaptchaService.isValid(reCaptchaToken).blockingGet()) {
+            if(!RxJava2Adapter.singleToMono(reCaptchaService.isValid(reCaptchaToken)).block()) {
 
                 HashMap<String, Object> error = new HashMap<>();
 

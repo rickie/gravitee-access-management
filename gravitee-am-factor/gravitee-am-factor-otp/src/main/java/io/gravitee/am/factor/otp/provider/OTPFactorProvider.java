@@ -32,6 +32,9 @@ import io.reactivex.Single;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -65,11 +68,11 @@ public class OTPFactorProvider implements FactorProvider {
 
     @Override
     public Single<Enrollment> enroll(String account) {
-        return Single.fromCallable(() -> {
+        return RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             final String key = SharedSecret.generate();
             final String barCode = QRCode.generate(QRCode.generateURI(key, otpFactorConfiguration.getIssuer(), account), 200, 200);
             return new Enrollment(key, barCode);
-        });
+        })));
     }
 
     @Override
@@ -80,7 +83,7 @@ public class OTPFactorProvider implements FactorProvider {
     @Override
     public Completable sendChallenge(FactorContext context) {
         // OTP Challenge not need to be sent
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 
     @Override
@@ -98,10 +101,10 @@ public class OTPFactorProvider implements FactorProvider {
 
     @Override
     public Maybe<String> generateQrCode(User user, EnrolledFactor enrolledFactor) {
-        return Maybe.fromCallable(() -> {
+        return RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             final String key = enrolledFactor.getSecurity().getValue();
             final String username = user.getUsername();
             return QRCode.generate(QRCode.generateURI(key, otpFactorConfiguration.getIssuer(), username), 200, 200);
-        });
+        })));
     }
 }

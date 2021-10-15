@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.service;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.Credential;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
@@ -33,6 +36,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -40,11 +44,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -79,7 +82,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(userRepository.findById("my-user")).thenReturn(Maybe.just(new User()));
+        when(userRepository.findById("my-user")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new User())));
         TestObserver testObserver = userService.findById("my-user").test();
 
         testObserver.awaitTerminalEvent();
@@ -90,7 +93,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldFindById_notExistingUser() {
-        when(userRepository.findById("my-user")).thenReturn(Maybe.empty());
+        when(userRepository.findById("my-user")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver testObserver = userService.findById("my-user").test();
         testObserver.awaitTerminalEvent();
 
@@ -99,7 +102,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(userRepository.findById("my-user")).thenReturn(Maybe.error(TechnicalException::new));
+        when(userRepository.findById("my-user")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
         TestObserver testObserver = new TestObserver();
         userService.findById("my-user").subscribe(testObserver);
 
@@ -110,7 +113,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(userRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(new User()));
+        when(userRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new User())));
         TestSubscriber<User> testSubscriber = userService.findByDomain(DOMAIN).test();
         testSubscriber.awaitTerminalEvent();
 
@@ -121,7 +124,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(userRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.error(TechnicalException::new));
+        when(userRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestSubscriber testSubscriber = userService.findByDomain(DOMAIN).test();
 
@@ -132,7 +135,7 @@ public class UserServiceTest {
     @Test
     public void shouldFindByDomainPagination() {
         Page pageUsers = new Page(Collections.singleton(new User()), 1 , 1);
-        when(userRepository.findAll(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq(1) , eq(1))).thenReturn(Single.just(pageUsers));
+        when(userRepository.findAll(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq(1) , eq(1))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(pageUsers)));
         TestObserver<Page<User>> testObserver = userService.findByDomain(DOMAIN, 1, 1).test();
         testObserver.awaitTerminalEvent();
 
@@ -143,7 +146,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldFindByDomainPagination_technicalException() {
-        when(userRepository.findAll(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq(1) , eq(1))).thenReturn(Single.error(TechnicalException::new));
+        when(userRepository.findAll(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq(1) , eq(1))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver<>();
         userService.findByDomain(DOMAIN, 1 , 1).subscribe(testObserver);
@@ -154,7 +157,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldLoadUserByUsernameAndDomain() {
-        when(userRepository.findByUsernameAndDomain(DOMAIN, "my-user")).thenReturn(Maybe.just(new User()));
+        when(userRepository.findByUsernameAndDomain(DOMAIN, "my-user")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new User())));
         TestObserver testObserver = userService.findByDomainAndUsername(DOMAIN, "my-user").test();
 
         testObserver.awaitTerminalEvent();
@@ -165,7 +168,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldLoadUserByUsernameAndDomain_notExistingUser() {
-        when(userRepository.findByUsernameAndDomain(DOMAIN, "my-user")).thenReturn(Maybe.empty());
+        when(userRepository.findByUsernameAndDomain(DOMAIN, "my-user")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver testObserver = userService.findByDomainAndUsername(DOMAIN, "my-user").test();
         testObserver.awaitTerminalEvent();
 
@@ -174,7 +177,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldLoadUserByUsernameAndDomain_technicalException() {
-        when(userRepository.findByUsernameAndDomain(DOMAIN, "my-user")).thenReturn(Maybe.error(TechnicalException::new));
+        when(userRepository.findByUsernameAndDomain(DOMAIN, "my-user")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
         TestObserver testObserver = new TestObserver();
         userService.findByDomainAndUsername(DOMAIN, "my-user").subscribe(testObserver);
 
@@ -191,9 +194,9 @@ public class UserServiceTest {
 
         when(newUser.getUsername()).thenReturn("username");
         when(newUser.getSource()).thenReturn("source");
-        when(userRepository.create(any(User.class))).thenReturn(Single.just(user));
-        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.empty());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(userRepository.create(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = userService.create(DOMAIN, newUser).test();
         testObserver.awaitTerminalEvent();
@@ -213,8 +216,8 @@ public class UserServiceTest {
 
         NewUser newUser = new NewUser();
         newUser.setEmail("invalid");
-        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.empty());
-        when(userRepository.create(any(User.class))).thenReturn(Single.just(user));
+        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userRepository.create(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
 
         TestObserver<User> testObserver = userService.create(DOMAIN, newUser).test();
         testObserver.awaitTerminalEvent();
@@ -232,8 +235,8 @@ public class UserServiceTest {
 
         NewUser newUser = new NewUser();
         newUser.setUsername("##&##");
-        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.empty());
-        when(userRepository.create(any(User.class))).thenReturn(Single.just(user));
+        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userRepository.create(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
 
         TestObserver<User> testObserver = userService.create(DOMAIN, newUser).test();
         testObserver.awaitTerminalEvent();
@@ -248,8 +251,8 @@ public class UserServiceTest {
         NewUser newUser = Mockito.mock(NewUser.class);
         when(newUser.getUsername()).thenReturn("username");
         when(newUser.getSource()).thenReturn("source");
-        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.empty());
-        when(userRepository.create(any(User.class))).thenReturn(Single.error(TechnicalException::new));
+        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userRepository.create(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver();
         userService.create(DOMAIN, newUser).subscribe(testObserver);
@@ -263,7 +266,7 @@ public class UserServiceTest {
         NewUser newUser = Mockito.mock(NewUser.class);
         when(newUser.getUsername()).thenReturn("username");
         when(newUser.getSource()).thenReturn("source");
-        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(Maybe.just(new User()));
+        when(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, DOMAIN, newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new User())));
 
         TestObserver testObserver = new TestObserver();
         userService.create(DOMAIN, newUser).subscribe(testObserver);
@@ -279,9 +282,9 @@ public class UserServiceTest {
         user.setReferenceType(ReferenceType.DOMAIN);
         user.setReferenceId(DOMAIN);
 
-        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(Maybe.just(user));
-        when(userRepository.update(any(User.class))).thenReturn(Single.just(user));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(userRepository.update(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = userService.update(DOMAIN, "my-user", updateUser).test();
         testObserver.awaitTerminalEvent();
@@ -302,8 +305,8 @@ public class UserServiceTest {
 
         UpdateUser updateUser = new UpdateUser();
         updateUser.setEmail("invalid");
-        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(Maybe.just(user));
-        when(userRepository.update(any(User.class))).thenReturn(Single.just(user));
+        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(userRepository.update(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
 
         TestObserver<User> testObserver = userService.update(DOMAIN, "my-user", updateUser).test();
         testObserver.awaitTerminalEvent();
@@ -321,8 +324,8 @@ public class UserServiceTest {
 
         UpdateUser updateUser = new UpdateUser();
         updateUser.setFirstName("$$^^^^¨¨¨)");
-        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(Maybe.just(user));
-        when(userRepository.update(any(User.class))).thenReturn(Single.just(user));
+        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(userRepository.update(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
 
         TestObserver<User> testObserver = userService.update(DOMAIN, "my-user", updateUser).test();
         testObserver.awaitTerminalEvent();
@@ -335,8 +338,8 @@ public class UserServiceTest {
     @Test
     public void shouldUpdate_technicalException() {
         UpdateUser updateUser = Mockito.mock(UpdateUser.class);
-        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(Maybe.just(new User()));
-        when(userRepository.update(any(User.class))).thenReturn(Single.error(TechnicalException::new));
+        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new User())));
+        when(userRepository.update(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver();
         userService.update(DOMAIN, "my-user", updateUser).subscribe(testObserver);
@@ -348,7 +351,7 @@ public class UserServiceTest {
     @Test
     public void shouldUpdate_userNotFound() {
         UpdateUser updateUser = Mockito.mock(UpdateUser.class);
-        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(Maybe.empty());
+        when(userRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-user"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = new TestObserver();
         userService.update(DOMAIN, "my-user", updateUser).subscribe(testObserver);
@@ -364,10 +367,10 @@ public class UserServiceTest {
         user.setReferenceType(ReferenceType.DOMAIN);
         user.setReferenceId(DOMAIN);
 
-        when(userRepository.findById("my-user")).thenReturn(Maybe.just(user));
-        when(userRepository.delete("my-user")).thenReturn(Completable.complete());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(credentialService.findByUserId(user.getReferenceType(), user.getReferenceId(), user.getId())).thenReturn(Flowable.empty());
+        when(userRepository.findById("my-user")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(userRepository.delete("my-user")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(credentialService.findByUserId(user.getReferenceType(), user.getReferenceId(), user.getId())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
 
         TestObserver testObserver = userService.delete("my-user").test();
         testObserver.awaitTerminalEvent();
@@ -390,11 +393,11 @@ public class UserServiceTest {
         Credential credential = new Credential();
         credential.setId("credential-id");
 
-        when(userRepository.findById("my-user")).thenReturn(Maybe.just(user));
-        when(userRepository.delete("my-user")).thenReturn(Completable.complete());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(credentialService.findByUserId(user.getReferenceType(), user.getReferenceId(), user.getId())).thenReturn(Flowable.just(credential));
-        when(credentialService.delete(credential.getId())).thenReturn(Completable.complete());
+        when(userRepository.findById("my-user")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(userRepository.delete("my-user")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(credentialService.findByUserId(user.getReferenceType(), user.getReferenceId(), user.getId())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(credential)));
+        when(credentialService.delete(credential.getId())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         TestObserver testObserver = userService.delete("my-user").test();
         testObserver.awaitTerminalEvent();
@@ -409,7 +412,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(userRepository.findById("my-user")).thenReturn(Maybe.error(TechnicalException::new));
+        when(userRepository.findById("my-user")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver();
         userService.delete("my-user").subscribe(testObserver);
@@ -420,7 +423,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldDelete_userNotFound() {
-        when(userRepository.findById("my-user")).thenReturn(Maybe.empty());
+        when(userRepository.findById("my-user")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = new TestObserver();
         userService.delete("my-user").subscribe(testObserver);

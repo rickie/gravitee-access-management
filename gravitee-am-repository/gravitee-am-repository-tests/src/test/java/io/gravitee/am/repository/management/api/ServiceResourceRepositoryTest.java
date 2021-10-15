@@ -22,10 +22,10 @@ import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.common.utils.UUID;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.Date;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Date;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -41,7 +41,7 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
         // create res
         ServiceResource resource = buildResource();
         resource.setReferenceId("testDomain");
-        ServiceResource resourceCreated = serviceResourceRepository.create(resource).blockingGet();
+        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(serviceResourceRepository.create(resource)).block();
 
         // fetch factors
         TestSubscriber<ServiceResource> testDomain = serviceResourceRepository.findByReference(ReferenceType.DOMAIN, "testDomain").test();
@@ -74,7 +74,7 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create resource
         ServiceResource resource = buildResource();
-        ServiceResource resourceCreated = serviceResourceRepository.create(resource).blockingGet();
+        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(serviceResourceRepository.create(resource)).block();
 
         // fetch resource
         TestObserver<ServiceResource> testObserver = serviceResourceRepository.findById(resourceCreated.getId()).test();
@@ -115,7 +115,7 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdate() throws TechnicalException {
         ServiceResource resource = buildResource();
-        ServiceResource resourceCreated = serviceResourceRepository.create(resource).blockingGet();
+        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(serviceResourceRepository.create(resource)).block();
 
         ServiceResource updateResource = buildResource();
         updateResource.setId(resourceCreated.getId());
@@ -137,7 +137,7 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
     @Test
     public void testDelete() throws TechnicalException {
         ServiceResource resource = buildResource();
-        ServiceResource resourceCreated = serviceResourceRepository.create(resource).blockingGet();
+        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(serviceResourceRepository.create(resource)).block();
 
         TestObserver<ServiceResource> testObserver = serviceResourceRepository.findById(resourceCreated.getId()).test();
         testObserver.awaitTerminalEvent();

@@ -26,9 +26,10 @@ import io.gravitee.am.service.FormService;
 import io.gravitee.am.service.model.NewForm;
 import io.gravitee.common.http.HttpStatusCode;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.net.URI;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -37,7 +38,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.URI;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -64,10 +66,9 @@ public class FormsResource extends AbstractResource {
             @NotNull @QueryParam("template") Template formTemplate,
             @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.READ)
-                .andThen(formService.findByTemplate(ReferenceType.ORGANIZATION, organizationId, formTemplate.template())
+        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(formService.findByTemplate(ReferenceType.ORGANIZATION, organizationId, formTemplate.template())
                         .map(page -> Response.ok(page).build())
-                        .defaultIfEmpty(Response.ok(new Form(false, formTemplate.template())).build()))
+                        .defaultIfEmpty(Response.ok(new Form(false, formTemplate.template())).build())))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -85,12 +86,11 @@ public class FormsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.CREATE)
-                .andThen(formService.create(ReferenceType.ORGANIZATION, organizationId, newForm, authenticatedUser)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(formService.create(ReferenceType.ORGANIZATION, organizationId, newForm, authenticatedUser)
                         .map(form -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/forms/" + form.getId()))
                                 .entity(form)
-                                .build()))
+                                .build())))))
                 .subscribe(response::resume, response::resume);
     }
 

@@ -28,10 +28,13 @@ import io.gravitee.am.gateway.handler.oidc.service.flow.AbstractFlow;
 import io.gravitee.am.gateway.handler.oidc.service.idtoken.IDTokenService;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
+import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
 import io.reactivex.Single;
-
+import io.reactivex.functions.Function;
 import java.util.Arrays;
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * When using the Hybrid Flow, some tokens are returned from the Authorization Endpoint and others are returned from the Token Endpoint.
@@ -73,8 +76,7 @@ public class HybridFlow extends AbstractFlow {
     @Override
     protected Single<AuthorizationResponse> prepareResponse(AuthorizationRequest authorizationRequest, Client client, User endUser) {
         // Authorization Code is always returned when using the Hybrid Flow.
-        return authorizationCodeService.create(authorizationRequest, endUser)
-                .flatMap(code -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(authorizationCodeService.create(authorizationRequest, endUser)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<AuthorizationResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<AuthorizationCode, Single<AuthorizationResponse>>)code -> {
                     // prepare response
                     HybridResponse hybridResponse = new HybridResponse();
                     hybridResponse.setRedirectUri(authorizationRequest.getRedirectUri());
@@ -101,6 +103,6 @@ public class HybridFlow extends AbstractFlow {
                                         return hybridResponse;
                                     });
                     }
-                });
+                }).apply(v)))));
     }
 }

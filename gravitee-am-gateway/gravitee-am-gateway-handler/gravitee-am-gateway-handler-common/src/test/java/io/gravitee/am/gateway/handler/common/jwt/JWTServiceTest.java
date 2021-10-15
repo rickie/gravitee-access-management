@@ -32,6 +32,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -70,11 +72,11 @@ public class JWTServiceTest {
         when(defaultCertProvider.getJwtBuilder()).thenReturn(defaultJWTBuilder);
         when(noneAlgCertProvider.getJwtBuilder()).thenReturn(noneAlgBuilder);
 
-        when(certificateManager.findByAlgorithm("unknown")).thenReturn(Maybe.empty());
-        when(certificateManager.findByAlgorithm("RS512")).thenReturn(Maybe.just(rs512CertProvider));
-        when(certificateManager.get(null)).thenReturn(Maybe.empty());
-        when(certificateManager.get("notExistingId")).thenReturn(Maybe.empty());
-        when(certificateManager.get("existingId")).thenReturn(Maybe.just(rs256CertProvider));
+        when(certificateManager.findByAlgorithm("unknown")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(certificateManager.findByAlgorithm("RS512")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(rs512CertProvider)));
+        when(certificateManager.get(null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(certificateManager.get("notExistingId")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(certificateManager.get("existingId")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(rs256CertProvider)));
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCertProvider);
         when(certificateManager.noneAlgorithmCertificateProvider()).thenReturn(noneAlgCertProvider);
     }

@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.repository.jdbc.oauth2.oidc;
 
+import static java.time.ZoneOffset.UTC;
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToCompletable;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcLoginAttempt;
@@ -25,16 +30,12 @@ import io.gravitee.am.repository.oidc.model.RequestObject;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-
-import static java.time.ZoneOffset.UTC;
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToCompletable;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -58,10 +59,9 @@ public class JdbcRequestObjectRepository extends AbstractJdbcRepository implemen
     public Maybe<RequestObject> findById(String id) {
         LOGGER.debug("findById({})", id);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return requestObjectRepository.findById(id)
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(requestObjectRepository.findById(id)
                 .filter(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))
-                .map(this::toEntity)
-                .doOnError(error -> LOGGER.error("Unable to retrieve RequestObject with id {}", id, error));
+                .map(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve RequestObject with id {}", id, error))));
     }
 
     @Override
@@ -74,20 +74,18 @@ public class JdbcRequestObjectRepository extends AbstractJdbcRepository implemen
                 .using(toJdbcEntity(requestObject))
                 .fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> requestObjectRepository.findById(requestObject.getId()).map(this::toEntity).toSingle())
-                .doOnError((error) -> LOGGER.error("Unable to create requestObject with id {}", requestObject.getId(), error));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action).flatMap((i) -> requestObjectRepository.findById(requestObject.getId()).map(this::toEntity).toSingle())).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create requestObject with id {}", requestObject.getId(), error))));
     }
 
     @Override
     public Completable delete(String id) {
         LOGGER.debug("delete({})", id);
-        return requestObjectRepository.deleteById(id)
-                .doOnError(error -> LOGGER.error("Unable to delete RequestObject with id {}", id, error));
+        return requestObjectRepository.deleteById(id).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete RequestObject with id {}", id, error))).as(RxJava2Adapter::monoToCompletable);
     }
 
     public Completable purgeExpiredData() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);
-        return monoToCompletable(dbClient.delete().from(JdbcRequestObject.class).matching(where("expire_at").lessThan(now)).then()).doOnError(error -> LOGGER.error("Unable to purge RequestObjects", error));
+        return monoToCompletable(dbClient.delete().from(JdbcRequestObject.class).matching(where("expire_at").lessThan(now)).then()).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to purge RequestObjects", error))).as(RxJava2Adapter::monoToCompletable);
     }
 }

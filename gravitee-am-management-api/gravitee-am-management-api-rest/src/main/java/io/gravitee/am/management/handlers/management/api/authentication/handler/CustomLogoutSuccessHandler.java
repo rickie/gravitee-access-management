@@ -26,14 +26,15 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.service.AuditService;
 import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.LogoutAuditBuilder;
-import org.springframework.core.env.Environment;
-import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
-
+import java.util.Optional;
+import java.util.stream.Stream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Optional;
-import java.util.stream.Stream;
+import org.springframework.core.env.Environment;
+import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -78,19 +79,18 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 
                 // read user profile to obtain same information as login step.
                 // if the read fails, trace only with information available into the cookie
-                userService.findById(ReferenceType.ORGANIZATION, (String) jwt.get("org"), (String) jwt.getSub())
+                RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.findById(ReferenceType.ORGANIZATION, (String) jwt.get("org"), (String) jwt.getSub())
                         .doOnSuccess(user -> auditService.report(AuditBuilder.builder(LogoutAuditBuilder.class).user(user)
                                 .referenceType(ReferenceType.ORGANIZATION).referenceId((String) jwt.get("org"))
                                 .ipAddress(details.getRemoteAddress())
-                                .userAgent(details.getUserAgent())))
-                        .doOnError(err -> {
+                                .userAgent(details.getUserAgent())))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> {
                             logger.warn("Unable to read user information, trace logout with minimal data", err);
                             auditService.report(AuditBuilder.builder(LogoutAuditBuilder.class)
                                     .principal(new EndUserAuthentication(jwt.get("username"), null, new SimpleAuthenticationContext()))
                                     .referenceType(ReferenceType.ORGANIZATION).referenceId((String) jwt.get("org"))
                                     .ipAddress(details.getRemoteAddress())
                                     .userAgent(details.getUserAgent()));
-                        })
+                        })))
                         .subscribe();
             } catch (Exception e) {
                 logger.warn("Unable to extract information from authentication cookie", e);

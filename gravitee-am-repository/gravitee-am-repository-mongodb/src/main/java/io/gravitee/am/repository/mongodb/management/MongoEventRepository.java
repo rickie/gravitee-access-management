@@ -15,26 +15,29 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.*;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
-import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.common.event.Action;
+import io.gravitee.am.common.event.Type;
+import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.model.common.event.Payload;
-import io.gravitee.am.common.event.Type;
 import io.gravitee.am.repository.management.api.EventRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.EventMongo;
 import io.reactivex.*;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
+import io.reactivex.BackpressureStrategy;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import static com.mongodb.client.model.Filters.*;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -59,30 +62,30 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
         if (to > from) {
             filters.add(lte(FIELD_UPDATED_AT, new Date(to)));
         }
-        return Flowable.fromPublisher(eventsCollection.find(and(filters))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(eventsCollection.find(and(filters)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Event> findById(String id) {
-        return Observable.fromPublisher(eventsCollection.find(eq(FIELD_ID, id)).first()).map(this::convert).firstElement();
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(eventsCollection.find(eq(FIELD_ID, id)).first()).map(this::convert), BackpressureStrategy.BUFFER).next());
     }
 
     @Override
     public Single<Event> create(Event item) {
         EventMongo event = convert(item);
         event.setId(event.getId() == null ? RandomString.generate() : event.getId());
-        return Single.fromPublisher(eventsCollection.insertOne(event)).flatMap(success -> findById(event.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(eventsCollection.insertOne(event))).flatMap(success->RxJava2Adapter.singleToMono(findById(event.getId()).toSingle())));
     }
 
     @Override
     public Single<Event> update(Event item) {
         EventMongo event = convert(item);
-        return Single.fromPublisher(eventsCollection.replaceOne(eq(FIELD_ID, event.getId()), event)).flatMap(updateResult -> findById(event.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(eventsCollection.replaceOne(eq(FIELD_ID, event.getId()), event))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(event.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(eventsCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(eventsCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private EventMongo convert(Event event) {

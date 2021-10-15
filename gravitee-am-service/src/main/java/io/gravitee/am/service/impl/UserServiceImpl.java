@@ -39,15 +39,19 @@ import io.gravitee.am.service.model.UpdateUser;
 import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.UserAuditBuilder;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -72,11 +76,10 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
     @Override
     public Flowable<User> findByDomain(String domain) {
         LOGGER.debug("Find users by domain: {}", domain);
-        return userRepository.findAll(ReferenceType.DOMAIN, domain)
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(userRepository.findAll(ReferenceType.DOMAIN, domain)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find users by domain {}", domain, ex);
                     return Flowable.error(new TechnicalManagementException(String.format("An error occurs while trying to find users by domain %s", domain), ex));
-                });
+                })));
     }
 
     @Override
@@ -90,8 +93,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         return userRepository.findById(id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a user using its ID {}", id, ex);
-                    return Maybe.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a user using its ID: %s", id), ex));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a user using its ID: %s", id), ex)));
                 });
     }
 
@@ -101,8 +104,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         return userRepository.findByUsernameAndDomain(domain, username)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a user using its ID: {} for the domain {}", username, domain, ex);
-                    return Maybe.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a user using its ID: %s for the domain %s", username, domain), ex));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a user using its ID: %s for the domain %s", username, domain), ex)));
                 });
     }
 
@@ -128,7 +131,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         LOGGER.debug("Update a user {}", user);
         // updated date
         user.setUpdatedAt(new Date());
-        return userValidator.validate(user).andThen(getUserRepository().update(user)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(Single.wrap(getUserRepository().update(user)
                 .flatMap(user1 -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user1.getId(), user1.getReferenceType(), user1.getReferenceId(), Action.UPDATE));
@@ -140,7 +143,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                     }
                     LOGGER.error("An error occurs while trying to update a user", ex);
                     return Single.error(new TechnicalManagementException("An error occurs while trying to update a user", ex));
-                }));
+                })))));
     }
 
     @Override
@@ -150,11 +153,11 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         return userRepository.countByReference(ReferenceType.DOMAIN, domain)
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to count users by domain: {}", domain, ex);
-                    return Single.error(new TechnicalManagementException(
-                            String.format("An error occurs while count users to delete user: %s", domain), ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while count users to delete user: %s", domain), ex)));
                 });
     }
 
@@ -164,11 +167,11 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 
         return userRepository.countByApplication(domain, application).onErrorResumeNext(ex -> {
             if (ex instanceof AbstractManagementException) {
-                return Single.error(ex);
+                return RxJava2Adapter.monoToSingle(Mono.error(ex));
             }
             LOGGER.error("An error occurs while trying to count users by application: {}", application, ex);
-            return Single.error(new TechnicalManagementException(
-                    String.format("An error occurs while count users to delete user: %s", application), ex));
+            return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
+                    String.format("An error occurs while count users to delete user: %s", application), ex)));
         });
     }
 
@@ -179,18 +182,17 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         return userRepository.statistics(query)
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to get users analytics : {}", query, ex);
-                    return Single.error(new TechnicalManagementException(
-                            String.format("An error occurs while count users analytics : %s", query), ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while count users analytics : %s", query), ex)));
                 });
     }
 
     @Override
     public Single<User> upsertFactor(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
-        return findById(userId)
-                .switchIfEmpty(Maybe.error(new UserNotFoundException(userId)))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findById(userId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(userId))))))
                 .flatMapSingle(oldUser -> {
                     User user = new User(oldUser);
                     List<EnrolledFactor> enrolledFactors = user.getFactors();
@@ -258,7 +260,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                             }
                         }
                     }
-                    return update(user)
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(update(user)
                             .doOnSuccess(user1 -> {
                                 if (needToAuditUserFactorsOperation(user1, oldUser)) {
                                     // remove sensitive data about factors
@@ -266,16 +268,14 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                                     removeSensitiveFactorsData(oldUser.getFactors());
                                     auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).user(user1).oldValue(oldUser));
                                 }
-                            })
-                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)));
+                            })).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))));
                 });
     }
 
     @Override
     public Completable removeFactor(String userId, String factorId, io.gravitee.am.identityprovider.api.User principal) {
-        return findById(userId)
-                .switchIfEmpty(Maybe.error(new UserNotFoundException(userId)))
-                .flatMapCompletable(oldUser -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(findById(userId)
+                .switchIfEmpty(Maybe.error(new UserNotFoundException(userId)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)oldUser -> {
                     if (oldUser.getFactors() == null) {
                         return Completable.complete();
                     }
@@ -289,7 +289,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                             .doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).user(user1).oldValue(oldUser)))
                             .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))
                             .ignoreElement();
-                });
+                }).apply(y)))).then());
     }
 
     private void removeSensitiveFactorsData(List<EnrolledFactor> enrolledFactors) {

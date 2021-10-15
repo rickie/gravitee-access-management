@@ -15,21 +15,23 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ExtensionGrant;
 import io.gravitee.am.repository.management.api.ExtensionGrantRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.ExtensionGrantMongo;
 import io.reactivex.*;
-import org.bson.Document;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -50,35 +52,35 @@ public class MongoExtensionGrantRepository extends AbstractManagementMongoReposi
 
     @Override
     public Flowable<ExtensionGrant> findByDomain(String domain) {
-        return Flowable.fromPublisher(extensionGrantsCollection.find(eq(FIELD_DOMAIN, domain))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(extensionGrantsCollection.find(eq(FIELD_DOMAIN, domain)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<ExtensionGrant> findByDomainAndName(String domain, String name) {
-        return Observable.fromPublisher(extensionGrantsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_NAME, name))).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(extensionGrantsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_NAME, name))).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<ExtensionGrant> findById(String tokenGranterId) {
-        return Observable.fromPublisher(extensionGrantsCollection.find(eq(FIELD_ID, tokenGranterId)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(extensionGrantsCollection.find(eq(FIELD_ID, tokenGranterId)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<ExtensionGrant> create(ExtensionGrant item) {
         ExtensionGrantMongo extensionGrant = convert(item);
         extensionGrant.setId(extensionGrant.getId() == null ? RandomString.generate() : extensionGrant.getId());
-        return Single.fromPublisher(extensionGrantsCollection.insertOne(extensionGrant)).flatMap(success -> findById(extensionGrant.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(extensionGrantsCollection.insertOne(extensionGrant))).flatMap(success->RxJava2Adapter.singleToMono(findById(extensionGrant.getId()).toSingle())));
     }
 
     @Override
     public Single<ExtensionGrant> update(ExtensionGrant item) {
         ExtensionGrantMongo extensionGrant = convert(item);
-        return Single.fromPublisher(extensionGrantsCollection.replaceOne(eq(FIELD_ID, extensionGrant.getId()), extensionGrant)).flatMap(updateResult -> findById(extensionGrant.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(extensionGrantsCollection.replaceOne(eq(FIELD_ID, extensionGrant.getId()), extensionGrant))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(extensionGrant.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(extensionGrantsCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(extensionGrantsCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private ExtensionGrant convert(ExtensionGrantMongo extensionGrantMongo) {

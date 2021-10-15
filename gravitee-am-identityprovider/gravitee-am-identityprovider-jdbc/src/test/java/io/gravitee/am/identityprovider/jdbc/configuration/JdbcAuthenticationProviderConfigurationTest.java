@@ -29,6 +29,8 @@ import io.reactivex.Single;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -48,7 +50,7 @@ public abstract class JdbcAuthenticationProviderConfigurationTest implements Ini
         // create table users and insert values
         Connection connection = connectionPool.create().block();
         initData(connection);
-        Completable.fromPublisher(connection.close()).subscribe();
+        RxJava2Adapter.monoToCompletable(Mono.from(connection.close())).subscribe();
     }
 
     protected void initData(Connection connection) {

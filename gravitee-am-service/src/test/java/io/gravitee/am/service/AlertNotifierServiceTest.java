@@ -15,13 +15,18 @@
  */
 package io.gravitee.am.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.identityprovider.api.DefaultUser;
-import io.gravitee.am.service.exception.AlertNotifierNotFoundException;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertNotifier;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.repository.management.api.AlertNotifierRepository;
 import io.gravitee.am.repository.management.api.search.AlertNotifierCriteria;
+import io.gravitee.am.service.exception.AlertNotifierNotFoundException;
 import io.gravitee.am.service.impl.AlertNotifierServiceImpl;
 import io.gravitee.am.service.model.NewAlertNotifier;
 import io.gravitee.am.service.model.PatchAlertNotifier;
@@ -31,19 +36,16 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.Date;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Date;
-import java.util.Optional;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -80,7 +82,7 @@ public class AlertNotifierServiceTest {
         final AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setReferenceType(ReferenceType.DOMAIN);
         alertNotifier.setReferenceId(DOMAIN_ID);
-        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(Maybe.just(alertNotifier));
+        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(alertNotifier)));
         final TestObserver<AlertNotifier> obs = cut.getById(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID).test();
 
         obs.awaitTerminalEvent();
@@ -89,7 +91,7 @@ public class AlertNotifierServiceTest {
 
     @Test
     public void getByIdNotFound() {
-        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(Maybe.empty());
+        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         final TestObserver<AlertNotifier> obs = cut.getById(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID).test();
 
         obs.awaitTerminalEvent();
@@ -100,7 +102,7 @@ public class AlertNotifierServiceTest {
     public void findByDomainCriteria() {
         final AlertNotifier alertNotifier = new AlertNotifier();
         final AlertNotifierCriteria criteria = new AlertNotifierCriteria();
-        when(alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(Flowable.just(alertNotifier));
+        when(alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertNotifier)));
         final TestSubscriber<AlertNotifier> obs = cut.findByDomainAndCriteria(DOMAIN_ID, criteria).test();
 
         obs.awaitTerminalEvent();
@@ -112,7 +114,7 @@ public class AlertNotifierServiceTest {
     public void findByReferenceAndCriteria() {
         final AlertNotifier alertNotifier = new AlertNotifier();
         final AlertNotifierCriteria criteria = new AlertNotifierCriteria();
-        when(alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(Flowable.just(alertNotifier));
+        when(alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertNotifier)));
         final TestSubscriber<AlertNotifier> obs = cut.findByReferenceAndCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria).test();
 
         obs.awaitTerminalEvent();
@@ -130,8 +132,8 @@ public class AlertNotifierServiceTest {
         newAlertNotifier.setConfiguration(CONFIGURATION);
         newAlertNotifier.setType(TYPE);
 
-        when(alertNotifierRepository.create(any(AlertNotifier.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
-        when(eventService.create(any(Event.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(alertNotifierRepository.create(any(AlertNotifier.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
+        when(eventService.create(any(Event.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         final TestObserver<AlertNotifier> obs = cut.create(ReferenceType.DOMAIN, DOMAIN_ID, newAlertNotifier, new DefaultUser(USERNAME)).test();
 
@@ -169,9 +171,9 @@ public class AlertNotifierServiceTest {
         alertNotifierToUpdate.setReferenceId(DOMAIN_ID);
         alertNotifierToUpdate.setCreatedAt(createdAt);
 
-        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(Maybe.just(alertNotifierToUpdate));
-        when(alertNotifierRepository.update(any(AlertNotifier.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
-        when(eventService.create(any(Event.class))).thenAnswer(i -> Single.just(i.getArgument(0)));
+        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(alertNotifierToUpdate)));
+        when(alertNotifierRepository.update(any(AlertNotifier.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
+        when(eventService.create(any(Event.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
 
         final TestObserver<AlertNotifier> obs = cut.update(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID, patchAlertNotifier, new DefaultUser(USERNAME)).test();
 
@@ -202,7 +204,7 @@ public class AlertNotifierServiceTest {
         patchAlertNotifier.setConfiguration(Optional.of(CONFIGURATION));
 
 
-        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(Maybe.empty());
+        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         final TestObserver<AlertNotifier> obs = cut.update(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID, patchAlertNotifier, new DefaultUser(USERNAME)).test();
 

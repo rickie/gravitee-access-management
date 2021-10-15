@@ -19,6 +19,8 @@ import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -50,6 +52,6 @@ public interface AuthorizationCodeRepository {
     Maybe<AuthorizationCode> findByCode(String code);
 
     default Completable purgeExpiredData() {
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 }

@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.handler;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.certificate.CertificateProvider;
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
@@ -34,18 +38,15 @@ import io.gravitee.am.service.UserService;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Single;
 import io.vertx.core.http.HttpMethod;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -70,7 +71,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
         steps.add(new MFAChallengeStep(RedirectHandler.create("/mfa/challenge")));
         AuthenticationFlowChainHandler authenticationFlowChainHandler = new AuthenticationFlowChainHandler(steps);
 
-        when(jwtService.encode(any(JWT.class), (CertificateProvider) eq(null))).thenReturn(Single.just("token"));
+        when(jwtService.encode(any(JWT.class), (CertificateProvider) eq(null))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just("token")));
 
         router.route("/login")
                 .order(Integer.MIN_VALUE)

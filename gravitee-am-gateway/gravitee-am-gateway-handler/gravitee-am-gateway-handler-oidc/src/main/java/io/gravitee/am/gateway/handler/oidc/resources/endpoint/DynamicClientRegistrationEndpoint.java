@@ -16,11 +16,11 @@
 package io.gravitee.am.gateway.handler.oidc.resources.endpoint;
 
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
-import io.gravitee.am.gateway.handler.oidc.service.jwk.converter.JWKSetDeserializer;
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
 import io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest;
 import io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationResponse;
 import io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationService;
+import io.gravitee.am.gateway.handler.oidc.service.jwk.converter.JWKSetDeserializer;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.HttpStatusCode;
@@ -32,6 +32,9 @@ import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Dynamic Client Registration is a protocol that allows OAuth client applications to register with an OAuth server.
@@ -64,9 +67,8 @@ public class DynamicClientRegistrationEndpoint implements Handler<RoutingContext
     public void handle(RoutingContext context) {
         LOGGER.debug("Dynamic client registration CREATE endpoint");
 
-        this.extractRequest(context)
-                .flatMap(request -> dcrService.create(request, UriBuilderRequest.resolveProxyRequest(context)))
-                .map(clientSyncService::addDynamicClientRegistred)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.extractRequest(context)
+                .flatMap(request -> dcrService.create(request, UriBuilderRequest.resolveProxyRequest(context)))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred)))
                 .subscribe(
                         client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -83,17 +85,17 @@ public class DynamicClientRegistrationEndpoint implements Handler<RoutingContext
             if(context.getBodyAsJson()==null) {
                 throw new InvalidClientMetadataException("no content");
             }
-            return Single.just(context.getBodyAsJson().mapTo(DynamicClientRegistrationRequest.class));
+            return RxJava2Adapter.monoToSingle(Mono.just(context.getBodyAsJson().mapTo(DynamicClientRegistrationRequest.class)));
         }catch (Exception ex) {
             if(ex instanceof DecodeException) {
-                return Single.error(new InvalidClientMetadataException(ex.getMessage()));
+                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException(ex.getMessage())));
             }
             //Jackson mapper Replace Customs exception by an IllegalArgumentException
             if(ex instanceof IllegalArgumentException && ex.getMessage().startsWith(JWKSetDeserializer.PARSE_ERROR_MESSAGE)) {
                 String sanitizedMessage = ex.getMessage().substring(0,ex.getMessage().indexOf(" (through reference chain:"));
-                return Single.error(new InvalidClientMetadataException(sanitizedMessage));
+                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException(sanitizedMessage)));
             }
-            return Single.error(ex);
+            return RxJava2Adapter.monoToSingle(Mono.error(ex));
         }
     }
 }

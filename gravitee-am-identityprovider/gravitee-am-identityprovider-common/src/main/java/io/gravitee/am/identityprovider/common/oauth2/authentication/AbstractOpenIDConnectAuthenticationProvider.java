@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.identityprovider.common.oauth2.authentication;
 
+import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
+import static io.gravitee.am.common.web.UriBuilder.encodeURIComponent;
+
 import com.google.common.base.Strings;
 import com.nimbusds.jwt.proc.JWTProcessor;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
@@ -51,16 +54,15 @@ import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.buffer.Buffer;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
-import static io.gravitee.am.common.web.UriBuilder.encodeURIComponent;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -88,11 +90,10 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
     }
 
     protected Maybe<User> retrieveUserFromIdToken(AuthenticationContext authContext, String idToken) {
-        return Maybe.fromCallable(() -> jwtProcessor.process(idToken, null))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Maybe.fromCallable(() -> jwtProcessor.process(idToken, null))
                 .onErrorResumeNext(ex -> {
                     return Maybe.error(new BadCredentialsException(ex.getMessage()));
-                })
-                .map(jwtClaimsSet -> createUser(authContext, jwtClaimsSet.getClaims()));
+                })).map(RxJavaReactorMigrationUtil.toJdkFunction(jwtClaimsSet -> createUser(authContext, jwtClaimsSet.getClaims()))));
     }
 
     @Override
@@ -138,7 +139,7 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
                 String accessToken = hashValues.get(ACCESS_TOKEN_PARAMETER);
                 // put the id_token in context for later use
                 authentication.getContext().set(ID_TOKEN_PARAMETER, hashValues.get(ID_TOKEN_PARAMETER));
-                return Maybe.just(new Token(accessToken, TokenTypeHint.ACCESS_TOKEN));
+                return RxJava2Adapter.monoToMaybe(Mono.just(new Token(accessToken, TokenTypeHint.ACCESS_TOKEN)));
             }
 
             // implicit flow was used with response_type=id_token, id token is already fetched, continue
@@ -146,7 +147,7 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
                 String idToken = hashValues.get(ID_TOKEN_PARAMETER);
                 // put the id_token in context for later use
                 authentication.getContext().set(ID_TOKEN_PARAMETER, idToken);
-                return Maybe.just(new Token(idToken, TokenTypeHint.ID_TOKEN));
+                return RxJava2Adapter.monoToMaybe(Mono.just(new Token(idToken, TokenTypeHint.ID_TOKEN)));
             }
         }
 
@@ -155,7 +156,7 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
         final String authorizationCode = authentication.getContext().request().parameters().getFirst(getConfiguration().getCodeParameter());
         if (authorizationCode == null || authorizationCode.isEmpty()) {
             LOGGER.debug("Authorization code is missing, skip authentication");
-            return Maybe.error(new BadCredentialsException("Missing authorization code"));
+            return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Missing authorization code")));
         }
 
         List<NameValuePair> urlParameters = new ArrayList<>();
@@ -166,12 +167,11 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
         urlParameters.add(new BasicNameValuePair(Parameters.GRANT_TYPE, "authorization_code"));
         String bodyRequest = URLEncodedUtils.format(urlParameters);
 
-        return getClient().postAbs(getConfiguration().getAccessTokenUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(getClient().postAbs(getConfiguration().getAccessTokenUri())
                 .putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(bodyRequest.length()))
                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
                 .rxSendBuffer(Buffer.buffer(bodyRequest))
-                .toMaybe()
-                .map(httpResponse -> {
+                .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                         throw new BadCredentialsException(httpResponse.statusMessage());
                     }
@@ -183,7 +183,7 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
                         authentication.getContext().set(ID_TOKEN_PARAMETER, idToken);
                     }
                     return new Token(accessToken, TokenTypeHint.ACCESS_TOKEN);
-                });
+                })));
 
     }
 
@@ -200,21 +200,20 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
                 return retrieveUserFromIdToken(authentication.getContext(), idToken);
             } else {
                 // no suitable value to retrieve user
-                return Maybe.error(new BadCredentialsException("No suitable value to retrieve user information"));
+                return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("No suitable value to retrieve user information")));
             }
         }
 
         // retrieve user claims from the UserInfo Endpoint
-        return getClient().getAbs(getConfiguration().getUserProfileUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(getClient().getAbs(getConfiguration().getUserProfileUri())
                 .putHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token.getValue())
                 .rxSend()
-                .toMaybe()
-                .map(httpClientResponse -> {
+                .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
                     if (httpClientResponse.statusCode() != 200) {
                         throw new BadCredentialsException(httpClientResponse.statusMessage());
                     }
                     return createUser(authentication.getContext(), httpClientResponse.bodyAsJsonObject().getMap());
-                });
+                })));
     }
 
     protected User createUser(AuthenticationContext authContext, Map<String, Object> attributes) {

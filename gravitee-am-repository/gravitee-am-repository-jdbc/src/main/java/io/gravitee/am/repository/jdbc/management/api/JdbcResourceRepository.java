@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.uma.Resource;
@@ -27,20 +31,17 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.relational.core.query.CriteriaDefinition;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -72,7 +73,7 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
     }
 
     private Single<Page<Resource>> findResourcePage(String domain, int page, int size, CriteriaDefinition whereClause) {
-        return fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.select()
                 .from(JdbcResource.class)
                 .matching(whereClause)
                 .orderBy(Sort.Order.asc("id"))
@@ -80,22 +81,19 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
                 .as(JdbcResource.class).all())
                 .map(this::toEntity)
                 .flatMap(res -> completeWithScopes(Maybe.just(res), res.getId()).toFlowable(), MAX_CONCURRENCY)
-                .toList()
-                .flatMap(content -> resourceRepository.countByDomain(domain)
-                        .map((count) -> new Page<Resource>(content, page, count)));
+                .toList()).flatMap(content->RxJava2Adapter.singleToMono(resourceRepository.countByDomain(domain).map((java.lang.Long count)->new Page<Resource>(content, page, count)))));
     }
 
     private Maybe<Resource> completeWithScopes(Maybe<Resource> maybeResource, String id) {
-        Maybe<List<String>> scopes = resourceScopeRepository.findAllByResourceId(id)
+        Maybe<List<String>> scopes = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(resourceScopeRepository.findAllByResourceId(id)
                 .map(JdbcResource.Scope::getScope)
-                .toList()
-                .toMaybe();
+                .toList()));
 
-        return maybeResource.zipWith(scopes, (res, scope) -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeResource).zipWith(RxJava2Adapter.maybeToMono(Maybe.wrap(scopes)), RxJavaReactorMigrationUtil.toJdkBiFunction((res, scope) -> {
                     LOGGER.debug("findById({}) fetch {} resource scopes", id, scope == null ? 0 : scope.size());
                     res.setResourceScopes(scope);
                     return res;
-                });
+                })));
     }
 
     @Override
@@ -109,40 +107,36 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
     public Flowable<Resource> findByResources(List<String> resources) {
         LOGGER.debug("findByResources({})", resources);
         if (resources == null || resources.isEmpty()) {
-            return Flowable.empty();
+            return RxJava2Adapter.fluxToFlowable(Flux.empty());
         }
-        return resourceRepository.findByIdIn(resources)
-                .map(this::toEntity)
-                .flatMap(resource -> completeWithScopes(Maybe.just(resource), resource.getId()).toFlowable());
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(resourceRepository.findByIdIn(resources)
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> completeWithScopes(Maybe.just(resource), resource.getId()).toFlowable())));
     }
 
     @Override
     public Flowable<Resource> findByDomainAndClientAndUser(String domain, String client, String userId) {
         LOGGER.debug("findByDomainAndClientAndUser({},{},{})", domain, client, userId);
-        return resourceRepository.findByDomainAndClientAndUser(domain, client, userId)
-                .map(this::toEntity)
-                .flatMap(resource -> completeWithScopes(Maybe.just(resource), resource.getId()).toFlowable());
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(resourceRepository.findByDomainAndClientAndUser(domain, client, userId)
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> completeWithScopes(Maybe.just(resource), resource.getId()).toFlowable())));
     }
 
     @Override
     public Flowable<Resource> findByDomainAndClientAndResources(String domain, String client, List<String> resources) {
         LOGGER.debug("findByDomainAndClientAndUser({},{},{})", domain, client, resources);
-        return resourceRepository.findByDomainAndClientAndResources(domain, client, resources)
-                .map(this::toEntity)
-                .flatMap(resource -> completeWithScopes(Maybe.just(resource), resource.getId()).toFlowable());
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(resourceRepository.findByDomainAndClientAndResources(domain, client, resources)
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> completeWithScopes(Maybe.just(resource), resource.getId()).toFlowable())));
     }
 
     @Override
     public Maybe<Resource> findByDomainAndClientAndUserAndResource(String domain, String client, String userId, String resource) {
         LOGGER.debug("findByDomainAndClientAndUserAndResource({},{},{},{})", domain, client, userId, resource);
-        return completeWithScopes(resourceRepository.findByDomainAndClientAndUserIdAndResource(domain, client, userId, resource)
-                .map(this::toEntity), resource);
+        return completeWithScopes(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(resourceRepository.findByDomainAndClientAndUserIdAndResource(domain, client, userId, resource)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), resource);
     }
 
     @Override
     public Maybe<Resource> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return completeWithScopes(resourceRepository.findById(id).map(this::toEntity), id);
+        return completeWithScopes(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(resourceRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), id);
     }
 
     @Override
@@ -166,8 +160,7 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
             }).reduce(Integer::sum));
         }
 
-        return monoToSingle(insertResult.as(trx::transactional))
-                .flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(insertResult.as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override
@@ -194,8 +187,7 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
             }).reduce(Integer::sum));
         }
 
-        return monoToSingle(deleteScopes.then(updateResource).as(trx::transactional))
-                .flatMap((i) -> this.findById(item.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(deleteScopes.then(updateResource).as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
     }
 
     @Override

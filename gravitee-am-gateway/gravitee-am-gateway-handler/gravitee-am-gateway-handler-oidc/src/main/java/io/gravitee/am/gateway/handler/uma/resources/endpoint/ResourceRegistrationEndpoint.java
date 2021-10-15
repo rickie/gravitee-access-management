@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.uma.resources.endpoint;
 
+import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.*;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
@@ -36,8 +38,9 @@ import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
-import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * <pre>
@@ -65,8 +68,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
-        this.resourceService.listByDomainAndClientAndUser(domain.getId(), client.getId(), accessToken.getSub())
-                .map(Resource::getId)
+        RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.resourceService.listByDomainAndClientAndUser(domain.getId(), client.getId(), accessToken.getSub())).map(RxJavaReactorMigrationUtil.toJdkFunction(Resource::getId)))
                 .collect(JsonArray::new, JsonArray::add)
                 .subscribe(
                         buffer -> context.response()
@@ -84,8 +86,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String basePath = UriBuilderRequest.resolveProxyRequest(context);
 
-        this.extractRequest(context)
-                .flatMap(request -> this.resourceService.create(request, domain.getId(), client.getId(), accessToken.getSub()))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.extractRequest(context)).flatMap(request->RxJava2Adapter.singleToMono(this.resourceService.create(request, domain.getId(), client.getId(), accessToken.getSub()))))
                 .subscribe(
                         resource -> {
                             final String resourceLocation = resourceLocation(basePath, resource);
@@ -106,8 +107,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String resource_id = context.request().getParam(RESOURCE_ID);
 
-        this.resourceService.findByDomainAndClientAndUserAndResource(domain.getId(), client.getId(), accessToken.getSub(), resource_id)
-                .switchIfEmpty(Single.error(new ResourceNotFoundException(resource_id)))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.resourceService.findByDomainAndClientAndUserAndResource(domain.getId(), client.getId(), accessToken.getSub(), resource_id)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new ResourceNotFoundException(resource_id))))))
                 .subscribe(
                         resource -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -130,8 +130,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String resource_id = context.request().getParam(RESOURCE_ID);
 
-        this.extractRequest(context)
-                .flatMap(request -> this.resourceService.update(request, domain.getId(), client.getId(), accessToken.getSub(), resource_id))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.extractRequest(context)).flatMap(request->RxJava2Adapter.singleToMono(this.resourceService.update(request, domain.getId(), client.getId(), accessToken.getSub(), resource_id))))
                 .subscribe(
                         resource -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -161,17 +160,16 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
     }
 
     private Single<NewResource> extractRequest(RoutingContext context) {
-        return Single.just(context.getBodyAsJson())
-                .flatMap(this::bodyValidation)
-                .map(body -> body.mapTo(NewResource.class));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.just(context.getBodyAsJson())
+                .flatMap(this::bodyValidation)).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class))));
     }
 
     private Single<JsonObject> bodyValidation(JsonObject body) {
         //Only one field is required from the spec, others are tag as optional
         if (body == null || !body.containsKey("resource_scopes")) {
-            return Single.error(new InvalidRequestException("missing resource_scopes"));
+            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("missing resource_scopes")));
         }
-        return Single.just(body);
+        return RxJava2Adapter.monoToSingle(Mono.just(body));
     }
 
     private String resourceLocation(String basePath, Resource resource) {

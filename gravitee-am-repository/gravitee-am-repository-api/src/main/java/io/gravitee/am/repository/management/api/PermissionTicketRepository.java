@@ -19,6 +19,8 @@ import io.gravitee.am.model.uma.PermissionTicket;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -27,6 +29,6 @@ import io.reactivex.Maybe;
 public interface PermissionTicketRepository  extends CrudRepository<PermissionTicket, String> {
 
     default Completable purgeExpiredData() {
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 }

@@ -26,12 +26,13 @@ import io.gravitee.am.reporter.api.provider.Reporter;
 import io.gravitee.am.service.exception.AuditNotFoundException;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -51,7 +52,7 @@ public class AuditServiceImpl implements AuditService {
             return getReporter(referenceType, referenceId).search(referenceType, referenceId, criteria, page, size);
         } catch (Exception ex) {
             logger.error("An error occurs during audits search for {}}: {}", referenceType, referenceId, ex);
-            return Single.error(ex);
+            return RxJava2Adapter.monoToSingle(Mono.error(ex));
         }
     }
 
@@ -67,24 +68,23 @@ public class AuditServiceImpl implements AuditService {
             return getReporter(domain).aggregate(ReferenceType.DOMAIN, domain, criteria, analyticsType);
         } catch (Exception ex) {
             logger.error("An error occurs during audits aggregation for domain: {}", domain, ex);
-            return Single.error(ex);
+            return RxJava2Adapter.monoToSingle(Mono.error(ex));
         }
     }
 
     @Override
     public Single<Audit> findById(ReferenceType referenceType, String referenceId, String auditId) {
         try {
-            return getReporter(referenceType, referenceId).findById(referenceType, referenceId, auditId)
-                    .switchIfEmpty(Single.error(new AuditNotFoundException(auditId)));
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(getReporter(referenceType, referenceId).findById(referenceType, referenceId, auditId)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new AuditNotFoundException(auditId))))));
         } catch (Exception ex) {
             logger.error("An error occurs while trying to find audit by id: {} and for the {}}: {}", auditId, referenceType, referenceId, ex);
-            return Single.error(ex);
+            return RxJava2Adapter.monoToSingle(Mono.error(ex));
         }
     }
 
     @Override
     public Maybe<Audit> findById(String domain, String auditId) {
-        return findById(ReferenceType.DOMAIN, domain, auditId).toMaybe();
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(findById(ReferenceType.DOMAIN, domain, auditId)));
     }
 
     private Reporter getReporter(String domain) {

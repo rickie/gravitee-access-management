@@ -22,7 +22,6 @@ import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +32,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -55,9 +56,8 @@ public class PolicyPluginResource {
             @PathParam("policy") String policyId,
             @Suspended final AsyncResponse response) {
 
-        policyPluginService.findById(policyId)
-                .switchIfEmpty(Maybe.error(new PolicyPluginNotFoundException(policyId)))
-                .map(policyPlugin -> Response.ok(policyPlugin).build())
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(policyPluginService.findById(policyId)
+                .switchIfEmpty(Maybe.error(new PolicyPluginNotFoundException(policyId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -70,11 +70,10 @@ public class PolicyPluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the policy exists
-        policyPluginService.findById(policyId)
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(policyPluginService.findById(policyId)
                 .switchIfEmpty(Maybe.error(new PolicyPluginNotFoundException(policyId)))
                 .flatMap(irrelevant -> policyPluginService.getSchema(policyId))
-                .switchIfEmpty(Maybe.error(new PolicyPluginSchemaNotFoundException(policyId)))
-                .map(policyPluginSchema -> Response.ok(policyPluginSchema).build())
+                .switchIfEmpty(Maybe.error(new PolicyPluginSchemaNotFoundException(policyId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -87,10 +86,9 @@ public class PolicyPluginResource {
         @Suspended final AsyncResponse response) {
 
         // Check that the policy exists
-        policyPluginService.findById(policyId)
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(policyPluginService.findById(policyId)
             .switchIfEmpty(Maybe.error(new PolicyPluginNotFoundException(policyId)))
-            .flatMap(irrelevant -> policyPluginService.getDocumentation(policyId))
-            .map(policyPluginDocumentation -> Response.ok(policyPluginDocumentation).build())
+            .flatMap(irrelevant -> policyPluginService.getDocumentation(policyId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginDocumentation -> Response.ok(policyPluginDocumentation).build())))
             .subscribe(response::resume, response::resume);
     }
 

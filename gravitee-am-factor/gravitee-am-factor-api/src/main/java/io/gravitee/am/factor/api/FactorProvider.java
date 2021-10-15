@@ -21,6 +21,8 @@ import io.gravitee.am.model.factor.EnrolledFactorSecurity;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -43,10 +45,10 @@ public interface FactorProvider {
     }
 
     default Single<EnrolledFactor> changeVariableFactorSecurity(EnrolledFactor factor) {
-        return Single.just(factor);
+        return RxJava2Adapter.monoToSingle(Mono.just(factor));
     }
 
     default Maybe<String> generateQrCode(User user, EnrolledFactor enrolledFactor) {
-        return Maybe.empty();
+        return RxJava2Adapter.monoToMaybe(Mono.empty());
     }
 }

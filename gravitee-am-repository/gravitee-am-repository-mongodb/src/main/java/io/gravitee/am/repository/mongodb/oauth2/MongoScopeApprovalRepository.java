@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.repository.mongodb.oauth2;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
@@ -22,16 +25,15 @@ import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.am.repository.mongodb.oauth2.internal.model.ScopeApprovalMongo;
 import io.gravitee.am.repository.oauth2.api.ScopeApprovalRepository;
 import io.reactivex.*;
-import org.bson.Document;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import javax.annotation.PostConstruct;
+import org.bson.Document;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -63,48 +65,47 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 
     @Override
     public Flowable<ScopeApproval> findByDomainAndUserAndClient(String domain, String userId, String clientId) {
-        return Flowable.fromPublisher(scopeApprovalsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, clientId), eq(FIELD_USER_ID, userId)))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(scopeApprovalsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, clientId), eq(FIELD_USER_ID, userId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<ScopeApproval> findByDomainAndUser(String domain, String user) {
-        return Flowable.fromPublisher(scopeApprovalsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user)))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(scopeApprovalsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<ScopeApproval> findById(String id) {
-        return Observable.fromPublisher(scopeApprovalsCollection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(scopeApprovalsCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<ScopeApproval> create(ScopeApproval scopeApproval) {
         ScopeApprovalMongo scopeApprovalMongo = convert(scopeApproval);
         scopeApprovalMongo.setId(scopeApprovalMongo.getId() == null ? RandomString.generate() : scopeApprovalMongo.getId());
-        return Single.fromPublisher(scopeApprovalsCollection.insertOne(scopeApprovalMongo)).flatMap(success -> _findById(scopeApprovalMongo.getId()));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.insertOne(scopeApprovalMongo))).flatMap(success->RxJava2Adapter.singleToMono(_findById(scopeApprovalMongo.getId()))));
     }
 
     @Override
     public Single<ScopeApproval> update(ScopeApproval scopeApproval) {
         ScopeApprovalMongo scopeApprovalMongo = convert(scopeApproval);
 
-        return Single.fromPublisher(scopeApprovalsCollection.replaceOne(
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.replaceOne(
                 and(eq(FIELD_DOMAIN, scopeApproval.getDomain()),
                         eq(FIELD_CLIENT_ID, scopeApproval.getClientId()),
                         eq(FIELD_USER_ID, scopeApproval.getUserId()),
                         eq(FIELD_SCOPE, scopeApproval.getScope()))
-                , scopeApprovalMongo)).flatMap(updateResult -> _findById(scopeApprovalMongo.getId()));
+                , scopeApprovalMongo))).flatMap(updateResult->RxJava2Adapter.singleToMono(_findById(scopeApprovalMongo.getId()))));
     }
 
     @Override
     public Single<ScopeApproval> upsert(ScopeApproval scopeApproval) {
-        return Observable.fromPublisher(scopeApprovalsCollection.find(
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(scopeApprovalsCollection.find(
                 and(eq(FIELD_DOMAIN, scopeApproval.getDomain()),
                         eq(FIELD_CLIENT_ID, scopeApproval.getClientId()),
                         eq(FIELD_USER_ID, scopeApproval.getUserId()),
                         eq(FIELD_SCOPE, scopeApproval.getScope()))).first())
                 .firstElement()
-                .map(Optional::of)
-                .defaultIfEmpty(Optional.empty())
+                .map(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optionalApproval -> {
                     if (!optionalApproval.isPresent()) {
                         scopeApproval.setCreatedAt(new Date());
@@ -120,29 +121,29 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 
     @Override
     public Completable deleteByDomainAndScopeKey(String domain, String scope) {
-        return Completable.fromPublisher(scopeApprovalsCollection.deleteMany(
-                and(eq(FIELD_DOMAIN, domain), eq(FIELD_SCOPE, scope))));
+        return RxJava2Adapter.monoToCompletable(Mono.from(scopeApprovalsCollection.deleteMany(
+                and(eq(FIELD_DOMAIN, domain), eq(FIELD_SCOPE, scope)))));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(scopeApprovalsCollection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(scopeApprovalsCollection.deleteOne(eq(FIELD_ID, id))));
     }
 
     @Override
     public Completable deleteByDomainAndUserAndClient(String domain, String user, String client) {
-        return Completable.fromPublisher(scopeApprovalsCollection.deleteMany(
-                and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user), eq(FIELD_CLIENT_ID, client))));
+        return RxJava2Adapter.monoToCompletable(Mono.from(scopeApprovalsCollection.deleteMany(
+                and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user), eq(FIELD_CLIENT_ID, client)))));
     }
 
     @Override
     public Completable deleteByDomainAndUser(String domain, String user) {
-        return Completable.fromPublisher(scopeApprovalsCollection.deleteMany(
-                and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user))));
+        return RxJava2Adapter.monoToCompletable(Mono.from(scopeApprovalsCollection.deleteMany(
+                and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user)))));
     }
 
     private Single<ScopeApproval> _findById(String id) {
-        return Single.fromPublisher(scopeApprovalsCollection.find(eq(FIELD_ID, id)).first()).map(this::convert);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.find(eq(FIELD_ID, id)).first())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     private ScopeApproval convert(ScopeApprovalMongo scopeApprovalMongo) {

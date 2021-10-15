@@ -20,6 +20,8 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * Repository to store information between different phases of authentication flow.
@@ -66,6 +68,6 @@ public interface AuthenticationFlowContextRepository {
     Completable delete(String transactionId, int version);
 
     default Completable purgeExpiredData() {
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 }

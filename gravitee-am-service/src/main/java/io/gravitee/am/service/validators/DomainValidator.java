@@ -19,11 +19,12 @@ import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.VirtualHost;
 import io.gravitee.am.service.exception.InvalidDomainException;
 import io.reactivex.Completable;
-import org.springframework.util.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.util.CollectionUtils;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -36,24 +37,24 @@ public class DomainValidator {
         List<Completable> chain = new ArrayList<>();
 
         if (domain.getName().contains("/")) {
-            return Completable.error(new InvalidDomainException("Domain name cannot contain '/' character"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("Domain name cannot contain '/' character")));
         }
 
         if(!CollectionUtils.isEmpty(domainRestrictions) && !domain.isVhostMode()) {
-            return Completable.error(new InvalidDomainException("Domain can only work in vhost mode"));
+            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("Domain can only work in vhost mode")));
         }
 
         if (domain.isVhostMode()) {
             if (domain.getVhosts() == null || domain.getVhosts().isEmpty()) {
-                return Completable.error(new InvalidDomainException("VHost mode requires at least one VHost"));
+                return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("VHost mode requires at least one VHost")));
             }
 
             // Check at there is only one vhost flagged with override entrypoint.
             long count = domain.getVhosts().stream().filter(VirtualHost::isOverrideEntrypoint).count();
             if(count > 1) {
-                return Completable.error(new InvalidDomainException("Only one vhost can be used to override entrypoint"));
+                return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("Only one vhost can be used to override entrypoint")));
             } else if(count == 0) {
-                return Completable.error(new InvalidDomainException("You must select one vhost to override entrypoint"));
+                return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("You must select one vhost to override entrypoint")));
             }
 
             chain.addAll(domain.getVhosts().stream()
@@ -61,7 +62,7 @@ public class DomainValidator {
                     .collect(Collectors.toList()));
         } else {
             if("/".equals(domain.getPath())) {
-                return Completable.error(new InvalidDomainException("'/' path is not allowed in context-path mode"));
+                return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("'/' path is not allowed in context-path mode")));
             }
 
             chain.add(PathValidator.validate(domain.getPath()));

@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.assertion;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -40,13 +44,6 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
 import io.reactivex.Maybe;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
-
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -59,10 +56,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -233,10 +234,10 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
-        when(jwkService.getKey(any(),any())).thenReturn(Maybe.just(key));
+        when(jwkService.getKey(any(),any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(key)));
 
         TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
 
@@ -274,10 +275,10 @@ public class ClientAssertionServiceTest {
         signedJWT.sign(new RSASSASigner(privateKey));
         String assertion = signedJWT.serialize();
 
-        when(clientSyncService.findByClientId(any())).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
-        when(jwkService.getKey(any(),any())).thenReturn(Maybe.just(key));
+        when(jwkService.getKey(any(),any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(key)));
         when(jwsService.isValidSignature(any(),any())).thenReturn(true);
 
         TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
@@ -305,7 +306,7 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
@@ -334,10 +335,10 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
-        when(jwkService.getKey(any(),any())).thenReturn(Maybe.just(key));
+        when(jwkService.getKey(any(),any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(key)));
         when(jwsService.isValidSignature(any(),any())).thenReturn(true);
 
         TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
@@ -384,7 +385,7 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
@@ -417,11 +418,11 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
-        when(jwkService.getKeys(anyString())).thenReturn(Maybe.just(jwkSet));
-        when(jwkService.getKey(any(),any())).thenReturn(Maybe.just(key));
+        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(jwkSet)));
+        when(jwkService.getKey(any(),any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(key)));
         when(jwsService.isValidSignature(any(),any())).thenReturn(true);
 
         TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
@@ -449,7 +450,7 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
@@ -503,7 +504,7 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
@@ -536,7 +537,7 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(Maybe.just(client));
+        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 

@@ -30,10 +30,10 @@ import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.gravitee.am.repository.management.api.search.DomainCriteria;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.*;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -48,10 +48,10 @@ public class DomainRepositoryTest extends AbstractManagementTest {
     public void testFindAll() throws TechnicalException {
         // create domain
         Domain domain = initDomain();
-        domainRepository.create(domain).blockingGet();
+        RxJava2Adapter.singleToMono(domainRepository.create(domain)).block();
 
         // fetch domains
-        TestObserver<List<Domain>> testObserver1 = domainRepository.findAll().toList().test();
+        TestObserver<List<Domain>> testObserver1 = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(domainRepository.findAll()).collectList()).test();
         testObserver1.awaitTerminalEvent();
 
         testObserver1.assertComplete();
@@ -107,14 +107,14 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         Domain domain = initDomain();
         domain.setReferenceType(ReferenceType.ENVIRONMENT);
         domain.setReferenceId("environment#1");
-        domainRepository.create(domain).blockingGet();
+        RxJava2Adapter.singleToMono(domainRepository.create(domain)).block();
 
         // create domain on different environment.
         Domain otherDomain = initDomain();
         otherDomain.setReferenceType(ReferenceType.ENVIRONMENT);
         otherDomain.setReferenceId("environment#2");
         otherDomain.setVhosts(null);
-        domainRepository.create(otherDomain).blockingGet();
+        RxJava2Adapter.singleToMono(domainRepository.create(otherDomain)).block();
 
         // fetch domains
         TestSubscriber<Domain> testObserver1 = domainRepository.findAllByReferenceId("environment#1").test();
@@ -129,7 +129,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
     public void testFindInIds() {
         // create domain
         Domain domain = initDomain();
-        Domain domainCreated = domainRepository.create(domain).blockingGet();
+        Domain domainCreated = RxJava2Adapter.singleToMono(domainRepository.create(domain)).block();
 
         // fetch domains
         TestSubscriber<Domain> testSubscriber = domainRepository.findByIdIn(Collections.singleton(domainCreated.getId())).test();
@@ -144,7 +144,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create domain
         Domain domain = initDomain();
-        Domain domainCreated = domainRepository.create(domain).blockingGet();
+        Domain domainCreated = RxJava2Adapter.singleToMono(domainRepository.create(domain)).block();
 
         // fetch domain
         TestObserver<Domain> testObserver = domainRepository.findById(domainCreated.getId()).test();
@@ -200,7 +200,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create domain
         Domain domain = initDomain();
-        Domain domainCreated = domainRepository.create(domain).blockingGet();
+        Domain domainCreated = RxJava2Adapter.singleToMono(domainRepository.create(domain)).block();
 
         // update domain
         Domain updatedDomain = initDomain();
@@ -250,7 +250,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
     public void testDelete() throws TechnicalException {
         // create domain
         Domain domain = initDomain();
-        Domain domainCreated = domainRepository.create(domain).blockingGet();
+        Domain domainCreated = RxJava2Adapter.singleToMono(domainRepository.create(domain)).block();
 
         // fetch domain
         TestObserver<Domain> testObserver = domainRepository.findById(domainCreated.getId()).test();
@@ -270,7 +270,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
     @Test
     public void findByCriteria() {
         Domain domainToCreate = initDomain();
-        Domain domainCreated = domainRepository.create(domainToCreate).blockingGet();
+        Domain domainCreated = RxJava2Adapter.singleToMono(domainRepository.create(domainToCreate)).block();
 
         DomainCriteria criteria = new DomainCriteria();
         criteria.setAlertEnabled(true);
@@ -282,7 +282,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         testObserver1.assertNoValues();
 
         domainCreated.setAlertEnabled(true);
-        final Domain domainUpdated = domainRepository.update(domainCreated).blockingGet();
+        final Domain domainUpdated = RxJava2Adapter.singleToMono(domainRepository.update(domainCreated)).block();
         testObserver1 = domainRepository.findAllByCriteria(criteria).test();
         testObserver1.awaitTerminalEvent();
         testObserver1.assertComplete();
@@ -297,7 +297,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         Domain domain = initDomain();
         domain.setReferenceType(ReferenceType.ENVIRONMENT);
         domain.setReferenceId("environment#1");
-        domainRepository.create(domain).blockingGet();
+        RxJava2Adapter.singleToMono(domainRepository.create(domain)).block();
 
         // fetch domains
         TestSubscriber<Domain> testObserver1 = domainRepository.search("environment#1", "testName").test();

@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.management.service.impl.upgrades.helpers;
 
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.*;
 import io.gravitee.am.model.membership.MemberType;
 import io.gravitee.am.model.permissions.DefaultRole;
@@ -30,8 +32,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -63,9 +66,9 @@ public class MembershipHelperTest {
         final Role primaryOwnerRole = new Role();
         primaryOwnerRole.setId("role-id");
 
-        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(Flowable.empty()); // user has no role yet.
-        when(roleService.findSystemRole(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(Maybe.just(primaryOwnerRole));
-        when(membershipService.addOrUpdate(eq(Organization.DEFAULT), any(Membership.class))).thenReturn(Single.just(new Membership()));
+        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty())); // user has no role yet.
+        when(roleService.findSystemRole(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(primaryOwnerRole)));
+        when(membershipService.addOrUpdate(eq(Organization.DEFAULT), any(Membership.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Membership())));
 
         cut.setOrganizationPrimaryOwnerRole(user);
     }
@@ -79,8 +82,8 @@ public class MembershipHelperTest {
         final Role adminRole = new Role();
         adminRole.setId("role-id");
 
-        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(Flowable.just(new Membership()));
-        when(roleService.findSystemRole(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(Maybe.just(adminRole));
+        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Membership())));
+        when(roleService.findSystemRole(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(adminRole)));
 
         cut.setOrganizationPrimaryOwnerRole(user);
     }
@@ -97,9 +100,9 @@ public class MembershipHelperTest {
         membership.setMemberId(userId);
         membership.setMemberType(MemberType.USER);
 
-        when(roleService.findSystemRole(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(Maybe.just(organizationPrimaryOwner));
-        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(Flowable.just(membership));
-        when(membershipService.setPlatformAdmin(userId)).thenReturn(Single.just(new Membership()));
+        when(roleService.findSystemRole(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(organizationPrimaryOwner)));
+        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(membership)));
+        when(membershipService.setPlatformAdmin(userId)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Membership())));
 
         cut.setPlatformAdminRole();
 
@@ -118,8 +121,8 @@ public class MembershipHelperTest {
         membership.setMemberId(userId);
         membership.setMemberType(MemberType.USER);
 
-        when(roleService.findSystemRole(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(Maybe.just(organizationPrimaryOwner));
-        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(Flowable.empty());
+        when(roleService.findSystemRole(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(organizationPrimaryOwner)));
+        when(membershipService.findByCriteria(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
 
         cut.setPlatformAdminRole();
 

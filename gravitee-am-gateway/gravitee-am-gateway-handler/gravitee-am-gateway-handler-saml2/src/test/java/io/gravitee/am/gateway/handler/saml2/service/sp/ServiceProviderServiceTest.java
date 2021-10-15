@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.saml2.service.sp;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.gateway.handler.common.auth.idp.IdentityProviderManager;
 import io.gravitee.am.gateway.handler.saml2.service.sp.impl.ServiceProviderServiceImpl;
 import io.gravitee.am.identityprovider.api.AuthenticationProvider;
@@ -28,9 +31,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -47,7 +49,7 @@ public class ServiceProviderServiceTest {
 
     @Test
     public void shouldNotGetMetadata_idp_not_found() {
-        when(identityProviderManager.get("provider-id")).thenReturn(Maybe.empty());
+        when(identityProviderManager.get("provider-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver testObserver = serviceProviderService.metadata("provider-id", "https://idp.example.com").test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(IdentityProviderNotFoundException.class);
@@ -57,7 +59,7 @@ public class ServiceProviderServiceTest {
     public void shouldNotGetMetadata_null_metadata() {
         AuthenticationProvider authenticationProvider = mock(AuthenticationProvider.class);
         when(authenticationProvider.metadata("https://idp.example.com")).thenReturn(null);
-        when(identityProviderManager.get("provider-id")).thenReturn(Maybe.just(authenticationProvider));
+        when(identityProviderManager.get("provider-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(authenticationProvider)));
         TestObserver testObserver = serviceProviderService.metadata("provider-id", "https://idp.example.com").test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(IdentityProviderMetadataNotFoundException.class);
@@ -69,7 +71,7 @@ public class ServiceProviderServiceTest {
         when(metadata.getBody()).thenReturn("metadata-payload");
         AuthenticationProvider authenticationProvider = mock(AuthenticationProvider.class);
         when(authenticationProvider.metadata("https://idp.example.com")).thenReturn(metadata);
-        when(identityProviderManager.get("provider-id")).thenReturn(Maybe.just(authenticationProvider));
+        when(identityProviderManager.get("provider-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(authenticationProvider)));
         TestObserver<Metadata> testObserver = serviceProviderService.metadata("provider-id", "https://idp.example.com").test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();

@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static java.time.ZoneOffset.UTC;
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.*;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.repository.jdbc.exceptions.RepositoryIllegalQueryException;
@@ -26,21 +31,17 @@ import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-
-import static java.time.ZoneOffset.UTC;
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.*;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -74,8 +75,7 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
                 .or(where("expire_at").isNull()));
         from = from.matching(from(whereClause));
 
-        return monoToMaybe(from.as(JdbcLoginAttempt.class).first())
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(monoToMaybe(from.as(JdbcLoginAttempt.class).first())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     private Criteria buildWhereClause(LoginAttemptCriteria criteria) {
@@ -116,9 +116,8 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
     public Maybe<LoginAttempt> findById(String id) {
         LOGGER.debug("findById({})", id);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return loginAttemptRepository.findById(id)
-                .filter(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)
+                .filter(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -131,14 +130,13 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> loginAttemptRepository.findById(item.getId()).map(this::toEntity).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(loginAttemptRepository.findById(item.getId()).map(this::toEntity).toSingle())));
     }
 
     @Override
     public Single<LoginAttempt> update(LoginAttempt item) {
         LOGGER.debug("update loginAttempt with id '{}'", item.getId());
-        return loginAttemptRepository.save(toJdbcEntity(item))
-                .map(this::toEntity);
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(loginAttemptRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override

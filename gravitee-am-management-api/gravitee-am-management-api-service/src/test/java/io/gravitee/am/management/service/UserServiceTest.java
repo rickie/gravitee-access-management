@@ -15,6 +15,12 @@
  */
 package io.gravitee.am.management.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.identityprovider.api.DefaultUser;
 import io.gravitee.am.identityprovider.api.UserProvider;
@@ -23,8 +29,8 @@ import io.gravitee.am.management.service.impl.UserServiceImpl;
 import io.gravitee.am.model.*;
 import io.gravitee.am.model.account.AccountSettings;
 import io.gravitee.am.model.application.ApplicationSettings;
-import io.gravitee.am.service.AuditService;
 import io.gravitee.am.service.*;
+import io.gravitee.am.service.AuditService;
 import io.gravitee.am.service.exception.*;
 import io.gravitee.am.service.model.NewUser;
 import io.gravitee.am.service.model.UpdateUser;
@@ -35,6 +41,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,14 +51,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -123,8 +124,8 @@ public class UserServiceTest {
         newUser.setPassword("myPassword");
         newUser.setClient(clientId);
 
-        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(Maybe.empty());
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(Maybe.empty());
+        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         userService.create(domain, newUser, null)
                 .test()
@@ -147,10 +148,10 @@ public class UserServiceTest {
         newUser.setClient(clientId);
         newUser.setPassword("myPassword");
 
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(Maybe.just(mock(UserProvider.class)));
-        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(Maybe.empty());
-        when(applicationService.findById(newUser.getClient())).thenReturn(Maybe.empty());
-        when(applicationService.findByDomainAndClientId(domainId, newUser.getClient())).thenReturn(Maybe.empty());
+        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(mock(UserProvider.class))));
+        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(applicationService.findById(newUser.getClient())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(applicationService.findByDomainAndClientId(domainId, newUser.getClient())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         userService.create(domain, newUser, null)
                 .test()
@@ -175,9 +176,9 @@ public class UserServiceTest {
         Application application = mock(Application.class);
         when(application.getDomain()).thenReturn("other-domain");
 
-        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(Maybe.empty());
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(Maybe.just(mock(UserProvider.class)));
-        when(applicationService.findById(newUser.getClient())).thenReturn(Maybe.just(application));
+        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(mock(UserProvider.class))));
+        when(applicationService.findById(newUser.getClient())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(application)));
 
         userService.create(domain, newUser, null)
                 .test()
@@ -200,7 +201,7 @@ public class UserServiceTest {
         newUser.setPassword("MyPassword");
         newUser.setClient(clientId);
 
-        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(Maybe.just(new User()));
+        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new User())));
 
         userService.create(domain, newUser, null)
                 .test()
@@ -233,16 +234,16 @@ public class UserServiceTest {
         preRegisteredUser.setPreRegistration(true);
 
         UserProvider userProvider = mock(UserProvider.class);
-        doReturn(Single.just(new DefaultUser(newUser.getUsername()))).when(userProvider).create(any());
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(new DefaultUser(newUser.getUsername())))).when(userProvider).create(any());
 
         Application client = new Application();
         client.setDomain("domain");
-        when(domainService.findById(domainId)).thenReturn(Maybe.just(domain));
-        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(Maybe.empty());
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(Maybe.just(userProvider));
-        when(applicationService.findById(newUser.getClient())).thenReturn(Maybe.just(client));
-        when(commonUserService.create(any())).thenReturn(Single.just(preRegisteredUser));
-        when(commonUserService.findById(any(), anyString(), anyString())).thenReturn(Single.just(preRegisteredUser));
+        when(domainService.findById(domainId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
+        when(applicationService.findById(newUser.getClient())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(commonUserService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(preRegisteredUser)));
+        when(commonUserService.findById(any(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(preRegisteredUser)));
 
         userService.create(domain, newUser, null)
                 .test()
@@ -280,16 +281,16 @@ public class UserServiceTest {
         newUser.setPreRegistration(true);
 
         UserProvider userProvider = mock(UserProvider.class);
-        doReturn(Single.just(new DefaultUser(newUser.getUsername()))).when(userProvider).create(any());
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(new DefaultUser(newUser.getUsername())))).when(userProvider).create(any());
 
         Application client = new Application();
         client.setDomain("domain");
 
         when(jwtBuilder.sign(any())).thenReturn("token");
-        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(Maybe.empty());
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(Maybe.just(userProvider));
-        when(applicationService.findById(newUser.getClient())).thenReturn(Maybe.just(client));
-        when(commonUserService.create(any())).thenReturn(Single.just(new User()));
+        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
+        when(applicationService.findById(newUser.getClient())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(commonUserService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
         when(domainService.buildUrl(any(Domain.class), eq("/confirmRegistration"))).thenReturn("http://localhost:8092/test/confirmRegistration");
         when(emailService.getEmailTemplate(eq(Template.REGISTRATION_CONFIRMATION), any())).thenReturn(new Email());
 
@@ -327,7 +328,7 @@ public class UserServiceTest {
         newUser.setPreRegistration(true);
 
         UserProvider userProvider = mock(UserProvider.class);
-        doReturn(Single.just(new DefaultUser(newUser.getUsername()))).when(userProvider).create(any());
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(new DefaultUser(newUser.getUsername())))).when(userProvider).create(any());
 
         Application client = new Application();
         client.setDomain("domain");
@@ -337,10 +338,10 @@ public class UserServiceTest {
         client.setSettings(settings);
 
         when(jwtBuilder.sign(any())).thenReturn("token");
-        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(Maybe.empty());
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(Maybe.just(userProvider));
-        when(applicationService.findById(newUser.getClient())).thenReturn(Maybe.just(client));
-        when(commonUserService.create(any())).thenReturn(Single.just(new User()));
+        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
+        when(applicationService.findById(newUser.getClient())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(commonUserService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
         when(domainService.buildUrl(any(Domain.class), eq("/confirmRegistration"))).thenReturn("http://localhost:8092/test/confirmRegistration");
         when(emailService.getEmailTemplate(eq(Template.REGISTRATION_CONFIRMATION), any())).thenReturn(new Email());
 
@@ -370,10 +371,10 @@ public class UserServiceTest {
         UpdateUser updateUser = new UpdateUser();
         updateUser.setClient("client");
 
-        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(domain), eq(id))).thenReturn(Single.just(user));
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(Maybe.just(mock(UserProvider.class)));
-        when(applicationService.findById(updateUser.getClient())).thenReturn(Maybe.empty());
-        when(applicationService.findByDomainAndClientId(domain, updateUser.getClient())).thenReturn(Maybe.empty());
+        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(domain), eq(id))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(mock(UserProvider.class))));
+        when(applicationService.findById(updateUser.getClient())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(applicationService.findByDomainAndClientId(domain, updateUser.getClient())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         userService.update(domain, id, updateUser)
                 .test()
@@ -395,9 +396,9 @@ public class UserServiceTest {
         Application application = new Application();
         application.setDomain("other-domain");
 
-        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(domain), eq(id))).thenReturn(Single.just(user));
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(Maybe.just(mock(UserProvider.class)));
-        when(applicationService.findById(updateUser.getClient())).thenReturn(Maybe.just(application));
+        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(domain), eq(id))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(mock(UserProvider.class))));
+        when(applicationService.findById(updateUser.getClient())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(application)));
 
         userService.update(domain, id, updateUser)
                 .test()
@@ -420,14 +421,14 @@ public class UserServiceTest {
         when(idpUser.getId()).thenReturn("idp-id");
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.findByUsername(user.getUsername())).thenReturn(Maybe.just(idpUser));
-        when(userProvider.update(anyString(), any())).thenReturn(Single.just(idpUser));
+        when(userProvider.findByUsername(user.getUsername())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(idpUser)));
+        when(userProvider.update(anyString(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idpUser)));
 
         doReturn(true).when(passwordValidator).isValid(password);
-        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(domain.getId()), eq("user-id"))).thenReturn(Single.just(user));
-        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(Maybe.just(userProvider));
-        when(commonUserService.update(any())).thenReturn(Single.just(user));
-        when(loginAttemptService.reset(any())).thenReturn(Completable.complete());
+        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(domain.getId()), eq("user-id"))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
+        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(loginAttemptService.reset(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         userService.resetPassword(domain, user.getId(), password, null)
                 .test()
@@ -449,14 +450,14 @@ public class UserServiceTest {
         when(idpUser.getId()).thenReturn("idp-id");
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.findByUsername(user.getUsername())).thenReturn(Maybe.empty());
-        when(userProvider.create(any())).thenReturn(Single.just(idpUser));
+        when(userProvider.findByUsername(user.getUsername())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userProvider.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idpUser)));
 
         doReturn(true).when(passwordValidator).isValid(password);
-        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(domain.getId()), eq("user-id"))).thenReturn(Single.just(user));
-        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(Maybe.just(userProvider));
-        when(commonUserService.update(any())).thenReturn(Single.just(user));
-        when(loginAttemptService.reset(any())).thenReturn(Completable.complete());
+        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(domain.getId()), eq("user-id"))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
+        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(loginAttemptService.reset(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         userService.resetPassword(domain, user.getId(), password, null)
                 .test()
@@ -480,9 +481,9 @@ public class UserServiceTest {
         roles.add(role1);
         roles.add(role2);
 
-        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq("user-id"))).thenReturn(Single.just(user));
-        when(roleService.findByIdIn(rolesIds)).thenReturn(Single.just(roles));
-        when(commonUserService.update(any())).thenReturn(Single.just(new User()));
+        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq("user-id"))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(roleService.findByIdIn(rolesIds)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(roles)));
+        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
 
         userService.assignRoles(ReferenceType.DOMAIN, DOMAIN_ID, user.getId(), rolesIds)
                 .test()
@@ -499,9 +500,9 @@ public class UserServiceTest {
         user.setId("user-id");
         user.setSource("idp-id");
 
-        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq("user-id"))).thenReturn(Single.just(user));
+        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq("user-id"))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
         when(identityProviderManager.userProviderExists(user.getSource())).thenReturn(true);
-        when(roleService.findByIdIn(rolesIds)).thenReturn(Single.just(Collections.emptySet()));
+        when(roleService.findByIdIn(rolesIds)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
 
         userService.assignRoles(ReferenceType.DOMAIN, DOMAIN_ID, user.getId(), rolesIds)
                 .test()
@@ -526,10 +527,10 @@ public class UserServiceTest {
         roles.add(role1);
         roles.add(role2);
 
-        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq("user-id"))).thenReturn(Single.just(user));
+        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq("user-id"))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
         when(identityProviderManager.userProviderExists(user.getSource())).thenReturn(true);
-        when(roleService.findByIdIn(rolesIds)).thenReturn(Single.just(roles));
-        when(commonUserService.update(any())).thenReturn(Single.just(new User()));
+        when(roleService.findByIdIn(rolesIds)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(roles)));
+        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
 
         userService.revokeRoles(ReferenceType.DOMAIN, DOMAIN_ID, user.getId(), rolesIds)
                 .test()
@@ -546,9 +547,9 @@ public class UserServiceTest {
         user.setId("user-id");
         user.setSource("idp-id");
 
-        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq("user-id"))).thenReturn(Single.just(user));
+        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq("user-id"))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
         when(identityProviderManager.userProviderExists(user.getSource())).thenReturn(true);
-        when(roleService.findByIdIn(rolesIds)).thenReturn(Single.just(Collections.emptySet()));
+        when(roleService.findByIdIn(rolesIds)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
 
         userService.revokeRoles(ReferenceType.DOMAIN, DOMAIN_ID, user.getId(), rolesIds)
                 .test()
@@ -568,8 +569,8 @@ public class UserServiceTest {
         newUser.setSource("source");
         newUser.setPassword(password);
 
-        doReturn(Maybe.empty()).when(commonUserService).findByDomainAndUsernameAndSource(anyString(), anyString(), anyString());
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(Maybe.just(mock(UserProvider.class)));
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(commonUserService).findByDomainAndUsernameAndSource(anyString(), anyString(), anyString());
+        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(mock(UserProvider.class))));
         userService.create(domain, newUser, null)
                 .test()
                 .assertNotComplete()
@@ -587,7 +588,7 @@ public class UserServiceTest {
         user.setId("user-id");
         user.setSource("idp-id");
 
-        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(domain.getId()), eq("user-id"))).thenReturn(Single.just(user));
+        when(commonUserService.findById(eq(ReferenceType.DOMAIN), eq(domain.getId()), eq("user-id"))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
 
         userService.resetPassword(domain, user.getId(), password, null)
                 .test()

@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Certificate;
 import io.gravitee.am.model.Domain;
@@ -24,17 +29,14 @@ import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import org.junit.Test;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -58,8 +60,8 @@ public class CertificatesResourceTest extends JerseySpringTest {
         mockCertificate2.setName("certificate-2-name");
         mockCertificate2.setDomain(domainId);
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Flowable.just(mockCertificate, mockCertificate2)).when(certificateService).findByDomain(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.fluxToFlowable(Flux.just(mockCertificate, mockCertificate2))).when(certificateService).findByDomain(domainId);
 
         final Response response = target("domains").path(domainId).path("certificates").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -71,7 +73,7 @@ public class CertificatesResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetCertificates_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(Flowable.error(new TechnicalManagementException("error occurs"))).when(certificateService).findByDomain(domainId);
+        doReturn(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs")))).when(certificateService).findByDomain(domainId);
 
         final Response response = target("domains").path(domainId).path("certificates").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -92,9 +94,9 @@ public class CertificatesResourceTest extends JerseySpringTest {
         certificate.setId("certificate-id");
         certificate.setName("certificate-name");
 
-        doReturn(Maybe.just(mockDomain)).when(domainService).findById(domainId);
-        doReturn(Maybe.just("certificate-schema")).when(certificatePluginService).getSchema(anyString());
-        doReturn(Single.just(certificate)).when(certificateService).create(eq(domainId), any(), any());
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just("certificate-schema"))).when(certificatePluginService).getSchema(anyString());
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(certificate))).when(certificateService).create(eq(domainId), any(), any());
 
         final Response response = target("domains")
                 .path(domainId)

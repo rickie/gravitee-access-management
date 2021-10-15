@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.management.service.impl.commands;
 
+import static io.gravitee.am.management.service.impl.commands.UserCommandHandler.COCKPIT_SOURCE;
+
 import io.gravitee.am.model.Membership;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.Role;
@@ -37,8 +39,9 @@ import io.reactivex.Single;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import static io.gravitee.am.management.service.impl.commands.UserCommandHandler.COCKPIT_SOURCE;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -76,15 +79,15 @@ public class MembershipCommandHandler implements CommandHandler<MembershipComman
             assignableType = ReferenceType.valueOf(membershipPayload.getReferenceType());
         } catch (Exception e) {
             logger.error("Invalid referenceType [{}].", membershipPayload.getReferenceType());
-            return Single.just(new MembershipReply(command.getId(), CommandStatus.ERROR));
+            return RxJava2Adapter.monoToSingle(Mono.just(new MembershipReply(command.getId(), CommandStatus.ERROR)));
         }
 
-        Single<String> userObs = userService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, membershipPayload.getOrganizationId(), membershipPayload.getUserId(), COCKPIT_SOURCE)
-                .map(User::getId).toSingle();
+        Single<String> userObs = RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, membershipPayload.getOrganizationId(), membershipPayload.getUserId(), COCKPIT_SOURCE)
+                .map(User::getId)).single());
         Single<Role> roleObs = findRole(membershipPayload.getRole(), membershipPayload.getOrganizationId(), assignableType);
 
 
-        return Single.zip(roleObs, userObs,
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.zip(roleObs, userObs,
                 (role, userId) -> {
                     Membership membership = new Membership();
                     membership.setMemberType(MemberType.USER);
@@ -97,8 +100,7 @@ public class MembershipCommandHandler implements CommandHandler<MembershipComman
                 })
                 .flatMap(membership -> membershipService.addOrUpdate(membershipPayload.getOrganizationId(), membership))
                 .doOnSuccess(membership -> logger.info("Role [{}] assigned on {} [{}] for user [{}] and organization [{}].", membershipPayload.getRole(), membershipPayload.getReferenceType(), membershipPayload.getReferenceId(), membership.getMemberId(), membershipPayload.getOrganizationId()))
-                .map(user -> new MembershipReply(command.getId(), CommandStatus.SUCCEEDED))
-                .doOnError(error -> logger.error("Error occurred when trying to assign role [{}] on {} [{}] for cockpit user [{}] and organization [{}].", membershipPayload.getRole(), membershipPayload.getReferenceType(), membershipPayload.getReferenceId(), membershipPayload.getUserId(), membershipPayload.getOrganizationId(), error))
+                .map(user -> new MembershipReply(command.getId(), CommandStatus.SUCCEEDED))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Error occurred when trying to assign role [{}] on {} [{}] for cockpit user [{}] and organization [{}].", membershipPayload.getRole(), membershipPayload.getReferenceType(), membershipPayload.getReferenceId(), membershipPayload.getUserId(), membershipPayload.getOrganizationId(), error))))
                 .onErrorReturn(throwable -> new MembershipReply(command.getId(), CommandStatus.ERROR));
     }
 
@@ -109,16 +111,16 @@ public class MembershipCommandHandler implements CommandHandler<MembershipComman
 
         // First try to map to a system role.
         if (systemRole != null) {
-            return roleService.findSystemRole(systemRole, assignableType).toSingle();
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(roleService.findSystemRole(systemRole, assignableType)).single());
         } else {
             // Then try to find a default role.
             DefaultRole defaultRole = DefaultRole.fromName(roleName);
 
             if (defaultRole != null) {
-                return roleService.findDefaultRole(organizationId, defaultRole, assignableType).toSingle();
+                return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(roleService.findDefaultRole(organizationId, defaultRole, assignableType)).single());
             }
         }
 
-        return Single.error(new InvalidRoleException(String.format("Unable to find role [%s] for organization [%s].", roleName, organizationId)));
+        return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRoleException(String.format("Unable to find role [%s] for organization [%s].", roleName, organizationId))));
     }
 }

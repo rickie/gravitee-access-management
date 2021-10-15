@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import static org.springframework.data.relational.core.query.Criteria.where;
+import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
+import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Certificate;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -25,21 +29,18 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.springframework.data.relational.core.query.Criteria.where;
-import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -71,23 +72,20 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
     @Override
     public Flowable<Certificate> findAll() {
         LOGGER.debug("findAll()");
-        return this.certificateRepository.findAll()
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.certificateRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Flowable<Certificate> findByDomain(String domain) {
         LOGGER.debug("findByDomain({})", domain);
-        return this.certificateRepository.findByDomain(domain)
-                .map(this::toEntity);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.certificateRepository.findByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Maybe<Certificate> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return this.certificateRepository.findById(id)
-                .map(this::toEntity)
-                .doOnError(error -> LOGGER.error("Unable to retrieve Certificate with id {}", id, error));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.certificateRepository.findById(id)
+                .map(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve Certificate with id {}", id, error))));
     }
 
     @Override
@@ -109,8 +107,7 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle())
-                .doOnError((error) -> LOGGER.error("unable to create certificate with id {}", item.getId(), error));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle())).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create certificate with id {}", item.getId(), error))));
     }
 
     @Override
@@ -131,14 +128,12 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
 
         Mono<Integer> action = updatedSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle())
-                .doOnError((error) -> LOGGER.error("unable to update certificate with id {}", item.getId(), error));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle())).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to update certificate with id {}", item.getId(), error))));
     }
 
     @Override
     public Completable delete(String id) {
         LOGGER.debug("delete({})", id);
-        return this.certificateRepository.deleteById(id)
-                .doOnError(error -> LOGGER.error("Unable to delete Certificate with id {}", id, error));
+        return this.certificateRepository.deleteById(id).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete Certificate with id {}", id, error))).as(RxJava2Adapter::monoToCompletable);
     }
 }

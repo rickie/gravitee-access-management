@@ -15,17 +15,18 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.platform.plugins;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.plugin.CertificatePlugin;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Maybe;
-import org.junit.Test;
-
 import javax.ws.rs.core.Response;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -40,7 +41,7 @@ public class CertificatePluginResourceTest extends JerseySpringTest {
         certificatePlugin.setId(certificatePluginId);
         certificatePlugin.setName("certificate-plugin-name");
 
-        doReturn(Maybe.just(certificatePlugin)).when(certificatePluginService).findById(certificatePluginId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(certificatePlugin))).when(certificatePluginService).findById(certificatePluginId);
 
         final Response response = target("platform")
                 .path("plugins")
@@ -53,7 +54,7 @@ public class CertificatePluginResourceTest extends JerseySpringTest {
     @Test
     public void shouldGet_technicalManagementException() {
         final String certificatePluginId = "certificate-plugin-id";
-        doReturn(Maybe.error(new TechnicalManagementException("Error occurs"))).when(certificatePluginService).findById(certificatePluginId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("Error occurs")))).when(certificatePluginService).findById(certificatePluginId);
 
         final Response response = target("platform")
                 .path("plugins")
@@ -72,8 +73,8 @@ public class CertificatePluginResourceTest extends JerseySpringTest {
 
         final String schema = "certificate-plugin-schema";
 
-        doReturn(Maybe.just(certificatePlugin)).when(certificatePluginService).findById(certificatePluginId);
-        doReturn(Maybe.just(schema)).when(certificatePluginService).getSchema(certificatePluginId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(certificatePlugin))).when(certificatePluginService).findById(certificatePluginId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(schema))).when(certificatePluginService).getSchema(certificatePluginId);
 
         final Response response = target("platform")
                 .path("plugins")
@@ -90,7 +91,7 @@ public class CertificatePluginResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetSchema_technicalManagementException() {
         final String certificatePluginId = "certificate-plugin-id";
-        doReturn(Maybe.error(new TechnicalManagementException("Error occurs"))).when(certificatePluginService).findById(certificatePluginId);
+        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("Error occurs")))).when(certificatePluginService).findById(certificatePluginId);
 
         final Response response = target("platform")
                 .path("plugins")

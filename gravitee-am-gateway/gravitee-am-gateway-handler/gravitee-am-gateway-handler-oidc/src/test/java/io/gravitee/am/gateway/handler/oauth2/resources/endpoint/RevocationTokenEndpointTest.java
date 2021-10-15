@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.endpoint;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidGrantException;
 import io.gravitee.am.gateway.handler.oauth2.resources.endpoint.revocation.RevocationTokenEndpoint;
@@ -33,9 +36,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -94,7 +96,7 @@ public class RevocationTokenEndpointTest extends RxWebTestBase {
             }
         });
 
-        when(revocationTokenService.revoke(any(), any())).thenReturn(Completable.error(new InvalidGrantException()));
+        when(revocationTokenService.revoke(any(), any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidGrantException())));
 
         testRequest(
                 HttpMethod.POST, "/oauth/revoke?token=toto",
@@ -113,7 +115,7 @@ public class RevocationTokenEndpointTest extends RxWebTestBase {
         });
 
         // invalid token results on completable to complete without error
-        when(revocationTokenService.revoke(any(), any())).thenReturn(Completable.complete());
+        when(revocationTokenService.revoke(any(), any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         testRequest(
                 HttpMethod.POST, "/oauth/revoke?token=toto",
@@ -132,7 +134,7 @@ public class RevocationTokenEndpointTest extends RxWebTestBase {
         });
 
         // invalid token results on completable to complete without error
-        when(revocationTokenService.revoke(any(), any())).thenReturn(Completable.error(new RuntimeException()));
+        when(revocationTokenService.revoke(any(), any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(new RuntimeException())));
 
         testRequest(
                 HttpMethod.POST, "/oauth/revoke?token=toto",

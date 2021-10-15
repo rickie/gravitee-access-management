@@ -38,11 +38,13 @@ import io.gravitee.am.service.validators.UserValidator;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Donald Courtney (donald.courtney at graviteesource.com)
@@ -86,15 +88,15 @@ public class AccountServiceImpl implements AccountService {
     public Single<Page<Audit>> getActivity(User user, AuditReportableCriteria criteria, int page, int size) {
         try {
             Single<Page<Audit>> reporter = auditReporterManager.getReporter().search(ReferenceType.DOMAIN, user.getReferenceId(), criteria, page, size);
-            return reporter.map(result -> {
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(reporter).map(RxJavaReactorMigrationUtil.toJdkFunction(result -> {
                 if(Objects.isNull(result) || Objects.isNull(result.getData())){
                     return new Page<>(new ArrayList<>(), 0, 0);
                 }
                 return result;
-            });
+            })));
         } catch (Exception ex) {
             LOGGER.error("An error occurs during audits search for {}}: {}", ReferenceType.DOMAIN, user.getReferenceId(), ex);
-            return Single.error(ex);
+            return RxJava2Adapter.monoToSingle(Mono.error(ex));
         }
     }
 
@@ -102,7 +104,7 @@ public class AccountServiceImpl implements AccountService {
     public Single<User> update(User user) {
         LOGGER.debug("Update a user {} for domain {}", user.getUsername(), domain.getName());
 
-        return userValidator.validate(user).andThen(identityProviderManager.getUserProvider(user.getSource())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(Single.wrap(identityProviderManager.getUserProvider(user.getSource())
                 .switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource())))
                 .flatMapSingle(userProvider -> {
                     if (user.getExternalId() == null) {
@@ -122,13 +124,13 @@ public class AccountServiceImpl implements AccountService {
                         return userRepository.update(user);
                     }
                     return Single.error(ex);
-                }));
+                })))));
 
     }
 
     @Override
     public Single<List<Factor>> getFactors(String domain) {
-        return factorService.findByDomain(domain).toList();
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(factorService.findByDomain(domain)).collectList());
     }
 
     @Override
@@ -148,22 +150,20 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Single<List<Credential>> getWebAuthnCredentials(User user) {
-        return credentialService.findByUserId(ReferenceType.DOMAIN, user.getReferenceId(), user.getId())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(credentialService.findByUserId(ReferenceType.DOMAIN, user.getReferenceId(), user.getId())
                 .map(credential -> {
                     removeSensitiveData(credential);
                     return credential;
-                })
-                .toList();
+                })).collectList());
     }
 
     @Override
     public Single<Credential> getWebAuthnCredential(String id) {
-        return credentialService.findById(id)
-                .switchIfEmpty(Single.error(new CredentialNotFoundException(id)))
-                .map(credential -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(credentialService.findById(id)
+                .switchIfEmpty(Single.error(new CredentialNotFoundException(id)))).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
                     removeSensitiveData(credential);
                     return credential;
-                });
+                })));
     }
 
     private io.gravitee.am.identityprovider.api.User convert(io.gravitee.am.model.User user) {

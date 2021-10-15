@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.service.impl.commands;
 
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.Installation;
 import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.service.InstallationService;
@@ -25,17 +28,15 @@ import io.gravitee.cockpit.api.command.installation.InstallationPayload;
 import io.gravitee.cockpit.api.command.installation.InstallationReply;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.HashMap;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.HashMap;
-
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -74,8 +75,8 @@ public class InstallationCommandHandlerTest extends TestCase {
         installationPayload.setId(INSTALLATION_ID);
         installationPayload.setStatus("ACCEPTED");
 
-        when(installationService.getOrInitialize()).thenReturn(Single.just(installation));
-        when(installationService.setAdditionalInformation(anyMap())).thenAnswer(i -> Single.just(installation));
+        when(installationService.getOrInitialize()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(installation)));
+        when(installationService.setAdditionalInformation(anyMap())).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(installation)));
 
         TestObserver<InstallationReply> obs = cut.handle(command).test();
 
@@ -100,8 +101,8 @@ public class InstallationCommandHandlerTest extends TestCase {
         installationPayload.setId(INSTALLATION_ID);
         installationPayload.setStatus("ACCEPTED");
 
-        when(installationService.getOrInitialize()).thenReturn(Single.just(installation));
-        when(installationService.setAdditionalInformation(anyMap())).thenReturn(Single.error(new TechnicalException()));
+        when(installationService.getOrInitialize()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(installation)));
+        when(installationService.setAdditionalInformation(anyMap())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException())));
 
         TestObserver<InstallationReply> obs = cut.handle(command).test();
 

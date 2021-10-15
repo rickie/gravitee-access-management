@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.management.handlers.management.api.authentication.provider.security;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.identityprovider.api.AuthenticationProvider;
 import io.gravitee.am.identityprovider.api.DefaultUser;
@@ -24,6 +27,7 @@ import io.gravitee.am.model.Organization;
 import io.gravitee.am.service.OrganizationService;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,11 +37,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-
-import java.util.Arrays;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -60,14 +61,14 @@ public class ManagementAuthenticationProviderTest {
         Organization defaultOrganization = new Organization();
         defaultOrganization.setId(Organization.DEFAULT);
         defaultOrganization.setIdentities(Arrays.asList("idp1", "idp2"));
-        when(organizationService.findById(Organization.DEFAULT)).thenReturn(Single.just(defaultOrganization));
+        when(organizationService.findById(Organization.DEFAULT)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(defaultOrganization)));
     }
 
     @Test
     public void shouldAuthenticate_firstAuthProvider() {
         AuthenticationProvider authenticationProvider = mock(AuthenticationProvider.class);
 
-        when(authenticationProvider.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(Maybe.just(new DefaultUser("username")));
+        when(authenticationProvider.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new DefaultUser("username"))));
         when(identityProviderManager.getIdentityProvider("idp1")).thenReturn(new IdentityProvider());
         when(identityProviderManager.get("idp1")).thenReturn(authenticationProvider);
 
@@ -81,9 +82,9 @@ public class ManagementAuthenticationProviderTest {
     @Test
     public void shouldAuthenticate_secondAuthProvider() {
         AuthenticationProvider authenticationProvider = mock(AuthenticationProvider.class);
-        when(authenticationProvider.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(Maybe.error(new BadCredentialsException()));
+        when(authenticationProvider.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException())));
         AuthenticationProvider authenticationProvider2 = mock(AuthenticationProvider.class);
-        when(authenticationProvider2.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(Maybe.just(new DefaultUser("username")));
+        when(authenticationProvider2.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new DefaultUser("username"))));
         when(identityProviderManager.getIdentityProvider("idp1")).thenReturn(new IdentityProvider());
         when(identityProviderManager.getIdentityProvider("idp2")).thenReturn(new IdentityProvider());
         when(identityProviderManager.get("idp1")).thenReturn(authenticationProvider);
@@ -99,7 +100,7 @@ public class ManagementAuthenticationProviderTest {
     @Test
     public void shouldAuthenticate_secondAuthProvider_firstNull() {
         AuthenticationProvider authenticationProvider2 = mock(AuthenticationProvider.class);
-        when(authenticationProvider2.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(Maybe.just(new DefaultUser("username")));
+        when(authenticationProvider2.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new DefaultUser("username"))));
         when(identityProviderManager.getIdentityProvider("idp1")).thenReturn(new IdentityProvider());
         when(identityProviderManager.getIdentityProvider("idp2")).thenReturn(new IdentityProvider());
         when(identityProviderManager.get("idp1")).thenReturn(null);
@@ -115,9 +116,9 @@ public class ManagementAuthenticationProviderTest {
     @Test(expected = org.springframework.security.authentication.BadCredentialsException.class)
     public void shouldNotAuthenticate_wrongCredentials() {
         AuthenticationProvider authenticationProvider = mock(AuthenticationProvider.class);
-        when(authenticationProvider.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(Maybe.error(new BadCredentialsException()));
+        when(authenticationProvider.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException())));
         AuthenticationProvider authenticationProvider2 = mock(AuthenticationProvider.class);
-        when(authenticationProvider2.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(Maybe.error(new BadCredentialsException()));
+        when(authenticationProvider2.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException())));
         when(identityProviderManager.getIdentityProvider("idp1")).thenReturn(new IdentityProvider());
         when(identityProviderManager.getIdentityProvider("idp2")).thenReturn(new IdentityProvider());
         when(identityProviderManager.get("idp1")).thenReturn(authenticationProvider);
@@ -133,7 +134,7 @@ public class ManagementAuthenticationProviderTest {
     @Test
     public void shouldAuthenticate_skipExternalProvider() {
         AuthenticationProvider authenticationProvider2 = mock(AuthenticationProvider.class);
-        when(authenticationProvider2.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(Maybe.just(new DefaultUser("username")));
+        when(authenticationProvider2.loadUserByUsername(any(io.gravitee.am.identityprovider.api.Authentication.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new DefaultUser("username"))));
         IdentityProvider externalIdp = new IdentityProvider();
         externalIdp.setExternal(true);
         when(identityProviderManager.getIdentityProvider("idp1")).thenReturn(externalIdp);

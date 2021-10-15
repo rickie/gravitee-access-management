@@ -15,15 +15,18 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.jwe;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.common.exception.oauth2.ServerErrorException;
 import io.gravitee.am.gateway.handler.oidc.service.jwe.impl.JWEServiceImpl;
 import io.gravitee.am.gateway.handler.oidc.service.jwk.JWKService;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.jose.ECKey;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.jose.OCTKey;
 import io.gravitee.am.model.jose.OKPKey;
 import io.gravitee.am.model.jose.RSAKey;
+import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 import io.reactivex.Maybe;
@@ -33,9 +36,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -117,8 +119,8 @@ public class JWEServiceTest {
         Client client = new Client();
         client.setIdTokenEncryptedResponseAlg(alg);
 
-        when(jwkService.getKeys(client)).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.filter(any(),any())).thenReturn(Maybe.empty());
+        when(jwkService.getKeys(client)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+        when(jwkService.filter(any(),any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = jweService.encryptIdToken("JWT", client).test();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -164,8 +166,8 @@ public class JWEServiceTest {
         Client client = new Client();
         client.setIdTokenEncryptedResponseAlg(alg);
 
-        when(jwkService.getKeys(client)).thenReturn(Maybe.just(new JWKSet()));
-        when(jwkService.filter(any(),any())).thenReturn(Maybe.just(jwk));
+        when(jwkService.getKeys(client)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+        when(jwkService.filter(any(),any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(jwk)));
 
         TestObserver testObserver = jweService.encryptIdToken("JWT", client).test();
         testObserver.assertError(ServerErrorException.class);

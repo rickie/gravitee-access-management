@@ -15,21 +15,21 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import static org.junit.Assert.*;
+
 import io.gravitee.am.model.AuthenticationFlowContext;
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
-
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -90,9 +90,9 @@ public class AuthenticationFlowContextRepositoryTest extends AbstractManagementT
     @Test
     public void shouldDelete() {
         AuthenticationFlowContext entity = generateAuthContext();
-        authenticationFlowContextRepository.create(entity).blockingGet();
+        RxJava2Adapter.singleToMono(authenticationFlowContextRepository.create(entity)).block();
         entity = generateAuthContext(Instant.now(), 2);
-        authenticationFlowContextRepository.create(entity).blockingGet();
+        RxJava2Adapter.singleToMono(authenticationFlowContextRepository.create(entity)).block();
 
         TestSubscriber<AuthenticationFlowContext> testList = authenticationFlowContextRepository.findByTransactionId(TRANSACTION_ID).test();
         testList.awaitTerminalEvent();
@@ -112,9 +112,9 @@ public class AuthenticationFlowContextRepositoryTest extends AbstractManagementT
     @Test
     public void shouldDeleteSingle() {
         AuthenticationFlowContext entity = generateAuthContext();
-        authenticationFlowContextRepository.create(entity).blockingGet();
+        RxJava2Adapter.singleToMono(authenticationFlowContextRepository.create(entity)).block();
         entity = generateAuthContext(Instant.now(), 2);
-        authenticationFlowContextRepository.create(entity).blockingGet();
+        RxJava2Adapter.singleToMono(authenticationFlowContextRepository.create(entity)).block();
 
         TestSubscriber<AuthenticationFlowContext> testList = authenticationFlowContextRepository.findByTransactionId(TRANSACTION_ID).test();
         testList.awaitTerminalEvent();
@@ -130,7 +130,7 @@ public class AuthenticationFlowContextRepositoryTest extends AbstractManagementT
         testList.assertNoErrors();
         testList.assertValueCount(1);
 
-        AuthenticationFlowContext readValue = authenticationFlowContextRepository.findByTransactionId(TRANSACTION_ID).blockingFirst();
+        AuthenticationFlowContext readValue = RxJava2Adapter.flowableToFlux(authenticationFlowContextRepository.findByTransactionId(TRANSACTION_ID)).blockFirst();
         assertNotNull(readValue);
         assertEquals("Expected version 2 because version 1 should be deleted", 2, readValue.getVersion());
     }
@@ -138,9 +138,9 @@ public class AuthenticationFlowContextRepositoryTest extends AbstractManagementT
     @Test
     public void shouldFind() {
         AuthenticationFlowContext entity = generateAuthContext();
-        authenticationFlowContextRepository.create(entity).blockingGet();
+        RxJava2Adapter.singleToMono(authenticationFlowContextRepository.create(entity)).block();
         entity = generateAuthContext(Instant.now(), 2);
-        authenticationFlowContextRepository.create(entity).blockingGet();
+        RxJava2Adapter.singleToMono(authenticationFlowContextRepository.create(entity)).block();
 
         TestSubscriber<AuthenticationFlowContext> testList = authenticationFlowContextRepository.findByTransactionId(TRANSACTION_ID).test();
         testList.awaitTerminalEvent();
@@ -165,9 +165,9 @@ public class AuthenticationFlowContextRepositoryTest extends AbstractManagementT
     @Test
     public void shouldNotFindExpiredData() {
         AuthenticationFlowContext entity = generateAuthContext(Instant.now().minus(10, ChronoUnit.MINUTES), 1);
-        authenticationFlowContextRepository.create(entity).blockingGet();
+        RxJava2Adapter.singleToMono(authenticationFlowContextRepository.create(entity)).block();
         entity = generateAuthContext(Instant.now(), 2);
-        authenticationFlowContextRepository.create(entity).blockingGet();
+        RxJava2Adapter.singleToMono(authenticationFlowContextRepository.create(entity)).block();
 
         TestSubscriber<AuthenticationFlowContext> testList = authenticationFlowContextRepository.findByTransactionId(TRANSACTION_ID).test();
         testList.awaitTerminalEvent();

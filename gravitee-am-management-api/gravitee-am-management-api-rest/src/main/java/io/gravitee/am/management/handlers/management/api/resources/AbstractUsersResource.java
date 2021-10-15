@@ -25,10 +25,11 @@ import io.gravitee.am.model.common.Page;
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
 import io.gravitee.am.service.DomainService;
 import io.reactivex.Single;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.inject.Named;
 import javax.ws.rs.BadRequestException;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouuan.compiegne at graviteesource.com)
@@ -69,9 +70,9 @@ public abstract class AbstractUsersResource extends AbstractResource {
                 return service.search(referenceType, referenceId, filterCriteria, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE));
             }).onErrorResumeNext(ex -> {
                 if (ex instanceof IllegalArgumentException) {
-                    return Single.error(new BadRequestException(ex.getMessage()));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new BadRequestException(ex.getMessage())));
                 }
-                return Single.error(ex);
+                return RxJava2Adapter.monoToSingle(Mono.error(ex));
             });
         }
         return service.findAll(referenceType, referenceId, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE));

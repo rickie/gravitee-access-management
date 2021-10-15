@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.service;
 
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
 import io.gravitee.am.model.application.ApplicationSettings;
@@ -27,17 +29,17 @@ import io.gravitee.am.service.model.TotalToken;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -80,9 +82,9 @@ public class TokenServiceTest {
 
         Set<Application> applications = new HashSet<>(Arrays.asList(app1, app2));
 
-        when(applicationService.findByDomain(DOMAIN)).thenReturn(Single.just(applications));
-        when(accessTokenRepository.countByClientId("app1")).thenReturn(Single.just(2l));
-        when(accessTokenRepository.countByClientId("app2")).thenReturn(Single.just(1l));
+        when(applicationService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(applications)));
+        when(accessTokenRepository.countByClientId("app1")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(2l)));
+        when(accessTokenRepository.countByClientId("app2")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(1l)));
 
         TestObserver<TotalToken> testObserver = tokenService.findTotalTokensByDomain(DOMAIN).test();
         testObserver.awaitTerminalEvent();
@@ -94,7 +96,7 @@ public class TokenServiceTest {
 
     @Test
     public void shouldFindTotalTokensByDomain_technicalException() {
-        when(applicationService.findByDomain(DOMAIN)).thenReturn(Single.error(TechnicalException::new));
+        when(applicationService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver<TotalToken> testObserver = tokenService.findTotalTokensByDomain(DOMAIN).test();
 
@@ -121,7 +123,7 @@ public class TokenServiceTest {
         app2.setSettings(app2Settings);
 
         Set<Application> applications = new HashSet<>(Arrays.asList(app1, app2));
-        when(applicationService.findByDomain(DOMAIN)).thenReturn(Single.just(applications));
+        when(applicationService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(applications)));
 
         TestObserver<TotalToken> testObserver = tokenService.findTotalTokensByDomain(DOMAIN).test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -148,9 +150,9 @@ public class TokenServiceTest {
 
         Set<Application> applications = new HashSet<>(Arrays.asList(app1, app2));
 
-        when(applicationService.findAll()).thenReturn(Single.just(applications));
-        when(accessTokenRepository.countByClientId("app1")).thenReturn(Single.just(2l));
-        when(accessTokenRepository.countByClientId("app2")).thenReturn(Single.just(1l));
+        when(applicationService.findAll()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(applications)));
+        when(accessTokenRepository.countByClientId("app1")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(2l)));
+        when(accessTokenRepository.countByClientId("app2")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(1l)));
 
         TestObserver<TotalToken> testObserver = tokenService.findTotalTokens().test();
         testObserver.awaitTerminalEvent();
@@ -162,7 +164,7 @@ public class TokenServiceTest {
 
     @Test
     public void shouldFindTotalTokens_technicalException() {
-        when(applicationService.findAll()).thenReturn(Single.error(TechnicalException::new));
+        when(applicationService.findAll()).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver<TotalToken> testObserver = tokenService.findTotalTokens().test();
 
@@ -189,7 +191,7 @@ public class TokenServiceTest {
         app2.setSettings(app2Settings);
 
         Set<Application> applications = new HashSet<>(Arrays.asList(app1, app2));
-        when(applicationService.findAll()).thenReturn(Single.just(applications));
+        when(applicationService.findAll()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(applications)));
 
         TestObserver<TotalToken> testObserver = tokenService.findTotalTokens().test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -198,8 +200,8 @@ public class TokenServiceTest {
 
     @Test
     public void shouldDeleteTokensByUser() {
-        when(accessTokenRepository.deleteByUserId("userId")).thenReturn(Completable.complete());
-        when(refreshTokenRepository.deleteByUserId("userId")).thenReturn(Completable.complete());
+        when(accessTokenRepository.deleteByUserId("userId")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(refreshTokenRepository.deleteByUserId("userId")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         TestObserver testObserver = tokenService.deleteByUserId("userId").test();
         testObserver.assertComplete();

@@ -21,6 +21,9 @@ import io.gravitee.am.resource.api.email.EmailSenderProvider;
 import io.gravitee.am.resource.smtp.SmtpResourceConfiguration;
 import io.gravitee.am.service.utils.EmailSender;
 import io.reactivex.Completable;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +31,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.util.StringUtils;
-
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -103,6 +104,6 @@ public class SmtpResourceProvider implements EmailSenderProvider {
                 LOGGER.error("Message emission fails", e);
             }
         });
-        return Completable.complete();
+        return RxJava2Adapter.monoToCompletable(Mono.empty());
     }
 }

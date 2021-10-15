@@ -15,19 +15,20 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.platform.plugins;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.plugin.CertificatePlugin;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Single;
-import org.junit.Test;
-
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.HashSet;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -41,7 +42,7 @@ public class CertificatesPluginResourceTest extends JerseySpringTest {
         certificatePlugin.setId("certificate-plugin-id");
         certificatePlugin.setName("certificate-plugin-name");
 
-        doReturn(Single.just(new HashSet<>(Arrays.asList(certificatePlugin)))).when(certificatePluginService).findAll();
+        doReturn(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Arrays.asList(certificatePlugin))))).when(certificatePluginService).findAll();
 
         final Response response = target("platform").path("plugins").path("certificates").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -49,7 +50,7 @@ public class CertificatesPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldList_technicalManagementException() {
-        doReturn(Single.error(new TechnicalManagementException("Error occurs"))).when(certificatePluginService).findAll();
+        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("Error occurs")))).when(certificatePluginService).findAll();
 
         final Response response = target("platform").path("plugins").path("certificates").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());

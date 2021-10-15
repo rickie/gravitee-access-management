@@ -24,12 +24,14 @@ import io.gravitee.am.gateway.handler.oidc.service.jwe.JWEService;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.Environment;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -56,8 +58,7 @@ public abstract class AbstractFlow implements Flow {
 
     @Override
     public Single<AuthorizationResponse> run(AuthorizationRequest authorizationRequest, Client client, User endUser) {
-        return prepareResponse(authorizationRequest, client, endUser)
-                .flatMap(response -> processResponse(response, authorizationRequest, client, endUser));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(prepareResponse(authorizationRequest, client, endUser)).flatMap(response->RxJava2Adapter.singleToMono(processResponse(response, authorizationRequest, client, endUser))));
     }
 
     protected abstract Single<AuthorizationResponse> prepareResponse(AuthorizationRequest authorizationRequest, Client client, User endUser);
@@ -65,7 +66,7 @@ public abstract class AbstractFlow implements Flow {
     private Single<AuthorizationResponse> processResponse(AuthorizationResponse authorizationResponse, AuthorizationRequest authorizationRequest, Client client, User endUser) {
         // Response Mode is not supplied by the client, process the response as usual
         if (authorizationRequest.getResponseMode() == null || !authorizationRequest.getResponseMode().endsWith("jwt")) {
-            return Single.just(authorizationResponse);
+            return RxJava2Adapter.monoToSingle(Mono.just(authorizationResponse));
         }
 
         // Create JWT Response
@@ -77,15 +78,14 @@ public abstract class AbstractFlow implements Flow {
         jwtAuthorizationResponse.setExp(Instant.now().plusSeconds(codeValidityInSec).getEpochSecond());
 
         // Sign if needed, else return unsigned JWT
-        return jwtService.encodeAuthorization(jwtAuthorizationResponse.build(), client)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.encodeAuthorization(jwtAuthorizationResponse.build(), client)
                 // Encrypt if needed, else return JWT
-                .flatMap(authorization -> jweService.encryptAuthorization(authorization, client))
-                .map(token -> {
+                .flatMap(authorization -> jweService.encryptAuthorization(authorization, client))).map(RxJavaReactorMigrationUtil.toJdkFunction(token -> {
                     jwtAuthorizationResponse.setResponseType(authorizationRequest.getResponseType());
                     jwtAuthorizationResponse.setResponseMode(authorizationRequest.getResponseMode());
                     jwtAuthorizationResponse.setToken(token);
                     return jwtAuthorizationResponse;
-                });
+                })));
     }
 
     void setApplicationContext(ApplicationContext applicationContext) {

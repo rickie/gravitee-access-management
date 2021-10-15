@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.oauth2.ClientType;
 import io.gravitee.am.common.oauth2.GrantType;
@@ -43,6 +46,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
+import java.util.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,11 +55,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.*;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -109,7 +112,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(new Application()));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
         TestObserver testObserver = applicationService.findById("my-client").test();
 
         testObserver.awaitTerminalEvent();
@@ -120,7 +123,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindById_notExistingClient() {
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.empty());
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver testObserver = applicationService.findById("my-client").test();
         testObserver.awaitTerminalEvent();
 
@@ -129,7 +132,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.error(TechnicalException::new));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
         TestObserver testObserver = new TestObserver();
         applicationService.findById("my-client").subscribe(testObserver);
 
@@ -139,7 +142,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindByDomainAndClientId() {
-        when(applicationRepository.findByDomainAndClientId(DOMAIN, "my-client")).thenReturn(Maybe.just(new Application()));
+        when(applicationRepository.findByDomainAndClientId(DOMAIN, "my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
         TestObserver testObserver = applicationService.findByDomainAndClientId(DOMAIN, "my-client").test();
 
         testObserver.awaitTerminalEvent();
@@ -150,7 +153,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindByDomainAndClientId_noApp() {
-        when(applicationRepository.findByDomainAndClientId(DOMAIN, "my-client")).thenReturn(Maybe.empty());
+        when(applicationRepository.findByDomainAndClientId(DOMAIN, "my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver testObserver = applicationService.findByDomainAndClientId(DOMAIN, "my-client").test();
         testObserver.awaitTerminalEvent();
 
@@ -159,7 +162,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindByDomainAndClientId_technicalException() {
-        when(applicationRepository.findByDomainAndClientId(DOMAIN, "my-client")).thenReturn(Maybe.error(TechnicalException::new));
+        when(applicationRepository.findByDomainAndClientId(DOMAIN, "my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
         TestObserver testObserver = new TestObserver();
         applicationService.findByDomainAndClientId(DOMAIN, "my-client").subscribe(testObserver);
 
@@ -169,7 +172,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(applicationRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page<>(Collections.singleton(new Application()), 0, 1)));
+        when(applicationRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(new Application()), 0, 1))));
         TestObserver<Set<Application>> testObserver = applicationService.findByDomain(DOMAIN).test();
         testObserver.awaitTerminalEvent();
 
@@ -180,7 +183,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(applicationRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(Single.error(TechnicalException::new));
+        when(applicationRepository.findByDomain(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver<>();
         applicationService.findByDomain(DOMAIN).subscribe(testObserver);
@@ -192,7 +195,7 @@ public class ApplicationServiceTest {
     @Test
     public void shouldFindByDomainPagination() {
         Page pageClients = new Page(Collections.singleton(new Application()), 1, 1);
-        when(applicationRepository.findByDomain(DOMAIN, 1, 1)).thenReturn(Single.just(pageClients));
+        when(applicationRepository.findByDomain(DOMAIN, 1, 1)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(pageClients)));
         TestObserver<Page<Application>> testObserver = applicationService.findByDomain(DOMAIN, 1, 1).test();
         testObserver.awaitTerminalEvent();
 
@@ -203,7 +206,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindByDomainPagination_technicalException() {
-        when(applicationRepository.findByDomain(DOMAIN, 1, 1)).thenReturn(Single.error(TechnicalException::new));
+        when(applicationRepository.findByDomain(DOMAIN, 1, 1)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver<>();
         applicationService.findByDomain(DOMAIN, 1, 1).subscribe(testObserver);
@@ -214,7 +217,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindByIdentityProvider() {
-        when(applicationRepository.findByIdentityProvider("client-idp")).thenReturn(Flowable.just(new Application()));
+        when(applicationRepository.findByIdentityProvider("client-idp")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Application())));
         TestSubscriber<Application> testSubscriber = applicationService.findByIdentityProvider("client-idp").test();
         testSubscriber.awaitTerminalEvent();
 
@@ -225,7 +228,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindByIdentityProvider_technicalException() {
-        when(applicationRepository.findByIdentityProvider("client-idp")).thenReturn(Flowable.error(TechnicalException::new));
+        when(applicationRepository.findByIdentityProvider("client-idp")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestSubscriber testSubscriber = applicationService.findByIdentityProvider("client-idp").test();
 
@@ -235,7 +238,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindByCertificate() {
-        when(applicationRepository.findByCertificate("client-certificate")).thenReturn(Flowable.just(new Application()));
+        when(applicationRepository.findByCertificate("client-certificate")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Application())));
         TestSubscriber<Application> testObserver = applicationService.findByCertificate("client-certificate").test();
         testObserver.awaitTerminalEvent();
 
@@ -246,7 +249,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindByCertificate_technicalException() {
-        when(applicationRepository.findByCertificate("client-certificate")).thenReturn(Flowable.error(TechnicalException::new));
+        when(applicationRepository.findByCertificate("client-certificate")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestSubscriber testSub = applicationService.findByCertificate("client-certificate").test();
 
@@ -256,7 +259,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindByExtensionGrant() {
-        when(applicationRepository.findByDomainAndExtensionGrant(DOMAIN, "client-extension-grant")).thenReturn(Flowable.just(new Application()));
+        when(applicationRepository.findByDomainAndExtensionGrant(DOMAIN, "client-extension-grant")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Application())));
         TestObserver<Set<Application>> testObserver = applicationService.findByDomainAndExtensionGrant(DOMAIN, "client-extension-grant").test();
         testObserver.awaitTerminalEvent();
 
@@ -267,7 +270,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindByExtensionGrant_technicalException() {
-        when(applicationRepository.findByDomainAndExtensionGrant(DOMAIN, "client-extension-grant")).thenReturn(Flowable.error(TechnicalException::new));
+        when(applicationRepository.findByDomainAndExtensionGrant(DOMAIN, "client-extension-grant")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver<>();
         applicationService.findByDomainAndExtensionGrant(DOMAIN, "client-extension-grant").subscribe(testObserver);
@@ -278,7 +281,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindAll() {
-        when(applicationRepository.findAll(0, Integer.MAX_VALUE)).thenReturn(Single.just(new Page(Collections.singleton(new Application()), 0, 1)));
+        when(applicationRepository.findAll(0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page(Collections.singleton(new Application()), 0, 1))));
         TestObserver<Set<Application>> testObserver = applicationService.findAll().test();
         testObserver.awaitTerminalEvent();
 
@@ -289,7 +292,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindAll_technicalException() {
-        when(applicationRepository.findAll(0, Integer.MAX_VALUE)).thenReturn(Single.error(TechnicalException::new));
+        when(applicationRepository.findAll(0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver<>();
         applicationService.findAll().subscribe(testObserver);
@@ -301,7 +304,7 @@ public class ApplicationServiceTest {
     @Test
     public void shouldFindAllPagination() {
         Page pageClients = new Page(Collections.singleton(new Application()), 1, 1);
-        when(applicationRepository.findAll(1, 1)).thenReturn(Single.just(pageClients));
+        when(applicationRepository.findAll(1, 1)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(pageClients)));
         TestObserver<Page<Application>> testObserver = applicationService.findAll(1, 1).test();
         testObserver.awaitTerminalEvent();
 
@@ -312,7 +315,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindAllPagination_technicalException() {
-        when(applicationRepository.findAll(1, 1)).thenReturn(Single.error(TechnicalException::new));
+        when(applicationRepository.findAll(1, 1)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver<>();
         applicationService.findAll(1, 1).subscribe(testObserver);
@@ -323,7 +326,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindTotalClientsByDomain() {
-        when(applicationRepository.countByDomain(DOMAIN)).thenReturn(Single.just(1l));
+        when(applicationRepository.countByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(1l)));
         TestObserver<Long> testObserver = applicationService.countByDomain(DOMAIN).test();
 
         testObserver.awaitTerminalEvent();
@@ -335,7 +338,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindTotalClientsByDomain_technicalException() {
-        when(applicationRepository.countByDomain(DOMAIN)).thenReturn(Single.error(TechnicalException::new));
+        when(applicationRepository.countByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver<>();
         applicationService.countByDomain(DOMAIN).subscribe(testObserver);
@@ -346,7 +349,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindTotalClients() {
-        when(applicationRepository.count()).thenReturn(Single.just(1l));
+        when(applicationRepository.count()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(1l)));
         TestObserver<Long> testObserver = applicationService.count().test();
 
         testObserver.awaitTerminalEvent();
@@ -358,7 +361,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldFindTotalClients_technicalException() {
-        when(applicationRepository.count()).thenReturn(Single.error(TechnicalException::new));
+        when(applicationRepository.count()).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver<>();
         applicationService.count().subscribe(testObserver);
@@ -373,19 +376,19 @@ public class ApplicationServiceTest {
         Application createClient = Mockito.mock(Application.class);
         when(newClient.getName()).thenReturn("my-client");
         when(newClient.getType()).thenReturn(ApplicationType.SERVICE);
-        when(applicationRepository.findByDomainAndClientId(DOMAIN, null)).thenReturn(Maybe.empty());
-        when(applicationRepository.create(any(Application.class))).thenReturn(Single.just(createClient));
-        when(domainService.findById(anyString())).thenReturn(Maybe.just(new Domain()));
-        when(scopeService.validateScope(anyString(), any())).thenReturn(Single.just(true));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(applicationRepository.findByDomainAndClientId(DOMAIN, null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(applicationRepository.create(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(createClient)));
+        when(domainService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(scopeService.validateScope(anyString(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
         doAnswer(invocation -> {
             Application mock = invocation.getArgument(0);
             mock.getSettings().getOauth().setGrantTypes(Collections.singletonList(GrantType.CLIENT_CREDENTIALS));
             return mock;
         }).when(applicationTemplateManager).apply(any());
-        when(membershipService.addOrUpdate(eq(ORGANIZATION_ID), any())).thenReturn(Single.just(new Membership()));
-        when(roleService.findSystemRole(SystemRole.APPLICATION_PRIMARY_OWNER, ReferenceType.APPLICATION)).thenReturn(Maybe.just(new Role()));
-        when(certificateService.findByDomain(DOMAIN)).thenReturn(Flowable.empty());
+        when(membershipService.addOrUpdate(eq(ORGANIZATION_ID), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Membership())));
+        when(roleService.findSystemRole(SystemRole.APPLICATION_PRIMARY_OWNER, ReferenceType.APPLICATION)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Role())));
+        when(certificateService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
 
         DefaultUser user = new DefaultUser("username");
         user.setAdditionalInformation(Collections.singletonMap(Claims.organization, ORGANIZATION_ID));
@@ -405,7 +408,7 @@ public class ApplicationServiceTest {
     public void shouldCreate_technicalException() {
         NewApplication newClient = Mockito.mock(NewApplication.class);
         when(newClient.getName()).thenReturn("my-client");
-        when(applicationRepository.findByDomainAndClientId(DOMAIN, null)).thenReturn(Maybe.error(TechnicalException::new));
+        when(applicationRepository.findByDomainAndClientId(DOMAIN, null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver<Application> testObserver = new TestObserver<>();
         applicationService.create(DOMAIN, newClient).subscribe(testObserver);
@@ -427,11 +430,11 @@ public class ApplicationServiceTest {
             mock.getSettings().getOauth().setGrantTypes(Collections.singletonList(GrantType.CLIENT_CREDENTIALS));
             return mock;
         }).when(applicationTemplateManager).apply(any());
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
-        when(scopeService.validateScope(anyString(), any())).thenReturn(Single.just(true));
-        when(certificateService.findByDomain(DOMAIN)).thenReturn(Flowable.empty());
-        when(applicationRepository.findByDomainAndClientId(DOMAIN, null)).thenReturn(Maybe.empty());
-        when(applicationRepository.create(any(Application.class))).thenReturn(Single.error(TechnicalException::new));
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(scopeService.validateScope(anyString(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
+        when(certificateService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(applicationRepository.findByDomainAndClientId(DOMAIN, null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(applicationRepository.create(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver<Application> testObserver = new TestObserver<>();
         applicationService.create(DOMAIN, newClient).subscribe(testObserver);
@@ -445,7 +448,7 @@ public class ApplicationServiceTest {
     public void shouldCreate_clientAlreadyExists() {
         NewApplication newClient = Mockito.mock(NewApplication.class);
         when(newClient.getName()).thenReturn("my-client");
-        when(applicationRepository.findByDomainAndClientId(DOMAIN, null)).thenReturn(Maybe.just(new Application()));
+        when(applicationRepository.findByDomainAndClientId(DOMAIN, null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
 
         TestObserver<Application> testObserver = new TestObserver<>();
         applicationService.create(DOMAIN, newClient).subscribe(testObserver);
@@ -465,8 +468,8 @@ public class ApplicationServiceTest {
 
     @Test
     public void create_implicit_invalidRedirectUri() {
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
-        when(applicationRepository.findByDomainAndClientId(DOMAIN, null)).thenReturn(Maybe.empty());
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(applicationRepository.findByDomainAndClientId(DOMAIN, null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         Application toCreate = new Application();
         toCreate.setDomain(DOMAIN);
@@ -491,11 +494,11 @@ public class ApplicationServiceTest {
         Application createClient = Mockito.mock(Application.class);
         when(newClient.getName()).thenReturn("my-client");
         when(newClient.getType()).thenReturn(ApplicationType.SERVICE);
-        when(applicationRepository.findByDomainAndClientId(DOMAIN, "client_id")).thenReturn(Maybe.empty());
-        when(applicationRepository.create(any(Application.class))).thenReturn(Single.just(createClient));
-        when(domainService.findById(anyString())).thenReturn(Maybe.just(new Domain()));
-        when(scopeService.validateScope(anyString(), any())).thenReturn(Single.just(true));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(applicationRepository.findByDomainAndClientId(DOMAIN, "client_id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(applicationRepository.create(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(createClient)));
+        when(domainService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(scopeService.validateScope(anyString(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
         doAnswer(invocation -> {
             Application mock = invocation.getArgument(0);
             mock.getSettings().getOauth().setGrantTypes(Collections.singletonList(GrantType.CLIENT_CREDENTIALS));
@@ -503,7 +506,7 @@ public class ApplicationServiceTest {
             mock.getSettings().getOauth().setClientSecret("client_secret");
             return mock;
         }).when(applicationTemplateManager).apply(any());
-        when(certificateService.findByDomain(DOMAIN)).thenReturn(Flowable.empty());
+        when(certificateService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
 
         TestObserver testObserver = applicationService.create(DOMAIN, newClient).test();
         testObserver.awaitTerminalEvent();
@@ -542,13 +545,13 @@ public class ApplicationServiceTest {
         IdentityProvider idp2 = new IdentityProvider();
         idp2.setId("idp2");
 
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(toPatch));
-        when(identityProviderService.findById("id1")).thenReturn(Maybe.just(idp1));
-        when(identityProviderService.findById("id2")).thenReturn(Maybe.just(idp2));
-        when(applicationRepository.update(any(Application.class))).thenReturn(Single.just(new Application()));
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(scopeService.validateScope(DOMAIN, new ArrayList<>())).thenReturn(Single.just(true));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(toPatch)));
+        when(identityProviderService.findById("id1")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(idp1)));
+        when(identityProviderService.findById("id2")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(idp2)));
+        when(applicationRepository.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(scopeService.validateScope(DOMAIN, new ArrayList<>())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
 
         TestObserver<Application> testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.awaitTerminalEvent();
@@ -580,8 +583,8 @@ public class ApplicationServiceTest {
         patchApplicationSettings.setPasswordSettings(Optional.empty());
         patchClient.setSettings(Optional.of(patchApplicationSettings));
 
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(client));
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.awaitTerminalEvent();
@@ -595,7 +598,7 @@ public class ApplicationServiceTest {
     @Test
     public void shouldUpdate_technicalException() {
         PatchApplication patchClient = Mockito.mock(PatchApplication.class);
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.error(TechnicalException::new));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -608,7 +611,7 @@ public class ApplicationServiceTest {
     @Test
     public void shouldUpdate2_technicalException() {
         PatchApplication patchClient = Mockito.mock(PatchApplication.class);
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.error(TechnicalException::new));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -621,7 +624,7 @@ public class ApplicationServiceTest {
     @Test
     public void shouldUpdate_clientNotFound() {
         PatchApplication patchClient = Mockito.mock(PatchApplication.class);
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.empty());
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
 
@@ -642,8 +645,8 @@ public class ApplicationServiceTest {
     @Test
     public void update_implicitGrant_invalidRedirectUri() {
 
-        when(applicationRepository.findById(any())).thenReturn(Maybe.just(new Application()));
-        when(domainService.findById(any())).thenReturn(Maybe.just(new Domain()));
+        when(applicationRepository.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
+        when(domainService.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
 
         Application toPatch = new Application();
         toPatch.setDomain(DOMAIN);
@@ -666,11 +669,11 @@ public class ApplicationServiceTest {
 
     @Test
     public void update_defaultGrant_ok() {
-        when(applicationRepository.findById(any())).thenReturn(Maybe.just(new Application()));
-        when(applicationRepository.update(any(Application.class))).thenReturn(Single.just(new Application()));
-        when(domainService.findById(any())).thenReturn(Maybe.just(new Domain()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(scopeService.validateScope(any(), any())).thenReturn(Single.just(true));
+        when(applicationRepository.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
+        when(applicationRepository.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
+        when(domainService.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(scopeService.validateScope(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
 
         Application toPatch = new Application();
         toPatch.setDomain(DOMAIN);
@@ -693,11 +696,11 @@ public class ApplicationServiceTest {
 
     @Test
     public void update_clientCredentials_ok() {
-        when(applicationRepository.findById(any())).thenReturn(Maybe.just(new Application()));
-        when(applicationRepository.update(any(Application.class))).thenReturn(Single.just(new Application()));
-        when(domainService.findById(any())).thenReturn(Maybe.just(new Domain()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(scopeService.validateScope(any(), any())).thenReturn(Single.just(true));
+        when(applicationRepository.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
+        when(applicationRepository.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
+        when(domainService.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(scopeService.validateScope(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
 
         Application toPatch = new Application();
         toPatch.setDomain(DOMAIN);
@@ -739,13 +742,13 @@ public class ApplicationServiceTest {
         patchApplicationSettings.setPasswordSettings(Optional.empty());
         patchClient.setSettings(Optional.of(patchApplicationSettings));
 
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(client));
-        when(identityProviderService.findById("id1")).thenReturn(Maybe.just(idp1));
-        when(identityProviderService.findById("id2")).thenReturn(Maybe.just(idp2));
-        when(applicationRepository.update(any(Application.class))).thenReturn(Single.just(new Application()));
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(scopeService.validateScope(DOMAIN, new ArrayList<>())).thenReturn(Single.just(true));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(identityProviderService.findById("id1")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(idp1)));
+        when(identityProviderService.findById("id2")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(idp2)));
+        when(applicationRepository.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(scopeService.validateScope(DOMAIN, new ArrayList<>())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.awaitTerminalEvent();
@@ -785,13 +788,13 @@ public class ApplicationServiceTest {
         patchApplicationSettings.setAccount(Optional.of(accountSettings));
         patchClient.setSettings(Optional.of(patchApplicationSettings));
 
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(client));
-        when(identityProviderService.findById("id1")).thenReturn(Maybe.just(idp1));
-        when(identityProviderService.findById("id2")).thenReturn(Maybe.just(idp2));
-        when(applicationRepository.update(any(Application.class))).thenReturn(Single.just(new Application()));
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(scopeService.validateScope(DOMAIN, new ArrayList<>())).thenReturn(Single.just(true));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(identityProviderService.findById("id1")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(idp1)));
+        when(identityProviderService.findById("id2")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(idp2)));
+        when(applicationRepository.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(scopeService.validateScope(DOMAIN, new ArrayList<>())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.awaitTerminalEvent();
@@ -831,7 +834,7 @@ public class ApplicationServiceTest {
         patchApplicationSettings.setAccount(Optional.of(accountSettings));
         patchClient.setSettings(Optional.of(patchApplicationSettings));
 
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(client));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.awaitTerminalEvent();
@@ -858,11 +861,11 @@ public class ApplicationServiceTest {
         patchApplicationSettings.setPasswordSettings(Optional.empty());
         patchClient.setSettings(Optional.of(patchApplicationSettings));
 
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(client));
-        when(applicationRepository.update(any(Application.class))).thenReturn(Single.just(new Application()));
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(scopeService.validateScope(DOMAIN, new ArrayList<>())).thenReturn(Single.just(true));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(applicationRepository.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(scopeService.validateScope(DOMAIN, new ArrayList<>())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.awaitTerminalEvent();
@@ -888,11 +891,11 @@ public class ApplicationServiceTest {
         patchApplicationSettings.setPasswordSettings(Optional.empty());
         patchClient.setSettings(Optional.of(patchApplicationSettings));
 
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(client));
-        when(applicationRepository.update(any(Application.class))).thenReturn(Single.just(new Application()));
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(scopeService.validateScope(DOMAIN, new ArrayList<>())).thenReturn(Single.just(true));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(applicationRepository.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(scopeService.validateScope(DOMAIN, new ArrayList<>())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.awaitTerminalEvent();
@@ -909,21 +912,21 @@ public class ApplicationServiceTest {
         Application existingClient = Mockito.mock(Application.class);
         when(existingClient.getId()).thenReturn("my-client");
         when(existingClient.getDomain()).thenReturn("my-domain");
-        when(applicationRepository.findById(existingClient.getId())).thenReturn(Maybe.just(existingClient));
-        when(applicationRepository.delete(existingClient.getId())).thenReturn(Completable.complete());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(applicationRepository.findById(existingClient.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingClient)));
+        when(applicationRepository.delete(existingClient.getId())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
         Form form = new Form();
         form.setId("form-id");
-        when(formService.findByDomainAndClient(existingClient.getDomain(), existingClient.getId())).thenReturn(Flowable.just(form));
-        when(formService.delete(eq("my-domain"), eq(form.getId()))).thenReturn(Completable.complete());
+        when(formService.findByDomainAndClient(existingClient.getDomain(), existingClient.getId())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(form)));
+        when(formService.delete(eq("my-domain"), eq(form.getId()))).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         Email email = new Email();
         email.setId("email-id");
-        when(emailTemplateService.findByClient(ReferenceType.DOMAIN, existingClient.getDomain(), existingClient.getId())).thenReturn(Flowable.just(email));
-        when(emailTemplateService.delete(email.getId())).thenReturn(Completable.complete());
+        when(emailTemplateService.findByClient(ReferenceType.DOMAIN, existingClient.getDomain(), existingClient.getId())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(email)));
+        when(emailTemplateService.delete(email.getId())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
         Membership membership = new Membership();
         membership.setId("membership-id");
-        when(membershipService.findByReference(existingClient.getId(), ReferenceType.APPLICATION)).thenReturn(Flowable.just(membership));
-        when(membershipService.delete(anyString())).thenReturn(Completable.complete());
+        when(membershipService.findByReference(existingClient.getId(), ReferenceType.APPLICATION)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(membership)));
+        when(membershipService.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
 
         TestObserver testObserver = applicationService.delete(existingClient.getId()).test();
         testObserver.awaitTerminalEvent();
@@ -942,12 +945,12 @@ public class ApplicationServiceTest {
         Application existingClient = Mockito.mock(Application.class);
         when(existingClient.getDomain()).thenReturn("my-domain");
         when(existingClient.getId()).thenReturn("my-client");
-        when(applicationRepository.findById(existingClient.getId())).thenReturn(Maybe.just(existingClient));
-        when(applicationRepository.delete(existingClient.getId())).thenReturn(Completable.complete());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(formService.findByDomainAndClient(existingClient.getDomain(), existingClient.getId())).thenReturn(Flowable.empty());
-        when(emailTemplateService.findByClient(ReferenceType.DOMAIN, existingClient.getDomain(), existingClient.getId())).thenReturn(Flowable.empty());
-        when(membershipService.findByReference(existingClient.getId(), ReferenceType.APPLICATION)).thenReturn(Flowable.empty());
+        when(applicationRepository.findById(existingClient.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingClient)));
+        when(applicationRepository.delete(existingClient.getId())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(formService.findByDomainAndClient(existingClient.getDomain(), existingClient.getId())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(emailTemplateService.findByClient(ReferenceType.DOMAIN, existingClient.getDomain(), existingClient.getId())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(membershipService.findByReference(existingClient.getId(), ReferenceType.APPLICATION)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
 
         TestObserver testObserver = applicationService.delete(existingClient.getId()).test();
         testObserver.awaitTerminalEvent();
@@ -963,8 +966,8 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(new Application()));
-        when(applicationRepository.delete(anyString())).thenReturn(Completable.error(TechnicalException::new));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
+        when(applicationRepository.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(TechnicalException::new)));
 
         TestObserver testObserver = applicationService.delete("my-client").test();
         testObserver.awaitTerminalEvent();
@@ -975,7 +978,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldDelete2_technicalException() {
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.error(TechnicalException::new));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = applicationService.delete("my-client").test();
         testObserver.awaitTerminalEvent();
@@ -986,7 +989,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldDelete_clientNotFound() {
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.empty());
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = applicationService.delete("my-client").test();
         testObserver.awaitTerminalEvent();
@@ -1011,8 +1014,8 @@ public class ApplicationServiceTest {
         client.setSettings(settings);
 
         when(patchClient.patch(any())).thenReturn(client);
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(new Application()));
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.assertError(InvalidRedirectUriException.class);
@@ -1036,8 +1039,8 @@ public class ApplicationServiceTest {
         client.setSettings(settings);
 
         when(patchClient.patch(any())).thenReturn(client);
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(new Application()));
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.assertError(InvalidRedirectUriException.class);
@@ -1061,8 +1064,8 @@ public class ApplicationServiceTest {
         client.setSettings(settings);
 
         when(patchClient.patch(any())).thenReturn(client);
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(new Application()));
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.assertError(InvalidRedirectUriException.class);
@@ -1086,8 +1089,8 @@ public class ApplicationServiceTest {
         client.setSettings(settings);
 
         when(patchClient.patch(any())).thenReturn(client);
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(new Application()));
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.assertError(InvalidRedirectUriException.class);
@@ -1111,8 +1114,8 @@ public class ApplicationServiceTest {
         client.setSettings(settings);
 
         when(patchClient.patch(any())).thenReturn(client);
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(new Application()));
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.assertError(InvalidRedirectUriException.class);
@@ -1136,7 +1139,7 @@ public class ApplicationServiceTest {
         client.setSettings(settings);
 
         when(patchClient.patch(any())).thenReturn(client);
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(new Application()));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -1161,7 +1164,7 @@ public class ApplicationServiceTest {
         client.setSettings(settings);
 
         when(patchClient.patch(any())).thenReturn(client);
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(new Application()));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -1186,11 +1189,11 @@ public class ApplicationServiceTest {
         client.setSettings(settings);
 
         when(patchClient.patch(any())).thenReturn(client);
-        when(domainService.findById(DOMAIN)).thenReturn(Maybe.just(new Domain()));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(new Application()));
-        when(applicationRepository.update(any(Application.class))).thenReturn(Single.just(new Application()));
-        when(scopeService.validateScope(DOMAIN, Collections.emptyList())).thenReturn(Single.just(true));
+        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Domain())));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
+        when(applicationRepository.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
+        when(scopeService.validateScope(DOMAIN, Collections.emptyList())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
 
         TestObserver testObserver = applicationService.patch(DOMAIN, "my-client", patchClient).test();
         testObserver.awaitTerminalEvent();
@@ -1211,9 +1214,9 @@ public class ApplicationServiceTest {
         applicationSettings.setOauth(applicationOAuthSettings);
         client.setSettings(applicationSettings);
 
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.just(client));
-        when(applicationRepository.update(any(Application.class))).thenReturn(Single.just(new Application()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(applicationRepository.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
 
         TestObserver testObserver = applicationService.renewClientSecret(DOMAIN, "my-client").test();
         testObserver.awaitTerminalEvent();
@@ -1227,7 +1230,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldRenewSecret_clientNotFound() {
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.empty());
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = applicationService.renewClientSecret(DOMAIN, "my-client").test();
         testObserver.awaitTerminalEvent();
@@ -1240,7 +1243,7 @@ public class ApplicationServiceTest {
 
     @Test
     public void shouldRenewSecret_technicalException() {
-        when(applicationRepository.findById("my-client")).thenReturn(Maybe.error(TechnicalException::new));
+        when(applicationRepository.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = applicationService.renewClientSecret(DOMAIN, "my-client").test();
         testObserver.awaitTerminalEvent();

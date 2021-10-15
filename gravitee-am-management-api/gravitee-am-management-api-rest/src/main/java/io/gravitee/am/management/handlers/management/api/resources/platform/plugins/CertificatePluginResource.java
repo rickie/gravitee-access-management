@@ -22,7 +22,6 @@ import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +32,8 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -55,9 +56,8 @@ public class CertificatePluginResource {
             @PathParam("certificate") String certificateId,
             @Suspended final AsyncResponse response) {
 
-        certificatePluginService.findById(certificateId)
-                .map(extensionGrantPlugin -> Response.ok(certificateId).build())
-                .switchIfEmpty(Maybe.error(new CertificatePluginNotFoundException(certificateId)))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificatePluginService.findById(certificateId)
+                .map(extensionGrantPlugin -> Response.ok(certificateId).build())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new CertificatePluginNotFoundException(certificateId))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -71,11 +71,10 @@ public class CertificatePluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the certificate exists
-        certificatePluginService.findById(certificateId)
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificatePluginService.findById(certificateId)
                 .switchIfEmpty(Maybe.error(new CertificatePluginNotFoundException(certificateId)))
                 .flatMap(irrelevant -> certificatePluginService.getSchema(certificateId))
-                .switchIfEmpty(Maybe.error(new CertificatePluginSchemaNotFoundException(certificateId)))
-                .map(certificatePluginSchema -> Response.ok(certificatePluginSchema).build())
+                .switchIfEmpty(Maybe.error(new CertificatePluginSchemaNotFoundException(certificateId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificatePluginSchema -> Response.ok(certificatePluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

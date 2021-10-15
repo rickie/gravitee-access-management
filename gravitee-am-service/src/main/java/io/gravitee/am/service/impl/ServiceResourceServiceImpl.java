@@ -38,16 +38,20 @@ import io.gravitee.am.service.model.UpdateServiceResource;
 import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.ServiceResourceAuditBuilder;
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.functions.Function;
+import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -80,19 +84,18 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
         return serviceResourceRepository.findById(id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a resource using its ID: {}", id, ex);
-                    return Maybe.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a resource using its ID: %s", id), ex));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a resource using its ID: %s", id), ex)));
                 });
     }
 
     @Override
     public Flowable<ServiceResource> findByDomain(String domain) {
         LOGGER.debug("Find resources by domain: {}", domain);
-        return serviceResourceRepository.findByReference(ReferenceType.DOMAIN, domain)
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(serviceResourceRepository.findByReference(ReferenceType.DOMAIN, domain)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find resources by domain", ex);
                     return Flowable.error(new TechnicalManagementException("An error occurs while trying to find resources by domain", ex));
-                });
+                })));
     }
 
     @Override
@@ -108,7 +111,7 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
         resource.setCreatedAt(new Date());
         resource.setUpdatedAt(resource.getCreatedAt());
 
-        return serviceResourceRepository.create(resource)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(serviceResourceRepository.create(resource)
                 .flatMap(resource1 -> {
                     // send sync event to refresh plugins that are using this resource
                     Event event = new Event(Type.RESOURCE, new Payload(resource1.getId(), resource1.getReferenceType(), resource1.getReferenceId(), Action.CREATE));
@@ -122,45 +125,42 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
                     LOGGER.error("An error occurs while trying to create a resource", ex);
                     return Single.error(new TechnicalManagementException("An error occurs while trying to create a resource", ex));
                 })
-                .doOnSuccess(factor1 -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).resource(factor1)))
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).throwable(throwable)));
+                .doOnSuccess(factor1 -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).resource(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).throwable(throwable)))));
     }
 
     @Override
     public Single<ServiceResource> update(String domain, String id, UpdateServiceResource updateResource, User principal) {
         LOGGER.debug("Update a resource {} for domain {}", id, domain);
 
-        return serviceResourceRepository.findById(id)
-                .switchIfEmpty(Maybe.error(new ServiceResourceNotFoundException(id)))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(serviceResourceRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ServiceResourceNotFoundException(id))))))
                 .flatMapSingle(oldServiceResource -> {
                     ServiceResource factorToUpdate = new ServiceResource(oldServiceResource);
                     factorToUpdate.setName(updateResource.getName());
                     factorToUpdate.setConfiguration(updateResource.getConfiguration());
                     factorToUpdate.setUpdatedAt(new Date());
 
-                    return serviceResourceRepository.update(factorToUpdate)
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(serviceResourceRepository.update(factorToUpdate)
                             .flatMap(resource1 -> {
                                 // send sync event to refresh plugins that are using this resource
                                 Event event = new Event(Type.RESOURCE, new Payload(resource1.getId(), resource1.getReferenceType(), resource1.getReferenceId(), Action.UPDATE));
                                 return eventService.create(event).flatMap(__ -> Single.just(resource1));
                             })
-                            .doOnSuccess(factor1 -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_UPDATED).oldValue(oldServiceResource).resource(factor1)))
-                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_UPDATED).throwable(throwable)));
+                            .doOnSuccess(factor1 -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_UPDATED).oldValue(oldServiceResource).resource(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_UPDATED).throwable(throwable)))));
                 })
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
 
                     LOGGER.error("An error occurs while trying to update a resource", ex);
-                    return Single.error(new TechnicalManagementException("An error occurs while trying to update a resource", ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a resource", ex)));
                 });
     }
 
     @Override
     public Completable delete(String domain, String resourceId, User principal) {
         LOGGER.debug("Delete resource {}", resourceId);
-        return serviceResourceRepository.findById(resourceId)
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(serviceResourceRepository.findById(resourceId)
                 .switchIfEmpty(Maybe.error(new ServiceResourceNotFoundException(resourceId)))
                 .flatMapSingle(resource ->
                     factorService.findByDomain(domain)
@@ -174,24 +174,22 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
                                         }
                                     }
                             )
-                )
-                .flatMapCompletable(resource -> {
+                )).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<ServiceResource, CompletableSource>)resource -> {
                             Event event = new Event(Type.RESOURCE, new Payload(resource.getId(), resource.getReferenceType(), resource.getReferenceId(), Action.DELETE));
                             return serviceResourceRepository.delete(resourceId)
                                     .andThen(eventService.create(event))
                                     .ignoreElement()
                                     .doOnComplete(() -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_DELETED).resource(resource)))
                                     .doOnError(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_DELETED).throwable(throwable)));
-                        }
-                )
+                        }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Completable.error(ex);
+                        return RxJava2Adapter.monoToCompletable(Mono.error(ex));
                     }
 
                     LOGGER.error("An error occurs while trying to delete resource: {}", resourceId, ex);
-                    return Completable.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to delete resource: %s", resourceId), ex));
+                    return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to delete resource: %s", resourceId), ex)));
                 });
     }
 }

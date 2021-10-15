@@ -15,21 +15,22 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.repository.management.api.OrganizationRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.OrganizationMongo;
 import io.reactivex.*;
+import java.util.List;
+import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-
-import java.util.List;
-
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.in;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -49,15 +50,14 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
 
     @Override
     public Flowable<Organization> findByHrids(List<String> hrids) {
-        return Flowable.fromPublisher(collection.find(in(HRID_KEY, hrids))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(collection.find(in(HRID_KEY, hrids)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Organization> findById(String id) {
 
-        return Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first())
-                .firstElement()
-                .map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first())
+                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -65,20 +65,18 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
 
         organization.setId(organization.getId() == null ? RandomString.generate() : organization.getId());
 
-        return Single.fromPublisher(collection.insertOne(convert(organization)))
-                .flatMap(success -> findById(organization.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(organization)))).flatMap(success->RxJava2Adapter.singleToMono(findById(organization.getId()).toSingle())));
     }
 
     @Override
     public Single<Organization> update(Organization organization) {
 
-        return Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, organization.getId()), convert(organization)))
-                .flatMap(updateResult -> findById(organization.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, organization.getId()), convert(organization)))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(organization.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(collection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id))));
     }
 
     @Override

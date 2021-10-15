@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.handler;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.certificate.CertificateProvider;
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
@@ -31,17 +34,15 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.vertx.core.http.HttpMethod;
+import java.util.Collections;
+import java.util.Date;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.exceptions.misusing.InvalidUseOfMatchersException;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-import java.util.Date;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -66,8 +67,8 @@ public class SSOSessionHandlerTest extends RxWebTestBase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        when(authenticationFlowContextService.clearContext(any())).thenReturn(Completable.complete());
-        when(jwtService.encode(any(JWT.class), (CertificateProvider) eq(null))).thenReturn(Single.just("token"));
+        when(authenticationFlowContextService.clearContext(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(jwtService.encode(any(JWT.class), (CertificateProvider) eq(null))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just("token")));
 
         router.route("/login")
                 .handler(new CookieSessionHandler(jwtService, certificateManager, userService, "am-cookie", 30 * 60 * 60))
@@ -150,8 +151,8 @@ public class SSOSessionHandlerTest extends RxWebTestBase {
         client.setId("client-id");
         client.setClientId("test-client");
 
-        when(clientSyncService.findById(anyString())).thenReturn(Maybe.empty());
-        when(clientSyncService.findByClientId(client.getClientId())).thenReturn(Maybe.just(client));
+        when(clientSyncService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(clientSyncService.findByClientId(client.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
 
         router.route().order(-1).handler(routingContext -> {
             routingContext.setUser(new io.vertx.reactivex.ext.auth.User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user)));
@@ -180,14 +181,14 @@ public class SSOSessionHandlerTest extends RxWebTestBase {
         requestedClient.setClientId("requested-client");
         requestedClient.setIdentities(Collections.singleton("idp-1"));
 
-        when(clientSyncService.findById(anyString())).thenReturn(Maybe.empty()).thenReturn(Maybe.empty());
+        when(clientSyncService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         when(clientSyncService.findByClientId(anyString())).thenAnswer(
                 invocation -> {
                     String argument = invocation.getArgument(0);
                     if (argument.equals("test-client")) {
-                        return Maybe.just(client);
+                        return RxJava2Adapter.monoToMaybe(Mono.just(client));
                     } else if (argument.equals("requested-client")) {
-                        return Maybe.just(requestedClient);
+                        return RxJava2Adapter.monoToMaybe(Mono.just(requestedClient));
                     }
                     throw new InvalidUseOfMatchersException(
                             String.format("Argument %s does not match", argument)
@@ -222,14 +223,14 @@ public class SSOSessionHandlerTest extends RxWebTestBase {
         requestedClient.setClientId("requested-client");
         requestedClient.setIdentities(Collections.singleton("idp-2"));
 
-        when(clientSyncService.findById(anyString())).thenReturn(Maybe.empty());
+        when(clientSyncService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         when(clientSyncService.findByClientId(anyString())).thenAnswer(
                 invocation -> {
                     String argument = invocation.getArgument(0);
                     if (argument.equals("test-client")) {
-                        return Maybe.just(client);
+                        return RxJava2Adapter.monoToMaybe(Mono.just(client));
                     } else if (argument.equals("requested-client")) {
-                        return Maybe.just(requestedClient);
+                        return RxJava2Adapter.monoToMaybe(Mono.just(requestedClient));
                     }
                     throw new InvalidUseOfMatchersException(
                             String.format("Argument %s does not match", argument)

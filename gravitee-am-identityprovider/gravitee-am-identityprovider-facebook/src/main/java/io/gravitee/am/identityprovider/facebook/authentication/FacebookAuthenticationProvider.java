@@ -15,29 +15,35 @@
  */
 package io.gravitee.am.identityprovider.facebook.authentication;
 
+import static io.gravitee.am.identityprovider.facebook.model.FacebookUser.*;
+
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.identityprovider.api.*;
+import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.identityprovider.common.oauth2.authentication.AbstractSocialAuthenticationProvider;
 import io.gravitee.am.identityprovider.facebook.FacebookIdentityProviderConfiguration;
 import io.gravitee.am.identityprovider.facebook.authentication.spring.FacebookAuthenticationProviderConfiguration;
 import io.gravitee.am.identityprovider.facebook.model.FacebookUser;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.MultiMap;
+import io.vertx.reactivex.core.buffer.Buffer;
+import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static io.gravitee.am.identityprovider.facebook.model.FacebookUser.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -89,8 +95,7 @@ public class FacebookAuthenticationProvider extends AbstractSocialAuthentication
 
     @Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
-        return authenticate(authentication)
-                .flatMap(token -> this.profile(token, authentication));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticate(authentication)).flatMap(z->this.profile(z, authentication).as(RxJava2Adapter::maybeToMono)));
     }
 
     protected Maybe<Token> authenticate(Authentication authentication) {
@@ -100,7 +105,7 @@ public class FacebookAuthenticationProvider extends AbstractSocialAuthentication
 
         if (authorizationCode == null || authorizationCode.isEmpty()) {
             LOGGER.debug("Authorization code is missing, skip authentication");
-            return Maybe.error(new BadCredentialsException("Missing authorization code"));
+            return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Missing authorization code")));
         }
 
         MultiMap form = MultiMap.caseInsensitiveMultiMap()
@@ -109,32 +114,31 @@ public class FacebookAuthenticationProvider extends AbstractSocialAuthentication
                 .set(REDIRECT_URI, (String) authentication.getContext().get(REDIRECT_URI))
                 .set(CODE, authorizationCode);
 
-        return client.postAbs(configuration.getAccessTokenUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(client.postAbs(configuration.getAccessTokenUri())
                 .rxSendForm(form)
-                .toMaybe()
-                .flatMap(httpResponse -> {
+                .toMaybe()).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<Token>>toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                         return Maybe.error(new BadCredentialsException(httpResponse.bodyAsString()));
+
                     }
 
                     return Maybe.just(new Token(httpResponse.bodyAsJsonObject().getString(ACCESS_TOKEN), TokenTypeHint.ACCESS_TOKEN));
-                });
+                }).apply(v)))));
     }
 
     protected Maybe<User> profile(Token accessToken, Authentication auth) {
 
-        return client.postAbs(configuration.getUserProfileUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(client.postAbs(configuration.getUserProfileUri())
                 .rxSendForm(MultiMap.caseInsensitiveMultiMap()
                         .set(ACCESS_TOKEN, accessToken.getValue())
                         .set(FIELDS, ALL_FIELDS_PARAM))
-                .toMaybe()
-                .flatMap(httpResponse -> {
+                .toMaybe()).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<User>>toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                        return Maybe.error(new BadCredentialsException(httpResponse.bodyAsString()));
                     }
 
                     return Maybe.just(convert(auth.getContext(), httpResponse.bodyAsJsonObject()));
-                });
+                }).apply(v)))));
     }
 
     private User convert(AuthenticationContext authContext, JsonObject facebookUser) {

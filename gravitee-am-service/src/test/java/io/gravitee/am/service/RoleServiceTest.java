@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.service;
 
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.Role;
@@ -32,20 +36,19 @@ import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
-
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -71,7 +74,7 @@ public class RoleServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(roleRepository.findById("my-role")).thenReturn(Maybe.just(new Role()));
+        when(roleRepository.findById("my-role")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Role())));
         TestObserver testObserver = roleService.findById("my-role").test();
 
         testObserver.awaitTerminalEvent();
@@ -82,7 +85,7 @@ public class RoleServiceTest {
 
     @Test
     public void shouldFindById_notExistingRole() {
-        when(roleRepository.findById("my-role")).thenReturn(Maybe.empty());
+        when(roleRepository.findById("my-role")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
         TestObserver testObserver = roleService.findById("my-role").test();
         testObserver.awaitTerminalEvent();
 
@@ -91,7 +94,7 @@ public class RoleServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(roleRepository.findById("my-role")).thenReturn(Maybe.error(TechnicalException::new));
+        when(roleRepository.findById("my-role")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
         TestObserver testObserver = new TestObserver();
         roleService.findById("my-role").subscribe(testObserver);
 
@@ -101,7 +104,7 @@ public class RoleServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(new Role()));
+        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Role())));
         TestObserver<Set<Role>> testObserver = roleService.findByDomain(DOMAIN).test();
         testObserver.awaitTerminalEvent();
 
@@ -112,7 +115,7 @@ public class RoleServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.error(TechnicalManagementException::new));
+        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalManagementException::new))));
 
         TestObserver testObserver = roleService.findByDomain(DOMAIN).test();
 
@@ -122,7 +125,7 @@ public class RoleServiceTest {
 
     @Test
     public void shouldFindByIdsIn() {
-        when(roleRepository.findByIdIn(Arrays.asList("my-role"))).thenReturn(Flowable.just(new Role()));
+        when(roleRepository.findByIdIn(Arrays.asList("my-role"))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Role())));
         TestObserver<Set<Role>> testObserver = roleService.findByIdIn(Arrays.asList("my-role")).test();
         testObserver.awaitTerminalEvent();
 
@@ -133,7 +136,7 @@ public class RoleServiceTest {
 
     @Test
     public void shouldFindByIdsIn_technicalException() {
-        when(roleRepository.findByIdIn(anyList())).thenReturn(Flowable.error(TechnicalException::new));
+        when(roleRepository.findByIdIn(anyList())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver<>();
         roleService.findByIdIn(Arrays.asList("my-role")).subscribe(testObserver);
@@ -145,12 +148,12 @@ public class RoleServiceTest {
     @Test
     public void shouldCreate() {
         NewRole newRole = Mockito.mock(NewRole.class);
-        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.empty());
+        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
         Role role = new Role();
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setReferenceId("domain#1");
-        when(roleRepository.create(any(Role.class))).thenReturn(Single.just(role));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(roleRepository.create(any(Role.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(role)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = roleService.create(DOMAIN, newRole).test();
         testObserver.awaitTerminalEvent();
@@ -165,7 +168,7 @@ public class RoleServiceTest {
     @Test
     public void shouldCreate_technicalException() {
         NewRole newRole = Mockito.mock(NewRole.class);
-        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.error(TechnicalException::new));
+        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver();
         roleService.create(DOMAIN, newRole).subscribe(testObserver);
@@ -187,7 +190,7 @@ public class RoleServiceTest {
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setReferenceId("domain#1");
 
-        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(role));
+        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(role)));
 
         TestObserver testObserver = new TestObserver();
         roleService.create(DOMAIN, newRole).subscribe(testObserver);
@@ -204,10 +207,10 @@ public class RoleServiceTest {
         Role role = new Role();
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setReferenceId("domain#1");
-        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(Maybe.just(role));
-        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.empty());
-        when(roleRepository.update(any(Role.class))).thenReturn(Single.just(role));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
+        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(roleRepository.update(any(Role.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(role)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = roleService.update(DOMAIN, "my-role", updateRole).test();
         testObserver.awaitTerminalEvent();
@@ -232,10 +235,10 @@ public class RoleServiceTest {
         role.setReferenceType(ReferenceType.ORGANIZATION);
         role.setReferenceId(ORGANIZATION_ID);
 
-        when(roleRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role")).thenReturn(Maybe.just(role));
-        when(roleRepository.findAll(ReferenceType.ORGANIZATION, ORGANIZATION_ID)).thenReturn(Flowable.empty());
-        when(roleRepository.update(argThat(r -> r.getPermissionAcls().equals(Permission.unflatten(updateRole.getPermissions()))))).thenReturn(Single.just(role));
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(roleRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
+        when(roleRepository.findAll(ReferenceType.ORGANIZATION, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(roleRepository.update(argThat(r -> r.getPermissionAcls().equals(Permission.unflatten(updateRole.getPermissions()))))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(role)));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = roleService.update(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role", updateRole, null).test();
         testObserver.awaitTerminalEvent();
@@ -251,7 +254,7 @@ public class RoleServiceTest {
     @Test
     public void shouldUpdate_technicalException() {
         UpdateRole updateRole = Mockito.mock(UpdateRole.class);
-        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(Maybe.error(TechnicalException::new));
+        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
 
         TestObserver testObserver = new TestObserver();
         roleService.update(DOMAIN, "my-role", updateRole).subscribe(testObserver);
@@ -274,8 +277,8 @@ public class RoleServiceTest {
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setReferenceId("domain#1");
 
-        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(Maybe.just(new Role()));
-        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flowable.just(role));
+        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Role())));
+        when(roleRepository.findAll(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(role)));
 
         TestObserver testObserver = new TestObserver();
         roleService.update(DOMAIN, "my-role", updateRole).subscribe(testObserver);
@@ -289,7 +292,7 @@ public class RoleServiceTest {
     @Test
     public void shouldUpdate_roleNotFound() {
         UpdateRole updateRole = Mockito.mock(UpdateRole.class);
-        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(Maybe.empty());
+        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = new TestObserver();
         roleService.update(DOMAIN, "my-role", updateRole).subscribe(testObserver);
@@ -310,7 +313,7 @@ public class RoleServiceTest {
         role.setReferenceType(ReferenceType.ORGANIZATION);
         role.setReferenceId(ORGANIZATION_ID);
 
-        when(roleRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role")).thenReturn(Maybe.just(role));
+        when(roleRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
 
         TestObserver testObserver = roleService.update(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role", updateRole, null).test();
         testObserver.awaitTerminalEvent();
@@ -336,7 +339,7 @@ public class RoleServiceTest {
         role.setReferenceType(ReferenceType.ORGANIZATION);
         role.setReferenceId(ORGANIZATION_ID);
 
-        when(roleRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role")).thenReturn(Maybe.just(role));
+        when(roleRepository.findById(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
 
         TestObserver testObserver = roleService.update(ReferenceType.ORGANIZATION, ORGANIZATION_ID, "my-role", updateRole, null).test();
         testObserver.awaitTerminalEvent();
@@ -351,7 +354,7 @@ public class RoleServiceTest {
 
     @Test
     public void shouldDelete_notExistingRole() {
-        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(Maybe.empty());
+        when(roleRepository.findById(ReferenceType.DOMAIN, DOMAIN, "my-role")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
 
         TestObserver testObserver = roleService.delete(ReferenceType.DOMAIN, DOMAIN, "my-role").test();
 
@@ -364,9 +367,9 @@ public class RoleServiceTest {
     @Test
     public void shouldDelete_technicalException() {
 
-        when(eventService.create(any(Event.class))).thenReturn(Single.just(new Event()));
-        when(roleRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-role"))).thenReturn(Maybe.just(new Role()));
-        when(roleRepository.delete(anyString())).thenReturn(Completable.error(TechnicalException::new));
+        when(eventService.create(any(Event.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(roleRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-role"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Role())));
+        when(roleRepository.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(TechnicalException::new)));
 
         TestObserver testObserver = roleService.delete(ReferenceType.DOMAIN, DOMAIN, "my-role").test();
 
@@ -378,7 +381,7 @@ public class RoleServiceTest {
     public void shouldNotDelete_systemRole() {
         Role role = Mockito.mock(Role.class);
         when(role.isSystem()).thenReturn(true);
-        when(roleRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-role"))).thenReturn(Maybe.just(role));
+        when(roleRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-role"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
 
         TestObserver testObserver = roleService.delete(ReferenceType.DOMAIN, DOMAIN, "my-role").test();
         testObserver.awaitTerminalEvent();
@@ -394,9 +397,9 @@ public class RoleServiceTest {
         Role role = new Role();
         role.setReferenceType(ReferenceType.DOMAIN);
         role.setReferenceId(DOMAIN);
-        when(roleRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-role"))).thenReturn(Maybe.just(role));
-        when(roleRepository.delete("my-role")).thenReturn(Completable.complete());
-        when(eventService.create(any())).thenReturn(Single.just(new Event()));
+        when(roleRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-role"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(role)));
+        when(roleRepository.delete("my-role")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
 
         TestObserver testObserver = roleService.delete(ReferenceType.DOMAIN, DOMAIN, "my-role").test();
         testObserver.awaitTerminalEvent();

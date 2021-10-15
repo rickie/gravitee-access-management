@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.identityprovider.franceconnect.authentication;
 
+import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
+
 import com.google.common.base.Strings;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.oauth2.Parameters;
@@ -39,19 +41,19 @@ import io.reactivex.Maybe;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -141,7 +143,7 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
         final String authorizationCode = authentication.getContext().request().parameters().getFirst(configuration.getCodeParameter());
         if (authorizationCode == null || authorizationCode.isEmpty()) {
             LOGGER.debug("Authorization code is missing, skip authentication");
-            return Maybe.error(new BadCredentialsException("Missing authorization code"));
+            return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Missing authorization code")));
         }
         List<NameValuePair> urlParameters = new ArrayList<>();
         urlParameters.add(new BasicNameValuePair(CLIENT_ID, configuration.getClientId()));
@@ -157,12 +159,11 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
         urlParameters.add(new BasicNameValuePair(CODE, authorizationCode));
         String bodyRequest = URLEncodedUtils.format(urlParameters);
 
-        return client.postAbs(configuration.getAccessTokenUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(client.postAbs(configuration.getAccessTokenUri())
                 .putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(bodyRequest.length()))
                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
                 .rxSendBuffer(Buffer.buffer(bodyRequest))
-                .toMaybe()
-                .map(httpResponse -> {
+                .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                         throw new BadCredentialsException(httpResponse.statusMessage());
                     }
@@ -174,22 +175,21 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
                         authentication.getContext().set(ID_TOKEN_PARAMETER, idToken);
                     }
                     return new Token(accessToken, TokenTypeHint.ACCESS_TOKEN);
-                });
+                })));
     }
 
     @Override
     protected Maybe<User> profile(Token accessToken, Authentication authentication) {
-        return client.getAbs(configuration.getUserProfileUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(client.getAbs(configuration.getUserProfileUri())
                 .putHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken.getValue())
                 .rxSend()
-                .toMaybe()
-                .map(httpClientResponse -> {
+                .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
                     if (httpClientResponse.statusCode() != 200) {
                         throw new BadCredentialsException(httpClientResponse.statusMessage());
                     }
 
                     return createUser(authentication.getContext(), httpClientResponse.bodyAsJsonObject().getMap());
-                });
+                })));
     }
 
     private User createUser(AuthenticationContext authContext, Map<String, Object> attributes) {

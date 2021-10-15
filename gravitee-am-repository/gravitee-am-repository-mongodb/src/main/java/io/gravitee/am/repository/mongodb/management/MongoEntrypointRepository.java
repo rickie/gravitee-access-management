@@ -15,19 +15,21 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Entrypoint;
 import io.gravitee.am.repository.management.api.EntrypointRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.EntrypointMongo;
 import io.reactivex.*;
+import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -47,35 +49,35 @@ public class MongoEntrypointRepository extends AbstractManagementMongoRepository
 
     @Override
     public Maybe<Entrypoint> findById(String id, String organizationId) {
-        return Observable.fromPublisher(collection.find(and(eq(FIELD_ID, id), eq(FIELD_ORGANIZATION_ID, organizationId))).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(collection.find(and(eq(FIELD_ID, id), eq(FIELD_ORGANIZATION_ID, organizationId))).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Entrypoint> findById(String id) {
-        return Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()).firstElement().map(this::convert);
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Entrypoint> findAll(String organizationId) {
-        return Flowable.fromPublisher(collection.find(eq("organizationId", organizationId))).map(this::convert);
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(collection.find(eq("organizationId", organizationId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Entrypoint> create(Entrypoint item) {
         EntrypointMongo entrypoint = convert(item);
         entrypoint.setId(entrypoint.getId() == null ? RandomString.generate() : entrypoint.getId());
-        return Single.fromPublisher(collection.insertOne(entrypoint)).flatMap(success -> findById(entrypoint.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(entrypoint))).flatMap(success->RxJava2Adapter.singleToMono(findById(entrypoint.getId()).toSingle())));
     }
 
     @Override
     public Single<Entrypoint> update(Entrypoint item) {
         EntrypointMongo entrypoint = convert(item);
-        return Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, entrypoint.getId()), entrypoint)).flatMap(updateResult -> findById(entrypoint.getId()).toSingle());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, entrypoint.getId()), entrypoint))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(entrypoint.getId()).toSingle())));
     }
 
     @Override
     public Completable delete(String id) {
-        return Completable.fromPublisher(collection.deleteOne(eq(FIELD_ID, id)));
+        return RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id))));
     }
 
     private Entrypoint convert(EntrypointMongo entrypointMongo) {

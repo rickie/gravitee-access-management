@@ -39,11 +39,13 @@ import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Implementation of the Extension Grants
@@ -88,13 +90,13 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
         if (!canHandle(client)) {
             throw new UnauthorizedClientException("Unauthorized grant type: " + extensionGrant.getGrantType());
         }
-        return Single.just(tokenRequest);
+        return RxJava2Adapter.monoToSingle(Mono.just(tokenRequest));
     }
 
     @Override
     protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
-        return extensionGrantProvider.grant(convert(tokenRequest))
-                .flatMap(endUser -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantProvider.grant(convert(tokenRequest)))
+                        .flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, MaybeSource<User>>toJdkFunction(endUser -> {
                     if (extensionGrant.isCreateUser()) {
                         Map<String, Object> additionalInformation = endUser.getAdditionalInformation() == null ? new HashMap<>() : new HashMap<>(endUser.getAdditionalInformation());
                         // set source provider
@@ -142,9 +144,9 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
                             return Maybe.just(user);
                         }
                     }
-                })
+                }).apply(v)))))
                 .onErrorResumeNext(ex -> {
-                    return Maybe.error(new InvalidGrantException(ex.getMessage()));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException(ex.getMessage())));
                 });
     }
 

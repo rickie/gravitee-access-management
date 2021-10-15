@@ -15,12 +15,15 @@
  */
 package io.gravitee.am.identityprovider.inline.authentication;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import io.gravitee.am.common.exception.authentication.BadCredentialsException;
+import io.gravitee.am.common.exception.authentication.UsernameNotFoundException;
 import io.gravitee.am.identityprovider.api.Authentication;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.identityprovider.inline.authentication.provisioning.InlineInMemoryUserDetailsManager;
 import io.gravitee.am.service.authentication.crypto.password.PasswordEncoder;
-import io.gravitee.am.common.exception.authentication.BadCredentialsException;
-import io.gravitee.am.common.exception.authentication.UsernameNotFoundException;
 import io.reactivex.Maybe;
 import io.reactivex.observers.TestObserver;
 import org.junit.Test;
@@ -28,9 +31,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -58,7 +60,7 @@ public class InlineAuthenticationProviderTest {
         when(user.getUsername()).thenReturn("username");
         when(user.getPassword()).thenReturn("password");
 
-        when(userDetailsService.loadUserByUsername("username")).thenReturn(Maybe.just(user));
+        when(userDetailsService.loadUserByUsername("username")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
         when(passwordEncoder.matches((String) authentication.getCredentials(), user.getPassword())).thenReturn(true);
 
         TestObserver<User> testObserver = inlineAuthenticationProvider.loadUserByUsername(authentication).test();
@@ -77,7 +79,7 @@ public class InlineAuthenticationProviderTest {
 
         io.gravitee.am.identityprovider.inline.model.User user = mock(io.gravitee.am.identityprovider.inline.model.User.class);
 
-        when(userDetailsService.loadUserByUsername("username")).thenReturn(Maybe.just(user));
+        when(userDetailsService.loadUserByUsername("username")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
 
         TestObserver<User> testObserver = inlineAuthenticationProvider.loadUserByUsername(authentication).test();
         testObserver.assertError(BadCredentialsException.class);
@@ -88,7 +90,7 @@ public class InlineAuthenticationProviderTest {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn("username");
 
-        when(userDetailsService.loadUserByUsername("username")).thenReturn(Maybe.error(new UsernameNotFoundException("username")));
+        when(userDetailsService.loadUserByUsername("username")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(new UsernameNotFoundException("username"))));
 
         TestObserver<User> testObserver = inlineAuthenticationProvider.loadUserByUsername(authentication).test();
         testObserver.assertError(UsernameNotFoundException.class);

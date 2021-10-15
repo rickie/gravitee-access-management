@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.root.resources.handler.login;
 
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.*;
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.web.UriBuilder;
@@ -23,12 +26,14 @@ import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.gravitee.am.gateway.handler.common.vertx.utils.RequestUtils;
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
+import io.gravitee.am.identityprovider.api.AuthenticationProvider;
 import io.gravitee.am.identityprovider.api.common.Request;
 import io.gravitee.am.identityprovider.api.social.SocialAuthenticationProvider;
 import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.http.HttpMethod;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -36,14 +41,12 @@ import io.vertx.core.Handler;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.*;
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Fetch social providers information if client using one of them
@@ -147,9 +150,8 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
                     // get social identity provider type (currently use for display purpose (logo, description, ...)
                     identityProvider.setType(socialProviders.getOrDefault(identityProvider.getType(), identityProvider.getType()));
                     // get social sign in url
-                    return getAuthorizeUrl(identityProvider.getId(), context)
-                            .map(authorizeUrl -> new SocialProviderData(identityProvider, authorizeUrl))
-                            .defaultIfEmpty(new SocialProviderData(identityProvider, null));
+                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(getAuthorizeUrl(identityProvider.getId(), context)
+                            .map(authorizeUrl -> new SocialProviderData(identityProvider, authorizeUrl))).defaultIfEmpty(new SocialProviderData(identityProvider, null)));
                 })
                 .toList()
                 .subscribe(socialProviderData -> resultHandler.handle(Future.succeededFuture(socialProviderData)),
@@ -157,8 +159,7 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
     }
 
     private Maybe<String> getAuthorizeUrl(String identityProviderId, RoutingContext context) {
-        return identityProviderManager.get(identityProviderId)
-                .flatMap(authenticationProvider -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.get(identityProviderId)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<String>>toJdkFunction(authenticationProvider -> {
                     // Generate a state containing provider id and current query parameter string. This state will be sent back to AM after social authentication.
                     final JWT stateJwt = new JWT();
                     stateJwt.put("p", identityProviderId);
@@ -180,7 +181,7 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
                                     }
                                 });
                             });
-                });
+                }).apply(v)))));
     }
 
     private static class SocialProviderData {
