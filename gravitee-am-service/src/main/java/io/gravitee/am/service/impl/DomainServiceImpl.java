@@ -341,7 +341,7 @@ public class DomainServiceImpl implements DomainService {
         LOGGER.debug("Delete security domain {}", domainId);
         return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(domainRepository.findById(domainId)).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Domain, CompletableSource>)domain -> {
                     // delete applications
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(applicationService.findByDomain(domainId)
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(applicationService.findByDomain(domainId)
                             .flatMapCompletable(applications -> {
                                 List<Completable> deleteApplicationsCompletable = applications.stream().map(a -> applicationService.delete(a.getId())).collect(Collectors.toList());
                                 return Completable.concat(deleteApplicationsCompletable);
@@ -356,11 +356,10 @@ public class DomainServiceImpl implements DomainService {
                                         identityProviderService.delete(domainId, identityProvider.getId())
                                     )
                             )).then(RxJava2Adapter.completableToMono(Completable.wrap(extensionGrantService.findByDomain(domainId)
-                                    .flatMapCompletable(extensionGrant -> extensionGrantService.delete(domainId, extensionGrant.getId()))))))).then(RxJava2Adapter.completableToMono(roleService.findByDomain(domainId)
-                                    .flatMapCompletable(roles -> {
+                                    .flatMapCompletable(extensionGrant -> extensionGrantService.delete(domainId, extensionGrant.getId()))))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(roleService.findByDomain(domainId)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Set<Role>, CompletableSource>toJdkFunction(roles -> {
                                         List<Completable> deleteRolesCompletable = roles.stream().map(r -> roleService.delete(ReferenceType.DOMAIN, domainId, r.getId())).collect(Collectors.toList());
                                         return Completable.concat(deleteRolesCompletable);
-                                    }))).then(RxJava2Adapter.flowableToFlux(userService.findByDomain(domainId)).flatMap(h->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, CompletableSource>toJdkFunction(user ->
+                                    }).apply(y)))).then()))).then(RxJava2Adapter.flowableToFlux(userService.findByDomain(domainId)).flatMap(h->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, CompletableSource>toJdkFunction(user ->
                                         userService.delete(user.getId())).apply(h)))).then()).then(RxJava2Adapter.flowableToFlux(groupService.findByDomain(domainId)).flatMap(h->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Group, CompletableSource>toJdkFunction(group ->
                                         groupService.delete(ReferenceType.DOMAIN, domainId, group.getId())).apply(h)))).then()).then(RxJava2Adapter.singleToMono(scopeService.findByDomain(domainId, 0, Integer.MAX_VALUE)).flatMap(g->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Page<io.gravitee.am.model.oauth2.Scope>, CompletableSource>toJdkFunction(scopes -> {
                                         List<Completable> deleteScopesCompletable = scopes.getData().stream().map(s -> scopeService.delete(s.getId(), true)).collect(Collectors.toList());
