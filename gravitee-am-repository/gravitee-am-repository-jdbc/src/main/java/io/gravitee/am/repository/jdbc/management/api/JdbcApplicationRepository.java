@@ -80,7 +80,7 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
     }
 
     private Single<Application> completeApplication(Application entity) {
-        return RxJava2Adapter.monoToSingle(Mono.just(entity).flatMap(app->RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(identityRepository.findAllByApplicationId(app.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Identity::getIdentity)))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> idps)->{
+        return RxJava2Adapter.monoToSingle(Mono.just(entity).flatMap(app->RxJava2Adapter.flowableToFlux(identityRepository.findAllByApplicationId(app.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Identity::getIdentity)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> idps)->{
 app.setIdentities(new HashSet<>(idps));
 return app;
 }))).flatMap(app->RxJava2Adapter.flowableToFlux(factorRepository.findAllByApplicationId(app.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Factor::getFactor)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> factors)->{

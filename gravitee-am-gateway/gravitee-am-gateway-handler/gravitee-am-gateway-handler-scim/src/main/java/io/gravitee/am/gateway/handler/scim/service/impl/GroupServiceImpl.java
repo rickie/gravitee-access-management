@@ -122,7 +122,7 @@ public class GroupServiceImpl implements GroupService {
         LOGGER.debug("Create a new group {} for domain {}", group.getDisplayName(), domain.getName());
 
         // check if user is unique
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), group.getDisplayName())).hasElement())).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(groupRepository.findByName(ReferenceType.DOMAIN, domain.getId(), group.getDisplayName())).hasElement().map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
                     if (!isEmpty) {
                         throw new UniquenessException("Group with display name [" + group.getDisplayName()+ "] already exists");
                     }

@@ -78,7 +78,7 @@ public class BotDetectionResource extends AbstractResource {
             @PathParam("botDetection") String botDetectionId,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domain))))).flatMap(z->botDetectionService.findById(botDetectionId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new BotDetectionNotFoundException(botDetectionId))).map(RxJavaReactorMigrationUtil.toJdkFunction(botDetection -> {
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->botDetectionService.findById(botDetectionId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new BotDetectionNotFoundException(botDetectionId))).map(RxJavaReactorMigrationUtil.toJdkFunction(botDetection -> {
                             if (!botDetection.getReferenceId().equalsIgnoreCase(domain) && botDetection.getReferenceType() != ReferenceType.DOMAIN) {
                                 throw new BadRequestException("BotDetection does not belong to domain");
                             }

@@ -150,8 +150,8 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
             final Authentication authentication = new EndUserAuthentication(endUser, null, authenticationContext);
 
             final Maybe<AuthenticationProvider> authenticationProviderMaybe = this.identityProviderManager.get(endUser.getSource());
-            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticationProviderMaybe
-                    .filter(provider -> provider instanceof SocialAuthenticationProvider)).flatMap(z->((SocialAuthenticationProvider)z).signOutUrl(authentication).as(RxJava2Adapter::maybeToMono)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).switchIfEmpty(Mono.just(Optional.empty())).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Optional<Request>, MaybeSource<Optional<String>>>toJdkFunction(optLogoutRequest  -> {
+            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticationProviderMaybe
+                    .filter(provider -> provider instanceof SocialAuthenticationProvider)).flatMap(z->((SocialAuthenticationProvider)z).signOutUrl(authentication).as(RxJava2Adapter::maybeToMono)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).switchIfEmpty(Mono.just(Optional.empty())).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Optional<Request>, MaybeSource<Optional<String>>>toJdkFunction(optLogoutRequest  -> {
                         if (optLogoutRequest.isPresent()) {
                             return generateLogoutCallback(routingContext, endUser, optLogoutRequest.get());
                         } else {
