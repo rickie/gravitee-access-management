@@ -83,7 +83,7 @@ public class CertificateResource extends AbstractResource {
             @PathParam("certificate") String certificate,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->certificateService.findById(certificate).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new CertificateNotFoundException(certificate))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificate1 -> {
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new DomainNotFoundException(domain))))).flatMap(z->certificateService.findById(certificate).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new CertificateNotFoundException(certificate))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificate1 -> {
                             if (!certificate1.getDomain().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Certificate does not belong to domain");
                             }

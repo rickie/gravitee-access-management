@@ -462,7 +462,7 @@ return stats;
     }
 
     private Single<User> completeUser(User userToComplete) {
-        return RxJava2Adapter.monoToSingle(Mono.just(userToComplete).flatMap(user->RxJava2Adapter.flowableToFlux(roleRepository.findByUserId(user.getId()).map(JdbcUser.Role::getRole)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> roles)->{
+        return RxJava2Adapter.monoToSingle(Mono.just(userToComplete).flatMap(user->RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(roleRepository.findByUserId(user.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcUser.Role::getRole)))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> roles)->{
 user.setRoles(roles);
 return user;
 }))).flatMap(user->RxJava2Adapter.flowableToFlux(entitlementRepository.findByUserId(user.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcUser.Entitlements::getEntitlement)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> entitlements)->{

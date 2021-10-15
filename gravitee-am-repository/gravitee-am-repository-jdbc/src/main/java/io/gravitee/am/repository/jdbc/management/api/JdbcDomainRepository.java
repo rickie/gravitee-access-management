@@ -209,7 +209,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
 
     private Flowable<Domain> completeDomain(Domain entity) {
         return RxJava2Adapter.fluxToFlowable(Flux.just(entity).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
-                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(identitiesRepository.findAllByDomainId(domain.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcDomain.Identity::getIdentity)))).collectList().flux().map(RxJavaReactorMigrationUtil.toJdkFunction(idps -> {
+                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(identitiesRepository.findAllByDomainId(domain.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcDomain.Identity::getIdentity)).collectList().flux().map(RxJavaReactorMigrationUtil.toJdkFunction(idps -> {
                     domain.setIdentities(new HashSet<>(idps));
                     return domain;
                 }))))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->

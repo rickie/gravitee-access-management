@@ -88,16 +88,16 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
     }
 
     private Single<User> update(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal, BiFunction<String, String, Maybe<Application>> checkClient) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(updateUser)).then(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, id)).flatMap(user->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(identityProviderManager.getUserProvider(user.getSource()).switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource()))).flatMapSingle((io.gravitee.am.identityprovider.api.UserProvider userProvider)->{
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(updateUser)).then(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, id)).flatMap(user->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserProviderNotFoundException(user.getSource())))))).flatMapSingle((io.gravitee.am.identityprovider.api.UserProvider userProvider)->{
 String client = updateUser.getClient() != null ? updateUser.getClient() : user.getClient();
 if (client != null && referenceType == ReferenceType.DOMAIN) {
 return checkClient.apply(referenceId, client).flatMapSingle((io.gravitee.am.model.Application client1)->{
 updateUser.setClient(client1.getId());
-return Single.just(userProvider);
+return RxJava2Adapter.monoToSingle(Mono.just(userProvider));
 });
 }
-return Single.just(userProvider);
-})).flatMap(userProvider->RxJava2Adapter.singleToMono(userProvider.findByUsername(user.getUsername()).switchIfEmpty(Maybe.error(new UserNotFoundException(user.getUsername()))).flatMapSingle((io.gravitee.am.identityprovider.api.User idpUser)->userProvider.update(idpUser.getId(), convert(user.getUsername(), updateUser))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction((io.gravitee.am.identityprovider.api.User idpUser)->{
+return RxJava2Adapter.monoToSingle(Mono.just(userProvider));
+})).flatMap(userProvider->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userProvider.findByUsername(user.getUsername())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(user.getUsername())))))).flatMapSingle((io.gravitee.am.identityprovider.api.User idpUser)->userProvider.update(idpUser.getId(), convert(user.getUsername(), updateUser))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction((io.gravitee.am.identityprovider.api.User idpUser)->{
 updateUser.setExternalId(idpUser.getId());
 return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserService().update(referenceType, referenceId, id, updateUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::setInternalStatus)));
 }).apply(v))))).onErrorResumeNext((java.lang.Throwable ex)->{
@@ -118,7 +118,7 @@ return RxJava2Adapter.monoToSingle(Mono.error(ex));
 
     @Override
     public Completable delete(ReferenceType referenceType, String referenceId, String userId, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, userId)).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<UserProvider>, CompletableSource>)(java.util.Optional<io.gravitee.am.identityprovider.api.UserProvider> optUserProvider)->{
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, userId)).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<UserProvider>, CompletableSource>)(java.util.Optional<io.gravitee.am.identityprovider.api.UserProvider> optUserProvider)->{
 if (!optUserProvider.isPresent()) {
 return RxJava2Adapter.monoToCompletable(Mono.empty());
 }

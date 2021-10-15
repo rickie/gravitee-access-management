@@ -82,7 +82,7 @@ public class RoleResource extends AbstractResource {
             @PathParam("role") String role,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->roleService.findById(role).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new RoleNotFoundException(role))).map(RxJavaReactorMigrationUtil.toJdkFunction(role1 -> {
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new DomainNotFoundException(domain))))).flatMap(z->roleService.findById(role).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new RoleNotFoundException(role))).map(RxJavaReactorMigrationUtil.toJdkFunction(role1 -> {
                             if (role1.getReferenceType() == ReferenceType.DOMAIN
                                     && !role1.getReferenceId().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Role does not belong to domain");

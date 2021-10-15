@@ -85,7 +85,7 @@ public class GroupResource extends AbstractResource {
             @PathParam("group") String group,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->groupService.findById(group).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new GroupNotFoundException(group))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.Group, MaybeSource<io.gravitee.am.model.Group>>toJdkFunction(group1 -> {
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new DomainNotFoundException(domain))))).flatMap(z->groupService.findById(group).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new GroupNotFoundException(group))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.Group, MaybeSource<io.gravitee.am.model.Group>>toJdkFunction(group1 -> {
                             if (group1.getReferenceType() == ReferenceType.DOMAIN
                                     && !group1.getReferenceId().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Group does not belong to domain");
