@@ -472,7 +472,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     }
 
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(roleService.findSystemRole(SystemRole.APPLICATION_PRIMARY_OWNER, ReferenceType.APPLICATION)
-                            .switchIfEmpty(Single.error(new InvalidRoleException("Cannot assign owner to the application, owner role does not exist")))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Role, SingleSource<Object>>toJdkFunction(role -> {
+                            .switchIfEmpty(Single.error(new InvalidRoleException("Cannot assign owner to the application, owner role does not exist")))).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Role, SingleSource<Object>>toJdkFunction(role -> {
                                 Membership membership = new Membership();
                                 membership.setDomain(application1.getDomain());
                                 membership.setMemberId(principal.getId());
@@ -482,7 +482,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                                 membership.setRoleId(role.getId());
                                 return membershipService.addOrUpdate((String) principal.getAdditionalInformation().get(Claims.organization), membership)
                                         .map(__ -> domain);
-                            }).apply(v)))));
+                            }).apply(a)))));
                 }).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Object, SingleSource<Application>>toJdkFunction(application1 -> {
                     Event event = new Event(Type.APPLICATION, new Payload(application.getId(), ReferenceType.DOMAIN, application.getDomain(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(domain1->Mono.just(application)));
