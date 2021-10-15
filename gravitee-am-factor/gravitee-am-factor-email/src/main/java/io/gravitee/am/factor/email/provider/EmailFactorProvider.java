@@ -154,7 +154,7 @@ public class EmailFactorProvider implements FactorProvider {
             final String recipient = enrolledFactor.getChannel().getTarget();
             EmailService.EmailWrapper emailWrapper = emailService.createEmail(Template.MFA_CHALLENGE, context.getClient(), asList(recipient), params);
 
-            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(provider.sendMessage(emailWrapper.getEmail())).then(RxJava2Adapter.singleToMono(Single.just(enrolledFactor)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<EnrolledFactor, SingleSource<io.gravitee.am.model.User>>toJdkFunction(ef ->  {
+            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(provider.sendMessage(emailWrapper.getEmail())).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(enrolledFactor))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<EnrolledFactor, SingleSource<io.gravitee.am.model.User>>toJdkFunction(ef ->  {
                                 ef.setPrimary(true);
                                 ef.setStatus(FactorStatus.ACTIVATED);
                                 ef.getSecurity().putData(FactorDataKeys.KEY_EXPIRE_AT, emailWrapper.getExpireAt());

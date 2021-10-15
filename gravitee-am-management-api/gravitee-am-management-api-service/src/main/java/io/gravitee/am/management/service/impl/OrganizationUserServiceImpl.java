@@ -37,6 +37,7 @@ import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.util.Date;
 import java.util.function.BiFunction;
@@ -89,7 +90,7 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
     @Override
     public Single<User> createOrUpdate(ReferenceType referenceType, String referenceId, NewUser newUser) {
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findByExternalIdAndSource(referenceType, referenceId, newUser.getExternalId(), newUser.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.defer(() -> userService.findByUsernameAndSource(referenceType, referenceId, newUser.getUsername(), newUser.getSource())))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, MaybeSource<io.gravitee.am.model.User>>toJdkFunction(existingUser -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findByExternalIdAndSource(referenceType, referenceId, newUser.getExternalId(), newUser.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.defer(()->RxJava2Adapter.maybeToMono(userService.findByUsernameAndSource(referenceType, referenceId, newUser.getUsername(), newUser.getSource())))))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, MaybeSource<io.gravitee.am.model.User>>toJdkFunction(existingUser -> {
                     updateInfos(existingUser, newUser);
                     return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(userService.update(existingUser)));
                 }).apply(v)))).switchIfEmpty(RxJava2Adapter.singleToMono(Single.defer(() -> {
@@ -132,7 +133,7 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
                                     userToPersist.setReferenceId(organization.getId());
                                     userToPersist.setReferenceType(ReferenceType.ORGANIZATION);
 
-                                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(userToPersist)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).throwable(throwable)))).then(RxJava2Adapter.singleToMono(userProvider.create(convert(newUser))
+                                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(userToPersist)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).throwable(throwable)))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userProvider.create(convert(newUser))
                                             .map(idpUser -> {
                                                 // Excepted for GraviteeIDP that manage Organization Users
                                                 // AM 'users' collection is not made for authentication (but only management stuff)
@@ -142,13 +143,12 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
                                                 userToPersist.setId(RandomString.generate());
                                                 userToPersist.setExternalId(userToPersist.getId());
                                                 return userToPersist;
-                                            })
-                                            .flatMap(newOrgUser -> {
+                                            })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(newOrgUser -> {
                                                 return userService.create(newOrgUser)
                                                         .flatMap(newlyCreatedUser -> userService.setRoles(newlyCreatedUser).andThen(Single.just(newlyCreatedUser)))
                                                         .doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).user(user1)))
                                                         .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).throwable(throwable)));
-                                            })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::setInternalStatus))));
+                                            }).apply(v)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::setInternalStatus))));
                                 });
 
                     }

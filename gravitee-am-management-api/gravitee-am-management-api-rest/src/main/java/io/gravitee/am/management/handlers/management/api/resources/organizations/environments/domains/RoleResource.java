@@ -48,6 +48,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -81,9 +82,8 @@ public class RoleResource extends AbstractResource {
             @PathParam("role") String role,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMap(irrelevant -> roleService.findById(role))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new RoleNotFoundException(role))))).map(RxJavaReactorMigrationUtil.toJdkFunction(role1 -> {
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
+                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->roleService.findById(role).as(RxJava2Adapter::maybeToMono)))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new RoleNotFoundException(role)))).map(RxJavaReactorMigrationUtil.toJdkFunction(role1 -> {
                             if (role1.getReferenceType() == ReferenceType.DOMAIN
                                     && !role1.getReferenceId().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Role does not belong to domain");
@@ -113,7 +113,7 @@ public class RoleResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new DomainNotFoundException(domain))))))
                         .flatMapSingle(irrelevant -> roleService.update(domain, role, convert(updateRole), authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))))
                 .subscribe(response::resume, response::resume);
     }

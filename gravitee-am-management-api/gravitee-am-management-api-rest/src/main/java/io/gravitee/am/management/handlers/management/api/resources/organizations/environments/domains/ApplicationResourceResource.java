@@ -85,13 +85,11 @@ public class ApplicationResourceResource extends AbstractResource {
             @PathParam("resource") String resource,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMap(__ -> applicationService.findById(application))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ApplicationNotFoundException(application))))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Application, MaybeSource<ResourceEntity>>toJdkFunction(application1 -> {
+        checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
+                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->applicationService.findById(application).as(RxJava2Adapter::maybeToMono)))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new ApplicationNotFoundException(application)))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Application, MaybeSource<ResourceEntity>>toJdkFunction(application1 -> {
                             return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(resourceService.findByDomainAndClientResource(domain, application1.getId(), resource)).flatMap(n->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Resource, MaybeSource<ResourceEntity>>toJdkFunction(r -> {
-                                        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findById(r.getUserId())
-                                                .map(Optional::ofNullable)
-                                                .defaultIfEmpty(Optional.empty())).map(RxJavaReactorMigrationUtil.toJdkFunction(optUser -> {
+                                        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findById(r.getUserId())
+                                                .map(Optional::ofNullable)).defaultIfEmpty(Optional.empty()))).map(RxJavaReactorMigrationUtil.toJdkFunction(optUser -> {
                                                     ResourceEntity resourceEntity = new ResourceEntity(r);
                                                     resourceEntity.setUserDisplayName(optUser.isPresent() ? optUser.get().getDisplayName() : "Unknown user");
                                                     return resourceEntity;

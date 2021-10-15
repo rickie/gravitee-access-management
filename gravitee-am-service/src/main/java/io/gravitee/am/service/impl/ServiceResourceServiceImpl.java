@@ -118,7 +118,7 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(serviceResourceRepository.create(resource)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ServiceResource, SingleSource<ServiceResource>>toJdkFunction(resource1 -> {
                     // send sync event to refresh plugins that are using this resource
                     Event event = new Event(Type.RESOURCE, new Payload(resource1.getId(), resource1.getReferenceType(), resource1.getReferenceId(), Action.CREATE));
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(resource1)))));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(resource1)));
                 }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -144,7 +144,7 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(serviceResourceRepository.update(factorToUpdate)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ServiceResource, SingleSource<ServiceResource>>toJdkFunction(resource1 -> {
                                 // send sync event to refresh plugins that are using this resource
                                 Event event = new Event(Type.RESOURCE, new Payload(resource1.getId(), resource1.getReferenceType(), resource1.getReferenceId(), Action.UPDATE));
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(Single.just(resource1))));
+                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(resource1)))));
                             }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_UPDATED).oldValue(oldServiceResource).resource(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_UPDATED).throwable(throwable)))));
                 })
                 .onErrorResumeNext(ex -> {

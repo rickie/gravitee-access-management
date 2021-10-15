@@ -83,9 +83,8 @@ public class CertificateResource extends AbstractResource {
             @PathParam("certificate") String certificate,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMap(irrelevant -> certificateService.findById(certificate))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new CertificateNotFoundException(certificate))))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificate1 -> {
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
+                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->certificateService.findById(certificate).as(RxJava2Adapter::maybeToMono)))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new CertificateNotFoundException(certificate)))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificate1 -> {
                             if (!certificate1.getDomain().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Certificate does not belong to domain");
                             }
@@ -159,7 +158,7 @@ public class CertificateResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new DomainNotFoundException(domain))))))
                         .flatMapSingle(schema -> certificateService.update(domain, certificate, updateCertificate, authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificate1 -> Response.ok(certificate1).build()))))
                 .subscribe(response::resume, response::resume);
     }

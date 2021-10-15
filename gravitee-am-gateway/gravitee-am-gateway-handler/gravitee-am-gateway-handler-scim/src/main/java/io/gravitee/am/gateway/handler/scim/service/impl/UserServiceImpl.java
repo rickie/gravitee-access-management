@@ -142,14 +142,13 @@ public class UserServiceImpl implements UserService {
         }
 
         // check if user is unique
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, domain.getId(), user.getUserName(), source)
-                .isEmpty()
-                .map(isEmpty -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, domain.getId(), user.getUserName(), source)
+                .isEmpty()).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
                     if (!isEmpty) {
                         throw new UniquenessException("User with username [" + user.getUserName() + "] already exists");
                     }
                     return true;
-                })).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Boolean, CompletableSource>toJdkFunction(__ -> checkRoles(user.getRoles())).apply(y)))).then().then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.defer(()->RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(source)))))).switchIfEmpty(Mono.error(new UserProviderNotFoundException(source))))
+                })))).flatMap(__->RxJava2Adapter.completableToMono(checkRoles(user.getRoles()))).then().then(Mono.defer(()->RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(source)))).switchIfEmpty(Mono.error(new UserProviderNotFoundException(source))))
                 .flatMapSingle(userProvider -> {
                     io.gravitee.am.model.User userModel = convert(user);
                     // set technical ID
@@ -201,7 +200,7 @@ public class UserServiceImpl implements UserService {
             return RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("Field [password] is invalid")));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findById(userId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UserNotFoundException(userId))))))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findById(userId)).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))
                 .flatMapSingle(existingUser -> {
                     // check roles
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkRoles(user.getRoles())).then(RxJava2Adapter.singleToMono(Single.defer(() -> {
@@ -219,7 +218,7 @@ public class UserServiceImpl implements UserService {
 
                                 UserFactorUpdater.updateFactors(existingUser.getFactors(), existingUser, userToUpdate);
 
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(userToUpdate)).then(RxJava2Adapter.singleToMono(Single.wrap(identityProviderManager.getUserProvider(userToUpdate.getSource())
+                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(userToUpdate)).then(RxJava2Adapter.singleToMono(identityProviderManager.getUserProvider(userToUpdate.getSource())
                                         .switchIfEmpty(Maybe.error(new UserProviderNotFoundException(userToUpdate.getSource())))
                                         .flatMapSingle(userProvider -> {
                                             // no idp user check if we need to create it
@@ -249,7 +248,7 @@ public class UserServiceImpl implements UserService {
                                                 return userRepository.update(userToUpdate);
                                             }
                                             return Single.error(ex);
-                                        })))));
+                                        }))));
                             }))));
                 })).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> convert(user1, baseUrl, false))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)this::setGroups).apply(v))))
                 .onErrorResumeNext(ex -> {
@@ -299,7 +298,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Completable delete(String userId) {
         LOGGER.debug("Delete user {}", userId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userRepository.findById(userId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UserNotFoundException(userId))))).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource()).switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource())))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<UserProvider, CompletableSource>)(io.gravitee.am.identityprovider.api.UserProvider userProvider)->userProvider.delete(user.getExternalId())).apply(y)))).then().then(RxJava2Adapter.completableToMono(userRepository.delete(userId)))).onErrorResumeNext((java.lang.Throwable ex)->{
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userRepository.findById(userId)).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource()).switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource())))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<UserProvider, CompletableSource>)(io.gravitee.am.identityprovider.api.UserProvider userProvider)->userProvider.delete(user.getExternalId())).apply(y)))).then(RxJava2Adapter.completableToMono(userRepository.delete(userId)))).onErrorResumeNext((java.lang.Throwable ex)->{
 if (ex instanceof UserNotFoundException) {
 return userRepository.delete(userId);
 }

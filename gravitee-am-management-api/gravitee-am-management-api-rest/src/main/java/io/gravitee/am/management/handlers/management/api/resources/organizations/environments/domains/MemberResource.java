@@ -72,7 +72,7 @@ public class MemberResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.DELETE)).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domain))))).flatMap(irrelevant->RxJava2Adapter.completableToMono(membershipService.delete(membershipId, authenticatedUser))).then()))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.DELETE)).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))).flatMap(irrelevant->RxJava2Adapter.completableToMono(membershipService.delete(membershipId, authenticatedUser))).then()))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

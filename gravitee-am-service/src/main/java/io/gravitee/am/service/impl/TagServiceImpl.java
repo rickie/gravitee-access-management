@@ -151,7 +151,7 @@ if (domain.getTags() != null) {
 domain.getTags().remove(tagId);
 return domainService.update(domain.getId(), domain).toCompletable();
 }
-return Completable.complete();
+return RxJava2Adapter.monoToCompletable(Mono.empty());
 })))).doOnComplete(()->auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_DELETED).tag(tag)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_DELETED).throwable(throwable))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {

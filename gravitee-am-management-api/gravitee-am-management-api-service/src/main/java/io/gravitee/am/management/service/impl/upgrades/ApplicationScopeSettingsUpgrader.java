@@ -69,7 +69,7 @@ public class ApplicationScopeSettingsUpgrader implements Upgrader, Ordered {
     @Override
     public boolean upgrade() {
         final String instanceOperationId = UUID.randomUUID().toString();
-        boolean upgraded = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(systemTaskRepository.findById(TASK_ID)).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.defer(()->RxJava2Adapter.singleToMono(createSystemTask(instanceOperationId)))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<SystemTask, SingleSource<Boolean>>toJdkFunction(task -> {
+        boolean upgraded = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(systemTaskRepository.findById(TASK_ID)).switchIfEmpty(Mono.defer(()->RxJava2Adapter.singleToMono(createSystemTask(instanceOperationId)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<SystemTask, SingleSource<Boolean>>toJdkFunction(task -> {
                     switch (SystemTaskStatus.valueOf(task.getStatus())) {
                         case INITIALIZED:
                             return processUpgrade(instanceOperationId, task, instanceOperationId);

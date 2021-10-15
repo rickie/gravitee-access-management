@@ -45,6 +45,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -87,8 +88,8 @@ public class ApplicationResourcesResource extends AbstractResource {
             @QueryParam("size") @DefaultValue(MAX_RESOURCES_SIZE_PER_PAGE_STRING) int size,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.LIST)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->applicationService.findById(application).as(RxJava2Adapter::maybeToMono)))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new ApplicationNotFoundException(application)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.LIST)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
+                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->applicationService.findById(application).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new ApplicationNotFoundException(application))))))
                         .flatMapSingle(application1 -> resourceService.findByDomainAndClient(domain, application1.getId(), page, Integer.min(MAX_RESOURCES_SIZE_PER_PAGE, size)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Page<Resource>, SingleSource<Page>>toJdkFunction(pagedResources -> {
                             return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(pagedResources.getData())
                                     .flatMapSingle(r -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resourceService.countAccessPolicyByResource(r.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(policies -> {

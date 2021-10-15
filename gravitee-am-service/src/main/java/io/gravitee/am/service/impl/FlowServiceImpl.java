@@ -83,7 +83,7 @@ public class FlowServiceImpl implements FlowService {
     @Override
     public Flowable<Flow> findAll(ReferenceType referenceType, String referenceId, boolean excludeApps) {
         LOGGER.debug("Find all flows for {} {}", referenceType, referenceId);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flowRepository.findAll(referenceType, referenceId)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(f -> (!excludeApps) ? true : f.getApplication() == null)))).sort(getFlowComparator()).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(defaultFlows(referenceType, referenceId)))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flowRepository.findAll(referenceType, referenceId)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(f -> (!excludeApps) ? true : f.getApplication() == null)).sort(getFlowComparator()).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(defaultFlows(referenceType, referenceId)))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                 LOGGER.error("An error has occurred while trying to find all flows for {} {}", referenceType, referenceId, ex);
                 return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error has occurred while trying to find a all flows for %s %s", referenceType, referenceId), ex)));
             })));
@@ -188,7 +188,7 @@ public class FlowServiceImpl implements FlowService {
                             // force the ROOT post with emptyList to avoid UI issue
                             flow1.setPost(emptyList());
                         }
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(Single.just(flow1))));
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(flow1)))));
                     }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(flow1 -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_UPDATED).oldValue(oldFlow).flow(flow1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_UPDATED).throwable(throwable)))));
 
             })
@@ -341,7 +341,7 @@ public class FlowServiceImpl implements FlowService {
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(flowRepository.create(flow)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Flow, SingleSource<Flow>>toJdkFunction(flow1 -> {
                     // create event for sync process
                     Event event = new Event(io.gravitee.am.common.event.Type.FLOW, new Payload(flow1.getId(), referenceType, referenceId, Action.CREATE));
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(flow1)))));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(flow1)));
                 }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error has occurred while trying to create a flow", ex);

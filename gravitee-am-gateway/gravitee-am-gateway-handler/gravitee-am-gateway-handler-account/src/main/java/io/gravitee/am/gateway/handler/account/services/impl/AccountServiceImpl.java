@@ -105,7 +105,7 @@ public class AccountServiceImpl implements AccountService {
     public Single<User> update(User user) {
         LOGGER.debug("Update a user {} for domain {}", user.getUsername(), domain.getName());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UserProviderNotFoundException(user.getSource()))))))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
                 .flatMapSingle(userProvider -> {
                     if (user.getExternalId() == null) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("User does not exist in upstream IDP")));

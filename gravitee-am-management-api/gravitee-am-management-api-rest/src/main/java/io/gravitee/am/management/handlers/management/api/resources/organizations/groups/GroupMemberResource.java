@@ -41,6 +41,7 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -72,7 +73,7 @@ public class GroupMemberResource extends AbstractResource {
 
         RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(groupService.findById(ReferenceType.ORGANIZATION, organizationId, group)).flatMap(group1->RxJava2Adapter.singleToMono(userService.findById(ReferenceType.ORGANIZATION, organizationId, userId)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.Group>>toJdkFunction((io.gravitee.am.model.User user)->{
 if (group1.getMembers() != null && group1.getMembers().contains(userId)) {
-return Single.error(new MemberAlreadyExistsException(userId));
+return RxJava2Adapter.monoToSingle(Mono.error(new MemberAlreadyExistsException(userId)));
 }
 List<String> groupMembers = group1.getMembers() != null ? new ArrayList(group1.getMembers()) : new ArrayList();
 groupMembers.add(userId);
@@ -103,7 +104,7 @@ return groupService.update(ReferenceType.ORGANIZATION, organizationId, group, up
 
         RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(groupService.findById(ReferenceType.ORGANIZATION, organizationId, group)).flatMap(group1->RxJava2Adapter.singleToMono(userService.findById(ReferenceType.ORGANIZATION, organizationId, userId)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.Group>>toJdkFunction((io.gravitee.am.model.User user)->{
 if (group1.getMembers() == null || !group1.getMembers().contains(userId)) {
-return Single.error(new MemberNotFoundException(userId));
+return RxJava2Adapter.monoToSingle(Mono.error(new MemberNotFoundException(userId)));
 }
 List<String> groupMembers = group1.getMembers() != null ? new ArrayList(group1.getMembers()) : new ArrayList();
 groupMembers.remove(userId);

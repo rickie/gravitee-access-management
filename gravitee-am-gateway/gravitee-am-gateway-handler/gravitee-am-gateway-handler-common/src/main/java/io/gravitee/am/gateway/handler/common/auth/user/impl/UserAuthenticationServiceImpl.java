@@ -91,17 +91,17 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
     public Maybe<User> loadPreAuthenticatedUser(String subject, Request request) {
         // find user by its technical id
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService
-                .findById(subject)).switchIfEmpty(Mono.error(new UserNotFoundException(subject))).flatMap(z->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.get(z.getSource())).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction((io.gravitee.am.identityprovider.api.AuthenticationProvider authenticationProvider)->{
+                .findById(subject)).switchIfEmpty(Mono.error(new UserNotFoundException(subject))).flatMap(z->RxJava2Adapter.maybeToMono(identityProviderManager.get(z.getSource())).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction((io.gravitee.am.identityprovider.api.AuthenticationProvider authenticationProvider)->{
 SimpleAuthenticationContext authenticationContext = new SimpleAuthenticationContext(request);
 final Authentication authentication = new EndUserAuthentication(z, null, authenticationContext);
 return authenticationProvider.loadPreAuthenticatedUser(authentication);
-}).apply(v)))))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, MaybeSource<io.gravitee.am.model.User>>toJdkFunction((io.gravitee.am.identityprovider.api.User idpUser)->{
+}).apply(v)))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, MaybeSource<io.gravitee.am.model.User>>toJdkFunction((io.gravitee.am.identityprovider.api.User idpUser)->{
 Map<String, Object> additionalInformation = idpUser.getAdditionalInformation() == null ? new HashMap<>() : new HashMap<>(idpUser.getAdditionalInformation());
 additionalInformation.put(SOURCE_FIELD, z.getSource());
 additionalInformation.put(Parameters.CLIENT_ID, z.getClient());
 ((DefaultUser)idpUser).setAdditionalInformation(additionalInformation);
-return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(update(z, idpUser, false).flatMap(userService::enhance)));
-}).apply(v)))).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(userService.enhance(z).toMaybe())))));
+return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(update(z, idpUser, false)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(userService::enhance).apply(v)))))));
+}).apply(v)))).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(userService.enhance(z))))))));
     }
 
     @Override

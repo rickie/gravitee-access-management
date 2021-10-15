@@ -150,7 +150,7 @@ public class MembershipServiceImpl implements MembershipService {
                                 updateMembership.setUpdatedAt(new Date());
                                 return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipRepository.update(updateMembership)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
                                             Event event = new Event(Type.MEMBERSHIP, new Payload(membership1.getId(), membership1.getReferenceType(), membership1.getReferenceId(), Action.UPDATE));
-                                            return eventService.create(event).flatMap(__ -> Single.just(membership1));
+                                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(Single.just(membership1))));
                                         }).apply(v)))))
                                         .onErrorResumeNext(ex -> {
                                             if (ex instanceof AbstractManagementException) {
@@ -225,7 +225,7 @@ return createInternal(membership, null);
 
         MembershipCriteria criteria = convert(newMembership);
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(this.findByCriteria(ReferenceType.DOMAIN, domainId, criteria)).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.defer(RxJavaReactorMigrationUtil.callableAsSupplier(() -> roleService.findDefaultRole(organizationId, DefaultRole.DOMAIN_USER, ReferenceType.DOMAIN)
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(this.findByCriteria(ReferenceType.DOMAIN, domainId, criteria)).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.defer(RxJavaReactorMigrationUtil.callableAsSupplier(() -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(roleService.findDefaultRole(organizationId, DefaultRole.DOMAIN_USER, ReferenceType.DOMAIN)
                         .flatMapSingle(role -> {
                             final Membership domainMembership = new Membership();
                             domainMembership.setMemberId(newMembership.getMemberId());
@@ -234,7 +234,7 @@ return createInternal(membership, null);
                             domainMembership.setReferenceId(domainId);
                             domainMembership.setReferenceType(ReferenceType.DOMAIN);
                             return this.createInternal(domainMembership, principal);
-                        }).toFlowable())))).ignoreElements().then().then(RxJava2Adapter.completableToMono(addEnvironmentUserRoleIfNecessary(organizationId, environmentId, newMembership, principal))));
+                        })).flux()))))).ignoreElements().then().then(RxJava2Adapter.completableToMono(addEnvironmentUserRoleIfNecessary(organizationId, environmentId, newMembership, principal))));
     }
 
     @Override
@@ -257,7 +257,7 @@ return createInternal(membership, null);
     private Single<Membership> createInternal(Membership membership, User principal) {
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipRepository.create(membership)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
                     Event event = new Event(Type.MEMBERSHIP, new Payload(membership1.getId(), membership1.getReferenceType(), membership1.getReferenceId(), Action.CREATE));
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(membership1)))));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(membership1)));
                 }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -321,7 +321,7 @@ return createInternal(membership, null);
      * @return
      */
     private Completable checkRole(String organizationId, Membership membership) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(roleService.findById(membership.getRoleId())
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(roleService.findById(membership.getRoleId())
                 .switchIfEmpty(Maybe.error(new RoleNotFoundException(membership.getRoleId())))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Role, MaybeSource<Role>>toJdkFunction(role -> {
                     // If role is a 'PRIMARY_OWNER' role, need to check if it is already assigned or not.
                     if (role.isSystem() && role.getName().endsWith("_PRIMARY_OWNER")) {
@@ -339,7 +339,7 @@ return createInternal(membership, null);
                     }
 
                     return Maybe.just(role);
-                }).apply(v)))))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role1 -> role1.getAssignableType() == membership.getReferenceType() &&
+                }).apply(v)))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role1 -> role1.getAssignableType() == membership.getReferenceType() &&
                         // Role can be either a system role, either an organization role, either a domain role.
                         (role1.isSystem()
                                 || (role1.getReferenceType() == ReferenceType.ORGANIZATION && organizationId.equals(role1.getReferenceId()))

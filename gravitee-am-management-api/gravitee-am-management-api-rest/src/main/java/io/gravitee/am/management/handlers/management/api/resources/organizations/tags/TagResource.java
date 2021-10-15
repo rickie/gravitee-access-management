@@ -67,7 +67,7 @@ public class TagResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("tag") String tagId, @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(tagService.findById(tagId, organizationId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TagNotFoundException(tagId)))))).as(RxJava2Adapter::monoToMaybe)
+        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(tagService.findById(tagId, organizationId)).switchIfEmpty(Mono.error(new TagNotFoundException(tagId)))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 

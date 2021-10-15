@@ -194,11 +194,11 @@ public class CertificateServiceImpl implements CertificateService {
                     }
                 });
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateSingle
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateSingle
                 .flatMap(certificateRepository::create)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificate -> {
                     Event event = new Event(Type.CERTIFICATE, new Payload(certificate.getId(), ReferenceType.DOMAIN, certificate.getDomain(), Action.CREATE));
                     return eventService.create(event).flatMap(__ -> Single.just(certificate));
-                }).apply(v)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
+                }).apply(v)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
                     LOGGER.error("An error occurs while trying to create a certificate", ex);
                     throw new TechnicalManagementException("An error occurs while trying to create a certificate", ex);
                 })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(certificate -> {
@@ -288,10 +288,9 @@ public class CertificateServiceImpl implements CertificateService {
                         emitter.onSuccess(certificateToUpdate);
                     });
 
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateSingle
-                            .flatMap(certificateRepository::update)).flatMap(o->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificate1 -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateSingle).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificateRepository::update).apply(v)))))).flatMap(o->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificate1 -> {
                                 Event event = new Event(Type.CERTIFICATE, new Payload(certificate1.getId(), ReferenceType.DOMAIN, certificate1.getDomain(), Action.UPDATE));
-                                return eventService.create(event).flatMap(__ -> Single.just(certificate1));
+                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->RxJava2Adapter.singleToMono(Single.just(certificate1))));
                             }).apply(o)))))
                             .onErrorResumeNext(ex -> {
                                 LOGGER.error("An error occurs while trying to update a certificate", ex);

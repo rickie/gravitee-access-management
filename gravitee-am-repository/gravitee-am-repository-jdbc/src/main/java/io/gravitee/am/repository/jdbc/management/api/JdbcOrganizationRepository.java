@@ -89,7 +89,7 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
 
         Maybe<List<String>> hrids = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(hridsRepository.findAllByOrganizationId(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcOrganization.Hrid::getHrid)).collectList());
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(organizationRepository.findById(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toOrganization)))).zipWith(RxJava2Adapter.maybeToMono(identities), RxJavaReactorMigrationUtil.toJdkBiFunction((org, idp) -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(organizationRepository.findById(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toOrganization)).zipWith(RxJava2Adapter.maybeToMono(identities), RxJavaReactorMigrationUtil.toJdkBiFunction((org, idp) -> {
                     LOGGER.debug("findById({}) fetch {} identities", organizationId, idp.size());
                     org.setIdentities(idp);
                     return org;

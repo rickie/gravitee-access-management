@@ -72,7 +72,7 @@ public class JdbcRequestObjectRepository extends AbstractJdbcRepository implemen
                 .using(toJdbcEntity(requestObject))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(requestObjectRepository.findById(requestObject.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create requestObject with id {}", requestObject.getId(), error))));
+        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(requestObjectRepository.findById(requestObject.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create requestObject with id {}", requestObject.getId(), error))));
     }
 
     @Override

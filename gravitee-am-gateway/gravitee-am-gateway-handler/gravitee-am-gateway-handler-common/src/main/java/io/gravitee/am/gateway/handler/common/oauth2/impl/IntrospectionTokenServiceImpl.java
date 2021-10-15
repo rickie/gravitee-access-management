@@ -67,7 +67,7 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
                     }
 
                     // check if token is not revoked
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken(jwt.getJti())).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new InvalidTokenException("The token is invalid", "Token with JTI [" + jwt.getJti() + "] not found in the database", jwt)))).map(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken(jwt.getJti())).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidTokenException("The token is invalid", "Token with JTI [" + jwt.getJti() + "] not found in the database", jwt))))).map(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> {
                                 if (accessToken.getExpireAt().before(new Date())) {
                                     throw new InvalidTokenException("The token expired", "Token with JTI [" + jwt.getJti() + "] is expired", jwt);
                                 }

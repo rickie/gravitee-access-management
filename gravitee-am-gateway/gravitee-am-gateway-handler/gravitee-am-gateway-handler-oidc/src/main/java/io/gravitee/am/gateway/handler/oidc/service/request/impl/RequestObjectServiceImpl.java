@@ -123,7 +123,7 @@ public class RequestObjectServiceImpl implements RequestObjectService {
         try {
             JWT jwt = JWTParser.parse(request.getRequest());
 
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkRequestObjectAlgorithm(jwt)).then(RxJava2Adapter.singleToMono(Single.wrap(Single.defer(() -> validateSignature((SignedJWT) jwt, client))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JWT, SingleSource<RequestObject>>toJdkFunction(new Function<JWT, SingleSource<RequestObject>>() {
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkRequestObjectAlgorithm(jwt)).then(RxJava2Adapter.singleToMono(Single.defer(() -> validateSignature((SignedJWT) jwt, client)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JWT, SingleSource<RequestObject>>toJdkFunction(new Function<JWT, SingleSource<RequestObject>>() {
                         @Override
                         public SingleSource<RequestObject> apply(JWT jwt) throws Exception {
                             RequestObject requestObject = new RequestObject();
@@ -156,7 +156,7 @@ public class RequestObjectServiceImpl implements RequestObjectService {
     }
 
     private Single<JWT> validateSignature(SignedJWT jwt, Client client) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwkService.getKeys(client)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new InvalidRequestObjectException()))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWKSet, MaybeSource<JWK>>toJdkFunction(new Function<JWKSet, MaybeSource<JWK>>() {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwkService.getKeys(client)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidRequestObjectException())))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWKSet, MaybeSource<JWK>>toJdkFunction(new Function<JWKSet, MaybeSource<JWK>>() {
                     @Override
                     public MaybeSource<JWK> apply(JWKSet jwkSet) throws Exception {
                         return jwkService.getKey(jwkSet, jwt.getHeader().getKeyID());

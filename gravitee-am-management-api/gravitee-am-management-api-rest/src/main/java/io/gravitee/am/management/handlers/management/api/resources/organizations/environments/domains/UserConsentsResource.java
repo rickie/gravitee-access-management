@@ -51,6 +51,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -91,7 +92,7 @@ public class UserConsentsResource extends AbstractResource {
             @QueryParam("clientId") String clientId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new DomainNotFoundException(domain))))))
                         .flatMapPublisher(__ -> {
                             if (clientId == null || clientId.isEmpty()) {
                                 return scopeApprovalService.findByDomainAndUser(domain, user);
@@ -125,7 +126,7 @@ public class UserConsentsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domain))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Domain, CompletableSource>)__ -> {
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Domain, CompletableSource>)__ -> {
                             if (clientId == null || clientId.isEmpty()) {
                                 return scopeApprovalService.revokeByUser(domain, user, authenticatedUser);
                             }
@@ -145,12 +146,12 @@ public class UserConsentsResource extends AbstractResource {
     }
 
     private Single<ScopeEntity> getScope(String domain, String scopeKey) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, scopeKey)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(scopeService.findByDomainAndKey(domain, getScopeBase(scopeKey)).map(entity -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, scopeKey)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(scopeService.findByDomainAndKey(domain, getScopeBase(scopeKey)).map(entity -> {
                     // set the right scopeKey since the one returned by the service contains the scope definition without parameter
                     entity.setId("unknown-id");
                     entity.setKey(scopeKey);
                     return entity;
-                })))))).map(RxJavaReactorMigrationUtil.toJdkFunction(ScopeEntity::new)).defaultIfEmpty(new ScopeEntity("unknown-id", scopeKey, "unknown-scope-name", "unknown-scope-description")).single())
+                })))).map(RxJavaReactorMigrationUtil.toJdkFunction(ScopeEntity::new)).defaultIfEmpty(new ScopeEntity("unknown-id", scopeKey, "unknown-scope-name", "unknown-scope-description")).single())
                 .cache();
     }
 

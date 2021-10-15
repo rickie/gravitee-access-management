@@ -201,21 +201,20 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
     }
 
     private Maybe<UserAuthentication> loadUserByUsername0(Client client, Authentication authentication, String authProvider, boolean preAuthenticated) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.get(authProvider)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new BadCredentialsException("Unable to load authentication provider " + authProvider + ", an error occurred during the initialization stage")))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(authenticationProvider -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.get(authProvider)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Unable to load authentication provider " + authProvider + ", an error occurred during the initialization stage"))))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(authenticationProvider -> {
                     logger.debug("Authentication attempt using identity provider {} ({})", authenticationProvider, authenticationProvider.getClass().getName());
-                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Maybe.just(preAuthenticated)).flatMap(y->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Boolean, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(preAuth -> {
+                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(preAuthenticated))).flatMap(y->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Boolean, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(preAuth -> {
                                 if (preAuth) {
                                     final String username = authentication.getPrincipal().toString();
-                                    return userService.findByDomainAndUsernameAndSource(domain.getId(), username, authProvider)
-                                            .switchIfEmpty(Maybe.error(new UsernameNotFoundException(username)))
-                                            .flatMap(user -> {
+                                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), username, authProvider)
+                                            .switchIfEmpty(Maybe.error(new UsernameNotFoundException(username)))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(user -> {
                                                 final Authentication enhanceAuthentication = new EndUserAuthentication(user, null, authentication.getContext());
                                                 return authenticationProvider.loadPreAuthenticatedUser(enhanceAuthentication);
-                                            });
+                                            }).apply(v)))));
                                 } else {
                                     return authenticationProvider.loadUserByUsername(authentication);
                                 }
-                            }).apply(y)))).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UsernameNotFoundException(authentication.getPrincipal().toString()))))));
+                            }).apply(y)))).switchIfEmpty(Mono.error(new UsernameNotFoundException(authentication.getPrincipal().toString()))));
                 }).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                     logger.debug("Successfully Authenticated: " + authentication.getPrincipal() + " with provider authentication provider " + authProvider);
                     Map<String, Object> additionalInformation = user.getAdditionalInformation() == null ? new HashMap<>() : new HashMap<>(user.getAdditionalInformation());
