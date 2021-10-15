@@ -78,7 +78,7 @@ public class ServiceResourceResource extends AbstractResource {
             @PathParam("resource") String resource,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_RESOURCE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domain))))))).flatMap(z->resourceService.findById(resource).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new FactorNotFoundException(resource))).map(RxJavaReactorMigrationUtil.toJdkFunction(res1 -> {
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_RESOURCE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domain))))).flatMap(z->resourceService.findById(resource).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new FactorNotFoundException(resource))).map(RxJavaReactorMigrationUtil.toJdkFunction(res1 -> {
                             if (!res1.getReferenceId().equalsIgnoreCase(domain) && res1.getReferenceType() != ReferenceType.DOMAIN) {
                                 throw new BadRequestException("Resource does not belong to domain");
                             }

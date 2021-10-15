@@ -72,7 +72,7 @@ public class IdentityProviderPluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the identity provider exists
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderPluginService.findById(identityProviderId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new IdentityProviderPluginNotFoundException(identityProviderId))))).flatMap(z->identityProviderPluginService.getSchema(identityProviderId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new IdentityProviderPluginSchemaNotFoundException(identityProviderId))).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviderPluginSchema -> Response.ok(identityProviderPluginSchema).build())))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderPluginService.findById(identityProviderId)).switchIfEmpty(Mono.error(new IdentityProviderPluginNotFoundException(identityProviderId))).flatMap(z->identityProviderPluginService.getSchema(identityProviderId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new IdentityProviderPluginSchemaNotFoundException(identityProviderId))).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviderPluginSchema -> Response.ok(identityProviderPluginSchema).build())))
                 .subscribe(response::resume, response::resume
                 );
     }

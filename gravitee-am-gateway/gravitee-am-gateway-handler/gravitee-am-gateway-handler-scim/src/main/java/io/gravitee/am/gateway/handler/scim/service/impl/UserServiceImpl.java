@@ -142,7 +142,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // check if user is unique
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, domain.getId(), user.getUserName(), source)).hasElement())).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, domain.getId(), user.getUserName(), source)).hasElement().map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
                     if (!isEmpty) {
                         throw new UniquenessException("User with username [" + user.getUserName() + "] already exists");
                     }
@@ -217,7 +217,7 @@ public class UserServiceImpl implements UserService {
 
                                 UserFactorUpdater.updateFactors(existingUser.getFactors(), existingUser, userToUpdate);
 
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(userToUpdate)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(userToUpdate.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserProviderNotFoundException(userToUpdate.getSource()))))))
+                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(userToUpdate)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(userToUpdate.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new UserProviderNotFoundException(userToUpdate.getSource())))))
                                         .flatMapSingle(userProvider -> {
                                             // no idp user check if we need to create it
                                             if (userToUpdate.getExternalId() == null) {
@@ -295,7 +295,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Completable delete(String userId) {
         LOGGER.debug("Delete user {}", userId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userRepository.findById(userId)).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserProviderNotFoundException(user.getSource()))))).flatMap(userProvider->RxJava2Adapter.completableToMono(userProvider.delete(user.getExternalId()))).then(RxJava2Adapter.completableToMono(userRepository.delete(userId)))).onErrorResumeNext((java.lang.Throwable ex)->{
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userRepository.findById(userId)).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new UserProviderNotFoundException(user.getSource())))).flatMap(userProvider->RxJava2Adapter.completableToMono(userProvider.delete(user.getExternalId()))).then(RxJava2Adapter.completableToMono(userRepository.delete(userId)))).onErrorResumeNext((java.lang.Throwable ex)->{
 if (ex instanceof UserNotFoundException) {
 return userRepository.delete(userId);
 }

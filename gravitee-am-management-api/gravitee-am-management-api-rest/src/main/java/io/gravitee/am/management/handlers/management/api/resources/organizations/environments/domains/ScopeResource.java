@@ -80,7 +80,7 @@ public class ScopeResource extends AbstractResource {
             @PathParam("scope") String scopeId,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domain))))))).flatMap(z->scopeService.findById(scopeId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ScopeNotFoundException(scopeId))).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> {
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domain))))).flatMap(z->scopeService.findById(scopeId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ScopeNotFoundException(scopeId))).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> {
                             if (!scope.getDomain().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Scope does not belong to domain");
                             }

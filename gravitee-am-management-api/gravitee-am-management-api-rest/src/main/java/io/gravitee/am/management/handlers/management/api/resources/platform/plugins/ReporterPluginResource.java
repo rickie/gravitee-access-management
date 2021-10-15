@@ -70,7 +70,7 @@ public class ReporterPluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the identity provider exists
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(reporterPluginService.findById(reporterId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new ReporterPluginNotFoundException(reporterId))))).flatMap(z->reporterPluginService.getSchema(reporterId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ReporterPluginSchemaNotFoundException(reporterId))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPluginSchema -> Response.ok(reporterPluginSchema).build())))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(reporterPluginService.findById(reporterId)).switchIfEmpty(Mono.error(new ReporterPluginNotFoundException(reporterId))).flatMap(z->reporterPluginService.getSchema(reporterId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ReporterPluginSchemaNotFoundException(reporterId))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPluginSchema -> Response.ok(reporterPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

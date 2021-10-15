@@ -73,7 +73,7 @@ public class UserCredentialResource extends AbstractResource {
             @PathParam("credential") String credential,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))).flatMap(z->credentialService.findById(credential).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new CredentialNotFoundException(credential)))).as(RxJava2Adapter::monoToMaybe)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new DomainNotFoundException(domain))))).flatMap(z->credentialService.findById(credential).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new CredentialNotFoundException(credential)))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 

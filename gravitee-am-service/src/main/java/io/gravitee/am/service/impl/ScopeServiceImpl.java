@@ -115,7 +115,7 @@ public class ScopeServiceImpl implements ScopeService {
         LOGGER.debug("Create a new scope {} for domain {}", newScope, domain);
         // replace all whitespace by an underscore (whitespace is a reserved keyword to separate tokens)
         String scopeKey = newScope.getKey().replaceAll("\\s+", "_");
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(scopeRepository.findByDomainAndKey(domain, scopeKey)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(scopeRepository.findByDomainAndKey(domain, scopeKey)
                 .isEmpty()).map(RxJavaReactorMigrationUtil.toJdkFunction(empty -> {
                     if (!empty) {
                         throw new ScopeAlreadyExistsException(scopeKey, domain);
@@ -134,7 +134,7 @@ public class ScopeServiceImpl implements ScopeService {
                     scope.setUpdatedAt(new Date());
 
                     return scope;
-                })))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(this::validateIconUri).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scopeRepository::create).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope -> {
+                })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(this::validateIconUri).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scopeRepository::create).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope -> {
                     // create event for sync process
                     Event event = new Event(Type.SCOPE, new Payload(scope.getId(), ReferenceType.DOMAIN, scope.getDomain(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(scope)));
@@ -276,14 +276,14 @@ public class ScopeServiceImpl implements ScopeService {
                         throw new SystemScopeDeleteException(scopeId);
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(scope));
-                })).flatMap(scope->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(Completable.fromSingle(roleService.findByDomain(scope.getDomain()).flatMapObservable((java.util.Set<io.gravitee.am.model.Role> roles)->Observable.fromIterable(roles.stream().filter((io.gravitee.am.model.Role role)->role.getOauthScopes() != null && role.getOauthScopes().contains(scope.getKey())).collect(Collectors.toList()))).flatMapSingle((io.gravitee.am.model.Role role)->{
+                })).flatMap(scope->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(Completable.fromSingle(roleService.findByDomain(scope.getDomain()).flatMapObservable((java.util.Set<io.gravitee.am.model.Role> roles)->Observable.fromIterable(roles.stream().filter((io.gravitee.am.model.Role role)->role.getOauthScopes() != null && role.getOauthScopes().contains(scope.getKey())).collect(Collectors.toList()))).flatMapSingle((io.gravitee.am.model.Role role)->{
 role.getOauthScopes().remove(scope.getKey());
 UpdateRole updatedRole = new UpdateRole();
 updatedRole.setName(role.getName());
 updatedRole.setDescription(role.getDescription());
 updatedRole.setPermissions(role.getOauthScopes());
 return roleService.update(scope.getDomain(), role.getId(), updatedRole);
-}).toList()).andThen(applicationService.findByDomain(scope.getDomain()).flatMapObservable((java.util.Set<io.gravitee.am.model.Application> applications)->Observable.fromIterable(applications.stream().filter((io.gravitee.am.model.Application application)->{
+}).toList())).then(RxJava2Adapter.singleToMono(Single.wrap(applicationService.findByDomain(scope.getDomain()).flatMapObservable((java.util.Set<io.gravitee.am.model.Application> applications)->Observable.fromIterable(applications.stream().filter((io.gravitee.am.model.Application application)->{
 if (application.getSettings() == null) {
 return false;
 }
@@ -296,7 +296,7 @@ return oAuthSettings.getScopeSettings() != null && !oAuthSettings.getScopeSettin
 final List<ApplicationScopeSettings> cleanScopes = application.getSettings().getOauth().getScopeSettings().stream().filter((io.gravitee.am.model.application.ApplicationScopeSettings s)->!s.getScope().equals(scope.getKey())).collect(Collectors.toList());
 application.getSettings().getOauth().setScopeSettings(cleanScopes);
 return applicationService.update(application);
-}).toList()).toCompletable()).then(RxJava2Adapter.completableToMono(Completable.wrap(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey())))).then(RxJava2Adapter.completableToMono(scopeRepository.delete(scopeId))).then(RxJava2Adapter.completableToMono(Completable.fromSingle(eventService.create(new Event(Type.SCOPE, new Payload(scope.getId(), ReferenceType.DOMAIN, scope.getDomain(), Action.DELETE))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_DELETED).scope(scope)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_DELETED).throwable(throwable))))).then())
+}).toList())))).toCompletable()).then(RxJava2Adapter.completableToMono(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey()))).then(RxJava2Adapter.completableToMono(scopeRepository.delete(scopeId))).then(RxJava2Adapter.completableToMono(Completable.fromSingle(eventService.create(new Event(Type.SCOPE, new Payload(scope.getId(), ReferenceType.DOMAIN, scope.getDomain(), Action.DELETE))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_DELETED).scope(scope)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_DELETED).throwable(throwable))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
