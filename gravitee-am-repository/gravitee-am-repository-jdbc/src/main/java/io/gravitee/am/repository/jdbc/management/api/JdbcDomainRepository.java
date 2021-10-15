@@ -209,11 +209,11 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
 
     private Flowable<Domain> completeDomain(Domain entity) {
         return RxJava2Adapter.fluxToFlowable(Flux.just(entity).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
-                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(identitiesRepository.findAllByDomainId(domain.getId()).map(JdbcDomain.Identity::getIdentity).toList()).flux().map(RxJavaReactorMigrationUtil.toJdkFunction(idps -> {
+                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(identitiesRepository.findAllByDomainId(domain.getId()).map(JdbcDomain.Identity::getIdentity)).collectList())).flux().map(RxJavaReactorMigrationUtil.toJdkFunction(idps -> {
                     domain.setIdentities(new HashSet<>(idps));
                     return domain;
                 }))))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
-                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(tagRepository.findAllByDomainId(domain.getId()).map(JdbcDomain.Tag::getTag)).collectList().flux().map(RxJavaReactorMigrationUtil.toJdkFunction(tags -> {
+                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(tagRepository.findAllByDomainId(domain.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcDomain.Tag::getTag)))).collectList().flux().map(RxJavaReactorMigrationUtil.toJdkFunction(tags -> {
                     domain.setTags(new HashSet<>(tags));
                     return domain;
                 }))))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->

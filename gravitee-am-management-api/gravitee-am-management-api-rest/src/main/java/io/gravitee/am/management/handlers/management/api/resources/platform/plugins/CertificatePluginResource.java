@@ -71,7 +71,7 @@ public class CertificatePluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the certificate exists
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificatePluginService.findById(certificateId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new CertificatePluginNotFoundException(certificateId)))).flatMap(z->certificatePluginService.getSchema(certificateId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new CertificatePluginSchemaNotFoundException(certificateId))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificatePluginSchema -> Response.ok(certificatePluginSchema).build())))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificatePluginService.findById(certificateId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new CertificatePluginNotFoundException(certificateId))))).flatMap(z->certificatePluginService.getSchema(certificateId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new CertificatePluginSchemaNotFoundException(certificateId))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificatePluginSchema -> Response.ok(certificatePluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

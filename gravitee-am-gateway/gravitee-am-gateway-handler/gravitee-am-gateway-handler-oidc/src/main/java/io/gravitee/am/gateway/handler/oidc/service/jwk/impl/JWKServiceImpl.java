@@ -76,7 +76,7 @@ public class JWKServiceImpl implements JWKService {
 
     @Override
     public Maybe<JWKSet> getDomainPrivateKeys() {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(certificateManager.providers()))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(provider -> provider.getProvider().privateKey())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
+        return RxJava2Adapter.monoToMaybe(Flux.fromIterable(certificateManager.providers()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(provider -> provider.getProvider().privateKey())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
                     JWKSet jwkSet = new JWKSet();
                     jwkSet.setKeys(keys);
                     return jwkSet;

@@ -82,7 +82,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String organizationId = details.get(Claims.organization);
 
         final String source = details.get(SOURCE);
-        io.gravitee.am.model.User endUser = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, organizationId, principal.getId(), source)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.defer(() -> userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, organizationId, principal.getUsername(), source))))).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UserNotFoundException(principal.getUsername()))))))
+        io.gravitee.am.model.User endUser = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByExternalIdAndSource(ReferenceType.ORGANIZATION, organizationId, principal.getId(), source)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.defer(() -> userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, organizationId, principal.getUsername(), source)))).switchIfEmpty(Mono.error(new UserNotFoundException(principal.getUsername()))))
                 .flatMapSingle(existingUser -> {
                     existingUser.setSource(details.get(SOURCE));
                     existingUser.setLoggedAt(new Date());
@@ -92,7 +92,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     } else {
                         existingUser.setAdditionalInformation(new HashMap<>(principal.getAdditionalInformation()));
                     }
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.update(existingUser)).flatMap(user->RxJava2Adapter.completableToMono(updateRoles(principal, existingUser)).then(RxJava2Adapter.singleToMono(Single.wrap(Single.just(user))))));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.update(existingUser)).flatMap(user->RxJava2Adapter.completableToMono(updateRoles(principal, existingUser)).then(RxJava2Adapter.singleToMono(Single.just(user)))));
                 })
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof UserNotFoundException) {
@@ -106,7 +106,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         newUser.setLoggedAt(new Date());
                         newUser.setLoginsCount(1l);
                         newUser.setAdditionalInformation(principal.getAdditionalInformation());
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.create(newUser)).flatMap(user->RxJava2Adapter.completableToMono(userService.setRoles(principal, user)).then(RxJava2Adapter.singleToMono(Single.wrap(Single.just(user))))));
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.create(newUser)).flatMap(user->RxJava2Adapter.completableToMono(userService.setRoles(principal, user)).then(RxJava2Adapter.singleToMono(Single.just(user)))));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));
                 })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(userService::enhance).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> auditService.report(AuditBuilder.builder(AuthenticationAuditBuilder.class).principal(authentication).referenceType(ReferenceType.ORGANIZATION)
@@ -151,7 +151,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         final String roleId = principal.getRoles().get(0);
 
         // update membership if necessary
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(membershipService.findByMember(existingUser.getId(), MemberType.USER)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(membership -> ReferenceType.ORGANIZATION == membership.getReferenceType())))).next().map(RxJavaReactorMigrationUtil.toJdkFunction(membership -> !membership.getRoleId().equals(roleId))).switchIfEmpty(Mono.just(false)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)mustChangeOrganizationRole -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(membershipService.findByMember(existingUser.getId(), MemberType.USER)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(membership -> ReferenceType.ORGANIZATION == membership.getReferenceType())).next().map(RxJavaReactorMigrationUtil.toJdkFunction(membership -> !membership.getRoleId().equals(roleId))).switchIfEmpty(Mono.just(false)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)mustChangeOrganizationRole -> {
 
                     if (!mustChangeOrganizationRole) {
                         return RxJava2Adapter.monoToCompletable(Mono.empty());

@@ -28,6 +28,7 @@ import io.gravitee.am.common.web.UriBuilder;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.*;
 import io.gravitee.am.model.Application;
+import io.gravitee.am.model.Email;
 import io.gravitee.am.model.Form;
 import io.gravitee.am.model.Membership;
 import io.gravitee.am.model.Role;
@@ -341,7 +342,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public Single<Application> renewClientSecret(String domain, String id, User principal) {
         LOGGER.debug("Renew client secret for application {} and domain {}", id, domain);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new ApplicationNotFoundException(id))))))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationRepository.findById(id)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(id))))
                 .flatMapSingle(application -> {
                     // check application
                     if (application.getSettings() == null) {
@@ -374,8 +375,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(applicationRepository.findById(id)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(id))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Application, CompletableSource>)application -> {
                     // create event for sync process
                     Event event = new Event(Type.APPLICATION, new Payload(application.getId(), ReferenceType.DOMAIN, application.getDomain(), Action.DELETE));
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(applicationRepository.delete(id)).then(RxJava2Adapter.completableToMono(Completable.wrap(eventService.create(event).toCompletable()))))).then(RxJava2Adapter.completableToMono(emailTemplateService.findByClient(ReferenceType.DOMAIN, application.getDomain(), application.getId())
-                                    .flatMapCompletable(email -> emailTemplateService.delete(email.getId())))).then(RxJava2Adapter.flowableToFlux(formService.findByDomainAndClient(application.getDomain(), application.getId())).flatMap(t->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Form, CompletableSource>toJdkFunction(form -> formService.delete(application.getDomain(), form.getId())).apply(t)))).then()).then(RxJava2Adapter.flowableToFlux(membershipService.findByReference(application.getId(), ReferenceType.APPLICATION)).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Membership, CompletableSource>toJdkFunction(membership -> membershipService.delete(membership.getId())).apply(z)))).then()))
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(applicationRepository.delete(id)).then(RxJava2Adapter.completableToMono(Completable.wrap(eventService.create(event).toCompletable()))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(emailTemplateService.findByClient(ReferenceType.DOMAIN, application.getDomain(), application.getId())).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Email, CompletableSource>toJdkFunction(email -> emailTemplateService.delete(email.getId())).apply(y)))).then()))).then(RxJava2Adapter.flowableToFlux(formService.findByDomainAndClient(application.getDomain(), application.getId())).flatMap(t->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Form, CompletableSource>toJdkFunction(form -> formService.delete(application.getDomain(), form.getId())).apply(t)))).then()).then(RxJava2Adapter.flowableToFlux(membershipService.findByReference(application.getId(), ReferenceType.APPLICATION)).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Membership, CompletableSource>toJdkFunction(membership -> membershipService.delete(membership.getId())).apply(z)))).then()))
                             .doOnComplete(() -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_DELETED).application(application)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_DELETED).throwable(throwable)))));
                 }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
@@ -461,18 +461,17 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setUpdatedAt(application.getCreatedAt());
 
         // check uniqueness
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkApplicationUniqueness(domain, application)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkApplicationUniqueness(domain, application)
                 // validate application metadata
                 .andThen(validateApplicationMetadata(application))
                 // set default certificate
-                .flatMap(this::setDefaultCertificate)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(applicationRepository::create).apply(v)))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Object>>toJdkFunction(application1 -> {
+                .flatMap(this::setDefaultCertificate)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(applicationRepository::create).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Object>>toJdkFunction(application1 -> {
                     if (principal == null || principal.getAdditionalInformation() == null || StringUtils.isEmpty(principal.getAdditionalInformation().get(Claims.organization))) {
                         // There is no principal or we can not find the organization the user is attached to. Can't assign role.
                         return RxJava2Adapter.monoToSingle(Mono.just(application1));
                     }
 
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(roleService.findSystemRole(SystemRole.APPLICATION_PRIMARY_OWNER, ReferenceType.APPLICATION)
-                            .switchIfEmpty(Single.error(new InvalidRoleException("Cannot assign owner to the application, owner role does not exist")))).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Role, SingleSource<Object>>toJdkFunction(role -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(roleService.findSystemRole(SystemRole.APPLICATION_PRIMARY_OWNER, ReferenceType.APPLICATION)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new InvalidRoleException("Cannot assign owner to the application, owner role does not exist"))))))).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Role, SingleSource<Object>>toJdkFunction(role -> {
                                 Membership membership = new Membership();
                                 membership.setDomain(application1.getDomain());
                                 membership.setMemberId(principal.getId());
@@ -480,8 +479,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                                 membership.setReferenceId(application1.getId());
                                 membership.setReferenceType(ReferenceType.APPLICATION);
                                 membership.setRoleId(role.getId());
-                                return membershipService.addOrUpdate((String) principal.getAdditionalInformation().get(Claims.organization), membership)
-                                        .map(__ -> domain);
+                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipService.addOrUpdate((String) principal.getAdditionalInformation().get(Claims.organization), membership)).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> domain)));
                             }).apply(a)))));
                 }).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Object, SingleSource<Application>>toJdkFunction(application1 -> {
                     Event event = new Event(Type.APPLICATION, new Payload(application.getId(), ReferenceType.DOMAIN, application.getDomain(), Action.CREATE));
@@ -495,7 +493,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         applicationToUpdate.setUpdatedAt(new Date());
 
         // validate application metadata
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(validateApplicationMetadata(applicationToUpdate)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(this::validateApplicationIdentityProviders).apply(v)))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(applicationRepository::update).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(application1 -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(validateApplicationMetadata(applicationToUpdate)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(this::validateApplicationIdentityProviders).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(applicationRepository::update).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(application1 -> {
                     Event event = new Event(Type.APPLICATION, new Payload(application1.getId(), ReferenceType.DOMAIN, application1.getDomain(), Action.UPDATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(domain1->Mono.just(application1)));
                 }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(application -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_UPDATED).oldValue(currentApplication).application(application)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_UPDATED).throwable(throwable)))));

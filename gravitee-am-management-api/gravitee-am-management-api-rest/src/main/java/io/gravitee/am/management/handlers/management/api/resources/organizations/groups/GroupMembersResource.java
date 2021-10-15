@@ -80,11 +80,10 @@ public class GroupMembersResource extends AbstractResource {
                             return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(pagedMembers.getData())
                                     .flatMapSingle(member -> {
                                         if (member.getSource() != null) {
-                                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(member.getSource())
-                                                    .map(idP -> {
+                                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderService.findById(member.getSource())).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
                                                         member.setSource(idP.getName());
                                                         return member;
-                                                    })).defaultIfEmpty(member).single());
+                                                    })))).defaultIfEmpty(member).single());
                                         }
                                         return RxJava2Adapter.monoToSingle(Mono.just(member));
                                     })

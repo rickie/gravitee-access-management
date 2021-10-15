@@ -123,7 +123,7 @@ public class RequestObjectServiceImpl implements RequestObjectService {
         try {
             JWT jwt = JWTParser.parse(request.getRequest());
 
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkRequestObjectAlgorithm(jwt)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.defer(()->RxJava2Adapter.singleToMono(validateSignature((SignedJWT)jwt, client)))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JWT, SingleSource<RequestObject>>toJdkFunction(new Function<JWT, SingleSource<RequestObject>>() {
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkRequestObjectAlgorithm(jwt)).then(Mono.defer(()->RxJava2Adapter.singleToMono(validateSignature((SignedJWT)jwt, client)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JWT, SingleSource<RequestObject>>toJdkFunction(new Function<JWT, SingleSource<RequestObject>>() {
                         @Override
                         public SingleSource<RequestObject> apply(JWT jwt) throws Exception {
                             RequestObject requestObject = new RequestObject();

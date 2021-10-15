@@ -85,7 +85,7 @@ public class CertificatesResource extends AbstractResource {
             @QueryParam("use") String use,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.LIST)).then(RxJava2Adapter.flowableToFlux(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.LIST)).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapPublisher(__ -> certificateService.findByDomain(domain))
                         .filter(c -> {
@@ -97,8 +97,7 @@ public class CertificatesResource extends AbstractResource {
                             }
                             // no value, return true as sig should be the default
                             return true;
-                        })
-                        .map(this::filterCertificateInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(sortedCertificates -> Response.ok(sortedCertificates).build()))))
+                        })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterCertificateInfos)))).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(sortedCertificates -> Response.ok(sortedCertificates).build()))))
                 .subscribe(response::resume, response::resume);
     }
 

@@ -198,7 +198,7 @@ public class JWEServiceImpl implements JWEService {
 
     private Single<JWT> decrypt(JWEObject jwe, Client client, Predicate<JWK> filter, JWEDecrypterFunction<JWK, JWEDecrypter> function) {
         final Maybe<JWKSet> jwks = client != null ? jwkService.getKeys(client) : jwkService.getDomainPrivateKeys();
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(jwks
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(jwks
                 .flatMapPublisher(jwkset -> Flowable.fromIterable(jwkset.getKeys()))
                 .filter(filter::test)
                 .filter(jwk -> jwk.getUse() == null || jwk.getUse().equals(KeyUse.ENCRYPTION.getValue()))
@@ -210,7 +210,7 @@ public class JWEServiceImpl implements JWEService {
                     } catch (Exception e) {
                         return Optional.<JWT>empty();
                     }
-                })))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(Optional::isPresent)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::get)).next().single());
+                })).filter(RxJavaReactorMigrationUtil.toJdkPredicate(Optional::isPresent)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::get)).next().single());
     }
 
     public Single<String> encryptAuthorization(String signedJwt, Client client) {
