@@ -351,7 +351,7 @@ public class UserServiceImpl implements UserService {
                                     return RxJava2Adapter.monoToSingle(Mono.error(new UserNotFoundException()));
                                 }
                                 final UserAuthentication idpUser = optional.get();
-                                return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), idpUser.getUser().getUsername(), idpUser.getSource())).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.defer(()->RxJava2Adapter.maybeToMono(userService.findByDomainAndExternalIdAndSource(domain.getId(), idpUser.getUser().getId(), idpUser.getSource())))))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()))
+                                return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), idpUser.getUser().getUsername(), idpUser.getSource())).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(userService.findByDomainAndExternalIdAndSource(domain.getId(), idpUser.getUser().getId(), idpUser.getSource())))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()))
                                         .flatMapSingle(optEndUser -> {
                                             if (!optEndUser.isPresent()) {
                                                 return userService.create(convert(idpUser.getUser(), idpUser.getSource()));
