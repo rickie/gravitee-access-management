@@ -28,6 +28,7 @@ import io.gravitee.am.model.Email;
 import io.gravitee.am.model.Environment;
 import io.gravitee.am.model.Factor;
 import io.gravitee.am.model.Form;
+import io.gravitee.am.model.Group;
 import io.gravitee.am.model.Membership;
 import io.gravitee.am.model.Reporter;
 import io.gravitee.am.model.Role;
@@ -340,7 +341,7 @@ public class DomainServiceImpl implements DomainService {
         LOGGER.debug("Delete security domain {}", domainId);
         return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(domainRepository.findById(domainId)).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Domain, CompletableSource>)domain -> {
                     // delete applications
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(applicationService.findByDomain(domainId)
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(applicationService.findByDomain(domainId)
                             .flatMapCompletable(applications -> {
                                 List<Completable> deleteApplicationsCompletable = applications.stream().map(a -> applicationService.delete(a.getId())).collect(Collectors.toList());
                                 return Completable.concat(deleteApplicationsCompletable);
@@ -367,9 +368,8 @@ public class DomainServiceImpl implements DomainService {
                                     })
                             )).then(RxJava2Adapter.completableToMono(Completable.wrap(userService.findByDomain(domainId)
                                     .flatMapCompletable(user ->
-                                        userService.delete(user.getId()))))))).then(RxJava2Adapter.completableToMono(groupService.findByDomain(domainId)
-                                    .flatMapCompletable(group ->
-                                        groupService.delete(ReferenceType.DOMAIN, domainId, group.getId())))).then(RxJava2Adapter.singleToMono(scopeService.findByDomain(domainId, 0, Integer.MAX_VALUE)).flatMap(g->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Page<io.gravitee.am.model.oauth2.Scope>, CompletableSource>toJdkFunction(scopes -> {
+                                        userService.delete(user.getId()))))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(groupService.findByDomain(domainId)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Group, CompletableSource>toJdkFunction(group ->
+                                        groupService.delete(ReferenceType.DOMAIN, domainId, group.getId())).apply(y)))).then()))).then(RxJava2Adapter.singleToMono(scopeService.findByDomain(domainId, 0, Integer.MAX_VALUE)).flatMap(g->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Page<io.gravitee.am.model.oauth2.Scope>, CompletableSource>toJdkFunction(scopes -> {
                                         List<Completable> deleteScopesCompletable = scopes.getData().stream().map(s -> scopeService.delete(s.getId(), true)).collect(Collectors.toList());
                                         return Completable.concat(deleteScopesCompletable);
                                     }).apply(g)))).then()).then(RxJava2Adapter.flowableToFlux(emailTemplateService.findAll(ReferenceType.DOMAIN, domainId)).flatMap(g->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Email, CompletableSource>toJdkFunction(emailTemplate -> emailTemplateService.delete(emailTemplate.getId())).apply(g)))).then()).then(RxJava2Adapter.flowableToFlux(formService.findByDomain(domainId)).flatMap(e->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Form, CompletableSource>toJdkFunction(formTemplate -> formService.delete(domainId, formTemplate.getId())).apply(e)))).then()).then(RxJava2Adapter.flowableToFlux(reporterService.findByDomain(domainId)).flatMap(a->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Reporter, CompletableSource>toJdkFunction(reporter ->
