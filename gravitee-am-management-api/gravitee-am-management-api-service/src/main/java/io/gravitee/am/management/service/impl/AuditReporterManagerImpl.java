@@ -54,6 +54,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -117,10 +119,10 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
                         .findById(reporter.getDomain())
                         .flatMapSingle(domain -> {
                             if (ReferenceType.ENVIRONMENT == domain.getReferenceType()) {
-                                return environmentService.findById(domain.getReferenceId()).map(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()));
+                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentService.findById(domain.getReferenceId())).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))));
                             } else {
                                 // currently domain is only linked to domainEnv
-                                return Single.error(new EnvironmentNotFoundException("Domain " + reporter.getDomain() +" should be lined to an Environment"));
+                                return RxJava2Adapter.monoToSingle(Mono.error(new EnvironmentNotFoundException("Domain " + reporter.getDomain() +" should be lined to an Environment")));
                             }
                         })).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))
                         .subscribe(launcher);
@@ -205,7 +207,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
         // to propagate across the cluster so if there are at least one reporter for the domain, return the NoOpReporter to avoid
         // too long waiting time that may lead to unexpected even on the UI.
         try {
-            List<io.gravitee.am.model.Reporter> reporters = RxJava2Adapter.singleToMono(reporterService.findByDomain(domain).toList()).block();
+            List<io.gravitee.am.model.Reporter> reporters = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(reporterService.findByDomain(domain)).collectList())).block();
             if (reporters.isEmpty()) {
                 throw new ReporterNotFoundForDomainException(domain);
             }
@@ -273,10 +275,10 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
                 .findById(reporter.getDomain())
                 .flatMapSingle(domain -> {
                     if (ReferenceType.ENVIRONMENT == domain.getReferenceType()) {
-                        return environmentService.findById(domain.getReferenceId()).map(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()));
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentService.findById(domain.getReferenceId())).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))));
                     } else {
                         // currently domain is only linked to domainEnv
-                        return Single.error(new EnvironmentNotFoundException("Domain " + reporter.getDomain() +" should be lined to an Environment"));
+                        return RxJava2Adapter.monoToSingle(Mono.error(new EnvironmentNotFoundException("Domain " + reporter.getDomain() +" should be lined to an Environment")));
                     }
                 })).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))
                 .subscribe(launcher);

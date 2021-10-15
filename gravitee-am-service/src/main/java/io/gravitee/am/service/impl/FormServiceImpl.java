@@ -51,6 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -90,8 +91,8 @@ public class FormServiceImpl implements FormService {
         LOGGER.debug("Find form by {} {}", referenceType, referenceId);
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(formRepository.findAll(referenceType, referenceId)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a form using its {} {}", referenceType, referenceId, ex);
-                    return Flowable.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a form using its %s %s", referenceType, referenceId), ex));
+                    return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a form using its %s %s", referenceType, referenceId), ex)));
                 })));
     }
 
@@ -111,8 +112,8 @@ public class FormServiceImpl implements FormService {
         LOGGER.debug("Find form by {} {} and client {}", referenceType, referenceId, client);
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(formRepository.findByClient(referenceType, referenceId, client)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a form using its {} {} and its client {}", referenceType, referenceId, client, ex);
-                    return Flowable.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a form using its %s %s and client %s", referenceType, referenceId, client), ex));
+                    return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a form using its %s %s and client %s", referenceType, referenceId, client), ex)));
                 })));
     }
 
@@ -191,7 +192,7 @@ public class FormServiceImpl implements FormService {
     public Single<Form> update(ReferenceType referenceType, String referenceId, String id, UpdateForm updateForm, User principal) {
         LOGGER.debug("Update a form {} for {}} {}", id, referenceType, referenceId);
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findById(referenceType, referenceId, id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new FormNotFoundException(id))))))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findById(referenceType, referenceId, id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new FormNotFoundException(id)))))
                 .flatMapSingle(oldForm -> {
                     Form formToUpdate = new Form(oldForm);
                     formToUpdate.setEnabled(updateForm.isEnabled());
@@ -199,13 +200,12 @@ public class FormServiceImpl implements FormService {
                     formToUpdate.setAssets(updateForm.getAssets());
                     formToUpdate.setUpdatedAt(new Date());
 
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(formRepository.update(formToUpdate)
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(formRepository.update(formToUpdate)
                             .flatMap(page -> {
                                 // create event for sync process
                                 Event event = new Event(Type.FORM, new Payload(page.getId(), page.getReferenceType(), page.getReferenceId(), Action.UPDATE));
                                 return eventService.create(event).flatMap(__ -> Single.just(page));
-                            })
-                            .doOnSuccess(form -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_UPDATED).oldValue(oldForm).form(form)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_UPDATED).throwable(throwable)))));
+                            })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(form -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_UPDATED).oldValue(oldForm).form(form)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_UPDATED).throwable(throwable)))));
                 })
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -233,7 +233,7 @@ public class FormServiceImpl implements FormService {
         String formId = RandomString.generate();
 
         // check if form is unique
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkFormUniqueness(referenceType, referenceId, client, newForm.getTemplate().template())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkFormUniqueness(referenceType, referenceId, client, newForm.getTemplate().template())
                 .flatMap(irrelevant -> {
                     Form form = new Form();
                     form.setId(formId);
@@ -260,22 +260,19 @@ public class FormServiceImpl implements FormService {
 
                     LOGGER.error("An error occurs while trying to create a form", ex);
                     return Single.error(new TechnicalManagementException("An error occurs while trying to create a form", ex));
-                })
-                .doOnSuccess(form -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_CREATED).form(form)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_CREATED).throwable(throwable)))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(form -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_CREATED).form(form)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_CREATED).throwable(throwable)))));
     }
 
     @Override
     public Completable delete(ReferenceType referenceType, String referenceId, String formId, User principal) {
         LOGGER.debug("Delete form {}", formId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(formRepository.findById(referenceType, referenceId, formId)
-                .switchIfEmpty(Maybe.error(new FormNotFoundException(formId)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Form, CompletableSource>)page -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findById(referenceType, referenceId, formId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new FormNotFoundException(formId))))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Form, CompletableSource>)page -> {
                     // create event for sync process
                     Event event = new Event(Type.FORM, new Payload(page.getId(), page.getReferenceType(), page.getReferenceId(), Action.DELETE));
 
-                    return formRepository.delete(formId)
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(formRepository.delete(formId)
                             .andThen(eventService.create(event)).toCompletable()
-                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_DELETED).form(page)))
-                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_DELETED).throwable(throwable)));
+                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_DELETED).form(page)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_DELETED).throwable(throwable)))));
                 }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -299,8 +296,7 @@ public class FormServiceImpl implements FormService {
                 findByTemplate(referenceType, referenceId, formTemplate) :
                 findByClientAndTemplate(referenceType, referenceId, client, formTemplate);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(maybeSource
-                .isEmpty()).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(maybeSource).hasElement())).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
                     if (!isEmpty) {
                         throw new FormAlreadyExistsException(formTemplate);
                     }

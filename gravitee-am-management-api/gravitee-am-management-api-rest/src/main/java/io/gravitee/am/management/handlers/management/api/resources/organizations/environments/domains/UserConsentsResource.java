@@ -87,7 +87,7 @@ public class UserConsentsResource extends AbstractResource {
             @QueryParam("clientId") String clientId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapPublisher(__ -> {
                             if (clientId == null || clientId.isEmpty()) {
@@ -103,7 +103,7 @@ public class UserConsentsResource extends AbstractResource {
                                             scopeApprovalEntity.setScopeEntity(scopeEntity);
                                             return scopeApprovalEntity;
                                         })))
-                        .toList()))))
+                        .toList())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -124,14 +124,14 @@ public class UserConsentsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.completableToMono(Completable.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.completableToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapCompletable(__ -> {
                             if (clientId == null || clientId.isEmpty()) {
                                 return scopeApprovalService.revokeByUser(domain, user, authenticatedUser);
                             }
                             return scopeApprovalService.revokeByUserAndClient(domain, user, clientId, authenticatedUser);
-                        })))))
+                        }))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
@@ -141,22 +141,20 @@ public class UserConsentsResource extends AbstractResource {
     }
 
     private Single<ApplicationEntity> getClient(String domain, String clientId) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(applicationService.findByDomainAndClientId(domain, clientId)
-                .map(ApplicationEntity::new)
-                .defaultIfEmpty(new ApplicationEntity("unknown-id", clientId, "unknown-client-name"))).single())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationService.findByDomainAndClientId(domain, clientId)
+                .map(ApplicationEntity::new)).defaultIfEmpty(new ApplicationEntity("unknown-id", clientId, "unknown-client-name")))).single())
                 .cache();
     }
 
     private Single<ScopeEntity> getScope(String domain, String scopeKey) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, scopeKey)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, scopeKey)
                 .switchIfEmpty(scopeService.findByDomainAndKey(domain, getScopeBase(scopeKey)).map(entity -> {
                     // set the right scopeKey since the one returned by the service contains the scope definition without parameter
                     entity.setId("unknown-id");
                     entity.setKey(scopeKey);
                     return entity;
                 }))
-                .map(ScopeEntity::new)
-                .defaultIfEmpty(new ScopeEntity("unknown-id", scopeKey, "unknown-scope-name", "unknown-scope-description"))).single())
+                .map(ScopeEntity::new)).defaultIfEmpty(new ScopeEntity("unknown-id", scopeKey, "unknown-scope-name", "unknown-scope-description")))).single())
                 .cache();
     }
 

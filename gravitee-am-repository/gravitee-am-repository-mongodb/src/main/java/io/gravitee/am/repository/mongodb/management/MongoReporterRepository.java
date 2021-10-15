@@ -23,12 +23,14 @@ import io.gravitee.am.model.Reporter;
 import io.gravitee.am.repository.management.api.ReporterRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.ReporterMongo;
 import io.reactivex.*;
+import io.reactivex.BackpressureStrategy;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -50,30 +52,30 @@ public class MongoReporterRepository extends AbstractManagementMongoRepository i
 
     @Override
     public Flowable<Reporter> findAll() {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(reportersCollection.find())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(reportersCollection.find()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Reporter> findByDomain(String domain) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(reportersCollection.find(eq(FIELD_DOMAIN, domain)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(reportersCollection.find(eq(FIELD_DOMAIN, domain))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Reporter> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(reportersCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(reportersCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Reporter> create(Reporter item) {
         ReporterMongo reporter = convert(item);
         reporter.setId(reporter.getId() == null ? RandomString.generate() : reporter.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(reportersCollection.insertOne(reporter))).flatMap(success->RxJava2Adapter.singleToMono(findById(reporter.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(reportersCollection.insertOne(reporter))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(reporter.getId())).single()))));
     }
 
     @Override
     public Single<Reporter> update(Reporter item) {
         ReporterMongo reporter = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(reportersCollection.replaceOne(eq(FIELD_ID, reporter.getId()), reporter))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(reporter.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(reportersCollection.replaceOne(eq(FIELD_ID, reporter.getId()), reporter))).flatMap(updateResult->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(reporter.getId())).single()))));
     }
 
     @Override

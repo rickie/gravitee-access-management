@@ -88,7 +88,7 @@ public class MembershipHelper {
 
         MembershipCriteria criteria = new MembershipCriteria();
         criteria.setUserId(user.getId());
-        Boolean alreadyHasMembership = RxJava2Adapter.singleToMono(membershipService.findByCriteria(ReferenceType.ORGANIZATION, Organization.DEFAULT, criteria).count().map(count -> count > 0)).block();
+        Boolean alreadyHasMembership = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipService.findByCriteria(ReferenceType.ORGANIZATION, Organization.DEFAULT, criteria).count()).map(RxJavaReactorMigrationUtil.toJdkFunction(count -> count > 0)))).block();
 
         // If admin user already has a role on the default organization no need to do anything (either he is already admin, either someone decided to change his role).
         if (!alreadyHasMembership) {

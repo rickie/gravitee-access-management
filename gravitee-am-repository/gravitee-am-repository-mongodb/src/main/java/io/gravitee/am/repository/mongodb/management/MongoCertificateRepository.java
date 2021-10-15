@@ -23,6 +23,7 @@ import io.gravitee.am.model.Certificate;
 import io.gravitee.am.repository.management.api.CertificateRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.CertificateMongo;
 import io.reactivex.*;
+import io.reactivex.BackpressureStrategy;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
@@ -30,6 +31,7 @@ import org.bson.Document;
 import org.bson.types.Binary;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -51,30 +53,30 @@ public class MongoCertificateRepository extends AbstractManagementMongoRepositor
 
     @Override
     public Flowable<Certificate> findByDomain(String domain) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(certificatesCollection.find(eq(FIELD_DOMAIN, domain)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(certificatesCollection.find(eq(FIELD_DOMAIN, domain))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Certificate> findAll() {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(certificatesCollection.find())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(certificatesCollection.find()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Certificate> findById(String certificateId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(certificatesCollection.find(eq(FIELD_ID, certificateId)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(certificatesCollection.find(eq(FIELD_ID, certificateId)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Certificate> create(Certificate item) {
         CertificateMongo certificate = convert(item);
         certificate.setId(certificate.getId() == null ? RandomString.generate() : certificate.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(certificatesCollection.insertOne(certificate))).flatMap(success->RxJava2Adapter.singleToMono(findById(certificate.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(certificatesCollection.insertOne(certificate))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(certificate.getId())).single()))));
     }
 
     @Override
     public Single<Certificate> update(Certificate item) {
         CertificateMongo certificate = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(certificatesCollection.replaceOne(eq(FIELD_ID, certificate.getId()), certificate))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(certificate.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(certificatesCollection.replaceOne(eq(FIELD_ID, certificate.getId()), certificate))).flatMap(updateResult->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(certificate.getId())).single()))));
     }
 
     @Override

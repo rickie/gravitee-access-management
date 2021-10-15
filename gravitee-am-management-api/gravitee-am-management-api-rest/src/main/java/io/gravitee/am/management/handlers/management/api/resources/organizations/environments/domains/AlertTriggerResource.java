@@ -63,7 +63,7 @@ public class AlertTriggerResource extends AbstractResource {
 
         final User authenticatedUser = this.getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(alertTriggerService.createOrUpdate(ReferenceType.DOMAIN, domainId, patchAlertTrigger, authenticatedUser)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(alertTriggerService.createOrUpdate(ReferenceType.DOMAIN, domainId, patchAlertTrigger, authenticatedUser))))
                 .subscribe(response::resume, response::resume);
     }
 }

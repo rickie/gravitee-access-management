@@ -21,6 +21,7 @@ import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.repository.mongodb.management.internal.model.MonitoringMongo;
 import io.gravitee.node.api.Monitoring;
 import io.gravitee.node.api.NodeMonitoringRepository;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -33,6 +34,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -56,8 +58,7 @@ public class MongoNodeMonitoringRepository extends AbstractManagementMongoReposi
 
     @Override
     public Maybe<Monitoring> findByNodeIdAndType(String nodeId, String type) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(collection.find(and(eq(FIELD_NODE_ID, nodeId), eq(FIELD_TYPE, type))).first())
-                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(and(eq(FIELD_NODE_ID, nodeId), eq(FIELD_TYPE, type))).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -80,7 +81,7 @@ public class MongoNodeMonitoringRepository extends AbstractManagementMongoReposi
             filters.add(lte(FIELD_UPDATED_AT, new Date(to)));
         }
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(collection.find(and(filters)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(and(filters))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     private Monitoring convert(MonitoringMongo monitoringMongo) {

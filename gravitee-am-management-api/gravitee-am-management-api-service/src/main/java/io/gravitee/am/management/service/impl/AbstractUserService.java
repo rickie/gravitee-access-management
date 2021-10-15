@@ -84,7 +84,7 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
     }
 
     private Single<User> update(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal, BiFunction<String, String, Maybe<Application>> checkClient) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(updateUser)).then(RxJava2Adapter.singleToMono(Single.wrap(getUserService().findById(referenceType, referenceId, id)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(updateUser)).then(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, id)
                         .flatMap(user -> identityProviderManager.getUserProvider(user.getSource())
                                 .switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource())))
                                 // check client
@@ -119,48 +119,34 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
                                 })
                                 .doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).oldValue(user).user(user1)))
                                 .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))
-                        )))));
+                        ))));
     }
 
     @Override
     public Single<User> updateStatus(ReferenceType referenceType, String referenceId, String id, boolean status, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, id)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, id)
                 .flatMap(user -> {
                     user.setEnabled(status);
                     return getUserService().update(user);
-                })
-                .doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).user(user1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).throwable(throwable)))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).user(user1)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).throwable(throwable)))));
     }
 
     @Override
     public Completable delete(ReferenceType referenceType, String referenceId, String userId, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, userId)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)user -> identityProviderManager.getUserProvider(user.getSource())
-                        .map(Optional::ofNullable)
-                        .flatMapCompletable(optUserProvider -> {
-                            // no user provider found, continue
-                            if (!optUserProvider.isPresent()) {
-                                return Completable.complete();
-                            }
-                            // user has never been created in the identity provider, continue
-                            if (user.getExternalId() == null || user.getExternalId().isEmpty()) {
-                                return Completable.complete();
-                            }
-                            return optUserProvider.get().delete(user.getExternalId())
-                                    .onErrorResumeNext(ex -> {
-                                        if (ex instanceof UserNotFoundException) {
-                                            // idp user does not exist, continue
-                                            return Completable.complete();
-                                        }
-                                        return Completable.error(ex);
-                                    });
-                        })
-                        .andThen(getUserService().delete(userId))
-                        // remove from memberships if user is an administrative user
-                        .andThen((ReferenceType.ORGANIZATION != referenceType) ? Completable.complete() :
-                                membershipService.findByMember(userId, MemberType.USER)
-                                        .flatMapCompletable(membership -> membershipService.delete(membership.getId())))
-                        .doOnComplete(() -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).user(user)))
-                        .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).throwable(throwable)))).apply(y)))).then());
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, userId)).flatMap(user->RxJava2Adapter.completableToMono(identityProviderManager.getUserProvider(user.getSource()).map(Optional::ofNullable).flatMapCompletable((java.util.Optional<io.gravitee.am.identityprovider.api.UserProvider> optUserProvider)->{
+if (!optUserProvider.isPresent()) {
+return Completable.complete();
+}
+if (user.getExternalId() == null || user.getExternalId().isEmpty()) {
+return Completable.complete();
+}
+return optUserProvider.get().delete(user.getExternalId()).onErrorResumeNext((java.lang.Throwable ex)->{
+if (ex instanceof UserNotFoundException) {
+return Completable.complete();
+}
+return Completable.error(ex);
+});
+}).andThen(getUserService().delete(userId)).andThen((ReferenceType.ORGANIZATION != referenceType) ? Completable.complete() : membershipService.findByMember(userId, MemberType.USER).flatMapCompletable((io.gravitee.am.model.Membership membership)->membershipService.delete(membership.getId()))).doOnComplete(()->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).user(user))).doOnError((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).throwable(throwable))))).then());
     }
 
     protected io.gravitee.am.identityprovider.api.User convert(NewUser newUser) {

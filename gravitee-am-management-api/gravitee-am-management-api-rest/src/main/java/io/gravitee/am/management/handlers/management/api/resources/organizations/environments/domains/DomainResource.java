@@ -70,10 +70,10 @@ public class DomainResource extends AbstractDomainResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domainId)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(domainService.findById(domainId)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId)))
                         .flatMapSingle(domain -> findAllPermissions(authenticatedUser, organizationId, environmentId, domainId)
-                                .map(userPermissions -> filterDomainInfos(domain, userPermissions)))))))
+                                .map(userPermissions -> filterDomainInfos(domain, userPermissions))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -132,7 +132,7 @@ public class DomainResource extends AbstractDomainResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(domainService.delete(domain, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.DELETE)).then(RxJava2Adapter.completableToMono(domainService.delete(domain, authenticatedUser))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
@@ -152,11 +152,11 @@ public class DomainResource extends AbstractDomainResource {
             @PathParam("domain") String domainId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domainId)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(domainService.findById(domainId)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId)))
                         .flatMapSingle(domain -> entrypointService.findAll(organizationId)
                                 .toList()
-                                .map(entrypoints -> filterEntrypoints(entrypoints, domain)))))))
+                                .map(entrypoints -> filterEntrypoints(entrypoints, domain))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -266,9 +266,9 @@ public class DomainResource extends AbstractDomainResource {
         } else {
             RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(Completable.merge(requiredPermissions.stream()
                     .map(permission -> checkAnyPermission(organizationId, environmentId, domainId, permission, Acl.UPDATE))
-                    .collect(Collectors.toList()))).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.patch(domainId, patchDomain, authenticatedUser)
+                    .collect(Collectors.toList()))).then(RxJava2Adapter.singleToMono(domainService.patch(domainId, patchDomain, authenticatedUser)
                             .flatMap(domain -> findAllPermissions(authenticatedUser, organizationId, environmentId, domainId)
-                                    .map(userPermissions -> filterDomainInfos(domain, userPermissions)))))))
+                                    .map(userPermissions -> filterDomainInfos(domain, userPermissions))))))
                     .subscribe(response::resume, response::resume);
         }
     }

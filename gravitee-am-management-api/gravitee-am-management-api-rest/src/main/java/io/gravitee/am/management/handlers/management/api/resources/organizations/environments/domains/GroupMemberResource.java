@@ -81,7 +81,7 @@ public class GroupMemberResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> groupService.findById(group))
                         .switchIfEmpty(Maybe.error(new GroupNotFoundException(group)))
@@ -102,7 +102,7 @@ public class GroupMemberResource extends AbstractResource {
                                     updateGroup.setMembers(groupMembers);
                                     return groupService.update(domain, group, updateGroup, authenticatedUser);
                                 })
-                        )))))
+                        ))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -125,7 +125,7 @@ public class GroupMemberResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> groupService.findById(group))
                         .switchIfEmpty(Maybe.error(new GroupNotFoundException(group)))
@@ -146,7 +146,7 @@ public class GroupMemberResource extends AbstractResource {
                                     updateGroup.setMembers(groupMembers);
                                     return groupService.update(domain, group, updateGroup, authenticatedUser);
                                 })
-                        )))))
+                        ))))
                 .subscribe(response::resume, response::resume);
     }
 }

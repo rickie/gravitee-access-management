@@ -73,9 +73,9 @@ public class BotDetectionsResource extends AbstractResource {
             @PathParam("domain") String domain,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.LIST)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.LIST)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(___ -> botDetectionService.findByDomain(domain).map(this::filterBotDetectionInfos).toList())))))
+                        .flatMapSingle(___ -> botDetectionService.findByDomain(domain).map(this::filterBotDetectionInfos).toList()))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -98,13 +98,13 @@ public class BotDetectionsResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.CREATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapSingle(__ -> botDetectionService.create(domain, newBotDetection, authenticatedUser))
                         .map(botDetection -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/bot-detections/" + botDetection.getId()))
                                 .entity(botDetection)
-                                .build())))))
+                                .build()))))
                 .subscribe(response::resume, response::resume);
     }
 

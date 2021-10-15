@@ -26,6 +26,7 @@ import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.mongodb.oauth2.internal.model.RefreshTokenMongo;
 import io.gravitee.am.repository.oauth2.api.RefreshTokenRepository;
 import io.gravitee.am.repository.oauth2.model.RefreshToken;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -65,16 +66,14 @@ public class MongoRefreshTokenRepository extends AbstractOAuth2MongoRepository i
     }
 
     private Maybe<RefreshToken> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
-                .fromPublisher(refreshTokenCollection.find(eq(FIELD_ID, id)).first())
-                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
+                .fromPublisher(refreshTokenCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<RefreshToken> findByToken(String token) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
-                .fromPublisher(refreshTokenCollection.find(eq(FIELD_TOKEN, token)).first())
-                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
+                .fromPublisher(refreshTokenCollection.find(eq(FIELD_TOKEN, token)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -84,7 +83,7 @@ public class MongoRefreshTokenRepository extends AbstractOAuth2MongoRepository i
         }
 
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
-                .fromPublisher(refreshTokenCollection.insertOne(convert(refreshToken)))).flatMap(success->RxJava2Adapter.singleToMono(findById(refreshToken.getId()).toSingle())));
+                .fromPublisher(refreshTokenCollection.insertOne(convert(refreshToken)))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(refreshToken.getId())).single()))));
     }
 
     @Override

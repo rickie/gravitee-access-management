@@ -56,11 +56,10 @@ public class InstallationCommandHandler implements CommandHandler<InstallationCo
 
         InstallationPayload installationPayload = command.getPayload();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(installationService.getOrInitialize().map(Installation::getAdditionalInformation)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(installationService.getOrInitialize().map(Installation::getAdditionalInformation)
                 .doOnSuccess(additionalInfos -> additionalInfos.put(Installation.COCKPIT_INSTALLATION_STATUS, installationPayload.getStatus()))
                 .flatMap(installationService::setAdditionalInformation)
-                .map(installation -> new InstallationReply(command.getId(), CommandStatus.SUCCEEDED))
-                .doOnSuccess(installation -> logger.info("Installation status is [{}].", installationPayload.getStatus()))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.info("Error occurred when updating installation status.", error))))
+                .map(installation -> new InstallationReply(command.getId(), CommandStatus.SUCCEEDED))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installation -> logger.info("Installation status is [{}].", installationPayload.getStatus()))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.info("Error occurred when updating installation status.", error))))
                 .onErrorReturn(throwable -> new InstallationReply(command.getId(), CommandStatus.ERROR));
     }
 }

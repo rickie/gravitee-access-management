@@ -90,9 +90,9 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
     }
 
     protected Maybe<User> retrieveUserFromIdToken(AuthenticationContext authContext, String idToken) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Maybe.fromCallable(() -> jwtProcessor.process(idToken, null))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> jwtProcessor.process(idToken, null))))
                 .onErrorResumeNext(ex -> {
-                    return Maybe.error(new BadCredentialsException(ex.getMessage()));
+                    return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException(ex.getMessage())));
                 })).map(RxJavaReactorMigrationUtil.toJdkFunction(jwtClaimsSet -> createUser(authContext, jwtClaimsSet.getClaims()))));
     }
 
@@ -167,11 +167,10 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
         urlParameters.add(new BasicNameValuePair(Parameters.GRANT_TYPE, "authorization_code"));
         String bodyRequest = URLEncodedUtils.format(urlParameters);
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(getClient().postAbs(getConfiguration().getAccessTokenUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(getClient().postAbs(getConfiguration().getAccessTokenUri())
                 .putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(bodyRequest.length()))
                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
-                .rxSendBuffer(Buffer.buffer(bodyRequest))
-                .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+                .rxSendBuffer(Buffer.buffer(bodyRequest))))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                         throw new BadCredentialsException(httpResponse.statusMessage());
                     }
@@ -205,10 +204,9 @@ public abstract class AbstractOpenIDConnectAuthenticationProvider extends Abstra
         }
 
         // retrieve user claims from the UserInfo Endpoint
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(getClient().getAbs(getConfiguration().getUserProfileUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(getClient().getAbs(getConfiguration().getUserProfileUri())
                 .putHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token.getValue())
-                .rxSend()
-                .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
+                .rxSend()))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
                     if (httpClientResponse.statusCode() != 200) {
                         throw new BadCredentialsException(httpClientResponse.statusMessage());
                     }

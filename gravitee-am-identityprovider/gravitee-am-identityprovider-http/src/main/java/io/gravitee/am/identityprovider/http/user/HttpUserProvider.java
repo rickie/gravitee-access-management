@@ -203,9 +203,9 @@ public class HttpUserProvider implements UserProvider {
                         final List<HttpResponseErrorCondition> errorConditions = deleteResourceConfiguration.getHttpResponseErrorConditions();
                         try {
                             processResponse(templateEngine, errorConditions, httpResponse);
-                            return Completable.complete();
+                            return RxJava2Adapter.monoToCompletable(Mono.empty());
                         } catch (Exception ex) {
-                            return Completable.error(ex);
+                            return RxJava2Adapter.monoToCompletable(Mono.error(ex));
                         }
                     }).apply(y)))).then())
                     .onErrorResumeNext(ex -> {
@@ -237,8 +237,7 @@ public class HttpUserProvider implements UserProvider {
             final String readUserBody = readResourceConfiguration.getHttpBody();
             final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, readUserURI, readUserHttpMethod, readUserHttpHeaders, readUserBody);
 
-            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(requestHandler
-                    .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestHandler))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = readResourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return convert(user.getUsername(), userAttributes);

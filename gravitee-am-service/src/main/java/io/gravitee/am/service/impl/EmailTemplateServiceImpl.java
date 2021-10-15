@@ -50,6 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -78,7 +79,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
         LOGGER.debug("Find all emails for {} {}", referenceType, referenceId);
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAll(referenceType, referenceId)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find all emails for {} {}", referenceType, referenceId, ex);
-                    return Flowable.error(new TechnicalManagementException(String.format("An error occurs while trying to find a all emails for %s %s", referenceType, referenceId), ex));
+                    return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error occurs while trying to find a all emails for %s %s", referenceType, referenceId), ex)));
                 })));
     }
 
@@ -87,7 +88,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
         LOGGER.debug("Find all emails");
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAll()).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find all emails", ex);
-                    return Flowable.error(new TechnicalManagementException("An error occurs while trying to find a all emails", ex));
+                    return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find a all emails", ex)));
                 })));
     }
 
@@ -96,8 +97,8 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
         LOGGER.debug("Find email by {} {} and client {}", referenceType, referenceId, client);
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findByClient(referenceType, referenceId, client)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a email using its {} {} and its client {}", referenceType, referenceId, client, ex);
-                    return Flowable.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a email using its %s %s and its client %s", referenceType, referenceId, client), ex));
+                    return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a email using its %s %s and its client %s", referenceType, referenceId, client), ex)));
                 })));
     }
 
@@ -198,15 +199,13 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     @Override
     public Completable delete(String emailId, User principal) {
         LOGGER.debug("Delete email {}", emailId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(emailRepository.findById(emailId)
-                .switchIfEmpty(Maybe.error(new EmailNotFoundException(emailId)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Email, CompletableSource>)email -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findById(emailId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new EmailNotFoundException(emailId))))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Email, CompletableSource>)email -> {
                     // create event for sync process
                     Event event = new Event(Type.EMAIL, new Payload(email.getId(), email.getReferenceType(), email.getReferenceId(), Action.DELETE));
-                    return emailRepository.delete(emailId)
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(emailRepository.delete(emailId)
                             .andThen(eventService.create(event))
                             .toCompletable()
-                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_DELETED).email(email)))
-                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_DELETED).throwable(throwable)));
+                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_DELETED).email(email)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_DELETED).throwable(throwable)))));
                 }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -224,7 +223,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
         String emailId = RandomString.generate();
 
         // check if email is unique
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkEmailUniqueness(referenceType, referenceId, client, newEmail.getTemplate().template())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkEmailUniqueness(referenceType, referenceId, client, newEmail.getTemplate().template())
                 .flatMap(irrelevant -> {
                     Email email = new Email();
                     email.setId(emailId);
@@ -254,12 +253,11 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 
                     LOGGER.error("An error occurs while trying to create a email", ex);
                     return Single.error(new TechnicalManagementException("An error occurs while trying to create a email", ex));
-                })
-                .doOnSuccess(email -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_CREATED).email(email)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_CREATED).throwable(throwable)))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(email -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_CREATED).email(email)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_CREATED).throwable(throwable)))));
     }
 
     private Single<Email> update0(ReferenceType referenceType, String referenceId, String id, UpdateEmail updateEmail, User principal) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findById(referenceType, referenceId, id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new EmailNotFoundException(id))))))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findById(referenceType, referenceId, id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new EmailNotFoundException(id)))))
                 .flatMapSingle(oldEmail -> {
                     Email emailToUpdate = new Email(oldEmail);
                     emailToUpdate.setEnabled(updateEmail.isEnabled());
@@ -270,13 +268,12 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                     emailToUpdate.setExpiresAfter(updateEmail.getExpiresAfter());
                     emailToUpdate.setUpdatedAt(new Date());
 
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(emailRepository.update(emailToUpdate)
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(emailRepository.update(emailToUpdate)
                             .flatMap(email -> {
                                 // create event for sync process
                                 Event event = new Event(Type.EMAIL, new Payload(email.getId(), email.getReferenceType(), email.getReferenceId(), Action.UPDATE));
                                 return eventService.create(event).flatMap(__ -> Single.just(email));
-                            })
-                            .doOnSuccess(email -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_UPDATED).oldValue(oldEmail).email(email)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_UPDATED).throwable(throwable)))));
+                            })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(email -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_UPDATED).oldValue(oldEmail).email(email)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_UPDATED).throwable(throwable)))));
                 })
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -293,8 +290,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                 findByTemplate(referenceType, referenceId, emailTemplate) :
                 findByClientAndTemplate(referenceType, referenceId, client, emailTemplate);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(maybeSource
-                .isEmpty()).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(maybeSource).hasElement())).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
                     if (!isEmpty) {
                         throw new EmailAlreadyExistsException(emailTemplate);
                     }

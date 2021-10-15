@@ -23,6 +23,7 @@ import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.SystemTask;
 import io.gravitee.am.repository.management.api.SystemTaskRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.SystemTaskMongo;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -50,14 +51,14 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
 
     @Override
     public Maybe<SystemTask> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(systemTaskCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(SystemTaskMongo::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(systemTaskCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(SystemTaskMongo::convert)));
     }
 
     @Override
     public Single<SystemTask> create(SystemTask item) {
         SystemTaskMongo task = SystemTaskMongo.convert(item);
         task.setId(task.getId() == null ? RandomString.generate() : task.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.insertOne(task))).flatMap(success->RxJava2Adapter.singleToMono(findById(task.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.insertOne(task))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(task.getId())).single()))));
     }
 
     @Override
@@ -68,7 +69,7 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
     @Override
     public Single<SystemTask> updateIf(SystemTask item, String operationId) {
         SystemTaskMongo task = SystemTaskMongo.convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.replaceOne(and(eq(FIELD_ID, task.getId()), eq(FIELD_OPERATION_ID, operationId)), task))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(task.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.replaceOne(and(eq(FIELD_ID, task.getId()), eq(FIELD_OPERATION_ID, operationId)), task))).flatMap(updateResult->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(task.getId())).single()))));
     }
 
     @Override

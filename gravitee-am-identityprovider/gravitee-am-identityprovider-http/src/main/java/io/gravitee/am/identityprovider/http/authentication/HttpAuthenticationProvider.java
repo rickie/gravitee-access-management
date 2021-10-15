@@ -105,8 +105,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
             final String authenticationURI = templateEngine.getValue(resourceConfiguration.getBaseURL(), String.class);
             final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, authenticationURI, authenticationHttpMethod, authenticationHttpHeaders, authenticationBody);
 
-            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(requestHandler
-                    .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestHandler))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = resourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return createUser(authentication.getContext(), userAttributes);
@@ -168,8 +167,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
             final String readUserBody = readResourceConfiguration.getHttpBody();
             final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, readUserURI, readUserHttpMethod, readUserHttpHeaders, readUserBody);
 
-            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(requestHandler
-                    .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestHandler))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = readResourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return createUser(authenticationContext, userAttributes);

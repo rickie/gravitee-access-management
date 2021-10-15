@@ -96,7 +96,7 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
         Single<CookieSession> sessionObs = RxJava2Adapter.monoToSingle(Mono.just(session));
 
         if (sessionCookie != null) {
-            sessionObs = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(session.setValue(sessionCookie.getValue())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<CookieSession>)RxJavaReactorMigrationUtil.toJdkFunction((Function<CookieSession, Single<CookieSession>>)currentSession -> {
+            sessionObs = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(session.setValue(sessionCookie.getValue())).flatMap(v->RxJava2Adapter.singleToMono((Single<CookieSession>)RxJavaReactorMigrationUtil.toJdkFunction((Function<CookieSession, Single<CookieSession>>)currentSession -> {
                         String userId = currentSession.get(USER_ID_KEY);
                         if (!StringUtils.isEmpty(userId)) {
                             // Load the user and put it back in the context.
@@ -109,7 +109,7 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
                         } else {
                             return Single.just(currentSession);
                         }
-                    }).apply(v)))));
+                    }).apply(v))));
         }
 
         // Need to wait the session to be ready before invoking next.

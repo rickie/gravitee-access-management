@@ -49,8 +49,7 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
         }
 
         String username = ((String) authentication.getPrincipal()).toLowerCase();
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, (String)context.get(KEY_ORGANIZATION_ID), username, "gravitee")
-                .filter(user -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, (String)context.get(KEY_ORGANIZATION_ID), username, "gravitee")).filter(RxJavaReactorMigrationUtil.toJdkPredicate(user -> {
                     String presentedPassword = authentication.getCredentials().toString();
 
                     if (user.getPassword() == null) {
@@ -64,7 +63,7 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
                     }
 
                     return true;
-                })).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
+                })))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                     DefaultUser idpUser = new DefaultUser(user.getUsername());
                     idpUser.setId(user.getId());
                     idpUser.setCredentials(user.getPassword());

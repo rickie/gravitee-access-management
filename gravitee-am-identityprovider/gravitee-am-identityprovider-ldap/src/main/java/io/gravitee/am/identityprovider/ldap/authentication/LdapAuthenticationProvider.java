@@ -41,6 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -127,7 +128,7 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
 
     @Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Maybe.fromCallable(() -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             try {
                 String username = (String) authentication.getPrincipal();
                 String password = (String) authentication.getCredentials();
@@ -144,12 +145,12 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
                 LOGGER.error("An error occurs during LDAP authentication", e);
                 throw new InternalAuthenticationServiceException(e.getMessage(), e);
             }
-        })).map(RxJavaReactorMigrationUtil.toJdkFunction(ldapUser -> createUser(authentication.getContext(), ldapUser))));
+        })))).map(RxJavaReactorMigrationUtil.toJdkFunction(ldapUser -> createUser(authentication.getContext(), ldapUser))));
     }
 
     @Override
     public Maybe<User> loadUserByUsername(String username) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Maybe.fromCallable(() -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             try {
                 // find user
                 SearchFilter searchFilter = createSearchFilter(userSearchExecutor, username);
@@ -164,7 +165,7 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
                 LOGGER.error("An error occurs while searching for a LDAP user", e);
                 throw new InternalAuthenticationServiceException(e.getMessage(), e);
             }
-        })).map(RxJavaReactorMigrationUtil.toJdkFunction(ldapUser -> createUser(new SimpleAuthenticationContext(), ldapUser))));
+        })))).map(RxJavaReactorMigrationUtil.toJdkFunction(ldapUser -> createUser(new SimpleAuthenticationContext(), ldapUser))));
 
     }
 

@@ -88,7 +88,7 @@ public class AuditsResource extends AbstractResource {
 
         User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_AUDIT, Acl.LIST)).then(RxJava2Adapter.singleToMono(Single.wrap(auditService.search(ReferenceType.ORGANIZATION, organizationId, queryBuilder.build(), param.getPage(), param.getSize())
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_AUDIT, Acl.LIST)).then(RxJava2Adapter.singleToMono(auditService.search(ReferenceType.ORGANIZATION, organizationId, queryBuilder.build(), param.getPage(), param.getSize())
                         .flatMap(auditPage -> hasPermission(authenticatedUser, ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_AUDIT, Acl.READ)
                                 .map(hasPermission -> {
                                     if (hasPermission) {
@@ -96,7 +96,7 @@ public class AuditsResource extends AbstractResource {
                                     } else {
                                         return new Page<>(auditPage.getData().stream().map(FilterUtils::filterAuditInfos).collect(Collectors.toList()), auditPage.getCurrentPage(), auditPage.getTotalCount());
                                     }
-                                }))))))
+                                })))))
                 .subscribe(response::resume, response::resume);
     }
 

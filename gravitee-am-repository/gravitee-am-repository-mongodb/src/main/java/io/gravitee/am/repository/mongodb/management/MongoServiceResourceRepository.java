@@ -25,10 +25,12 @@ import io.gravitee.am.model.resource.ServiceResource;
 import io.gravitee.am.repository.management.api.ServiceResourceRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.ServiceResourceMongo;
 import io.reactivex.*;
+import io.reactivex.BackpressureStrategy;
 import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -50,25 +52,25 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
 
     @Override
     public Flowable<ServiceResource> findByReference(ReferenceType referenceType, String referenceId) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(resourceCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(resourceCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<ServiceResource> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(resourceCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(resourceCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<ServiceResource> create(ServiceResource item) {
         ServiceResourceMongo res = convert(item);
         res.setId(res.getId() == null ? RandomString.generate() : res.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.insertOne(res))).flatMap(success->RxJava2Adapter.singleToMono(findById(res.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.insertOne(res))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(res.getId())).single()))));
     }
 
     @Override
     public Single<ServiceResource> update(ServiceResource item) {
         ServiceResourceMongo authenticator = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.replaceOne(eq(FIELD_ID, authenticator.getId()), authenticator))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(authenticator.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.replaceOne(eq(FIELD_ID, authenticator.getId()), authenticator))).flatMap(updateResult->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(authenticator.getId())).single()))));
     }
 
     @Override

@@ -24,12 +24,14 @@ import io.gravitee.am.model.AuthenticationFlowContext;
 import io.gravitee.am.repository.management.api.AuthenticationFlowContextRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.AuthenticationFlowContextMongo;
 import io.reactivex.*;
+import io.reactivex.BackpressureStrategy;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -56,24 +58,24 @@ public class MongoAuthenticationFlowContextRepository extends AbstractManagement
 
     @Override
     public Maybe<AuthenticationFlowContext> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(authContextCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(authContextCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<AuthenticationFlowContext> findLastByTransactionId(String transactionId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<AuthenticationFlowContext> findByTransactionId(String transactionId) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<AuthenticationFlowContext> create(AuthenticationFlowContext context) {
         AuthenticationFlowContextMongo contextMongo = convert(context);
         contextMongo.setId(context.getTransactionId() + "-" + context.getVersion());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(authContextCollection.insertOne(contextMongo))).flatMap(success->RxJava2Adapter.singleToMono(findById(contextMongo.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(authContextCollection.insertOne(contextMongo))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(contextMongo.getId())).single()))));
     }
 
     @Override

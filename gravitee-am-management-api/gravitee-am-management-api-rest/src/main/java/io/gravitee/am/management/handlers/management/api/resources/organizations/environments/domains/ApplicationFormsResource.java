@@ -47,6 +47,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 
 /**
@@ -86,9 +87,8 @@ public class ApplicationFormsResource extends AbstractResource {
             @NotNull @QueryParam("template") Template emailTemplate,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_FORM, Acl.READ)
-                .andThen(formService.findByDomainAndClientAndTemplate(domain, application, emailTemplate.template()))
-                .map(form -> Response.ok(form).build())).defaultIfEmpty(Response.ok(new Form(false, emailTemplate.template())).build()))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_FORM, Acl.READ)
+                .andThen(formService.findByDomainAndClientAndTemplate(domain, application, emailTemplate.template()))).map(RxJavaReactorMigrationUtil.toJdkFunction(form -> Response.ok(form).build())))).defaultIfEmpty(Response.ok(new Form(false, emailTemplate.template())).build()))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -113,7 +113,7 @@ public class ApplicationFormsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_FORM, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_FORM, Acl.CREATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> applicationService.findById(application))
                         .switchIfEmpty(Maybe.error(new ApplicationNotFoundException(application)))
@@ -121,7 +121,7 @@ public class ApplicationFormsResource extends AbstractResource {
                         .map(form -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/applications/" + application + "/forms/" + form.getId()))
                                 .entity(form)
-                                .build())))))
+                                .build()))))
                 .subscribe(response::resume, response::resume);
     }
 

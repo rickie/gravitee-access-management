@@ -85,7 +85,7 @@ public class ApplicationResourcesResource extends AbstractResource {
             @QueryParam("size") @DefaultValue(MAX_RESOURCES_SIZE_PER_PAGE_STRING) int size,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.LIST)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.LIST)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> applicationService.findById(application))
                         .switchIfEmpty(Maybe.error(new ApplicationNotFoundException(application)))
@@ -102,7 +102,7 @@ public class ApplicationResourcesResource extends AbstractResource {
                                     .zipWith(resourceService.getMetadata((List<Resource>) pagedResources.getData()), (v1, v2) -> {
                                         return new Page(Collections.singletonList(new ResourceListItem(v1, v2)), page, pagedResources.getTotalCount());
                                     });
-                        })))))
+                        }))))
                 .subscribe(response::resume, response::resume);
     }
 

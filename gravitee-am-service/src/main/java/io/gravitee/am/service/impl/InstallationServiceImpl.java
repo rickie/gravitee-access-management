@@ -54,33 +54,32 @@ public class InstallationServiceImpl implements InstallationService {
 
     @Override
     public Single<Installation> get() {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.installationRepository.find()).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new InstallationNotFoundException())))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.installationRepository.find()).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new InstallationNotFoundException()))));
     }
 
     @Override
     public Single<Installation> getOrInitialize() {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.installationRepository.find()).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(createInternal()))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.installationRepository.find()).switchIfEmpty(RxJava2Adapter.singleToMono(createInternal())));
     }
 
     @Override
     public Single<Installation> setAdditionalInformation(Map<String, String> additionalInformation) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(get()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)installation -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(get()).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)installation -> {
                     Installation toUpdate = new Installation(installation);
                     toUpdate.setAdditionalInformation(additionalInformation);
 
                     return updateInternal(toUpdate);
-                }).apply(v)))));
+                }).apply(v))));
     }
 
     @Override
     public Single<Installation> addAdditionalInformation(Map<String, String> additionalInformation) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getOrInitialize()
-                .doOnSuccess(installation -> installation.getAdditionalInformation().putAll(additionalInformation))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)this::updateInternal).apply(v)))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getOrInitialize()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installation -> installation.getAdditionalInformation().putAll(additionalInformation))))).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)this::updateInternal).apply(v))));
     }
 
     @Override
     public Completable delete() {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(this.installationRepository.find()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, CompletableSource>)installation -> installationRepository.delete(installation.getId())).apply(y)))).then());
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(this.installationRepository.find()).flatMap(installation->RxJava2Adapter.completableToMono(installationRepository.delete(installation.getId()))).then());
     }
 
     private Single<Installation> createInternal() {

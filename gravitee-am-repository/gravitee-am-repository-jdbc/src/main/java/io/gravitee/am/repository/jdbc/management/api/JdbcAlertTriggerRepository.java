@@ -77,12 +77,10 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
     public Maybe<AlertTrigger> findById(String id) {
         LOGGER.debug("findById({})", id);
 
-        Maybe<List<String>> alertNotifierIds = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(alertTriggerAlertNotifierRepository.findByAlertTriggerId(id)
-                .map(JdbcAlertTrigger.AlertNotifier::getAlertNotifierId)
-                .toList()));
+        Maybe<List<String>> alertNotifierIds = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(alertTriggerAlertNotifierRepository.findByAlertTriggerId(id)
+                .map(JdbcAlertTrigger.AlertNotifier::getAlertNotifierId)).collectList())));
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.alertTriggerRepository.findById(id)
-                .map(this::toEntity)).zipWith(RxJava2Adapter.maybeToMono(Maybe.wrap(alertNotifierIds)), RxJavaReactorMigrationUtil.toJdkBiFunction((alertTrigger, ids) -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.alertTriggerRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).zipWith(RxJava2Adapter.maybeToMono(alertNotifierIds), RxJavaReactorMigrationUtil.toJdkBiFunction((alertTrigger, ids) -> {
                     LOGGER.debug("findById({}) fetch {} alert triggers", alertTrigger.getId(), ids.size());
                     alertTrigger.setAlertNotifiers(ids);
                     return alertTrigger;
@@ -182,9 +180,9 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
             execute = execute.bind(entry.getKey(), entry.getValue());
         }
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(execute
+        return RxJava2Adapter.fluxToFlowable(execute
                 .as(String.class)
-                .fetch().all())).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<String, MaybeSource<AlertTrigger>>toJdkFunction(this::findById).apply(e)))))
+                .fetch().all().flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<String, MaybeSource<AlertTrigger>>toJdkFunction(this::findById).apply(e)))))
                 .doOnError(error -> LOGGER.error("Unable to retrieve AlertTrigger with referenceId {}, referenceType {} and criteria {}",
                         referenceId, referenceType, criteria, error));
     }

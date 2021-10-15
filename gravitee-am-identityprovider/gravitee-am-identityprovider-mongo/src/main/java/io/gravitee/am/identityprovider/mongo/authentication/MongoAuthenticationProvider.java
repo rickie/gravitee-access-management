@@ -44,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -77,7 +78,7 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
 
     public Maybe<User> loadUserByUsername(Authentication authentication) {
         String username = ((String) authentication.getPrincipal()).toLowerCase();
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(findUserByMultipleField(username)
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(findUserByMultipleField(username)
                 .toList()
                 .flatMapPublisher(users -> {
                     if (users.isEmpty()) {
@@ -108,15 +109,14 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
                     }
 
                     return true;
-                })
-                .toList()).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Document>, MaybeSource<User>>)users -> {
+                })).collectList())).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Document>, MaybeSource<User>>)users -> {
                     if (users.isEmpty()) {
-                        return Maybe.error(new BadCredentialsException("Bad credentials"));
+                        return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Bad credentials")));
                     }
                     if (users.size() > 1) {
-                        return Maybe.error(new BadCredentialsException("Bad credentials"));
+                        return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Bad credentials")));
                     }
-                    return Maybe.just(this.createUser(authentication.getContext(), users.get(0)));
+                    return RxJava2Adapter.monoToMaybe(Mono.just(this.createUser(authentication.getContext(), users.get(0))));
                 }).apply(e)))));
     }
 

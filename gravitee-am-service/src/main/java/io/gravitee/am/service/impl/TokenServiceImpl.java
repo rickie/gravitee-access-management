@@ -62,11 +62,11 @@ public class TokenServiceImpl implements TokenService {
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.findByDomain(domain)
                 .flatMapObservable(Observable::fromIterable)
                 .flatMapSingle(this::countByClientId)
-                .toList()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<TotalToken>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Long>, Single<TotalToken>>)totalAccessTokens -> {
+                .toList()).flatMap(v->RxJava2Adapter.singleToMono((Single<TotalToken>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Long>, Single<TotalToken>>)totalAccessTokens -> {
                     TotalToken totalToken = new TotalToken();
                     totalToken.setTotalAccessTokens(totalAccessTokens.stream().mapToLong(Long::longValue).sum());
                     return Single.just(totalToken);
-                }).apply(v)))))
+                }).apply(v))))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find total tokens by domain: {}", domain, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
@@ -95,11 +95,11 @@ public class TokenServiceImpl implements TokenService {
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.findAll()
                 .flatMapObservable(Observable::fromIterable)
                 .flatMapSingle(this::countByClientId)
-                .toList()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<TotalToken>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Long>, Single<TotalToken>>)totalAccessTokens -> {
+                .toList()).flatMap(v->RxJava2Adapter.singleToMono((Single<TotalToken>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Long>, Single<TotalToken>>)totalAccessTokens -> {
                     TotalToken totalToken = new TotalToken();
                     totalToken.setTotalAccessTokens(totalAccessTokens.stream().mapToLong(Long::longValue).sum());
                     return Single.just(totalToken);
-                }).apply(v)))))
+                }).apply(v))))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find total tokens", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to find total tokens", ex)));
@@ -109,7 +109,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public Completable deleteByUserId(String userId) {
         LOGGER.debug("Delete tokens by user : {}", userId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(accessTokenRepository.deleteByUserId(userId)).then(RxJava2Adapter.completableToMono(Completable.wrap(refreshTokenRepository.deleteByUserId(userId)))))
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(accessTokenRepository.deleteByUserId(userId)).then(RxJava2Adapter.completableToMono(refreshTokenRepository.deleteByUserId(userId))))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to delete tokens by user {}", userId, ex);
                     return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(

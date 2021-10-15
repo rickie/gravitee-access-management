@@ -73,9 +73,9 @@ public class EmailResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_EMAIL_TEMPLATE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_EMAIL_TEMPLATE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(__ -> emailTemplateService.update(domain, email, updateEmail, authenticatedUser))))))
+                        .flatMapSingle(__ -> emailTemplateService.update(domain, email, updateEmail, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -96,7 +96,7 @@ public class EmailResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_EMAIL_TEMPLATE, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(emailTemplateService.delete(email, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_EMAIL_TEMPLATE, Acl.DELETE)).then(RxJava2Adapter.completableToMono(emailTemplateService.delete(email, authenticatedUser))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

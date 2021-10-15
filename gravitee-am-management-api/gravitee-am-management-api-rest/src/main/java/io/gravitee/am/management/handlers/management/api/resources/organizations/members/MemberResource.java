@@ -63,8 +63,8 @@ public class MemberResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_MEMBER, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(organizationService.findById(organizationId)
-                        .flatMapCompletable(irrelevant -> membershipService.delete(membershipId, authenticatedUser))))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_MEMBER, Acl.DELETE)).then(RxJava2Adapter.completableToMono(organizationService.findById(organizationId)
+                        .flatMapCompletable(irrelevant -> membershipService.delete(membershipId, authenticatedUser)))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

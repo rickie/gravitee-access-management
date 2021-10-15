@@ -79,7 +79,7 @@ public class EntrypointServiceImpl implements EntrypointService {
 
         LOGGER.debug("Find entrypoint by id {} and organizationId {}", id, organizationId);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(entrypointRepository.findById(id, organizationId)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new EntrypointNotFoundException(id))))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(entrypointRepository.findById(id, organizationId)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new EntrypointNotFoundException(id)))));
     }
 
     @Override
@@ -142,7 +142,7 @@ public class EntrypointServiceImpl implements EntrypointService {
 
         LOGGER.debug("Update an existing entrypoint {}", updateEntrypoint);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findById(entrypointId, organizationId)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Entrypoint>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Entrypoint, Single<Entrypoint>>)oldEntrypoint -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findById(entrypointId, organizationId)).flatMap(v->RxJava2Adapter.singleToMono((Single<Entrypoint>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Entrypoint, Single<Entrypoint>>)oldEntrypoint -> {
                     Entrypoint toUpdate = new Entrypoint(oldEntrypoint);
                     toUpdate.setName(updateEntrypoint.getName());
                     toUpdate.setDescription(updateEntrypoint.getDescription());
@@ -154,7 +154,7 @@ public class EntrypointServiceImpl implements EntrypointService {
                             .andThen(entrypointRepository.update(toUpdate)
                                     .doOnSuccess(updated -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_UPDATED).entrypoint(updated).oldValue(oldEntrypoint)))
                                     .doOnError(throwable -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_UPDATED).throwable(throwable))));
-                }).apply(v)))));
+                }).apply(v))));
     }
 
     @Override
@@ -162,9 +162,7 @@ public class EntrypointServiceImpl implements EntrypointService {
 
         LOGGER.debug("Delete entrypoint by id {} and organizationId {}", id, organizationId);
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(findById(id, organizationId)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Entrypoint, CompletableSource>)entrypoint -> entrypointRepository.delete(id)
-                        .doOnComplete(() -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_DELETED).entrypoint(entrypoint)))
-                        .doOnError(throwable -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_DELETED).throwable(throwable)))).apply(y)))).then());
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(findById(id, organizationId)).flatMap(entrypoint->RxJava2Adapter.completableToMono(entrypointRepository.delete(id).doOnComplete(()->auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_DELETED).entrypoint(entrypoint))).doOnError((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_DELETED).throwable(throwable))))).then());
     }
 
     private Single<Entrypoint> createInternal(Entrypoint toCreate, User principal) {
@@ -175,9 +173,9 @@ public class EntrypointServiceImpl implements EntrypointService {
         toCreate.setCreatedAt(now);
         toCreate.setUpdatedAt(now);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(validate(toCreate)).then(RxJava2Adapter.singleToMono(Single.wrap(entrypointRepository.create(toCreate)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(validate(toCreate)).then(RxJava2Adapter.singleToMono(entrypointRepository.create(toCreate)
                         .doOnSuccess(entrypoint -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).entrypoint(entrypoint).principal(principal).type(EventType.ENTRYPOINT_CREATED)))
-                        .doOnError(throwable -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).referenceId(toCreate.getOrganizationId()).principal(principal).type(EventType.ENTRYPOINT_CREATED).throwable(throwable)))))));
+                        .doOnError(throwable -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).referenceId(toCreate.getOrganizationId()).principal(principal).type(EventType.ENTRYPOINT_CREATED).throwable(throwable))))));
     }
 
     private Completable validate(Entrypoint entrypoint) {
@@ -205,10 +203,10 @@ public class EntrypointServiceImpl implements EntrypointService {
             return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(organizationService.findById(entrypoint.getOrganizationId())).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Organization, CompletableSource>)organization -> {
                         String hostWithoutPort = url.getHost().split(":")[0];
                         if (!VirtualHostValidator.isValidDomainOrSubDomain(hostWithoutPort, organization.getDomainRestrictions())) {
-                            return Completable.error(new InvalidEntrypointException("Host [" + hostWithoutPort + "] must be a subdomain of " + organization.getDomainRestrictions()));
+                            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidEntrypointException("Host [" + hostWithoutPort + "] must be a subdomain of " + organization.getDomainRestrictions())));
                         }
 
-                        return Completable.complete();
+                        return RxJava2Adapter.monoToCompletable(Mono.empty());
                     }).apply(y)))).then());
         } catch (MalformedURLException e) {
             return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidEntrypointException("Entrypoint must have a valid url.")));

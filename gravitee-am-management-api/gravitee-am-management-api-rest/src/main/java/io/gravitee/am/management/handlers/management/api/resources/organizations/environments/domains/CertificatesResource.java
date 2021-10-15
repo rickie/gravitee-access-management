@@ -83,7 +83,7 @@ public class CertificatesResource extends AbstractResource {
             @QueryParam("use") String use,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.LIST)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.LIST)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapPublisher(__ -> certificateService.findByDomain(domain))
                         .filter(c -> {
@@ -99,7 +99,7 @@ public class CertificatesResource extends AbstractResource {
                         .map(this::filterCertificateInfos)
                         .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))
                         .toList()
-                        .map(sortedCertificates -> Response.ok(sortedCertificates).build())))))
+                        .map(sortedCertificates -> Response.ok(sortedCertificates).build()))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -122,7 +122,7 @@ public class CertificatesResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.CREATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapSingle(schema -> certificateService.create(domain, newCertificate, authenticatedUser))
                         .map(certificate -> {
@@ -130,7 +130,7 @@ public class CertificatesResource extends AbstractResource {
                                     .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/certificates/" + certificate.getId()))
                                     .entity(certificate)
                                     .build();
-                        })))))
+                        }))))
                 .subscribe(response::resume, response::resume);
     }
 

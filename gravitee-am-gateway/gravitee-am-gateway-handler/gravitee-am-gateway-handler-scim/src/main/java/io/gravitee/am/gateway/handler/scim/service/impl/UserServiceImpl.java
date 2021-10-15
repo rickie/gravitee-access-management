@@ -46,6 +46,7 @@ import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -96,8 +97,7 @@ public class UserServiceImpl implements UserService {
                 userRepository.search(ReferenceType.DOMAIN, domain.getId(), FilterCriteria.convert(filter), page, size) :
                 userRepository.findAll(ReferenceType.DOMAIN, domain.getId(), page, size);
 
-        return findUsers
-                .flatMap(userPage -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findUsers).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Page<io.gravitee.am.model.User>, SingleSource<ListResponse<io.gravitee.am.gateway.handler.scim.model.User>>>toJdkFunction(userPage -> {
                     // A negative value SHALL be interpreted as "0".
                     // A value of "0" indicates that no resource results are to be returned except for "totalResults".
                     if (size <= 0) {
@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserService {
                                 .toList()
                                 .map(users -> new ListResponse<>(users, userPage.getCurrentPage() + 1, userPage.getTotalCount(), users.size()));
                     }
-                })
+                }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find users for the security domain {}", domain.getName(), ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to find users the security domain %s", domain.getName()), ex)));
@@ -121,8 +121,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Maybe<User> get(String userId, String baseUrl) {
         LOGGER.debug("Find user by id : {}", userId);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findById(userId)
-                .map(user1 -> convert(user1, baseUrl, false))).flatMap(z->setGroups(z).toMaybe().as(RxJava2Adapter::maybeToMono)))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findById(userId)).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> convert(user1, baseUrl, false))))).flatMap(z->RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(setGroups(z))).as(RxJava2Adapter::maybeToMono)))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a user using its ID {}", userId, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
@@ -143,7 +142,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // check if user is unique
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, domain.getId(), user.getUserName(), source)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findByUsernameAndSource(ReferenceType.DOMAIN, domain.getId(), user.getUserName(), source)
                 .isEmpty()
                 .map(isEmpty -> {
                     if (!isEmpty) {
@@ -154,8 +153,7 @@ public class UserServiceImpl implements UserService {
                 // check roles
                 .flatMapCompletable(__ -> checkRoles(user.getRoles()))
                 // and create the user
-                .andThen(Maybe.defer(() -> identityProviderManager.getUserProvider(source)))
-                .switchIfEmpty(Maybe.error(new UserProviderNotFoundException(source)))
+                .andThen(Maybe.defer(() -> identityProviderManager.getUserProvider(source)))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserProviderNotFoundException(source))))))
                 .flatMapSingle(userProvider -> {
                     io.gravitee.am.model.User userModel = convert(user);
                     // set technical ID
@@ -169,7 +167,7 @@ public class UserServiceImpl implements UserService {
                     userModel.setEnabled(userModel.getPassword() != null);
 
                     // store user in its identity provider
-                    return userValidator.validate(userModel).andThen(userProvider.create(convert(userModel))
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(userModel)).then(RxJava2Adapter.singleToMono(Single.wrap(userProvider.create(convert(userModel))
                             .flatMap(idpUser -> {
                                 // AM 'users' collection is not made for authentication (but only management stuff)
                                 // clear password
@@ -183,7 +181,7 @@ public class UserServiceImpl implements UserService {
                                     return Single.error(new UniquenessException("User with username [" + user.getUserName() + "] already exists"));
                                 }
                                 return Single.error(ex);
-                            }));
+                            })))));
                 })).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> convert(user1, baseUrl, true))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractNotFoundException) {
@@ -208,7 +206,7 @@ public class UserServiceImpl implements UserService {
             return RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("Field [password] is invalid")));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userRepository.findById(userId)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userRepository.findById(userId)
                 .switchIfEmpty(Maybe.error(new UserNotFoundException(userId)))
                 .flatMapSingle(existingUser -> {
                     // check roles
@@ -261,8 +259,7 @@ public class UserServiceImpl implements UserService {
                                             return Single.error(ex);
                                         }));
                             }));
-                })
-                .map(user1 -> convert(user1, baseUrl, false))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)this::setGroups).apply(v)))))
+                })).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> convert(user1, baseUrl, false))))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)this::setGroups).apply(v))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof SCIMException || ex instanceof UserNotFoundException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
@@ -284,8 +281,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Single<User> patch(String userId, PatchOp patchOp, String baseUrl) {
         LOGGER.debug("Patch user {}", userId);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(get(userId, baseUrl)
-                .switchIfEmpty(Single.error(new UserNotFoundException(userId)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)user -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(get(userId, baseUrl)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new UserNotFoundException(userId))))))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)user -> {
                     ObjectNode node = objectMapper.convertValue(user, ObjectNode.class);
                     patchOp.getOperations().forEach(operation -> operation.apply(node));
                     User userToPatch = objectMapper.treeToValue(node, User.class);
@@ -296,7 +292,7 @@ public class UserServiceImpl implements UserService {
                     }
 
                     return update(userId, userToPatch, baseUrl);
-                }).apply(v)))))
+                }).apply(v))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
@@ -311,9 +307,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public Completable delete(String userId) {
         LOGGER.debug("Delete user {}", userId);
-        return userRepository.findById(userId)
-                .switchIfEmpty(Maybe.error(new UserNotFoundException(userId)))
-                .flatMapCompletable(user -> identityProviderManager.getUserProvider(user.getSource())
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userRepository.findById(userId)
+                .switchIfEmpty(Maybe.error(new UserNotFoundException(userId)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<io.gravitee.am.model.User, CompletableSource>)user -> identityProviderManager.getUserProvider(user.getSource())
                         .switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource())))
                         .flatMapCompletable(userProvider -> userProvider.delete(user.getExternalId()))
                         .andThen(userRepository.delete(userId))
@@ -332,7 +327,7 @@ public class UserServiceImpl implements UserService {
                                 return Completable.error(new TechnicalManagementException(
                                         String.format("An error occurs while trying to delete user: %s", userId), ex));
                             }
-                        }));
+                        })).apply(y)))).then());
     }
 
     private boolean isInvalidUserPassword(User user) {
@@ -347,13 +342,13 @@ public class UserServiceImpl implements UserService {
 
     private Single<User> setGroups(User scimUser) {
         // fetch groups
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(groupService.findByMember(scimUser.getId())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(groupService.findByMember(scimUser.getId())
                 .map(group -> {
                     Member member = new Member();
                     member.setValue(group.getId());
                     member.setDisplay(group.getDisplayName());
                     return member;
-                }).toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(scimGroups -> {
+                })).collectList())).map(RxJavaReactorMigrationUtil.toJdkFunction(scimGroups -> {
                     if (!scimGroups.isEmpty()) {
                         scimUser.setGroups(scimGroups);
                         return scimUser;
@@ -368,15 +363,14 @@ public class UserServiceImpl implements UserService {
             return RxJava2Adapter.monoToCompletable(Mono.empty());
         }
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(roleService.findByIdIn(roles)
-                .map(roles1 -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(roleService.findByIdIn(roles)).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
                     if (roles1.size() != roles.size()) {
                         // find difference between the two list
                         roles.removeAll(roles1.stream().map(Role::getId).collect(Collectors.toList()));
                         throw new RoleNotFoundException(String.join(",", roles));
                     }
                     return roles1;
-                })).then());
+                })))).then());
     }
 
     private User convert(io.gravitee.am.model.User user, String baseUrl, boolean listing) {

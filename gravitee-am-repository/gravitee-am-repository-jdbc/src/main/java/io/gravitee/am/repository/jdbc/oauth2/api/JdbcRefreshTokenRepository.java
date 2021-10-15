@@ -60,8 +60,7 @@ public class JdbcRefreshTokenRepository extends AbstractJdbcRepository implement
     @Override
     public Maybe<RefreshToken> findByToken(String token) {
         LOGGER.debug("findByToken({token})", token);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken(token, LocalDateTime.now(UTC))
-                .map(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve RefreshToken", error))));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken(token, LocalDateTime.now(UTC))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve RefreshToken", error))));
     }
 
     @Override
@@ -74,61 +73,59 @@ public class JdbcRefreshTokenRepository extends AbstractJdbcRepository implement
                 .using(toJdbcEntity(refreshToken))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)
-                .flatMap((i) -> refreshTokenRepository.findById(refreshToken.getId()).map(this::toEntity).toSingle())).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create refreshToken with id {}", refreshToken.getId(), error))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(refreshTokenRepository.findById(refreshToken.getId()).map(this::toEntity).toSingle())))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create refreshToken with id {}", refreshToken.getId(), error))));
     }
 
     @Override
     public Completable bulkWrite(List<RefreshToken> refreshTokens) {
-        return Flowable.fromIterable(refreshTokens)
-                .flatMap(refreshToken -> create(refreshToken).toFlowable())
-                .ignoreElements().as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to bulk load refresh tokens", error))).as(RxJava2Adapter::monoToCompletable);
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(Flowable.fromIterable(refreshTokens)
+                .flatMap(refreshToken -> create(refreshToken).toFlowable())).ignoreElements().then()).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to bulk load refresh tokens", error))).as(RxJava2Adapter::monoToCompletable);
     }
 
     @Override
     public Completable delete(String token) {
         LOGGER.debug("delete({})", token);
-        return monoToCompletable(dbClient.delete()
+        return dbClient.delete()
                 .from(JdbcRefreshToken.class)
                 .matching(from(where("token").is(token)))
-                .fetch().rowsUpdated()).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete RefreshToken", error))).as(RxJava2Adapter::monoToCompletable);
+                .fetch().rowsUpdated().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete RefreshToken", error))).as(RxJava2Adapter::monoToCompletable);
     }
 
     @Override
     public Completable deleteByUserId(String userId) {
         LOGGER.debug("deleteByUserId({})", userId);
-        return monoToCompletable(dbClient.delete()
+        return dbClient.delete()
                 .from(JdbcRefreshToken.class)
                 .matching(from(where("subject").is(userId)))
-                .then()).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete refresh token with subject {}", userId, error))).as(RxJava2Adapter::monoToCompletable);
+                .then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete refresh token with subject {}", userId, error))).as(RxJava2Adapter::monoToCompletable);
     }
 
     @Override
     public Completable deleteByDomainIdClientIdAndUserId(String domainId, String clientId, String userId) {
         LOGGER.debug("deleteByDomainIdClientIdAndUserId({},{},{})", domainId, clientId, userId);
-        return monoToCompletable(dbClient.delete()
+        return dbClient.delete()
                 .from(JdbcRefreshToken.class)
                 .matching(from(where("subject").is(userId)
                                 .and(where("domain").is(domainId))
                                 .and(where("client").is(clientId))))
-                .then()).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete refresh token with domain {}, client {} and subject {}",
+                .then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete refresh token with domain {}, client {} and subject {}",
                         domainId, clientId, userId, error))).as(RxJava2Adapter::monoToCompletable);
     }
 
     @Override
     public Completable deleteByDomainIdAndUserId(String domainId, String userId) {
         LOGGER.debug("deleteByDomainIdAndUserId({},{})", domainId, userId);
-        return monoToCompletable(dbClient.delete()
+        return dbClient.delete()
                 .from(JdbcRefreshToken.class)
                 .matching(from(where("subject").is(userId)
                                 .and(where("domain").is(domainId))))
-                .then()).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete refresh token with domain {} and subject {}",
+                .then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete refresh token with domain {} and subject {}",
                         domainId, userId, error))).as(RxJava2Adapter::monoToCompletable);
     }
 
     public Completable purgeExpiredData() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);
-        return monoToCompletable(dbClient.delete().from(JdbcRefreshToken.class).matching(where("expire_at").lessThan(now)).then()).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to purge refresh tokens", error))).as(RxJava2Adapter::monoToCompletable);
+        return dbClient.delete().from(JdbcRefreshToken.class).matching(where("expire_at").lessThan(now)).then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to purge refresh tokens", error))).as(RxJava2Adapter::monoToCompletable);
     }
 }

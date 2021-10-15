@@ -61,7 +61,7 @@ public class UserConsentEndpointHandler extends AbstractUserConsentEndpointHandl
         final String userId = context.request().getParam("userId");
         final String consentId = context.request().getParam("consentId");
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(getPrincipal(context)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)principal -> userService.revokeConsent(userId, consentId, principal)).apply(y)))).then())
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(getPrincipal(context)).flatMap(principal->RxJava2Adapter.completableToMono(userService.revokeConsent(userId, consentId, principal))).then())
                 .subscribe(
                         () -> context.response().setStatusCode(204).end(),
                         context::fail);

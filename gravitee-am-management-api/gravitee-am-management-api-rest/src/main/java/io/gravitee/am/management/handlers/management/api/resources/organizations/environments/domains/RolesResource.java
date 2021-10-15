@@ -82,9 +82,8 @@ public class RolesResource extends AbstractResource {
             @QueryParam("q") String query,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.LIST)
-                .andThen(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.LIST)).then(RxJava2Adapter.maybeToMono(Maybe.wrap(domainService.findById(domain)
+                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))))))
                         .flatMapSingle(__ -> searchRoles(domain, query, page, size))).map(RxJavaReactorMigrationUtil.toJdkFunction(pagedRoles -> {
                             List<Role> roles = pagedRoles.getData().stream()
                                     .map(this::filterRoleInfos)
@@ -114,13 +113,13 @@ public class RolesResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.CREATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapSingle(irrelevant -> roleService.create(domain, newRole, authenticatedUser)
                                 .map(role -> Response
                                         .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/roles/" + role.getId()))
                                         .entity(role)
-                                        .build()))))))
+                                        .build())))))
                 .subscribe(response::resume, response::resume);
     }
 

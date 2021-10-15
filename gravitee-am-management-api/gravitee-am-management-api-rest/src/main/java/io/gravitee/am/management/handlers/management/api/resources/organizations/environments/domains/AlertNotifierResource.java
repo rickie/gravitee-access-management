@@ -62,7 +62,7 @@ public class AlertNotifierResource extends AbstractResource {
             @PathParam("notifierId") String notifierId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST)).then(RxJava2Adapter.singleToMono(Single.wrap(alertNotifierService.getById(ReferenceType.DOMAIN, domainId, notifierId)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST)).then(RxJava2Adapter.singleToMono(alertNotifierService.getById(ReferenceType.DOMAIN, domainId, notifierId))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -86,7 +86,7 @@ public class AlertNotifierResource extends AbstractResource {
 
         final User authenticatedUser = this.getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(alertNotifierService.update(ReferenceType.DOMAIN, domainId, notifierId, patchAlertNotifier, authenticatedUser)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(alertNotifierService.update(ReferenceType.DOMAIN, domainId, notifierId, patchAlertNotifier, authenticatedUser))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -108,7 +108,7 @@ public class AlertNotifierResource extends AbstractResource {
 
         final User authenticatedUser = this.getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST)).then(RxJava2Adapter.completableToMono(Completable.wrap(alertNotifierService.delete(ReferenceType.DOMAIN, domainId, notifierId, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST)).then(RxJava2Adapter.completableToMono(alertNotifierService.delete(ReferenceType.DOMAIN, domainId, notifierId, authenticatedUser))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

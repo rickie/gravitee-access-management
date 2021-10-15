@@ -56,30 +56,30 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
     @Override
     public Flowable<BotDetection> findAll() {
         LOGGER.debug("findAll()");
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.fluxToFlowable(dbClient.select()
                 .from(JdbcBotDetection.class)
                 .fetch()
-                .all())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Flowable<BotDetection> findByReference(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findByReference({}, {})", referenceType, referenceId);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.fluxToFlowable(dbClient.select()
                 .from(JdbcBotDetection.class)
                 .matching(from(where(REFERENCE_ID_FIELD).is(referenceId).and(where(REF_TYPE_FIELD).is(referenceType.name()))))
                 .fetch()
-                .all())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Maybe<BotDetection> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(monoToMaybe(dbClient.select()
+        return RxJava2Adapter.monoToMaybe(dbClient.select()
                 .from(JdbcBotDetection.class)
                 .matching(from(where(ID_FIELD).is(id)))
                 .fetch()
-                .first())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+                .first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -92,7 +92,7 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()))));
     }
 
     @Override
@@ -102,7 +102,7 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
                 .table(JdbcBotDetection.class)
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()))));
     }
 
     @Override

@@ -26,12 +26,14 @@ import io.gravitee.am.repository.management.api.AlertTriggerRepository;
 import io.gravitee.am.repository.management.api.search.AlertTriggerCriteria;
 import io.gravitee.am.repository.mongodb.management.internal.model.AlertTriggerMongo;
 import io.reactivex.*;
+import io.reactivex.BackpressureStrategy;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -52,15 +54,14 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
 
     @Override
     public Maybe<AlertTrigger> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first())
-                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<AlertTrigger> findAll(ReferenceType referenceType, String referenceId) {
         Bson eqReference = and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId));
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(collection.find(eqReference))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(eqReference)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -84,19 +85,19 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
         if (!filters.isEmpty()) {
             query = and(eqReference, criteria.isLogicalOR() ? or(filters) : and(filters));
         }
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(collection.find(query))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(query)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<AlertTrigger> create(AlertTrigger alertTrigger) {
         alertTrigger.setId(alertTrigger.getId() == null ? RandomString.generate() : alertTrigger.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(alertTrigger)))).flatMap(success->RxJava2Adapter.singleToMono(findById(alertTrigger.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(alertTrigger)))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(alertTrigger.getId())).single()))));
     }
 
     @Override
     public Single<AlertTrigger> update(AlertTrigger alertTrigger) {
         AlertTriggerMongo alertTriggerMongo = convert(alertTrigger);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, alertTriggerMongo.getId()), alertTriggerMongo))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(alertTriggerMongo.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, alertTriggerMongo.getId()), alertTriggerMongo))).flatMap(updateResult->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(alertTriggerMongo.getId())).single()))));
     }
 
     @Override

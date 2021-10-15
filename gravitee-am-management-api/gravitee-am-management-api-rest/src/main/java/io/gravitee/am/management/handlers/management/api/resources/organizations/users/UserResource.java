@@ -78,9 +78,9 @@ public class UserResource extends AbstractResource {
             @PathParam("user") String user,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)
                         .map(UserEntity::new)
-                        .flatMap(this::enhanceIdentityProvider)))))
+                        .flatMap(this::enhanceIdentityProvider))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -99,7 +99,7 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(organizationUserService.update(ReferenceType.ORGANIZATION, organizationId, user, updateUser, authenticatedUser)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(organizationUserService.update(ReferenceType.ORGANIZATION, organizationId, user, updateUser, authenticatedUser))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -119,7 +119,7 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(organizationUserService.updateStatus(ReferenceType.ORGANIZATION, organizationId, user, status.isEnabled(), authenticatedUser)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(organizationUserService.updateStatus(ReferenceType.ORGANIZATION, organizationId, user, status.isEnabled(), authenticatedUser))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -135,7 +135,7 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(organizationUserService.delete(ReferenceType.ORGANIZATION, organizationId, user, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.DELETE)).then(RxJava2Adapter.completableToMono(organizationUserService.delete(ReferenceType.ORGANIZATION, organizationId, user, authenticatedUser))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
@@ -153,21 +153,20 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)).then(RxJava2Adapter.completableToMono(Completable.wrap(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE)).then(RxJava2Adapter.completableToMono(organizationUserService.findById(ReferenceType.ORGANIZATION, organizationId, user)
                         .filter(existingUser -> IdentityProviderManagerImpl.IDP_GRAVITEE.equals(existingUser.getSource()))
                         .switchIfEmpty(Maybe.error(new UserInvalidException("Unable to reset password")))
-                        .flatMapCompletable(existingUser -> organizationUserService.resetPassword(organizationId, existingUser, password.getPassword(), authenticatedUser))))))
+                        .flatMapCompletable(existingUser -> organizationUserService.resetPassword(organizationId, existingUser, password.getPassword(), authenticatedUser)))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
 
     }
     private Single<UserEntity> enhanceIdentityProvider(UserEntity userEntity) {
         if (userEntity.getSource() != null) {
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(userEntity.getSource())
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderService.findById(userEntity.getSource())
                     .map(idP -> {
                         userEntity.setSource(idP.getName());
                         return userEntity;
-                    })
-                    .defaultIfEmpty(userEntity)).single());
+                    })).defaultIfEmpty(userEntity))).single());
         }
         return RxJava2Adapter.monoToSingle(Mono.just(userEntity));
     }

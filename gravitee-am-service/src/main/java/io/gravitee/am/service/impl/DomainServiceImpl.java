@@ -24,6 +24,7 @@ import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.*;
 import io.gravitee.am.model.Domain;
+import io.gravitee.am.model.Environment;
 import io.gravitee.am.model.account.AccountSettings;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.model.common.event.Payload;
@@ -66,6 +67,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -162,7 +164,7 @@ public class DomainServiceImpl implements DomainService {
     @Override
     public Single<Domain> findByHrid(String environmentId, String hrid) {
         LOGGER.debug("Find domain by hrid: {}", hrid);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, environmentId, hrid)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new DomainNotFoundException(hrid))))))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, environmentId, hrid)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new DomainNotFoundException(hrid)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
@@ -177,8 +179,7 @@ public class DomainServiceImpl implements DomainService {
     @Override
     public Flowable<Domain> search(String organizationId, String environmentId, String query) {
         LOGGER.debug("Search domains with query {} for environmentId {}", query, environmentId);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(environmentService.findById(environmentId, organizationId)
-                .map(Environment::getId)).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(envId -> domainRepository.search(environmentId, query))))
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentService.findById(environmentId, organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(Environment::getId)))).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(envId -> domainRepository.search(environmentId, query))))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error has occurred when trying to search domains with query {} for environmentId {}", query, environmentId, ex);
                 });
@@ -188,8 +189,7 @@ public class DomainServiceImpl implements DomainService {
     public Flowable<Domain> findAllByEnvironment(String organizationId, String environmentId) {
         LOGGER.debug("Find all domains of environment {} (organization {})", environmentId, organizationId);
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(environmentService.findById(environmentId, organizationId)
-                .map(Environment::getId)).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(domainRepository::findAllByReferenceId)))
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentService.findById(environmentId, organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(Environment::getId)))).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(domainRepository::findAllByReferenceId)))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error has occurred when trying to find domains by environment", ex);
                 });
@@ -216,7 +216,7 @@ public class DomainServiceImpl implements DomainService {
         LOGGER.debug("Find domains by id in {}", ids);
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(domainRepository.findByIdIn(ids)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find domains by id in {}", ids, ex);
-                    return Flowable.error(new TechnicalManagementException("An error occurs while trying to find domains by id in", ex));
+                    return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find domains by id in", ex)));
                 })));
     }
 
@@ -225,7 +225,7 @@ public class DomainServiceImpl implements DomainService {
         LOGGER.debug("Create a new domain: {}", newDomain);
         // generate hrid
         String hrid = IdGenerator.generate(newDomain.getName());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, environmentId, hrid)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(domainRepository.findByHrid(ReferenceType.ENVIRONMENT, environmentId, hrid)
                 .isEmpty()
                 .flatMap(empty -> {
                     if (!empty) {
@@ -286,24 +286,21 @@ public class DomainServiceImpl implements DomainService {
 
                     LOGGER.error("An error occurs while trying to create a domain", ex);
                     return Single.error(new TechnicalManagementException("An error occurs while trying to create a domain", ex));
-                })
-                .doOnSuccess(domain -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.DOMAIN_CREATED).domain(domain).referenceType(ReferenceType.ENVIRONMENT).referenceId(environmentId)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.DOMAIN_CREATED).referenceType(ReferenceType.ENVIRONMENT).referenceId(environmentId).throwable(throwable)))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(domain -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.DOMAIN_CREATED).domain(domain).referenceType(ReferenceType.ENVIRONMENT).referenceId(environmentId)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.DOMAIN_CREATED).referenceType(ReferenceType.ENVIRONMENT).referenceId(environmentId).throwable(throwable)))));
     }
 
     @Override
     public Single<Domain> update(String domainId, Domain domain) {
         LOGGER.debug("Update an existing domain: {}", domain);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(domainRepository.findById(domainId)
-                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId)))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainRepository.findById(domainId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domainId))))))
                 .flatMapSingle(__ -> {
                     domain.setHrid(IdGenerator.generate(domain.getName()));
                     domain.setUpdatedAt(new Date());
-                    return validateDomain(domain)
-                            .andThen(Single.defer(() -> domainRepository.update(domain)));
-                })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Domain>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Domain, Single<Domain>>)domain1 -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(validateDomain(domain)).then(RxJava2Adapter.singleToMono(Single.wrap(Single.defer(() -> domainRepository.update(domain))))));
+                })).flatMap(v->RxJava2Adapter.singleToMono((Single<Domain>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Domain, Single<Domain>>)domain1 -> {
                     Event event = new Event(Type.DOMAIN, new Payload(domain1.getId(), ReferenceType.DOMAIN, domain1.getId(), Action.UPDATE));
                     return eventService.create(event).flatMap(__ -> Single.just(domain1));
-                }).apply(v)))))
+                }).apply(v))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
@@ -316,7 +313,7 @@ public class DomainServiceImpl implements DomainService {
     @Override
     public Single<Domain> patch(String domainId, PatchDomain patchDomain, User principal) {
         LOGGER.debug("Patching an existing domain ({}) with : {}", domainId, patchDomain);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainRepository.findById(domainId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domainId))))))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainRepository.findById(domainId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domainId)))))
                 .flatMapSingle(oldDomain -> {
                     Domain toPatch = patchDomain.patch(oldDomain);
                     final AccountSettings accountSettings = toPatch.getAccountSettings();
@@ -325,14 +322,13 @@ public class DomainServiceImpl implements DomainService {
                     }
                     toPatch.setHrid(IdGenerator.generate(toPatch.getName()));
                     toPatch.setUpdatedAt(new Date());
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(validateDomain(toPatch)
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(validateDomain(toPatch)
                             .andThen(Single.defer(() -> domainRepository.update(toPatch)))
                             // create event for sync process
                             .flatMap(domain1 -> {
                                 Event event = new Event(Type.DOMAIN, new Payload(domain1.getId(), ReferenceType.DOMAIN, domain1.getId(), Action.UPDATE));
                                 return eventService.create(event).flatMap(__ -> Single.just(domain1));
-                            })
-                            .doOnSuccess(domain1 -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.DOMAIN_UPDATED).oldValue(oldDomain).domain(domain1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.DOMAIN_UPDATED).throwable(throwable)))));
+                            })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(domain1 -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.DOMAIN_UPDATED).oldValue(oldDomain).domain(domain1)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.DOMAIN_UPDATED).throwable(throwable)))));
 
                 })
                 .onErrorResumeNext(ex -> {
@@ -348,10 +344,9 @@ public class DomainServiceImpl implements DomainService {
     @Override
     public Completable delete(String domainId, User principal) {
         LOGGER.debug("Delete security domain {}", domainId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(domainRepository.findById(domainId)
-                .switchIfEmpty(Maybe.error(new DomainNotFoundException(domainId)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Domain, CompletableSource>)domain -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainRepository.findById(domainId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domainId))))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Domain, CompletableSource>)domain -> {
                     // delete applications
-                    return applicationService.findByDomain(domainId)
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(applicationService.findByDomain(domainId)
                             .flatMapCompletable(applications -> {
                                 List<Completable> deleteApplicationsCompletable = applications.stream().map(a -> applicationService.delete(a.getId())).collect(Collectors.toList());
                                 return Completable.concat(deleteApplicationsCompletable);
@@ -439,8 +434,7 @@ public class DomainServiceImpl implements DomainService {
                             )
                             .andThen(domainRepository.delete(domainId))
                             .andThen(Completable.fromSingle(eventService.create(new Event(Type.DOMAIN, new Payload(domainId, ReferenceType.DOMAIN, domainId, Action.DELETE)))))
-                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.DOMAIN_DELETED).domain(domain)))
-                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.DOMAIN_DELETED).throwable(throwable)));
+                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.DOMAIN_DELETED).domain(domain)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.DOMAIN_DELETED).throwable(throwable)))));
                 }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -516,15 +510,13 @@ public class DomainServiceImpl implements DomainService {
         }
 
         // check the uniqueness of the domain
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(domainRepository.findByHrid(domain.getReferenceType(), domain.getReferenceId(), domain.getHrid())
-                .map(Optional::of)
-                .defaultIfEmpty(Optional.empty())).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<Domain>, CompletableSource>)optDomain -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainRepository.findByHrid(domain.getReferenceType(), domain.getReferenceId(), domain.getHrid())
+                .map(Optional::of)).defaultIfEmpty(Optional.empty()))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<Domain>, CompletableSource>)optDomain -> {
                     if (optDomain.isPresent() && !optDomain.get().getId().equals(domain.getId())) {
-                        return Completable.error(new DomainAlreadyExistsException(domain.getName()));
+                        return RxJava2Adapter.monoToCompletable(Mono.error(new DomainAlreadyExistsException(domain.getName())));
                     } else {
                         // Get environment domain restrictions and validate all data are correctly defined.
-                        return environmentService.findById(domain.getReferenceId())
-                                .flatMapCompletable(environment -> validateDomain(domain, environment));
+                        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(environmentService.findById(domain.getReferenceId())).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Environment, CompletableSource>toJdkFunction(environment -> validateDomain(domain, environment)).apply(z)))).then());
                     }
                 }).apply(y)))).then());
     }
@@ -532,8 +524,8 @@ public class DomainServiceImpl implements DomainService {
     private Completable validateDomain(Domain domain, Environment environment) {
 
         // Get environment domain restrictions and validate all data are correctly defined.
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(DomainValidator.validate(domain, environment.getDomainRestrictions())).then(RxJava2Adapter.completableToMono(Completable.wrap(findAll()
-                        .flatMapCompletable(domains -> VirtualHostValidator.validateDomainVhosts(domain, domains))))));
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(DomainValidator.validate(domain, environment.getDomainRestrictions())).then(RxJava2Adapter.completableToMono(findAll()
+                        .flatMapCompletable(domains -> VirtualHostValidator.validateDomainVhosts(domain, domains)))));
     }
 
     private void setDeployMode(Domain domain, Environment environment) {

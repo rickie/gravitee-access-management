@@ -19,6 +19,7 @@ import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.oauth2.AbstractOAuthTest;
 import io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest;
 import io.gravitee.common.util.LinkedMultiValueMap;
+import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.observers.TestObserver;
 import org.junit.Test;
@@ -78,12 +79,11 @@ public class PushedAuthorizationRequestRepositoryTest extends AbstractOAuthTest 
         parameters.add("key", "value");
         par.setParameters(parameters);
 
-        TestObserver<PushedAuthorizationRequest> observer = repository
+        TestObserver<PushedAuthorizationRequest> observer = RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(repository
                 .create(par)
                 .ignoreElement()
                 .andThen(repository.findById(id))
-                .ignoreElement()
-                .andThen(repository.delete(id)).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(repository.findById(id)))).as(RxJava2Adapter::monoToMaybe)
+                .ignoreElement()).then(RxJava2Adapter.completableToMono(Completable.wrap(repository.delete(id))))).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(repository.findById(id))).as(RxJava2Adapter::monoToMaybe)
                 .test();
 
         observer.awaitTerminalEvent();

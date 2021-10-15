@@ -25,6 +25,7 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.InstallationService;
 import io.gravitee.common.http.MediaType;
+import io.reactivex.Single;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -62,9 +63,8 @@ public class InstallationResource extends AbstractResource {
     public void get(
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkPermission(ReferenceType.PLATFORM, Platform.DEFAULT, Permission.INSTALLATION, Acl.READ)
-                .andThen(installationService.get()
-                        .map(InstallationEntity::new))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installationEntity -> installationEntity.getAdditionalInformation()
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.PLATFORM, Platform.DEFAULT, Permission.INSTALLATION, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(installationService.get()
+                        .map(InstallationEntity::new)))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installationEntity -> installationEntity.getAdditionalInformation()
                         .put(Installation.COCKPIT_URL, environment.getProperty("cockpit.url", DEFAULT_COCKPIT_URL)))))
                 .subscribe(response::resume, response::resume);
     }

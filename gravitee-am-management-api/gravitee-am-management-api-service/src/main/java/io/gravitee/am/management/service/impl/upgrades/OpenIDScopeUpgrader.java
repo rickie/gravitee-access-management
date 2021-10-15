@@ -70,8 +70,7 @@ public class OpenIDScopeUpgrader implements Upgrader, Ordered {
     }
 
     private Single<Scope> createSystemScope(String domain, io.gravitee.am.common.oidc.Scope systemScope) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, systemScope.getKey())
-                .map(Optional::of)).defaultIfEmpty(Optional.empty()))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, systemScope.getKey())).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)))).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optScope -> {
                     if (!optScope.isPresent()) {
                         logger.info("Create a new system scope key[{}] for domain[{}]", systemScope.getKey(), domain);

@@ -36,6 +36,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -62,7 +63,7 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
         if (to > from) {
             filters.add(lte(FIELD_UPDATED_AT, new Date(to)));
         }
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(eventsCollection.find(and(filters)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(eventsCollection.find(and(filters))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -74,13 +75,13 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
     public Single<Event> create(Event item) {
         EventMongo event = convert(item);
         event.setId(event.getId() == null ? RandomString.generate() : event.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(eventsCollection.insertOne(event))).flatMap(success->RxJava2Adapter.singleToMono(findById(event.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(eventsCollection.insertOne(event))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(event.getId())).single()))));
     }
 
     @Override
     public Single<Event> update(Event item) {
         EventMongo event = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(eventsCollection.replaceOne(eq(FIELD_ID, event.getId()), event))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(event.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(eventsCollection.replaceOne(eq(FIELD_ID, event.getId()), event))).flatMap(updateResult->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(event.getId())).single()))));
     }
 
     @Override

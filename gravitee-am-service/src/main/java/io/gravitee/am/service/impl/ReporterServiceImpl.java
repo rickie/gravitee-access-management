@@ -63,6 +63,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -101,7 +102,7 @@ public class ReporterServiceImpl implements ReporterService {
         LOGGER.debug("Find all reporters");
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(reporterRepository.findAll()).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find all reporter", ex);
-                    return Flowable.error(new TechnicalManagementException("An error occurs while trying to find all reporters", ex));
+                    return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find all reporters", ex)));
                 })));
     }
 
@@ -110,7 +111,7 @@ public class ReporterServiceImpl implements ReporterService {
         LOGGER.debug("Find reporters by domain: {}", domain);
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(reporterRepository.findByDomain(domain)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find reporters by domain: {}", domain, ex);
-                    return Flowable.error(new TechnicalManagementException(String.format("An error occurs while trying to find reporters by domain: %s", domain), ex));
+                    return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error occurs while trying to find reporters by domain: %s", domain), ex)));
                 })));
     }
 
@@ -161,7 +162,7 @@ public class ReporterServiceImpl implements ReporterService {
         reporter.setCreatedAt(new Date());
         reporter.setUpdatedAt(reporter.getCreatedAt());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkReporterConfiguration(reporter)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkReporterConfiguration(reporter)
                 .flatMap(ignore -> reporterRepository.create(reporter))
                 .flatMap(reporter1 -> {
                     // create event for sync process
@@ -175,8 +176,7 @@ public class ReporterServiceImpl implements ReporterService {
                         message += ex.getMessage();
                     }
                     return Single.error(new TechnicalManagementException(message, ex));
-                })
-                .doOnSuccess(reporter1 -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_CREATED).reporter(reporter1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_CREATED).throwable(throwable)))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(reporter1 -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_CREATED).reporter(reporter1)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_CREATED).throwable(throwable)))));
     }
 
 
@@ -184,7 +184,7 @@ public class ReporterServiceImpl implements ReporterService {
     public Single<Reporter> update(String domain, String id, UpdateReporter updateReporter, User principal) {
         LOGGER.debug("Update a reporter {} for domain {}", id, domain);
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(reporterRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ReporterNotFoundException(id))))))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(reporterRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new ReporterNotFoundException(id)))))
                 .flatMapSingle(oldReporter -> {
                     Reporter reporterToUpdate = new Reporter(oldReporter);
                     reporterToUpdate.setEnabled(updateReporter.isEnabled());
@@ -192,7 +192,7 @@ public class ReporterServiceImpl implements ReporterService {
                     reporterToUpdate.setConfiguration(updateReporter.getConfiguration());
                     reporterToUpdate.setUpdatedAt(new Date());
 
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkReporterConfiguration(reporterToUpdate)
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkReporterConfiguration(reporterToUpdate)
                             .flatMap(ignore -> reporterRepository.update(reporterToUpdate)
                                     .flatMap(reporter1 -> {
                                         // create event for sync process
@@ -203,8 +203,7 @@ public class ReporterServiceImpl implements ReporterService {
                                         } else {
                                             return Single.just(reporter1);
                                         }
-                                    }))
-                            .doOnSuccess(reporter1 -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_UPDATED).oldValue(oldReporter).reporter(reporter1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_UPDATED).throwable(throwable)))));
+                                    }))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(reporter1 -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_UPDATED).oldValue(oldReporter).reporter(reporter1)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_UPDATED).throwable(throwable)))));
                 })
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -222,15 +221,13 @@ public class ReporterServiceImpl implements ReporterService {
     @Override
     public Completable delete(String reporterId, User principal) {
         LOGGER.debug("Delete reporter {}", reporterId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(reporterRepository.findById(reporterId)
-                .switchIfEmpty(Maybe.error(new ReporterNotFoundException(reporterId)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Reporter, CompletableSource>)reporter -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(reporterRepository.findById(reporterId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ReporterNotFoundException(reporterId))))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Reporter, CompletableSource>)reporter -> {
                     // create event for sync process
                     Event event = new Event(Type.REPORTER, new Payload(reporterId, ReferenceType.DOMAIN, reporter.getDomain(), Action.DELETE));
-                    return reporterRepository.delete(reporterId)
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(reporterRepository.delete(reporterId)
                             .andThen(eventService.create(event))
                             .toCompletable()
-                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_DELETED).reporter(reporter)))
-                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_DELETED).throwable(throwable)));
+                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_DELETED).reporter(reporter)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_DELETED).throwable(throwable)))));
                 }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -256,21 +253,20 @@ public class ReporterServiceImpl implements ReporterService {
             final JsonObject configuration = (JsonObject) Json.decodeValue(reporter.getConfiguration());
             final String reporterId = reporter.getId();
 
-            result = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(reporterRepository.findByDomain(reporter.getDomain())
+            result = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(reporterRepository.findByDomain(reporter.getDomain())
                     .filter(r -> r.getType().equalsIgnoreCase(REPORTER_AM_FILE))
                     .filter(r -> reporterId == null || !r.getId().equals(reporterId)) // exclude 'self' in case of update
-                    .map(r -> (JsonObject) Json.decodeValue(r.getConfiguration()))
-                    .filter(cfg ->
+                    .map(r -> (JsonObject) Json.decodeValue(r.getConfiguration()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(cfg ->
                             cfg.containsKey(REPORTER_CONFIG_FILENAME) &&
-                                    cfg.getString(REPORTER_CONFIG_FILENAME).equals(configuration.getString(REPORTER_CONFIG_FILENAME)))
-                    .count()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Reporter>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Long, Single<Reporter>>)reporters -> {
+                                    cfg.getString(REPORTER_CONFIG_FILENAME).equals(configuration.getString(REPORTER_CONFIG_FILENAME)))))
+                    .count()).flatMap(v->RxJava2Adapter.singleToMono((Single<Reporter>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Long, Single<Reporter>>)reporters -> {
                         if (reporters > 0) {
                             // more than one reporter use the same filename
                             return Single.error(new ReporterConfigurationException("Filename already defined"));
                         } else {
                             return Single.just(reporter);
                         }
-                    }).apply(v)))));
+                    }).apply(v))));
         }
 
         return result;

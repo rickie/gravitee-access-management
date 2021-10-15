@@ -34,6 +34,7 @@ import io.gravitee.am.service.reporter.builder.UserConsentAuditBuilder;
 import io.reactivex.*;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
+import io.reactivex.Maybe;
 import io.reactivex.functions.Function;
 import java.util.Collections;
 import java.util.HashSet;
@@ -45,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -91,8 +93,8 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
         LOGGER.debug("Find scope approvals by domain: {} and user: {}", domain, user);
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalRepository.findByDomainAndUser(domain, user)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a scope approval for domain: {} and user: {}", domain, user);
-                    return Flowable.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a scope approval for domain: %s and user: %s", domain, user), ex));
+                    return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a scope approval for domain: %s and user: %s", domain, user), ex)));
                 })));
     }
 
@@ -101,18 +103,17 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
         LOGGER.debug("Find scope approvals by domain: {} and user: {} and client: {}", domain, user);
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalRepository.findByDomainAndUserAndClient(domain, user, client)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a scope approval for domain: {}, user: {} and client: {}", domain, user, client);
-                    return Flowable.error(new TechnicalManagementException(
-                            String.format("An error occurs while trying to find a scope approval for domain: %s, user: %s and client: %s", domain, user, client), ex));
+                    return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
+                            String.format("An error occurs while trying to find a scope approval for domain: %s, user: %s and client: %s", domain, user, client), ex)));
                 })));
     }
 
     @Override
     public Single<List<ScopeApproval>> saveConsent(String domain, Client client, List<ScopeApproval> approvals, User principal) {
         LOGGER.debug("Save approvals for user: {}", approvals.get(0).getUserId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(approvals)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(approvals)
                 .flatMapSingle(scopeApprovalRepository::upsert)
-                .toList()
-                .doOnSuccess(__ -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).domain(domain).client(client).principal(principal).type(EventType.USER_CONSENT_CONSENTED).approvals(approvals)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).domain(domain).client(client).principal(principal).type(EventType.USER_CONSENT_CONSENTED).throwable(throwable)))))
+                .toList()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).domain(domain).client(client).principal(principal).type(EventType.USER_CONSENT_CONSENTED).approvals(approvals)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).domain(domain).client(client).principal(principal).type(EventType.USER_CONSENT_CONSENTED).throwable(throwable)))))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to save consent for domain: {}, client: {} and user: {} ", domain, client.getId(), approvals.get(0).getUserId());
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
@@ -124,14 +125,7 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
     public Completable revokeByConsent(String domain, String userId, String consentId, User principal) {
         LOGGER.debug("Revoke approval for consent: {} and user: {}", consentId, userId);
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userService.findById(userId)
-                .switchIfEmpty(Maybe.error(new UserNotFoundException(userId)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<io.gravitee.am.model.User, CompletableSource>)user -> scopeApprovalRepository.findById(consentId)
-                        .switchIfEmpty(Maybe.error(new ScopeApprovalNotFoundException(consentId)))
-                        .flatMapCompletable(scopeApproval -> scopeApprovalRepository.delete(consentId)
-                                .doOnComplete(() -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user).approvals(Collections.singleton(scopeApproval))))
-                                .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user).throwable(throwable)))
-                                .andThen(Completable.mergeArrayDelayError(accessTokenRepository.deleteByDomainIdClientIdAndUserId(scopeApproval.getDomain(), scopeApproval.getClientId(), scopeApproval.getUserId()),
-                                            refreshTokenRepository.deleteByDomainIdClientIdAndUserId(scopeApproval.getDomain(), scopeApproval.getClientId(), scopeApproval.getUserId()))))).apply(y)))).then())
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findById(userId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(userId))))))).flatMap(user->RxJava2Adapter.completableToMono(scopeApprovalRepository.findById(consentId).switchIfEmpty(Maybe.error(new ScopeApprovalNotFoundException(consentId))).flatMapCompletable((io.gravitee.am.model.oauth2.ScopeApproval scopeApproval)->scopeApprovalRepository.delete(consentId).doOnComplete(()->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user).approvals(Collections.singleton(scopeApproval)))).doOnError((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user).throwable(throwable))).andThen(Completable.mergeArrayDelayError(accessTokenRepository.deleteByDomainIdClientIdAndUserId(scopeApproval.getDomain(), scopeApproval.getClientId(), scopeApproval.getUserId()), refreshTokenRepository.deleteByDomainIdClientIdAndUserId(scopeApproval.getDomain(), scopeApproval.getClientId(), scopeApproval.getUserId())))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
@@ -146,13 +140,7 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
     @Override
     public Completable revokeByUser(String domain, String user, User principal) {
         LOGGER.debug("Revoke approvals for domain: {} and user: {}", domain, user);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userService.findById(user)
-                .switchIfEmpty(Maybe.error(new UserNotFoundException(user)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<io.gravitee.am.model.User, CompletableSource>)user1 -> scopeApprovalRepository.findByDomainAndUser(domain, user).collect(HashSet<ScopeApproval>::new, Set::add)
-                        .flatMapCompletable(scopeApprovals -> scopeApprovalRepository.deleteByDomainAndUser(domain, user)
-                                .doOnComplete(() -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).approvals(scopeApprovals)))
-                                .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).throwable(throwable))))
-                        .andThen(Completable.mergeArrayDelayError(accessTokenRepository.deleteByDomainIdAndUserId(domain, user),
-                                refreshTokenRepository.deleteByDomainIdAndUserId(domain, user)))).apply(y)))).then())
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findById(user)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(user))))))).flatMap(user1->RxJava2Adapter.completableToMono(scopeApprovalRepository.findByDomainAndUser(domain, user).collect(HashSet<ScopeApproval>::new, Set::add).flatMapCompletable((java.util.HashSet<io.gravitee.am.model.oauth2.ScopeApproval> scopeApprovals)->scopeApprovalRepository.deleteByDomainAndUser(domain, user).doOnComplete(()->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).approvals(scopeApprovals))).doOnError((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).throwable(throwable)))).andThen(Completable.mergeArrayDelayError(accessTokenRepository.deleteByDomainIdAndUserId(domain, user), refreshTokenRepository.deleteByDomainIdAndUserId(domain, user))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
@@ -167,14 +155,7 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
     @Override
     public Completable revokeByUserAndClient(String domain, String user, String clientId, User principal) {
         LOGGER.debug("Revoke approvals for domain: {}, user: {} and client: {}", domain, user, clientId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userService.findById(user)
-                .switchIfEmpty(Maybe.error(new UserNotFoundException(user)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<io.gravitee.am.model.User, CompletableSource>)user1 -> scopeApprovalRepository.findByDomainAndUserAndClient(domain, user, clientId)
-                        .collect(HashSet<ScopeApproval>::new, Set::add)
-                        .flatMapCompletable(scopeApprovals -> scopeApprovalRepository.deleteByDomainAndUserAndClient(domain, user, clientId)
-                                .doOnComplete(() -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).approvals(scopeApprovals)))
-                                .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).throwable(throwable))))
-                        .andThen(Completable.mergeArrayDelayError(accessTokenRepository.deleteByDomainIdClientIdAndUserId(domain, clientId, user),
-                                refreshTokenRepository.deleteByDomainIdClientIdAndUserId(domain, clientId, user)))).apply(y)))).then())
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findById(user)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(user))))))).flatMap(user1->RxJava2Adapter.completableToMono(scopeApprovalRepository.findByDomainAndUserAndClient(domain, user, clientId).collect(HashSet<ScopeApproval>::new, Set::add).flatMapCompletable((java.util.HashSet<io.gravitee.am.model.oauth2.ScopeApproval> scopeApprovals)->scopeApprovalRepository.deleteByDomainAndUserAndClient(domain, user, clientId).doOnComplete(()->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).approvals(scopeApprovals))).doOnError((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).throwable(throwable)))).andThen(Completable.mergeArrayDelayError(accessTokenRepository.deleteByDomainIdClientIdAndUserId(domain, clientId, user), refreshTokenRepository.deleteByDomainIdClientIdAndUserId(domain, clientId, user))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));

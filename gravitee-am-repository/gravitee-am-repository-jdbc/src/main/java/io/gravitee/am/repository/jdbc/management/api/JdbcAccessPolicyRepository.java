@@ -68,14 +68,13 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
     @Override
     public Single<Page<AccessPolicy>> findByDomain(String domain, int page, int size) {
         LOGGER.debug("findByDomain(domain:{}, page:{}, size:{})", domain, page, size);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.select()
                 .from(JdbcAccessPolicy.class)
                 .project("*") // required for mssql to work with to order column name
                 .matching(from(where("domain").is(domain)))
                 .orderBy(Sort.Order.desc("updated_at"))
                 .page(PageRequest.of(page, size))
-                .as(JdbcAccessPolicy.class).all()).toList()
-                .map(content -> content.stream().map(this::toAccessPolicy).collect(Collectors.toList()))).flatMap(content->RxJava2Adapter.singleToMono(accessPolicyRepository.countByDomain(domain).map((java.lang.Long count)->new Page<AccessPolicy>(content, page, count)))));
+                .as(JdbcAccessPolicy.class).all()).toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(content -> content.stream().map(this::toAccessPolicy).collect(Collectors.toList()))))).flatMap(content->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(accessPolicyRepository.countByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<AccessPolicy>(content, page, count)))))));
     }
 
     @Override
@@ -123,7 +122,7 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()))));
     }
 
     @Override
@@ -146,7 +145,7 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
         updateFields = addQuotedField(updateFields,"updated_at", dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
         Mono<Integer> action = updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()))));
     }
 
     @Override

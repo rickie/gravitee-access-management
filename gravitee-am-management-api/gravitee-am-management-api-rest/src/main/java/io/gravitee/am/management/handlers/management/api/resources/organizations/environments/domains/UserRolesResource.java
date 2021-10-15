@@ -81,7 +81,7 @@ public class UserRolesResource extends AbstractResource {
             @PathParam("user") String user,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> userService.findById(user))
                         .switchIfEmpty(Maybe.error(new UserNotFoundException(user)))
@@ -90,7 +90,7 @@ public class UserRolesResource extends AbstractResource {
                                 return Single.just(Collections.emptyList());
                             }
                             return roleService.findByIdIn(endUser.getRoles());
-                        })))))
+                        }))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -113,9 +113,9 @@ public class UserRolesResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(endUser -> userService.assignRoles(ReferenceType.DOMAIN, domain, user, roles, authenticatedUser))))))
+                        .flatMapSingle(endUser -> userService.assignRoles(ReferenceType.DOMAIN, domain, user, roles, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 

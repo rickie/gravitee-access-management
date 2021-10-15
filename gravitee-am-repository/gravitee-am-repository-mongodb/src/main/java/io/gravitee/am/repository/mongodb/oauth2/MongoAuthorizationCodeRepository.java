@@ -25,6 +25,7 @@ import io.gravitee.am.repository.oauth2.api.AuthorizationCodeRepository;
 import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
 import io.gravitee.common.util.LinkedMultiValueMap;
 import io.gravitee.common.util.MultiValueMap;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -60,9 +61,8 @@ public class MongoAuthorizationCodeRepository extends AbstractOAuth2MongoReposit
     }
 
     private Maybe<AuthorizationCode> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
-                .fromPublisher(authorizationCodeCollection.find(eq(FIELD_ID, id)).first())
-                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
+                .fromPublisher(authorizationCodeCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -72,17 +72,17 @@ public class MongoAuthorizationCodeRepository extends AbstractOAuth2MongoReposit
         }
 
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
-                .fromPublisher(authorizationCodeCollection.insertOne(convert(authorizationCode)))).flatMap(success->RxJava2Adapter.singleToMono(findById(authorizationCode.getId()).toSingle())));
+                .fromPublisher(authorizationCodeCollection.insertOne(convert(authorizationCode)))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(authorizationCode.getId())).single()))));
     }
 
     @Override
     public Maybe<AuthorizationCode> delete(String code) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(authorizationCodeCollection.findOneAndDelete(eq(FIELD_ID, code))).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(authorizationCodeCollection.findOneAndDelete(eq(FIELD_ID, code))), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<AuthorizationCode> findByCode(String code) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(authorizationCodeCollection.find(eq(FIELD_CODE, code)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(authorizationCodeCollection.find(eq(FIELD_CODE, code)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     private AuthorizationCode convert(AuthorizationCodeMongo authorizationCodeMongo) {

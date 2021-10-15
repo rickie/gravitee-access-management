@@ -68,7 +68,7 @@ public class AuthorizationCodeRepositoryTest extends AbstractOAuthTest {
 
         TestObserver<AuthorizationCode> testObserver = authorizationCodeRepository
                 .create(authorizationCode)
-                .toCompletable().as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(authorizationCodeRepository.delete(code)))).as(RxJava2Adapter::monoToMaybe)
+                .toCompletable().as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(authorizationCodeRepository.delete(code))).as(RxJava2Adapter::monoToMaybe)
                 .test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();

@@ -88,7 +88,7 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
             roleObs = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(roleService.findById(user.getReferenceType(), user.getReferenceId(), roleId)))
                     .onErrorResumeNext(throwable -> {
                         if (throwable instanceof RoleNotFoundException) {
-                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(roleService.findById(ReferenceType.PLATFORM, Platform.DEFAULT, roleId).toMaybe()).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(defaultRoleObs))))
+                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(roleService.findById(ReferenceType.PLATFORM, Platform.DEFAULT, roleId)))).switchIfEmpty(RxJava2Adapter.maybeToMono(defaultRoleObs)))
                                     .onErrorResumeNext(defaultRoleObs);
                         } else {
                             return defaultRoleObs;
@@ -102,9 +102,9 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
         membership.setReferenceType(user.getReferenceType());
         membership.setReferenceId(user.getReferenceId());
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(roleObs.switchIfEmpty(Maybe.error(new TechnicalManagementException(String.format("Cannot add user membership to organization %s. Unable to find ORGANIZATION_USER role", user.getReferenceId()))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Role, CompletableSource>)role -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(roleObs).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new TechnicalManagementException(String.format("Cannot add user membership to organization %s. Unable to find ORGANIZATION_USER role", user.getReferenceId())))))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Role, CompletableSource>)role -> {
                     membership.setRoleId(role.getId());
-                    return membershipService.addOrUpdate(user.getReferenceId(), membership).ignoreElement();
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(membershipService.addOrUpdate(user.getReferenceId(), membership)).then());
                 }).apply(y)))).then());
     }
 
@@ -113,7 +113,7 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
         LOGGER.debug("Update a user {}", user);
         // updated date
         user.setUpdatedAt(new Date());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(Single.wrap(getUserRepository()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(getUserRepository()
                 .findByUsernameAndSource(ReferenceType.ORGANIZATION, user.getReferenceId(), user.getUsername(), user.getSource())
                 .flatMapSingle(oldUser -> {
 
@@ -145,6 +145,6 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
                     }
                     LOGGER.error("An error occurs while trying to update a user", ex);
                     return Single.error(new TechnicalManagementException("An error occurs while trying to update a user", ex));
-                })))));
+                }))));
     }
 }

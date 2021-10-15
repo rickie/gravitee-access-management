@@ -182,9 +182,8 @@ public class SSOSessionHandler implements Handler<RoutingContext> {
     }
 
     private Single<Optional<Client>> getClient(String clientId) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(clientSyncService.findById(clientId)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(clientSyncService.findById(clientId)
                 .switchIfEmpty(Maybe.defer(() -> clientSyncService.findByClientId(clientId)))
-                .map(Optional::ofNullable)
-                .defaultIfEmpty(Optional.empty())).single());
+                .map(Optional::ofNullable)).defaultIfEmpty(Optional.empty()))).single());
     }
 }

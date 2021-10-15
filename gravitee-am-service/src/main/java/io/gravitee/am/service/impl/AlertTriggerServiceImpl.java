@@ -37,6 +37,7 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import java.util.Date;
@@ -76,7 +77,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
     public Single<AlertTrigger> getById(String id) {
         LOGGER.debug("Find alert trigger by id: {}", id);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(alertTriggerRepository.findById(id)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new AlertTriggerNotFoundException(id))))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(alertTriggerRepository.findById(id)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new AlertTriggerNotFoundException(id)))));
     }
 
 
@@ -92,8 +93,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
     public Single<AlertTrigger> getById(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("Find alert trigger by id: {}", id);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(alertTriggerRepository.findById(id)
-                .filter(alertTrigger -> alertTrigger.getReferenceType() == referenceType && alertTrigger.getReferenceId().equals(referenceId))).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new AlertTriggerNotFoundException(id))))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(alertTriggerRepository.findById(id)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(alertTrigger -> alertTrigger.getReferenceType() == referenceType && alertTrigger.getReferenceId().equals(referenceId))))).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new AlertTriggerNotFoundException(id)))));
     }
 
     /**
@@ -127,9 +127,8 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
         final AlertTriggerCriteria criteria = new AlertTriggerCriteria();
         criteria.setType(patchAlertTrigger.getType());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(alertTriggerRepository.findByCriteria(referenceType, referenceId, criteria)
-                .firstElement()
-                .flatMap(alertTrigger -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(alertTriggerRepository.findByCriteria(referenceType, referenceId, criteria)
+                .firstElement()).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AlertTrigger, MaybeSource<AlertTrigger>>toJdkFunction(alertTrigger -> {
                     AlertTrigger toUpdate = patchAlertTrigger.patch(alertTrigger);
 
                     if (toUpdate.equals(alertTrigger)) {
@@ -137,7 +136,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
                         return Maybe.just(alertTrigger);
                     }
                     return updateInternal(toUpdate, byUser, alertTrigger).toMaybe();
-                })).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.defer(() -> {
+                }).apply(v)))))).switchIfEmpty(RxJava2Adapter.singleToMono(Single.defer(() -> {
                     AlertTrigger alertTrigger = new AlertTrigger();
                     alertTrigger.setId(RandomString.generate());
                     alertTrigger.setReferenceType(referenceType);
@@ -146,7 +145,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
                     alertTrigger = patchAlertTrigger.patch(alertTrigger);
 
                     return createInternal(alertTrigger, byUser);
-                })))));
+                }))));
     }
 
     /**
@@ -159,7 +158,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
      */
     @Override
     public Completable delete(ReferenceType referenceType, String referenceId, String alertTriggerId, User byUser) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(this.getById(referenceType, referenceId, alertTriggerId)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<AlertTrigger, CompletableSource>)alertTrigger -> deleteInternal(alertTrigger, byUser)).apply(y)))).then());
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(this.getById(referenceType, referenceId, alertTriggerId)).flatMap(alertTrigger->RxJava2Adapter.completableToMono(deleteInternal(alertTrigger, byUser))).then());
     }
 
     private Single<AlertTrigger> createInternal(AlertTrigger toCreate, User byUser) {
@@ -169,24 +168,21 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
         toCreate.setCreatedAt(now);
         toCreate.setUpdatedAt(now);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(alertTriggerRepository.create(toCreate)
-                .flatMap(created -> eventService.create(new Event(Type.ALERT_TRIGGER, new Payload(created.getId(), created.getReferenceType(), created.getReferenceId(), Action.CREATE))).ignoreElement().andThen(Single.just(created)))
-                .doOnSuccess(alertTrigger -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_CREATED).alertTrigger(alertTrigger).principal(byUser)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_CREATED).alertTrigger(toCreate).principal(byUser).throwable(throwable)))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(alertTriggerRepository.create(toCreate)
+                .flatMap(created -> eventService.create(new Event(Type.ALERT_TRIGGER, new Payload(created.getId(), created.getReferenceType(), created.getReferenceId(), Action.CREATE))).ignoreElement().andThen(Single.just(created)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(alertTrigger -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_CREATED).alertTrigger(alertTrigger).principal(byUser)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_CREATED).alertTrigger(toCreate).principal(byUser).throwable(throwable)))));
     }
 
     private Single<AlertTrigger> updateInternal(AlertTrigger alertTrigger, User updatedBy, AlertTrigger previous) {
 
         alertTrigger.setUpdatedAt(new Date());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(alertTriggerRepository.update(alertTrigger)
-                .flatMap(updated -> eventService.create(new Event(Type.ALERT_TRIGGER, new Payload(updated.getId(), updated.getReferenceType(), updated.getReferenceId(), Action.UPDATE))).ignoreElement().andThen(Single.just(updated)))
-                .doOnSuccess(updated -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_UPDATED).alertTrigger(updated).principal(updatedBy).oldValue(previous)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_UPDATED).alertTrigger(previous).principal(updatedBy).throwable(throwable)))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(alertTriggerRepository.update(alertTrigger)
+                .flatMap(updated -> eventService.create(new Event(Type.ALERT_TRIGGER, new Payload(updated.getId(), updated.getReferenceType(), updated.getReferenceId(), Action.UPDATE))).ignoreElement().andThen(Single.just(updated)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(updated -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_UPDATED).alertTrigger(updated).principal(updatedBy).oldValue(previous)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_UPDATED).alertTrigger(previous).principal(updatedBy).throwable(throwable)))));
     }
 
 
     private Completable deleteInternal(AlertTrigger alertTrigger, User deletedBy) {
-        return alertTriggerRepository.delete(alertTrigger.getId())
-                .andThen(eventService.create(new Event(Type.ALERT_TRIGGER, new Payload(alertTrigger.getId(), alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), Action.DELETE))).ignoreElement())
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(alertTriggerRepository.delete(alertTrigger.getId())).then(RxJava2Adapter.completableToMono(Completable.wrap(eventService.create(new Event(Type.ALERT_TRIGGER, new Payload(alertTrigger.getId(), alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), Action.DELETE))).ignoreElement()))))
                 .doOnComplete(() -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_DELETED).alertTrigger(alertTrigger).principal(deletedBy))).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_DELETED).alertTrigger(alertTrigger).principal(deletedBy).throwable(throwable)))).as(RxJava2Adapter::monoToCompletable);
     }
 }

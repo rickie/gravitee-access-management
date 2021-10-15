@@ -35,6 +35,7 @@ import io.gravitee.am.repository.management.api.ApplicationRepository;
 import io.gravitee.am.repository.mongodb.management.MongoApplicationRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.*;
 import io.reactivex.*;
+import io.reactivex.BackpressureStrategy;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -78,7 +80,7 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
 
     @Override
     public Flowable<Application> findAll() {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(applicationsCollection.find())).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(applicationsCollection.find()))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
     }
 
     @Override
@@ -90,7 +92,7 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
 
     @Override
     public Flowable<Application> findByDomain(String domain) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(applicationsCollection.find(eq(FIELD_DOMAIN, domain)))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(applicationsCollection.find(eq(FIELD_DOMAIN, domain))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
     }
 
     @Override
@@ -123,51 +125,51 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
 
     @Override
     public Flowable<Application> findByCertificate(String certificate) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(applicationsCollection.find(eq(FIELD_CERTIFICATE, certificate)))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(applicationsCollection.find(eq(FIELD_CERTIFICATE, certificate))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
     }
 
     @Override
     public Flowable<Application> findByIdentityProvider(String identityProvider) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(applicationsCollection.find(eq(FIELD_IDENTITIES, identityProvider)))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(applicationsCollection.find(eq(FIELD_IDENTITIES, identityProvider))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
     }
 
     @Override
     public Flowable<Application> findByFactor(String factor) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(applicationsCollection.find(eq(FIELD_FACTORS, factor)))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(applicationsCollection.find(eq(FIELD_FACTORS, factor))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
     }
 
     @Override
     public Maybe<Application> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(applicationsCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(applicationsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
     }
 
     @Override
     public Maybe<Application> findByDomainAndClientId(String domain, String clientId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(applicationsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, clientId)))
-                .first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(applicationsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, clientId)))
+                .first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
     }
 
     @Override
     public Flowable<Application> findByDomainAndExtensionGrant(String domain, String extensionGrant) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(applicationsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_GRANT_TYPES, extensionGrant))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(applicationsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_GRANT_TYPES, extensionGrant)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
     }
 
     @Override
     public Flowable<Application> findByIdIn(List<String> ids) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(applicationsCollection.find(in(FIELD_ID, ids)))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(applicationsCollection.find(in(FIELD_ID, ids))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert)));
     }
 
     @Override
     public Single<Application> create(Application item) {
         ApplicationMongo application = convert(item);
         application.setId(application.getId() == null ? RandomString.generate() : application.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(applicationsCollection.insertOne(application))).flatMap(success->RxJava2Adapter.singleToMono(findById(application.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(applicationsCollection.insertOne(application))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(application.getId())).single()))));
     }
 
     @Override
     public Single<Application> update(Application item) {
         ApplicationMongo application = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(applicationsCollection.replaceOne(eq(FIELD_ID, application.getId()), application))).flatMap(success->RxJava2Adapter.singleToMono(findById(application.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(applicationsCollection.replaceOne(eq(FIELD_ID, application.getId()), application))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(application.getId())).single()))));
     }
 
     @Override

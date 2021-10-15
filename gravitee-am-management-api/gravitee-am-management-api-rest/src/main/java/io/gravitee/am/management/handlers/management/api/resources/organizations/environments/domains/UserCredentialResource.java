@@ -68,10 +68,10 @@ public class UserCredentialResource extends AbstractResource {
             @PathParam("credential") String credential,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(domainService.findById(domain)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> credentialService.findById(credential))
-                        .switchIfEmpty(Maybe.error(new CredentialNotFoundException(credential)))))).as(RxJava2Adapter::monoToMaybe)
+                        .switchIfEmpty(Maybe.error(new CredentialNotFoundException(credential))))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -90,9 +90,9 @@ public class UserCredentialResource extends AbstractResource {
             @PathParam("user") String user,
             @PathParam("credential") String credential,
             @Suspended final AsyncResponse response) {
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.completableToMono(Completable.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.completableToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapCompletable(__ -> credentialService.delete(credential))))))
+                        .flatMapCompletable(__ -> credentialService.delete(credential)))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

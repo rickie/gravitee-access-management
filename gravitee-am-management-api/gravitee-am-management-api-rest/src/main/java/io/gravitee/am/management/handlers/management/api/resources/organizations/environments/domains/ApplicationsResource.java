@@ -90,7 +90,7 @@ public class ApplicationsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION, Acl.LIST)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION, Acl.LIST)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapSingle(__ -> {
                             if (query != null) {
@@ -107,7 +107,7 @@ public class ApplicationsResource extends AbstractResource {
                                         .collect(Collectors.toList()))
                                 .sorted((a1, a2) -> a2.getUpdatedAt().compareTo(a1.getUpdatedAt()))
                                 .toList()
-                                .map(applications -> new Page<>(applications.stream().skip(page * size).limit(size).collect(Collectors.toList()), page, applications.size())))))))
+                                .map(applications -> new Page<>(applications.stream().skip(page * size).limit(size).collect(Collectors.toList()), page, applications.size()))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -131,13 +131,13 @@ public class ApplicationsResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION, Acl.CREATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapSingle(__ -> applicationService.create(domain, newApplication, authenticatedUser)
                                 .map(application -> Response
                                         .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/applications/" + application.getId()))
                                         .entity(application)
-                                        .build()))))))
+                                        .build())))))
                 .subscribe(response::resume, response::resume);
     }
 

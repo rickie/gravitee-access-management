@@ -77,7 +77,7 @@ public class AnalyticsResource extends AbstractResource {
         query.setInterval(param.getInterval());
         query.setSize(param.getSize());
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ANALYTICS, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(analyticsService.execute(query)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ANALYTICS, Acl.READ)).then(RxJava2Adapter.singleToMono(analyticsService.execute(query))))
                 .subscribe(response::resume, response::resume);
     }
 }

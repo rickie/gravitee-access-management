@@ -75,9 +75,9 @@ public class FlowsResource extends AbstractResource {
 
         User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.LIST)).then(RxJava2Adapter.singleToMono(Single.wrap(hasAnyPermission(authenticatedUser, organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.READ)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.LIST)).then(RxJava2Adapter.singleToMono(hasAnyPermission(authenticatedUser, organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.READ)
                         .flatMapPublisher(hasPermission -> flowService.findAll(ReferenceType.DOMAIN, domain, true)
-                                        .map(flow ->  filterFlowInfos(hasPermission, flow))).toList()))))
+                                        .map(flow ->  filterFlowInfos(hasPermission, flow))).toList())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -100,10 +100,10 @@ public class FlowsResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapSingle(__ -> flowService.createOrUpdate(ReferenceType.DOMAIN, domain, convert(flows), authenticatedUser))
-                        .map(updatedFlows -> updatedFlows.stream().map(FlowEntity::new).collect(Collectors.toList()))))))
+                        .map(updatedFlows -> updatedFlows.stream().map(FlowEntity::new).collect(Collectors.toList())))))
                 .subscribe(response::resume, response::resume);
     }
 

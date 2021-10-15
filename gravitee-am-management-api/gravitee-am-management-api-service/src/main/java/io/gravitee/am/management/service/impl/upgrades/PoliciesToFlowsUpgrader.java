@@ -41,6 +41,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -67,16 +68,15 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
         RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(policyRepository.collectionExists()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)collectionExists -> {
                     if (collectionExists) {
                         LOGGER.info("Policies collection exists, upgrading policies to flows");
-                        return policyRepository.findAll()
+                        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(policyRepository.findAll()
                                 .groupBy(Policy::getDomain)
                                 .flatMapCompletable(policiesPerDomain -> {
                                     final String domain = policiesPerDomain.getKey();
                                     return policiesPerDomain.toList().flatMapCompletable(policies -> migrateToFlows(policies, domain));
-                                })
-                                .andThen(policyRepository.deleteCollection());
+                                })).then(RxJava2Adapter.completableToMono(Completable.wrap(policyRepository.deleteCollection()))));
                     } else {
                         LOGGER.info("Policies collection doesn't exist, skip upgrade");
-                        return Completable.complete();
+                        return RxJava2Adapter.monoToCompletable(Mono.empty());
                     }
                 }).apply(y)))).then())
                 .subscribe(

@@ -56,10 +56,9 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
 
     @Override
     public Single<JWT> introspect(String token, boolean offlineVerification) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.decode(token)
-                .flatMapMaybe(jwt -> clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud()))
-                .switchIfEmpty(Maybe.error(new InvalidTokenException("Invalid or unknown client for this token")))
-                .flatMapSingle(client -> jwtService.decodeAndVerify(token, client))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, Single<JWT>>)jwt -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwtService.decode(token)
+                .flatMapMaybe(jwt -> clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud()))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new InvalidTokenException("Invalid or unknown client for this token"))))))
+                .flatMapSingle(client -> jwtService.decodeAndVerify(token, client))).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, Single<JWT>>)jwt -> {
                     // Just check the JWT signature and JWT validity if offline verification option is enabled
                     // or if the token has just been created (could not be in database so far because of async database storing process delay)
                     if (offlineVerification || Instant.now().isBefore(Instant.ofEpochSecond(jwt.getIat() + OFFLINE_VERIFICATION_TIMER_SECONDS))) {
@@ -75,7 +74,7 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
                                 }
                                 return jwt;
                             });
-                }).apply(v)))))
+                }).apply(v))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof JWTException) {
                         LOGGER.debug("An error occurs while decoding JWT access token : {}", token, ex);

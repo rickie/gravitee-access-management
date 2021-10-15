@@ -82,7 +82,7 @@ public class GroupRolesResource extends AbstractResource {
             @PathParam("group") String group,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> groupService.findById(group))
                         .switchIfEmpty(Maybe.error(new GroupNotFoundException(group)))
@@ -91,7 +91,7 @@ public class GroupRolesResource extends AbstractResource {
                                 return Single.just(Collections.emptyList());
                             }
                             return roleService.findByIdIn(group1.getRoles());
-                        })))))
+                        }))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -114,9 +114,9 @@ public class GroupRolesResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(domain1 -> groupService.assignRoles(ReferenceType.DOMAIN, domain, group, roles, authenticatedUser))))))
+                        .flatMapSingle(domain1 -> groupService.assignRoles(ReferenceType.DOMAIN, domain, group, roles, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 

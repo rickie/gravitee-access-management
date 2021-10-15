@@ -70,9 +70,9 @@ public class ApplicationFlowResource extends AbstractResource {
             @PathParam("flow") String flow,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION_FLOW, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(flowService.findById(ReferenceType.DOMAIN, domain, flow)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION_FLOW, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(flowService.findById(ReferenceType.DOMAIN, domain, flow)
                         .switchIfEmpty(Maybe.error(new FlowNotFoundException(flow)))
-                        .map(FlowEntity::new)))).as(RxJava2Adapter::monoToMaybe)
+                        .map(FlowEntity::new))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -96,8 +96,8 @@ public class ApplicationFlowResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION_FLOW, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(flowService.update(ReferenceType.DOMAIN, domain, flow, convert(updateFlow), authenticatedUser)
-                        .map(FlowEntity::new)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION_FLOW, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(flowService.update(ReferenceType.DOMAIN, domain, flow, convert(updateFlow), authenticatedUser)
+                        .map(FlowEntity::new))))
                 .subscribe(response::resume, response::resume);
     }
 

@@ -33,6 +33,7 @@ import io.gravitee.am.repository.mongodb.management.internal.model.UserMongo;
 import io.gravitee.am.repository.mongodb.management.internal.model.scim.AddressMongo;
 import io.gravitee.am.repository.mongodb.management.internal.model.scim.AttributeMongo;
 import io.gravitee.am.repository.mongodb.management.internal.model.scim.CertificateMongo;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -47,6 +48,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -78,17 +80,16 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
                 eq(FIELD_REFERENCE_ID, domain),
                 or(emailQuery, emailClaimQuery));
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(usersCollection.find(mongoQuery))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(usersCollection.find(mongoQuery)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<User> findByUsernameAndDomain(String domain, String username) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
                 usersCollection
                         .find(and(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, domain), eq(FIELD_USERNAME, username)))
                         .limit(1)
-                        .first())
-                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+                        .first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override

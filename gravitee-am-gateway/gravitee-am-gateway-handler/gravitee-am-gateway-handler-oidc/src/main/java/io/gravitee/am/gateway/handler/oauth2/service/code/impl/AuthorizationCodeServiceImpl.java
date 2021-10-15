@@ -26,12 +26,14 @@ import io.gravitee.am.repository.oauth2.api.RefreshTokenRepository;
 import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Single;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -69,11 +71,9 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
   public Maybe<AuthorizationCode> remove(String code, Client client) {
     return RxJava2Adapter.monoToMaybe(
         RxJava2Adapter.maybeToMono(
-                authorizationCodeRepository
+                RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authorizationCodeRepository
                     .findByCode(code)
-                    .switchIfEmpty(handleInvalidCode(code))
-                    .flatMap(
-                        authorizationCode -> {
+                    .switchIfEmpty(handleInvalidCode(code))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthorizationCode, MaybeSource<AuthorizationCode>>toJdkFunction(authorizationCode -> {
                           if (!authorizationCode.getClientId().equals(client.getClientId())) {
                             return Maybe.error(
                                 new InvalidGrantException(
@@ -84,7 +84,7 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
                                         + "."));
                           }
                           return Maybe.just(authorizationCode);
-                        }))
+                        }).apply(v))))))
             .flatMap(
                 z ->
                     authorizationCodeRepository.delete(z.getId()).as(RxJava2Adapter::maybeToMono)));
@@ -105,16 +105,14 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
                           Completable deleteAccessTokenAction =
                               accessTokenRepository.delete(accessToken.getToken());
                           if (accessToken.getRefreshToken() != null) {
-                            deleteAccessTokenAction.andThen(
-                                refreshTokenRepository.delete(accessToken.getRefreshToken()));
+                            RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(deleteAccessTokenAction).then(RxJava2Adapter.completableToMono(Completable.wrap(refreshTokenRepository.delete(accessToken.getRefreshToken())))));
                           }
                           return deleteAccessTokenAction;
                         }))
             .then(
                 RxJava2Adapter.maybeToMono(
-                    Maybe.wrap(
-                        Maybe.error(
+                    Maybe.error(
                             new InvalidGrantException(
-                                "The authorization code " + code + " is invalid."))))));
+                                "The authorization code " + code + " is invalid.")))));
   }
 }

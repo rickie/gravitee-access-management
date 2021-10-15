@@ -65,10 +65,9 @@ public class TagsResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.LIST)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.LIST)
                 .andThen(tagService.findAll(organizationId))
-                .map(this::filterTagInfos)
-                .sorted((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName()))).collectList())
+                .map(this::filterTagInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())))).collectList())
                 .subscribe(response::resume, response::resume);
     }
 
@@ -87,7 +86,7 @@ public class TagsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(tagService.create(newTag, organizationId, authenticatedUser)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.CREATE)).then(RxJava2Adapter.singleToMono(tagService.create(newTag, organizationId, authenticatedUser))))
                 .subscribe(
                         tag -> response.resume(Response
                                 .created(URI.create("/organizations/" + organizationId + "/tags/" + tag.getId()))

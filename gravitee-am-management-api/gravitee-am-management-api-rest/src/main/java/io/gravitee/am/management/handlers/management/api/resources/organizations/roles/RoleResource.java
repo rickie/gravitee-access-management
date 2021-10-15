@@ -67,8 +67,8 @@ public class RoleResource extends AbstractResource {
             @PathParam("role") String role,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(roleService.findById(ReferenceType.ORGANIZATION, organizationId, role)
-                        .map(this::convert)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.READ)).then(RxJava2Adapter.singleToMono(roleService.findById(ReferenceType.ORGANIZATION, organizationId, role)
+                        .map(this::convert))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -87,8 +87,8 @@ public class RoleResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(roleService.update(ReferenceType.ORGANIZATION, organizationId, role, updateRole, authenticatedUser)
-                        .map(this::convert)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(roleService.update(ReferenceType.ORGANIZATION, organizationId, role, updateRole, authenticatedUser)
+                        .map(this::convert))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -105,7 +105,7 @@ public class RoleResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(roleService.delete(ReferenceType.ORGANIZATION, organizationId, role, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.DELETE)).then(RxJava2Adapter.completableToMono(roleService.delete(ReferenceType.ORGANIZATION, organizationId, role, authenticatedUser))))
                 .subscribe(() -> response.resume(Response.noContent().build()),
                         response::resume);
     }

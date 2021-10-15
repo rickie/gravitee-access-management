@@ -65,8 +65,7 @@ public class JdbcPermissionTicketRepository extends AbstractJdbcRepository imple
     public Maybe<PermissionTicket> findById(String id) {
         LOGGER.debug("findById({})", id);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(permissionTicketRepository.findById(id)
-                .filter(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(permissionTicketRepository.findById(id)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -87,7 +86,7 @@ public class JdbcPermissionTicketRepository extends AbstractJdbcRepository imple
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(permissionTicketRepository.findById(item.getId()).map(this::toEntity).toSingle())));
+        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(permissionTicketRepository.findById(item.getId()).map(this::toEntity)).single()))));
     }
 
     @Override
@@ -107,7 +106,7 @@ public class JdbcPermissionTicketRepository extends AbstractJdbcRepository imple
 
         Mono<Integer> action = updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()))));
     }
 
     @Override

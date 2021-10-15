@@ -115,11 +115,11 @@ public class JdbcAlertNotifierRepository extends AbstractJdbcRepository implemen
 
         whereClause = whereClause.and(referenceClause.and(criteria.isLogicalOR() ? idsClause.or(enableClause) : idsClause.and(enableClause)));
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.fluxToFlowable(dbClient.select()
                 .from(JdbcAlertNotifier.class)
                 .matching(from(whereClause))
                 .as(JdbcAlertNotifier.class)
-                .all())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
                 .doOnError(error -> LOGGER.error("Unable to retrieve AlertNotifier with referenceId {}, referenceType {} and criteria {}",
                         referenceId, referenceType, criteria, error));
     }

@@ -82,7 +82,7 @@ public class ApplicationResourceResource extends AbstractResource {
             @PathParam("resource") String resource,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(domainService.findById(domain)
+        checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> applicationService.findById(application))
                         .switchIfEmpty(Maybe.error(new ApplicationNotFoundException(application)))
@@ -98,7 +98,7 @@ public class ApplicationResourceResource extends AbstractResource {
                                                     return resourceEntity;
                                                 });
                                     });
-                        })))).as(RxJava2Adapter::monoToMaybe)
+                        }))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 

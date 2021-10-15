@@ -75,7 +75,7 @@ public class AuditServiceImpl implements AuditService {
     @Override
     public Single<Audit> findById(ReferenceType referenceType, String referenceId, String auditId) {
         try {
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(getReporter(referenceType, referenceId).findById(referenceType, referenceId, auditId)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new AuditNotFoundException(auditId))))));
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(getReporter(referenceType, referenceId).findById(referenceType, referenceId, auditId)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new AuditNotFoundException(auditId)))));
         } catch (Exception ex) {
             logger.error("An error occurs while trying to find audit by id: {} and for the {}}: {}", auditId, referenceType, referenceId, ex);
             return RxJava2Adapter.monoToSingle(Mono.error(ex));

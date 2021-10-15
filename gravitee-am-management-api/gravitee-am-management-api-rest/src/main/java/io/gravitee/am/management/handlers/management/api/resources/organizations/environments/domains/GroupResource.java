@@ -79,7 +79,7 @@ public class GroupResource extends AbstractResource {
             @PathParam("group") String group,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(domainService.findById(domain)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> groupService.findById(group))
                         .switchIfEmpty(Maybe.error(new GroupNotFoundException(group)))
@@ -89,7 +89,7 @@ public class GroupResource extends AbstractResource {
                                 throw new BadRequestException("Group does not belong to domain");
                             }
                             return Maybe.just(group1);
-                        })))).as(RxJava2Adapter::monoToMaybe)
+                        }))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -112,9 +112,9 @@ public class GroupResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(irrelevant -> groupService.update(domain, group, updateGroup, authenticatedUser))))))
+                        .flatMapSingle(irrelevant -> groupService.update(domain, group, updateGroup, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -134,9 +134,9 @@ public class GroupResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.DELETE)).then(RxJava2Adapter.completableToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapCompletable(irrelevant -> groupService.delete(ReferenceType.DOMAIN, domain, group, authenticatedUser))))))
+                        .flatMapCompletable(irrelevant -> groupService.delete(ReferenceType.DOMAIN, domain, group, authenticatedUser)))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 

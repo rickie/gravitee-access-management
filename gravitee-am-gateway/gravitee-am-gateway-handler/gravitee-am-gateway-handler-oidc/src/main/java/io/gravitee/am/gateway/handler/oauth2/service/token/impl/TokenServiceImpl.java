@@ -58,6 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -98,10 +99,10 @@ public class TokenServiceImpl implements TokenService {
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(jwtService.decodeAndVerify(token, client)
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof JWTException) {
-                        return Single.error(new InvalidTokenException(ex.getMessage(), ex));
+                        return RxJava2Adapter.monoToSingle(Mono.error(new InvalidTokenException(ex.getMessage(), ex)));
                     }
-                    return Single.error(ex);
-                })).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, MaybeSource<Token>>)jwt -> accessTokenRepository.findByToken(jwt.getJti()).map(accessToken -> convertAccessToken(jwt))).apply(e)))));
+                    return RxJava2Adapter.monoToSingle(Mono.error(ex));
+                })).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, MaybeSource<Token>>)jwt -> RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken(jwt.getJti())).map(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> convertAccessToken(jwt))))).apply(e)))));
     }
 
     @Override
@@ -109,10 +110,10 @@ public class TokenServiceImpl implements TokenService {
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(jwtService.decodeAndVerify(refreshToken, client)
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof JWTException) {
-                        return Single.error(new InvalidTokenException(ex.getMessage(), ex));
+                        return RxJava2Adapter.monoToSingle(Mono.error(new InvalidTokenException(ex.getMessage(), ex)));
                     }
-                    return Single.error(ex);
-                })).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, MaybeSource<Token>>)jwt -> refreshTokenRepository.findByToken(jwt.getJti()).map(refreshToken1 -> convertRefreshToken(jwt))).apply(e)))));
+                    return RxJava2Adapter.monoToSingle(Mono.error(ex));
+                })).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, MaybeSource<Token>>)jwt -> RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken(jwt.getJti())).map(RxJavaReactorMigrationUtil.toJdkFunction(refreshToken1 -> convertRefreshToken(jwt))))).apply(e)))));
     }
 
     @Override
@@ -123,7 +124,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public Single<Token> create(OAuth2Request oAuth2Request, Client client, User endUser) {
         // create execution context
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromCallable(() -> createExecutionContext(oAuth2Request, client, endUser))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<ExecutionContext, Single<Token>>)executionContext -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> createExecutionContext(oAuth2Request, client, endUser))))).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<ExecutionContext, Single<Token>>)executionContext -> {
                     // create JWT access token
                     JWT accessToken = createAccessTokenJWT(oAuth2Request, client, endUser, executionContext);
                     // create JWT refresh token
@@ -138,15 +139,14 @@ public class TokenServiceImpl implements TokenService {
                             // on success store tokens in the repository
                             .doOnSuccess(token -> storeTokens(accessToken, refreshToken, oAuth2Request));
 
-                }).apply(v)))));
+                }).apply(v))));
     }
 
     @Override
     public Single<Token> refresh(String refreshToken, TokenRequest tokenRequest, Client client) {
         // invalid_grant : The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is
         // invalid, expired, revoked or was issued to another client.
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getRefreshToken(refreshToken, client)
-                .switchIfEmpty(Single.error(new InvalidGrantException("Refresh token is invalid")))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<Token>>)refreshToken1 -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(getRefreshToken(refreshToken, client)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new InvalidGrantException("Refresh token is invalid"))))))).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<Token>>)refreshToken1 -> {
                     if (refreshToken1.getExpireAt().before(new Date())) {
                         throw new InvalidGrantException("Refresh token is expired");
                     }
@@ -161,7 +161,7 @@ public class TokenServiceImpl implements TokenService {
                     // refresh token is used only once
                     return refreshTokenRepository.delete(refreshToken1.getValue())
                             .andThen(Single.just(refreshToken1));
-                }).apply(v)))));
+                }).apply(v))));
     }
 
     @Override

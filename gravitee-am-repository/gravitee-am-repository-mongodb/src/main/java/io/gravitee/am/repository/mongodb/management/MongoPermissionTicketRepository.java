@@ -25,6 +25,7 @@ import io.gravitee.am.model.uma.PermissionTicket;
 import io.gravitee.am.repository.management.api.PermissionTicketRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.uma.PermissionRequestMongo;
 import io.gravitee.am.repository.mongodb.management.internal.model.uma.PermissionTicketMongo;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -61,20 +62,20 @@ public class MongoPermissionTicketRepository extends AbstractManagementMongoRepo
 
     @Override
     public Maybe<PermissionTicket> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(permissionTicketCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(permissionTicketCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<PermissionTicket> create(PermissionTicket ticket) {
         PermissionTicketMongo permissionTicket = convert(ticket);
         permissionTicket.setId(permissionTicket.getId() == null ? RandomString.generate() : permissionTicket.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(permissionTicketCollection.insertOne(permissionTicket))).flatMap(success->RxJava2Adapter.singleToMono(findById(permissionTicket.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(permissionTicketCollection.insertOne(permissionTicket))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(permissionTicket.getId())).single()))));
     }
 
     @Override
     public Single<PermissionTicket> update(PermissionTicket ticket) {
         PermissionTicketMongo permissionTicket = convert(ticket);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(permissionTicketCollection.replaceOne(eq(FIELD_ID, permissionTicket.getId()), permissionTicket))).flatMap(success->RxJava2Adapter.singleToMono(findById(permissionTicket.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(permissionTicketCollection.replaceOne(eq(FIELD_ID, permissionTicket.getId()), permissionTicket))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(permissionTicket.getId())).single()))));
     }
 
     @Override

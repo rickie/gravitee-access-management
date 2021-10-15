@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Maybe<ScopeApproval> consent(String consentId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeApprovalService.findById(consentId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ScopeApprovalNotFoundException(consentId))))));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeApprovalService.findById(consentId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new ScopeApprovalNotFoundException(consentId)))));
     }
 
     @Override

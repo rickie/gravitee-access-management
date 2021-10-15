@@ -44,6 +44,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -86,8 +87,7 @@ public class LoginController {
         // fetch domain social identity providers
         List<IdentityProvider> socialProviders = null;
         try {
-            socialProviders = RxJava2Adapter.singleToMono(organizationService.findById(organizationId)
-                    .map(org -> Optional.ofNullable(org.getIdentities()).orElse(emptyList()))).block()
+            socialProviders = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationService.findById(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(org -> Optional.ofNullable(org.getIdentities()).orElse(emptyList()))))).block()
                     .stream()
                     .map(identityProviderManager::getIdentityProvider)
                     .filter(Objects::nonNull)

@@ -104,7 +104,7 @@ public class AccountServiceImpl implements AccountService {
     public Single<User> update(User user) {
         LOGGER.debug("Update a user {} for domain {}", user.getUsername(), domain.getName());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(Single.wrap(identityProviderManager.getUserProvider(user.getSource())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(identityProviderManager.getUserProvider(user.getSource())
                 .switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource())))
                 .flatMapSingle(userProvider -> {
                     if (user.getExternalId() == null) {
@@ -124,7 +124,7 @@ public class AccountServiceImpl implements AccountService {
                         return userRepository.update(user);
                     }
                     return Single.error(ex);
-                })))));
+                }))));
 
     }
 
@@ -150,17 +150,15 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Single<List<Credential>> getWebAuthnCredentials(User user) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(credentialService.findByUserId(ReferenceType.DOMAIN, user.getReferenceId(), user.getId())
-                .map(credential -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(credentialService.findByUserId(ReferenceType.DOMAIN, user.getReferenceId(), user.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
                     removeSensitiveData(credential);
                     return credential;
-                })).collectList());
+                })))).collectList());
     }
 
     @Override
     public Single<Credential> getWebAuthnCredential(String id) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(credentialService.findById(id)
-                .switchIfEmpty(Single.error(new CredentialNotFoundException(id)))).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(credentialService.findById(id)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new CredentialNotFoundException(id))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
                     removeSensitiveData(credential);
                     return credential;
                 })));

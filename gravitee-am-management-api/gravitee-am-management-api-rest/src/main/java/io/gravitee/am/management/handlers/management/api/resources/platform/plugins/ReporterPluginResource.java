@@ -56,8 +56,7 @@ public class ReporterPluginResource {
             @PathParam("reporter") String reporterId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(reporterPluginService.findById(reporterId)
-                .switchIfEmpty(Maybe.error(new ReporterPluginNotFoundException(reporterId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPlugin -> Response.ok(reporterPlugin).build())))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(reporterPluginService.findById(reporterId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ReporterPluginNotFoundException(reporterId))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPlugin -> Response.ok(reporterPlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -70,10 +69,9 @@ public class ReporterPluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the identity provider exists
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(reporterPluginService.findById(reporterId)
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(reporterPluginService.findById(reporterId)
                 .switchIfEmpty(Maybe.error(new ReporterPluginNotFoundException(reporterId)))
-                .flatMap(irrelevant -> reporterPluginService.getSchema(reporterId))
-                .switchIfEmpty(Maybe.error(new ReporterPluginSchemaNotFoundException(reporterId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPluginSchema -> Response.ok(reporterPluginSchema).build())))
+                .flatMap(irrelevant -> reporterPluginService.getSchema(reporterId))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ReporterPluginSchemaNotFoundException(reporterId))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPluginSchema -> Response.ok(reporterPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

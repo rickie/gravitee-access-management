@@ -25,6 +25,7 @@ import io.gravitee.am.repository.oauth2.api.PushedAuthorizationRequestRepository
 import io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest;
 import io.gravitee.common.util.LinkedMultiValueMap;
 import io.gravitee.common.util.MultiValueMap;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -60,16 +61,15 @@ public class MongoPushedAuthorizationRequestRepository extends AbstractOAuth2Mon
 
     @Override
     public Maybe<PushedAuthorizationRequest> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
-                .fromPublisher(parCollection.find(eq(FIELD_ID, id)).limit(1).first())
-                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
+                .fromPublisher(parCollection.find(eq(FIELD_ID, id)).limit(1).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<PushedAuthorizationRequest> create(PushedAuthorizationRequest par) {
         par.setId(par.getId() == null ? RandomString.generate() : par.getId());
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
-                .fromPublisher(parCollection.insertOne(convert(par)))).flatMap(success->RxJava2Adapter.singleToMono(findById(par.getId()).toSingle())));
+                .fromPublisher(parCollection.insertOne(convert(par)))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(par.getId())).single()))));
     }
 
     @Override

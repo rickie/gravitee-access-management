@@ -71,7 +71,7 @@ public class ReporterResource extends AbstractResource {
             @PathParam("reporter") String reporter,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(domainService.findById(domain)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> reporterService.findById(reporter))
                         .switchIfEmpty(Maybe.error(new ReporterNotFoundException(reporter)))
@@ -80,7 +80,7 @@ public class ReporterResource extends AbstractResource {
                                 throw new BadRequestException("Reporter does not belong to domain");
                             }
                             return Response.ok(reporter1).build();
-                        })))).as(RxJava2Adapter::monoToMaybe)
+                        }))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -103,9 +103,9 @@ public class ReporterResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(__ -> reporterService.update(domain, reporter, updateReporter, authenticatedUser))))))
+                        .flatMapSingle(__ -> reporterService.update(domain, reporter, updateReporter, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -125,7 +125,7 @@ public class ReporterResource extends AbstractResource {
             @PathParam("reporter") String reporter,
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ)).then(RxJava2Adapter.completableToMono(Completable.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ)).then(RxJava2Adapter.completableToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> reporterService.findById(reporter))
                         .map(Optional::ofNullable)
@@ -139,7 +139,7 @@ public class ReporterResource extends AbstractResource {
                                 return reporterService.delete(reporter, authenticatedUser);
                             }
                             return Completable.complete();
-                        })))))
+                        }))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

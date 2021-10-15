@@ -24,11 +24,13 @@ import io.gravitee.am.model.Organization;
 import io.gravitee.am.repository.management.api.OrganizationRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.OrganizationMongo;
 import io.reactivex.*;
+import io.reactivex.BackpressureStrategy;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -50,14 +52,13 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
 
     @Override
     public Flowable<Organization> findByHrids(List<String> hrids) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(collection.find(in(HRID_KEY, hrids)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(in(HRID_KEY, hrids))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<Organization> findById(String id) {
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first())
-                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -65,13 +66,13 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
 
         organization.setId(organization.getId() == null ? RandomString.generate() : organization.getId());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(organization)))).flatMap(success->RxJava2Adapter.singleToMono(findById(organization.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(organization)))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(organization.getId())).single()))));
     }
 
     @Override
     public Single<Organization> update(Organization organization) {
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, organization.getId()), convert(organization)))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(organization.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, organization.getId()), convert(organization)))).flatMap(updateResult->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(organization.getId())).single()))));
     }
 
     @Override

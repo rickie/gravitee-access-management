@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -54,8 +55,7 @@ public class CrossDomainManagerImpl extends AbstractService implements CrossDoma
     public void afterPropertiesSet() throws Exception {
         if (domain.isMaster()) {
             // notify for cross domain events
-            RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(domainRepository.findAllByReferenceId(domain.getReferenceId())
-                    .filter(d -> !domain.getId().equals(d.getId()))).collectList())
+            RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(domainRepository.findAllByReferenceId(domain.getReferenceId())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(d -> !domain.getId().equals(d.getId()))))).collectList())
                     .subscribe(domains -> domains.forEach(clientManager::deployCrossDomain));
         }
     }

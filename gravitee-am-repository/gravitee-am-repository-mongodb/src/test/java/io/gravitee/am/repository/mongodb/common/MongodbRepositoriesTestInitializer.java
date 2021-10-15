@@ -15,12 +15,17 @@
  */
 package io.gravitee.am.repository.mongodb.common;
 
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import io.gravitee.am.repository.RepositoriesTestInitializer;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -39,8 +44,7 @@ public class MongodbRepositoriesTestInitializer implements RepositoriesTestIniti
 
     @Override
     public void after(Class testClass) throws Exception {
-        Observable.fromPublisher(mongoDatabase.listCollectionNames())
-                .flatMap(collectionName -> Observable.fromPublisher(mongoDatabase.getCollection(collectionName).deleteMany(new Document())))
+        RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromPublisher(mongoDatabase.listCollectionNames()), BackpressureStrategy.BUFFER).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<String, ObservableSource<DeleteResult>>toJdkFunction(collectionName -> Observable.fromPublisher(mongoDatabase.getCollection(collectionName).deleteMany(new Document()))).apply(z)), BackpressureStrategy.BUFFER)))
                 .blockingSubscribe();
     }
 }

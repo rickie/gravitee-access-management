@@ -48,6 +48,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -76,7 +78,7 @@ public class JWTBearerExtensionGrantProvider implements ExtensionGrantProvider, 
         if (assertion == null) {
             throw new InvalidGrantException("Assertion value is missing");
         }
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromCallable(() -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             try {
                 JWT jwt = jwtParser.parse(assertion);
                 return createUser(jwt);
@@ -87,7 +89,7 @@ public class JWTBearerExtensionGrantProvider implements ExtensionGrantProvider, 
                 LOGGER.error(ex.getMessage(), ex.getCause());
                 throw new InvalidGrantException(ex.getMessage(), ex);
             }
-        }), BackpressureStrategy.BUFFER).next());
+        })).flux()), BackpressureStrategy.BUFFER).next());
     }
 
     public User createUser(JWT jwt) {

@@ -66,7 +66,7 @@ public class EntrypointResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("entrypointId") String entrypointId, @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ENTRYPOINT, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(entrypointService.findById(entrypointId, organizationId)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ENTRYPOINT, Acl.READ)).then(RxJava2Adapter.singleToMono(entrypointService.findById(entrypointId, organizationId))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -85,7 +85,7 @@ public class EntrypointResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ENTRYPOINT, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(entrypointService.update(entrypointId, organizationId, entrypointToUpdate, authenticatedUser)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ENTRYPOINT, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(entrypointService.update(entrypointId, organizationId, entrypointToUpdate, authenticatedUser))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -101,7 +101,7 @@ public class EntrypointResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ENTRYPOINT, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(entrypointService.delete(entrypointId, organizationId, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ENTRYPOINT, Acl.DELETE)).then(RxJava2Adapter.completableToMono(entrypointService.delete(entrypointId, organizationId, authenticatedUser))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

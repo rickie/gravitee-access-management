@@ -50,6 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -78,7 +79,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         LOGGER.debug("Find users by domain: {}", domain);
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(userRepository.findAll(ReferenceType.DOMAIN, domain)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find users by domain {}", domain, ex);
-                    return Flowable.error(new TechnicalManagementException(String.format("An error occurs while trying to find users by domain %s", domain), ex));
+                    return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error occurs while trying to find users by domain %s", domain), ex)));
                 })));
     }
 
@@ -131,7 +132,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         LOGGER.debug("Update a user {}", user);
         // updated date
         user.setUpdatedAt(new Date());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(Single.wrap(getUserRepository().update(user)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(getUserRepository().update(user)
                 .flatMap(user1 -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user1.getId(), user1.getReferenceType(), user1.getReferenceId(), Action.UPDATE));
@@ -143,7 +144,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                     }
                     LOGGER.error("An error occurs while trying to update a user", ex);
                     return Single.error(new TechnicalManagementException("An error occurs while trying to update a user", ex));
-                })))));
+                }))));
     }
 
     @Override
@@ -192,7 +193,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 
     @Override
     public Single<User> upsertFactor(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findById(userId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(userId))))))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findById(userId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new UserNotFoundException(userId)))))
                 .flatMapSingle(oldUser -> {
                     User user = new User(oldUser);
                     List<EnrolledFactor> enrolledFactors = user.getFactors();
@@ -260,24 +261,22 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                             }
                         }
                     }
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(update(user)
-                            .doOnSuccess(user1 -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(update(user)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> {
                                 if (needToAuditUserFactorsOperation(user1, oldUser)) {
                                     // remove sensitive data about factors
                                     removeSensitiveFactorsData(user1.getFactors());
                                     removeSensitiveFactorsData(oldUser.getFactors());
                                     auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).user(user1).oldValue(oldUser));
                                 }
-                            })).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))));
+                            })))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))));
                 });
     }
 
     @Override
     public Completable removeFactor(String userId, String factorId, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(findById(userId)
-                .switchIfEmpty(Maybe.error(new UserNotFoundException(userId)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)oldUser -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findById(userId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(userId))))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)oldUser -> {
                     if (oldUser.getFactors() == null) {
-                        return Completable.complete();
+                        return RxJava2Adapter.monoToCompletable(Mono.empty());
                     }
                     List<EnrolledFactor> enrolledFactors = oldUser.getFactors()
                             .stream()
@@ -285,10 +284,9 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                             .collect(Collectors.toList());
                     User userToUpdate = new User(oldUser);
                     userToUpdate.setFactors(enrolledFactors);
-                    return update(userToUpdate)
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(update(userToUpdate)
                             .doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).user(user1).oldValue(oldUser)))
-                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))
-                            .ignoreElement();
+                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))).then());
                 }).apply(y)))).then());
     }
 

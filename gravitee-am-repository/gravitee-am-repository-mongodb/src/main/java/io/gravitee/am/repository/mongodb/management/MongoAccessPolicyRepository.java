@@ -26,11 +26,13 @@ import io.gravitee.am.model.uma.policy.AccessPolicyType;
 import io.gravitee.am.repository.management.api.AccessPolicyRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.uma.AccessPolicyMongo;
 import io.reactivex.*;
+import io.reactivex.BackpressureStrategy;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -64,12 +66,12 @@ public class MongoAccessPolicyRepository extends AbstractManagementMongoReposito
 
     @Override
     public Flowable<AccessPolicy> findByDomainAndResource(String domain, String resource) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(accessPoliciesCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_RESOURCE, resource))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(accessPoliciesCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_RESOURCE, resource)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<AccessPolicy> findByResources(List<String> resources) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(accessPoliciesCollection.find(in(FIELD_RESOURCE, resources)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(accessPoliciesCollection.find(in(FIELD_RESOURCE, resources))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
@@ -79,20 +81,20 @@ public class MongoAccessPolicyRepository extends AbstractManagementMongoReposito
 
     @Override
     public Maybe<AccessPolicy> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(accessPoliciesCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(accessPoliciesCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<AccessPolicy> create(AccessPolicy item) {
         AccessPolicyMongo accessPolicy = convert(item);
         accessPolicy.setId(accessPolicy.getId() == null ? RandomString.generate() : accessPolicy.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(accessPoliciesCollection.insertOne(accessPolicy))).flatMap(success->RxJava2Adapter.singleToMono(findById(accessPolicy.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(accessPoliciesCollection.insertOne(accessPolicy))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(accessPolicy.getId())).single()))));
     }
 
     @Override
     public Single<AccessPolicy> update(AccessPolicy item) {
         AccessPolicyMongo accessPolicy = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(accessPoliciesCollection.replaceOne(eq(FIELD_ID, accessPolicy.getId()), accessPolicy))).flatMap(success->RxJava2Adapter.singleToMono(findById(accessPolicy.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(accessPoliciesCollection.replaceOne(eq(FIELD_ID, accessPolicy.getId()), accessPolicy))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(accessPolicy.getId())).single()))));
     }
 
     @Override

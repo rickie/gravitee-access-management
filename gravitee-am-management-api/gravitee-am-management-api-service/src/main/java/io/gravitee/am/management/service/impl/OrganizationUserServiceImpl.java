@@ -35,6 +35,7 @@ import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.UserAuditBuilder;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import java.util.Date;
@@ -88,15 +89,14 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
     @Override
     public Single<User> createOrUpdate(ReferenceType referenceType, String referenceId, NewUser newUser) {
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findByExternalIdAndSource(referenceType, referenceId, newUser.getExternalId(), newUser.getSource())
-                .switchIfEmpty(Maybe.defer(() -> userService.findByUsernameAndSource(referenceType, referenceId, newUser.getUsername(), newUser.getSource())))
-                .flatMap(existingUser -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByExternalIdAndSource(referenceType, referenceId, newUser.getExternalId(), newUser.getSource())
+                .switchIfEmpty(Maybe.defer(() -> userService.findByUsernameAndSource(referenceType, referenceId, newUser.getUsername(), newUser.getSource())))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, MaybeSource<io.gravitee.am.model.User>>toJdkFunction(existingUser -> {
                     updateInfos(existingUser, newUser);
                     return userService.update(existingUser).toMaybe();
-                })).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.defer(() -> {
+                }).apply(v)))))).switchIfEmpty(RxJava2Adapter.singleToMono(Single.defer(() -> {
                     User user = transform(newUser, referenceType, referenceId);
                     return userService.create(user);
-                })))));
+                }))));
     }
 
     public Single<User> createGraviteeUser(Organization organization, NewUser newUser, io.gravitee.am.identityprovider.api.User principal) {
@@ -108,8 +108,7 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
         newUser.setSource(IDP_GRAVITEE);
 
         // check user
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, organization.getId(), newUser.getUsername(), newUser.getSource())
-                .isEmpty()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, organization.getId(), newUser.getUsername(), newUser.getSource())).hasElement())).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
                     if (!isEmpty) {
                         return Single.error(new UserAlreadyExistsException(newUser.getUsername()));
                     } else {
@@ -158,7 +157,7 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
                                 });
 
                     }
-                }).apply(v)))));
+                }).apply(v))));
     }
 
     public Completable resetPassword(String organizationId, User user, String password, io.gravitee.am.identityprovider.api.User principal) {
@@ -174,8 +173,7 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
         user.setLastPasswordReset(new Date());
         user.setUpdatedAt(new Date());
         user.setPassword(PWD_ENCODER.encode(password));
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(userService.update(user)
-                .doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_PASSWORD_RESET).user(user)))
-                .doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_PASSWORD_RESET).throwable(throwable)))).then());
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.update(user)
+                .doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_PASSWORD_RESET).user(user)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_PASSWORD_RESET).throwable(throwable)))))).then());
     }
 }

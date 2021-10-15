@@ -33,6 +33,7 @@ import io.gravitee.common.http.HttpStatusCode;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
@@ -107,7 +108,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String resource_id = context.request().getParam(RESOURCE_ID);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.resourceService.findByDomainAndClientAndUserAndResource(domain.getId(), client.getId(), accessToken.getSub(), resource_id)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new ResourceNotFoundException(resource_id))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.resourceService.findByDomainAndClientAndUserAndResource(domain.getId(), client.getId(), accessToken.getSub(), resource_id)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new ResourceNotFoundException(resource_id)))))
                 .subscribe(
                         resource -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -160,8 +161,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
     }
 
     private Single<NewResource> extractRequest(RoutingContext context) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.just(context.getBodyAsJson())
-                .flatMap(this::bodyValidation)).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.just(context.getBodyAsJson())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JsonObject, SingleSource<JsonObject>>toJdkFunction(this::bodyValidation).apply(v)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class))));
     }
 
     private Single<JsonObject> bodyValidation(JsonObject body) {

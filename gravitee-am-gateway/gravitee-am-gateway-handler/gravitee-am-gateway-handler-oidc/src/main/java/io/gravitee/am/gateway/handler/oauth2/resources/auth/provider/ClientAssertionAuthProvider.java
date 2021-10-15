@@ -32,6 +32,7 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -96,9 +97,9 @@ public class ClientAssertionAuthProvider implements ClientAuthProvider {
         RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(clientAssertionService.assertClient(clientAssertionType, clientAssertion, basePath)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client1 -> {
                     // clientId is optional, but if provided we must ensure it is the same than the logged client.
                     if(clientId != null && !clientId.equals(client1.getClientId())) {
-                        return Maybe.error(new InvalidClientException("client_id parameter does not match with assertion"));
+                        return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientException("client_id parameter does not match with assertion")));
                     }
-                    return Maybe.just(client1);
+                    return RxJava2Adapter.monoToMaybe(Mono.just(client1));
                 }).apply(v)))))
                 .subscribe(
                         client1 -> handler.handle(Future.succeededFuture(client1)),

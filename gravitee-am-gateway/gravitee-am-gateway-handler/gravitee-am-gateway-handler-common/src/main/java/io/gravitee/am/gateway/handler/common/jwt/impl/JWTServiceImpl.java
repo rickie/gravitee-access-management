@@ -23,6 +23,7 @@ import io.gravitee.am.gateway.certificate.CertificateProvider;
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.gravitee.am.model.oidc.Client;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.Base64;
 import java.util.Map;
@@ -67,8 +68,7 @@ public class JWTServiceImpl implements JWTService {
             return encode(jwt,certificateManager.noneAlgorithmCertificateProvider());
         }
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificateManager.findByAlgorithm(client.getUserinfoSignedResponseAlg())
-                .switchIfEmpty(certificateManager.get(client.getCertificate()))).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificateManager.findByAlgorithm(client.getUserinfoSignedResponseAlg())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(certificateManager.get(client.getCertificate())))))).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
                 .flatMapSingle(certificateProvider -> encode(jwt, certificateProvider));
     }
 
@@ -84,8 +84,7 @@ public class JWTServiceImpl implements JWTService {
             signedResponseAlg = JWSAlgorithm.RS256.getName();
         }
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificateManager.findByAlgorithm(signedResponseAlg)
-                .switchIfEmpty(certificateManager.get(client.getCertificate()))).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificateManager.findByAlgorithm(signedResponseAlg)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(certificateManager.get(client.getCertificate())))))).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
                 .flatMapSingle(certificateProvider -> encode(jwt, certificateProvider));
     }
 

@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.users.resources.consents;
 
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.users.service.UserService;
+import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.common.http.HttpHeaders;
@@ -30,6 +31,7 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import java.util.Optional;
 import java.util.Set;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -49,12 +51,12 @@ public class UserConsentsEndpointHandler extends AbstractUserConsentEndpointHand
         final String userId = context.request().getParam("userId");
         final String clientId = context.request().getParam("clientId");
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.just(Optional.ofNullable(clientId))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Set<ScopeApproval>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<String>, Single<Set<ScopeApproval>>>)optClient -> {
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Optional.ofNullable(clientId)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Set<ScopeApproval>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<String>, Single<Set<ScopeApproval>>>)optClient -> {
                     if (optClient.isPresent()) {
                         return userService.consents(userId, optClient.get());
                     }
                     return userService.consents(userId);
-                }).apply(v)))))
+                }).apply(v))))
                 .subscribe(
                         scopeApprovals -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -72,13 +74,11 @@ public class UserConsentsEndpointHandler extends AbstractUserConsentEndpointHand
         final String userId = context.request().getParam("userId");
         final String clientId = context.request().getParam("clientId");
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(Single.just(Optional.ofNullable(clientId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<String>, CompletableSource>)optClient -> {
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Optional.ofNullable(clientId)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<String>, CompletableSource>)optClient -> {
                     if (optClient.isPresent()) {
-                        return getPrincipal(context)
-                                .flatMapCompletable(principal -> userService.revokeConsents(userId, optClient.get(), principal));
+                        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(getPrincipal(context)).flatMap(t->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<User, CompletableSource>toJdkFunction(principal -> userService.revokeConsents(userId, optClient.get(), principal)).apply(t)))).then());
                     }
-                    return getPrincipal(context)
-                            .flatMapCompletable(principal -> userService.revokeConsents(userId, principal));
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(getPrincipal(context)).flatMap(t->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<User, CompletableSource>toJdkFunction(principal -> userService.revokeConsents(userId, principal)).apply(t)))).then());
                 }).apply(y)))).then())
                 .subscribe(
                         () -> context.response().setStatusCode(204).end(),

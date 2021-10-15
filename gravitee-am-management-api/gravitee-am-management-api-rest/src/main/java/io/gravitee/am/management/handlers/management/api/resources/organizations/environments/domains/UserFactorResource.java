@@ -77,7 +77,7 @@ public class UserFactorResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> userService.findById(user))
                         .switchIfEmpty(Maybe.error(new UserNotFoundException(user)))
@@ -90,7 +90,7 @@ public class UserFactorResource extends AbstractResource {
                                 return userService.enrollFactors(user, enrolledFactors, authenticatedUser);
                             }
                             return Single.just(user1);
-                        })))))
+                        }))))
                 .subscribe(__ -> response.resume(Response.noContent().build()), response::resume);
     }
 }

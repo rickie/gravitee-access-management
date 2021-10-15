@@ -116,7 +116,7 @@ public class JdbcRepositoriesTestInitializer implements RepositoriesTestInitiali
 
         tables.add("system_tasks");
 
-        Connection connection = RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(connectionFactory.create())).blockFirst();
+        Connection connection = RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(connectionFactory.create()))).blockFirst();
         connection.beginTransaction();
         tables.stream().forEach(table -> {
             RxJava2Adapter.fluxToFlowable(Flux.from(connection.createStatement("delete from " + table).execute())).subscribeOn(Schedulers.single()).blockingSubscribe();

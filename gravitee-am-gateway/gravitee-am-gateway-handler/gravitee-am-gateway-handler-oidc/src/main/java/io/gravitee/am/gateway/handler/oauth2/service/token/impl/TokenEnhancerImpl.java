@@ -56,11 +56,11 @@ public class TokenEnhancerImpl implements TokenEnhancer {
         if (oAuth2Request.isSupportAtHashValue()) {
             oAuth2Request.getContext().put(Claims.at_hash, accessToken.getValue());
         }
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(idTokenService.create(oAuth2Request, client, user, executionContext)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<Token>>)idToken -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(idTokenService.create(oAuth2Request, client, user, executionContext)).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<Token>>)idToken -> {
                     Map<String, Object> additionalInformation = new HashMap<>(accessToken.getAdditionalInformation());
                     additionalInformation.put(ResponseType.ID_TOKEN, idToken);
                     accessToken.setAdditionalInformation(additionalInformation);
                     return Single.just(accessToken);
-                }).apply(v)))));
+                }).apply(v))));
     }
 }

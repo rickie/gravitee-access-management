@@ -240,7 +240,7 @@ public abstract class AbstractDialect implements DialectHelper {
     public Single<List<Map<String, Object>>> buildAndProcessHistogram(DatabaseClient dbClient, ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
         SearchQuery searchQuery = buildHistogramQuery(referenceType, referenceId, criteria);
         DatabaseClient.GenericExecuteSpec histogram = dbClient.execute(searchQuery.getQuery());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(histogram.fetch().all())).collectList());
+        return RxJava2Adapter.monoToSingle(histogram.fetch().all().collectList());
     }
 
 }

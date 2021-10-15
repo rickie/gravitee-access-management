@@ -78,7 +78,7 @@ public class ScopeResource extends AbstractResource {
             @PathParam("scope") String scopeId,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(domainService.findById(domain)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> scopeService.findById(scopeId))
                         .switchIfEmpty(Maybe.error(new ScopeNotFoundException(scopeId)))
@@ -87,7 +87,7 @@ public class ScopeResource extends AbstractResource {
                                 throw new BadRequestException("Scope does not belong to domain");
                             }
                             return Response.ok(scope).build();
-                        })))).as(RxJava2Adapter::monoToMaybe)
+                        }))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -111,9 +111,9 @@ public class ScopeResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(irrelevant -> scopeService.patch(domain, scope, patchScope, authenticatedUser))))))
+                        .flatMapSingle(irrelevant -> scopeService.patch(domain, scope, patchScope, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -136,9 +136,9 @@ public class ScopeResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(irrelevant -> scopeService.update(domain, scope, updateScope, authenticatedUser))))))
+                        .flatMapSingle(irrelevant -> scopeService.update(domain, scope, updateScope, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -158,7 +158,7 @@ public class ScopeResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(scopeService.delete(scope, false, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.DELETE)).then(RxJava2Adapter.completableToMono(scopeService.delete(scope, false, authenticatedUser))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

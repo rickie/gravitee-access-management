@@ -45,6 +45,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -78,9 +79,8 @@ public class FormsResource extends AbstractResource {
             @NotNull @QueryParam("template") Template formTemplate,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FORM, Acl.READ)
-                .andThen(formService.findByDomainAndTemplate(domain, formTemplate.template()))
-                .map(form -> Response.ok(form).build())).defaultIfEmpty(Response.ok(new Form(false, formTemplate.template())).build()))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FORM, Acl.READ)
+                .andThen(formService.findByDomainAndTemplate(domain, formTemplate.template()))).map(RxJavaReactorMigrationUtil.toJdkFunction(form -> Response.ok(form).build())))).defaultIfEmpty(Response.ok(new Form(false, formTemplate.template())).build()))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -104,13 +104,13 @@ public class FormsResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FORM, Acl.CREATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FORM, Acl.CREATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapSingle(irrelevant -> formService.create(domain, newForm, authenticatedUser)
                                 .map(form -> Response
                                         .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/forms/" + form.getId()))
                                         .entity(form)
-                                        .build()))))))
+                                        .build())))))
                 .subscribe(response::resume, response::resume);
     }
 

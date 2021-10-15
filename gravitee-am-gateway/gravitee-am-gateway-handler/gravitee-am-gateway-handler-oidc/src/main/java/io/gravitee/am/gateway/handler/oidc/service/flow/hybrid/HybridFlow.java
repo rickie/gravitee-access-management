@@ -76,7 +76,7 @@ public class HybridFlow extends AbstractFlow {
     @Override
     protected Single<AuthorizationResponse> prepareResponse(AuthorizationRequest authorizationRequest, Client client, User endUser) {
         // Authorization Code is always returned when using the Hybrid Flow.
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(authorizationCodeService.create(authorizationRequest, endUser)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<AuthorizationResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<AuthorizationCode, Single<AuthorizationResponse>>)code -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(authorizationCodeService.create(authorizationRequest, endUser)).flatMap(v->RxJava2Adapter.singleToMono((Single<AuthorizationResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<AuthorizationCode, Single<AuthorizationResponse>>)code -> {
                     // prepare response
                     HybridResponse hybridResponse = new HybridResponse();
                     hybridResponse.setRedirectUri(authorizationRequest.getRedirectUri());
@@ -103,6 +103,6 @@ public class HybridFlow extends AbstractFlow {
                                         return hybridResponse;
                                     });
                     }
-                }).apply(v)))));
+                }).apply(v))));
     }
 }

@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -125,9 +126,7 @@ public class InlineOrganizationProviderConfiguration extends OrganizationProvide
                 ORGANIZATION_OWNER.name(),
                 ORGANIZATION_USER.name());
 
-        final Map<String, Role> organizationRoles = RxJava2Adapter.singleToMono(Flowable.merge(
-                roleService.findRolesByName(ReferenceType.PLATFORM, Platform.DEFAULT, ReferenceType.ORGANIZATION, roleNames),
-                roleService.findRolesByName(ReferenceType.ORGANIZATION, Organization.DEFAULT, ReferenceType.ORGANIZATION, roleNames))
+        final Map<String, Role> organizationRoles = RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(Flux.merge(roleService.findRolesByName(ReferenceType.PLATFORM, Platform.DEFAULT, ReferenceType.ORGANIZATION, roleNames), roleService.findRolesByName(ReferenceType.ORGANIZATION, Organization.DEFAULT, ReferenceType.ORGANIZATION, roleNames)))
                 .collect(HashMap<String, Role>::new, (acc, role) -> {
                     acc.put(role.getName(), role);
                 })).block();

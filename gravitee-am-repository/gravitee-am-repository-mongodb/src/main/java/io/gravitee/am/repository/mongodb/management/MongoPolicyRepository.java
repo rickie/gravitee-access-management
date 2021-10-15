@@ -20,6 +20,7 @@ import io.gravitee.am.common.policy.ExtensionPoint;
 import io.gravitee.am.model.Policy;
 import io.gravitee.am.repository.management.api.PolicyRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.PolicyMongo;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -43,13 +45,12 @@ public class MongoPolicyRepository extends AbstractManagementMongoRepository imp
     @Override
     public Flowable<Policy> findAll() {
         MongoCollection<PolicyMongo> policiesCollection = mongoOperations.getCollection(COLLECTION_NAME, PolicyMongo.class);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(policiesCollection.find())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(policiesCollection.find()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Boolean> collectionExists() {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromPublisher(mongoOperations.listCollectionNames())
-                .filter(collectionName -> collectionName.equalsIgnoreCase(COLLECTION_NAME))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromPublisher(mongoOperations.listCollectionNames()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(collectionName -> collectionName.equalsIgnoreCase(COLLECTION_NAME))))
                 .isEmpty()).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> !isEmpty)));
     }
 

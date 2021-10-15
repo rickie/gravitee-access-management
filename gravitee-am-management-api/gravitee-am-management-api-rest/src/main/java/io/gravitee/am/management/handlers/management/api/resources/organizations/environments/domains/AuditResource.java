@@ -63,7 +63,7 @@ public class AuditResource extends AbstractResource {
             @PathParam("audit") String audit,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_AUDIT, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(auditService.findById(domain, audit)))).as(RxJava2Adapter::monoToMaybe)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_AUDIT, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(auditService.findById(domain, audit))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 }

@@ -25,6 +25,7 @@ import io.gravitee.am.model.oauth2.Scope;
 import io.gravitee.am.repository.management.api.ScopeRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.ScopeMongo;
 import io.reactivex.*;
+import io.reactivex.BackpressureStrategy;
 import java.util.List;
 import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
@@ -32,6 +33,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -56,20 +58,20 @@ public class MongoScopeRepository extends AbstractManagementMongoRepository impl
 
     @Override
     public Maybe<Scope> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(scopesCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(scopesCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Scope> create(Scope item) {
         ScopeMongo scope = convert(item);
         scope.setId(scope.getId() == null ? RandomString.generate() : scope.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopesCollection.insertOne(scope))).flatMap(success->RxJava2Adapter.singleToMono(findById(scope.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopesCollection.insertOne(scope))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(scope.getId())).single()))));
     }
 
     @Override
     public Single<Scope> update(Scope item) {
         ScopeMongo scope = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopesCollection.replaceOne(eq(FIELD_ID, scope.getId()), scope))).flatMap(updateResult->RxJava2Adapter.singleToMono(findById(scope.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopesCollection.replaceOne(eq(FIELD_ID, scope.getId()), scope))).flatMap(updateResult->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(scope.getId())).single()))));
     }
 
     @Override
@@ -107,12 +109,12 @@ public class MongoScopeRepository extends AbstractManagementMongoRepository impl
 
     @Override
     public Maybe<Scope> findByDomainAndKey(String domain, String key) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(scopesCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_KEY, key))).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(scopesCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_KEY, key))).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Flowable<Scope> findByDomainAndKeys(String domain, List<String> keys) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(scopesCollection.find(and(eq(FIELD_DOMAIN, domain), in(FIELD_KEY, keys))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(scopesCollection.find(and(eq(FIELD_DOMAIN, domain), in(FIELD_KEY, keys)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     private Scope convert(ScopeMongo scopeMongo) {

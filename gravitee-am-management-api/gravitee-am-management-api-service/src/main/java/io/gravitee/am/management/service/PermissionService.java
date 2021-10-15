@@ -77,13 +77,13 @@ public class PermissionService {
 
     public Single<Boolean> hasPermission(User user, PermissionAcls permissions) {
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(haveConsistentReferenceIds(permissions)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Boolean>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<Boolean>>)consistent -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(haveConsistentReferenceIds(permissions)).flatMap(v->RxJava2Adapter.singleToMono((Single<Boolean>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<Boolean>>)consistent -> {
                     if (consistent) {
                         return findMembershipPermissions(user, permissions.referenceStream())
                                 .map(permissions::match);
                     }
                     return Single.just(false);
-                }).apply(v)))));
+                }).apply(v))));
     }
 
     protected Single<Boolean> haveConsistentReferenceIds(PermissionAcls permissionAcls) {
@@ -123,9 +123,8 @@ public class PermissionService {
                 obs.add(isEnvironmentIdConsistent(environmentId, organizationId));
             }
 
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.merge(obs)
-                    .all(consistent -> consistent)
-                    .onErrorResumeNext(Single.just(false))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(consistent -> consistencyCache.put(key, consistent))));
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Single.merge(obs)).all(RxJavaReactorMigrationUtil.toJdkPredicate(consistent -> consistent)))
+                    .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(false)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(consistent -> consistencyCache.put(key, consistent))));
         } catch (Exception e){
             return RxJava2Adapter.monoToSingle(Mono.just(false));
         }
@@ -181,9 +180,8 @@ public class PermissionService {
             return RxJava2Adapter.monoToSingle(Mono.error(new InvalidUserException("Specified user is invalid")));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(groupService.findByMember(user.getId())
-                .map(Group::getId)
-                .toList()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Map<Membership, Map<Permission, Set<Acl>>>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<String>, Single<Map<Membership, Map<Permission, Set<Acl>>>>>)userGroupIds -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(groupService.findByMember(user.getId())
+                .map(Group::getId)).collectList())).flatMap(v->RxJava2Adapter.singleToMono((Single<Map<Membership, Map<Permission, Set<Acl>>>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<String>, Single<Map<Membership, Map<Permission, Set<Acl>>>>>)userGroupIds -> {
                     MembershipCriteria criteria = new MembershipCriteria();
                     criteria.setUserId(user.getId());
                     criteria.setGroupIds(userGroupIds.isEmpty() ? null : userGroupIds);
@@ -202,7 +200,7 @@ public class PermissionService {
                                 return roleService.findByIdIn(allMemberships.stream().map(Membership::getRoleId).collect(Collectors.toList()))
                                         .map(allRoles -> permissionsPerMembership(allMemberships, allRoles));
                             });
-                }).apply(v)))));
+                }).apply(v))));
     }
 
     private Map<Membership, Map<Permission, Set<Acl>>> permissionsPerMembership(List<Membership> allMemberships, Set<Role> allRoles) {

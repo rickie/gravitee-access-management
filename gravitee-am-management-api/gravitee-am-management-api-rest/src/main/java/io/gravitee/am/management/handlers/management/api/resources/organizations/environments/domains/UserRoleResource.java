@@ -72,9 +72,9 @@ public class UserRoleResource extends AbstractResource {
 
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(endUser -> userService.revokeRoles(ReferenceType.DOMAIN, domain, user, Collections.singletonList(role), authenticatedUser))))))
+                        .flatMapSingle(endUser -> userService.revokeRoles(ReferenceType.DOMAIN, domain, user, Collections.singletonList(role), authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 }

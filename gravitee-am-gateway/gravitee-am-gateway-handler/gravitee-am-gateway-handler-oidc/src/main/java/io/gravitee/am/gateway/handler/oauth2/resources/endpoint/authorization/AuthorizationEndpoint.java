@@ -40,6 +40,7 @@ import io.vertx.reactivex.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * The authorization endpoint is used to interact with the resource owner and obtain an authorization grant.
@@ -86,8 +87,8 @@ public class AuthorizationEndpoint implements Handler<RoutingContext> {
         final String uriIdentifier = context.get(ConstantKeys.REQUEST_URI_ID_KEY);
         RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(parService.deleteRequestUri(uriIdentifier).onErrorResumeNext((err) -> {
             logger.warn("Deletion of Pushed Authorization Request with id '{}' failed", uriIdentifier, err);
-            return Completable.complete();
-        })).then(RxJava2Adapter.singleToMono(Single.wrap(flow.run(request, client, endUser)))))
+            return RxJava2Adapter.monoToCompletable(Mono.empty());
+        })).then(RxJava2Adapter.singleToMono(flow.run(request, client, endUser))))
                 .subscribe(
                         authorizationResponse -> {
                             try {

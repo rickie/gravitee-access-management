@@ -43,7 +43,9 @@ import io.gravitee.am.service.reporter.builder.management.CertificateAuditBuilde
 import io.reactivex.*;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -70,6 +72,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -125,7 +128,7 @@ public class CertificateServiceImpl implements CertificateService {
         LOGGER.debug("Find certificates by domain: {}", domain);
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(certificateRepository.findByDomain(domain)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find certificates by domain", ex);
-                    return Flowable.error(new TechnicalManagementException("An error occurs while trying to find certificates by domain", ex));
+                    return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find certificates by domain", ex)));
                 })));
     }
 
@@ -134,7 +137,7 @@ public class CertificateServiceImpl implements CertificateService {
         LOGGER.debug("Find all certificates");
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(certificateRepository.findAll()).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find all certificates", ex);
-                    return Flowable.error(new TechnicalManagementException("An error occurs while trying to find all certificates by domain", ex));
+                    return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find all certificates by domain", ex)));
                 })));
     }
 
@@ -142,9 +145,8 @@ public class CertificateServiceImpl implements CertificateService {
     public Single<Certificate> create(String domain, NewCertificate newCertificate, User principal) {
         LOGGER.debug("Create a new certificate {} for domain {}", newCertificate, domain);
 
-        Single<Certificate> certificateSingle = RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificatePluginService
-                .getSchema(newCertificate.getType())
-                .switchIfEmpty(Maybe.error(new CertificatePluginSchemaNotFoundException(newCertificate.getType())))).map(RxJavaReactorMigrationUtil.toJdkFunction(schema -> objectMapper.readValue(schema, CertificateSchema.class))))
+        Single<Certificate> certificateSingle = RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificatePluginService
+                .getSchema(newCertificate.getType())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new CertificatePluginSchemaNotFoundException(newCertificate.getType()))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(schema -> objectMapper.readValue(schema, CertificateSchema.class))))
                 .flatMapSingle(new Function<CertificateSchema, SingleSource<Certificate>>() {
                     @Override
                     public SingleSource<Certificate> apply(CertificateSchema certificateSchema) throws Exception {
@@ -192,7 +194,7 @@ public class CertificateServiceImpl implements CertificateService {
                     }
                 });
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateSingle
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateSingle
                 .flatMap(certificateRepository::create)
                 // create event for sync process
                 .flatMap(certificate -> {
@@ -202,11 +204,10 @@ public class CertificateServiceImpl implements CertificateService {
                 .doOnError(ex -> {
                     LOGGER.error("An error occurs while trying to create a certificate", ex);
                     throw new TechnicalManagementException("An error occurs while trying to create a certificate", ex);
-                })
-                .doOnSuccess(certificate -> {
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(certificate -> {
                     // send notification
                     auditService.report(AuditBuilder.builder(CertificateAuditBuilder.class).principal(principal).type(EventType.CERTIFICATE_CREATED).certificate(certificate));
-                })).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(CertificateAuditBuilder.class).principal(principal).type(EventType.CERTIFICATE_CREATED).throwable(throwable)))));
+                })))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(CertificateAuditBuilder.class).principal(principal).type(EventType.CERTIFICATE_CREATED).throwable(throwable)))));
     }
 
     private static class CertificateWithSchema {
@@ -231,21 +232,19 @@ public class CertificateServiceImpl implements CertificateService {
     public Single<Certificate> update(String domain, String id, UpdateCertificate updateCertificate, User principal) {
         LOGGER.debug("Update a certificate {} for domain {}", id, domain);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateRepository.findById(id)
-                .switchIfEmpty(Maybe.error(new CertificateNotFoundException(id)))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificateRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new CertificateNotFoundException(id))))))
                 .flatMapSingle(new Function<Certificate, SingleSource<CertificateWithSchema>>() {
                     @Override
                     public SingleSource<CertificateWithSchema> apply(Certificate certificate) throws Exception {
-                        return certificatePluginService.getSchema(certificate.getType())
-                                .switchIfEmpty(Maybe.error(new CertificatePluginSchemaNotFoundException(certificate.getType())))
+                        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificatePluginService.getSchema(certificate.getType())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new CertificatePluginSchemaNotFoundException(certificate.getType()))))))
                                 .flatMapSingle(new Function<String, SingleSource<? extends CertificateWithSchema>>() {
                                     @Override
                                     public SingleSource<? extends CertificateWithSchema> apply(String schema) throws Exception {
-                                        return Single.just(new CertificateWithSchema(certificate, objectMapper.readValue(schema, CertificateSchema.class)));
+                                        return RxJava2Adapter.monoToSingle(Mono.just(new CertificateWithSchema(certificate, objectMapper.readValue(schema, CertificateSchema.class))));
                                     }
                                 });
                     }
-                })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<Certificate>)RxJavaReactorMigrationUtil.toJdkFunction((Function<CertificateWithSchema, Single<Certificate>>)oldCertificate -> {
+                })).flatMap(v->RxJava2Adapter.singleToMono((Single<Certificate>)RxJavaReactorMigrationUtil.toJdkFunction((Function<CertificateWithSchema, Single<Certificate>>)oldCertificate -> {
                     Single<Certificate> certificateSingle = Single.create(emitter -> {
                         Certificate certificateToUpdate = new Certificate(oldCertificate.getCertificate());
                         certificateToUpdate.setName(updateCertificate.getName());
@@ -305,7 +304,7 @@ public class CertificateServiceImpl implements CertificateService {
                             })
                             .doOnSuccess(certificate -> auditService.report(AuditBuilder.builder(CertificateAuditBuilder.class).principal(principal).type(EventType.CERTIFICATE_UPDATED).oldValue(oldCertificate).certificate(certificate)))
                             .doOnError(throwable -> auditService.report(AuditBuilder.builder(CertificateAuditBuilder.class).principal(principal).type(EventType.CERTIFICATE_UPDATED).throwable(throwable)));
-                }).apply(v)))));
+                }).apply(v))));
     }
 
     @Override
@@ -313,13 +312,11 @@ public class CertificateServiceImpl implements CertificateService {
         // update date
         certificate.setUpdatedAt(new Date());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateRepository.update(certificate)
-                // create event for sync process
-                .flatMap(certificate1 -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateRepository.update(certificate)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificate1 -> {
                     // Reload domain to take care about certificate update
                     Event event = new Event(Type.CERTIFICATE, new Payload(certificate1.getId(), ReferenceType.DOMAIN, certificate1.getDomain(), Action.UPDATE));
                     return eventService.create(event).flatMap(__ -> Single.just(certificate1));
-                })).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
+                }).apply(v)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
                     LOGGER.error("An error occurs while trying to update a certificate", ex);
                     throw new TechnicalManagementException("An error occurs while trying to update a certificate", ex);
                 })));
@@ -328,23 +325,20 @@ public class CertificateServiceImpl implements CertificateService {
     @Override
     public Completable delete(String certificateId, User principal) {
         LOGGER.debug("Delete certificate {}", certificateId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(certificateRepository.findById(certificateId)
-                .switchIfEmpty(Maybe.error(new CertificateNotFoundException(certificateId)))
-                .flatMapSingle(certificate -> applicationService.findByCertificate(certificateId).count()
-                        .flatMap(applications -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificateRepository.findById(certificateId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new CertificateNotFoundException(certificateId))))))
+                .flatMapSingle(certificate -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.findByCertificate(certificateId).count()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Long, SingleSource<Certificate>>toJdkFunction(applications -> {
                             if (applications > 0) {
                                 throw new CertificateWithApplicationsException();
                             }
                             return Single.just(certificate);
-                        })
+                        }).apply(v)))))
                 )).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Certificate, CompletableSource>)certificate -> {
                     // create event for sync process
                     Event event = new Event(Type.CERTIFICATE, new Payload(certificate.getId(), ReferenceType.DOMAIN, certificate.getDomain(), Action.DELETE));
-                    return certificateRepository.delete(certificateId)
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(certificateRepository.delete(certificateId)
                             .andThen(eventService.create(event))
                             .toCompletable()
-                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(CertificateAuditBuilder.class).principal(principal).type(EventType.CERTIFICATE_DELETED).certificate(certificate)))
-                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(CertificateAuditBuilder.class).principal(principal).type(EventType.CERTIFICATE_DELETED).throwable(throwable)));
+                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(CertificateAuditBuilder.class).principal(principal).type(EventType.CERTIFICATE_DELETED).certificate(certificate)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(CertificateAuditBuilder.class).principal(principal).type(EventType.CERTIFICATE_DELETED).throwable(throwable)))));
                 }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to delete certificate: {}", certificateId, ex);
@@ -363,15 +357,14 @@ public class CertificateServiceImpl implements CertificateService {
         // TODO: how-to handle default certificate type ?
         certificate.setType(DEFAULT_CERTIFICATE_PLUGIN);
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificatePluginService
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificatePluginService
                 // Just to check that certificate is available
-                .getSchema(certificate.getType())
-                .map(new Function<String, CertificateSchema>() {
+                .getSchema(certificate.getType())).map(RxJavaReactorMigrationUtil.toJdkFunction(new Function<String, CertificateSchema>() {
                     @Override
                     public CertificateSchema apply(String schema) throws Exception {
                         return objectMapper.readValue(schema, CertificateSchema.class);
                     }
-                })).map(RxJavaReactorMigrationUtil.toJdkFunction(new Function<CertificateSchema, String>() {
+                })))).map(RxJavaReactorMigrationUtil.toJdkFunction(new Function<CertificateSchema, String>() {
                     @Override
                     public String apply(CertificateSchema certificateSchema) throws Exception {
                         final int keySize = environment.getProperty("domains.certificates.default.keysize", int.class, 2048);

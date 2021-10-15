@@ -80,7 +80,7 @@ public class RoleResource extends AbstractResource {
             @PathParam("role") String role,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(domainService.findById(domain)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> roleService.findById(role))
                         .switchIfEmpty(Maybe.error(new RoleNotFoundException(role)))
@@ -90,7 +90,7 @@ public class RoleResource extends AbstractResource {
                                 throw new BadRequestException("Role does not belong to domain");
                             }
                             return Response.ok(convert(role1)).build();
-                        })))).as(RxJava2Adapter::monoToMaybe)
+                        }))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -114,10 +114,10 @@ public class RoleResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMapSingle(irrelevant -> roleService.update(domain, role, convert(updateRole), authenticatedUser))
-                        .map(this::convert)))))
+                        .map(this::convert))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -138,7 +138,7 @@ public class RoleResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(roleService.delete(ReferenceType.DOMAIN, domain, role, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.DELETE)).then(RxJava2Adapter.completableToMono(roleService.delete(ReferenceType.DOMAIN, domain, role, authenticatedUser))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 

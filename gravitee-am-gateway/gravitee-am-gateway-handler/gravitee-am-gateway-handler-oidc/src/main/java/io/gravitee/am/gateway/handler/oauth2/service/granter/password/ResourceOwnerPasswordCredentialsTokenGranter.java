@@ -86,7 +86,7 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         String password = tokenRequest.getPassword();
 
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(userAuthenticationManager.authenticate(client, new EndUserAuthentication(username, password, new SimpleAuthenticationContext(tokenRequest)))
-                .onErrorResumeNext(ex -> Single.error(new InvalidGrantException(ex.getMessage())))));
+                .onErrorResumeNext(ex -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException(ex.getMessage()))))));
     }
 
     public void setUserAuthenticationManager(UserAuthenticationManager userAuthenticationManager) {

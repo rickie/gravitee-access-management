@@ -84,8 +84,7 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
     @Override
     public Maybe<Certificate> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.certificateRepository.findById(id)
-                .map(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve Certificate with id {}", id, error))));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.certificateRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve Certificate with id {}", id, error))));
     }
 
     @Override
@@ -107,7 +106,7 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle())).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create certificate with id {}", item.getId(), error))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create certificate with id {}", item.getId(), error))));
     }
 
     @Override
@@ -128,7 +127,7 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
 
         Mono<Integer> action = updatedSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action).flatMap((i) -> this.findById(item.getId()).toSingle())).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to update certificate with id {}", item.getId(), error))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to update certificate with id {}", item.getId(), error))));
     }
 
     @Override

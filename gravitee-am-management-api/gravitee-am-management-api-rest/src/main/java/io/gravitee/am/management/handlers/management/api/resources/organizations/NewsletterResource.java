@@ -24,6 +24,8 @@ import io.gravitee.am.model.Organization;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.service.OrganizationUserService;
 import io.gravitee.am.service.UserService;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.swagger.annotations.*;
 import java.util.Collections;
 import java.util.HashMap;
@@ -74,12 +76,11 @@ public class NewsletterResource extends AbstractResource {
         // Get the organization the current user is logged on.
         String organizationId = (String) authenticatedUser.getAdditionalInformation().getOrDefault(Claims.organization, Organization.DEFAULT);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.findById(ReferenceType.ORGANIZATION, organizationId, authenticatedUser.getId())
-                .flatMap(user -> {
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.findById(ReferenceType.ORGANIZATION, organizationId, authenticatedUser.getId())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
                     user.setEmail(emailValue.getEmail());
                     user.setNewsletter(true);
                     return userService.update(user);
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(endUser -> {
+                }).apply(v)))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(endUser -> {
                     Map<String, Object> object = new HashMap<>();
                     object.put("email", endUser.getEmail());
                     newsletterService.subscribe(object);

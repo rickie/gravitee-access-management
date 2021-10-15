@@ -114,7 +114,7 @@ public class SyncManager implements InitializingBean {
                 // search for events and compute them
                 logger.debug("Events synchronization");
 
-                List<Event> events = RxJava2Adapter.singleToMono(eventRepository.findByTimeFrame(lastRefreshAt - lastDelay, nextLastRefreshAt).toList()).block();
+                List<Event> events = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(eventRepository.findByTimeFrame(lastRefreshAt - lastDelay, nextLastRefreshAt)).collectList())).block();
 
                 if (events != null && !events.isEmpty()) {
                     // Extract only the latest events by type and id
@@ -137,12 +137,11 @@ public class SyncManager implements InitializingBean {
 
     private void deployDomains() {
         logger.info("Starting security domains initialization ...");
-        List<Domain> domains = RxJava2Adapter.singleToMono(domainRepository.findAll()
+        List<Domain> domains = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(domainRepository.findAll()
                 // remove disabled domains
                 .filter(Domain::isEnabled)
                 // Can the security domain be deployed ?
-                .filter(this::canHandle)
-                .toList()).block();
+                .filter(this::canHandle)).collectList())).block();
 
         // deploy security domains
         domains.stream().forEach(securityDomainManager::deploy);
@@ -242,9 +241,9 @@ public class SyncManager implements InitializingBean {
         environments = getSystemValues(ENVIRONMENTS_SYSTEM_PROPERTY);
         organizations = getSystemValues(ORGANIZATIONS_SYSTEM_PROPERTY);
         if (organizations.isPresent()) {
-            final List<Organization> foundOrgs = RxJava2Adapter.singleToMono(organizationRepository.findByHrids(this.organizations.get()).toList()).block();
+            final List<Organization> foundOrgs = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(organizationRepository.findByHrids(this.organizations.get())).collectList())).block();
             this.environmentIds = foundOrgs.stream().flatMap(org ->{
-                return RxJava2Adapter.singleToMono(environmentRepository.findAll(org.getId())
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(environmentRepository.findAll(org.getId())
                         .filter(environment1 -> {
                             if (!environments.isPresent()) {
                                 return true;
@@ -252,13 +251,12 @@ public class SyncManager implements InitializingBean {
                                 return environment1.getHrids().stream().anyMatch(h -> environments.get().contains(h));
                             }
                         })
-                        .map(io.gravitee.am.model.Environment::getId).toList()).block().stream();
+                        .map(io.gravitee.am.model.Environment::getId)).collectList())).block().stream();
             }).distinct().collect(Collectors.toList());
         } else if (environments.isPresent()) {
-            environmentIds = RxJava2Adapter.singleToMono(environmentRepository.findAll()
+            environmentIds = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(environmentRepository.findAll()
                     .filter(environment1 -> environment1.getHrids().stream().anyMatch(h -> environments.get().contains(h)))
-                    .map(io.gravitee.am.model.Environment::getId)
-                    .toList()).block();
+                    .map(io.gravitee.am.model.Environment::getId)).collectList())).block();
         }
     }
 

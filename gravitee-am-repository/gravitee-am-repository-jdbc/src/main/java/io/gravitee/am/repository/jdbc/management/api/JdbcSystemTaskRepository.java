@@ -59,11 +59,11 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
     @Override
     public Maybe<SystemTask> findById(String id) {
         LOGGER.debug("findById({}, {}, {})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(monoToMaybe(dbClient.select()
+        return RxJava2Adapter.monoToMaybe(dbClient.select()
                 .from(JdbcSystemTask.class)
                 .project("*")
                 .matching(from(where("id").is(id)))
-                .as(JdbcSystemTask.class).first())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+                .as(JdbcSystemTask.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
 
     }
 
@@ -81,7 +81,7 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
         insertSpec = addQuotedField(insertSpec, "updated_at", dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()))));
     }
 
     @Override
@@ -107,7 +107,7 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
                 .fetch()
                 .rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()))));
     }
 
     @Override

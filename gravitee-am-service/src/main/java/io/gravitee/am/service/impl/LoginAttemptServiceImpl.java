@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -53,8 +54,7 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
     @Override
     public Single<LoginAttempt> loginFailed(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
         LOGGER.debug("Add login attempt for {}", criteria);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findByCriteria(criteria)
-                .map(Optional::of)).defaultIfEmpty(Optional.empty()))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findByCriteria(criteria)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)))).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optionalLoginAttempt -> {
                     if (optionalLoginAttempt.isPresent()) {
                         LoginAttempt loginAttempt = optionalLoginAttempt.get();
@@ -119,7 +119,7 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
     @Override
     public Maybe<LoginAttempt> findById(String id) {
         LOGGER.debug("Find login attempt by id {}", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new LoginAttemptNotFoundException(id))))))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new LoginAttemptNotFoundException(id)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(ex));

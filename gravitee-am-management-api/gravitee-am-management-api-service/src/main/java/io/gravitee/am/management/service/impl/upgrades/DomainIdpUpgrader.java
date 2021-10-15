@@ -65,14 +65,13 @@ public class DomainIdpUpgrader implements Upgrader, Ordered {
     }
 
     private Single<IdentityProvider> updateDefaultIdp(Domain domain) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(identityProviderService.findById(DEFAULT_IDP_PREFIX + domain.getId())
-                .isEmpty()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<IdentityProvider>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<IdentityProvider>>)isEmpty -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(DEFAULT_IDP_PREFIX + domain.getId())).hasElement())).flatMap(v->RxJava2Adapter.singleToMono((Single<IdentityProvider>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<IdentityProvider>>)isEmpty -> {
                     if (isEmpty) {
                         logger.info("No default idp found for domain {}, update domain", domain.getName());
                         return identityProviderManager.create(domain.getId());
                     }
                     return Single.just(new IdentityProvider());
-                }).apply(v)))));
+                }).apply(v))));
     }
 
     @Override

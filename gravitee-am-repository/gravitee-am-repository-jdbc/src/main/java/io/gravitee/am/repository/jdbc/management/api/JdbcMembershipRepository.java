@@ -93,11 +93,11 @@ public class JdbcMembershipRepository extends AbstractJdbcRepository implements 
 
         whereClause = whereClause.and(referenceClause.and(criteria.isLogicalOR() ? userClause.or(groupClause) : userClause.and(groupClause)));
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.fluxToFlowable(dbClient.select()
                 .from(JdbcMembership.class)
                 .matching(from(whereClause))
                 .as(JdbcMembership.class)
-                .all())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -122,7 +122,7 @@ public class JdbcMembershipRepository extends AbstractJdbcRepository implements 
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(action)).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()))));
     }
 
     @Override

@@ -142,11 +142,10 @@ public class DefaultOrganizationUpgrader implements Upgrader, Ordered {
                 // Need to check that inline idp and default admin user has 'admin' role.
                 final List<String> identities = Optional.ofNullable(organization.getIdentities()).orElse(Collections.emptyList());
 
-                IdentityProvider inlineIdp = RxJava2Adapter.maybeToMono(identityProviderService.findAll(ReferenceType.ORGANIZATION, Organization.DEFAULT)
+                IdentityProvider inlineIdp = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(identityProviderService.findAll(ReferenceType.ORGANIZATION, Organization.DEFAULT)
                         .filter(identityProvider -> identityProvider.getType().equals("inline-am-idp")
                                 && !identityProvider.isExternal()
-                                && identities.contains(identityProvider.getId()))
-                        .firstElement()).block();
+                                && identities.contains(identityProvider.getId()))).next())).block();
 
                 // If inline idp doesn't exist or is not enabled, it is probably an administrator choice. So do not go further.
                 if (inlineIdp != null) {

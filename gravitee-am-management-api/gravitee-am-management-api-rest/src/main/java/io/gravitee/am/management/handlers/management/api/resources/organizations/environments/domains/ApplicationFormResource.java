@@ -82,11 +82,11 @@ public class ApplicationFormResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_FORM, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_FORM, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> applicationService.findById(application))
                         .switchIfEmpty(Maybe.error(new ApplicationNotFoundException(application)))
-                        .flatMapSingle(irrelevant -> formService.update(domain, application, form, updateForm, authenticatedUser))))))
+                        .flatMapSingle(irrelevant -> formService.update(domain, application, form, updateForm, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -109,7 +109,7 @@ public class ApplicationFormResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_FORM, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(formService.delete(domain, form, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_FORM, Acl.DELETE)).then(RxJava2Adapter.completableToMono(formService.delete(domain, form, authenticatedUser))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

@@ -44,8 +44,7 @@ public class OAuth2AuthProviderImpl implements OAuth2AuthProvider {
 
     @Override
     public void decodeToken(String token, boolean offlineVerification, Handler<AsyncResult<OAuth2AuthResponse>> handler) {
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(introspectionTokenService.introspect(token, offlineVerification)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, MaybeSource<OAuth2AuthResponse>>)jwt -> clientSyncService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())
-                        .map(client -> new OAuth2AuthResponse(jwt, client))).apply(e)))))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(introspectionTokenService.introspect(token, offlineVerification)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, MaybeSource<OAuth2AuthResponse>>)jwt -> RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(clientSyncService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).map(RxJavaReactorMigrationUtil.toJdkFunction(client -> new OAuth2AuthResponse(jwt, client))))).apply(e)))))
                 .subscribe(
                         accessToken -> handler.handle(Future.succeededFuture(accessToken)),
                         error -> handler.handle(Future.failedFuture(error)));

@@ -47,7 +47,7 @@ public class IntrospectionServiceImpl implements IntrospectionService {
 
     @Override
     public Single<IntrospectionResponse> introspect(IntrospectionRequest introspectionRequest) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tokenService.introspect(introspectionRequest.getToken())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap((Single<IntrospectionResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<IntrospectionResponse>>)token -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tokenService.introspect(introspectionRequest.getToken())).flatMap(v->RxJava2Adapter.singleToMono((Single<IntrospectionResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<IntrospectionResponse>>)token -> {
                     AccessToken accessToken = (AccessToken) token;
                     if (accessToken.getSubject() != null && !accessToken.getSubject().equals(accessToken.getClientId())) {
                         return userService
@@ -59,7 +59,7 @@ public class IntrospectionServiceImpl implements IntrospectionService {
                     } else {
                         return Single.just(convert(accessToken, null));
                     }
-                }).apply(v)))))
+                }).apply(v))))
                 .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(new IntrospectionResponse(false))));
     }
 

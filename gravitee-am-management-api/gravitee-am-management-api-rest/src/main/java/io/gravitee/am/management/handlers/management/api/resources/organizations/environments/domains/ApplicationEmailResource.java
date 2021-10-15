@@ -75,11 +75,11 @@ public class ApplicationEmailResource extends AbstractResource {
             @ApiParam(name = "email", required = true) @Valid @NotNull UpdateEmail updateEmail,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_EMAIL_TEMPLATE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_EMAIL_TEMPLATE, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> applicationService.findById(application))
                         .switchIfEmpty(Maybe.error(new ApplicationNotFoundException(application)))
-                        .flatMapSingle(__ -> emailTemplateService.update(domain, application, email, updateEmail))))))
+                        .flatMapSingle(__ -> emailTemplateService.update(domain, application, email, updateEmail)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -100,7 +100,7 @@ public class ApplicationEmailResource extends AbstractResource {
             @PathParam("email") String email,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_EMAIL_TEMPLATE, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(emailTemplateService.delete(email)))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_EMAIL_TEMPLATE, Acl.DELETE)).then(RxJava2Adapter.completableToMono(emailTemplateService.delete(email))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

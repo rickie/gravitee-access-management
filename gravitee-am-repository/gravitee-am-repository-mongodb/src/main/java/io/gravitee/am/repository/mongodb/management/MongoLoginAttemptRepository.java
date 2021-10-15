@@ -26,6 +26,7 @@ import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.repository.management.api.LoginAttemptRepository;
 import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
 import io.gravitee.am.repository.mongodb.management.internal.model.LoginAttemptMongo;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -65,25 +66,25 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
 
     @Override
     public Maybe<LoginAttempt> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(loginAttemptsCollection.find(eq(FIELD_ID, id)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(loginAttemptsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Maybe<LoginAttempt> findByCriteria(LoginAttemptCriteria criteria) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable.fromPublisher(loginAttemptsCollection.find(query(criteria)).first()).firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(loginAttemptsCollection.find(query(criteria)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<LoginAttempt> create(LoginAttempt item) {
         LoginAttemptMongo loginAttempt = convert(item);
         loginAttempt.setId(loginAttempt.getId() == null ? RandomString.generate() : loginAttempt.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(loginAttemptsCollection.insertOne(loginAttempt))).flatMap(success->RxJava2Adapter.singleToMono(findById(loginAttempt.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(loginAttemptsCollection.insertOne(loginAttempt))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(loginAttempt.getId())).single()))));
     }
 
     @Override
     public Single<LoginAttempt> update(LoginAttempt item) {
         LoginAttemptMongo loginAttempt = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(loginAttemptsCollection.replaceOne(eq(FIELD_ID, loginAttempt.getId()), loginAttempt))).flatMap(success->RxJava2Adapter.singleToMono(findById(loginAttempt.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(loginAttemptsCollection.replaceOne(eq(FIELD_ID, loginAttempt.getId()), loginAttempt))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(loginAttempt.getId())).single()))));
     }
 
     @Override

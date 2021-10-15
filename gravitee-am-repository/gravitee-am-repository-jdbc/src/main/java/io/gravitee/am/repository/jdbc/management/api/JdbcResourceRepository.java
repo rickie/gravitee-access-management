@@ -73,23 +73,21 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
     }
 
     private Single<Page<Resource>> findResourcePage(String domain, int page, int size, CriteriaDefinition whereClause) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
                 .from(JdbcResource.class)
                 .matching(whereClause)
                 .orderBy(Sort.Order.asc("id"))
                 .page(PageRequest.of(page, size))
                 .as(JdbcResource.class).all())
                 .map(this::toEntity)
-                .flatMap(res -> completeWithScopes(Maybe.just(res), res.getId()).toFlowable(), MAX_CONCURRENCY)
-                .toList()).flatMap(content->RxJava2Adapter.singleToMono(resourceRepository.countByDomain(domain).map((java.lang.Long count)->new Page<Resource>(content, page, count)))));
+                .flatMap(res -> completeWithScopes(Maybe.just(res), res.getId()).toFlowable(), MAX_CONCURRENCY)).collectList())).flatMap(content->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resourceRepository.countByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Resource>(content, page, count)))))));
     }
 
     private Maybe<Resource> completeWithScopes(Maybe<Resource> maybeResource, String id) {
-        Maybe<List<String>> scopes = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(resourceScopeRepository.findAllByResourceId(id)
-                .map(JdbcResource.Scope::getScope)
-                .toList()));
+        Maybe<List<String>> scopes = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(resourceScopeRepository.findAllByResourceId(id)
+                .map(JdbcResource.Scope::getScope)).collectList())));
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeResource).zipWith(RxJava2Adapter.maybeToMono(Maybe.wrap(scopes)), RxJavaReactorMigrationUtil.toJdkBiFunction((res, scope) -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeResource).zipWith(RxJava2Adapter.maybeToMono(scopes), RxJavaReactorMigrationUtil.toJdkBiFunction((res, scope) -> {
                     LOGGER.debug("findById({}) fetch {} resource scopes", id, scope == null ? 0 : scope.size());
                     res.setResourceScopes(scope);
                     return res;
@@ -109,22 +107,19 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
         if (resources == null || resources.isEmpty()) {
             return RxJava2Adapter.fluxToFlowable(Flux.empty());
         }
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(resourceRepository.findByIdIn(resources)
-                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> completeWithScopes(Maybe.just(resource), resource.getId()).toFlowable())));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(resourceRepository.findByIdIn(resources)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithScopes(Maybe.just(resource), resource.getId())).flux()))));
     }
 
     @Override
     public Flowable<Resource> findByDomainAndClientAndUser(String domain, String client, String userId) {
         LOGGER.debug("findByDomainAndClientAndUser({},{},{})", domain, client, userId);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(resourceRepository.findByDomainAndClientAndUser(domain, client, userId)
-                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> completeWithScopes(Maybe.just(resource), resource.getId()).toFlowable())));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(resourceRepository.findByDomainAndClientAndUser(domain, client, userId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithScopes(Maybe.just(resource), resource.getId())).flux()))));
     }
 
     @Override
     public Flowable<Resource> findByDomainAndClientAndResources(String domain, String client, List<String> resources) {
         LOGGER.debug("findByDomainAndClientAndUser({},{},{})", domain, client, resources);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(resourceRepository.findByDomainAndClientAndResources(domain, client, resources)
-                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> completeWithScopes(Maybe.just(resource), resource.getId()).toFlowable())));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(resourceRepository.findByDomainAndClientAndResources(domain, client, resources)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithScopes(Maybe.just(resource), resource.getId())).flux()))));
     }
 
     @Override
@@ -160,7 +155,7 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
             }).reduce(Integer::sum));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(insertResult.as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(insertResult.as(trx::transactional).flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()))));
     }
 
     @Override
@@ -187,7 +182,7 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
             }).reduce(Integer::sum));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(monoToSingle(deleteScopes.then(updateResource).as(trx::transactional))).flatMap(i->RxJava2Adapter.singleToMono(this.findById(item.getId()).toSingle())));
+        return RxJava2Adapter.monoToSingle(deleteScopes.then(updateResource).as(trx::transactional).flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()))));
     }
 
     @Override

@@ -79,7 +79,7 @@ public class UserConsentResource extends AbstractResource {
             @PathParam("consent") String consent,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> scopeApprovalService.findById(consent))
                         .switchIfEmpty(Maybe.error(new ScopeApprovalNotFoundException(consent)))
@@ -88,7 +88,7 @@ public class UserConsentResource extends AbstractResource {
                                     ScopeApprovalEntity scopeApprovalEntity = new ScopeApprovalEntity(scopeApproval);
                                     scopeApprovalEntity.setClientEntity(clientEntity);
                                     return scopeApprovalEntity;
-                                }))))))
+                                })))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -109,16 +109,15 @@ public class UserConsentResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.completableToMono(Completable.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE)).then(RxJava2Adapter.completableToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapCompletable(__ -> scopeApprovalService.revokeByConsent(domain, user, consent, authenticatedUser))))))
+                        .flatMapCompletable(__ -> scopeApprovalService.revokeByConsent(domain, user, consent, authenticatedUser)))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
 
     private Single<ApplicationEntity> getClient(String domain, String clientId) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(applicationService.findByDomainAndClientId(domain, clientId)
-                .map(ApplicationEntity::new)
-                .defaultIfEmpty(new ApplicationEntity("unknown-id", clientId, "unknown-client-name"))).single());
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationService.findByDomainAndClientId(domain, clientId)
+                .map(ApplicationEntity::new)).defaultIfEmpty(new ApplicationEntity("unknown-id", clientId, "unknown-client-name")))).single());
     }
 }

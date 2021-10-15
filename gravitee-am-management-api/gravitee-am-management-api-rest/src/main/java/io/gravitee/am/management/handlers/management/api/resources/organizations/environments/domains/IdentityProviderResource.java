@@ -77,7 +77,7 @@ public class IdentityProviderResource extends AbstractResource {
             @PathParam("identity") String identityProvider,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(domainService.findById(domain)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> identityProviderService.findById(identityProvider))
                         .switchIfEmpty(Maybe.error(new IdentityProviderNotFoundException(identityProvider)))
@@ -87,7 +87,7 @@ public class IdentityProviderResource extends AbstractResource {
                                 throw new BadRequestException("Identity provider does not belong to domain");
                             }
                             return Response.ok(identityProvider1).build();
-                        })))).as(RxJava2Adapter::monoToMaybe)
+                        }))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -111,9 +111,9 @@ public class IdentityProviderResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(__ -> identityProviderService.update(domain, identity, updateIdentityProvider, authenticatedUser))))))
+                        .flatMapSingle(__ -> identityProviderService.update(domain, identity, updateIdentityProvider, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -135,7 +135,7 @@ public class IdentityProviderResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(identityProviderService.delete(domain, identity, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.DELETE)).then(RxJava2Adapter.completableToMono(identityProviderService.delete(domain, identity, authenticatedUser))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

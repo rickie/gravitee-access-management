@@ -22,6 +22,7 @@ import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.repository.mongodb.oauth2.internal.model.RequestObjectMongo;
 import io.gravitee.am.repository.oidc.api.RequestObjectRepository;
 import io.gravitee.am.repository.oidc.model.RequestObject;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -56,15 +57,14 @@ public class MongoRequestObjectRepository extends AbstractOAuth2MongoRepository 
 
     @Override
     public Maybe<RequestObject> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
-                .fromPublisher(requestObjectCollection.find(eq(FIELD_ID, id)).limit(1).first())
-                .firstElement()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
+                .fromPublisher(requestObjectCollection.find(eq(FIELD_ID, id)).limit(1).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<RequestObject> create(RequestObject requestObject) {
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
-                .fromPublisher(requestObjectCollection.insertOne(convert(requestObject)))).flatMap(success->RxJava2Adapter.singleToMono(findById(requestObject.getId()).toSingle())));
+                .fromPublisher(requestObjectCollection.insertOne(convert(requestObject)))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(requestObject.getId())).single()))));
     }
 
     @Override

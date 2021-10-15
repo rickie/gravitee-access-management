@@ -37,6 +37,7 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.AuthenticationFlowContextService;
 import io.gravitee.am.service.PermissionTicketService;
 import io.gravitee.am.service.ResourceService;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -97,10 +98,9 @@ public class CompositeTokenGranter implements TokenGranter, InitializingBean {
 
     @Override
     public Single<Token> grant(TokenRequest tokenRequest, Client client) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Observable
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
                 .fromIterable(tokenGranters.values())
-                .filter(tokenGranter -> tokenGranter.handle(tokenRequest.getGrantType(), client))
-                .firstElement()).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UnsupportedGrantTypeException("Unsupported grant type: " + tokenRequest.getGrantType()))))))
+                .filter(tokenGranter -> tokenGranter.handle(tokenRequest.getGrantType(), client)), BackpressureStrategy.BUFFER).next())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new UnsupportedGrantTypeException("Unsupported grant type: " + tokenRequest.getGrantType())))))
                 .flatMapSingle(tokenGranter -> tokenGranter.grant(tokenRequest, client));
     }
 

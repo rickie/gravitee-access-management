@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -65,13 +66,13 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
 
     @Override
     public Maybe<AuthenticationFlowContext> loadContext(final String transactionId, final int expectedVersion) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authContextRepository.findLastByTransactionId(transactionId).switchIfEmpty(Maybe.fromCallable(() -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authContextRepository.findLastByTransactionId(transactionId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.fromCallable(() -> {
             AuthenticationFlowContext context = new AuthenticationFlowContext();
             context.setTransactionId(transactionId);
             context.setVersion(0);
             context.setCreatedAt(new Date());
             return context;
-        }))).map(RxJavaReactorMigrationUtil.toJdkFunction(context -> {
+        })))))).map(RxJavaReactorMigrationUtil.toJdkFunction(context -> {
             if (context.getVersion() > 0 && context.getVersion() < expectedVersion) {
                 LOGGER.debug("Authentication Flow Context read with version '{}' but '{}' was expected", context.getVersion(), expectedVersion);
                 throw new AuthenticationFlowConsistencyException();
@@ -121,7 +122,7 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
                             }
                         }
                         // Max retries hit. Just pass the error along.
-                        return Flowable.error(throwable);
+                        return RxJava2Adapter.fluxToFlowable(Flux.error(throwable));
                     })));
         }
     }

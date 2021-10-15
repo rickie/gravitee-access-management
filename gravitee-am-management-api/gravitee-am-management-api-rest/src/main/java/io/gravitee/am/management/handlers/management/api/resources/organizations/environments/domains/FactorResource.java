@@ -79,7 +79,7 @@ public class FactorResource extends AbstractResource {
             @PathParam("factor") String factor,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(Maybe.wrap(domainService.findById(domain)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> factorService.findById(factor))
                         .switchIfEmpty(Maybe.error(new FactorNotFoundException(factor)))
@@ -88,7 +88,7 @@ public class FactorResource extends AbstractResource {
                                 throw new BadRequestException("Factor does not belong to domain");
                             }
                             return Response.ok(factor1).build();
-                        })))).as(RxJava2Adapter::monoToMaybe)
+                        }))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -111,9 +111,9 @@ public class FactorResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(Single.wrap(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapSingle(__ -> factorService.update(domain, factor, updateFactor, authenticatedUser))))))
+                        .flatMapSingle(__ -> factorService.update(domain, factor, updateFactor, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -134,7 +134,7 @@ public class FactorResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.DELETE)).then(RxJava2Adapter.completableToMono(Completable.wrap(factorService.delete(domain, factor, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.DELETE)).then(RxJava2Adapter.completableToMono(factorService.delete(domain, factor, authenticatedUser))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }
