@@ -309,7 +309,7 @@ public class UserServiceImpl implements UserService {
                         User user = foundUsers.get(0);
                         // check if user can update its password according to its identity provider type
                         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(identityProviderManager.getUserProvider(user.getSource())
-                                .switchIfEmpty(Single.error(new UserInvalidException("User [ " + user.getUsername() + " ] cannot be updated because its identity provider does not support user provisioning")))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.UserProvider, SingleSource<io.gravitee.am.model.User>>toJdkFunction(userProvider -> {
+                                .switchIfEmpty(Single.error(new UserInvalidException("User [ " + user.getUsername() + " ] cannot be updated because its identity provider does not support user provisioning")))).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.UserProvider, SingleSource<io.gravitee.am.model.User>>toJdkFunction(userProvider -> {
                                     // if user registration is not completed and force registration option is disabled throw invalid account exception
                                     if (user.isInactive() && !forceUserRegistration(domain, client)) {
                                         return Single.error(new AccountInactiveException("User [ " + user.getUsername() + " ] needs to complete the activation process"));
@@ -324,7 +324,7 @@ public class UserServiceImpl implements UserService {
                                                 }
                                                 return userService.update(enhanceUser(user, optUser.get()));
                                             });
-                                }).apply(v)))));
+                                }).apply(a)))));
                     }
 
                     if (foundUsers.size() > 1) {
@@ -359,7 +359,7 @@ public class UserServiceImpl implements UserService {
                                         .defaultIfEmpty(Optional.empty());
                             })
                             .takeUntil((Predicate<? super Optional<UserAuthentication>>) Optional::isPresent)
-                            .lastOrError()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Optional<io.gravitee.am.gateway.handler.root.service.user.impl.UserServiceImpl.UserAuthentication>, SingleSource<io.gravitee.am.model.User>>toJdkFunction(optional -> {
+                            .lastOrError()).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Optional<io.gravitee.am.gateway.handler.root.service.user.impl.UserServiceImpl.UserAuthentication>, SingleSource<io.gravitee.am.model.User>>toJdkFunction(optional -> {
                                 // be sure to not duplicate an existing user
                                 if (!optional.isPresent()) {
                                     return Single.error(new UserNotFoundException());
@@ -375,7 +375,7 @@ public class UserServiceImpl implements UserService {
                                             }
                                             return userService.update(enhanceUser(optEndUser.get(), idpUser.getUser()));
                                         });
-                            }).apply(v)))))
+                            }).apply(a)))))
                             .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.error(new UserNotFoundException(email != null ? email : params.getUsername()))));
                 }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> new Thread(() -> emailService.send(Template.RESET_PASSWORD, user, client)).start())).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> {
                     // reload principal
