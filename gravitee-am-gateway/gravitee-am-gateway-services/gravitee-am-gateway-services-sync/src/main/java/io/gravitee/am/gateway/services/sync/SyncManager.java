@@ -138,9 +138,9 @@ public class SyncManager implements InitializingBean {
 
     private void deployDomains() {
         logger.info("Starting security domains initialization ...");
-        List<Domain> domains = RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(domainRepository.findAll()
+        List<Domain> domains = RxJava2Adapter.flowableToFlux(domainRepository.findAll()
                 // remove disabled domains
-                .filter(Domain::isEnabled)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(this::canHandle)))).collectList().block();
+                .filter(Domain::isEnabled)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(this::canHandle)).collectList().block();
 
         // deploy security domains
         domains.stream().forEach(securityDomainManager::deploy);
@@ -242,18 +242,18 @@ public class SyncManager implements InitializingBean {
         if (organizations.isPresent()) {
             final List<Organization> foundOrgs = RxJava2Adapter.flowableToFlux(organizationRepository.findByHrids(this.organizations.get())).collectList().block();
             this.environmentIds = foundOrgs.stream().flatMap(org ->{
-                return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(environmentRepository.findAll(org.getId())
+                return RxJava2Adapter.flowableToFlux(environmentRepository.findAll(org.getId())
                         .filter(environment1 -> {
                             if (!environments.isPresent()) {
                                 return true;
                             } else {
                                 return environment1.getHrids().stream().anyMatch(h -> environments.get().contains(h));
                             }
-                        })).map(RxJavaReactorMigrationUtil.toJdkFunction(io.gravitee.am.model.Environment::getId)))).collectList().block().stream();
+                        })).map(RxJavaReactorMigrationUtil.toJdkFunction(io.gravitee.am.model.Environment::getId)).collectList().block().stream();
             }).distinct().collect(Collectors.toList());
         } else if (environments.isPresent()) {
-            environmentIds = RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(environmentRepository.findAll()
-                    .filter(environment1 -> environment1.getHrids().stream().anyMatch(h -> environments.get().contains(h)))).map(RxJavaReactorMigrationUtil.toJdkFunction(io.gravitee.am.model.Environment::getId)))).collectList().block();
+            environmentIds = RxJava2Adapter.flowableToFlux(environmentRepository.findAll()
+                    .filter(environment1 -> environment1.getHrids().stream().anyMatch(h -> environments.get().contains(h)))).map(RxJavaReactorMigrationUtil.toJdkFunction(io.gravitee.am.model.Environment::getId)).collectList().block();
         }
     }
 

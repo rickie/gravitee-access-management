@@ -84,7 +84,7 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         insertSpec = addQuotedField(insertSpec, "updated_at", dateConverter.convertTo(installation.getUpdatedAt(), null), LocalDateTime.class);
         insertSpec = databaseDialectHelper.addJsonField(insertSpec, "additional_information", installation.getAdditionalInformation());
 
-        return RxJava2Adapter.monoToSingle(insertSpec.then().then(Mono.defer(()->RxJava2Adapter.singleToMono(this.findById(installation.getId()).toSingle()))));
+        return RxJava2Adapter.monoToSingle(insertSpec.then().then(Mono.defer(()->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(installation.getId())).single())))));
     }
 
     @Override
@@ -100,7 +100,7 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         updateFields = addQuotedField(updateFields, "updated_at", dateConverter.convertTo(installation.getUpdatedAt(), null), LocalDateTime.class);
         updateFields = databaseDialectHelper.addJsonField(updateFields, "additional_information", installation.getAdditionalInformation());
 
-        return RxJava2Adapter.monoToSingle(updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(installation.getId()))).then().then(Mono.defer(()->RxJava2Adapter.singleToMono(this.findById(installation.getId()).toSingle()))));
+        return RxJava2Adapter.monoToSingle(updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(installation.getId()))).then().then(Mono.defer(()->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(installation.getId())).single())))));
     }
 
     @Override

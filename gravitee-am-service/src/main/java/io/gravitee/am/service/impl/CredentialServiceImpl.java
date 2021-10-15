@@ -138,7 +138,7 @@ public class CredentialServiceImpl implements CredentialService {
     @Override
     public Completable delete(String id) {
         LOGGER.debug("Delete credential {}", id);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(credentialRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new CredentialNotFoundException(id)))).flatMap(email->RxJava2Adapter.completableToMono(credentialRepository.delete(id))).then())
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(credentialRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new CredentialNotFoundException(id))))).flatMap(email->RxJava2Adapter.completableToMono(credentialRepository.delete(id))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));

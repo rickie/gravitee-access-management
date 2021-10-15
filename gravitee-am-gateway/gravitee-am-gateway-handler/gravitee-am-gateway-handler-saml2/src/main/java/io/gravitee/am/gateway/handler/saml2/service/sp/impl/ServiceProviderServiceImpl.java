@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -40,7 +41,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
     @Override
     public Single<Metadata> metadata(String providerId, String idpUrl) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderManager.get(providerId)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new IdentityProviderNotFoundException(providerId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(authenticationProvider -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderManager.get(providerId)).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IdentityProviderNotFoundException(providerId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(authenticationProvider -> {
                     Metadata metadata = authenticationProvider.metadata(idpUrl);
                     if (metadata == null) {
                         logger.debug("No metadata found for identity provider : {}", providerId);

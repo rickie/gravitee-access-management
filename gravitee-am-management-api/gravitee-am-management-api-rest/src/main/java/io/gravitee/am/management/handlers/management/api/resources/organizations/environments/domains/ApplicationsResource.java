@@ -47,6 +47,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -91,15 +92,14 @@ public class ApplicationsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION, Acl.LIST)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION, Acl.LIST)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domain))))))
                         .flatMapSingle(__ -> {
                             if (query != null) {
                                 return applicationService.search(domain, query, 0, Integer.MAX_VALUE);
                             } else {
                                 return applicationService.findByDomain(domain, 0, Integer.MAX_VALUE);
                             }
-                        })).flatMap(pagedApplications->RxJava2Adapter.singleToMono(Maybe.concat(pagedApplications.getData().stream().map((io.gravitee.am.model.Application application)->hasAnyPermission(authenticatedUser, organizationId, environmentId, domain, application.getId(), Permission.APPLICATION, Acl.READ).filter(Boolean::booleanValue).map((java.lang.Boolean __)->filterApplicationInfos(application))).collect(Collectors.toList())).sorted((io.gravitee.am.model.Application a1, io.gravitee.am.model.Application a2)->a2.getUpdatedAt().compareTo(a1.getUpdatedAt())).toList().map((java.util.List<io.gravitee.am.model.Application> applications)->new Page<>(applications.stream().skip(page * size).limit(size).collect(Collectors.toList()), page, applications.size()))))))
+                        })).flatMap(pagedApplications->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Maybe.concat(pagedApplications.getData().stream().map((io.gravitee.am.model.Application application)->hasAnyPermission(authenticatedUser, organizationId, environmentId, domain, application.getId(), Permission.APPLICATION, Acl.READ).filter(Boolean::booleanValue).map((java.lang.Boolean __)->filterApplicationInfos(application))).collect(Collectors.toList())).sorted((io.gravitee.am.model.Application a1, io.gravitee.am.model.Application a2)->a2.getUpdatedAt().compareTo(a1.getUpdatedAt())).toList()).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.Application> applications)->new Page<>(applications.stream().skip(page * size).limit(size).collect(Collectors.toList()), page, applications.size()))))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -123,7 +123,7 @@ public class ApplicationsResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION, Acl.CREATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.APPLICATION, Acl.CREATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new DomainNotFoundException(domain))))))
                         .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.create(domain, newApplication, authenticatedUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> Response
                                         .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/applications/" + application.getId()))
                                         .entity(application)

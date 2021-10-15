@@ -44,6 +44,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -74,10 +75,9 @@ public class ReporterResource extends AbstractResource {
             @PathParam("reporter") String reporter,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMap(irrelevant -> reporterService.findById(reporter))
-                        .switchIfEmpty(Maybe.error(new ReporterNotFoundException(reporter)))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporter1 -> {
+                        .flatMap(irrelevant -> reporterService.findById(reporter))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ReporterNotFoundException(reporter))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporter1 -> {
                             if (!reporter1.getDomain().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Reporter does not belong to domain");
                             }
@@ -105,7 +105,7 @@ public class ReporterResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new DomainNotFoundException(domain)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new DomainNotFoundException(domain))))))
                         .flatMapSingle(__ -> reporterService.update(domain, reporter, updateReporter, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
@@ -126,11 +126,10 @@ public class ReporterResource extends AbstractResource {
             @PathParam("reporter") String reporter,
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ)).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ)).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(irrelevant -> reporterService.findById(reporter))
-                        .map(Optional::ofNullable)
-                        .switchIfEmpty(Maybe.just(Optional.empty()))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<Reporter>, CompletableSource>)reporter1 -> {
+                        .map(Optional::ofNullable)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.just(Optional.empty())))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<Reporter>, CompletableSource>)reporter1 -> {
                             if (reporter1.isPresent()) {
                                 if (!reporter1.get().getDomain().equalsIgnoreCase(domain)) {
                                     throw new BadRequestException("Reporter does not belong to domain");
@@ -138,7 +137,7 @@ public class ReporterResource extends AbstractResource {
 
                                 return reporterService.delete(reporter, authenticatedUser);
                             }
-                            return Completable.complete();
+                            return RxJava2Adapter.monoToCompletable(Mono.empty());
                         }).apply(y)))).then()))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }

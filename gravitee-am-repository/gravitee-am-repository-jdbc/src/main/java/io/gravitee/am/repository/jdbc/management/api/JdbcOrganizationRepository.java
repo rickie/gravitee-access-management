@@ -83,18 +83,18 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
     public Maybe<Organization> findById(String organizationId) {
         LOGGER.debug("findById({})", organizationId);
 
-        Maybe<List<String>> identities = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(identitiesRepository.findAllByOrganizationId(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcOrganization.Identity::getIdentity)))).collectList());
+        Maybe<List<String>> identities = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(identitiesRepository.findAllByOrganizationId(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcOrganization.Identity::getIdentity)).collectList());
 
-        Maybe<List<String>> domains = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(domainRestrictionRepository.findAllByOrganizationId(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcOrganization.DomainRestriction::getDomainRestriction)))).collectList());
+        Maybe<List<String>> domains = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(domainRestrictionRepository.findAllByOrganizationId(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcOrganization.DomainRestriction::getDomainRestriction)).collectList());
 
-        Maybe<List<String>> hrids = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(hridsRepository.findAllByOrganizationId(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcOrganization.Hrid::getHrid)))).collectList());
+        Maybe<List<String>> hrids = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(hridsRepository.findAllByOrganizationId(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcOrganization.Hrid::getHrid)).collectList());
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(organizationRepository.findById(organizationId)
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(organizationRepository.findById(organizationId)
                 .map(this::toOrganization)).zipWith(RxJava2Adapter.maybeToMono(Maybe.wrap(identities)), RxJavaReactorMigrationUtil.toJdkBiFunction((org, idp) -> {
                     LOGGER.debug("findById({}) fetch {} identities", organizationId, idp.size());
                     org.setIdentities(idp);
                     return org;
-                })))).zipWith(RxJava2Adapter.maybeToMono(domains), RxJavaReactorMigrationUtil.toJdkBiFunction((org, domain) -> {
+                })).zipWith(RxJava2Adapter.maybeToMono(domains), RxJavaReactorMigrationUtil.toJdkBiFunction((org, domain) -> {
                     LOGGER.debug("findById({}) fetch {} domainRestrictions", organizationId, domain.size());
                     org.setDomainRestrictions(domain);
                     return org;

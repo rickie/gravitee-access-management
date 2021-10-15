@@ -150,7 +150,7 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
             final Authentication authentication = new EndUserAuthentication(endUser, null, authenticationContext);
 
             final Maybe<AuthenticationProvider> authenticationProviderMaybe = this.identityProviderManager.get(endUser.getSource());
-            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticationProviderMaybe
+            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticationProviderMaybe
                     .filter(provider -> provider instanceof SocialAuthenticationProvider)
                     .flatMap(provider -> ((SocialAuthenticationProvider) provider).signOutUrl(authentication))
                     .map(Optional::ofNullable)
@@ -161,7 +161,7 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
                             LOGGER.debug("No logout endpoint has been found in the Identity Provider configuration");
                             return Maybe.just(Optional.<String>empty());
                         }
-                    }).apply(v)))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(endpoint -> handler.handle(Future.succeededFuture(endpoint)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> {
+                    }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(endpoint -> handler.handle(Future.succeededFuture(endpoint)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> {
                         LOGGER.warn("Unable to sign the end user out of the external OIDC '{}', only sign out of AM", client.getClientId(), err);
                         handler.handle(Future.succeededFuture(Optional.empty()));
                     })))

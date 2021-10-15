@@ -87,22 +87,20 @@ public class ApplicationResourcesResource extends AbstractResource {
             @QueryParam("size") @DefaultValue(MAX_RESOURCES_SIZE_PER_PAGE_STRING) int size,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.LIST)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.LIST)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMap(__ -> applicationService.findById(application))
-                        .switchIfEmpty(Maybe.error(new ApplicationNotFoundException(application)))
+                        .flatMap(__ -> applicationService.findById(application))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ApplicationNotFoundException(application))))))
                         .flatMapSingle(application1 -> resourceService.findByDomainAndClient(domain, application1.getId(), page, Integer.min(MAX_RESOURCES_SIZE_PER_PAGE, size)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Page<Resource>, SingleSource<Page>>toJdkFunction(pagedResources -> {
-                            return Observable.fromIterable(pagedResources.getData())
+                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(pagedResources.getData())
                                     .flatMapSingle(r -> resourceService.countAccessPolicyByResource(r.getId())
                                             .map(policies -> {
                                                 ResourceEntity resourceEntity = new ResourceEntity(r);
                                                 resourceEntity.setPolicies(policies);
                                                 return resourceEntity;
                                             }))
-                                    .toList()
-                                    .zipWith(resourceService.getMetadata((List<Resource>) pagedResources.getData()), (v1, v2) -> {
+                                    .toList()).zipWith(RxJava2Adapter.singleToMono(Single.wrap(resourceService.getMetadata((List<Resource>) pagedResources.getData()))), RxJavaReactorMigrationUtil.toJdkBiFunction((v1, v2) -> {
                                         return new Page(Collections.singletonList(new ResourceListItem(v1, v2)), page, pagedResources.getTotalCount());
-                                    });
+                                    })));
                         }).apply(v))))))
                 .subscribe(response::resume, response::resume);
     }

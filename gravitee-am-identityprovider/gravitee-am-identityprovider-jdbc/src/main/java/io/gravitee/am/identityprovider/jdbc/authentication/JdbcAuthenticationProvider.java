@@ -60,7 +60,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
         final String username = authentication.getPrincipal().toString();
         final String presentedPassword = authentication.getCredentials().toString();
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(selectUserByMultipleField(username)
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(selectUserByMultipleField(username)
                 .toList()
                 .flatMapPublisher(users -> {
                     if (users.isEmpty()) {
@@ -89,7 +89,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
                     }
 
                     return true;
-                })))).collectList().flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Map<String, Object>>, MaybeSource<User>>)users -> {
+                })).collectList().flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Map<String, Object>>, MaybeSource<User>>)users -> {
                     if (users.isEmpty()) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Bad credentials")));
                     }
@@ -104,7 +104,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
         String rawQuery = configuration.getSelectUserByMultipleFieldsQuery() != null ? configuration.getSelectUserByMultipleFieldsQuery() : configuration.getSelectUserByUsernameQuery();
         String[] args = prepareIndexParameters(rawQuery);
         final String sql = String.format(rawQuery, args);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(connectionPool.create()))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(connection -> {
+        return RxJava2Adapter.fluxToFlowable(Flux.from(connectionPool.create()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(connection -> {
                     Statement statement = connection.createStatement(sql);
                     for (int i = 0; i < args.length; ++i) {
                         statement = statement.bind(i, username);
@@ -130,8 +130,8 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
 
     private Maybe<Map<String, Object>> selectUserByUsername(String username) {
         final String sql = String.format(configuration.getSelectUserByUsernameQuery(), getIndexParameter(configuration.getUsernameAttribute()));
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(connectionPool.create())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(connection -> Flowable.fromPublisher(connection.createStatement(sql).bind(0, username).execute())
-                        .doFinally(() -> Completable.fromPublisher(connection.close()).subscribe()))))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(result -> result.map(ColumnMapRowMapper::mapRow))).next());
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(Flowable.fromPublisher(connectionPool.create())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(connection -> Flowable.fromPublisher(connection.createStatement(sql).bind(0, username).execute())
+                        .doFinally(() -> Completable.fromPublisher(connection.close()).subscribe()))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(result -> result.map(ColumnMapRowMapper::mapRow))).next());
     }
 
     private User createUser(AuthenticationContext authContext, Map<String, Object> claims) {

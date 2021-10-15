@@ -33,6 +33,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -55,7 +56,7 @@ public class BotDetectionPluginResource {
     public void get(@PathParam("botDetection") String botDetectionId,
                     @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(pluginService.findById(botDetectionId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new BotDetectionPluginNotFoundException(botDetectionId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(pluginService.findById(botDetectionId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new BotDetectionPluginNotFoundException(botDetectionId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -68,8 +69,8 @@ public class BotDetectionPluginResource {
                           @Suspended final AsyncResponse response) {
 
         // Check that the authenticator exists
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(pluginService.findById(botDetection)
-                .switchIfEmpty(Maybe.error(new BotDetectionPluginNotFoundException(botDetection)))).flatMap(z->pluginService.getSchema(botDetection).as(RxJava2Adapter::maybeToMono)))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new BotDetectionPluginSchemaNotFoundException(botDetection)))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(pluginService.findById(botDetection)
+                .switchIfEmpty(Maybe.error(new BotDetectionPluginNotFoundException(botDetection)))).flatMap(z->pluginService.getSchema(botDetection).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new BotDetectionPluginSchemaNotFoundException(botDetection))))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

@@ -69,10 +69,9 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
         RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(policyRepository.collectionExists()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)collectionExists -> {
                     if (collectionExists) {
                         LOGGER.info("Policies collection exists, upgrading policies to flows");
-                        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(policyRepository.findAll()
-                                .groupBy(Policy::getDomain)).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<GroupedFlowable<String, Policy>, CompletableSource>toJdkFunction(policiesPerDomain -> {
+                        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(policyRepository.findAll()).groupBy(RxJavaReactorMigrationUtil.toJdkFunction(Policy::getDomain)).map(RxJavaReactorMigrationUtil::groupedFluxToGroupedFlowable))).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<GroupedFlowable<String, Policy>, CompletableSource>toJdkFunction(policiesPerDomain -> {
                                     final String domain = policiesPerDomain.getKey();
-                                    return policiesPerDomain.toList().flatMapCompletable(policies -> migrateToFlows(policies, domain));
+                                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(policiesPerDomain.toList()).flatMap(x->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<List<Policy>, CompletableSource>toJdkFunction(policies -> migrateToFlows(policies, domain)).apply(x)))).then());
                                 }).apply(z)))).then().then(RxJava2Adapter.completableToMono(policyRepository.deleteCollection())));
                     } else {
                         LOGGER.info("Policies collection doesn't exist, skip upgrade");

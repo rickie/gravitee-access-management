@@ -31,6 +31,7 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -84,7 +85,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
         LOGGER.debug("Dynamic client registration PATCH endpoint");
 
         RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.getClient(context)
-                .flatMapSingle(Single::just)).flatMap(client->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.extractRequest(context)).flatMap(request->RxJava2Adapter.singleToMono(dcrService.patch(client, request, UriBuilderRequest.resolveProxyRequest(context)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))))
+                .flatMapSingle(Single::just)).flatMap(client->RxJava2Adapter.singleToMono(this.extractRequest(context)).flatMap(request->RxJava2Adapter.singleToMono(dcrService.patch(client, request, UriBuilderRequest.resolveProxyRequest(context)))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))))
                 .subscribe(
                         client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -104,7 +105,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
         LOGGER.debug("Dynamic client registration UPDATE endpoint");
 
         RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.getClient(context)
-                .flatMapSingle(Single::just)).flatMap(client->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.extractRequest(context)).flatMap(request->RxJava2Adapter.singleToMono(dcrService.update(client, request, UriBuilderRequest.resolveProxyRequest(context)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))))
+                .flatMapSingle(Single::just)).flatMap(client->RxJava2Adapter.singleToMono(this.extractRequest(context)).flatMap(request->RxJava2Adapter.singleToMono(dcrService.update(client, request, UriBuilderRequest.resolveProxyRequest(context)))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))))
                 .subscribe(
                         client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -154,6 +155,6 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     private Maybe<Client> getClient(RoutingContext context) {
         String clientId = context.request().getParam("client_id");
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.clientSyncService.findByClientId(clientId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new ResourceNotFoundException("client not found")))).map(RxJavaReactorMigrationUtil.toJdkFunction(Client::clone)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.clientSyncService.findByClientId(clientId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new ResourceNotFoundException("client not found"))))).map(RxJavaReactorMigrationUtil.toJdkFunction(Client::clone)));
     }
 }

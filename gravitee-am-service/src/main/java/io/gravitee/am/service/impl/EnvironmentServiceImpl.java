@@ -108,7 +108,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
                     environment.setHrids(newEnvironment.getHrids());
 
                     return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(updateInternal(environment, byUser)));
-                }).apply(v)))).switchIfEmpty(Mono.defer(()->RxJava2Adapter.singleToMono(organizationService.findById(organizationId).map((io.gravitee.am.model.Organization organization)->{
+                }).apply(v)))).switchIfEmpty(Mono.defer(()->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationService.findById(organizationId).map((io.gravitee.am.model.Organization organization)->{
 Environment toCreate = new Environment();
 toCreate.setId(environmentId);
 toCreate.setHrids(newEnvironment.getHrids());
@@ -117,7 +117,7 @@ toCreate.setDescription(newEnvironment.getDescription());
 toCreate.setOrganizationId(organization.getId());
 toCreate.setDomainRestrictions(newEnvironment.getDomainRestrictions());
 return toCreate;
-}).flatMap((io.gravitee.am.model.Environment toCreate)->createInternal(toCreate, byUser))))));
+})).flatMap(toCreate->RxJava2Adapter.singleToMono(createInternal(toCreate, byUser))))))));
     }
 
     private Single<Environment> createInternal(Environment toCreate, User createdBy) {

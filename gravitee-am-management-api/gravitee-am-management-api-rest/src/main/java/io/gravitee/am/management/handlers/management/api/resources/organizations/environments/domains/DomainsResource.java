@@ -40,6 +40,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -81,14 +82,14 @@ public class DomainsResource extends AbstractDomainResource {
             @Suspended final AsyncResponse response) {
 
         User authenticatedUser = getAuthenticatedUser();
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN, Acl.LIST)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN, Acl.LIST)
                 .andThen(query != null ? domainService.search(organizationId, environmentId, query) : domainService.findAllByEnvironment(organizationId, environmentId))
                 .flatMapMaybe(domain -> hasPermission(authenticatedUser,
                         or(of(ReferenceType.DOMAIN, domain.getId(), Permission.DOMAIN, Acl.READ),
                                 of(ReferenceType.ENVIRONMENT, environmentId, Permission.DOMAIN, Acl.READ),
                                 of(ReferenceType.ORGANIZATION, organizationId, Permission.DOMAIN, Acl.READ)))
                         .filter(Boolean::booleanValue).map(permit -> domain))
-                .map(this::filterDomainInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(domains -> new Page<Domain>(domains.stream().skip((long) page * size).limit(size).collect(Collectors.toList()), page, domains.size()))))
+                .map(this::filterDomainInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(domains -> new Page<Domain>(domains.stream().skip((long) page * size).limit(size).collect(Collectors.toList()), page, domains.size()))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -110,9 +111,7 @@ public class DomainsResource extends AbstractDomainResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN, Acl.CREATE)).then(RxJava2Adapter.singleToMono(domainService.create(organizationId, environmentId, newDomain, authenticatedUser)
-                        // create default idp (ignore if mongodb isn't the repositories backend)
-                        .flatMap(domain -> identityProviderManager.create(domain.getId()).map(__ -> domain))).flatMap(domain->RxJava2Adapter.singleToMono(reporterService.createDefault(domain.getId()).map((io.gravitee.am.model.Reporter __)->domain)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN, Acl.CREATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(domainService.create(organizationId, environmentId, newDomain, authenticatedUser)).flatMap(domain->RxJava2Adapter.singleToMono(identityProviderManager.create(domain.getId()).map((io.gravitee.am.model.IdentityProvider __)->domain))))).flatMap(domain->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(reporterService.createDefault(domain.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Reporter __)->domain)))))))
                 .subscribe(domain -> response.resume(Response.created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain.getId()))
                         .entity(domain).build()), response::resume);
     }
@@ -133,7 +132,7 @@ public class DomainsResource extends AbstractDomainResource {
                     @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(domainService.findByHrid(environmentId, hrid)).flatMap(domain->RxJava2Adapter.completableToMono(checkAnyPermission(authenticatedUser, organizationId, environmentId, domain.getId(), Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.defer(()->findAllPermissions(authenticatedUser, organizationId, environmentId, domain.getId()).map((java.util.Map<io.gravitee.am.model.ReferenceType, java.util.Map<io.gravitee.am.model.permissions.Permission, java.util.Set<io.gravitee.am.model.Acl>>> userPermissions)->filterDomainInfos(domain, userPermissions))))))).subscribe(response::resume, response::resume);
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(domainService.findByHrid(environmentId, hrid)).flatMap(domain->RxJava2Adapter.completableToMono(checkAnyPermission(authenticatedUser, organizationId, environmentId, domain.getId(), Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.defer(()->RxJava2Adapter.singleToMono(findAllPermissions(authenticatedUser, organizationId, environmentId, domain.getId()).map((java.util.Map<io.gravitee.am.model.ReferenceType, java.util.Map<io.gravitee.am.model.permissions.Permission, java.util.Set<io.gravitee.am.model.Acl>>> userPermissions)->filterDomainInfos(domain, userPermissions))))))))).subscribe(response::resume, response::resume);
     }
 
 

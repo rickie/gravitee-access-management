@@ -208,16 +208,16 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
     }
 
     private Flowable<Domain> completeDomain(Domain entity) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.just(entity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(Flowable.just(entity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
                 identitiesRepository.findAllByDomainId(domain.getId()).map(JdbcDomain.Identity::getIdentity).toList().toFlowable().map(idps -> {
                     domain.setIdentities(new HashSet<>(idps));
                     return domain;
-                }))))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
-                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(tagRepository.findAllByDomainId(domain.getId()).map(JdbcDomain.Tag::getTag).toList().toFlowable()).map(RxJavaReactorMigrationUtil.toJdkFunction(tags -> {
+                }))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
+                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(tagRepository.findAllByDomainId(domain.getId()).map(JdbcDomain.Tag::getTag).toList()).flux())).map(RxJavaReactorMigrationUtil.toJdkFunction(tags -> {
                     domain.setTags(new HashSet<>(tags));
                     return domain;
                 }))))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
-                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(vHostsRepository.findAllByDomainId(domain.getId()).map(this::toVirtualHost).toList()).flux().map(RxJavaReactorMigrationUtil.toJdkFunction(vhosts -> {
+                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(vHostsRepository.findAllByDomainId(domain.getId()).map(this::toVirtualHost)).collectList())).flux().map(RxJavaReactorMigrationUtil.toJdkFunction(vhosts -> {
                     domain.setVhosts(vhosts);
                     return domain;
                 }))))));

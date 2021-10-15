@@ -100,8 +100,8 @@ public class CompositeTokenGranter implements TokenGranter, InitializingBean {
 
     @Override
     public Single<Token> grant(TokenRequest tokenRequest, Client client) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable
-                .fromIterable(tokenGranters.values()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(tokenGranter -> tokenGranter.handle(tokenRequest.getGrantType(), client)))), BackpressureStrategy.BUFFER).next().switchIfEmpty(Mono.error(new UnsupportedGrantTypeException("Unsupported grant type: " + tokenRequest.getGrantType()))))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
+                .fromIterable(tokenGranters.values()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(tokenGranter -> tokenGranter.handle(tokenRequest.getGrantType(), client))).next().switchIfEmpty(Mono.error(new UnsupportedGrantTypeException("Unsupported grant type: " + tokenRequest.getGrantType()))))
                 .flatMapSingle(tokenGranter -> tokenGranter.grant(tokenRequest, client));
     }
 

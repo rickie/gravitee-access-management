@@ -128,9 +128,9 @@ public class LinkedinAuthenticationProvider extends AbstractSocialAuthentication
 
     @Override
     protected Maybe<User> profile(Token accessToken, Authentication authentication) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserProfileUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserProfileUri())
                 .putHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken.getValue())
-                .rxSend()))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
+                .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
                     if (httpClientResponse.statusCode() != 200) {
                         throw new BadCredentialsException(httpClientResponse.statusMessage());
                     }

@@ -73,14 +73,14 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
     public Single<Page<Scope>> findByDomain(String domain, int page, int size) {
 
         LOGGER.debug("findByDomain({}, {}, {})", domain, page, size);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
                 .from("scopes")
                 .project("*")
                 .matching(from(where("domain").is(domain)))
                 .orderBy(Sort.Order.by("scopes."+databaseDialectHelper.toSql(SqlIdentifier.quoted("key"))))
                 .page(PageRequest.of(page, size))
                 .as(JdbcScope.class).fetch().all())
-                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> completeWithClaims(Maybe.just(scope), scope.getId()).toFlowable())))).collectList().flatMap(content->RxJava2Adapter.singleToMono(countByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<>(content, page, count)))));
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> completeWithClaims(Maybe.just(scope), scope.getId()).toFlowable())).collectList().flatMap(content->RxJava2Adapter.singleToMono(countByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<>(content, page, count)))));
     }
 
     private Single<Long> countByDomain(String domain) {
@@ -100,16 +100,16 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
         String search = this.databaseDialectHelper.buildSearchScopeQuery(wildcardSearch, page, size);
         String count = this.databaseDialectHelper.buildCountScopeQuery(wildcardSearch);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.execute(search)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.execute(search)
                 .bind("domain", domain)
                 .bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase())
                 .as(JdbcScope.class)
                 .fetch().all())
-                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> completeWithClaims(Maybe.just(scope), scope.getId()).toFlowable())))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<>(data, page, total)))));
+                .map(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> completeWithClaims(Maybe.just(scope), scope.getId()).toFlowable())).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<>(data, page, total)))));
     }
 
     private Maybe<Scope> completeWithClaims(Maybe<Scope> maybeScope, String id) {
-        Maybe<List<String>> scopeClaims = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(claimRepository.findByScopeId(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcScope.Claims::getClaim)))).collectList());
+        Maybe<List<String>> scopeClaims = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(claimRepository.findByScopeId(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcScope.Claims::getClaim)).collectList());
 
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeScope).zipWith(RxJava2Adapter.maybeToMono(scopeClaims), RxJavaReactorMigrationUtil.toJdkBiFunction((scope, claims) -> {
             LOGGER.debug("findById({}) fetch {} scopeClaims", id, claims == null ? 0 : claims.size());
