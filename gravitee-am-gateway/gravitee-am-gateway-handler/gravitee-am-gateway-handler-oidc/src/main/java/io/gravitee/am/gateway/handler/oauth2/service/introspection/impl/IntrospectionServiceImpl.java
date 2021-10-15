@@ -50,14 +50,13 @@ public class IntrospectionServiceImpl implements IntrospectionService {
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tokenService.introspect(introspectionRequest.getToken())).flatMap(v->RxJava2Adapter.singleToMono((Single<IntrospectionResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<IntrospectionResponse>>)token -> {
                     AccessToken accessToken = (AccessToken) token;
                     if (accessToken.getSubject() != null && !accessToken.getSubject().equals(accessToken.getClientId())) {
-                        return userService
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService
                                 .findById(accessToken.getSubject())
                                 .map(user -> convert(accessToken, user))
-                                .defaultIfEmpty(convert(accessToken, null))
-                                .toSingle();
+                                .defaultIfEmpty(convert(accessToken, null))).single());
 
                     } else {
-                        return Single.just(convert(accessToken, null));
+                        return RxJava2Adapter.monoToSingle(Mono.just(convert(accessToken, null)));
                     }
                 }).apply(v))))
                 .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(new IntrospectionResponse(false))));

@@ -42,12 +42,12 @@ public class JdbcAuthenticationProviderConfigurationTest_MSSQL extends JdbcAuthe
     protected void initData(Connection connection) {
         RxJava2Adapter.singleToMono(Single.fromPublisher(connection.createStatement("create table users(id varchar(256), username varchar(256), password varchar(256), email varchar(256), metadata text)").execute())).block();
         RxJava2Adapter.singleToMono(Single.fromPublisher(connection.createStatement("insert into users values('1', 'bob', 'bobspassword', null, null)").execute())).block();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(connection.createStatement("insert into users(id, username, password, email, metadata) values( @id, @username, @password, @email , @metadata)")
+        RxJava2Adapter.singleToMono(Single.fromPublisher(connection.createStatement("insert into users(id, username, password, email, metadata) values( @id, @username, @password, @email , @metadata)")
                 .bind("id", "2")
                 .bind("username", "user01")
                 .bind("password", "user01")
                 .bind("email", "user01@acme.com")
                 .bindNull("metadata", String.class)
-                .execute())).flatMap(rp->RxJava2Adapter.singleToMono(Single.fromPublisher(rp.getRowsUpdated()))))).block();
+                .execute())).flatMap(rp->RxJava2Adapter.singleToMono(Single.fromPublisher(rp.getRowsUpdated()))).block();
     }
 }

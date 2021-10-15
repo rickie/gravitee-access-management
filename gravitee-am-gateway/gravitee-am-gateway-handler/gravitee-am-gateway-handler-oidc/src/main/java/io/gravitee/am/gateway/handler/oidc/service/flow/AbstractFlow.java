@@ -78,7 +78,7 @@ public abstract class AbstractFlow implements Flow {
         jwtAuthorizationResponse.setExp(Instant.now().plusSeconds(codeValidityInSec).getEpochSecond());
 
         // Sign if needed, else return unsigned JWT
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.encodeAuthorization(jwtAuthorizationResponse.build(), client)).flatMap(authorization->RxJava2Adapter.singleToMono(jweService.encryptAuthorization(authorization, client))))).map(RxJavaReactorMigrationUtil.toJdkFunction(token -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.encodeAuthorization(jwtAuthorizationResponse.build(), client)).flatMap(authorization->RxJava2Adapter.singleToMono(jweService.encryptAuthorization(authorization, client))).map(RxJavaReactorMigrationUtil.toJdkFunction(token -> {
                     jwtAuthorizationResponse.setResponseType(authorizationRequest.getResponseType());
                     jwtAuthorizationResponse.setResponseMode(authorizationRequest.getResponseMode());
                     jwtAuthorizationResponse.setToken(token);

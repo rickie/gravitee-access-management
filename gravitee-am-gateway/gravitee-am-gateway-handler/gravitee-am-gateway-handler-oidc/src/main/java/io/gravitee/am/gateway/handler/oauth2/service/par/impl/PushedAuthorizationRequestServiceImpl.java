@@ -91,7 +91,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
             // Extract the identifier
             String identifier = requestUri.substring(PAR_URN_PREFIX.length());
 
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(parRepository.findById(identifier)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new InvalidRequestUriException())))))).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PushedAuthorizationRequest, Single<JWT>>)(Function<PushedAuthorizationRequest, Single<JWT>>)req -> {
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(parRepository.findById(identifier)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new InvalidRequestUriException())))).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PushedAuthorizationRequest, Single<JWT>>)(Function<PushedAuthorizationRequest, Single<JWT>>)req -> {
                         if (req.getParameters() != null &&
                                 req.getExpireAt() != null &&
                                 req.getExpireAt().after(new Date())) {
@@ -100,7 +100,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
                             if (request != null) {
                                 return readRequestObject(client, request);
                             } else if (this.domain.usePlainFapiProfile()) {
-                                return Single.error(new InvalidRequestException("request parameter is missing"));
+                                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("request parameter is missing")));
                             } else {
                                 // request object isn't specified, create a PlainJWT based on the parameters
                                 final JWTClaimsSet.Builder builder = new JWTClaimsSet
@@ -108,10 +108,10 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
                                         .audience(oidcMetadata.getIssuer())
                                         .expirationTime(req.getExpireAt());
                                 req.getParameters().toSingleValueMap().forEach(builder::claim);
-                                return Single.just(new PlainJWT(builder.build()));
+                                return RxJava2Adapter.monoToSingle(Mono.just(new PlainJWT(builder.build())));
                             }
                         }
-                        return Single.error(new InvalidRequestUriException());
+                        return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestUriException()));
                     }).apply(v))));
         } else {
             return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Invalid request_uri")));
@@ -137,14 +137,14 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
 
         final String request = par.getParameters().getFirst(io.gravitee.am.common.oidc.Parameters.REQUEST);
         if (request != null) {
-            registrationValidation = RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(registrationValidation).then(RxJava2Adapter.singleToMono(Single.wrap(Single.defer(() ->
+            registrationValidation = RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(registrationValidation).then(RxJava2Adapter.singleToMono(Single.wrap(Single.defer(() ->
                             readRequestObject(client, request)
-                            .map(jwt -> checkRedirectUriParameter(jwt, client)))))))).then());
+                            .map(jwt -> checkRedirectUriParameter(jwt, client)))))).then());
         } else {
-            RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(registrationValidation).then(RxJava2Adapter.completableToMono(Completable.fromAction(() -> checkRedirectUriParameter(par, client)))));
+            RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(registrationValidation).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.fromRunnable(RxJavaReactorMigrationUtil.toRunnable(() -> checkRedirectUriParameter(par, client)))))));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(registrationValidation).then(RxJava2Adapter.singleToMono(Single.wrap(Single.defer(() -> parRepository.create(par))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(parPersisted -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(registrationValidation).then(RxJava2Adapter.singleToMono(Single.wrap(Single.defer(() -> parRepository.create(par))))).map(RxJavaReactorMigrationUtil.toJdkFunction(parPersisted -> {
             final PushedAuthorizationRequestResponse response = new PushedAuthorizationRequestResponse();
             response.setRequestUri(PAR_URN_PREFIX + parPersisted.getId());
             // the lifetime of the request URI in seconds as a positive integer
@@ -168,7 +168,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
     }
 
     private Single<JWT> readRequestObject(Client client, String request) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jweService.decrypt(request, false)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jweService.decrypt(request, false)
                 .onErrorResumeNext((ex) -> {
                     if (ex instanceof OAuth2Exception) {
                         return Single.error(ex);
@@ -176,7 +176,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
                     LOGGER.debug("JWT invalid for the request parameter", ex);
                     return Single.error(new InvalidRequestObjectException());
                 })
-                .map(this::checkRequestObjectClaims)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectAlgorithm)))).flatMap(jwt->RxJava2Adapter.singleToMono(validateSignature((SignedJWT)jwt, client))));
+                .map(this::checkRequestObjectClaims)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectAlgorithm)).flatMap(jwt->RxJava2Adapter.singleToMono(validateSignature((SignedJWT)jwt, client))));
     }
 
     private JWT checkRequestObjectClaims(JWT jwt) {
@@ -208,13 +208,13 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
     }
 
     private Single<JWT> validateSignature(SignedJWT jwt, Client client) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwkService.getKeys(client)
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwkService.getKeys(client)
                 .switchIfEmpty(Maybe.error(new InvalidRequestObjectException()))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWKSet, MaybeSource<JWK>>toJdkFunction(new Function<JWKSet, MaybeSource<JWK>>() {
                     @Override
                     public MaybeSource<JWK> apply(JWKSet jwkSet) throws Exception {
                         return jwkService.getKey(jwkSet, jwt.getHeader().getKeyID());
                     }
-                }).apply(v)))))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new InvalidRequestObjectException("Invalid key ID")))))
+                }).apply(v)))).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidRequestObjectException("Invalid key ID"))))))
                 .flatMapSingle(new Function<JWK, SingleSource<JWT>>() {
                     @Override
                     public SingleSource<JWT> apply(JWK jwk) throws Exception {

@@ -72,9 +72,9 @@ public class RefreshTokenRepositoryTest extends AbstractOAuthTest {
         token.setId("my-token");
         token.setToken("my-token");
 
-        TestObserver<RefreshToken> testObserver = RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(refreshTokenRepository
+        TestObserver<RefreshToken> testObserver = RxJava2Adapter.completableToMono(refreshTokenRepository
                 .create(token)
-                .toCompletable()).then(RxJava2Adapter.completableToMono(Completable.wrap(refreshTokenRepository.delete("my-token"))))).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken("my-token"))).as(RxJava2Adapter::monoToMaybe)
+                .toCompletable()).then(RxJava2Adapter.completableToMono(Completable.wrap(refreshTokenRepository.delete("my-token")))).then(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken("my-token"))).as(RxJava2Adapter::monoToMaybe)
                 .test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoValues();
@@ -96,8 +96,8 @@ public class RefreshTokenRepositoryTest extends AbstractOAuthTest {
         token2.setDomain("domain-id2");
         token2.setSubject("user-id2");
 
-        TestObserver<RefreshToken> testObserver = RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(refreshTokenRepository
-                .bulkWrite(Arrays.asList(token1, token2))).then(RxJava2Adapter.completableToMono(Completable.wrap(refreshTokenRepository.deleteByDomainIdClientIdAndUserId("domain-id", "client-id", "user-id"))))).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken("my-token"))).as(RxJava2Adapter::monoToMaybe)
+        TestObserver<RefreshToken> testObserver = RxJava2Adapter.completableToMono(refreshTokenRepository
+                .bulkWrite(Arrays.asList(token1, token2))).then(RxJava2Adapter.completableToMono(Completable.wrap(refreshTokenRepository.deleteByDomainIdClientIdAndUserId("domain-id", "client-id", "user-id")))).then(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken("my-token"))).as(RxJava2Adapter::monoToMaybe)
                 .test();
         testObserver.awaitTerminalEvent();
 
@@ -122,8 +122,8 @@ public class RefreshTokenRepositoryTest extends AbstractOAuthTest {
         token2.setDomain("domain-id2");
         token2.setSubject("user-id2");
 
-        TestObserver<RefreshToken> testObserver = RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(refreshTokenRepository
-                .bulkWrite(Arrays.asList(token1, token2))).then(RxJava2Adapter.completableToMono(Completable.wrap(refreshTokenRepository.deleteByDomainIdAndUserId("domain-id", "user-id"))))).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken("my-token"))).as(RxJava2Adapter::monoToMaybe)
+        TestObserver<RefreshToken> testObserver = RxJava2Adapter.completableToMono(refreshTokenRepository
+                .bulkWrite(Arrays.asList(token1, token2))).then(RxJava2Adapter.completableToMono(Completable.wrap(refreshTokenRepository.deleteByDomainIdAndUserId("domain-id", "user-id")))).then(RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken("my-token"))).as(RxJava2Adapter::monoToMaybe)
                 .test();
         testObserver.awaitTerminalEvent();
         assertEquals(0, testObserver.valueCount());

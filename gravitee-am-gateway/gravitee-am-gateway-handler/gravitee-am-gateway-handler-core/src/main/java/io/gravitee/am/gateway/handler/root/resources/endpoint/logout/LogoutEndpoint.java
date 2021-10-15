@@ -119,7 +119,7 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
         // or had a recent session at the OP, even when the exp time has passed.
         if (routingContext.request().getParam(Parameters.ID_TOKEN_HINT) != null) {
             final String idToken = routingContext.request().getParam(Parameters.ID_TOKEN_HINT);
-            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(jwtService.decode(idToken)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(jwt -> clientSyncService.findByClientId(jwt.getAud())).apply(e)))))).flatMap(z->RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwtService.decodeAndVerify(idToken, z).toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.common.jwt.JWT __)->z))).onErrorResumeNext((java.lang.Throwable ex)->(ex instanceof ExpiredJWTException) ? RxJava2Adapter.monoToMaybe(Mono.just(z)) : RxJava2Adapter.monoToMaybe(Mono.error(ex))).as(RxJava2Adapter::maybeToMono)))
+            RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(jwtService.decode(idToken)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(jwt -> clientSyncService.findByClientId(jwt.getAud())).apply(e)))).flatMap(z->RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(jwtService.decodeAndVerify(idToken, z)))).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.common.jwt.JWT __)->z))).onErrorResumeNext((java.lang.Throwable ex)->(ex instanceof ExpiredJWTException) ? RxJava2Adapter.monoToMaybe(Mono.just(z)) : RxJava2Adapter.monoToMaybe(Mono.error(ex))).as(RxJava2Adapter::maybeToMono)))
                     .subscribe(
                             client -> handler.handle(Future.succeededFuture(client)),
                             error -> handler.handle(Future.succeededFuture()),
@@ -132,7 +132,7 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
             }
             // get client from the user's last application
             final io.gravitee.am.model.User endUser = ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User) routingContext.user().getDelegate()).getUser();
-            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(clientSyncService.findById(endUser.getClient())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.defer(() -> clientSyncService.findByClientId(endUser.getClient())))))
+            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(clientSyncService.findById(endUser.getClient())).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.defer(()->RxJava2Adapter.maybeToMono(clientSyncService.findByClientId(endUser.getClient())))))))
                     .subscribe(
                             client -> handler.handle(Future.succeededFuture(client)),
                             error -> handler.handle(Future.succeededFuture()),
@@ -150,7 +150,7 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
             final Authentication authentication = new EndUserAuthentication(endUser, null, authenticationContext);
 
             final Maybe<AuthenticationProvider> authenticationProviderMaybe = this.identityProviderManager.get(endUser.getSource());
-            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticationProviderMaybe
+            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticationProviderMaybe
                     .filter(provider -> provider instanceof SocialAuthenticationProvider)
                     .flatMap(provider -> ((SocialAuthenticationProvider) provider).signOutUrl(authentication))
                     .map(Optional::ofNullable)
@@ -162,7 +162,7 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
                             LOGGER.debug("No logout endpoint has been found in the Identity Provider configuration");
                             return Maybe.just(Optional.<String>empty());
                         }
-                    })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(endpoint -> handler.handle(Future.succeededFuture(endpoint)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> {
+                    })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(endpoint -> handler.handle(Future.succeededFuture(endpoint)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> {
                         LOGGER.warn("Unable to sign the end user out of the external OIDC '{}', only sign out of AM", client.getClientId(), err);
                         handler.handle(Future.succeededFuture(Optional.empty()));
                     })))
@@ -188,14 +188,14 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
             // this state will be restored during after the redirect triggered by the external idp
             routingContext.request().params().remove(io.gravitee.am.common.oauth2.Parameters.STATE);
 
-            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.encode(stateJwt, certificateManager.defaultCertificateProvider())).map(RxJavaReactorMigrationUtil.toJdkFunction(state -> {
+            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(jwtService.encode(stateJwt, certificateManager.defaultCertificateProvider())).map(RxJavaReactorMigrationUtil.toJdkFunction(state -> {
                 String redirectUri = UriBuilderRequest.resolveProxyRequest(routingContext.request(), routingContext.get(CONTEXT_PATH) + "/logout/callback");
                 UriBuilder builder = UriBuilder.fromHttpUrl(endpoint.getUri());
                 builder.addParameter(Parameters.POST_LOGOUT_REDIRECT_URI, redirectUri);
                 builder.addParameter(Parameters.ID_TOKEN_HINT, (String) endUser.getAdditionalInformation().get(ConstantKeys.OIDC_PROVIDER_ID_TOKEN_KEY));
                 builder.addParameter(io.gravitee.am.common.oauth2.Parameters.STATE, state);
                 return Optional.of(builder.buildString());
-            })))));
+            })));
         } else {
             // other case not yet implemented, return empty to log out only of AM.
             return RxJava2Adapter.monoToMaybe(Mono.empty());

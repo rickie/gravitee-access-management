@@ -66,7 +66,7 @@ public class RefreshTokenGranter extends AbstractTokenGranter {
             return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("A refresh token must be supplied.")));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client)).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getTokenService().refresh(refreshToken, tokenRequest, client)).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.gateway.handler.oauth2.service.token.Token refreshToken1)->{
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client)).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(getTokenService().refresh(refreshToken, tokenRequest, client)).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.gateway.handler.oauth2.service.token.Token refreshToken1)->{
 if (refreshToken1.getSubject() != null) {
 tokenRequest1.setSubject(refreshToken1.getSubject());
 }
@@ -80,7 +80,7 @@ tokenRequest1.setScopes(filteredScopes);
 }
 tokenRequest1.setRefreshToken(refreshToken1.getAdditionalInformation());
 return tokenRequest1;
-}))))));
+}))));
     }
 
     @Override

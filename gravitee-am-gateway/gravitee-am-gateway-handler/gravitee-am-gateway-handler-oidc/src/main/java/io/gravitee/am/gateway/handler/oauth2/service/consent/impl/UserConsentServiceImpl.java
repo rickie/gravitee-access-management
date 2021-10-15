@@ -59,10 +59,10 @@ public class UserConsentServiceImpl implements UserConsentService {
 
     @Override
     public Single<Set<String>> checkConsent(Client client, io.gravitee.am.model.User user) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalService.findByDomainAndUserAndClient(domain.getId(), user.getId(), client.getClientId())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(approval -> {
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalService.findByDomainAndUserAndClient(domain.getId(), user.getId(), client.getClientId())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(approval -> {
                     Date today = new Date();
                     return (approval.getExpiresAt().after(today) && approval.getStatus() == ScopeApproval.ApprovalStatus.APPROVED);
-                })))).map(RxJavaReactorMigrationUtil.toJdkFunction(ScopeApproval::getScope)))
+                })).map(RxJavaReactorMigrationUtil.toJdkFunction(ScopeApproval::getScope)))
                 .collect(HashSet::new, Set::add);
     }
 

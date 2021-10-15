@@ -106,7 +106,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
             return RxJava2Adapter.monoToSingle(Mono.error(new InternalAuthenticationServiceException("No identity provider found for client : " + client.getClientId())));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(identities)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(identities)
                 .flatMapMaybe(authProvider -> authenticate0(client, authentication, authProvider, preAuthenticated))
                 .takeUntil(userAuthentication -> userAuthentication.getUser() != null || userAuthentication.getLastException() instanceof AccountLockedException)
                 .lastOrError()
@@ -136,7 +136,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
                         // complete user connection
                         return connect(user);
                     }
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> eventManager.publishEvent(AuthenticationEvent.SUCCESS, new AuthenticationDetails(authentication, domain, client, user)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> eventManager.publishEvent(AuthenticationEvent.FAILURE, new AuthenticationDetails(authentication, domain, client, throwable)))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> eventManager.publishEvent(AuthenticationEvent.SUCCESS, new AuthenticationDetails(authentication, domain, client, user)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> eventManager.publishEvent(AuthenticationEvent.FAILURE, new AuthenticationDetails(authentication, domain, client, throwable)))));
     }
 
     @Override
@@ -197,11 +197,11 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
     }
 
     private Maybe<UserAuthentication> authenticate0(Client client, Authentication authentication, String authProvider, boolean preAuthenticated) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.completableToMono(preAuthentication(client, authentication, authProvider)).then(RxJava2Adapter.maybeToMono(Maybe.wrap(loadUserByUsername0(client, authentication, authProvider, preAuthenticated)))))).flatMap(z->RxJava2Adapter.monoToMaybe(RxJava2Adapter.completableToMono(postAuthentication(client, authentication, authProvider, z)).then(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.just(z))))).as(RxJava2Adapter::maybeToMono)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.completableToMono(preAuthentication(client, authentication, authProvider)).then(RxJava2Adapter.maybeToMono(Maybe.wrap(loadUserByUsername0(client, authentication, authProvider, preAuthenticated)))).flatMap(z->RxJava2Adapter.completableToMono(postAuthentication(client, authentication, authProvider, z)).then(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.just(z))))));
     }
 
     private Maybe<UserAuthentication> loadUserByUsername0(Client client, Authentication authentication, String authProvider, boolean preAuthenticated) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.get(authProvider)
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.get(authProvider)
                 .switchIfEmpty(Maybe.error(new BadCredentialsException("Unable to load authentication provider " + authProvider + ", an error occurred during the initialization stage")))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(authenticationProvider -> {
                     logger.debug("Authentication attempt using identity provider {} ({})", authenticationProvider, authenticationProvider.getClass().getName());
                     return Maybe.just(preAuthenticated)
@@ -219,7 +219,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
                                 }
                             })
                             .switchIfEmpty(Maybe.error(new UsernameNotFoundException(authentication.getPrincipal().toString())));
-                }).apply(v)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
+                }).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                     logger.debug("Successfully Authenticated: " + authentication.getPrincipal() + " with provider authentication provider " + authProvider);
                     Map<String, Object> additionalInformation = user.getAdditionalInformation() == null ? new HashMap<>() : new HashMap<>(user.getAdditionalInformation());
                     additionalInformation.put("source", authProvider);
@@ -250,9 +250,9 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
                     .identityProvider(source)
                     .username(username)
                     .build();
-            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptService
+            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(loginAttemptService
                     .checkAccount(criteria, accountSettings)
-                    .map(Optional::of)).defaultIfEmpty(Optional.empty()))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<LoginAttempt>, CompletableSource>)optLoginAttempt -> {
+                    .map(Optional::of)).defaultIfEmpty(Optional.empty()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<LoginAttempt>, CompletableSource>)optLoginAttempt -> {
                         if (optLoginAttempt.isPresent() && optLoginAttempt.get().isAccountLocked(accountSettings.getMaxLoginAttempts())) {
                             Map<String, String> details = new HashMap<>();
                             details.put("attempt_id", optLoginAttempt.get().getId());
@@ -285,7 +285,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
                                         if (loginAttempt.isAccountLocked(accountSettings.getMaxLoginAttempts())) {
                                             return userAuthenticationService.lockAccount(criteria, accountSettings, client, user);
                                         }
-                                        return Completable.complete();
+                                        return RxJava2Adapter.monoToCompletable(Mono.empty());
                                     }).apply(z)))).then());
                         }).apply(y)))).then());
             }

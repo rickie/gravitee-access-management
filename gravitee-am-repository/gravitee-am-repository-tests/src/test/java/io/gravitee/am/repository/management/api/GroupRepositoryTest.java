@@ -188,7 +188,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldFindAll() {
-        List<Group> emptyList = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).collectList())).block();
+        List<Group> emptyList = RxJava2Adapter.flowableToFlux(repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).collectList().block();
         assertNotNull(emptyList);
         assertTrue(emptyList.isEmpty());
 
@@ -205,12 +205,12 @@ public class GroupRepositoryTest extends AbstractManagementTest {
             RxJava2Adapter.singleToMono(repository.create(item)).block();
         }
 
-        List<Group> groupOfDomain = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).collectList())).block();
+        List<Group> groupOfDomain = RxJava2Adapter.flowableToFlux(repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).collectList().block();
         assertNotNull(groupOfDomain);
         assertEquals(loop, groupOfDomain.size());
         assertEquals(loop, groupOfDomain.stream().filter(g -> g.getReferenceId().equals(DOMAIN_ID) && g.getReferenceType() == ReferenceType.DOMAIN).count());
 
-        groupOfDomain = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).collectList())).block();
+        groupOfDomain = RxJava2Adapter.flowableToFlux(repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).collectList().block();
         assertNotNull(groupOfDomain);
         assertEquals(loop, groupOfDomain.size());
         assertEquals(loop, groupOfDomain.stream().filter(g -> g.getReferenceId().equals(DOMAIN_ID) && g.getReferenceType() == ReferenceType.DOMAIN).count());
@@ -218,7 +218,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldFindAll_WithPage() {
-        List<Group> emptyList = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).collectList())).block();
+        List<Group> emptyList = RxJava2Adapter.flowableToFlux(repository.findAll(ReferenceType.DOMAIN, DOMAIN_ID)).collectList().block();
         assertNotNull(emptyList);
         assertTrue(emptyList.isEmpty());
 

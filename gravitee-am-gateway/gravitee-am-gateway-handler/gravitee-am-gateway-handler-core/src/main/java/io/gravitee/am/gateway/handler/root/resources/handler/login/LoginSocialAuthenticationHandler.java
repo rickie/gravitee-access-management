@@ -150,7 +150,7 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
                     // get social identity provider type (currently use for display purpose (logo, description, ...)
                     identityProvider.setType(socialProviders.getOrDefault(identityProvider.getType(), identityProvider.getType()));
                     // get social sign in url
-                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(getAuthorizeUrl(identityProvider.getId(), context)).map(RxJavaReactorMigrationUtil.toJdkFunction(authorizeUrl -> new SocialProviderData(identityProvider, authorizeUrl))))).defaultIfEmpty(new SocialProviderData(identityProvider, null)));
+                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(getAuthorizeUrl(identityProvider.getId(), context)).map(RxJavaReactorMigrationUtil.toJdkFunction(authorizeUrl -> new SocialProviderData(identityProvider, authorizeUrl))).defaultIfEmpty(new SocialProviderData(identityProvider, null)));
                 })
                 .toList()
                 .subscribe(socialProviderData -> resultHandler.handle(Future.succeededFuture(socialProviderData)),
@@ -168,7 +168,7 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
                                 String redirectUri = UriBuilderRequest.resolveProxyRequest(context.request(), context.get(CONTEXT_PATH) + "/login/callback");
                                 Maybe<Request> signInURL = ((SocialAuthenticationProvider) authenticationProvider).asyncSignInUrl(redirectUri, state);
 
-                                return signInURL.map(request -> {
+                                return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(signInURL).map(RxJavaReactorMigrationUtil.toJdkFunction(request -> {
                                     if(HttpMethod.GET == request.getMethod()) {
                                         return request.getUri();
                                     }else {
@@ -177,7 +177,7 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
                                         queryParams.put(ACTION_KEY, request.getUri());
                                         return UriBuilderRequest.resolveProxyRequest(context.request(), context.get(CONTEXT_PATH) + "/login/SSO/POST", queryParams);
                                     }
-                                });
+                                })));
                             }).apply(e)))));
                 }).apply(v)))));
     }

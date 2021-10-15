@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -96,7 +97,7 @@ public class UserConsentEndpoint implements Handler<RoutingContext> {
                         // user approved consent, continue
                         if (approvedConsent.containsAll(requestedConsents)) {
                             //redirectToAuthorize
-                            return Single.just(Collections.<Scope>emptyList());
+                            return RxJava2Adapter.monoToSingle(Mono.just(Collections.<Scope>emptyList()));
                         }
                         // else go to the user consent page
                         Set<String> requiredConsent = requestedConsents.stream().filter(requestedScope -> !approvedConsent.contains(requestedScope)).collect(Collectors.toSet());

@@ -62,8 +62,8 @@ public class EnvironmentCommandHandler implements CommandHandler<EnvironmentComm
         newEnvironment.setDescription(environmentPayload.getDescription());
         newEnvironment.setDomainRestrictions(environmentPayload.getDomainRestrictions());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentService.createOrUpdate(environmentPayload.getOrganizationId(), environmentPayload.getId(), newEnvironment, null)
-                .map(organization -> new EnvironmentReply(command.getId(), CommandStatus.SUCCEEDED))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(reply -> logger.info("Environment [{}] handled with id [{}].", environmentPayload.getName(), environmentPayload.getId()))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Error occurred when handling environment [{}] with id [{}].", environmentPayload.getName(), environmentPayload.getId(), error))))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentService.createOrUpdate(environmentPayload.getOrganizationId(), environmentPayload.getId(), newEnvironment, null)
+                .map(organization -> new EnvironmentReply(command.getId(), CommandStatus.SUCCEEDED))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(reply -> logger.info("Environment [{}] handled with id [{}].", environmentPayload.getName(), environmentPayload.getId()))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Error occurred when handling environment [{}] with id [{}].", environmentPayload.getName(), environmentPayload.getId(), error))))
                 .onErrorReturn(throwable -> new EnvironmentReply(command.getId(), CommandStatus.ERROR));
     }
 }

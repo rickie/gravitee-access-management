@@ -106,7 +106,7 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
     public Single<ExtensionGrant> create(String domain, NewExtensionGrant newExtensionGrant, User principal) {
         LOGGER.debug("Create a new extension grant {} for domain {}", newExtensionGrant, domain);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(extensionGrantRepository.findByDomainAndName(domain, newExtensionGrant.getName())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(extensionGrantRepository.findByDomainAndName(domain, newExtensionGrant.getName())
                 .isEmpty()
                 .flatMap(empty -> {
                     if (!empty) {
@@ -142,22 +142,21 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
 
                     LOGGER.error("An error occurs while trying to create a extension grant", ex);
                     return Single.error(new TechnicalManagementException("An error occurs while trying to create a extension grant", ex));
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(extensionGrant -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_CREATED).extensionGrant(extensionGrant)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_CREATED).throwable(throwable)))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(extensionGrant -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_CREATED).extensionGrant(extensionGrant)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_CREATED).throwable(throwable)))));
     }
 
     @Override
     public Single<ExtensionGrant> update(String domain, String id, UpdateExtensionGrant updateExtensionGrant, User principal) {
         LOGGER.debug("Update a extension grant {} for domain {}", id, domain);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ExtensionGrantNotFoundException(id))))))
-                .flatMapSingle(tokenGranter -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(extensionGrantRepository.findByDomainAndName(domain, updateExtensionGrant.getName())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new ExtensionGrantNotFoundException(id)))))
+                .flatMapSingle(tokenGranter -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(extensionGrantRepository.findByDomainAndName(domain, updateExtensionGrant.getName())
                         .map(Optional::of)
-                        .defaultIfEmpty(Optional.empty())
-                        .toSingle()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Optional<ExtensionGrant>, SingleSource<ExtensionGrant>>toJdkFunction(existingTokenGranter -> {
+                        .defaultIfEmpty(Optional.empty())).single())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Optional<ExtensionGrant>, SingleSource<ExtensionGrant>>toJdkFunction(existingTokenGranter -> {
                             if (existingTokenGranter.isPresent() && !existingTokenGranter.get().getId().equals(id)) {
                                 throw new ExtensionGrantAlreadyExistsException("Extension grant with the same name already exists");
                             }
-                            return Single.just(tokenGranter);
+                            return RxJava2Adapter.monoToSingle(Mono.just(tokenGranter));
                         }).apply(v))))))).flatMap(v->RxJava2Adapter.singleToMono((Single<ExtensionGrant>)RxJavaReactorMigrationUtil.toJdkFunction((Function<ExtensionGrant, Single<ExtensionGrant>>)oldExtensionGrant -> {
                     ExtensionGrant extensionGrantToUpdate = new ExtensionGrant(oldExtensionGrant);
                     extensionGrantToUpdate.setName(updateExtensionGrant.getName());
@@ -168,14 +167,13 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
                     extensionGrantToUpdate.setConfiguration(updateExtensionGrant.getConfiguration());
                     extensionGrantToUpdate.setUpdatedAt(new Date());
 
-                    return extensionGrantRepository.update(extensionGrantToUpdate)
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(extensionGrantRepository.update(extensionGrantToUpdate)
                             .flatMap(extensionGrant -> {
                                 // create event for sync process
                                 Event event = new Event(Type.EXTENSION_GRANT, new Payload(extensionGrant.getId(), ReferenceType.DOMAIN, extensionGrant.getDomain(), Action.UPDATE));
                                 return eventService.create(event).flatMap(__ -> Single.just(extensionGrant));
                             })
-                            .doOnSuccess(extensionGrant -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_UPDATED).oldValue(oldExtensionGrant).extensionGrant(extensionGrant)))
-                            .doOnError(throwable -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_UPDATED).throwable(throwable)));
+                            .doOnSuccess(extensionGrant -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_UPDATED).oldValue(oldExtensionGrant).extensionGrant(extensionGrant)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_UPDATED).throwable(throwable)))));
                 }).apply(v))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -190,7 +188,7 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
     @Override
     public Completable delete(String domain, String extensionGrantId, User principal) {
         LOGGER.debug("Delete extension grant {}", extensionGrantId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantRepository.findById(extensionGrantId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ExtensionGrantNotFoundException(extensionGrantId))))))
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantRepository.findById(extensionGrantId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new ExtensionGrantNotFoundException(extensionGrantId)))))
                 // check for clients using this extension grant
                 .flatMapSingle(extensionGrant -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.findByDomainAndExtensionGrant(domain, extensionGrant.getGrantType() + "~" + extensionGrant.getId())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Set<Application>, SingleSource<ExtensionGrant>>toJdkFunction(applications -> {
                             if (applications.size() > 0) {
@@ -199,7 +197,7 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
                             // backward compatibility, check for old clients configuration
                             return Single.zip(
                                     applicationService.findByDomainAndExtensionGrant(domain, extensionGrant.getGrantType()),
-                                    findByDomain(domain).toList(),
+                                    RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(findByDomain(domain)).collectList()),
                                     (clients1, extensionGrants) -> {
                                         if (clients1.size() == 0) {
                                             return extensionGrant;
@@ -215,8 +213,7 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
                         }).apply(v))))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<ExtensionGrant, CompletableSource>)extensionGrant -> {
                     // create event for sync process
                     Event event = new Event(Type.EXTENSION_GRANT, new Payload(extensionGrantId, ReferenceType.DOMAIN, domain, Action.DELETE));
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(extensionGrantRepository.delete(extensionGrantId)
-                            .andThen(eventService.create(event))
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(extensionGrantRepository.delete(extensionGrantId)).then(RxJava2Adapter.singleToMono(Single.wrap(eventService.create(event)))))
                             .toCompletable()
                             .doOnComplete(() -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_DELETED).extensionGrant(extensionGrant)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_DELETED).throwable(throwable)))));
                 }).apply(y)))).then())

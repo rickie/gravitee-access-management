@@ -141,9 +141,9 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
 
             String authorization = getAuthorizationHeader("POST", configuration.getRequestTokenUrl(), emptyMap(), parameters, new OAuthCredentials(configuration));
 
-            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(getClient().postAbs(getConfiguration().getRequestTokenUrl())
+            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(getClient().postAbs(getConfiguration().getRequestTokenUrl())
                     .putHeader(HttpHeaders.AUTHORIZATION, authorization)
-                    .rxSend()))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+                    .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         if (httpResponse.statusCode() != 200) {
                             throw new BadCredentialsException(httpResponse.statusMessage());
                         }
@@ -220,9 +220,9 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
 
         tokenMemory.invalidate(oauthToken);
         MultiMap form = MultiMap.caseInsensitiveMultiMap().set(OAUTH_VERIFIER, tokenVerifier);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
                 .putHeader(HttpHeaders.AUTHORIZATION, authorization)
-                .rxSendForm(form)))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<Token>>toJdkFunction(httpResponse -> {
+                .rxSendForm(form)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<Token>>toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException(httpResponse.bodyAsString())));
                     }
@@ -262,10 +262,10 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
                 parameters, oauthParams,
                 new OAuthCredentials(configuration, token.getValue(), token.getSecret()));
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserProfileUri()+"?include_email=true")
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserProfileUri()+"?include_email=true")
                 .putHeader(HttpHeaders.AUTHORIZATION, authorization)
                 //.rxSendForm(form)
-                .rxSend()))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<User>>toJdkFunction(httpResponse -> {
+                .rxSend()).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<User>>toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException(httpResponse.bodyAsString())));
                     }

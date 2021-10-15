@@ -105,10 +105,10 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
         urlParameters.add(new BasicNameValuePair(CODE, authorizationCode));
         String bodyRequest = URLEncodedUtils.format(urlParameters);
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
                 .putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(bodyRequest.length()))
                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
-                .rxSendBuffer(Buffer.buffer(bodyRequest))))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+                .rxSendBuffer(Buffer.buffer(bodyRequest))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                         throw new BadCredentialsException(httpResponse.statusMessage());
                     }
@@ -120,9 +120,9 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
 
     @Override
     protected Maybe<User> profile(Token accessToken, Authentication authentication) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserProfileUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserProfileUri())
                 .putHeader(HttpHeaders.AUTHORIZATION, "token " + accessToken.getValue())
-                .rxSend()))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
+                .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
                     if (httpClientResponse.statusCode() != 200) {
                         throw new BadCredentialsException(httpClientResponse.statusMessage());
                     }

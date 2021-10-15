@@ -109,7 +109,7 @@ public class CredentialServiceImpl implements CredentialService {
     @Override
     public Single<Credential> update(Credential credential) {
         LOGGER.debug("Update a credential {}", credential);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(credentialRepository.findById(credential.getId())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new CredentialNotFoundException(credential.getId())))))
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(credentialRepository.findById(credential.getId())).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new CredentialNotFoundException(credential.getId()))))))
                 .flatMapSingle(__ -> credentialRepository.update(credential))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -138,7 +138,7 @@ public class CredentialServiceImpl implements CredentialService {
     @Override
     public Completable delete(String id) {
         LOGGER.debug("Delete credential {}", id);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(credentialRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new CredentialNotFoundException(id))))))).flatMap(email->RxJava2Adapter.completableToMono(credentialRepository.delete(id))).then())
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(credentialRepository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new CredentialNotFoundException(id))))).flatMap(email->RxJava2Adapter.completableToMono(credentialRepository.delete(id))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));

@@ -78,7 +78,7 @@ public class NotifierPluginResource {
             @PathParam("notifierId") String notifierId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(notifierPluginService.findById(notifierId)).flatMap(notifierPlugin->RxJava2Adapter.singleToMono(notifierPluginService.getSchema(notifierPlugin.getId()))))).map(RxJavaReactorMigrationUtil.toJdkFunction(notifierPluginSchema -> Response.ok(notifierPluginSchema).build())))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(notifierPluginService.findById(notifierId)).flatMap(notifierPlugin->RxJava2Adapter.singleToMono(notifierPluginService.getSchema(notifierPlugin.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(notifierPluginSchema -> Response.ok(notifierPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

@@ -44,6 +44,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -76,16 +77,15 @@ public class BotDetectionResource extends AbstractResource {
             @PathParam("botDetection") String botDetectionId,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)
+        checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> botDetectionService.findById(botDetectionId))
-                        .switchIfEmpty(Maybe.error(new BotDetectionNotFoundException(botDetectionId)))
-                        .map(botDetection -> {
+                        .switchIfEmpty(Maybe.error(new BotDetectionNotFoundException(botDetectionId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(botDetection -> {
                             if (!botDetection.getReferenceId().equalsIgnoreCase(domain) && botDetection.getReferenceType() != ReferenceType.DOMAIN) {
                                 throw new BadRequestException("BotDetection does not belong to domain");
                             }
                             return Response.ok(botDetection).build();
-                        }))).as(RxJava2Adapter::monoToMaybe)
+                        }))))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -108,8 +108,7 @@ public class BotDetectionResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
-                        .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new DomainNotFoundException(domain))))))
                         .flatMapSingle(__ -> botDetectionService.update(domain, botDetection, updateBotDetection, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }

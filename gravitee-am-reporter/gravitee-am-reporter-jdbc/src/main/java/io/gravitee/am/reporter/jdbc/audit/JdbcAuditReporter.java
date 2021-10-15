@@ -142,13 +142,13 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
 
         Mono<Long> total = count.as(Long.class).fetch().first();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(query.as(AuditJdbc.class).fetch().all()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fluxToFlowable(query.as(AuditJdbc.class).fetch().all()
                 .map(this::convert)
                 .concatMap(this::fillWithActor)
                 .concatMap(this::fillWithTarget)
                 .concatMap(this::fillWithAccessPoint)
                 .concatMap(this::fillWithOutcomes))
-                .toList()).flatMap(content->RxJava2Adapter.singleToMono(monoToSingle(total).map((java.lang.Long value)->new Page<Audit>(content, page, value)))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve reports for referenceType {} and referenceId {}",
+                .toList()).flatMap(content->RxJava2Adapter.singleToMono(monoToSingle(total).map((java.lang.Long value)->new Page<Audit>(content, page, value)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve reports for referenceType {} and referenceId {}",
                         referenceType, referenceId, error))));
     }
 

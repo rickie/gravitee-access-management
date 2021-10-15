@@ -92,7 +92,7 @@ public class AccountEndpointHandler {
         User user = getUserFromContext(routingContext);
         User updatedUser = mapRequestToUser(user, routingContext);
         if (Objects.equals(user.getId(), updatedUser.getId())) {
-            RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(accountService.update(user)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(nestedResult -> AccountResponseHandler.handleUpdateUserResponse(routingContext))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(er -> AccountResponseHandler.handleUpdateUserResponse(routingContext, er.getMessage()))))
+            RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(accountService.update(user)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(nestedResult -> AccountResponseHandler.handleUpdateUserResponse(routingContext))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(er -> AccountResponseHandler.handleUpdateUserResponse(routingContext, er.getMessage()))))
                     .subscribe();
         } else {
             AccountResponseHandler.handleUpdateUserResponse(routingContext, "Mismatched user IDs", 401);

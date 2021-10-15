@@ -78,7 +78,7 @@ public class JWTBearerExtensionGrantProvider implements ExtensionGrantProvider, 
         if (assertion == null) {
             throw new InvalidGrantException("Assertion value is missing");
         }
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
+        return RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             try {
                 JWT jwt = jwtParser.parse(assertion);
                 return createUser(jwt);
@@ -89,7 +89,7 @@ public class JWTBearerExtensionGrantProvider implements ExtensionGrantProvider, 
                 LOGGER.error(ex.getMessage(), ex.getCause());
                 throw new InvalidGrantException(ex.getMessage(), ex);
             }
-        })).flux()), BackpressureStrategy.BUFFER).next());
+        })).flux().next());
     }
 
     public User createUser(JWT jwt) {

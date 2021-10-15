@@ -45,6 +45,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -81,15 +82,13 @@ public class GroupMemberResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMap(__ -> groupService.findById(group))
-                        .switchIfEmpty(Maybe.error(new GroupNotFoundException(group)))
-                        .flatMapSingle(group1 -> userService.findById(userId)
-                                .switchIfEmpty(Maybe.error(new UserNotFoundException(userId)))
+                        .flatMap(__ -> groupService.findById(group))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new GroupNotFoundException(group))))))
+                        .flatMapSingle(group1 -> RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findById(userId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(userId))))))
                                 .flatMapSingle(user -> {
                                     if (group1.getMembers() != null && group1.getMembers().contains(userId)) {
-                                        return Single.error(new MemberAlreadyExistsException(userId));
+                                        return RxJava2Adapter.monoToSingle(Mono.error(new MemberAlreadyExistsException(userId)));
                                     }
 
                                     List<String> groupMembers = group1.getMembers() != null ? new ArrayList<>(group1.getMembers()) : new ArrayList<>();
@@ -125,15 +124,13 @@ public class GroupMemberResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMap(__ -> groupService.findById(group))
-                        .switchIfEmpty(Maybe.error(new GroupNotFoundException(group)))
-                        .flatMapSingle(group1 -> userService.findById(userId)
-                                .switchIfEmpty(Maybe.error(new UserNotFoundException(userId)))
+                        .flatMap(__ -> groupService.findById(group))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new GroupNotFoundException(group))))))
+                        .flatMapSingle(group1 -> RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findById(userId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(userId))))))
                                 .flatMapSingle(user -> {
                                     if (group1.getMembers() == null || !group1.getMembers().contains(userId)) {
-                                        return Single.error(new MemberNotFoundException(userId));
+                                        return RxJava2Adapter.monoToSingle(Mono.error(new MemberNotFoundException(userId)));
                                     }
 
                                     List<String> groupMembers = group1.getMembers() != null ? new ArrayList<>(group1.getMembers()) : new ArrayList<>();

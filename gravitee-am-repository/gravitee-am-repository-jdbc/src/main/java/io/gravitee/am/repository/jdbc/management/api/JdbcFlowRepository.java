@@ -71,7 +71,7 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
     @Override
     public Maybe<Flow> findById(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(flowRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).flatMap(e->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Flow, SingleSource<Flow>>)this::completeFlow).apply(e)))));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(flowRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(e->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Flow, SingleSource<Flow>>)this::completeFlow).apply(e)))));
     }
 
     @Override
@@ -98,7 +98,7 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
 
         insertAction = persistChildEntities(insertAction, item);
 
-        return RxJava2Adapter.monoToSingle(insertAction.as(trx::transactional).flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()))));
+        return RxJava2Adapter.monoToSingle(insertAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, Flow item) {
@@ -179,7 +179,7 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
         updateAction = updateAction.then(deleteChildEntities(item.getId()));
         updateAction = persistChildEntities(updateAction, item);
 
-        return RxJava2Adapter.monoToSingle(updateAction.as(trx::transactional).flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()))));
+        return RxJava2Adapter.monoToSingle(updateAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
     }
 
     private Mono<Integer> deleteChildEntities(String flowId) {
@@ -201,27 +201,27 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
     @Override
     public Maybe<Flow> findById(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("findById({}, {}, {})", referenceType, referenceId, id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(flowRepository.findById(referenceType.name(), referenceId, id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).flatMap(z->RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(completeFlow(z))).as(RxJava2Adapter::maybeToMono)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(flowRepository.findById(referenceType.name(), referenceId, id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.singleToMono(completeFlow(z))));
     }
 
     @Override
     public Flowable<Flow> findAll(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findAll({}, {})", referenceType, referenceId);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flowRepository.findAll(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(flow -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeFlow(flow)).flux()))));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flowRepository.findAll(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(flow -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeFlow(flow)).flux()))));
     }
 
     @Override
     public Flowable<Flow> findByApplication(ReferenceType referenceType, String referenceId, String application) {
         LOGGER.debug("findByApplication({}, {}, {})", referenceType, referenceId, application);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flowRepository.findByApplication(referenceType.name(), referenceId, application)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(flow -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeFlow(flow)).flux()))));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flowRepository.findByApplication(referenceType.name(), referenceId, application)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(flow -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeFlow(flow)).flux()))));
     }
 
     protected Single<Flow> completeFlow(Flow flow) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(fluxToFlowable(dbClient.select()
                 .from(JdbcFlow.JdbcStep.class)
                 .matching(from(where("flow_id").is(flow.getId())))
                 .orderBy(Sort.Order.asc("stage_order"))
-                .as(JdbcFlow.JdbcStep.class).all())).collectList())).map(RxJavaReactorMigrationUtil.toJdkFunction(steps -> {
+                .as(JdbcFlow.JdbcStep.class).all())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(steps -> {
             if (steps != null && !steps.isEmpty()) {
                 List<Step> preSteps = new ArrayList<>();
                 List<Step> postSteps = new ArrayList<>();

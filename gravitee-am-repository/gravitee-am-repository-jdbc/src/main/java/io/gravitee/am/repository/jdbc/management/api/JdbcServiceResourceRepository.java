@@ -68,7 +68,7 @@ public class JdbcServiceResourceRepository extends AbstractJdbcRepository implem
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(insertResult.flatMap(i->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()))));
+        return RxJava2Adapter.monoToSingle(insertResult.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
     }
 
     @Override

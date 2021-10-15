@@ -83,9 +83,9 @@ public class CookieSession extends AbstractSession {
             setData(new HashMap<>());
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.jwtService.decodeAndVerify(payload, certificateProvider)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(jwt -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.jwtService.decodeAndVerify(payload, certificateProvider)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(jwt -> {
                     this.lastLogin = new Date(jwt.getExp() * 1000 - this.timeout());
                     this.setData(jwt);
-                })))).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> this)));
+                })).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> this)));
     }
 }

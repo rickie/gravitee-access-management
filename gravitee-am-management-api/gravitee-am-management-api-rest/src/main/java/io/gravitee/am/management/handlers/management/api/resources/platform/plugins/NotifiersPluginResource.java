@@ -59,7 +59,7 @@ public class NotifiersPluginResource {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void list(@QueryParam("expand") List<String> expand, @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(notifierPluginService.findAll(expand.toArray(new String[0]))).sort(Comparator.comparing(AbstractPlugin::getName)))).collectList())
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(notifierPluginService.findAll(expand.toArray(new String[0]))).sort(Comparator.comparing(AbstractPlugin::getName)).collectList())
                 .subscribe(response::resume, response::resume);
     }
 

@@ -129,7 +129,7 @@ public class ResourceManagerImpl extends AbstractService implements ResourceMana
     }
 
     private void loadResource(String resourceId) {
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(resourceService.findById(resourceId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ResourceNotFoundException("Resource " + resourceId + " not found"))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(res -> resourcePluginManager.create(res.getType(), res.getConfiguration()))))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(resourceService.findById(resourceId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new ResourceNotFoundException("Resource " + resourceId + " not found"))))).map(RxJavaReactorMigrationUtil.toJdkFunction(res -> resourcePluginManager.create(res.getType(), res.getConfiguration()))))
                 .subscribe(
                         provider -> {
                             provider.start();

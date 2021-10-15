@@ -63,8 +63,8 @@ public class InstallationResource extends AbstractResource {
     public void get(
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.PLATFORM, Platform.DEFAULT, Permission.INSTALLATION, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(installationService.get()
-                        .map(InstallationEntity::new)))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installationEntity -> installationEntity.getAdditionalInformation()
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.PLATFORM, Platform.DEFAULT, Permission.INSTALLATION, Acl.READ)).then(RxJava2Adapter.singleToMono(Single.wrap(installationService.get()
+                        .map(InstallationEntity::new)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installationEntity -> installationEntity.getAdditionalInformation()
                         .put(Installation.COCKPIT_URL, environment.getProperty("cockpit.url", DEFAULT_COCKPIT_URL)))))
                 .subscribe(response::resume, response::resume);
     }

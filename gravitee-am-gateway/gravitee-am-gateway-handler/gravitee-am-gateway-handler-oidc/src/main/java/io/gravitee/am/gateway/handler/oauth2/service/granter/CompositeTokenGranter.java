@@ -48,6 +48,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -98,9 +99,9 @@ public class CompositeTokenGranter implements TokenGranter, InitializingBean {
 
     @Override
     public Single<Token> grant(TokenRequest tokenRequest, Client client) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
                 .fromIterable(tokenGranters.values())
-                .filter(tokenGranter -> tokenGranter.handle(tokenRequest.getGrantType(), client)), BackpressureStrategy.BUFFER).next())).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new UnsupportedGrantTypeException("Unsupported grant type: " + tokenRequest.getGrantType())))))
+                .filter(tokenGranter -> tokenGranter.handle(tokenRequest.getGrantType(), client)), BackpressureStrategy.BUFFER).next().switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UnsupportedGrantTypeException("Unsupported grant type: " + tokenRequest.getGrantType()))))))
                 .flatMapSingle(tokenGranter -> tokenGranter.grant(tokenRequest, client));
     }
 

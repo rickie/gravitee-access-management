@@ -61,7 +61,7 @@ public class DomainReporterUpgrader implements Upgrader, Ordered {
     }
 
     private Completable updateDefaultReporter(Domain domain) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(reporterService.findByDomain(domain.getId())).collectList())).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Reporter>, CompletableSource>)reporters -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(reporterService.findByDomain(domain.getId())).collectList().flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Reporter>, CompletableSource>)reporters -> {
                     if (reporters == null || reporters.isEmpty()) {
                         logger.info("No default reporter found for domain {}, update domain", domain.getName());
                         return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(reporterService.createDefault(domain.getId())).then());

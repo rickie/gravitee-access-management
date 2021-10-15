@@ -33,6 +33,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -56,7 +57,7 @@ public class CertificatePluginResource {
             @PathParam("certificate") String certificateId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificatePluginService.findById(certificateId)).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPlugin -> Response.ok(certificateId).build())))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new CertificatePluginNotFoundException(certificateId)))))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificatePluginService.findById(certificateId)).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPlugin -> Response.ok(certificateId).build())).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new CertificatePluginNotFoundException(certificateId))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -70,9 +71,9 @@ public class CertificatePluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the certificate exists
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificatePluginService.findById(certificateId)
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificatePluginService.findById(certificateId)
                 .switchIfEmpty(Maybe.error(new CertificatePluginNotFoundException(certificateId)))
-                .flatMap(irrelevant -> certificatePluginService.getSchema(certificateId))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new CertificatePluginSchemaNotFoundException(certificateId))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificatePluginSchema -> Response.ok(certificatePluginSchema).build())))
+                .flatMap(irrelevant -> certificatePluginService.getSchema(certificateId))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new CertificatePluginSchemaNotFoundException(certificateId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificatePluginSchema -> Response.ok(certificatePluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

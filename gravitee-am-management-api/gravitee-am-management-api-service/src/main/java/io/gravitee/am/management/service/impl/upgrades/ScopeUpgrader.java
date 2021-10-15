@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -80,26 +81,25 @@ public class ScopeUpgrader implements Upgrader, Ordered {
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(scopeService.findByDomain(domain.getId(), 0, Integer.MAX_VALUE)).flatMap(v->RxJava2Adapter.singleToMono((Single<List<Scope>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Page<Scope>, Single<List<Scope>>>)scopes -> {
                     if (scopes.getData().isEmpty()) {
                         logger.info("No scope found for domain id[{}] name[{}]. Upgrading...", domain.getId(), domain.getName());
-                        return createAppScopes(domain)
-                                .flatMap(irrelevant -> createRoleScopes(domain));
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(createAppScopes(domain)).flatMap(irrelevant->RxJava2Adapter.singleToMono(createRoleScopes(domain))));
                     }
                     logger.info("No scope to update, skip upgrade");
-                    return Single.just(new ArrayList<>(scopes.getData()));
+                    return RxJava2Adapter.monoToSingle(Mono.just(new ArrayList<>(scopes.getData())));
                 }).apply(v))));
     }
 
     private Single<List<Scope>> createAppScopes(Domain domain) {
-        return RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(applicationService.findByDomain(domain.getId())
+        return RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(applicationService.findByDomain(domain.getId())
                 .filter(applications -> applications != null)
-                .flatMapObservable(Observable::fromIterable), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(app -> app.getSettings() != null && app.getSettings().getOauth() != null))), BackpressureStrategy.BUFFER).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<Application, ObservableSource<String>>toJdkFunction(app -> Observable.fromIterable(app.getSettings().getOauth().getScopes())).apply(z)), BackpressureStrategy.BUFFER)))
+                .flatMapObservable(Observable::fromIterable), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(app -> app.getSettings() != null && app.getSettings().getOauth() != null)).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<Application, ObservableSource<String>>toJdkFunction(app -> Observable.fromIterable(app.getSettings().getOauth().getScopes())).apply(z)), BackpressureStrategy.BUFFER)))
                 .flatMapSingle(scope -> createScope(domain.getId(), scope))
                 .toList();
     }
 
     private Single<List<Scope>> createRoleScopes(Domain domain) {
-        return RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(roleService.findByDomain(domain.getId())
+        return RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(roleService.findByDomain(domain.getId())
                 .filter(roles -> roles != null)
-                .flatMapObservable(Observable::fromIterable), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role -> role.getOauthScopes() != null))), BackpressureStrategy.BUFFER).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<Role, ObservableSource<String>>toJdkFunction(role -> Observable.fromIterable(role.getOauthScopes())).apply(z)), BackpressureStrategy.BUFFER)))
+                .flatMapObservable(Observable::fromIterable), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role -> role.getOauthScopes() != null)).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<Role, ObservableSource<String>>toJdkFunction(role -> Observable.fromIterable(role.getOauthScopes())).apply(z)), BackpressureStrategy.BUFFER)))
                 .flatMapSingle(scope -> createScope(domain.getId(), scope))
                 .toList();
     }
@@ -115,7 +115,7 @@ public class ScopeUpgrader implements Upgrader, Ordered {
                         scope.setDescription("Default description for scope " + scopeKey);
                         return scopeService.create(domain, scope);
                     }
-                    return Single.just(optScope.get());
+                    return RxJava2Adapter.monoToSingle(Mono.just(optScope.get()));
                 }).apply(v))));
     }
 

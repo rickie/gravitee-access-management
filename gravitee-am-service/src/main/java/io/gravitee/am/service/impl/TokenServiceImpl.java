@@ -65,7 +65,7 @@ public class TokenServiceImpl implements TokenService {
                 .toList()).flatMap(v->RxJava2Adapter.singleToMono((Single<TotalToken>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Long>, Single<TotalToken>>)totalAccessTokens -> {
                     TotalToken totalToken = new TotalToken();
                     totalToken.setTotalAccessTokens(totalAccessTokens.stream().mapToLong(Long::longValue).sum());
-                    return Single.just(totalToken);
+                    return RxJava2Adapter.monoToSingle(Mono.just(totalToken));
                 }).apply(v))))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find total tokens by domain: {}", domain, ex);
@@ -98,7 +98,7 @@ public class TokenServiceImpl implements TokenService {
                 .toList()).flatMap(v->RxJava2Adapter.singleToMono((Single<TotalToken>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Long>, Single<TotalToken>>)totalAccessTokens -> {
                     TotalToken totalToken = new TotalToken();
                     totalToken.setTotalAccessTokens(totalAccessTokens.stream().mapToLong(Long::longValue).sum());
-                    return Single.just(totalToken);
+                    return RxJava2Adapter.monoToSingle(Mono.just(totalToken));
                 }).apply(v))))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find total tokens", ex);

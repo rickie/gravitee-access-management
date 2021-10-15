@@ -61,12 +61,12 @@ public class PermissionTicketServiceImpl implements PermissionTicketService {
         //Get list of requested resources (same Id may appear twice with difference scopes)
         List<String> requestedResourcesIds = requestedPermission.stream().map(PermissionRequest::getResourceId).distinct().collect(Collectors.toList());
         //Compare with current registered resource set and return permission ticket if everything's correct.
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resourceService.findByDomainAndClientAndResources(domain, client, requestedResourcesIds)
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resourceService.findByDomainAndClientAndResources(domain, client, requestedResourcesIds)
                 .toList()).flatMap(fetchedResourceSet->RxJava2Adapter.singleToMono(this.validatePermissionRequest(requestedPermission, fetchedResourceSet, requestedResourcesIds).map((java.util.List<io.gravitee.am.model.uma.PermissionRequest> permissionRequests)->{
 String userId = fetchedResourceSet.get(0).getUserId();
 PermissionTicket toCreate = new PermissionTicket();
 return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setClientId(client).setUserId(userId).setCreatedAt(new Date()).setExpireAt(new Date(System.currentTimeMillis() + umaPermissionValidity));
-}))))).flatMap(v->RxJava2Adapter.singleToMono((Single<PermissionTicket>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PermissionTicket, Single<PermissionTicket>>)repository::create).apply(v))));
+}))).flatMap(v->RxJava2Adapter.singleToMono((Single<PermissionTicket>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PermissionTicket, Single<PermissionTicket>>)repository::create).apply(v))));
     }
 
     @Override
@@ -76,8 +76,8 @@ return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setCl
 
     @Override
     public Single<PermissionTicket> remove(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(repository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new InvalidPermissionTicketException()))))
-                .flatMapSingle(permissionTicket -> RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(repository.delete(permissionTicket.getId())).then(RxJava2Adapter.singleToMono(Single.just(permissionTicket)))));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(repository.findById(id)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidPermissionTicketException())))))
+                .flatMapSingle(permissionTicket -> RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(repository.delete(permissionTicket.getId())).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(permissionTicket))))));
     }
 
     /**

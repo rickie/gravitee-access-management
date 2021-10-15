@@ -78,7 +78,7 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
 
     public Maybe<User> loadUserByUsername(Authentication authentication) {
         String username = ((String) authentication.getPrincipal()).toLowerCase();
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(findUserByMultipleField(username)
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(findUserByMultipleField(username)
                 .toList()
                 .flatMapPublisher(users -> {
                     if (users.isEmpty()) {
@@ -109,7 +109,7 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
                     }
 
                     return true;
-                })).collectList())).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Document>, MaybeSource<User>>)users -> {
+                })).collectList().flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Document>, MaybeSource<User>>)users -> {
                     if (users.isEmpty()) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Bad credentials")));
                     }

@@ -76,11 +76,11 @@ public class NewsletterResource extends AbstractResource {
         // Get the organization the current user is logged on.
         String organizationId = (String) authenticatedUser.getAdditionalInformation().getOrDefault(Claims.organization, Organization.DEFAULT);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.findById(ReferenceType.ORGANIZATION, organizationId, authenticatedUser.getId())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.findById(ReferenceType.ORGANIZATION, organizationId, authenticatedUser.getId())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
                     user.setEmail(emailValue.getEmail());
                     user.setNewsletter(true);
                     return userService.update(user);
-                }).apply(v)))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(endUser -> {
+                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(endUser -> {
                     Map<String, Object> object = new HashMap<>();
                     object.put("email", endUser.getEmail());
                     newsletterService.subscribe(object);

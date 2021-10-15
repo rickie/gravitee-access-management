@@ -36,6 +36,7 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.util.Date;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -88,7 +90,7 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
             roleObs = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(roleService.findById(user.getReferenceType(), user.getReferenceId(), roleId)))
                     .onErrorResumeNext(throwable -> {
                         if (throwable instanceof RoleNotFoundException) {
-                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(roleService.findById(ReferenceType.PLATFORM, Platform.DEFAULT, roleId)))).switchIfEmpty(RxJava2Adapter.maybeToMono(defaultRoleObs)))
+                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(roleService.findById(ReferenceType.PLATFORM, Platform.DEFAULT, roleId)).switchIfEmpty(RxJava2Adapter.maybeToMono(defaultRoleObs)))
                                     .onErrorResumeNext(defaultRoleObs);
                         } else {
                             return defaultRoleObs;
@@ -102,7 +104,7 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
         membership.setReferenceType(user.getReferenceType());
         membership.setReferenceId(user.getReferenceId());
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(roleObs).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new TechnicalManagementException(String.format("Cannot add user membership to organization %s. Unable to find ORGANIZATION_USER role", user.getReferenceId())))))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Role, CompletableSource>)role -> {
+        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(roleObs).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new TechnicalManagementException(String.format("Cannot add user membership to organization %s. Unable to find ORGANIZATION_USER role", user.getReferenceId())))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Role, CompletableSource>)role -> {
                     membership.setRoleId(role.getId());
                     return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(membershipService.addOrUpdate(user.getReferenceId(), membership)).then());
                 }).apply(y)))).then());
@@ -113,7 +115,7 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
         LOGGER.debug("Update a user {}", user);
         // updated date
         user.setUpdatedAt(new Date());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(getUserRepository()
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserRepository()
                 .findByUsernameAndSource(ReferenceType.ORGANIZATION, user.getReferenceId(), user.getUsername(), user.getSource())
                 .flatMapSingle(oldUser -> {
 
@@ -133,18 +135,17 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
                         }
 
                         return getUserRepository().update(user);
-                })
-                .flatMap(user1 -> {
+                })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user1 -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user1.getId(), user1.getReferenceType(), user1.getReferenceId(), Action.UPDATE));
                     return eventService.create(event).flatMap(__ -> Single.just(user1));
-                })
+                }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
-                        return Single.error(ex);
+                        return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to update a user", ex);
-                    return Single.error(new TechnicalManagementException("An error occurs while trying to update a user", ex));
+                    return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a user", ex)));
                 }))));
     }
 }

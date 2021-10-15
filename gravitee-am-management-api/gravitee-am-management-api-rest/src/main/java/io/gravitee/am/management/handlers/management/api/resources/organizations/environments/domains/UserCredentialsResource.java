@@ -70,9 +70,9 @@ public class UserCredentialsResource extends AbstractResource {
             @PathParam("user") String user,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).thenMany(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).thenMany(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMapPublisher(__ -> credentialService.findByUserId(ReferenceType.DOMAIN, domain, user))))).collectList())
+                        .flatMapPublisher(__ -> credentialService.findByUserId(ReferenceType.DOMAIN, domain, user))).collectList())
                 .subscribe(response::resume, response::resume);
     }
 

@@ -110,14 +110,13 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
                             if (extensionGrant.getIdentityProvider() == null) {
                                 return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException("No identity_provider provided")));
                             }
-                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager
+                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager
                                     .get(extensionGrant.getIdentityProvider())
                                     .flatMap((Function<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>) authProvider -> {
                                         SimpleAuthenticationContext authenticationContext = new SimpleAuthenticationContext(tokenRequest);
                                         final Authentication authentication = new EndUserAuthentication(convert(endUser), null, authenticationContext);
                                         return authProvider.loadPreAuthenticatedUser(authentication);
-                                    })
-                                    .map(idpUser -> {
+                                    })).map(RxJavaReactorMigrationUtil.toJdkFunction(idpUser -> {
                                         User user = new User();
                                         user.setId(idpUser.getId());
                                         user.setUsername(endUser.getUsername());
@@ -133,7 +132,7 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
                                         user.setUpdatedAt(idpUser.getUpdatedAt());
                                         user.setRoles(idpUser.getRoles());
                                         return user;
-                                    })).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new InvalidGrantException("Unknown user: " + endUser.getId()))))));
+                                    })))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new InvalidGrantException("Unknown user: " + endUser.getId())))));
                         } else {
                             User user = new User();
                             // we do not router AM user, user id is the idp user id

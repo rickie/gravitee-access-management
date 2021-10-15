@@ -38,6 +38,7 @@ import io.gravitee.am.service.validators.UserValidator;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,7 +105,7 @@ public class AccountServiceImpl implements AccountService {
     public Single<User> update(User user) {
         LOGGER.debug("Update a user {} for domain {}", user.getUsername(), domain.getName());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(identityProviderManager.getUserProvider(user.getSource())
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(identityProviderManager.getUserProvider(user.getSource())
                 .switchIfEmpty(Maybe.error(new UserProviderNotFoundException(user.getSource())))
                 .flatMapSingle(userProvider -> {
                     if (user.getExternalId() == null) {
@@ -112,10 +113,9 @@ public class AccountServiceImpl implements AccountService {
                     } else {
                         return userProvider.update(user.getExternalId(), convert(user));
                     }
-                })
-                .flatMap(idpUser -> {
+                })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(idpUser -> {
                     return userRepository.update(user);
-                })
+                }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof UserNotFoundException || ex instanceof UserInvalidException) {
                         // idp user does not exist, only update AM user
@@ -123,7 +123,7 @@ public class AccountServiceImpl implements AccountService {
                         user.setPassword(null);
                         return userRepository.update(user);
                     }
-                    return Single.error(ex);
+                    return RxJava2Adapter.monoToSingle(Mono.error(ex));
                 }))));
 
     }
@@ -150,15 +150,15 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Single<List<Credential>> getWebAuthnCredentials(User user) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(credentialService.findByUserId(ReferenceType.DOMAIN, user.getReferenceId(), user.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(credentialService.findByUserId(ReferenceType.DOMAIN, user.getReferenceId(), user.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
                     removeSensitiveData(credential);
                     return credential;
-                })))).collectList());
+                })).collectList());
     }
 
     @Override
     public Single<Credential> getWebAuthnCredential(String id) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(credentialService.findById(id)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new CredentialNotFoundException(id))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(credentialService.findById(id)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(Single.error(new CredentialNotFoundException(id))))).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
                     removeSensitiveData(credential);
                     return credential;
                 })));

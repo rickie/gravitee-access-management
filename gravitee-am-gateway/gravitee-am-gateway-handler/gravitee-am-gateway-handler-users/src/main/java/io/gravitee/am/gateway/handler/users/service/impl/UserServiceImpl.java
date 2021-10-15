@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -61,7 +62,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Maybe<ScopeApproval> consent(String consentId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeApprovalService.findById(consentId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.error(new ScopeApprovalNotFoundException(consentId)))));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeApprovalService.findById(consentId)).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new ScopeApprovalNotFoundException(consentId))))));
     }
 
     @Override

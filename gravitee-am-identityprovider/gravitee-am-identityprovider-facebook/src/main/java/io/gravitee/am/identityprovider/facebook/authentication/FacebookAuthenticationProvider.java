@@ -114,8 +114,8 @@ public class FacebookAuthenticationProvider extends AbstractSocialAuthentication
                 .set(REDIRECT_URI, (String) authentication.getContext().get(REDIRECT_URI))
                 .set(CODE, authorizationCode);
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
-                .rxSendForm(form)))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<Token>>toJdkFunction(httpResponse -> {
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
+                .rxSendForm(form)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<Token>>toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException(httpResponse.bodyAsString())));
 
@@ -127,10 +127,10 @@ public class FacebookAuthenticationProvider extends AbstractSocialAuthentication
 
     protected Maybe<User> profile(Token accessToken, Authentication auth) {
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getUserProfileUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getUserProfileUri())
                 .rxSendForm(MultiMap.caseInsensitiveMultiMap()
                         .set(ACCESS_TOKEN, accessToken.getValue())
-                        .set(FIELDS, ALL_FIELDS_PARAM))))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<User>>toJdkFunction(httpResponse -> {
+                        .set(FIELDS, ALL_FIELDS_PARAM))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<User>>toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                        return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException(httpResponse.bodyAsString())));
                     }

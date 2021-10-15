@@ -207,7 +207,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
         // to propagate across the cluster so if there are at least one reporter for the domain, return the NoOpReporter to avoid
         // too long waiting time that may lead to unexpected even on the UI.
         try {
-            List<io.gravitee.am.model.Reporter> reporters = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(reporterService.findByDomain(domain)).collectList())).block();
+            List<io.gravitee.am.model.Reporter> reporters = RxJava2Adapter.flowableToFlux(reporterService.findByDomain(domain)).collectList().block();
             if (reporters.isEmpty()) {
                 throw new ReporterNotFoundForDomainException(domain);
             }

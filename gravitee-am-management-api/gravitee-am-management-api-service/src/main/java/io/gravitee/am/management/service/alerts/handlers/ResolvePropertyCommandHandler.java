@@ -82,7 +82,7 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
             });
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(Single.merge(obs)).ignoreElements().then())).then(RxJava2Adapter.singleToMono(Single.just(values))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Single.merge(obs)).ignoreElements().then().then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(values)))));
     }
 
     private Single<Map<String, Object>> resolveDomainProperties(String domainId) {

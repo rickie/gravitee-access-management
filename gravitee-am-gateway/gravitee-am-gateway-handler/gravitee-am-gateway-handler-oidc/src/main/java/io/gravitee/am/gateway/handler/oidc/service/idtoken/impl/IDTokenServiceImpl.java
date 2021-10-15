@@ -43,6 +43,7 @@ import io.gravitee.am.service.exception.UserNotFoundException;
 import io.gravitee.gateway.api.ExecutionContext;
 import io.gravitee.gateway.api.context.SimpleExecutionContext;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.time.Instant;
 import java.util.List;
@@ -92,12 +93,12 @@ public class IDTokenServiceImpl implements IDTokenService {
     @Override
     public Single<String> create(OAuth2Request oAuth2Request, Client client, User user, ExecutionContext executionContext) {
         // use or create execution context
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> executionContext != null ? executionContext : createExecution(oAuth2Request, client, user))))).flatMap(v->RxJava2Adapter.singleToMono((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<ExecutionContext, Single<String>>)executionContext1 -> {
+        return RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> executionContext != null ? executionContext : createExecution(oAuth2Request, client, user))).flatMap(v->RxJava2Adapter.singleToMono((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<ExecutionContext, Single<String>>)executionContext1 -> {
                     // create JWT ID Token
                     IDToken idToken = createIDTokenJWT(oAuth2Request, client, user, executionContext);
 
                     // sign ID Token
-                    return certificateManager.findByAlgorithm(client.getIdTokenSignedResponseAlg())
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateManager.findByAlgorithm(client.getIdTokenSignedResponseAlg())
                             .switchIfEmpty(certificateManager.get(client.getCertificate()))
                             .defaultIfEmpty(certificateManager.defaultCertificateProvider())
                             .flatMapSingle(certificateProvider -> {
@@ -117,27 +118,25 @@ public class IDTokenServiceImpl implements IDTokenService {
                                     });
                                 }
                                 return jwtService.encode(idToken, certificateProvider);
-                            })
-                            .flatMap(signedIdToken -> {
+                            })).flatMap(z->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<String, SingleSource<String>>toJdkFunction(signedIdToken -> {
                                 if(client.getIdTokenEncryptedResponseAlg()!=null) {
                                     return jweService.encryptIdToken(signedIdToken, client);
                                 }
                                 return Single.just(signedIdToken);
-                            });
+                            }).apply(z)))));
                 }).apply(v))));
     }
 
     @Override
     public Single<User> extractUser(String idToken, Client client) {
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.decodeAndVerify(idToken, client)).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, Single<User>>)jwt -> {
-                    return userService.findById(jwt.getSub())
-                            .switchIfEmpty(Single.error(new UserNotFoundException(jwt.getSub())))
-                            .map(user -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.findById(jwt.getSub())
+                            .switchIfEmpty(Single.error(new UserNotFoundException(jwt.getSub())))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                                 if (!user.getReferenceId().equals(domain.getId())) {
                                     throw new UserNotFoundException(jwt.getSub());
                                 }
                                 return user;
-                            });
+                            })));
                 }).apply(v))));
     }
 

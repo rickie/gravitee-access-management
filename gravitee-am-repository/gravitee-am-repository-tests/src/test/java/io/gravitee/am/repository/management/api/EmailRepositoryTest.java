@@ -154,10 +154,10 @@ public class EmailRepositoryTest extends AbstractManagementTest {
 
         final int loop = 10;
         List<Email> emails = IntStream.range(0, loop).mapToObj(__ -> buildEmail()).collect(Collectors.toList());
-        emails.forEach(email -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(repository.create(email)).map(RxJavaReactorMigrationUtil.toJdkFunction(e -> {
+        emails.forEach(email -> RxJava2Adapter.singleToMono(repository.create(email)).map(RxJavaReactorMigrationUtil.toJdkFunction(e -> {
             email.setId(e.getId());
             return e;
-        })))).block());
+        })).block());
 
         TestSubscriber<String> testIdSubscriber = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(repository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(Email::getId))).test();
         testIdSubscriber.awaitTerminalEvent();
@@ -179,10 +179,10 @@ public class EmailRepositoryTest extends AbstractManagementTest {
             email.setReferenceId(FIXED_REF_ID);
             return email;
         }).collect(Collectors.toList());
-        emails.forEach(email -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(repository.create(email)).map(RxJavaReactorMigrationUtil.toJdkFunction(e -> {
+        emails.forEach(email -> RxJava2Adapter.singleToMono(repository.create(email)).map(RxJavaReactorMigrationUtil.toJdkFunction(e -> {
             email.setId(e.getId());
             return e;
-        })))).block());
+        })).block());
 
         // random refId
         IntStream.range(0, loop).forEach(email -> RxJava2Adapter.singleToMono(repository.create(buildEmail())).block());
@@ -208,10 +208,10 @@ public class EmailRepositoryTest extends AbstractManagementTest {
             email.setClient(FIXED_CLI_ID);
             return email;
         }).collect(Collectors.toList());
-        emails.forEach(email -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(repository.create(email)).map(RxJavaReactorMigrationUtil.toJdkFunction(e -> {
+        emails.forEach(email -> RxJava2Adapter.singleToMono(repository.create(email)).map(RxJavaReactorMigrationUtil.toJdkFunction(e -> {
             email.setId(e.getId());
             return e;
-        })))).block());
+        })).block());
 
         for (int i = 0; i < loop; i++) {
             final Email email = buildEmail();

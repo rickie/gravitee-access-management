@@ -153,13 +153,13 @@ public class EmailFactorProvider implements FactorProvider {
             final String recipient = enrolledFactor.getChannel().getTarget();
             EmailService.EmailWrapper emailWrapper = emailService.createEmail(Template.MFA_CHALLENGE, context.getClient(), asList(recipient), params);
 
-            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(provider.sendMessage(emailWrapper.getEmail())).then(RxJava2Adapter.completableToMono(Single.just(enrolledFactor)
+            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(provider.sendMessage(emailWrapper.getEmail())).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(Single.just(enrolledFactor)
                             .flatMap(ef ->  {
                                 ef.setPrimary(true);
                                 ef.setStatus(FactorStatus.ACTIVATED);
                                 ef.getSecurity().putData(FactorDataKeys.KEY_EXPIRE_AT, emailWrapper.getExpireAt());
                                 return userService.addFactor(context.getUser().getId(), ef, new DefaultUser(context.getUser()));
-                            }).ignoreElement())));
+                            })).then()))));
 
         } catch (NoSuchAlgorithmException| InvalidKeyException e) {
             logger.error("Code generation fails", e);

@@ -121,13 +121,12 @@ public class AnalyticsServiceImpl implements AnalyticsService {
             return RxJava2Adapter.monoToSingle(Mono.just(analyticsGroupByResponse));
         }
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(values.keySet())
-                .flatMapMaybe(appId -> RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationService.findById((String) appId)
-                        .map(application -> {
+                .flatMapMaybe(appId -> RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationService.findById((String) appId)).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> {
                             Map<String, Object> data = new HashMap<>();
                             data.put("name", application.getName());
                             data.put("domain", application.getDomain());
                             return Collections.singletonMap((String) appId, data);
-                        })).defaultIfEmpty(Collections.singletonMap((String) appId, getGenericMetadata("Deleted application", true)))))
+                        })))).defaultIfEmpty(Collections.singletonMap((String) appId, getGenericMetadata("Deleted application", true)))))
                 .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(result -> {
                     Map<String, Map<String, Object>> metadata = result.stream()
                             .flatMap(m -> m.entrySet().stream())

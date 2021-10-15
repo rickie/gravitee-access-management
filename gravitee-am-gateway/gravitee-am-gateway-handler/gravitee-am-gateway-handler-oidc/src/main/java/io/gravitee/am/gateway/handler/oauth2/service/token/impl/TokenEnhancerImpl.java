@@ -60,7 +60,7 @@ public class TokenEnhancerImpl implements TokenEnhancer {
                     Map<String, Object> additionalInformation = new HashMap<>(accessToken.getAdditionalInformation());
                     additionalInformation.put(ResponseType.ID_TOKEN, idToken);
                     accessToken.setAdditionalInformation(additionalInformation);
-                    return Single.just(accessToken);
+                    return RxJava2Adapter.monoToSingle(Mono.just(accessToken));
                 }).apply(v))));
     }
 }

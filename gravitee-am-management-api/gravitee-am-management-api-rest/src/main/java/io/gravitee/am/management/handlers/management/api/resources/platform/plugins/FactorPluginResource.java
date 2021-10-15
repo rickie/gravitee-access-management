@@ -55,7 +55,7 @@ public class FactorPluginResource {
     public void get(@PathParam("factor") String authenticatorId,
                     @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticatorPluginService.findById(authenticatorId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new AuthenticatorPluginNotFoundException(authenticatorId))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticatorPluginService.findById(authenticatorId)).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new AuthenticatorPluginNotFoundException(authenticatorId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -68,9 +68,9 @@ public class FactorPluginResource {
                           @Suspended final AsyncResponse response) {
 
         // Check that the authenticator exists
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticatorPluginService.findById(factorId)
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticatorPluginService.findById(factorId)
                 .switchIfEmpty(Maybe.error(new AuthenticatorPluginNotFoundException(factorId)))
-                .flatMap(irrelevant -> authenticatorPluginService.getSchema(factorId))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new AuthenticatorPluginSchemaNotFoundException(factorId))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
+                .flatMap(irrelevant -> authenticatorPluginService.getSchema(factorId))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new AuthenticatorPluginSchemaNotFoundException(factorId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

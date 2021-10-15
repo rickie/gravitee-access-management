@@ -79,11 +79,11 @@ public class PushedAuthorizationRequestRepositoryTest extends AbstractOAuthTest 
         parameters.add("key", "value");
         par.setParameters(parameters);
 
-        TestObserver<PushedAuthorizationRequest> observer = RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(repository
+        TestObserver<PushedAuthorizationRequest> observer = RxJava2Adapter.completableToMono(repository
                 .create(par)
                 .ignoreElement()
                 .andThen(repository.findById(id))
-                .ignoreElement()).then(RxJava2Adapter.completableToMono(Completable.wrap(repository.delete(id))))).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(repository.findById(id))).as(RxJava2Adapter::monoToMaybe)
+                .ignoreElement()).then(RxJava2Adapter.completableToMono(Completable.wrap(repository.delete(id)))).then(RxJava2Adapter.maybeToMono(repository.findById(id))).as(RxJava2Adapter::monoToMaybe)
                 .test();
 
         observer.awaitTerminalEvent();

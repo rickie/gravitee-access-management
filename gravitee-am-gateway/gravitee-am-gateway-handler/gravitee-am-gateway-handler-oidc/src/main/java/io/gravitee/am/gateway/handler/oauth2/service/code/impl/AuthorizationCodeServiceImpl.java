@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -70,8 +71,7 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
   @Override
   public Maybe<AuthorizationCode> remove(String code, Client client) {
     return RxJava2Adapter.monoToMaybe(
-        RxJava2Adapter.maybeToMono(
-                RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authorizationCodeRepository
+        RxJava2Adapter.maybeToMono(authorizationCodeRepository
                     .findByCode(code)
                     .switchIfEmpty(handleInvalidCode(code))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthorizationCode, MaybeSource<AuthorizationCode>>toJdkFunction(authorizationCode -> {
                           if (!authorizationCode.getClientId().equals(client.getClientId())) {
@@ -84,7 +84,7 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
                                         + "."));
                           }
                           return Maybe.just(authorizationCode);
-                        }).apply(v))))))
+                        }).apply(v))))
             .flatMap(
                 z ->
                     authorizationCodeRepository.delete(z.getId()).as(RxJava2Adapter::maybeToMono)));
@@ -105,14 +105,13 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
                           Completable deleteAccessTokenAction =
                               accessTokenRepository.delete(accessToken.getToken());
                           if (accessToken.getRefreshToken() != null) {
-                            RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(deleteAccessTokenAction).then(RxJava2Adapter.completableToMono(Completable.wrap(refreshTokenRepository.delete(accessToken.getRefreshToken())))));
+                            RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(deleteAccessTokenAction).then(RxJava2Adapter.completableToMono(refreshTokenRepository.delete(accessToken.getRefreshToken()))));
                           }
                           return deleteAccessTokenAction;
                         }))
             .then(
                 RxJava2Adapter.maybeToMono(
-                    Maybe.error(
-                            new InvalidGrantException(
-                                "The authorization code " + code + " is invalid.")))));
+                    RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException(
+                                "The authorization code " + code + " is invalid."))))));
   }
 }

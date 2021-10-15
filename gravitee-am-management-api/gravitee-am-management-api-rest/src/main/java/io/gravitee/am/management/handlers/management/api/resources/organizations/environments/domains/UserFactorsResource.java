@@ -48,6 +48,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -83,24 +84,22 @@ public class UserFactorsResource extends AbstractResource {
             @PathParam("user") String user,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
-                        .flatMap(__ -> userService.findById(user))
-                        .switchIfEmpty(Maybe.error(new UserNotFoundException(user)))
+                        .flatMap(__ -> userService.findById(user))).switchIfEmpty(RxJava2Adapter.maybeToMono(Maybe.wrap(Maybe.error(new UserNotFoundException(user))))))
                         .flatMapSingle(user1 -> {
                             if (user1.getFactors() == null) {
-                                return Single.just(Collections.emptyList());
+                                return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()));
                             }
                             return Observable.fromIterable(user1.getFactors())
                                     .flatMapMaybe(enrolledFactor ->
-                                            factorService.findById(enrolledFactor.getFactorId())
+                                            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(factorService.findById(enrolledFactor.getFactorId())
                                                     .map(factor -> {
                                                         EnrolledFactorEntity enrolledFactorEntity = new EnrolledFactorEntity(enrolledFactor);
                                                         enrolledFactorEntity.setType(factor.getType());
                                                         enrolledFactorEntity.setName(factor.getName());
                                                         return enrolledFactorEntity;
-                                                    })
-                                                    .defaultIfEmpty(unknown(enrolledFactor))
+                                                    })).defaultIfEmpty(unknown(enrolledFactor)))
                                     )
                                     .toList();
                         }))))

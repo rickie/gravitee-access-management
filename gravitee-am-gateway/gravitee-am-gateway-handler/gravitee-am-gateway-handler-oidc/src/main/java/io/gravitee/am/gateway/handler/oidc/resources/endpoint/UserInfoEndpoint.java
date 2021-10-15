@@ -87,13 +87,13 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String subject = accessToken.getSub();
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.findById(subject)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.findById(subject)
                 .switchIfEmpty(Maybe.error(new InvalidTokenException("No user found for this token")))
                 // enhance user information
-                .flatMapSingle(user -> enhance(user, accessToken))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> processClaims(user, accessToken))))).flatMap(v->RxJava2Adapter.singleToMono((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Map<String, Object>, Single<String>>)claims -> {
+                .flatMapSingle(user -> enhance(user, accessToken))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> processClaims(user, accessToken))).flatMap(v->RxJava2Adapter.singleToMono((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Map<String, Object>, Single<String>>)claims -> {
                         if (!expectSignedOrEncryptedUserInfo(client)) {
                             context.response().putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-                            return Single.just(Json.encodePrettily(claims));
+                            return RxJava2Adapter.monoToSingle(Mono.just(Json.encodePrettily(claims)));
                         } else {
                             context.response().putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JWT);
 
@@ -104,8 +104,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
                             jwt.setIat(new Date().getTime() / 1000l);
                             jwt.setExp(accessToken.getExp() / 1000l);
 
-                            return jwtService.encodeUserinfo(jwt,client)//Sign if needed, else return unsigned JWT
-                                    .flatMap(userinfo -> jweService.encryptUserinfo(userinfo,client));//Encrypt if needed, else return JWT
+                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.encodeUserinfo(jwt,client)).flatMap(userinfo->RxJava2Adapter.singleToMono(jweService.encryptUserinfo(userinfo, client))));//Encrypt if needed, else return JWT
                         }
                     }).apply(v))))
                 .subscribe(

@@ -135,7 +135,7 @@ public class PermissionTicketServiceTest {
         );
 
         // Prepare Resource
-        Flowable<Resource> found = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(request))).map(RxJavaReactorMigrationUtil.toJdkFunction(s -> new Resource().setId(s.getResourceId()).setResourceScopes(s.getResourceScopes()).setUserId("user_"+s.getResourceId()))));
+        Flowable<Resource> found = RxJava2Adapter.fluxToFlowable(Flux.fromIterable(request).map(RxJavaReactorMigrationUtil.toJdkFunction(s -> new Resource().setId(s.getResourceId()).setResourceScopes(s.getResourceScopes()).setUserId("user_"+s.getResourceId()))));
 
         when(resourceService.findByDomainAndClientAndResources(DOMAIN_ID, CLIENT_ID, Arrays.asList("one","two"))).thenReturn(found);
         TestObserver<PermissionTicket> testObserver = service.create(request, DOMAIN_ID, CLIENT_ID).test();
@@ -173,7 +173,7 @@ public class PermissionTicketServiceTest {
         );
 
         // Prepare Resource
-        Flowable<Resource> found = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(request))).map(RxJavaReactorMigrationUtil.toJdkFunction(s -> new Resource().setId(s.getResourceId()).setResourceScopes(s.getResourceScopes()))));
+        Flowable<Resource> found = RxJava2Adapter.fluxToFlowable(Flux.fromIterable(request).map(RxJavaReactorMigrationUtil.toJdkFunction(s -> new Resource().setId(s.getResourceId()).setResourceScopes(s.getResourceScopes()))));
 
         when(resourceService.findByDomainAndClientAndResources(DOMAIN_ID, CLIENT_ID, Arrays.asList("one","two"))).thenReturn(found);
         when(repository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new PermissionTicket().setId("success"))));

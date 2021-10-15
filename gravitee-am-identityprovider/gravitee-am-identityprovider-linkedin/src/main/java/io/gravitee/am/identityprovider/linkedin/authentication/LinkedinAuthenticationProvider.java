@@ -112,10 +112,10 @@ public class LinkedinAuthenticationProvider extends AbstractSocialAuthentication
         urlParameters.add(new BasicNameValuePair(GRANT_TYPE, "authorization_code"));
         String bodyRequest = URLEncodedUtils.format(urlParameters);
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
                 .putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(bodyRequest.length()))
                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
-                .rxSendBuffer(Buffer.buffer(bodyRequest))))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+                .rxSendBuffer(Buffer.buffer(bodyRequest))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                         throw new BadCredentialsException(httpResponse.statusMessage());
                     }
@@ -128,7 +128,7 @@ public class LinkedinAuthenticationProvider extends AbstractSocialAuthentication
 
     @Override
     protected Maybe<User> profile(Token accessToken, Authentication authentication) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(client.getAbs(configuration.getUserProfileUri())
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(client.getAbs(configuration.getUserProfileUri())
                 .putHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken.getValue())
                 .rxSend()
                 .toMaybe()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
@@ -137,7 +137,7 @@ public class LinkedinAuthenticationProvider extends AbstractSocialAuthentication
                     }
 
                     return createUser(authentication.getContext(), httpClientResponse.bodyAsJsonObject());
-                })))).flatMap(z->RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(requestEmailAddress(accessToken)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Optional<java.lang.String> address)->{
+                })).flatMap(z->RxJava2Adapter.maybeToMono(requestEmailAddress(accessToken)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Optional<java.lang.String> address)->{
 address.ifPresent((java.lang.String value)->{
 ((DefaultUser)z).setEmail(value);
 ((DefaultUser)z).setUsername(value);
@@ -145,14 +145,14 @@ z.getAdditionalInformation().put(StandardClaims.EMAIL, value);
 z.getAdditionalInformation().put(StandardClaims.PREFERRED_USERNAME, value);
 });
 return z;
-}))).as(RxJava2Adapter::maybeToMono)));
+}))));
     }
 
     private Maybe<Optional<String>> requestEmailAddress(Token accessToken) {
         if (configuration.getScopes().contains(SCOPE_EMAIL)) {
-            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserEmailAddressUri())
+            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserEmailAddressUri())
                     .putHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken.getValue())
-                    .rxSend()))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
+                    .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
                         if (httpClientResponse.statusCode() == 200) {
                             String email = null;
                             JsonObject payload = httpClientResponse.bodyAsJsonObject();

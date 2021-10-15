@@ -37,6 +37,7 @@ import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -61,7 +62,7 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
     @Override
     public Maybe<Installation> find() {
         LOGGER.debug("find()");
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(this.installationRepository.findAll()).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(this.installationRepository.findAll()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
@@ -83,7 +84,7 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         insertSpec = addQuotedField(insertSpec, "updated_at", dateConverter.convertTo(installation.getUpdatedAt(), null), LocalDateTime.class);
         insertSpec = databaseDialectHelper.addJsonField(insertSpec, "additional_information", installation.getAdditionalInformation());
 
-        return RxJava2Adapter.monoToSingle(insertSpec.then().then(RxJava2Adapter.singleToMono(Single.defer(() -> this.findById(installation.getId()).toSingle()))));
+        return RxJava2Adapter.monoToSingle(insertSpec.then().then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.defer(()->RxJava2Adapter.singleToMono(this.findById(installation.getId()).toSingle()))))));
     }
 
     @Override
@@ -99,7 +100,7 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         updateFields = addQuotedField(updateFields, "updated_at", dateConverter.convertTo(installation.getUpdatedAt(), null), LocalDateTime.class);
         updateFields = databaseDialectHelper.addJsonField(updateFields, "additional_information", installation.getAdditionalInformation());
 
-        return RxJava2Adapter.monoToSingle(updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(installation.getId()))).then().then(RxJava2Adapter.singleToMono(Single.defer(() -> this.findById(installation.getId()).toSingle()))));
+        return RxJava2Adapter.monoToSingle(updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(installation.getId()))).then().then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.defer(()->RxJava2Adapter.singleToMono(this.findById(installation.getId()).toSingle()))))));
     }
 
     @Override

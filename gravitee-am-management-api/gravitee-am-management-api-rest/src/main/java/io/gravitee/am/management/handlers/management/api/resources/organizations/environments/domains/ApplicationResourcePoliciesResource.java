@@ -78,12 +78,10 @@ public class ApplicationResourcePoliciesResource extends AbstractResource {
             @PathParam("resource") String resource,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ)).then(RxJava2Adapter.singleToMono(domainService.findById(domain)
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(domainService.findById(domain)
                         .switchIfEmpty(Maybe.error(new DomainNotFoundException(domain)))
                         .flatMap(__ -> applicationService.findById(application))
-                        .switchIfEmpty(Single.error(new ApplicationNotFoundException(application)))
-                        .flatMap(application1 -> resourceService.findAccessPoliciesByResources(Collections.singletonList(resource))
-                                .map(AccessPolicyListItem::new).toList()))))
+                        .switchIfEmpty(Single.error(new ApplicationNotFoundException(application)))).flatMap(application1->RxJava2Adapter.singleToMono(resourceService.findAccessPoliciesByResources(Collections.singletonList(resource)).map(AccessPolicyListItem::new).toList()))))))
                 .subscribe(response::resume, response::resume);
     }
 

@@ -98,13 +98,13 @@ public class OAuth2GenericAuthenticationProvider extends AbstractOpenIDConnectAu
         // fetch OpenID Provider information
         if (configuration.getWellKnownUri() != null && !configuration.getWellKnownUri().isEmpty()) {
             try {
-                Map<String, Object> providerConfiguration = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.getAbs(configuration.getWellKnownUri())
+                Map<String, Object> providerConfiguration = RxJava2Adapter.singleToMono(client.getAbs(configuration.getWellKnownUri())
                         .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
                             if (httpClientResponse.statusCode() != 200) {
                                 throw new IllegalArgumentException("Invalid OIDC Well-Known Endpoint : " + httpClientResponse.statusMessage());
                             }
                             return httpClientResponse.bodyAsJsonObject().getMap();
-                        })))).block();
+                        })).block();
 
                 if (providerConfiguration.containsKey(AUTHORIZATION_ENDPOINT)) {
                     configuration.setUserAuthorizationUri((String) providerConfiguration.get(AUTHORIZATION_ENDPOINT));

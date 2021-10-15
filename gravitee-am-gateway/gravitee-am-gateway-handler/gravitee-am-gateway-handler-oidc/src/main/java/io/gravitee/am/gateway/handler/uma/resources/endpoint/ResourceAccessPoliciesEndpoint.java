@@ -40,6 +40,7 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -68,7 +69,7 @@ public class ResourceAccessPoliciesEndpoint {
         final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         final String resource = context.request().getParam(RESOURCE_ID);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(resourceService.findAccessPolicies(domain.getId(), client.getId(), accessToken.getSub(), resource)).map(RxJavaReactorMigrationUtil.toJdkFunction(AccessPolicy::getId)))).collectList())
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(resourceService.findAccessPolicies(domain.getId(), client.getId(), accessToken.getSub(), resource)).map(RxJavaReactorMigrationUtil.toJdkFunction(AccessPolicy::getId)).collectList())
                 .subscribe(
                         response -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -110,7 +111,7 @@ public class ResourceAccessPoliciesEndpoint {
         final String resource = context.request().getParam(RESOURCE_ID);
         final String accessPolicyId = context.request().getParam(POLICY_ID);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(resourceService.findAccessPolicy(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.error(new AccessPolicyNotFoundException(accessPolicyId)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(resourceService.findAccessPolicy(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId)).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new AccessPolicyNotFoundException(accessPolicyId))))))
                 .subscribe(
                         response -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")

@@ -90,18 +90,16 @@ public class HybridFlow extends AbstractFlow {
                     switch (authorizationRequest.getResponseType()) {
                         // code id_token response type MUST include both an Authorization Code and an id_token
                         case ResponseType.CODE_ID_TOKEN:
-                            return idTokenService.create(oAuth2Request, client, endUser)
-                                    .map(idToken -> {
+                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(idTokenService.create(oAuth2Request, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(idToken -> {
                                         hybridResponse.setIdToken(idToken);
                                         return hybridResponse;
-                                    });
+                                    })));
                         // others Hybrid Flow response type MUST include at least an Access Token, an Access Token Type and optionally an ID Token
                         default:
-                            return tokenService.create(oAuth2Request, client, endUser)
-                                    .map(accessToken -> {
+                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tokenService.create(oAuth2Request, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> {
                                         hybridResponse.setAccessToken(accessToken);
                                         return hybridResponse;
-                                    });
+                                    })));
                     }
                 }).apply(v))));
     }

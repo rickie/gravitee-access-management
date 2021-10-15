@@ -69,17 +69,16 @@ public class NotifierPluginService {
     }
 
     public Single<NotifierPlugin> findById(String notifierId) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Maybe.fromCallable(() -> notifierPluginManager.findById(notifierId))).flatMap(z->convert(z).toMaybe().as(RxJava2Adapter::maybeToMono)))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> notifierPluginManager.findById(notifierId))))).flatMap(z->RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(convert(z))).as(RxJava2Adapter::maybeToMono)))
                 .onErrorResumeNext(throwable -> {
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error occurs while trying to get notifier plugin " + notifierId, throwable)));
-                })).switchIfEmpty(RxJava2Adapter.singleToMono(Single.defer(() -> Single.error(new NotifierPluginNotFoundException(notifierId))))));
+                })).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.defer(()->RxJava2Adapter.singleToMono(Single.error(new NotifierPluginNotFoundException(notifierId))))))));
     }
 
     public Single<String> getSchema(String notifierId) {
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Maybe.fromCallable(() -> notifierPluginManager.getSchema(notifierId))
-                .map(objectMapper::readTree)
-                .doOnSuccess(jsonSchema -> {
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(Maybe.fromCallable(() -> notifierPluginManager.getSchema(notifierId))
+                .map(objectMapper::readTree)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(jsonSchema -> {
                     final JsonNode propertiesNode = jsonSchema.get("properties");
                     JsonNode messageNode = null;
                     if (propertiesNode instanceof ObjectNode) {
@@ -93,10 +92,10 @@ public class NotifierPluginService {
                     if (messageNode instanceof ObjectNode) {
                         ((ObjectNode) messageNode).put("default", DEFAULT_NOTIFIER_MESSAGE);
                     }
-                })).map(RxJavaReactorMigrationUtil.toJdkFunction(JsonNode::toString)))
+                })))).map(RxJavaReactorMigrationUtil.toJdkFunction(JsonNode::toString)))
                 .onErrorResumeNext(throwable -> {
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error occurs while trying to get schema for notifier plugin " + notifierId, throwable)));
-                })).switchIfEmpty(RxJava2Adapter.singleToMono(Single.defer(() -> Single.error(new NotifierPluginSchemaNotFoundException(notifierId))))));
+                })).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.defer(()->RxJava2Adapter.singleToMono(Single.error(new NotifierPluginSchemaNotFoundException(notifierId))))))));
     }
 
     public Maybe<String> getIcon(String notifierId) {
@@ -126,8 +125,8 @@ public class NotifierPluginService {
         if (expand != null) {
             final List<String> expandList = Arrays.asList(expand);
             if (expandList.contains(EXPAND_ICON)) {
-                return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(this.getIcon(notifierPlugin.getId())
-                        .doOnSuccess(notifierPlugin::setIcon)).then())).then(RxJava2Adapter.singleToMono(Single.just(notifierPlugin))));
+                return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.getIcon(notifierPlugin.getId())
+                        .doOnSuccess(notifierPlugin::setIcon)).then().then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(notifierPlugin)))));
             }
         }
 

@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -111,10 +112,10 @@ public class RepositoryCredentialStore {
                                     return authenticators;
                                 });
                     } else {
-                        return Single.just(credentials
+                        return RxJava2Adapter.monoToSingle(Mono.just(credentials
                                 .stream()
                                 .map(this::convert)
-                                .collect(Collectors.toList()));
+                                .collect(Collectors.toList())));
                     }
                 }).apply(v))))
                 .subscribe(
@@ -128,7 +129,7 @@ public class RepositoryCredentialStore {
     public Future<Void> store(Authenticator authenticator) {
         Promise<Void> promise = Promise.promise();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(credentialService.findByCredentialId(ReferenceType.DOMAIN, domain.getId(), authenticator.getCredID())).collectList())).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Credential>, CompletableSource>)credentials -> {
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(credentialService.findByCredentialId(ReferenceType.DOMAIN, domain.getId(), authenticator.getCredID())).collectList().flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Credential>, CompletableSource>)credentials -> {
                     if (credentials.isEmpty()) {
                         // no credential found, create it
                         return create(authenticator);

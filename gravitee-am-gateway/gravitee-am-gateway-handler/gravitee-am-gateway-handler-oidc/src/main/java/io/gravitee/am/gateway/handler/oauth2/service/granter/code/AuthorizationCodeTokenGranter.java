@@ -87,7 +87,7 @@ public class AuthorizationCodeTokenGranter extends AbstractTokenGranter {
             return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Missing parameter: code")));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client)).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(authorizationCodeService.remove(code, client).flatMap((io.gravitee.am.repository.oauth2.model.AuthorizationCode authorizationCode)->authenticationFlowContextService.removeContext(authorizationCode.getTransactionId(), authorizationCode.getContextVersion()).onErrorResumeNext((java.lang.Throwable error)->(exitOnError) ? Maybe.error(error) : Maybe.just(new AuthenticationFlowContext())).map((io.gravitee.am.model.AuthenticationFlowContext ctx)->{
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client)).flatMap(tokenRequest1->RxJava2Adapter.maybeToMono(authorizationCodeService.remove(code, client).flatMap((io.gravitee.am.repository.oauth2.model.AuthorizationCode authorizationCode)->authenticationFlowContextService.removeContext(authorizationCode.getTransactionId(), authorizationCode.getContextVersion()).onErrorResumeNext((java.lang.Throwable error)->(exitOnError) ? Maybe.error(error) : Maybe.just(new AuthenticationFlowContext())).map((io.gravitee.am.model.AuthenticationFlowContext ctx)->{
 checkRedirectUris(tokenRequest1, authorizationCode);
 checkPKCE(tokenRequest1, authorizationCode);
 tokenRequest1.setSubject(authorizationCode.getSubject());
@@ -101,7 +101,7 @@ decodedAuthorizationCode.put("transactionId", authorizationCode.getTransactionId
 tokenRequest1.setAuthorizationCode(decodedAuthorizationCode);
 tokenRequest1.getContext().put(ConstantKeys.AUTH_FLOW_CONTEXT_ATTRIBUTES_KEY, ctx.getData());
 return tokenRequest1;
-}))).single()))));
+}))).single()));
     }
 
     @Override

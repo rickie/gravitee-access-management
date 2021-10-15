@@ -76,29 +76,29 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
 
     @Override
     public Flowable<Domain> findAll() {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find()))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
     }
 
     @Override
     public Maybe<Domain> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(domainsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(domainsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
     }
 
     @Override
     public Maybe<Domain> findByHrid(ReferenceType referenceType, String referenceId, String hrid) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
                 domainsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_HRID, hrid)
                         )
-                )), BackpressureStrategy.BUFFER).next())).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
+                )), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
     }
 
     @Override
     public Flowable<Domain> findByIdIn(Collection<String> ids) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(in(FIELD_ID, ids))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(in(FIELD_ID, ids))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
     }
 
     @Override
@@ -106,7 +106,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
         Bson mongoQuery = and(
                 eq(FIELD_REFERENCE_TYPE, ReferenceType.ENVIRONMENT.name()),
                 eq(FIELD_REFERENCE_ID, environmentId));
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(mongoQuery)))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(mongoQuery)).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
     }
 
     @Override
@@ -125,7 +125,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
                 eq(FIELD_REFERENCE_TYPE, ReferenceType.ENVIRONMENT.name()),
                 eq(FIELD_REFERENCE_ID, environmentId), searchQuery);
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(mongoQuery)))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(mongoQuery)).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
     }
 
     @Override
@@ -133,21 +133,21 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
 
         Bson eqAlertEnabled = toBsonFilter("alertEnabled", criteria.isAlertEnabled());
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(toBsonFilter(criteria.isLogicalOR(), eqAlertEnabled)
-                .switchIfEmpty(Single.just(new BsonDocument()))).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> Flowable.fromPublisher(domainsCollection.find(filter)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(toBsonFilter(criteria.isLogicalOR(), eqAlertEnabled)
+                .switchIfEmpty(Single.just(new BsonDocument()))).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> Flowable.fromPublisher(domainsCollection.find(filter)))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert)));
     }
 
     @Override
     public Single<Domain> create(Domain item) {
         DomainMongo domain = convert(item);
         domain.setId(domain.getId() == null ? RandomString.generate() : domain.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(domainsCollection.insertOne(domain))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(domain.getId())).single()))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(domainsCollection.insertOne(domain))).flatMap(success->RxJava2Adapter.maybeToMono(findById(domain.getId())).single()));
     }
 
     @Override
     public Single<Domain> update(Domain item) {
         DomainMongo domain = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(domainsCollection.replaceOne(eq(FIELD_ID, domain.getId()), domain))).flatMap(updateResult->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findById(domain.getId())).single()))));
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(domainsCollection.replaceOne(eq(FIELD_ID, domain.getId()), domain))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(domain.getId())).single()));
     }
 
     @Override

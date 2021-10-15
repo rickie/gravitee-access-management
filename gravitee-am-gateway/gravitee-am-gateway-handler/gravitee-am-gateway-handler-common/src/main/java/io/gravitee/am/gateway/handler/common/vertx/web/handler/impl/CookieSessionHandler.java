@@ -100,14 +100,13 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
                         String userId = currentSession.get(USER_ID_KEY);
                         if (!StringUtils.isEmpty(userId)) {
                             // Load the user and put it back in the context.
-                            return userService.findById(userId)
+                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findById(userId)
                                     .doOnSuccess(user -> context.getDelegate().setUser(new User(user)))
                                     .flatMap(user -> userService.enhance(user).toMaybe())
-                                    .map(user -> currentSession)
-                                    .switchIfEmpty(cleanupSession(currentSession))
+                                    .map(user -> currentSession)).switchIfEmpty(RxJava2Adapter.singleToMono(Single.wrap(cleanupSession(currentSession)))))
                                     .onErrorResumeNext(cleanupSession(currentSession));
                         } else {
-                            return Single.just(currentSession);
+                            return RxJava2Adapter.monoToSingle(Mono.just(currentSession));
                         }
                     }).apply(v))));
         }
