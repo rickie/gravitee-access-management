@@ -136,7 +136,7 @@ private Single<Token> handleRequest(TokenRequest tokenRequest, Client client, Us
  return RxJava2Adapter.monoToSingle(handleRequest_migrated(tokenRequest, client, endUser));
 }
 private Mono<Token> handleRequest_migrated(TokenRequest tokenRequest, Client client, User endUser) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(resolveRequest_migrated(tokenRequest, client, endUser))).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(createOAuth2Request_migrated(tokenRequest1, client, endUser)))).flatMap(oAuth2Request->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(createAccessToken_migrated(oAuth2Request, client, endUser))));
+        return resolveRequest_migrated(tokenRequest, client, endUser).flatMap(tokenRequest1->createOAuth2Request_migrated(tokenRequest1, client, endUser)).flatMap(oAuth2Request->createAccessToken_migrated(oAuth2Request, client, endUser));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOAuth2Request_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

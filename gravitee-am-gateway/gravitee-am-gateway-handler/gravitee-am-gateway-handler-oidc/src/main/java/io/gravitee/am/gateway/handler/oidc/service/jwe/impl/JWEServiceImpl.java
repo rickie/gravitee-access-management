@@ -325,7 +325,7 @@ private Single<String> encrypt(JWEObject jwe, Client client, Predicate<JWK> filt
  return RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client, filter, function));
 }
 private Mono<String> encrypt_migrated(JWEObject jwe, Client client, Predicate<JWK> filter, JWEEncrypterFunction<JWK, JWEEncrypter> function) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client))).flatMap(z->RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(z, filter)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new InvalidClientMetadataException("no matching key found to encrypt"))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client).flatMap(z->jwkService.filter_migrated(z, filter)).switchIfEmpty(Mono.error(new InvalidClientMetadataException("no matching key found to encrypt"))))
                 .flatMapSingle(jwk -> RxJava2Adapter.monoToSingle(Mono.just(function.apply(jwk))))).map(RxJavaReactorMigrationUtil.toJdkFunction(encrypter -> {
                     jwe.encrypt(encrypter);
                     return jwe.serialize();

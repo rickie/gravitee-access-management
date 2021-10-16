@@ -104,7 +104,7 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
 @Override
     public Flux<ScopeApproval> findByDomainAndUser_migrated(String domain, String user) {
         LOGGER.debug("Find scope approvals by domain: {} and user: {}", domain, user);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(scopeApprovalRepository.findByDomainAndUser_migrated(domain, user))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return scopeApprovalRepository.findByDomainAndUser_migrated(domain, user).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a scope approval for domain: {} and user: {}", domain, user);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a scope approval for domain: %s and user: %s", domain, user), ex)));
@@ -120,7 +120,7 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
 @Override
     public Flux<ScopeApproval> findByDomainAndUserAndClient_migrated(String domain, String user, String client) {
         LOGGER.debug("Find scope approvals by domain: {} and user: {} and client: {}", domain, user);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(scopeApprovalRepository.findByDomainAndUserAndClient_migrated(domain, user, client))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return scopeApprovalRepository.findByDomainAndUserAndClient_migrated(domain, user, client).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a scope approval for domain: {}, user: {} and client: {}", domain, user, client);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a scope approval for domain: %s, user: %s and client: %s", domain, user, client), ex)));

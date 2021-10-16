@@ -101,7 +101,7 @@ private Mono<RefreshToken> findById_migrated(String id) {
         }
 
         return RxJava2Adapter.singleToMono(Single
-                .fromPublisher(refreshTokenCollection.insertOne(convert(refreshToken)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(refreshToken.getId()))).single());
+                .fromPublisher(refreshTokenCollection.insertOne(convert(refreshToken)))).flatMap(success->findById_migrated(refreshToken.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(refreshTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

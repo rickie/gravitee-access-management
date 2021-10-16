@@ -167,7 +167,7 @@ private Single<NewResource> extractRequest(RoutingContext context) {
  return RxJava2Adapter.monoToSingle(extractRequest_migrated(context));
 }
 private Mono<NewResource> extractRequest_migrated(RoutingContext context) {
-        return Mono.just(context.getBodyAsJson()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JsonObject, SingleSource<JsonObject>>toJdkFunction((io.vertx.core.json.JsonObject ident) -> RxJava2Adapter.monoToSingle(bodyValidation_migrated(ident))).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class)));
+        return Mono.just(context.getBodyAsJson()).flatMap(v->bodyValidation_migrated(v)).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.bodyValidation_migrated(body))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

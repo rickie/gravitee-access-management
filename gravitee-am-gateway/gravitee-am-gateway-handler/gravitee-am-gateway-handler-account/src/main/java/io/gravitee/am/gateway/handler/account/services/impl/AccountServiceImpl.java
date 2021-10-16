@@ -124,7 +124,7 @@ public class AccountServiceImpl implements AccountService {
     public Mono<User> update_migrated(User user) {
         LOGGER.debug("Update a user {} for domain {}", user.getUsername(), domain.getName());
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()))).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
+        return userValidator.validate_migrated(user).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
                 .flatMapSingle(userProvider -> {
                     if (user.getExternalId() == null) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("User does not exist in upstream IDP")));
@@ -154,7 +154,7 @@ public class AccountServiceImpl implements AccountService {
 }
 @Override
     public Mono<List<Factor>> getFactors_migrated(String domain) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(factorService.findByDomain_migrated(domain))).collectList();
+        return factorService.findByDomain_migrated(domain).collectList();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getFactor_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -198,7 +198,7 @@ public class AccountServiceImpl implements AccountService {
 }
 @Override
     public Mono<List<Credential>> getWebAuthnCredentials_migrated(User user) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialService.findByUserId_migrated(ReferenceType.DOMAIN, user.getReferenceId(), user.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
+        return credentialService.findByUserId_migrated(ReferenceType.DOMAIN, user.getReferenceId(), user.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
                     removeSensitiveData(credential);
                     return credential;
                 })).collectList();
@@ -212,7 +212,7 @@ public class AccountServiceImpl implements AccountService {
 }
 @Override
     public Mono<Credential> getWebAuthnCredential_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(credentialService.findById_migrated(id))).switchIfEmpty(Mono.error(new CredentialNotFoundException(id))).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
+        return credentialService.findById_migrated(id).switchIfEmpty(Mono.error(new CredentialNotFoundException(id))).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
                     removeSensitiveData(credential);
                     return credential;
                 }));

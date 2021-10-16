@@ -227,7 +227,7 @@ private Maybe<UserAuthentication> authenticate0(Client client, Authentication au
  return RxJava2Adapter.monoToMaybe(authenticate0_migrated(client, authentication, authProvider, preAuthenticated));
 }
 private Mono<UserAuthentication> authenticate0_migrated(Client client, Authentication authentication, String authProvider, boolean preAuthenticated) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(preAuthentication_migrated(client, authentication, authProvider))).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(loadUserByUsername0_migrated(client, authentication, authProvider, preAuthenticated)))).flatMap(z->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(postAuthentication_migrated(client, authentication, authProvider, z))).then(Mono.just(z)));
+        return preAuthentication_migrated(client, authentication, authProvider).then(loadUserByUsername0_migrated(client, authentication, authProvider, preAuthenticated)).flatMap(z->postAuthentication_migrated(client, authentication, authProvider, z).then(Mono.just(z)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername0_migrated(client, authentication, authProvider, preAuthenticated))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -295,7 +295,7 @@ private Mono<Void> preAuthentication_migrated(Client client, String username, St
                     .identityProvider(source)
                     .username(username)
                     .build();
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(loginAttemptService.checkAccount_migrated(criteria, accountSettings))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<LoginAttempt>, CompletableSource>)optLoginAttempt -> {
+            return loginAttemptService.checkAccount_migrated(criteria, accountSettings).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<LoginAttempt>, CompletableSource>)optLoginAttempt -> {
                         if (optLoginAttempt.isPresent() && optLoginAttempt.get().isAccountLocked(accountSettings.getMaxLoginAttempts())) {
                             Map<String, String> details = new HashMap<>();
                             details.put("attempt_id", optLoginAttempt.get().getId());
@@ -328,8 +328,8 @@ private Mono<Void> postAuthentication_migrated(Client client, String username, S
                 // do not execute login attempt feature for non existing users
                 // normally the IdP should respond with Maybe.empty() or UsernameNotFoundException
                 // but we can't control custom IdP that's why we have to check user existence
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findByDomainAndUsernameAndSource_migrated(criteria.domain(), criteria.username(), criteria.identityProvider()))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)user -> {
-                            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(loginAttemptService.loginFailed_migrated(criteria, accountSettings))).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<LoginAttempt, CompletableSource>toJdkFunction(loginAttempt -> {
+                return userService.findByDomainAndUsernameAndSource_migrated(criteria.domain(), criteria.username(), criteria.identityProvider()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)user -> {
+                            return RxJava2Adapter.monoToCompletable(loginAttemptService.loginFailed_migrated(criteria, accountSettings).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<LoginAttempt, CompletableSource>toJdkFunction(loginAttempt -> {
                                         if (loginAttempt.isAccountLocked(accountSettings.getMaxLoginAttempts())) {
                                             return RxJava2Adapter.monoToCompletable(userAuthenticationService.lockAccount_migrated(criteria, accountSettings, client, user));
                                         }

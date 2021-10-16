@@ -115,7 +115,7 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
         return insert
                 .then(storeAlertNotifiers)
                 .as(trx::transactional)
-                .then(maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(alertTrigger.getId()))));
+                .then(findById_migrated(alertTrigger.getId()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(alertTrigger))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -139,7 +139,7 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
         return update
                 .then(storeAlertNotifiers)
                 .as(trx::transactional)
-                .then(maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(alertTrigger.getId()))));
+                .then(findById_migrated(alertTrigger.getId()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

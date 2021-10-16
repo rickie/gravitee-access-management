@@ -97,7 +97,7 @@ public class TagServiceImpl implements TagService {
 @Override
     public Flux<Tag> findAll_migrated(String organizationId) {
         LOGGER.debug("Find all tags");
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(tagRepository.findAll_migrated(organizationId))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return tagRepository.findAll_migrated(organizationId).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find all tags", ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find all tags", ex)));
                 }));
@@ -114,7 +114,7 @@ public class TagServiceImpl implements TagService {
         LOGGER.debug("Create a new tag: {}", newTag);
         String id = humanReadableId(newTag.getName());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(id, organizationId))).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Tag>>toJdkFunction(empty -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.findById_migrated(id, organizationId).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Tag>>toJdkFunction(empty -> {
                     if (!empty) {
                         throw new TagAlreadyExistsException(newTag.getName());
                     } else {

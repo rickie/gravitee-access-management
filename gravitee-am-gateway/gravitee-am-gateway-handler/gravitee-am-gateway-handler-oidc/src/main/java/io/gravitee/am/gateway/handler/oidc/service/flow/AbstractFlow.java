@@ -65,7 +65,7 @@ public abstract class AbstractFlow implements Flow {
 }
 @Override
     public Mono<AuthorizationResponse> run_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
-        return RxJava2Adapter.singleToMono(prepareResponse(authorizationRequest, client, endUser)).flatMap(response->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(processResponse_migrated(response, authorizationRequest, client, endUser))));
+        return RxJava2Adapter.singleToMono(prepareResponse(authorizationRequest, client, endUser)).flatMap(response->processResponse_migrated(response, authorizationRequest, client, endUser));
     }
 
     protected abstract Single<AuthorizationResponse> prepareResponse(AuthorizationRequest authorizationRequest, Client client, User endUser);
@@ -92,7 +92,7 @@ private Mono<AuthorizationResponse> processResponse_migrated(AuthorizationRespon
         jwtAuthorizationResponse.setExp(Instant.now().plusSeconds(codeValidityInSec).getEpochSecond());
 
         // Sign if needed, else return unsigned JWT
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.encodeAuthorization_migrated(jwtAuthorizationResponse.build(), client))).flatMap(authorization->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jweService.encryptAuthorization_migrated(authorization, client)))).map(RxJavaReactorMigrationUtil.toJdkFunction(token -> {
+        return jwtService.encodeAuthorization_migrated(jwtAuthorizationResponse.build(), client).flatMap(authorization->jweService.encryptAuthorization_migrated(authorization, client)).map(RxJavaReactorMigrationUtil.toJdkFunction(token -> {
                     jwtAuthorizationResponse.setResponseType(authorizationRequest.getResponseType());
                     jwtAuthorizationResponse.setResponseMode(authorizationRequest.getResponseMode());
                     jwtAuthorizationResponse.setToken(token);

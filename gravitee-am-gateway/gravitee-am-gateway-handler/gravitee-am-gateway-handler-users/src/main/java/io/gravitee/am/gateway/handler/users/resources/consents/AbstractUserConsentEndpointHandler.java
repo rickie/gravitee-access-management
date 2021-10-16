@@ -63,7 +63,7 @@ protected Mono<User> getPrincipal_migrated(RoutingContext context) {
 
         // end user
         if (!token.getSub().equals(token.getAud())) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(token.getSub()))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
+            return userService.findById_migrated(token.getSub()).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                         User principal = new DefaultUser(user.getUsername());
                         ((DefaultUser) principal).setId(user.getId());
                         Map<String, Object> additionalInformation =
@@ -77,7 +77,7 @@ protected Mono<User> getPrincipal_migrated(RoutingContext context) {
                     })).defaultIfEmpty(defaultPrincipal(context, token)).single();
         } else {
             // revocation made oauth2 clients
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated(token.getAud()))).map(RxJavaReactorMigrationUtil.toJdkFunction(client -> {
+            return clientSyncService.findByClientId_migrated(token.getAud()).map(RxJavaReactorMigrationUtil.toJdkFunction(client -> {
                         User principal = new DefaultUser(client.getClientId());
                         ((DefaultUser) principal).setId(client.getId());
                         Map<String, Object> additionalInformation = new HashMap<>();

@@ -86,7 +86,7 @@ public class ImplicitFlow extends AbstractFlow {
         oAuth2Request.setSubject(endUser.getId());
         oAuth2Request.getContext().put(Claims.s_hash, authorizationRequest.getState());
         if (io.gravitee.am.common.oidc.ResponseType.ID_TOKEN.equals(authorizationRequest.getResponseType())) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, endUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(idToken -> {
+            return idTokenService.create_migrated(oAuth2Request, client, endUser).map(RxJavaReactorMigrationUtil.toJdkFunction(idToken -> {
                         IDTokenResponse response = new IDTokenResponse();
                         response.setRedirectUri(authorizationRequest.getRedirectUri());
                         response.setIdToken(idToken);
@@ -94,7 +94,7 @@ public class ImplicitFlow extends AbstractFlow {
                         return response;
                     }));
         } else {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tokenService.create_migrated(oAuth2Request, client, endUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> {
+            return tokenService.create_migrated(oAuth2Request, client, endUser).map(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> {
                         ImplicitResponse response = new ImplicitResponse();
                         response.setRedirectUri(authorizationRequest.getRedirectUri());
                         response.setAccessToken(accessToken);

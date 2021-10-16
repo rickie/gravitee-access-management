@@ -157,7 +157,7 @@ private Mono<Void> updateRoles_migrated(User principal, io.gravitee.am.model.Use
         final String roleId = principal.getRoles().get(0);
 
         // update membership if necessary
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(membershipService.findByMember_migrated(existingUser.getId(), MemberType.USER))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(membership -> ReferenceType.ORGANIZATION == membership.getReferenceType())).next().map(RxJavaReactorMigrationUtil.toJdkFunction(membership -> !membership.getRoleId().equals(roleId))).switchIfEmpty(Mono.just(false)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)mustChangeOrganizationRole -> {
+        return membershipService.findByMember_migrated(existingUser.getId(), MemberType.USER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(membership -> ReferenceType.ORGANIZATION == membership.getReferenceType())).next().map(RxJavaReactorMigrationUtil.toJdkFunction(membership -> !membership.getRoleId().equals(roleId))).switchIfEmpty(Mono.just(false)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)mustChangeOrganizationRole -> {
 
                     if (!mustChangeOrganizationRole) {
                         return RxJava2Adapter.monoToCompletable(Mono.empty());
@@ -171,7 +171,7 @@ private Mono<Void> updateRoles_migrated(User principal, io.gravitee.am.model.Use
                     membership.setRoleId(roleId);
 
                     // check role and then update membership
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.findById_migrated(existingUser.getReferenceType(), existingUser.getReferenceId(), roleId))).flatMap(__->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipService.addOrUpdate_migrated(existingUser.getReferenceId(), membership)))).then());
+                    return RxJava2Adapter.monoToCompletable(roleService.findById_migrated(existingUser.getReferenceType(), existingUser.getReferenceId(), roleId).flatMap(__->membershipService.addOrUpdate_migrated(existingUser.getReferenceId(), membership)).then());
                 }).apply(y)))).then();
     }
 }

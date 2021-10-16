@@ -95,7 +95,7 @@ public class AuthorizationCodeTokenGranter extends AbstractTokenGranter {
             return Mono.error(new InvalidRequestException("Missing parameter: code"));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(super.parseRequest_migrated(tokenRequest, client))).flatMap(tokenRequest1->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeService.remove_migrated(code, client))).flatMap(z->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticationFlowContextService.removeContext_migrated(z.getTransactionId(), z.getContextVersion())).onErrorResumeNext((java.lang.Throwable error)->(exitOnError) ? RxJava2Adapter.monoToMaybe(Mono.error(error)) : RxJava2Adapter.monoToMaybe(Mono.just(new AuthenticationFlowContext())))).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.AuthenticationFlowContext ctx)->{
+        return super.parseRequest_migrated(tokenRequest, client).flatMap(tokenRequest1->authorizationCodeService.remove_migrated(code, client).flatMap(z->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticationFlowContextService.removeContext_migrated(z.getTransactionId(), z.getContextVersion())).onErrorResumeNext((java.lang.Throwable error)->(exitOnError) ? RxJava2Adapter.monoToMaybe(Mono.error(error)) : RxJava2Adapter.monoToMaybe(Mono.just(new AuthenticationFlowContext())))).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.AuthenticationFlowContext ctx)->{
 checkRedirectUris(tokenRequest1, z);
 checkPKCE(tokenRequest1, z);
 tokenRequest1.setSubject(z.getSubject());

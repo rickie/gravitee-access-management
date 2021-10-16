@@ -86,7 +86,7 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
                 .matching(from(where("domain").is(domain)))
                 .orderBy(Sort.Order.by("scopes."+databaseDialectHelper.toSql(SqlIdentifier.quoted("key"))))
                 .page(PageRequest.of(page, size))
-                .as(JdbcScope.class).fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId()))).flux()))).collectList().flatMap(content->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(countByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<>(content, page, count))));
+                .as(JdbcScope.class).fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId()).flux()))).collectList().flatMap(content->countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<>(content, page, count))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -121,7 +121,7 @@ private Mono<Long> countByDomain_migrated(String domain) {
                 .bind("domain", domain)
                 .bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase())
                 .as(JdbcScope.class)
-                .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId()))).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<>(data, page, total))));
+                .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId()).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<>(data, page, total))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.completeWithClaims_migrated(maybeScope, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -153,7 +153,7 @@ private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String 
                 .matching(from(where("domain").is(domain)
                         .and(where(databaseDialectHelper.toSql(SqlIdentifier.quoted("key"))).is(key))))
                 .as(JdbcScope.class)
-                .first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.monoToMaybe(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(z)), z.getId())).as(RxJava2Adapter::maybeToMono));
+                .first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(z)), z.getId()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndKeys_migrated(domain, keys))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -170,7 +170,7 @@ private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String 
                 .matching(from(where("domain").is(domain)
                         .and(where(databaseDialectHelper.toSql(SqlIdentifier.quoted("key"))).in(keys))))
                 .as(JdbcScope.class)
-                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId()))).flux())));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId()).flux())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -182,7 +182,7 @@ private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String 
 @Override
     public Mono<Scope> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.maybeToMono(scopeRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.monoToMaybe(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(z)), z.getId())).as(RxJava2Adapter::maybeToMono));
+        return RxJava2Adapter.maybeToMono(scopeRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(z)), z.getId()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -224,7 +224,7 @@ private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String 
             }).reduce(Integer::sum));
         }
 
-        return action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
+        return action.as(trx::transactional).flatMap(i->this.findById_migrated(item.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -269,7 +269,7 @@ private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String 
             }).reduce(Integer::sum));
         }
 
-        return deleteClaims.then(action).as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
+        return deleteClaims.then(action).as(trx::transactional).flatMap(i->this.findById_migrated(item.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

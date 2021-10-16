@@ -118,7 +118,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
         // lowercase username to avoid duplicate account
         final String username = user.getUsername().toLowerCase();
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByUsername_migrated(username))).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
+        return findByUsername_migrated(username).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
                     if (!isEmpty) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new UserAlreadyExistsException(user.getUsername())));
                     } else {
@@ -144,7 +144,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
                         // set date fields
                         document.put(FIELD_CREATED_AT, new Date());
                         document.put(FIELD_UPDATED_AT, document.get(FIELD_CREATED_AT));
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne(document))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(document.getString(FIELD_ID)))).single()));
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne(document))).flatMap(success->findById_migrated(document.getString(FIELD_ID)).single()));
                     }
                 }).apply(v)));
     }
@@ -193,7 +193,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(id))).switchIfEmpty(Mono.error(new UserNotFoundException(id))).flatMap(idpUser->Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id)))).then();
+        return findById_migrated(id).switchIfEmpty(Mono.error(new UserNotFoundException(id))).flatMap(idpUser->Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id)))).then();
     }
 
     @Override

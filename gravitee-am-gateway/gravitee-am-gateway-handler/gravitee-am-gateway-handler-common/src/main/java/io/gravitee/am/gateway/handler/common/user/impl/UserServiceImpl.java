@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
 }
 @Override
     public Mono<List<User>> findByDomainAndCriteria_migrated(String domain, FilterCriteria criteria) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.search_migrated(ReferenceType.DOMAIN, domain, criteria, 0, 2))).map(RxJavaReactorMigrationUtil.toJdkFunction(p -> new ArrayList<>(p.getData())));
+        return userService.search_migrated(ReferenceType.DOMAIN, domain, criteria, 0, 2).map(RxJavaReactorMigrationUtil.toJdkFunction(p -> new ArrayList<>(p.getData())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

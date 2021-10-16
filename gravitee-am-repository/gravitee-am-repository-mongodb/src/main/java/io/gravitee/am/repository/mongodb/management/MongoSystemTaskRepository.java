@@ -83,8 +83,7 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
     return RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.insertOne(task)))
         .flatMap(
             success ->
-                RxJava2Adapter.maybeToMono(
-                        RxJava2Adapter.monoToMaybe(findById_migrated(task.getId())))
+                findById_migrated(task.getId())
                     .single());
   }
 
@@ -122,8 +121,7 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
                     and(eq(FIELD_ID, task.getId()), eq(FIELD_OPERATION_ID, operationId)), task)))
         .flatMap(
             updateResult ->
-                RxJava2Adapter.maybeToMono(
-                        RxJava2Adapter.monoToMaybe(findById_migrated(task.getId())))
+                findById_migrated(task.getId())
                     .single());
   }
 

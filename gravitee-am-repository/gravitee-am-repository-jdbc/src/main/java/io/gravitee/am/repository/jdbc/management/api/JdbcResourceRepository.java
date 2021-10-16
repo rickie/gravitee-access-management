@@ -91,7 +91,7 @@ private Mono<Page<Resource>> findResourcePage_migrated(String domain, int page, 
                 .orderBy(Sort.Order.asc("id"))
                 .page(PageRequest.of(page, size))
                 .as(JdbcResource.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
-                .flatMap(res -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(res)), res.getId()))).flux()), MAX_CONCURRENCY)).collectList().flatMap(content->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(resourceRepository.countByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Resource>(content, page, count))));
+                .flatMap(res -> RxJava2Adapter.fluxToFlowable(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(res)), res.getId()).flux()), MAX_CONCURRENCY)).collectList().flatMap(content->resourceRepository.countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Resource>(content, page, count))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.completeWithScopes_migrated(maybeResource, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -134,7 +134,7 @@ private Mono<Resource> completeWithScopes_migrated(Maybe<Resource> maybeResource
         if (resources == null || resources.isEmpty()) {
             return Flux.empty();
         }
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(resourceRepository.findByIdIn_migrated(resources))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(resource)), resource.getId()))).flux())));
+        return resourceRepository.findByIdIn_migrated(resources).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> RxJava2Adapter.fluxToFlowable(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(resource)), resource.getId()).flux())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndClientAndUser_migrated(domain, client, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -146,7 +146,7 @@ private Mono<Resource> completeWithScopes_migrated(Maybe<Resource> maybeResource
 @Override
     public Flux<Resource> findByDomainAndClientAndUser_migrated(String domain, String client, String userId) {
         LOGGER.debug("findByDomainAndClientAndUser({},{},{})", domain, client, userId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(resourceRepository.findByDomainAndClientAndUser_migrated(domain, client, userId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(resource)), resource.getId()))).flux())));
+        return resourceRepository.findByDomainAndClientAndUser_migrated(domain, client, userId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> RxJava2Adapter.fluxToFlowable(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(resource)), resource.getId()).flux())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndClientAndResources_migrated(domain, client, resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -158,7 +158,7 @@ private Mono<Resource> completeWithScopes_migrated(Maybe<Resource> maybeResource
 @Override
     public Flux<Resource> findByDomainAndClientAndResources_migrated(String domain, String client, List<String> resources) {
         LOGGER.debug("findByDomainAndClientAndUser({},{},{})", domain, client, resources);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(resourceRepository.findByDomainAndClientAndResources_migrated(domain, client, resources))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(resource)), resource.getId()))).flux())));
+        return resourceRepository.findByDomainAndClientAndResources_migrated(domain, client, resources).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> RxJava2Adapter.fluxToFlowable(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(resource)), resource.getId()).flux())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientAndUserAndResource_migrated(domain, client, userId, resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -170,7 +170,7 @@ private Mono<Resource> completeWithScopes_migrated(Maybe<Resource> maybeResource
 @Override
     public Mono<Resource> findByDomainAndClientAndUserAndResource_migrated(String domain, String client, String userId, String resource) {
         LOGGER.debug("findByDomainAndClientAndUserAndResource({},{},{},{})", domain, client, userId, resource);
-        return completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(resourceRepository.findByDomainAndClientAndUserIdAndResource_migrated(domain, client, userId, resource))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), resource);
+        return completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(resourceRepository.findByDomainAndClientAndUserIdAndResource_migrated(domain, client, userId, resource).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), resource);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -212,7 +212,7 @@ private Mono<Resource> completeWithScopes_migrated(Maybe<Resource> maybeResource
             }).reduce(Integer::sum));
         }
 
-        return insertResult.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
+        return insertResult.as(trx::transactional).flatMap(i->this.findById_migrated(item.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -245,7 +245,7 @@ private Mono<Resource> completeWithScopes_migrated(Maybe<Resource> maybeResource
             }).reduce(Integer::sum));
         }
 
-        return deleteScopes.then(updateResource).as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
+        return deleteScopes.then(updateResource).as(trx::transactional).flatMap(i->this.findById_migrated(item.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

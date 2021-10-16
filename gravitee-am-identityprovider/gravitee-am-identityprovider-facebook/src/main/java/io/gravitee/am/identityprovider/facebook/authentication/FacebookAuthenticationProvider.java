@@ -102,7 +102,7 @@ public class FacebookAuthenticationProvider extends AbstractSocialAuthentication
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticate_migrated(authentication))).flatMap(z->RxJava2Adapter.monoToMaybe(this.profile_migrated(z, authentication)).as(RxJava2Adapter::maybeToMono));
+        return authenticate_migrated(authentication).flatMap(z->this.profile_migrated(z, authentication));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.authenticate_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

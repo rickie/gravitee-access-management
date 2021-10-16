@@ -177,7 +177,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
 
         Bson eqAlertEnabled = toBsonFilter("alertEnabled", criteria.isAlertEnabled());
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(toBsonFilter_migrated(criteria.isLogicalOR(), eqAlertEnabled))).switchIfEmpty(Mono.just(new BsonDocument())).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(filter))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert));
+        return toBsonFilter_migrated(criteria.isLogicalOR(), eqAlertEnabled).switchIfEmpty(Mono.just(new BsonDocument())).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(filter))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -190,7 +190,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
     public Mono<Domain> create_migrated(Domain item) {
         DomainMongo domain = convert(item);
         domain.setId(domain.getId() == null ? RandomString.generate() : domain.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(domainsCollection.insertOne(domain))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(domain.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(domainsCollection.insertOne(domain))).flatMap(success->findById_migrated(domain.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -202,7 +202,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
 @Override
     public Mono<Domain> update_migrated(Domain item) {
         DomainMongo domain = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(domainsCollection.replaceOne(eq(FIELD_ID, domain.getId()), domain))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(domain.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(domainsCollection.replaceOne(eq(FIELD_ID, domain.getId()), domain))).flatMap(updateResult->findById_migrated(domain.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

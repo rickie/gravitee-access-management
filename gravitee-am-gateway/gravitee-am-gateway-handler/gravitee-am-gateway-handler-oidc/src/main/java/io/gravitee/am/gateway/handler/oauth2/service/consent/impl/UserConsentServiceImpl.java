@@ -102,7 +102,7 @@ public class UserConsentServiceImpl implements UserConsentService {
 }
 @Override
     public Mono<List<Scope>> getConsentInformation_migrated(Set<String> consent) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.getAll_migrated())).map(RxJavaReactorMigrationUtil.toJdkFunction(scopes -> {
+        return scopeService.getAll_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(scopes -> {
                     List<Scope> requestedScopes = new ArrayList<>();
                     for (String requestScope : consent) {
                         Scope requestedScope = scopes

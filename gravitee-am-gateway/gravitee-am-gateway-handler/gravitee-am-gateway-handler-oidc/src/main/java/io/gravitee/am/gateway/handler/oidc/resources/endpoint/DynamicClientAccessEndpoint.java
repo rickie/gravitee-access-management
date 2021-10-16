@@ -161,6 +161,6 @@ private Maybe<Client> getClient(RoutingContext context) {
 private Mono<Client> getClient_migrated(RoutingContext context) {
         String clientId = context.request().getParam("client_id");
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.clientSyncService.findByClientId_migrated(clientId))).switchIfEmpty(Mono.error(new ResourceNotFoundException("client not found"))).map(RxJavaReactorMigrationUtil.toJdkFunction(Client::clone));
+        return this.clientSyncService.findByClientId_migrated(clientId).switchIfEmpty(Mono.error(new ResourceNotFoundException("client not found"))).map(RxJavaReactorMigrationUtil.toJdkFunction(Client::clone));
     }
 }

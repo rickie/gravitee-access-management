@@ -90,7 +90,7 @@ protected Mono<CookieSession> setValue_migrated(String payload) {
             setData(new HashMap<>());
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.jwtService.decodeAndVerify_migrated(payload, certificateProvider))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(jwt -> {
+        return this.jwtService.decodeAndVerify_migrated(payload, certificateProvider).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(jwt -> {
                     this.lastLogin = new Date(jwt.getExp() * 1000 - this.timeout());
                     this.setData(jwt);
                 })).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> this));

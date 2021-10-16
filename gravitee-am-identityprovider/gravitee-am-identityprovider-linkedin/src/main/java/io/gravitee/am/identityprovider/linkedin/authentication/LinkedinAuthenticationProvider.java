@@ -149,7 +149,7 @@ public class LinkedinAuthenticationProvider extends AbstractSocialAuthentication
                     }
 
                     return createUser(authentication.getContext(), httpClientResponse.bodyAsJsonObject());
-                })).flatMap(z->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(requestEmailAddress_migrated(accessToken))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Optional<java.lang.String> address)->{
+                })).flatMap(z->requestEmailAddress_migrated(accessToken).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Optional<java.lang.String> address)->{
 address.ifPresent((java.lang.String value)->{
 ((DefaultUser)z).setEmail(value);
 ((DefaultUser)z).setUsername(value);

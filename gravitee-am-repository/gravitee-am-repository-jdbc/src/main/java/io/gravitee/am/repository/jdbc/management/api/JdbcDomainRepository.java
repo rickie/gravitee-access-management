@@ -194,7 +194,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
 
         return insertAction
                 .as(trx::transactional)
-                .then(maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(item.getId()))));
+                .then(findById_migrated(item.getId()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -218,7 +218,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
 
         return updateAction
                 .as(trx::transactional)
-                .then(maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(item.getId()))));
+                .then(findById_migrated(item.getId()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(domainId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -275,15 +275,15 @@ private Flowable<Domain> completeDomain(Domain entity) {
 }
 private Flux<Domain> completeDomain_migrated(Domain entity) {
         return Flux.just(entity).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
-                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(identitiesRepository.findAllByDomainId_migrated(domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcDomain.Identity::getIdentity)).collectList().flux().map(RxJavaReactorMigrationUtil.toJdkFunction(idps -> {
+                RxJava2Adapter.fluxToFlowable(identitiesRepository.findAllByDomainId_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcDomain.Identity::getIdentity)).collectList().flux().map(RxJavaReactorMigrationUtil.toJdkFunction(idps -> {
                     domain.setIdentities(new HashSet<>(idps));
                     return domain;
                 }))))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
-                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(tagRepository.findAllByDomainId_migrated(domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcDomain.Tag::getTag)).collectList().flux().map(RxJavaReactorMigrationUtil.toJdkFunction(tags -> {
+                RxJava2Adapter.fluxToFlowable(tagRepository.findAllByDomainId_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcDomain.Tag::getTag)).collectList().flux().map(RxJavaReactorMigrationUtil.toJdkFunction(tags -> {
                     domain.setTags(new HashSet<>(tags));
                     return domain;
                 }))))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
-                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(vHostsRepository.findAllByDomainId_migrated(domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toVirtualHost)).collectList().flux().map(RxJavaReactorMigrationUtil.toJdkFunction(vhosts -> {
+                RxJava2Adapter.fluxToFlowable(vHostsRepository.findAllByDomainId_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toVirtualHost)).collectList().flux().map(RxJavaReactorMigrationUtil.toJdkFunction(vhosts -> {
                     domain.setVhosts(vhosts);
                     return domain;
                 })))));

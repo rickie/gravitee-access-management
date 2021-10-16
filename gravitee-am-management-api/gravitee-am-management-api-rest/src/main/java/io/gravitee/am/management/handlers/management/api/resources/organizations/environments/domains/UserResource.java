@@ -274,7 +274,7 @@ private Maybe<UserEntity> enhanceIdentityProvider(UserEntity userEntity) {
 }
 private Mono<UserEntity> enhanceIdentityProvider_migrated(UserEntity userEntity) {
         if (userEntity.getSource() != null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(userEntity.getSource()))).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
+            return identityProviderService.findById_migrated(userEntity.getSource()).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
                         userEntity.setSource(idP.getName());
                         return userEntity;
                     })).defaultIfEmpty(userEntity);
@@ -289,7 +289,7 @@ private Maybe<UserEntity> enhanceClient(UserEntity userEntity) {
 }
 private Mono<UserEntity> enhanceClient_migrated(UserEntity userEntity) {
         if (userEntity.getClient() != null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationService.findById_migrated(userEntity.getClient()))).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationService.findByDomainAndClientId_migrated(userEntity.getReferenceId(), userEntity.getClient()))))).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> {
+            return applicationService.findById_migrated(userEntity.getClient()).switchIfEmpty(Mono.defer(()->applicationService.findByDomainAndClientId_migrated(userEntity.getReferenceId(), userEntity.getClient()))).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> {
                         userEntity.setApplicationEntity(new ApplicationEntity(application));
                         return userEntity;
                     })).defaultIfEmpty(userEntity);

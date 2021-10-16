@@ -169,7 +169,7 @@ private Mono<Void> create_migrated(Authenticator authenticator) {
         credential.setAttestationStatement(authenticator.getAttestationCertificates().toString());
         credential.setCreatedAt(new Date());
         credential.setUpdatedAt(credential.getCreatedAt());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialService.create_migrated(credential))).then();
+        return credentialService.create_migrated(credential).then();
     }
 
     private Authenticator convert(Credential credential) {

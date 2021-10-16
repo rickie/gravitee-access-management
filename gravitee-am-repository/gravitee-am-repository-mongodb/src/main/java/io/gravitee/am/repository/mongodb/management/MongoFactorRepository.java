@@ -94,7 +94,7 @@ public class MongoFactorRepository extends AbstractManagementMongoRepository imp
     public Mono<Factor> create_migrated(Factor item) {
         FactorMongo authenticator = convert(item);
         authenticator.setId(authenticator.getId() == null ? RandomString.generate() : authenticator.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(factorsCollection.insertOne(authenticator))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(authenticator.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(factorsCollection.insertOne(authenticator))).flatMap(success->findById_migrated(authenticator.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -106,7 +106,7 @@ public class MongoFactorRepository extends AbstractManagementMongoRepository imp
 @Override
     public Mono<Factor> update_migrated(Factor item) {
         FactorMongo authenticator = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(factorsCollection.replaceOne(eq(FIELD_ID, authenticator.getId()), authenticator))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(authenticator.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(factorsCollection.replaceOne(eq(FIELD_ID, authenticator.getId()), authenticator))).flatMap(updateResult->findById_migrated(authenticator.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

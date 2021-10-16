@@ -67,10 +67,10 @@ private Completable updateDefaultReporter(Domain domain) {
  return RxJava2Adapter.monoToCompletable(updateDefaultReporter_migrated(domain));
 }
 private Mono<Void> updateDefaultReporter_migrated(Domain domain) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(reporterService.findByDomain_migrated(domain.getId()))).collectList().flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Reporter>, CompletableSource>)reporters -> {
+        return reporterService.findByDomain_migrated(domain.getId()).collectList().flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Reporter>, CompletableSource>)reporters -> {
                     if (reporters == null || reporters.isEmpty()) {
                         logger.info("No default reporter found for domain {}, update domain", domain.getName());
-                        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(reporterService.createDefault_migrated(domain.getId()))).then());
+                        return RxJava2Adapter.monoToCompletable(reporterService.createDefault_migrated(domain.getId()).then());
                     }
                     return RxJava2Adapter.monoToCompletable(Mono.empty());
                 }).apply(y)))).then();

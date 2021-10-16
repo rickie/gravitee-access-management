@@ -125,7 +125,7 @@ public class MongoAccessPolicyRepository extends AbstractManagementMongoReposito
     public Mono<AccessPolicy> create_migrated(AccessPolicy item) {
         AccessPolicyMongo accessPolicy = convert(item);
         accessPolicy.setId(accessPolicy.getId() == null ? RandomString.generate() : accessPolicy.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(accessPoliciesCollection.insertOne(accessPolicy))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(accessPolicy.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(accessPoliciesCollection.insertOne(accessPolicy))).flatMap(success->findById_migrated(accessPolicy.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -137,7 +137,7 @@ public class MongoAccessPolicyRepository extends AbstractManagementMongoReposito
 @Override
     public Mono<AccessPolicy> update_migrated(AccessPolicy item) {
         AccessPolicyMongo accessPolicy = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(accessPoliciesCollection.replaceOne(eq(FIELD_ID, accessPolicy.getId()), accessPolicy))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(accessPolicy.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(accessPoliciesCollection.replaceOne(eq(FIELD_ID, accessPolicy.getId()), accessPolicy))).flatMap(success->findById_migrated(accessPolicy.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

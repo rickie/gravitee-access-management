@@ -125,7 +125,7 @@ private Mono<User> filterUserInfos_migrated(Map<Permission, Set<Acl>> organizati
             // Current user has read permission, copy all information.
             filteredUser = new User(user);
             if (user.getSource() != null) {
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(user.getSource()))).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
+                return identityProviderService.findById_migrated(user.getSource()).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
                             filteredUser.setSource(idP.getName());
                             return filteredUser;
                         })).defaultIfEmpty(filteredUser).single();

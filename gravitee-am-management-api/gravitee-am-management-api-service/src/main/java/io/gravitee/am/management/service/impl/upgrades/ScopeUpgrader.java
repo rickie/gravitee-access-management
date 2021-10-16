@@ -84,10 +84,10 @@ private Single<List<Scope>> upgradeDomain(Domain domain) {
 }
 private Mono<List<Scope>> upgradeDomain_migrated(Domain domain) {
         logger.info("Looking for scopes for domain id[{}] name[{}]", domain.getId(), domain.getName());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE))).flatMap(v->RxJava2Adapter.singleToMono((Single<List<Scope>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Page<Scope>, Single<List<Scope>>>)scopes -> {
+        return scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE).flatMap(v->RxJava2Adapter.singleToMono((Single<List<Scope>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Page<Scope>, Single<List<Scope>>>)scopes -> {
                     if (scopes.getData().isEmpty()) {
                         logger.info("No scope found for domain id[{}] name[{}]. Upgrading...", domain.getId(), domain.getName());
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(createAppScopes_migrated(domain))).flatMap(irrelevant->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(createRoleScopes_migrated(domain)))));
+                        return RxJava2Adapter.monoToSingle(createAppScopes_migrated(domain).flatMap(irrelevant->createRoleScopes_migrated(domain)));
                     }
                     logger.info("No scope to update, skip upgrade");
                     return RxJava2Adapter.monoToSingle(Mono.just(new ArrayList<>(scopes.getData())));
@@ -124,7 +124,7 @@ private Single<Scope> createScope(String domain, String scopeKey) {
  return RxJava2Adapter.monoToSingle(createScope_migrated(domain, scopeKey));
 }
 private Mono<Scope> createScope_migrated(String domain, String scopeKey) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.findByDomain_migrated(domain, 0, Integer.MAX_VALUE))).flatMap(v->RxJava2Adapter.singleToMono((Single<Scope>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Page<Scope>, Single<Scope>>)scopes -> {
+        return scopeService.findByDomain_migrated(domain, 0, Integer.MAX_VALUE).flatMap(v->RxJava2Adapter.singleToMono((Single<Scope>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Page<Scope>, Single<Scope>>)scopes -> {
                     Optional<Scope> optScope = scopes.getData().stream().filter(scope -> scope.getKey().equalsIgnoreCase(scopeKey)).findFirst();
                     if (!optScope.isPresent()) {
                         logger.info("Create a new scope key[{}] for domain[{}]", scopeKey, domain);

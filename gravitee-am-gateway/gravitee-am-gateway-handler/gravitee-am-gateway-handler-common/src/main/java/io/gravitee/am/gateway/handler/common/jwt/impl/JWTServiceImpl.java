@@ -134,7 +134,7 @@ public class JWTServiceImpl implements JWTService {
 }
 @Override
     public Mono<JWT> decodeAndVerify_migrated(String jwt, CertificateProvider certificateProvider) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(decode_migrated(certificateProvider, jwt))).map(RxJavaReactorMigrationUtil.toJdkFunction(JWT::new));
+        return decode_migrated(certificateProvider, jwt).map(RxJavaReactorMigrationUtil.toJdkFunction(JWT::new));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decode_migrated(jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

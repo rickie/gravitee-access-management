@@ -86,7 +86,7 @@ public class JdbcAlertNotifierRepository extends AbstractJdbcRepository implemen
                 .into(JdbcAlertNotifier.class)
                 .using(toJdbcAlertNotifier(alertNotifier))
                 .then()
-                .then(maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(alertNotifier.getId()))));
+                .then(findById_migrated(alertNotifier.getId()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(alertNotifier))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -103,7 +103,7 @@ public class JdbcAlertNotifierRepository extends AbstractJdbcRepository implemen
                 .table(JdbcAlertNotifier.class)
                 .using(toJdbcAlertNotifier(alertNotifier))
                 .matching(from(where("id").is(alertNotifier.getId()))).then()
-                .then(maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(alertNotifier.getId()))));
+                .then(findById_migrated(alertNotifier.getId()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
