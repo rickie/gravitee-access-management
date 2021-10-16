@@ -44,7 +44,7 @@ public class UserConsentEndpointHandler extends AbstractUserConsentEndpointHandl
      */
     public void get(RoutingContext context) {
         final String consentId = context.request().getParam("consentId");
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.consent_migrated(consentId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scopeApproval -> context.response()
+        userService.consent_migrated(consentId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scopeApproval -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)

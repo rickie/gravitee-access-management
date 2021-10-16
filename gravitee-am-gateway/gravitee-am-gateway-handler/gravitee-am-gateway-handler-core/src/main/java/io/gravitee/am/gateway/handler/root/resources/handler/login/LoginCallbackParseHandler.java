@@ -110,11 +110,11 @@ public class LoginCallbackParseHandler implements Handler<RoutingContext> {
             return;
         }
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(state, certificateManager.defaultCertificateProvider()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(stateJwt -> {
+        jwtService.decodeAndVerify_migrated(state, certificateManager.defaultCertificateProvider()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(stateJwt -> {
                     final MultiMap initialQueryParams = RequestUtils.getQueryParams((String) stateJwt.getOrDefault("q", ""), false);
                     context.put(ConstantKeys.PARAM_CONTEXT_KEY, initialQueryParams);
                     context.put(ConstantKeys.PROVIDER_ID_PARAM_KEY, stateJwt.get("p"));
-                })))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(stateJwt -> handler.handle(Future.succeededFuture(true))), RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
+                })).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(stateJwt -> handler.handle(Future.succeededFuture(true))), RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
                             logger.error("An error occurs verifying state on login callback", ex);
                             handler.handle(Future.failedFuture(new BadClientCredentialsException()));
                         }));
@@ -129,7 +129,7 @@ public class LoginCallbackParseHandler implements Handler<RoutingContext> {
         }
 
         final String clientId = ((MultiMap) context.get(ConstantKeys.PARAM_CONTEXT_KEY)).get(Parameters.CLIENT_ID);
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated(clientId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> handler.handle(Future.succeededFuture(client))), RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
+        clientSyncService.findByClientId_migrated(clientId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> handler.handle(Future.succeededFuture(client))), RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
                             logger.error("An error occurs while getting client {}", clientId, ex);
                             handler.handle(Future.failedFuture(new BadClientCredentialsException()));
                         }), RxJavaReactorMigrationUtil.toRunnable(() -> {
@@ -148,7 +148,7 @@ public class LoginCallbackParseHandler implements Handler<RoutingContext> {
             return;
         }
 
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.get_migrated(providerId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(authenticationProvider -> handler.handle(Future.succeededFuture(authenticationProvider))), RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
+        identityProviderManager.get_migrated(providerId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(authenticationProvider -> handler.handle(Future.succeededFuture(authenticationProvider))), RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
                             logger.error("An error occurs while getting identity provider {}", providerId, ex);
                             handler.handle(Future.failedFuture(ex));
                         }), RxJavaReactorMigrationUtil.toRunnable(() -> {

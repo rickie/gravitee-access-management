@@ -74,8 +74,8 @@ public class ServiceResourcesResource extends AbstractResource {
             @PathParam("domain") String domain,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.LIST).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapPublisher(___ -> resourceService.findByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterFactorInfos)).collectList()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.LIST).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapPublisher(___ -> resourceService.findByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterFactorInfos)).collectList()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST
@@ -97,11 +97,11 @@ public class ServiceResourcesResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_RESOURCE, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_RESOURCE, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(resourceService.create_migrated(domain, newResource, authenticatedUser)))).map(RxJavaReactorMigrationUtil.toJdkFunction(resource -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/resources/" + resource.getId()))
                                 .entity(resource)
-                                .build()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                                .build()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{resource}")

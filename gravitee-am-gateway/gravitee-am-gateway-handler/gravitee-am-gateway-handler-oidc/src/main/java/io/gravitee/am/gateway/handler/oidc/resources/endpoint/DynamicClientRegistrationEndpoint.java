@@ -68,7 +68,7 @@ public class DynamicClientRegistrationEndpoint implements Handler<RoutingContext
     public void handle(RoutingContext context) {
         LOGGER.debug("Dynamic client registration CREATE endpoint");
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context).flatMap(request->dcrService.create_migrated(request, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response()
+        this.extractRequest_migrated(context).flatMap(request->dcrService.create_migrated(request, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)

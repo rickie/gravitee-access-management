@@ -61,7 +61,7 @@ public class ScopeManagerImpl extends AbstractService implements ScopeManager, I
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing scopes for domain {}", domain.getName());
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scopes -> {
+        scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scopes -> {
                             updateScopes(scopes);
                             logger.info("Scopes loaded for domain {}", domain.getName());
                         }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize scopes for domain {}", domain.getName(), error)));
@@ -125,7 +125,7 @@ public class ScopeManagerImpl extends AbstractService implements ScopeManager, I
     private void updateScope(String scopeId, ScopeEvent scopeEvent) {
         final String eventType = scopeEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} scope event for {}", domain.getName(), eventType, scopeId);
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(scopeService.findById_migrated(scopeId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scope -> {
+        scopeService.findById_migrated(scopeId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scope -> {
                             updateScopes(Collections.singleton(scope));
                             logger.info("Scope {} {}d for domain {}", scopeId, eventType, domain.getName());
                         }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} scope for domain {}", eventType, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No scope found with id {}", scopeId)));

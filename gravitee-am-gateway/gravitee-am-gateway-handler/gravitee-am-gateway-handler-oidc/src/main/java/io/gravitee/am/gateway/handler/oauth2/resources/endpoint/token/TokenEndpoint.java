@@ -82,7 +82,7 @@ public class TokenEndpoint implements Handler<RoutingContext> {
             tokenRequest.setConfirmationMethodX5S256(context.get(ConstantKeys.PEER_CERTIFICATE_THUMBPRINT));
         }
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tokenGranter.grant_migrated(tokenRequest, client))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(accessToken -> context.response()
+        tokenGranter.grant_migrated(tokenRequest, client).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(accessToken -> context.response()
                         .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                         .putHeader(HttpHeaders.PRAGMA, "no-cache")
                         .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)

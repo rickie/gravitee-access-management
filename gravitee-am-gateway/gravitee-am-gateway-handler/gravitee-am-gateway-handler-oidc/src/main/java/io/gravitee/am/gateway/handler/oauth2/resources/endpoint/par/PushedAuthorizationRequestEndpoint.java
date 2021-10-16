@@ -80,7 +80,7 @@ public class PushedAuthorizationRequestEndpoint implements Handler<RoutingContex
         request.setParameters(extractRequestParameters(context.request()));
         request.setClient(client.getClientId());
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(parService.registerParameters_migrated(request, client))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response -> {
+        parService.registerParameters_migrated(request, client).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response -> {
                             context.response()
                                     .setStatusCode(HttpStatusCode.CREATED_201)
                                     .putHeader(io.gravitee.common.http.HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)

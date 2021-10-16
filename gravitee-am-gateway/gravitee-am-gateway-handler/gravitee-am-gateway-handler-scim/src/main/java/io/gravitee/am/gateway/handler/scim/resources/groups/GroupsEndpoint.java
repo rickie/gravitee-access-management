@@ -65,7 +65,7 @@ public class GroupsEndpoint extends AbstractGroupEndpoint {
         }
 
         // group service use 0-based index
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(groupService.list_migrated(page - 1, size, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(groups -> context.response()
+        groupService.list_migrated(page - 1, size, location(context.request())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(groups -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -135,7 +135,7 @@ public class GroupsEndpoint extends AbstractGroupEndpoint {
                 return;
             }
 
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(groupService.create_migrated(group, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(group1 -> context.response()
+            groupService.create_migrated(group, location(context.request())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(group1 -> context.response()
                                     .setStatusCode(201)
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")

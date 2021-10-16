@@ -171,12 +171,12 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
     public Mono<ExtensionGrant> update_migrated(String domain, String id, UpdateExtensionGrant updateExtensionGrant, User principal) {
         LOGGER.debug("Update a extension grant {} for domain {}", id, domain);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(extensionGrantRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(id))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ExtensionGrant, SingleSource<ExtensionGrant>>toJdkFunction(tokenGranter -> RxJava2Adapter.monoToSingle(extensionGrantRepository.findByDomainAndName_migrated(domain, updateExtensionGrant.getName()).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).single().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Optional<ExtensionGrant>, SingleSource<ExtensionGrant>>toJdkFunction(existingTokenGranter -> {
-                            if (existingTokenGranter.isPresent() && !existingTokenGranter.get().getId().equals(id)) {
-                                throw new ExtensionGrantAlreadyExistsException("Extension grant with the same name already exists");
-                            }
-                            return RxJava2Adapter.monoToSingle(Mono.just(tokenGranter));
-                        }).apply(v)))))).apply(y)))).flatMap(v->RxJava2Adapter.singleToMono((Single<ExtensionGrant>)RxJavaReactorMigrationUtil.toJdkFunction((Function<ExtensionGrant, Single<ExtensionGrant>>)oldExtensionGrant -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(extensionGrantRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(id))).flatMap(y->extensionGrantRepository.findByDomainAndName_migrated(domain, updateExtensionGrant.getName()).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).single().flatMap((java.util.Optional<io.gravitee.am.model.ExtensionGrant> v)->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Optional<io.gravitee.am.model.ExtensionGrant> existingTokenGranter)->{
+if (existingTokenGranter.isPresent() && !existingTokenGranter.get().getId().equals(id)) {
+throw new ExtensionGrantAlreadyExistsException("Extension grant with the same name already exists");
+}
+return RxJava2Adapter.monoToSingle(Mono.just(y));
+}).apply(v))))).flatMap(v->RxJava2Adapter.singleToMono((Single<ExtensionGrant>)RxJavaReactorMigrationUtil.toJdkFunction((Function<ExtensionGrant, Single<ExtensionGrant>>)oldExtensionGrant -> {
                     ExtensionGrant extensionGrantToUpdate = new ExtensionGrant(oldExtensionGrant);
                     extensionGrantToUpdate.setName(updateExtensionGrant.getName());
                     extensionGrantToUpdate.setGrantType(updateExtensionGrant.getGrantType() != null ? updateExtensionGrant.getGrantType() : oldExtensionGrant.getGrantType());
@@ -211,27 +211,22 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
 @Override
     public Mono<Void> delete_migrated(String domain, String extensionGrantId, User principal) {
         LOGGER.debug("Delete extension grant {}", extensionGrantId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(extensionGrantRepository.findById_migrated(extensionGrantId).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(extensionGrantId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ExtensionGrant, SingleSource<ExtensionGrant>>toJdkFunction(extensionGrant -> RxJava2Adapter.monoToSingle(applicationService.findByDomainAndExtensionGrant_migrated(domain, extensionGrant.getGrantType() + "~" + extensionGrant.getId()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Set<Application>, SingleSource<ExtensionGrant>>toJdkFunction(applications -> {
-                            if (applications.size() > 0) {
-                                throw new ExtensionGrantWithApplicationsException();
-                            }
-                            // backward compatibility, check for old clients configuration
-                            return Single.zip(
-                                    RxJava2Adapter.monoToSingle(applicationService.findByDomainAndExtensionGrant_migrated(domain, extensionGrant.getGrantType())),
-                                    RxJava2Adapter.monoToSingle(findByDomain_migrated(domain).collectList()),
-                                    (clients1, extensionGrants) -> {
-                                        if (clients1.size() == 0) {
-                                            return extensionGrant;
-                                        }
-                                        // if clients use this grant_type, check it is the oldest one
-                                        Date minDate = Collections.min(extensionGrants.stream().map(ExtensionGrant::getCreatedAt).collect(Collectors.toList()));
-                                        if (extensionGrant.getCreatedAt().equals(minDate)) {
-                                            throw new ExtensionGrantWithApplicationsException();
-                                        } else {
-                                            return extensionGrant;
-                                        }
-                                    });
-                        }).apply(v)))))).apply(y)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<ExtensionGrant, CompletableSource>)extensionGrant -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(extensionGrantRepository.findById_migrated(extensionGrantId).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(extensionGrantId))).flatMap(y->applicationService.findByDomainAndExtensionGrant_migrated(domain, y.getGrantType() + "~" + y.getId()).flatMap((java.util.Set<io.gravitee.am.model.Application> v)->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Set<io.gravitee.am.model.Application> applications)->{
+if (applications.size() > 0) {
+throw new ExtensionGrantWithApplicationsException();
+}
+return Single.zip(RxJava2Adapter.monoToSingle(applicationService.findByDomainAndExtensionGrant_migrated(domain, y.getGrantType())), RxJava2Adapter.monoToSingle(findByDomain_migrated(domain).collectList()), (java.util.Set<io.gravitee.am.model.Application> clients1, java.util.List<io.gravitee.am.model.ExtensionGrant> extensionGrants)->{
+if (clients1.size() == 0) {
+return y;
+}
+Date minDate = Collections.min(extensionGrants.stream().map(ExtensionGrant::getCreatedAt).collect(Collectors.toList()));
+if (y.getCreatedAt().equals(minDate)) {
+throw new ExtensionGrantWithApplicationsException();
+} else {
+return y;
+}
+});
+}).apply(v))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<ExtensionGrant, CompletableSource>)extensionGrant -> {
                     // create event for sync process
                     Event event = new Event(Type.EXTENSION_GRANT, new Payload(extensionGrantId, ReferenceType.DOMAIN, domain, Action.DELETE));
                     return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(extensionGrantRepository.delete_migrated(extensionGrantId).then(eventService.create_migrated(event)))

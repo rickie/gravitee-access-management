@@ -57,7 +57,7 @@ public class PolicyPluginResource {
             @PathParam("policy") String policyId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(policyPluginService.findById_migrated(policyId).switchIfEmpty(Mono.error(new PolicyPluginNotFoundException(policyId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        policyPluginService.findById_migrated(policyId).switchIfEmpty(Mono.error(new PolicyPluginNotFoundException(policyId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @GET
@@ -69,7 +69,7 @@ public class PolicyPluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the policy exists
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(policyPluginService.findById_migrated(policyId).switchIfEmpty(Mono.error(new PolicyPluginNotFoundException(policyId))).flatMap(z->policyPluginService.getSchema_migrated(policyId)).switchIfEmpty(Mono.error(new PolicyPluginSchemaNotFoundException(policyId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        policyPluginService.findById_migrated(policyId).switchIfEmpty(Mono.error(new PolicyPluginNotFoundException(policyId))).flatMap(z->policyPluginService.getSchema_migrated(policyId)).switchIfEmpty(Mono.error(new PolicyPluginSchemaNotFoundException(policyId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @GET
@@ -81,7 +81,7 @@ public class PolicyPluginResource {
         @Suspended final AsyncResponse response) {
 
         // Check that the policy exists
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(policyPluginService.findById_migrated(policyId).switchIfEmpty(Mono.error(new PolicyPluginNotFoundException(policyId))).flatMap(z->policyPluginService.getDocumentation_migrated(policyId)).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginDocumentation -> Response.ok(policyPluginDocumentation).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        policyPluginService.findById_migrated(policyId).switchIfEmpty(Mono.error(new PolicyPluginNotFoundException(policyId))).flatMap(z->policyPluginService.getDocumentation_migrated(policyId)).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginDocumentation -> Response.ok(policyPluginDocumentation).build())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
 }

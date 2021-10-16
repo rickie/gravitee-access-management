@@ -52,9 +52,9 @@ public class BotDetectionsPluginResource {
             notes = "There is no particular permission needed. User must be authenticated.")
     public void list(@Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(pluginService.findAll_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(plugins -> plugins.stream()
+        pluginService.findAll_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(plugins -> plugins.stream()
                         .sorted(Comparator.comparing(BotDetectionPlugin::getName))
-                        .collect(Collectors.toList()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        .collect(Collectors.toList()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{botDetection}")

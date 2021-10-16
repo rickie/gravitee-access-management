@@ -59,7 +59,7 @@ public class FormManagerImpl implements FormManager, InitializingBean, EventList
 
         logger.info("Initializing forms");
 
-        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(formService.findAll_migrated(ReferenceType.ORGANIZATION))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(form -> {
+        formService.findAll_migrated(ReferenceType.ORGANIZATION).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(form -> {
                             updateForm(form);
                             logger.info("Forms loaded");
                         }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize forms", error)));
@@ -84,7 +84,7 @@ public class FormManagerImpl implements FormManager, InitializingBean, EventList
     private void updateForm(String formId, FormEvent formEvent) {
         final String eventType = formEvent.toString().toLowerCase();
         logger.info("Received {} form event for {}", eventType, formId);
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(formService.findById_migrated(formId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(form -> {
+        formService.findById_migrated(formId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(form -> {
                             // check if form has been disabled
                             if (forms.containsKey(formId) && !form.isEnabled()) {
                                 removeForm(formId);

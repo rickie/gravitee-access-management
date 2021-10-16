@@ -63,7 +63,7 @@ public class AlertNotifierResource extends AbstractResource {
             @PathParam("notifierId") String notifierId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST).then(alertNotifierService.getById_migrated(ReferenceType.DOMAIN, domainId, notifierId)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST).then(alertNotifierService.getById_migrated(ReferenceType.DOMAIN, domainId, notifierId)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PATCH
@@ -86,7 +86,7 @@ public class AlertNotifierResource extends AbstractResource {
 
         final User authenticatedUser = this.getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.UPDATE).then(alertNotifierService.update_migrated(ReferenceType.DOMAIN, domainId, notifierId, patchAlertNotifier, authenticatedUser)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.UPDATE).then(alertNotifierService.update_migrated(ReferenceType.DOMAIN, domainId, notifierId, patchAlertNotifier, authenticatedUser)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE

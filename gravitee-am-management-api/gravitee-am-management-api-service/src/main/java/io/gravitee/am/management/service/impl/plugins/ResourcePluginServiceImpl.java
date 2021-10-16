@@ -150,7 +150,7 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
         }
         if (expand != null) {
             if (expand.contains(ResourcePluginService.EXPAND_ICON)) {
-                RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getIcon_migrated(plugin.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(plugin::setIcon));
+                this.getIcon_migrated(plugin.getId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(plugin::setIcon));
             }
         }
         return plugin;

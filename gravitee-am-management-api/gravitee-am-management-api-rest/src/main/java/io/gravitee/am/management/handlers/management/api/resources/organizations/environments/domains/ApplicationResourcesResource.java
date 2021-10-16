@@ -88,7 +88,7 @@ public class ApplicationResourcesResource extends AbstractResource {
             @QueryParam("size") @DefaultValue(MAX_RESOURCES_SIZE_PER_PAGE_STRING) int size,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.LIST).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))
+        checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.LIST).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))
                         .flatMapSingle(application1 -> RxJava2Adapter.monoToSingle(resourceService.findByDomainAndClient_migrated(domain, application1.getId(), page, Integer.min(MAX_RESOURCES_SIZE_PER_PAGE, size))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Page<Resource>, SingleSource<Page>>toJdkFunction(pagedResources -> {
                             return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(pagedResources.getData())
                                     .flatMapSingle(r -> RxJava2Adapter.monoToSingle(resourceService.countAccessPolicyByResource_migrated(r.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(policies -> {
@@ -99,7 +99,7 @@ public class ApplicationResourcesResource extends AbstractResource {
                                     .toList()).zipWith(resourceService.getMetadata_migrated((List<Resource>) pagedResources.getData()), RxJavaReactorMigrationUtil.toJdkBiFunction((v1, v2) -> {
                                         return new Page(Collections.singletonList(new ResourceListItem(v1, v2)), page, pagedResources.getTotalCount());
                                     })));
-                        }).apply(v))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        }).apply(v))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{resource}")

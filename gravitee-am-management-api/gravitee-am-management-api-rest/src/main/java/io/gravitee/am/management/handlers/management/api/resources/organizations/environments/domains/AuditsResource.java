@@ -87,13 +87,13 @@ public class AuditsResource extends AbstractResource {
 
         User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_AUDIT, Acl.LIST).then(auditService.search_migrated(domain, queryBuilder.build(), param.getPage(), param.getSize()).flatMap(auditPage->hasPermission_migrated(authenticatedUser, ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_AUDIT, Acl.READ).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Boolean hasPermission)->{
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_AUDIT, Acl.LIST).then(auditService.search_migrated(domain, queryBuilder.build(), param.getPage(), param.getSize()).flatMap(auditPage->hasPermission_migrated(authenticatedUser, ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_AUDIT, Acl.READ).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Boolean hasPermission)->{
 if (hasPermission) {
 return auditPage;
 } else {
 return new Page<>(auditPage.getData().stream().map(FilterUtils::filterAuditInfos).collect(Collectors.toList()), auditPage.getCurrentPage(), auditPage.getTotalCount());
 }
-})))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+})))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{audit}")

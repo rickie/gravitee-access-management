@@ -146,7 +146,7 @@ public class IdentityProviderManagerImpl extends AbstractService implements Iden
     private void updateIdentityProvider(String identityProviderId, IdentityProviderEvent identityProviderEvent) {
         final String eventType = identityProviderEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} identity provider event for {}", domain.getName(), eventType, identityProviderId);
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderRepository.findById_migrated(identityProviderId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(identityProvider -> {
+        identityProviderRepository.findById_migrated(identityProviderId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(identityProvider -> {
                             updateAuthenticationProvider(identityProvider);
                             logger.info("Identity provider {} {}d for domain {}", identityProviderId, eventType, domain.getName());
                         }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} identity provider for domain {}", eventType, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No identity provider found with id {}", identityProviderId)));

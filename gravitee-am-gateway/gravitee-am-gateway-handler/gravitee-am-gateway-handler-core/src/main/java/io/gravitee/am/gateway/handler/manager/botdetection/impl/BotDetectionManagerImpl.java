@@ -87,7 +87,7 @@ public class BotDetectionManagerImpl extends AbstractService implements BotDetec
     @Override
     public void afterPropertiesSet() {
         LOGGER.info("Initializing bot detections for domain {}", domain.getName());
-        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(botDetectionService.findByDomain_migrated(domain.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(detection -> {
+        botDetectionService.findByDomain_migrated(domain.getId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(detection -> {
                             updateBotDetection(detection);
                             LOGGER.info("Bot detection {} loaded for domain {}", detection.getName(), domain.getName());
                         }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to initialize bot detections for domain {}", domain.getName(), error)));
@@ -166,7 +166,7 @@ public class BotDetectionManagerImpl extends AbstractService implements BotDetec
     private void updateBotDetection(String pluginId, BotDetectionEvent event) {
         final String eventType = event.toString().toLowerCase();
         LOGGER.info("Domain {} has received {} bot detection event for {}", domain.getName(), eventType, pluginId);
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(botDetectionService.findById_migrated(pluginId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::updateBotDetection), RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to load bot detection for domain {}", domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> LOGGER.error("No bot detection found with id {}", pluginId)));
+        botDetectionService.findById_migrated(pluginId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::updateBotDetection), RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to load bot detection for domain {}", domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> LOGGER.error("No bot detection found with id {}", pluginId)));
     }
 
     private void removeBotDetection(String pluginId) {

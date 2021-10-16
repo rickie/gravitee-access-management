@@ -194,9 +194,9 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
             for (String s : expand) {
                 switch (s) {
                     case "schema":
-                        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getSchema_migrated(plugin.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(plugin::setSchema));
+                        getSchema_migrated(plugin.getId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(plugin::setSchema));
                     case "icon":
-                        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getIcon_migrated(plugin.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(plugin::setIcon));
+                        getIcon_migrated(plugin.getId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(plugin::setIcon));
                     default:
                         break;
                 }

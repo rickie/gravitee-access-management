@@ -436,7 +436,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 @Override
     public Mono<Application> renewClientSecret_migrated(String domain, String id, User principal) {
         LOGGER.debug("Renew client secret for application {} and domain {}", id, domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ApplicationNotFoundException(id))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(application -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ApplicationNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(application -> {
                     // check application
                     if (application.getSettings() == null) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("Application settings is undefined")));

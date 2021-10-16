@@ -67,7 +67,7 @@ public class AlertNotifiersResource extends AbstractResource {
             @PathParam("domain") String domainId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST).thenMany(alertNotifierService.findByDomainAndCriteria_migrated(domainId, new AlertNotifierCriteria())).sort(Comparator.comparing(AlertNotifier::getCreatedAt)).collectList())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST).thenMany(alertNotifierService.findByDomainAndCriteria_migrated(domainId, new AlertNotifierCriteria())).sort(Comparator.comparing(AlertNotifier::getCreatedAt)).collectList().subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST
@@ -89,7 +89,7 @@ public class AlertNotifiersResource extends AbstractResource {
 
         final User authenticatedUser = this.getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.CREATE).then(alertNotifierService.create_migrated(ReferenceType.DOMAIN, domainId, newAlertNotifier, authenticatedUser)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.CREATE).then(alertNotifierService.create_migrated(ReferenceType.DOMAIN, domainId, newAlertNotifier, authenticatedUser)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("/{notifierId}")

@@ -66,7 +66,7 @@ public class GroupResource extends AbstractResource {
             @PathParam("group") String group,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.READ).then(groupService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, group)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.READ).then(groupService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, group)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PUT
@@ -84,7 +84,7 @@ public class GroupResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE).then(groupService.update_migrated(ReferenceType.ORGANIZATION, organizationId, group, updateGroup, authenticatedUser)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE).then(groupService.update_migrated(ReferenceType.ORGANIZATION, organizationId, group, updateGroup, authenticatedUser)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE

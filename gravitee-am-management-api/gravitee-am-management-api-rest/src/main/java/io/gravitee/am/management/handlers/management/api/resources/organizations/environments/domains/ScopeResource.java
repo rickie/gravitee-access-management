@@ -80,12 +80,12 @@ public class ScopeResource extends AbstractResource {
             @PathParam("scope") String scopeId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.maybeToMono(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->scopeService.findById_migrated(scopeId)).switchIfEmpty(Mono.error(new ScopeNotFoundException(scopeId))).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> {
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->scopeService.findById_migrated(scopeId)).switchIfEmpty(Mono.error(new ScopeNotFoundException(scopeId))).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> {
                             if (!scope.getDomain().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Scope does not belong to domain");
                             }
                             return Response.ok(scope).build();
-                        }))).as(RxJava2Adapter::monoToMaybe)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        }))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PATCH
@@ -108,8 +108,8 @@ public class ScopeResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(scopeService.patch_migrated(domain, scope, patchScope, authenticatedUser))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(scopeService.patch_migrated(domain, scope, patchScope, authenticatedUser))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PUT
@@ -131,8 +131,8 @@ public class ScopeResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(scopeService.update_migrated(domain, scope, updateScope, authenticatedUser))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(scopeService.update_migrated(domain, scope, updateScope, authenticatedUser))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE

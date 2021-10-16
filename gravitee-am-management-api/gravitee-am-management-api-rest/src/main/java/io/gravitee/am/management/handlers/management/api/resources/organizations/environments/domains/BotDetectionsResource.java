@@ -75,8 +75,8 @@ public class BotDetectionsResource extends AbstractResource {
             @PathParam("domain") String domain,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.LIST).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(___ -> RxJava2Adapter.monoToSingle(botDetectionService.findByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterBotDetectionInfos)).collectList())))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.LIST).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(___ -> RxJava2Adapter.monoToSingle(botDetectionService.findByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterBotDetectionInfos)).collectList())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST
@@ -98,11 +98,11 @@ public class BotDetectionsResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_BOT_DETECTION, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(botDetectionService.create_migrated(domain, newBotDetection, authenticatedUser)))).map(RxJavaReactorMigrationUtil.toJdkFunction(botDetection -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/bot-detections/" + botDetection.getId()))
                                 .entity(botDetection)
-                                .build()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                                .build()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{botDetection}")

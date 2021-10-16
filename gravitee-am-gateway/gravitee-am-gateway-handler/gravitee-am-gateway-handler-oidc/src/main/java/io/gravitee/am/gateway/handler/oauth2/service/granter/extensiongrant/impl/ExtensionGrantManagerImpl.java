@@ -92,7 +92,7 @@ public class ExtensionGrantManagerImpl extends AbstractService implements Extens
     public void afterPropertiesSet() {
         logger.info("Initializing extension grants for domain {}", domain.getName());
         this.tokenRequestResolver.setScopeManager(this.scopeManager);
-        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(extensionGrantRepository.findByDomain_migrated(domain.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(extensionGrant -> {
+        extensionGrantRepository.findByDomain_migrated(domain.getId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(extensionGrant -> {
                             // backward compatibility, get the oldest extension grant to set the good one for the old clients
                             minDate = minDate == null ? extensionGrant.getCreatedAt() : minDate.after(extensionGrant.getCreatedAt()) ? extensionGrant.getCreatedAt() : minDate;
                             updateExtensionGrantProvider(extensionGrant);
@@ -129,7 +129,7 @@ public class ExtensionGrantManagerImpl extends AbstractService implements Extens
     private void updateExtensionGrant(String extensionGrantId, ExtensionGrantEvent extensionGrantEvent) {
         final String eventType = extensionGrantEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} extension grant event for {}", domain.getName(), eventType, extensionGrantId);
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(extensionGrantRepository.findById_migrated(extensionGrantId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(extensionGrant -> {
+        extensionGrantRepository.findById_migrated(extensionGrantId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(extensionGrant -> {
                             // backward compatibility, get the oldest extension grant to set the good one for the old clients
                             if (extensionGrants.isEmpty()) {
                                 minDate = extensionGrant.getCreatedAt();

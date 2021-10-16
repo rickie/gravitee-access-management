@@ -72,7 +72,7 @@ public class BotDetectionHandler implements Handler<RoutingContext> {
         final MultiMap params = routingContext.request().params();
         BotDetectionContext context = new BotDetectionContext(accountSettings.getBotDetectionPlugin(), headers, params);
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(botDetectionManager.validate_migrated(context))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer((isValid) -> {
+        botDetectionManager.validate_migrated(context).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer((isValid) -> {
                             if (isValid) {
                                 LOGGER.debug("No bot detected for domain '{}' and client '{}'", domain.getId(), client.getId());
                                 routingContext.next();

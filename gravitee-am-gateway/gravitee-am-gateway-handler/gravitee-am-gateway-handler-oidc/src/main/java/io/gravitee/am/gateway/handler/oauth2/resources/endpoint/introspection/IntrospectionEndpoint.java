@@ -60,11 +60,11 @@ public class IntrospectionEndpoint implements Handler<RoutingContext> {
             throw new InvalidClientException();
         }
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(introspectionService.introspect_migrated(createRequest(context)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(introspectionResponse -> context.response()
+        introspectionService.introspect_migrated(createRequest(context)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(introspectionResponse -> context.response()
                         .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                         .putHeader(HttpHeaders.PRAGMA, "no-cache")
                         .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                        .end(Json.encodePrettily(introspectionResponse)))))).subscribe();
+                        .end(Json.encodePrettily(introspectionResponse)))).subscribe();
     }
 
     private static IntrospectionRequest createRequest(RoutingContext context) {

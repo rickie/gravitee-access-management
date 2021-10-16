@@ -68,7 +68,7 @@ public class TagResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("tag") String tagId, @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.maybeToMono(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.READ).then(tagService.findById_migrated(tagId, organizationId).switchIfEmpty(Mono.error(new TagNotFoundException(tagId)))).as(RxJava2Adapter::monoToMaybe)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.READ).then(tagService.findById_migrated(tagId, organizationId).switchIfEmpty(Mono.error(new TagNotFoundException(tagId)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PUT
@@ -86,7 +86,7 @@ public class TagResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.UPDATE).then(tagService.update_migrated(tagId, organizationId, tagToUpdate, authenticatedUser)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.UPDATE).then(tagService.update_migrated(tagId, organizationId, tagToUpdate, authenticatedUser)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE

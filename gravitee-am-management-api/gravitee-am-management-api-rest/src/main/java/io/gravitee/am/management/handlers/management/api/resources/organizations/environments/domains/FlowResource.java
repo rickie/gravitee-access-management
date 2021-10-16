@@ -71,7 +71,7 @@ public class FlowResource extends AbstractResource {
             @PathParam("flow") String flow,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.maybeToMono(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.READ).then(flowService.findById_migrated(ReferenceType.DOMAIN, domain, flow).switchIfEmpty(Mono.error(new FlowNotFoundException(flow))).map(RxJavaReactorMigrationUtil.toJdkFunction(FlowEntity::new))).as(RxJava2Adapter::monoToMaybe)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.READ).then(flowService.findById_migrated(ReferenceType.DOMAIN, domain, flow).switchIfEmpty(Mono.error(new FlowNotFoundException(flow))).map(RxJavaReactorMigrationUtil.toJdkFunction(FlowEntity::new))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PUT
@@ -93,7 +93,7 @@ public class FlowResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.UPDATE).then(RxJava2Adapter.singleToMono(flowService.update(ReferenceType.DOMAIN, domain, flow, convert(updateFlow), authenticatedUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(FlowEntity::new))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.UPDATE).then(RxJava2Adapter.singleToMono(flowService.update(ReferenceType.DOMAIN, domain, flow, convert(updateFlow), authenticatedUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(FlowEntity::new))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     private static Flow convert(io.gravitee.am.service.model.Flow flow) {

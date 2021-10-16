@@ -224,7 +224,7 @@ public class UserServiceImpl implements UserService {
             return Mono.error(new InvalidValueException("Field [password] is invalid"));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userRepository.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(existingUser -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userRepository.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(existingUser -> {
                     // check roles
                     return RxJava2Adapter.monoToSingle(checkRoles_migrated(user.getRoles()).then(RxJava2Adapter.singleToMono(Single.defer(() -> {
                                 io.gravitee.am.model.User userToUpdate = convert(user);
@@ -271,7 +271,7 @@ public class UserServiceImpl implements UserService {
                                             return RxJava2Adapter.monoToSingle(Mono.error(ex));
                                         }))));
                             }))));
-                }).apply(y)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> convert(user1, baseUrl, false))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)(io.gravitee.am.gateway.handler.scim.model.User ident) -> RxJava2Adapter.monoToSingle(setGroups_migrated(ident))).apply(v))))
+                }).apply(y)))).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> convert(user1, baseUrl, false))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)(io.gravitee.am.gateway.handler.scim.model.User ident) -> RxJava2Adapter.monoToSingle(setGroups_migrated(ident))).apply(v))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof SCIMException || ex instanceof UserNotFoundException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));

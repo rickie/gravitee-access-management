@@ -133,7 +133,7 @@ public Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User pri
         LOGGER.debug("Update a user {}", user);
         // updated date
         user.setUpdatedAt(new Date());
-        return userValidator.validate_migrated(user).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getUserRepository().findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, user.getReferenceId(), user.getUsername(), user.getSource()))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
+        return userValidator.validate_migrated(user).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getUserRepository().findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, user.getReferenceId(), user.getUsername(), user.getSource()).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
 
                         user.setId(oldUser.getId());
                         user.setReferenceType(oldUser.getReferenceType());

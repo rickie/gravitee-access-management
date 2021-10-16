@@ -52,7 +52,7 @@ public class AuthenticationFlowContextHandler implements Handler<RoutingContext>
         if (session != null && !session.isDestroyed()) {
             final String transactionId = session.get(ConstantKeys.TRANSACTION_ID_KEY);
             final int version = ofNullable((Number) session.get(AUTH_FLOW_CONTEXT_VERSION_KEY)).map(Number::intValue).orElse(1);
-            RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticationFlowContextService.loadContext_migrated(transactionId, version))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(ctx ->  {
+            authenticationFlowContextService.loadContext_migrated(transactionId, version).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(ctx ->  {
                                 // store the AuthenticationFlowContext in order to provide all related information about this context
                                 context.put(ConstantKeys.AUTH_FLOW_CONTEXT_KEY, ctx);
                                 // store only the AuthenticationFlowContext.data attributes in order to simplify EL templating

@@ -55,7 +55,7 @@ public class CrossDomainManagerImpl extends AbstractService implements CrossDoma
     public void afterPropertiesSet() throws Exception {
         if (domain.isMaster()) {
             // notify for cross domain events
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.findAllByReferenceId_migrated(domain.getReferenceId()).filter(RxJavaReactorMigrationUtil.toJdkPredicate(d -> !domain.getId().equals(d.getId()))).collectList())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(domains -> domains.forEach(clientManager::deployCrossDomain)));
+            domainRepository.findAllByReferenceId_migrated(domain.getReferenceId()).filter(RxJavaReactorMigrationUtil.toJdkPredicate(d -> !domain.getId().equals(d.getId()))).collectList().subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(domains -> domains.forEach(clientManager::deployCrossDomain)));
         }
     }
 

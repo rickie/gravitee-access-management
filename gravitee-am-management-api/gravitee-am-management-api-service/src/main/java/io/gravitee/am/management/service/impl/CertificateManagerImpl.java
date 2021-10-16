@@ -125,7 +125,7 @@ private Mono<CertificateProvider> doGetCertificateProvider_migrated(String certi
 
     private void deployCertificate(String certificateId) {
         logger.info("Management API has received a deploy certificate event for {}", certificateId);
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateService.findById_migrated(certificateId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::loadCertificate), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to deploy certificate {}", certificateId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No certificate found with id {}", certificateId)));
+        certificateService.findById_migrated(certificateId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::loadCertificate), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to deploy certificate {}", certificateId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No certificate found with id {}", certificateId)));
     }
 
     private void removeCertificate(String certificateId) {

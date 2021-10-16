@@ -44,6 +44,6 @@ public class OAuth2AuthProviderImpl implements OAuth2AuthProvider {
 
     @Override
     public void decodeToken(String token, boolean offlineVerification, Handler<AsyncResult<OAuth2AuthResponse>> handler) {
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(introspectionTokenService.introspect_migrated(token, offlineVerification).flatMap(e->clientSyncService.findByDomainAndClientId_migrated(e.getDomain(), e.getAud()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.oidc.Client client)->new OAuth2AuthResponse(e, client)))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(accessToken -> handler.handle(Future.succeededFuture(accessToken))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+        introspectionTokenService.introspect_migrated(token, offlineVerification).flatMap(e->clientSyncService.findByDomainAndClientId_migrated(e.getDomain(), e.getAud()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.oidc.Client client)->new OAuth2AuthResponse(e, client)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(accessToken -> handler.handle(Future.succeededFuture(accessToken))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 }

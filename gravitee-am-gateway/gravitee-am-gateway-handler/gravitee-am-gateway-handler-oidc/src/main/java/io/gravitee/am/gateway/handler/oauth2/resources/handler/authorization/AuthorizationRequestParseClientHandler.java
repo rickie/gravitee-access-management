@@ -63,6 +63,6 @@ public class AuthorizationRequestParseClientHandler implements Handler<RoutingCo
     }
 
     private void fetchClient(String clientId, Handler<AsyncResult<Client>> authHandler) {
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated(clientId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> authHandler.handle(Future.succeededFuture(client))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> authHandler.handle(Future.failedFuture(new ServerErrorException("Server error: unable to find client with client_id " + clientId)))), RxJavaReactorMigrationUtil.toRunnable(() -> authHandler.handle(Future.failedFuture(new InvalidRequestException("No client found for client_id " + clientId)))));
+        clientSyncService.findByClientId_migrated(clientId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> authHandler.handle(Future.succeededFuture(client))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> authHandler.handle(Future.failedFuture(new ServerErrorException("Server error: unable to find client with client_id " + clientId)))), RxJavaReactorMigrationUtil.toRunnable(() -> authHandler.handle(Future.failedFuture(new InvalidRequestException("No client found for client_id " + clientId)))));
     }
 }

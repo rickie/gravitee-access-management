@@ -190,14 +190,13 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
 @Override
     public Mono<Void> delete_migrated(String domain, String resourceId, User principal) {
         LOGGER.debug("Delete resource {}", resourceId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(serviceResourceRepository.findById_migrated(resourceId).switchIfEmpty(Mono.error(new ServiceResourceNotFoundException(resourceId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ServiceResource, SingleSource<ServiceResource>>toJdkFunction(resource ->
-                    RxJava2Adapter.monoToSingle(factorService.findByDomain_migrated(domain).filter(RxJavaReactorMigrationUtil.toJdkPredicate(factor -> factor.getConfiguration() != null && factor.getConfiguration().contains("\""+resourceId+"\""))).collectList().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<List<Factor>, SingleSource<ServiceResource>>toJdkFunction(factors -> {
-                                        if (factors.isEmpty()) {
-                                            return RxJava2Adapter.monoToSingle(Mono.just(resource));
-                                        } else {
-                                            return RxJava2Adapter.monoToSingle(Mono.error(new ServiceResourceCurrentlyUsedException(resourceId, factors.get(0).getName(), "MultiFactor Authentication")));
-                                        }
-                                    }).apply(v)))))).apply(y)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<ServiceResource, CompletableSource>)resource -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(serviceResourceRepository.findById_migrated(resourceId).switchIfEmpty(Mono.error(new ServiceResourceNotFoundException(resourceId))).flatMap(y->factorService.findByDomain_migrated(domain).filter(RxJavaReactorMigrationUtil.toJdkPredicate((io.gravitee.am.model.Factor factor)->factor.getConfiguration() != null && factor.getConfiguration().contains("\"" + resourceId + "\""))).collectList().flatMap((java.util.List<io.gravitee.am.model.Factor> v)->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.Factor> factors)->{
+if (factors.isEmpty()) {
+return RxJava2Adapter.monoToSingle(Mono.just(y));
+} else {
+return RxJava2Adapter.monoToSingle(Mono.error(new ServiceResourceCurrentlyUsedException(resourceId, factors.get(0).getName(), "MultiFactor Authentication")));
+}
+}).apply(v))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<ServiceResource, CompletableSource>)resource -> {
                             Event event = new Event(Type.RESOURCE, new Payload(resource.getId(), resource.getReferenceType(), resource.getReferenceId(), Action.DELETE));
                             return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(serviceResourceRepository.delete_migrated(resourceId).then(eventService.create_migrated(event)).then())
                                     .doOnComplete(() -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_DELETED).resource(resource)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_DELETED).throwable(throwable)))));

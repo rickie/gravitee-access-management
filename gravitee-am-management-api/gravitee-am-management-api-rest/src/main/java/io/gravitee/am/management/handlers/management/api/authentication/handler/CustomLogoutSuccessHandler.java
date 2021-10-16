@@ -79,7 +79,7 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 
                 // read user profile to obtain same information as login step.
                 // if the read fails, trace only with information available into the cookie
-                RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.findById_migrated(ReferenceType.ORGANIZATION, (String) jwt.get("org"), (String) jwt.getSub()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> auditService.report(AuditBuilder.builder(LogoutAuditBuilder.class).user(user)
+                userService.findById_migrated(ReferenceType.ORGANIZATION, (String) jwt.get("org"), (String) jwt.getSub()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> auditService.report(AuditBuilder.builder(LogoutAuditBuilder.class).user(user)
                                 .referenceType(ReferenceType.ORGANIZATION).referenceId((String) jwt.get("org"))
                                 .ipAddress(details.getRemoteAddress())
                                 .userAgent(details.getUserAgent())))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> {
@@ -89,7 +89,7 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
                                     .referenceType(ReferenceType.ORGANIZATION).referenceId((String) jwt.get("org"))
                                     .ipAddress(details.getRemoteAddress())
                                     .userAgent(details.getUserAgent()));
-                        })))).subscribe();
+                        })).subscribe();
             } catch (Exception e) {
                 logger.warn("Unable to extract information from authentication cookie", e);
             }

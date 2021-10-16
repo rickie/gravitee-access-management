@@ -88,12 +88,12 @@ public class LogoutCallbackParseHandler implements Handler<RoutingContext> {
             return;
         }
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(state, certificateManager.defaultCertificateProvider()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(stateJwt -> {
+        jwtService.decodeAndVerify_migrated(state, certificateManager.defaultCertificateProvider()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(stateJwt -> {
                     final MultiMap initialQueryParams = RequestUtils.getQueryParams((String) stateJwt.getOrDefault("q", ""), false);
                     context.put(ConstantKeys.PARAM_CONTEXT_KEY, initialQueryParams);
                     context.put(ConstantKeys.PROVIDER_ID_PARAM_KEY, stateJwt.get("p"));
                     context.put(Parameters.CLIENT_ID, stateJwt.get("c"));
-                })))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(stateJwt -> handler.handle(Future.succeededFuture(true))), RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
+                })).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(stateJwt -> handler.handle(Future.succeededFuture(true))), RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
                             logger.error("An error occurs verifying state on login callback", ex);
                             handler.handle(Future.failedFuture(new BadClientCredentialsException()));
                         }));
@@ -108,7 +108,7 @@ public class LogoutCallbackParseHandler implements Handler<RoutingContext> {
         }
 
         final String clientId = context.get(Parameters.CLIENT_ID);
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated(clientId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> handler.handle(Future.succeededFuture(client))), RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
+        clientSyncService.findByClientId_migrated(clientId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> handler.handle(Future.succeededFuture(client))), RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
                             logger.error("An error occurs while getting client {}", clientId, ex);
                             handler.handle(Future.failedFuture(new BadClientCredentialsException()));
                         }), RxJavaReactorMigrationUtil.toRunnable(() -> {

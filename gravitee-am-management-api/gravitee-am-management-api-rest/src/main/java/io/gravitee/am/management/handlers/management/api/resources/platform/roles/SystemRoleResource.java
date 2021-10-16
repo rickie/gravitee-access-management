@@ -64,7 +64,7 @@ public class SystemRoleResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
 
         // No permission needed to read system role.
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.findById_migrated(ReferenceType.PLATFORM, Platform.DEFAULT, role).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        roleService.findById_migrated(ReferenceType.PLATFORM, Platform.DEFAULT, role).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     private RoleEntity convert(Role role) {

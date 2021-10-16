@@ -90,8 +90,8 @@ public class ApplicationMembersResource extends AbstractResource {
             @PathParam("application") String application,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_MEMBER, Acl.LIST).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))
-                        .flatMapSingle(application1 -> RxJava2Adapter.monoToSingle(membershipService.findByReference_migrated(application1.getId(), ReferenceType.APPLICATION).collectList()))).flatMap(memberships->membershipService.getMetadata_migrated(memberships).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.Object>> metadata)->new MembershipListItem(memberships, metadata))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_MEMBER, Acl.LIST).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))
+                        .flatMapSingle(application1 -> RxJava2Adapter.monoToSingle(membershipService.findByReference_migrated(application1.getId(), ReferenceType.APPLICATION).collectList()))).flatMap(memberships->membershipService.getMetadata_migrated(memberships).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.Object>> metadata)->new MembershipListItem(memberships, metadata))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST
@@ -121,8 +121,8 @@ public class ApplicationMembersResource extends AbstractResource {
         membership.setReferenceId(application);
         membership.setReferenceType(ReferenceType.APPLICATION);
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_MEMBER, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))
-                        .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(membershipService.addOrUpdate_migrated(organizationId, membership, authenticatedUser)))).flatMap(membership1->membershipService.addDomainUserRoleIfNecessary_migrated(organizationId, environmentId, domain, newMembership, authenticatedUser).then(Mono.just(Response.created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/applications/" + application + "/members/" + membership1.getId())).entity(membership1).build())))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_MEMBER, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))
+                        .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(membershipService.addOrUpdate_migrated(organizationId, membership, authenticatedUser)))).flatMap(membership1->membershipService.addDomainUserRoleIfNecessary_migrated(organizationId, environmentId, domain, newMembership, authenticatedUser).then(Mono.just(Response.created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/applications/" + application + "/members/" + membership1.getId())).entity(membership1).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @GET
@@ -145,7 +145,7 @@ public class ApplicationMembersResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.READ).then(permissionService.findAllPermissions_migrated(authenticatedUser, ReferenceType.APPLICATION, application).map(RxJavaReactorMigrationUtil.toJdkFunction(Permission::flatten))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.READ).then(permissionService.findAllPermissions_migrated(authenticatedUser, ReferenceType.APPLICATION, application).map(RxJavaReactorMigrationUtil.toJdkFunction(Permission::flatten))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{member}")

@@ -80,13 +80,13 @@ public class IdentityProvidersResource extends AbstractResource {
             @QueryParam("userProvider") boolean userProvider,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.LIST).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.LIST).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapPublisher(__ -> identityProviderService.findByDomain_migrated(domain))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(identityProvider -> {
                             if (userProvider) {
                                 return identityProviderManager.userProviderExists(identityProvider.getId());
                             }
                             return true;
-                        })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterIdentityProviderInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterIdentityProviderInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST
@@ -108,11 +108,11 @@ public class IdentityProvidersResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(identityProviderService.create_migrated(domain, newIdentityProvider, authenticatedUser)))).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProvider -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/identities/" + identityProvider.getId()))
                                 .entity(identityProvider)
-                                .build()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                                .build()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{identity}")

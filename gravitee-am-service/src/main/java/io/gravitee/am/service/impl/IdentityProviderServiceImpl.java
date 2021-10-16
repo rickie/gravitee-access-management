@@ -273,12 +273,12 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
     public Mono<Void> delete_migrated(ReferenceType referenceType, String referenceId, String identityProviderId, User principal) {
         LOGGER.debug("Delete identity provider {}", identityProviderId);
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderRepository.findById_migrated(referenceType, referenceId, identityProviderId).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(identityProviderId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<IdentityProvider, SingleSource<IdentityProvider>>toJdkFunction(identityProvider -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByIdentityProvider_migrated(identityProviderId)).count()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Long, SingleSource<IdentityProvider>>toJdkFunction(applications -> {
-                            if (applications > 0) {
-                                throw new IdentityProviderWithApplicationsException();
-                            }
-                            return RxJava2Adapter.monoToSingle(Mono.just(identityProvider));
-                        }).apply(v)))))).apply(y)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<IdentityProvider, CompletableSource>)identityProvider -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(identityProviderRepository.findById_migrated(referenceType, referenceId, identityProviderId).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(identityProviderId))).flatMap(y->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByIdentityProvider_migrated(identityProviderId)).count()).flatMap((java.lang.Long v)->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long applications)->{
+if (applications > 0) {
+throw new IdentityProviderWithApplicationsException();
+}
+return RxJava2Adapter.monoToSingle(Mono.just(y));
+}).apply(v))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<IdentityProvider, CompletableSource>)identityProvider -> {
 
                     // create event for sync process
                     Event event = new Event(Type.IDENTITY_PROVIDER, new Payload(identityProviderId, referenceType, referenceId, Action.DELETE));

@@ -220,12 +220,12 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
 
     private void deployReporter(String reporterId) {
         logger.info("Management API has received a deploy reporter event for {}", reporterId);
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(reporterService.findById_migrated(reporterId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::loadReporter), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to deploy reporter {}", reporterId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No reporter found with id {}", reporterId)));
+        reporterService.findById_migrated(reporterId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::loadReporter), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to deploy reporter {}", reporterId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No reporter found with id {}", reporterId)));
     }
 
     private void reloadReporter(String reporterId) {
         logger.info("Management API has received an update reporter event for {}", reporterId);
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(reporterService.findById_migrated(reporterId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(reporter -> {
+        reporterService.findById_migrated(reporterId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(reporter -> {
                             logger.debug("Reload reporter: {} after configuration update", reporter.getName());
                             Optional<Reporter> optionalAuditReporter = auditReporters
                                     .entrySet()

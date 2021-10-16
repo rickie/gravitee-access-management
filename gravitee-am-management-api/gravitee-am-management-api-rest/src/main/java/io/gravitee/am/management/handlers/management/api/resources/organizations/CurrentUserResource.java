@@ -71,7 +71,7 @@ public class CurrentUserResource extends AbstractResource {
 
         final Single<List<String>> platformPermissions = RxJava2Adapter.monoToSingle(permissionService.findAllPermissions_migrated(authenticatedUser, ReferenceType.PLATFORM, Platform.DEFAULT).map(RxJavaReactorMigrationUtil.toJdkFunction(Permission::flatten)));
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.zip(platformPermissions, organizationPermissions,
+        RxJava2Adapter.singleToMono(Single.zip(platformPermissions, organizationPermissions,
                 (p, o) -> {
                     Set<String> allPermissions = new HashSet<>();
                     allPermissions.addAll(p);
@@ -85,7 +85,7 @@ public class CurrentUserResource extends AbstractResource {
                     profile.remove(CustomClaims.ROLES);
 
                     return profile;
-                })))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                })).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("/newsletter")

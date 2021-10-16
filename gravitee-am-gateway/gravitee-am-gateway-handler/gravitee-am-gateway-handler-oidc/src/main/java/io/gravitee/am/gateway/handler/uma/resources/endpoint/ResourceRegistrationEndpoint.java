@@ -84,7 +84,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String basePath = UriBuilderRequest.resolveProxyRequest(context);
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context).flatMap(request->this.resourceService.create_migrated(request, domain.getId(), client.getId(), accessToken.getSub())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(resource -> {
+        this.extractRequest_migrated(context).flatMap(request->this.resourceService.create_migrated(request, domain.getId(), client.getId(), accessToken.getSub())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(resource -> {
                             final String resourceLocation = resourceLocation(basePath, resource);
                             context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -101,7 +101,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String resource_id = context.request().getParam(RESOURCE_ID);
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.resourceService.findByDomainAndClientAndUserAndResource_migrated(domain.getId(), client.getId(), accessToken.getSub(), resource_id).switchIfEmpty(Mono.error(new ResourceNotFoundException(resource_id))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(resource -> context.response()
+        this.resourceService.findByDomainAndClientAndUserAndResource_migrated(domain.getId(), client.getId(), accessToken.getSub(), resource_id).switchIfEmpty(Mono.error(new ResourceNotFoundException(resource_id))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(resource -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -120,7 +120,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String resource_id = context.request().getParam(RESOURCE_ID);
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context).flatMap(request->this.resourceService.update_migrated(request, domain.getId(), client.getId(), accessToken.getSub(), resource_id)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(resource -> context.response()
+        this.extractRequest_migrated(context).flatMap(request->this.resourceService.update_migrated(request, domain.getId(), client.getId(), accessToken.getSub(), resource_id)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(resource -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)

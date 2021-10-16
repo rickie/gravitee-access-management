@@ -64,10 +64,10 @@ public class IdentityProvidersPluginResource {
                      @QueryParam("expand") List<String> expand,
                      @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderPluginService.findAll_migrated(external, expand).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviderPlugins -> identityProviderPlugins.stream()
+        identityProviderPluginService.findAll_migrated(external, expand).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviderPlugins -> identityProviderPlugins.stream()
                         .filter(identityProvider -> !GRAVITEE_AM_IDP.equals(identityProvider.getId()))
                         .sorted(Comparator.comparing(IdentityProviderPlugin::getName))
-                        .collect(Collectors.toList()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        .collect(Collectors.toList()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{identity}")

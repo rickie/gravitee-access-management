@@ -83,13 +83,13 @@ public class UserRolesResource extends AbstractResource {
             @PathParam("user") String user,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->userService.findById_migrated(user)).switchIfEmpty(Mono.error(new UserNotFoundException(user))))
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->userService.findById_migrated(user)).switchIfEmpty(Mono.error(new UserNotFoundException(user))))
                         .flatMapSingle(endUser -> {
                             if (endUser.getRoles() == null || endUser.getRoles().isEmpty()) {
                                 return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()));
                             }
                             return RxJava2Adapter.monoToSingle(roleService.findByIdIn_migrated(endUser.getRoles()));
-                        }))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        }))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST
@@ -111,8 +111,8 @@ public class UserRolesResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(endUser -> RxJava2Adapter.monoToSingle(userService.assignRoles_migrated(ReferenceType.DOMAIN, domain, user, roles, authenticatedUser))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(endUser -> RxJava2Adapter.monoToSingle(userService.assignRoles_migrated(ReferenceType.DOMAIN, domain, user, roles, authenticatedUser))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{role}")

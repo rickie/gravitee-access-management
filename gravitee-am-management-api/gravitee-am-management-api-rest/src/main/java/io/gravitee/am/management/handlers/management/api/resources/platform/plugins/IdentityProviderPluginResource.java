@@ -58,7 +58,7 @@ public class IdentityProviderPluginResource {
             @PathParam("identity") String identityProviderId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderPluginService.findById_migrated(identityProviderId).switchIfEmpty(Mono.error(new IdentityProviderPluginNotFoundException(identityProviderId))).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviderPlugin -> Response.ok(identityProviderPlugin).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        identityProviderPluginService.findById_migrated(identityProviderId).switchIfEmpty(Mono.error(new IdentityProviderPluginNotFoundException(identityProviderId))).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviderPlugin -> Response.ok(identityProviderPlugin).build())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @GET
@@ -71,6 +71,6 @@ public class IdentityProviderPluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the identity provider exists
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderPluginService.findById_migrated(identityProviderId).switchIfEmpty(Mono.error(new IdentityProviderPluginNotFoundException(identityProviderId))).flatMap(z->identityProviderPluginService.getSchema_migrated(identityProviderId)).switchIfEmpty(Mono.error(new IdentityProviderPluginSchemaNotFoundException(identityProviderId))).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviderPluginSchema -> Response.ok(identityProviderPluginSchema).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        identityProviderPluginService.findById_migrated(identityProviderId).switchIfEmpty(Mono.error(new IdentityProviderPluginNotFoundException(identityProviderId))).flatMap(z->identityProviderPluginService.getSchema_migrated(identityProviderId)).switchIfEmpty(Mono.error(new IdentityProviderPluginSchemaNotFoundException(identityProviderId))).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviderPluginSchema -> Response.ok(identityProviderPluginSchema).build())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

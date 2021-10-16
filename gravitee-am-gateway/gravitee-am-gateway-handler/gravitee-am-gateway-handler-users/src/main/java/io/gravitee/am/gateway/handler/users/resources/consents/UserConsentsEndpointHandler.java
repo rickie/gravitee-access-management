@@ -51,12 +51,12 @@ public class UserConsentsEndpointHandler extends AbstractUserConsentEndpointHand
         final String userId = context.request().getParam("userId");
         final String clientId = context.request().getParam("clientId");
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Optional.ofNullable(clientId)).flatMap(v->RxJava2Adapter.singleToMono((Single<Set<ScopeApproval>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<String>, Single<Set<ScopeApproval>>>)optClient -> {
+        Mono.just(Optional.ofNullable(clientId)).flatMap(v->RxJava2Adapter.singleToMono((Single<Set<ScopeApproval>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<String>, Single<Set<ScopeApproval>>>)optClient -> {
                     if (optClient.isPresent()) {
                         return RxJava2Adapter.monoToSingle(userService.consents_migrated(userId, optClient.get()));
                     }
                     return RxJava2Adapter.monoToSingle(userService.consents_migrated(userId));
-                }).apply(v))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scopeApprovals -> context.response()
+                }).apply(v))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scopeApprovals -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)

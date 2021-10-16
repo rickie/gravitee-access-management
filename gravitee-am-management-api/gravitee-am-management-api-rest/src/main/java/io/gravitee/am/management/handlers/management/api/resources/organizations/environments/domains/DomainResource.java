@@ -73,8 +73,8 @@ public class DomainResource extends AbstractDomainResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))))
-                        .flatMapSingle(domain -> RxJava2Adapter.monoToSingle(findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domainId).map(RxJavaReactorMigrationUtil.toJdkFunction(userPermissions -> filterDomainInfos(domain, userPermissions))))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))))
+                        .flatMapSingle(domain -> RxJava2Adapter.monoToSingle(findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domainId).map(RxJavaReactorMigrationUtil.toJdkFunction(userPermissions -> filterDomainInfos(domain, userPermissions))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PUT
@@ -152,8 +152,8 @@ public class DomainResource extends AbstractDomainResource {
             @PathParam("domain") String domainId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))))
-                        .flatMapSingle(domain -> RxJava2Adapter.monoToSingle(entrypointService.findAll_migrated(organizationId).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(entrypoints -> filterEntrypoints(entrypoints, domain))))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))))
+                        .flatMapSingle(domain -> RxJava2Adapter.monoToSingle(entrypointService.findAll_migrated(organizationId).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(entrypoints -> filterEntrypoints(entrypoints, domain))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("applications")
@@ -260,9 +260,9 @@ public class DomainResource extends AbstractDomainResource {
             // If there is no require permission, it means there is nothing to update. This is not a valid request.
             response.resume(new BadRequestException("You need to specify at least one value to update."));
         } else {
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(Completable.merge(requiredPermissions.stream()
+            RxJava2Adapter.completableToMono(Completable.merge(requiredPermissions.stream()
                     .map(permission -> RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domainId, permission, Acl.UPDATE)))
-                    .collect(Collectors.toList()))).then(domainService.patch_migrated(domainId, patchDomain, authenticatedUser).flatMap(v->findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domainId).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<io.gravitee.am.model.ReferenceType, java.util.Map<io.gravitee.am.model.permissions.Permission, java.util.Set<io.gravitee.am.model.Acl>>> userPermissions)->filterDomainInfos(v, userPermissions))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                    .collect(Collectors.toList()))).then(domainService.patch_migrated(domainId, patchDomain, authenticatedUser).flatMap(v->findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domainId).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<io.gravitee.am.model.ReferenceType, java.util.Map<io.gravitee.am.model.permissions.Permission, java.util.Set<io.gravitee.am.model.Acl>>> userPermissions)->filterDomainInfos(v, userPermissions))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
         }
     }
 
