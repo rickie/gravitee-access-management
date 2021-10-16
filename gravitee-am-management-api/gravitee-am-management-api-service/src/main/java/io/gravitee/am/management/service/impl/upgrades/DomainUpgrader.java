@@ -17,6 +17,7 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.DOMAIN_UPGRADER;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.model.PatchDomain;
@@ -60,7 +61,8 @@ public class DomainUpgrader implements Upgrader, Ordered {
 
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.upgradeDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Domain> upgradeDomain(Domain domain) {
  return RxJava2Adapter.monoToSingle(upgradeDomain_migrated(domain));
 }

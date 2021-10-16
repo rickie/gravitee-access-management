@@ -77,55 +77,80 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
     @Autowired
     private AuditService auditService;
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<ScopeApproval> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<ScopeApproval> findById_migrated(String id) {
         LOGGER.debug("Find scope approval by id: {}", id);
-        return scopeApprovalRepository.findById(id)
+        return RxJava2Adapter.maybeToMono(scopeApprovalRepository.findById(id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a scope approval by id: {}", id);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a scope approval by id %s", id), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<ScopeApproval> findByDomainAndUser(String domain, String user) {
+ return RxJava2Adapter.fluxToFlowable(findByDomainAndUser_migrated(domain, user));
+}
+@Override
+    public Flux<ScopeApproval> findByDomainAndUser_migrated(String domain, String user) {
         LOGGER.debug("Find scope approvals by domain: {} and user: {}", domain, user);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalRepository.findByDomainAndUser(domain, user)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalRepository.findByDomainAndUser(domain, user)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a scope approval for domain: {} and user: {}", domain, user);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a scope approval for domain: %s and user: %s", domain, user), ex)));
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<ScopeApproval> findByDomainAndUserAndClient(String domain, String user, String client) {
+ return RxJava2Adapter.fluxToFlowable(findByDomainAndUserAndClient_migrated(domain, user, client));
+}
+@Override
+    public Flux<ScopeApproval> findByDomainAndUserAndClient_migrated(String domain, String user, String client) {
         LOGGER.debug("Find scope approvals by domain: {} and user: {} and client: {}", domain, user);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalRepository.findByDomainAndUserAndClient(domain, user, client)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalRepository.findByDomainAndUserAndClient(domain, user, client)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a scope approval for domain: {}, user: {} and client: {}", domain, user, client);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a scope approval for domain: %s, user: %s and client: %s", domain, user, client), ex)));
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<ScopeApproval>> saveConsent(String domain, Client client, List<ScopeApproval> approvals, User principal) {
+ return RxJava2Adapter.monoToSingle(saveConsent_migrated(domain, client, approvals, principal));
+}
+@Override
+    public Mono<List<ScopeApproval>> saveConsent_migrated(String domain, Client client, List<ScopeApproval> approvals, User principal) {
         LOGGER.debug("Save approvals for user: {}", approvals.get(0).getUserId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(approvals)
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(approvals)
                 .flatMapSingle(scopeApprovalRepository::upsert)
                 .toList()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).domain(domain).client(client).principal(principal).type(EventType.USER_CONSENT_CONSENTED).approvals(approvals)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).domain(domain).client(client).principal(principal).type(EventType.USER_CONSENT_CONSENTED).throwable(throwable)))))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to save consent for domain: {}, client: {} and user: {} ", domain, client.getId(), approvals.get(0).getUserId());
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to save consent for domain: %s, client: %s and user: %s", domain, client.getId(), approvals.get(0).getUserId()), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable revokeByConsent(String domain, String userId, String consentId, User principal) {
+ return RxJava2Adapter.monoToCompletable(revokeByConsent_migrated(domain, userId, consentId, principal));
+}
+@Override
+    public Mono<Void> revokeByConsent_migrated(String domain, String userId, String consentId, User principal) {
         LOGGER.debug("Revoke approval for consent: {} and user: {}", consentId, userId);
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userService.findById(userId)).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(user->RxJava2Adapter.maybeToMono(scopeApprovalRepository.findById(consentId)).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consentId))).flatMap(scopeApproval->RxJava2Adapter.completableToMono(scopeApprovalRepository.delete(consentId).doOnComplete(()->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user).approvals(Collections.singleton(scopeApproval))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user).throwable(throwable)))).then(RxJava2Adapter.completableToMono(Completable.mergeArrayDelayError(accessTokenRepository.deleteByDomainIdClientIdAndUserId(scopeApproval.getDomain(), scopeApproval.getClientId(), scopeApproval.getUserId()), refreshTokenRepository.deleteByDomainIdClientIdAndUserId(scopeApproval.getDomain(), scopeApproval.getClientId(), scopeApproval.getUserId()))))).then()).then())
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userService.findById(userId)).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(user->RxJava2Adapter.maybeToMono(scopeApprovalRepository.findById(consentId)).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consentId))).flatMap(scopeApproval->RxJava2Adapter.completableToMono(scopeApprovalRepository.delete(consentId).doOnComplete(()->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user).approvals(Collections.singleton(scopeApproval))))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user).throwable(throwable)))).then(RxJava2Adapter.completableToMono(Completable.mergeArrayDelayError(accessTokenRepository.deleteByDomainIdClientIdAndUserId(scopeApproval.getDomain(), scopeApproval.getClientId(), scopeApproval.getUserId()), refreshTokenRepository.deleteByDomainIdClientIdAndUserId(scopeApproval.getDomain(), scopeApproval.getClientId(), scopeApproval.getUserId()))))).then()).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
@@ -134,13 +159,18 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
                     LOGGER.error("An error occurs while trying to revoke approval for scope: {}", consentId);
                     return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to revoke approval for scope: %s", consentId), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable revokeByUser(String domain, String user, User principal) {
+ return RxJava2Adapter.monoToCompletable(revokeByUser_migrated(domain, user, principal));
+}
+@Override
+    public Mono<Void> revokeByUser_migrated(String domain, String user, User principal) {
         LOGGER.debug("Revoke approvals for domain: {} and user: {}", domain, user);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userService.findById(user)).switchIfEmpty(Mono.error(new UserNotFoundException(user))).flatMap(user1->RxJava2Adapter.singleToMono(scopeApprovalRepository.findByDomainAndUser(domain, user).collect(HashSet<ScopeApproval>::new, Set::add)).flatMap(v->RxJava2Adapter.completableToMono(scopeApprovalRepository.deleteByDomainAndUser(domain, user).doOnComplete(()->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).approvals(v)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).throwable(throwable))))).then(RxJava2Adapter.completableToMono(Completable.mergeArrayDelayError(accessTokenRepository.deleteByDomainIdAndUserId(domain, user), refreshTokenRepository.deleteByDomainIdAndUserId(domain, user))))).then())
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userService.findById(user)).switchIfEmpty(Mono.error(new UserNotFoundException(user))).flatMap(user1->RxJava2Adapter.singleToMono(scopeApprovalRepository.findByDomainAndUser(domain, user).collect(HashSet<ScopeApproval>::new, Set::add)).flatMap(v->RxJava2Adapter.completableToMono(scopeApprovalRepository.deleteByDomainAndUser(domain, user).doOnComplete(()->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).approvals(v)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).throwable(throwable))))).then(RxJava2Adapter.completableToMono(Completable.mergeArrayDelayError(accessTokenRepository.deleteByDomainIdAndUserId(domain, user), refreshTokenRepository.deleteByDomainIdAndUserId(domain, user))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
@@ -149,13 +179,18 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
                     LOGGER.error("An error occurs while trying to revoke scope approvals for domain: {} and user : {}", domain, user);
                     return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to revoke scope approvals for domain: %s and user: %s", domain, user), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable revokeByUserAndClient(String domain, String user, String clientId, User principal) {
+ return RxJava2Adapter.monoToCompletable(revokeByUserAndClient_migrated(domain, user, clientId, principal));
+}
+@Override
+    public Mono<Void> revokeByUserAndClient_migrated(String domain, String user, String clientId, User principal) {
         LOGGER.debug("Revoke approvals for domain: {}, user: {} and client: {}", domain, user, clientId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userService.findById(user)).switchIfEmpty(Mono.error(new UserNotFoundException(user))).flatMap(user1->RxJava2Adapter.singleToMono(scopeApprovalRepository.findByDomainAndUserAndClient(domain, user, clientId).collect(HashSet<ScopeApproval>::new, Set::add)).flatMap(v->RxJava2Adapter.completableToMono(scopeApprovalRepository.deleteByDomainAndUserAndClient(domain, user, clientId).doOnComplete(()->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).approvals(v)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).throwable(throwable))))).then(RxJava2Adapter.completableToMono(Completable.mergeArrayDelayError(accessTokenRepository.deleteByDomainIdClientIdAndUserId(domain, clientId, user), refreshTokenRepository.deleteByDomainIdClientIdAndUserId(domain, clientId, user))))).then())
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(userService.findById(user)).switchIfEmpty(Mono.error(new UserNotFoundException(user))).flatMap(user1->RxJava2Adapter.singleToMono(scopeApprovalRepository.findByDomainAndUserAndClient(domain, user, clientId).collect(HashSet<ScopeApproval>::new, Set::add)).flatMap(v->RxJava2Adapter.completableToMono(scopeApprovalRepository.deleteByDomainAndUserAndClient(domain, user, clientId).doOnComplete(()->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).approvals(v)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).type(EventType.USER_CONSENT_REVOKED).domain(domain).principal(principal).user(user1).throwable(throwable))))).then(RxJava2Adapter.completableToMono(Completable.mergeArrayDelayError(accessTokenRepository.deleteByDomainIdClientIdAndUserId(domain, clientId, user), refreshTokenRepository.deleteByDomainIdClientIdAndUserId(domain, clientId, user))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
@@ -164,7 +199,7 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
                     LOGGER.error("An error occurs while trying to revoke scope approvals for domain: {}, user: {} and client: {}", domain, user, clientId);
                     return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to revoke scope approvals for domain: %s, user: %s and client: %s", domain, user, clientId), ex)));
-                });
+                }));
 
     }
 }

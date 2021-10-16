@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.scim.parser.SCIMFilterParser;
 import io.gravitee.am.management.service.CommonUserService;
 import io.gravitee.am.management.service.OrganizationUserService;
@@ -50,7 +51,8 @@ public abstract class AbstractUsersResource extends AbstractResource {
     @Autowired
     protected DomainService domainService;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.searchUsers_migrated(referenceType, referenceId, query, filter, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 protected Single<Page<User>> searchUsers(ReferenceType referenceType,
                                              String referenceId,
                                              String query,
@@ -69,7 +71,8 @@ protected Mono<Page<User>> searchUsers_migrated(ReferenceType referenceType,
         return RxJava2Adapter.singleToMono(executeSearchUsers(service, referenceType, referenceId, query, filter, page, size));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeSearchUsers_migrated(service, referenceType, referenceId, query, filter, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Page<User>> executeSearchUsers(CommonUserService service, ReferenceType referenceType, String referenceId, String query, String filter, int page, int size) {
  return RxJava2Adapter.monoToSingle(executeSearchUsers_migrated(service, referenceType, referenceId, query, filter, page, size));
 }

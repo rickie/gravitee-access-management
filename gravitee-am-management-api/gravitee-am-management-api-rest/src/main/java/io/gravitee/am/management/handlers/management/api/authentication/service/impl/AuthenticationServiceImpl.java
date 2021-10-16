@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.authentication.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.oidc.CustomClaims;
 import io.gravitee.am.common.oidc.StandardClaims;
@@ -141,7 +142,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     /**
      * Update ORGANIZATION role to an existing user if the identity provider role mapper has changed
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.updateRoles_migrated(principal, existingUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Completable updateRoles(User principal, io.gravitee.am.model.User existingUser) {
  return RxJava2Adapter.monoToCompletable(updateRoles_migrated(principal, existingUser));
 }

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.group;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcGroup;
 import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
@@ -29,7 +30,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringGroupRoleRepository extends RxJava2CrudRepository<JdbcGroup.JdbcRole, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByGroup_migrated(group))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcGroup.JdbcRole> findAllByGroup(@org.springframework.data.repository.query.Param(value = "gid")
 java.lang.String group) {
     return RxJava2Adapter.fluxToFlowable(findAllByGroup_migrated(group));

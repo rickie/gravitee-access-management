@@ -56,8 +56,13 @@ public class JdbcAuthorizationCodeRepository extends AbstractJdbcRepository impl
         return mapper.map(entity, JdbcAuthorizationCode.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AuthorizationCode> create(AuthorizationCode authorizationCode) {
+ return RxJava2Adapter.monoToSingle(create_migrated(authorizationCode));
+}
+@Override
+    public Mono<AuthorizationCode> create_migrated(AuthorizationCode authorizationCode) {
         authorizationCode.setId(authorizationCode.getId() == null ? RandomString.generate() : authorizationCode.getId());
         LOGGER.debug("Create authorizationCode with id {} and code {}", authorizationCode.getId(), authorizationCode.getCode());
 
@@ -78,24 +83,38 @@ public class JdbcAuthorizationCodeRepository extends AbstractJdbcRepository impl
 
         Mono<Integer> insertAction = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(insertAction.flatMap(i->RxJava2Adapter.maybeToMono(authorizationCodeRepository.findById(authorizationCode.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create authorizationCode with id {}", authorizationCode.getId(), error))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.flatMap(i->RxJava2Adapter.maybeToMono(authorizationCodeRepository.findById(authorizationCode.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create authorizationCode with id {}", authorizationCode.getId(), error)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<AuthorizationCode> delete(String id) {
+ return RxJava2Adapter.monoToMaybe(delete_migrated(id));
+}
+@Override
+    public Mono<AuthorizationCode> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authorizationCodeRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->dbClient.delete().from(JdbcAuthorizationCode.class).matching(from(where("id").is(id))).fetch().rowsUpdated().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Integer i)->z))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authorizationCodeRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->dbClient.delete().from(JdbcAuthorizationCode.class).matching(from(where("id").is(id))).fetch().rowsUpdated().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Integer i)->z)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<AuthorizationCode> findByCode(String code) {
+ return RxJava2Adapter.monoToMaybe(findByCode_migrated(code));
+}
+@Override
+    public Mono<AuthorizationCode> findByCode_migrated(String code) {
         LOGGER.debug("findByCode({})", code);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authorizationCodeRepository.findByCode(code, LocalDateTime.now(UTC))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve AuthorizationCode with code {}", code))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authorizationCodeRepository.findByCode(code, LocalDateTime.now(UTC))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve AuthorizationCode with code {}", code)))));
     }
 
-    public Completable purgeExpiredData() {
+    @Deprecated
+public Completable purgeExpiredData() {
+ return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
+}
+public Mono<Void> purgeExpiredData_migrated() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);
-        return dbClient.delete().from(JdbcAuthorizationCode.class).matching(where("expire_at").lessThan(now)).then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to purge authorization tokens", error))).as(RxJava2Adapter::monoToCompletable);
+        return RxJava2Adapter.completableToMono(dbClient.delete().from(JdbcAuthorizationCode.class).matching(where("expire_at").lessThan(now)).then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to purge authorization tokens", error))).as(RxJava2Adapter::monoToCompletable));
     }
 }

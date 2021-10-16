@@ -26,12 +26,13 @@ import io.gravitee.plugin.core.api.Plugin;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -48,23 +49,38 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<PolicyPlugin>> findAll() {
-        return findAll(null);
+ return RxJava2Adapter.monoToSingle(findAll_migrated());
+}
+@Override
+    public Mono<List<PolicyPlugin>> findAll_migrated() {
+        return RxJava2Adapter.singleToMono(findAll(null));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<PolicyPlugin>> findAll(List<String> expand) {
+ return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
+}
+@Override
+    public Mono<List<PolicyPlugin>> findAll_migrated(List<String> expand) {
         LOGGER.debug("List all policy plugins");
-        return Observable.fromIterable(policyPluginManager.getAll())
+        return RxJava2Adapter.singleToMono(Observable.fromIterable(policyPluginManager.getAll())
             .map(policyPlugin -> convert(policyPlugin, expand))
-            .toList();
+            .toList());
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<PolicyPlugin> findById(String policyId) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(policyId));
+}
+@Override
+    public Mono<PolicyPlugin> findById_migrated(String policyId) {
         LOGGER.debug("Find policy plugin by ID: {}", policyId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 PolicyPlugin policy = convert(policyPluginManager.get(policyId));
                 if (policy != null) {
@@ -76,13 +92,18 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
                 LOGGER.error("An error occurs while trying to get policy plugin : {}", policyId, ex);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get policy plugin : " + policyId, ex));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<String> getSchema(String policyId) {
+ return RxJava2Adapter.monoToMaybe(getSchema_migrated(policyId));
+}
+@Override
+    public Mono<String> getSchema_migrated(String policyId) {
         LOGGER.debug("Find policy plugin schema by ID: {}", policyId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 String schema = policyPluginManager.getSchema(policyId);
                 if (schema != null) {
@@ -102,13 +123,18 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
                 LOGGER.error("An error occurs while trying to get schema for policy plugin {}", policyId, e);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get schema for policy plugin " + policyId, e));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<String> getIcon(String policyId) {
+ return RxJava2Adapter.monoToMaybe(getIcon_migrated(policyId));
+}
+@Override
+    public Mono<String> getIcon_migrated(String policyId) {
         LOGGER.debug("Find policy plugin icon by ID: {}", policyId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 String icon = policyPluginManager.getIcon(policyId);
                 if (icon != null) {
@@ -120,13 +146,18 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
                 LOGGER.error("An error occurs while trying to get icon for policy plugin {}", policyId, e);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get icon for policy plugin " + policyId, e));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<String> getDocumentation(String policyId) {
+ return RxJava2Adapter.monoToMaybe(getDocumentation_migrated(policyId));
+}
+@Override
+    public Mono<String> getDocumentation_migrated(String policyId) {
         LOGGER.debug("Find policy plugin documentation by ID: {}", policyId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 String documentation = policyPluginManager.getDocumentation(policyId);
                 if (documentation != null) {
@@ -138,7 +169,7 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
                 LOGGER.error("An error occurs while trying to get documentation for policy plugin {}", policyId, e);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get documentation for policy plugin " + policyId, e));
             }
-        });
+        }));
     }
 
     private PolicyPlugin convert(Plugin policyPlugin) {

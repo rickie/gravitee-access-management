@@ -17,6 +17,7 @@ package io.gravitee.am.repository.mongodb.management;
 
 import static com.mongodb.client.model.Filters.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
@@ -52,7 +53,8 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
         super.init(collection);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<AlertTrigger> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -62,15 +64,25 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<AlertTrigger> findAll(ReferenceType referenceType, String referenceId) {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+@Override
+    public Flux<AlertTrigger> findAll_migrated(ReferenceType referenceType, String referenceId) {
         Bson eqReference = and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId));
 
-        return RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(eqReference)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(eqReference)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<AlertTrigger> findByCriteria(ReferenceType referenceType, String referenceId, AlertTriggerCriteria criteria) {
+ return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
+}
+@Override
+    public Flux<AlertTrigger> findByCriteria_migrated(ReferenceType referenceType, String referenceId, AlertTriggerCriteria criteria) {
         Bson eqReference = and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId));
 
         List<Bson> filters = new ArrayList<>();
@@ -90,10 +102,11 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
         if (!filters.isEmpty()) {
             query = and(eqReference, criteria.isLogicalOR() ? or(filters) : and(filters));
         }
-        return RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(query)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(query)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(alertTrigger))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<AlertTrigger> create(AlertTrigger alertTrigger) {
  return RxJava2Adapter.monoToSingle(create_migrated(alertTrigger));
@@ -104,7 +117,8 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(alertTrigger)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(alertTrigger.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(alertTrigger))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<AlertTrigger> update(AlertTrigger alertTrigger) {
  return RxJava2Adapter.monoToSingle(update_migrated(alertTrigger));
@@ -115,7 +129,8 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, alertTriggerMongo.getId()), alertTriggerMongo))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(alertTriggerMongo.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

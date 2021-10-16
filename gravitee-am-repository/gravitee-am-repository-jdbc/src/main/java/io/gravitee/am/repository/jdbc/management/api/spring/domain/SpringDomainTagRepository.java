@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.domain;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcDomain;
 import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
@@ -28,7 +29,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringDomainTagRepository  extends RxJava2CrudRepository<JdbcDomain.Tag, String>  {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByDomainId_migrated(domainId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcDomain.Tag> findAllByDomainId(java.lang.String domainId) {
     return RxJava2Adapter.fluxToFlowable(findAllByDomainId_migrated(domainId));
 }

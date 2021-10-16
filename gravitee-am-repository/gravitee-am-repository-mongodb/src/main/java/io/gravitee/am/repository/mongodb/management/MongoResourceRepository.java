@@ -17,6 +17,7 @@ package io.gravitee.am.repository.mongodb.management;
 
 import static com.mongodb.client.model.Filters.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.BasicDBObject;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
@@ -57,14 +58,20 @@ public class MongoResourceRepository extends AbstractManagementMongoRepository i
         super.createIndex(resourceCollection, new Document(FIELD_DOMAIN, 1).append(FIELD_CLIENT_ID, 1).append(FIELD_USER_ID, 1));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<Resource>> findByDomainAndClient(String domain, String client, int page, int size) {
+ return RxJava2Adapter.monoToSingle(findByDomainAndClient_migrated(domain, client, page, size));
+}
+@Override
+    public Mono<Page<Resource>> findByDomainAndClient_migrated(String domain, String client, int page, int size) {
         Single<Long> countOperation = Observable.fromPublisher(resourceCollection.countDocuments(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client)))).first(0l);
         Single<List<Resource>> resourcesOperation = Observable.fromPublisher(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client))).sort(new BasicDBObject(FIELD_UPDATED_AT, -1)).skip(size * page).limit(size)).map(this::convert).toList();
-        return Single.zip(countOperation, resourcesOperation, (count, resourceSets) -> new Page<>(resourceSets, page, count));
+        return RxJava2Adapter.singleToMono(Single.zip(countOperation, resourcesOperation, (count, resourceSets) -> new Page<>(resourceSets, page, count)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Resource> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -74,7 +81,8 @@ public class MongoResourceRepository extends AbstractManagementMongoRepository i
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(resourceCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Resource> create(Resource item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -86,7 +94,8 @@ public class MongoResourceRepository extends AbstractManagementMongoRepository i
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.insertOne(resource))).flatMap(success->RxJava2Adapter.maybeToMono(findById(resource.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Resource> update(Resource item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -97,7 +106,8 @@ public class MongoResourceRepository extends AbstractManagementMongoRepository i
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.replaceOne(eq(FIELD_ID, resourceMongo.getId()), resourceMongo))).flatMap(success->RxJava2Adapter.maybeToMono(findById(resourceMongo.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));
@@ -107,31 +117,56 @@ public class MongoResourceRepository extends AbstractManagementMongoRepository i
         return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(resourceCollection.deleteOne(eq(FIELD_ID, id)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Resource> findByDomainAndClientAndUser(String domain, String client, String user) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), eq(FIELD_USER_ID, user)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.fluxToFlowable(findByDomainAndClientAndUser_migrated(domain, client, user));
+}
+@Override
+    public Flux<Resource> findByDomainAndClientAndUser_migrated(String domain, String client, String user) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), eq(FIELD_USER_ID, user)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<Resource>> findByDomain(String domain, int page, int size) {
+ return RxJava2Adapter.monoToSingle(findByDomain_migrated(domain, page, size));
+}
+@Override
+    public Mono<Page<Resource>> findByDomain_migrated(String domain, int page, int size) {
         Single<Long> countOperation = Observable.fromPublisher(resourceCollection.countDocuments(eq(FIELD_DOMAIN, domain))).first(0l);
         Single<Set<Resource>> resourceSetOperation = Observable.fromPublisher(resourceCollection.find(eq(FIELD_DOMAIN, domain)).sort(new BasicDBObject(FIELD_UPDATED_AT, -1)).skip(size * page).limit(size)).map(this::convert).collect(HashSet::new, Set::add);
-        return Single.zip(countOperation, resourceSetOperation, (count, resourceSet) -> new Page<>(resourceSet, page, count));
+        return RxJava2Adapter.singleToMono(Single.zip(countOperation, resourceSetOperation, (count, resourceSet) -> new Page<>(resourceSet, page, count)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Resource> findByResources(List<String> resources) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(resourceCollection.find(in(FIELD_ID, resources))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.fluxToFlowable(findByResources_migrated(resources));
+}
+@Override
+    public Flux<Resource> findByResources_migrated(List<String> resources) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(resourceCollection.find(in(FIELD_ID, resources))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Resource> findByDomainAndClientAndResources(String domain, String client, List<String> resources) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), in(FIELD_ID, resources)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.fluxToFlowable(findByDomainAndClientAndResources_migrated(domain, client, resources));
+}
+@Override
+    public Flux<Resource> findByDomainAndClientAndResources_migrated(String domain, String client, List<String> resources) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), in(FIELD_ID, resources)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Resource> findByDomainAndClientAndUserAndResource(String domain, String client, String user, String resource) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), eq(FIELD_USER_ID, user), eq(FIELD_ID, resource))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndUserAndResource_migrated(domain, client, user, resource));
+}
+@Override
+    public Mono<Resource> findByDomainAndClientAndUserAndResource_migrated(String domain, String client, String user, String resource) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), eq(FIELD_USER_ID, user), eq(FIELD_ID, resource))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
     private Resource convert(ResourceMongo resourceMongo) {

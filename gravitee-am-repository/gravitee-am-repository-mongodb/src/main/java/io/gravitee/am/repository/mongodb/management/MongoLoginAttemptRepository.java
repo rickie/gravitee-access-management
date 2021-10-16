@@ -18,6 +18,7 @@ package io.gravitee.am.repository.mongodb.management;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
@@ -64,7 +65,8 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
         super.createIndex(loginAttemptsCollection, new Document(FIELD_RESET_TIME, 1), new IndexOptions().expireAfter(0L, TimeUnit.SECONDS));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<LoginAttempt> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -74,12 +76,18 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(loginAttemptsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<LoginAttempt> findByCriteria(LoginAttemptCriteria criteria) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(loginAttemptsCollection.find(query(criteria)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findByCriteria_migrated(criteria));
+}
+@Override
+    public Mono<LoginAttempt> findByCriteria_migrated(LoginAttemptCriteria criteria) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(loginAttemptsCollection.find(query(criteria)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<LoginAttempt> create(LoginAttempt item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -91,7 +99,8 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(loginAttemptsCollection.insertOne(loginAttempt))).flatMap(success->RxJava2Adapter.maybeToMono(findById(loginAttempt.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<LoginAttempt> update(LoginAttempt item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -102,14 +111,24 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(loginAttemptsCollection.replaceOne(eq(FIELD_ID, loginAttempt.getId()), loginAttempt))).flatMap(success->RxJava2Adapter.maybeToMono(findById(loginAttempt.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(loginAttemptsCollection.deleteOne(eq(FIELD_ID, id))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(loginAttemptsCollection.deleteOne(eq(FIELD_ID, id)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(LoginAttemptCriteria criteria) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(loginAttemptsCollection.deleteOne(query(criteria))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(criteria));
+}
+@Override
+    public Mono<Void> delete_migrated(LoginAttemptCriteria criteria) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(loginAttemptsCollection.deleteOne(query(criteria)))));
     }
 
     private Bson query(LoginAttemptCriteria criteria) {

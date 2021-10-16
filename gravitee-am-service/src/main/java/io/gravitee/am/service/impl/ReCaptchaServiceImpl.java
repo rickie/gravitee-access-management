@@ -64,22 +64,27 @@ public class ReCaptchaServiceImpl implements ReCaptchaService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Override
+    @Deprecated
+@Override
     public Single<Boolean> isValid(String token) {
+ return RxJava2Adapter.monoToSingle(isValid_migrated(token));
+}
+@Override
+    public Mono<Boolean> isValid_migrated(String token) {
 
         if (!this.isEnabled()) {
             logger.debug("ReCaptchaService is disabled");
-            return RxJava2Adapter.monoToSingle(Mono.just(true));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true)));
         }
 
         logger.debug("ReCaptchaService is enabled");
 
         if (token == null || "".equals(token.trim())) {
             logger.debug("Recaptcha token is empty");
-            return RxJava2Adapter.monoToSingle(Mono.just(false));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(false)));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.post(URI.create(serviceUrl).toString())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.post(URI.create(serviceUrl).toString())
                 .rxSendForm(MultiMap.caseInsensitiveMultiMap().set("secret", secretKey).set("response", token))).map(RxJavaReactorMigrationUtil.toJdkFunction(buffer -> {
                     Map res = objectMapper.readValue(buffer.bodyAsString(), Map.class);
 
@@ -94,7 +99,7 @@ public class ReCaptchaServiceImpl implements ReCaptchaService {
                 .onErrorResumeNext(throwable -> {
                     logger.error("An error occurred when trying to validate ReCaptcha token.", throwable);
                     return RxJava2Adapter.monoToSingle(Mono.just(false));
-                });
+                }));
     }
 
     public boolean isEnabled() {

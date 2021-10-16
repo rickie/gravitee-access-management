@@ -18,6 +18,7 @@ package io.gravitee.am.repository.mongodb.management;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
@@ -50,12 +51,18 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
         super.createIndex(resourceCollection,new Document(FIELD_REFERENCE_ID, 1).append(FIELD_REFERENCE_TYPE, 1));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<ServiceResource> findByReference(ReferenceType referenceType, String referenceId) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(resourceCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
+}
+@Override
+    public Flux<ServiceResource> findByReference_migrated(ReferenceType referenceType, String referenceId) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(resourceCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<ServiceResource> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -65,7 +72,8 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(resourceCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<ServiceResource> create(ServiceResource item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -77,7 +85,8 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.insertOne(res))).flatMap(success->RxJava2Adapter.maybeToMono(findById(res.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<ServiceResource> update(ServiceResource item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -88,7 +97,8 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.replaceOne(eq(FIELD_ID, authenticator.getId()), authenticator))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(authenticator.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

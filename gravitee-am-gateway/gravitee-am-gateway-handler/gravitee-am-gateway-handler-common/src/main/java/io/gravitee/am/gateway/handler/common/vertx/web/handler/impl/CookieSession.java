@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.handler.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.certificate.CertificateProvider;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
@@ -78,7 +79,8 @@ public class CookieSession extends AbstractSession {
         return super.put(key, obj);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setValue_migrated(payload))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 protected Single<CookieSession> setValue(String payload) {
  return RxJava2Adapter.monoToSingle(setValue_migrated(payload));
 }

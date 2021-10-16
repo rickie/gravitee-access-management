@@ -19,6 +19,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
 import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Environment;
 import io.gravitee.am.model.Organization;
@@ -67,19 +68,30 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
         return mapper.map(entity, JdbcOrganization.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Organization> findByHrids(List<String> hrids) {
+ return RxJava2Adapter.fluxToFlowable(findByHrids_migrated(hrids));
+}
+@Override
+    public Flux<Organization> findByHrids_migrated(List<String> hrids) {
         LOGGER.debug("findByHrids({})", hrids);
 
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(organizationRepository.findByHrids(hrids)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toOrganization)));
-    }
-
-    @Override
-    public Single<Long> count() {
-        return organizationRepository.count();
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(organizationRepository.findByHrids(hrids)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toOrganization))));
     }
 
     @Deprecated
+@Override
+    public Single<Long> count() {
+ return RxJava2Adapter.monoToSingle(count_migrated());
+}
+@Override
+    public Mono<Long> count_migrated() {
+        return RxJava2Adapter.singleToMono(organizationRepository.count());
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Organization> findById(String organizationId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(organizationId));
@@ -109,7 +121,8 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(organization))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Organization> create(Organization organization) {
  return RxJava2Adapter.monoToSingle(create_migrated(organization));
@@ -137,7 +150,8 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
                 .then(maybeToMono(findById(organization.getId())))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(organization))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Organization> update(Organization organization) {
  return RxJava2Adapter.monoToSingle(update_migrated(organization));
@@ -165,7 +179,8 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
                 .then(maybeToMono(findById(organization.getId())))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String organizationId) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(organizationId));

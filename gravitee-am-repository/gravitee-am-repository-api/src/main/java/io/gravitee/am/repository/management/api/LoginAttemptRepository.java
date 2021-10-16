@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
@@ -29,7 +30,8 @@ import reactor.core.publisher.Mono;
  */
 public interface LoginAttemptRepository extends CrudRepository<LoginAttempt, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.LoginAttempt> findByCriteria(io.gravitee.am.repository.management.api.search.LoginAttemptCriteria criteria) {
     return RxJava2Adapter.monoToMaybe(findByCriteria_migrated(criteria));
 }
@@ -37,7 +39,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.LoginAttempt> findByCri
     return RxJava2Adapter.maybeToMono(findByCriteria(criteria));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(io.gravitee.am.repository.management.api.search.LoginAttemptCriteria criteria) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(criteria));
 }
@@ -45,7 +48,8 @@ default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(LoginAttempt
     return RxJava2Adapter.completableToMono(delete(criteria));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable purgeExpiredData() {
     return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
 }default Mono<Void> purgeExpiredData_migrated() {

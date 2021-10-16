@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcFactor;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -29,7 +30,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringFactorRepository extends RxJava2CrudRepository<JdbcFactor, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcFactor> findByDomain(java.lang.String domain) {
     return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
 }

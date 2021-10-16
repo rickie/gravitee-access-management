@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Installation;
 import io.reactivex.Completable;
 import io.reactivex.Single;
@@ -32,7 +33,8 @@ public interface InstallationService {
      *
      * @return the current installation or an {@link io.gravitee.am.service.exception.InstallationNotFoundException} exception.
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.get_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Installation> get() {
     return RxJava2Adapter.monoToSingle(get_migrated());
 }
@@ -46,7 +48,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> get_migra
      *
      * @return the created or already existing installation.
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getOrInitialize_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Installation> getOrInitialize() {
     return RxJava2Adapter.monoToSingle(getOrInitialize_migrated());
 }
@@ -61,7 +64,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> getOrInit
      *
      * @return the updated installation
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setAdditionalInformation_migrated(additionalInformation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Installation> setAdditionalInformation(java.util.Map<java.lang.String, java.lang.String> additionalInformation) {
     return RxJava2Adapter.monoToSingle(setAdditionalInformation_migrated(additionalInformation));
 }
@@ -76,7 +80,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> setAdditi
      *
      * @return the updated installation.
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addAdditionalInformation_migrated(additionalInformation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Installation> addAdditionalInformation(java.util.Map<java.lang.String, java.lang.String> additionalInformation) {
     return RxJava2Adapter.monoToSingle(addAdditionalInformation_migrated(additionalInformation));
 }
@@ -89,7 +94,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> addAdditi
      *
      * @return the operation status
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete() {
     return RxJava2Adapter.monoToCompletable(delete_migrated());
 }

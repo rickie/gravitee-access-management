@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcServiceResource;
 import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
@@ -29,7 +30,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringServiceResourceRepository extends RxJava2CrudRepository<JdbcServiceResource, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcServiceResource> findByReference(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String referenceId) {

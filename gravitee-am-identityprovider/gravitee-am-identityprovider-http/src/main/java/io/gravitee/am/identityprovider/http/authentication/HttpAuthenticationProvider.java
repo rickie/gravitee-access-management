@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.identityprovider.http.authentication;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.authentication.AuthenticationException;
 import io.gravitee.am.common.exception.authentication.InternalAuthenticationServiceException;
 import io.gravitee.am.common.oidc.StandardClaims;
@@ -83,8 +84,13 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
+ return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
+}
+@Override
+    public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
         try {
             // prepare request
             final HttpResourceConfiguration resourceConfiguration = configuration.getAuthenticationResource();
@@ -105,7 +111,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
             final String authenticationURI = templateEngine.getValue(resourceConfiguration.getBaseURL(), String.class);
             final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, authenticationURI, authenticationHttpMethod, authenticationHttpHeaders, authenticationBody);
 
-            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = resourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return createUser(authentication.getContext(), userAttributes);
@@ -116,24 +122,35 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
                         }
                         LOGGER.error("An error has occurred while calling the remote HTTP identity provider {}", ex);
                         return RxJava2Adapter.monoToMaybe(Mono.error(new InternalAuthenticationServiceException("An error has occurred while calling the remote HTTP identity provider", ex)));
-                    });
+                    }));
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while authenticating the user {}", ex);
-            return RxJava2Adapter.monoToMaybe(Mono.error(new InternalAuthenticationServiceException("An error has occurred while authenticating the user", ex)));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InternalAuthenticationServiceException("An error has occurred while authenticating the user", ex))));
         }
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> loadPreAuthenticatedUser(Authentication authentication) {
-        return loadByUsername0(authentication.getContext(), new DefaultUser((io.gravitee.am.model.User) authentication.getPrincipal()));
-    }
-
-    @Override
-    public Maybe<User> loadUserByUsername(String username) {
-        return loadByUsername0(new SimpleAuthenticationContext(), new DefaultUser(username));
+ return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(authentication));
+}
+@Override
+    public Mono<User> loadPreAuthenticatedUser_migrated(Authentication authentication) {
+        return RxJava2Adapter.maybeToMono(loadByUsername0(authentication.getContext(), new DefaultUser((io.gravitee.am.model.User) authentication.getPrincipal())));
     }
 
     @Deprecated
+@Override
+    public Maybe<User> loadUserByUsername(String username) {
+ return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
+}
+@Override
+    public Mono<User> loadUserByUsername_migrated(String username) {
+        return RxJava2Adapter.maybeToMono(loadByUsername0(new SimpleAuthenticationContext(), new DefaultUser(username)));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadByUsername0_migrated(authenticationContext, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<User> loadByUsername0(AuthenticationContext authenticationContext, User user) {
  return RxJava2Adapter.monoToMaybe(loadByUsername0_migrated(authenticationContext, user));
 }
@@ -189,7 +206,8 @@ private Mono<User> loadByUsername0_migrated(AuthenticationContext authentication
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.processRequest_migrated(templateEngine, httpURI, httpMethod, httpHeaders, httpBody))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<HttpResponse<Buffer>> processRequest(TemplateEngine templateEngine,
                                                         String httpURI,
                                                         HttpMethod httpMethod,

@@ -95,8 +95,13 @@ public class SmtpResourceProvider implements EmailSenderProvider {
         return javaMailSender;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable sendMessage(Email message) {
+ return RxJava2Adapter.monoToCompletable(sendMessage_migrated(message));
+}
+@Override
+    public Mono<Void> sendMessage_migrated(Email message) {
         executorService.execute(() -> {
             try {
                 this.mailSender.send(message);
@@ -104,6 +109,6 @@ public class SmtpResourceProvider implements EmailSenderProvider {
                 LOGGER.error("Message emission fails", e);
             }
         });
-        return RxJava2Adapter.monoToCompletable(Mono.empty());
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 }

@@ -17,6 +17,7 @@ package io.gravitee.am.identityprovider.mongo.user;
 
 import static com.mongodb.client.model.Filters.eq;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.oidc.StandardClaims;
@@ -75,31 +76,46 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
 
     private MongoCollection<Document> usersCollection;
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> findByEmail(String email) {
+ return RxJava2Adapter.monoToMaybe(findByEmail_migrated(email));
+}
+@Override
+    public Mono<User> findByEmail_migrated(String email) {
         String rawQuery = this.configuration.getFindUserByEmailQuery().replaceAll("\\?", email);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(query).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(query).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> findByUsername(String username) {
+ return RxJava2Adapter.monoToMaybe(findByUsername_migrated(username));
+}
+@Override
+    public Mono<User> findByUsername_migrated(String username) {
         // lowercase username since case-sensitivity feature
         final String encodedUsername = username.toLowerCase();
 
         String rawQuery = this.configuration.getFindUserByUsernameQuery().replaceAll("\\?", encodedUsername);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(query).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(query).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> create(User user) {
+ return RxJava2Adapter.monoToSingle(create_migrated(user));
+}
+@Override
+    public Mono<User> create_migrated(User user) {
         // lowercase username to avoid duplicate account
         final String username = user.getUsername().toLowerCase();
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findByUsername(username)).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(findByUsername(username)).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
                     if (!isEmpty) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new UserAlreadyExistsException(user.getUsername())));
                     } else {
@@ -127,12 +143,17 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
                         document.put(FIELD_UPDATED_AT, document.get(FIELD_CREATED_AT));
                         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne(document))).flatMap(success->RxJava2Adapter.maybeToMono(findById(document.getString(FIELD_ID))).single()));
                     }
-                }).apply(v))));
+                }).apply(v)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> update(String id, User updateUser) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findById(id)).switchIfEmpty(Mono.error(new UserNotFoundException(id))))
+ return RxJava2Adapter.monoToSingle(update_migrated(id, updateUser));
+}
+@Override
+    public Mono<User> update_migrated(String id, User updateUser) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findById(id)).switchIfEmpty(Mono.error(new UserNotFoundException(id))))
                 .flatMapSingle(oldUser -> {
                     Document document = new Document();
                     // set username (keep the original value)
@@ -157,12 +178,17 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
                     document.put(FIELD_CREATED_AT, oldUser.getCreatedAt());
                     document.put(FIELD_UPDATED_AT, new Date());
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, oldUser.getId()), document))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(oldUser.getId())).single()));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(findById(id)).switchIfEmpty(Mono.error(new UserNotFoundException(id))).flatMap(idpUser->Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id)))).then());
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(findById(id)).switchIfEmpty(Mono.error(new UserNotFoundException(id))).flatMap(idpUser->Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id)))).then()));
     }
 
     @Override
@@ -173,7 +199,8 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
         Observable.fromPublisher(usersCollection.createIndex(new Document(configuration.getUsernameField(), 1))).subscribe();
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<User> findById(String userId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(userId));
 }

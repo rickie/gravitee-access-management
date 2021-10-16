@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
 import io.gravitee.am.model.*;
@@ -74,11 +75,19 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
         return this.userRepository;
     }
 
-    public Completable setRoles(io.gravitee.am.model.User user) {
-        return setRoles(null, user);
+    @Deprecated
+public Completable setRoles(io.gravitee.am.model.User user) {
+ return RxJava2Adapter.monoToCompletable(setRoles_migrated(user));
+}
+public Mono<Void> setRoles_migrated(io.gravitee.am.model.User user) {
+        return RxJava2Adapter.completableToMono(setRoles(null, user));
     }
 
-    public Completable setRoles(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
+    @Deprecated
+public Completable setRoles(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
+ return RxJava2Adapter.monoToCompletable(setRoles_migrated(principal, user));
+}
+public Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
 
         final Maybe<Role> defaultRoleObs = roleService.findDefaultRole(user.getReferenceId(), DefaultRole.ORGANIZATION_USER, ReferenceType.ORGANIZATION);
         Maybe<Role> roleObs = defaultRoleObs;
@@ -104,13 +113,14 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
         membership.setReferenceType(user.getReferenceType());
         membership.setReferenceId(user.getReferenceId());
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(roleObs).switchIfEmpty(Mono.error(new TechnicalManagementException(String.format("Cannot add user membership to organization %s. Unable to find ORGANIZATION_USER role", user.getReferenceId())))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Role, CompletableSource>)role -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(roleObs).switchIfEmpty(Mono.error(new TechnicalManagementException(String.format("Cannot add user membership to organization %s. Unable to find ORGANIZATION_USER role", user.getReferenceId())))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Role, CompletableSource>)role -> {
                     membership.setRoleId(role.getId());
                     return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(membershipService.addOrUpdate(user.getReferenceId(), membership)).then());
-                }).apply(y)))).then());
+                }).apply(y)))).then()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> update(User user) {
  return RxJava2Adapter.monoToSingle(update_migrated(user));

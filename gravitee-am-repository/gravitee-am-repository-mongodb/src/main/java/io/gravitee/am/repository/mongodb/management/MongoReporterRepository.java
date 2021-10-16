@@ -17,6 +17,7 @@ package io.gravitee.am.repository.mongodb.management;
 
 import static com.mongodb.client.model.Filters.eq;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Reporter;
@@ -50,17 +51,28 @@ public class MongoReporterRepository extends AbstractManagementMongoRepository i
         super.createIndex(reportersCollection, new Document(FIELD_DOMAIN, 1));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Reporter> findAll() {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(reportersCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Flowable<Reporter> findByDomain(String domain) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(reportersCollection.find(eq(FIELD_DOMAIN, domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+@Override
+    public Flux<Reporter> findAll_migrated() {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(reportersCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
     @Deprecated
+@Override
+    public Flowable<Reporter> findByDomain(String domain) {
+ return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+@Override
+    public Flux<Reporter> findByDomain_migrated(String domain) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(reportersCollection.find(eq(FIELD_DOMAIN, domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Reporter> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -70,7 +82,8 @@ public class MongoReporterRepository extends AbstractManagementMongoRepository i
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(reportersCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Reporter> create(Reporter item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -82,7 +95,8 @@ public class MongoReporterRepository extends AbstractManagementMongoRepository i
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(reportersCollection.insertOne(reporter))).flatMap(success->RxJava2Adapter.maybeToMono(findById(reporter.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Reporter> update(Reporter item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -93,7 +107,8 @@ public class MongoReporterRepository extends AbstractManagementMongoRepository i
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(reportersCollection.replaceOne(eq(FIELD_ID, reporter.getId()), reporter))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(reporter.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

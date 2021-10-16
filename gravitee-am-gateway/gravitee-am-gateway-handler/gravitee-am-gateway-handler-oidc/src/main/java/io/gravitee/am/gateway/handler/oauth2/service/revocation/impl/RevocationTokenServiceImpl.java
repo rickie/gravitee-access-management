@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.revocation.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.oauth2.InvalidTokenException;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidGrantException;
@@ -45,14 +46,19 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
     @Autowired
     private TokenService tokenService;
 
-    @Override
+    @Deprecated
+@Override
     public Completable revoke(RevocationTokenRequest request, Client client) {
+ return RxJava2Adapter.monoToCompletable(revoke_migrated(request, client));
+}
+@Override
+    public Mono<Void> revoke_migrated(RevocationTokenRequest request, Client client) {
         String token = request.getToken();
 
         // Check the refresh_token store first. Fall back to the access token store if we don't
         // find anything. See RFC 7009, Sec 2.1: https://tools.ietf.org/html/rfc7009#section-2.1
         if (request.getHint() != null && request.getHint() == TokenTypeHint.REFRESH_TOKEN) {
-            return revokeRefreshToken(token, client)
+            return RxJava2Adapter.completableToMono(revokeRefreshToken(token, client)
                     .onErrorResumeNext(throwable -> {
                         // if the token was not issued to the client making the revocation request
                         // the request is refused and the client is informed of the error
@@ -83,12 +89,12 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
                             return RxJava2Adapter.monoToCompletable(Mono.empty());
                         }
                         return RxJava2Adapter.monoToCompletable(Mono.error(throwable));
-                    });
+                    }));
         }
 
         // The user didn't hint that this is a refresh token, so it MAY be an access
         // token. If we don't find an access token... check if it's a refresh token.
-        return revokeAccessToken(token, client)
+        return RxJava2Adapter.completableToMono(revokeAccessToken(token, client)
                 .onErrorResumeNext(throwable -> {
                     // if the token was not issued to the client making the revocation request
                     // the request is refused and the client is informed of the error
@@ -119,11 +125,12 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
                         return RxJava2Adapter.monoToCompletable(Mono.empty());
                     }
                     return RxJava2Adapter.monoToCompletable(Mono.error(throwable));
-                });
+                }));
 
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeAccessToken_migrated(token, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Completable revokeAccessToken(String token, Client client) {
  return RxJava2Adapter.monoToCompletable(revokeAccessToken_migrated(token, client));
 }
@@ -139,7 +146,8 @@ private Mono<Void> revokeAccessToken_migrated(String token, Client client) {
                 }).apply(y)))).then()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeRefreshToken_migrated(token, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Completable revokeRefreshToken(String token, Client client) {
  return RxJava2Adapter.monoToCompletable(revokeRefreshToken_migrated(token, client));
 }

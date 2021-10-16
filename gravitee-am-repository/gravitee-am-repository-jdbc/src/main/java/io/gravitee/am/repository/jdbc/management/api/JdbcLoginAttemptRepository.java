@@ -20,6 +20,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
 import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.repository.jdbc.exceptions.RepositoryIllegalQueryException;
@@ -60,8 +61,13 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         return mapper.map(entity, JdbcLoginAttempt.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<LoginAttempt> findByCriteria(LoginAttemptCriteria criteria) {
+ return RxJava2Adapter.monoToMaybe(findByCriteria_migrated(criteria));
+}
+@Override
+    public Mono<LoginAttempt> findByCriteria_migrated(LoginAttemptCriteria criteria) {
         LOGGER.debug("findByCriteria({})", criteria);
 
         Criteria whereClause = buildWhereClause(criteria);
@@ -75,7 +81,7 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
                 .or(where("expire_at").isNull()));
         from = from.matching(from(whereClause));
 
-        return RxJava2Adapter.monoToMaybe(from.as(JdbcLoginAttempt.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(from.as(JdbcLoginAttempt.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
     private Criteria buildWhereClause(LoginAttemptCriteria criteria) {
@@ -99,20 +105,26 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         return whereClause;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(LoginAttemptCriteria criteria) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(criteria));
+}
+@Override
+    public Mono<Void> delete_migrated(LoginAttemptCriteria criteria) {
         LOGGER.debug("delete({})", criteria);
 
         Criteria whereClause = buildWhereClause(criteria);
 
         if (!whereClause.isEmpty()) {
-            return monoToCompletable(dbClient.delete().from(JdbcLoginAttempt.class).matching(from(whereClause)).then());
+            return RxJava2Adapter.completableToMono(monoToCompletable(dbClient.delete().from(JdbcLoginAttempt.class).matching(from(whereClause)).then()));
         }
 
         throw new RepositoryIllegalQueryException("Unable to delete from LoginAttempt without criteria");
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<LoginAttempt> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -124,7 +136,8 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<LoginAttempt> create(LoginAttempt item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -142,7 +155,8 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(item.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<LoginAttempt> update(LoginAttempt item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -153,15 +167,24 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(loginAttemptRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return loginAttemptRepository.deleteById(id);
+        return RxJava2Adapter.completableToMono(loginAttemptRepository.deleteById(id));
     }
 
-    public Completable purgeExpiredData() {
+    @Deprecated
+public Completable purgeExpiredData() {
+ return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
+}
+public Mono<Void> purgeExpiredData_migrated() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);
-        return monoToCompletable(dbClient.delete().from(JdbcLoginAttempt.class).matching(where("expire_at").lessThan(now)).then());
+        return RxJava2Adapter.completableToMono(monoToCompletable(dbClient.delete().from(JdbcLoginAttempt.class).matching(where("expire_at").lessThan(now)).then()));
     }
 }

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.flow;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.response.AuthorizationResponse;
 import io.gravitee.am.model.AuthenticationFlowContext;
@@ -44,7 +45,8 @@ public interface Flow {
 
     boolean handle(String responseType);
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.run_migrated(authorizationRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.oauth2.service.response.AuthorizationResponse> run(io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest authorizationRequest, io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User endUser) {
     return RxJava2Adapter.monoToSingle(run_migrated(authorizationRequest, client, endUser));
 }

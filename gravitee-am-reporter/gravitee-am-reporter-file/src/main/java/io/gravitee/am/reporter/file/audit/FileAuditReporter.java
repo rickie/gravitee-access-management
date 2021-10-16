@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.reporter.file.audit;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.analytics.Type;
 import io.gravitee.am.common.utils.GraviteeContext;
 import io.gravitee.am.model.ReferenceType;
@@ -90,7 +91,8 @@ public class FileAuditReporter extends AbstractService implements AuditReporter,
 
     private VertxFileWriter writer;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<Audit>> search(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
  return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
@@ -100,7 +102,8 @@ public class FileAuditReporter extends AbstractService implements AuditReporter,
         throw new IllegalStateException("Search method not implemented for File reporter");
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(referenceType, referenceId, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
  return RxJava2Adapter.monoToSingle(aggregate_migrated(referenceType, referenceId, criteria, analyticsType));
@@ -110,7 +113,8 @@ public class FileAuditReporter extends AbstractService implements AuditReporter,
         throw new IllegalStateException("Aggregate method not implemented for File reporter");
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Audit> findById(ReferenceType referenceType, String referenceId, String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));

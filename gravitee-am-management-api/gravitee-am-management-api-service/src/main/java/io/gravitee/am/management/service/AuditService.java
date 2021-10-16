@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.analytics.Type;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.Page;
@@ -31,7 +32,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface AuditService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.reporter.api.audit.model.Audit>> search(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.reporter.api.audit.AuditReportableCriteria criteria, int page, int size) {
     return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
 }
@@ -39,7 +41,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee
     return RxJava2Adapter.singleToMono(search(referenceType, referenceId, criteria, page, size));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.reporter.api.audit.model.Audit>> search(java.lang.String domain, io.gravitee.am.reporter.api.audit.AuditReportableCriteria criteria, int page, int size) {
     return RxJava2Adapter.monoToSingle(search_migrated(domain, criteria, page, size));
 }
@@ -47,7 +50,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee
     return RxJava2Adapter.singleToMono(search(domain, criteria, page, size));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(domain, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.Map<java.lang.Object, java.lang.Object>> aggregate(java.lang.String domain, io.gravitee.am.reporter.api.audit.AuditReportableCriteria criteria, io.gravitee.am.common.analytics.Type analyticsType) {
     return RxJava2Adapter.monoToSingle(aggregate_migrated(domain, criteria, analyticsType));
 }
@@ -55,7 +59,8 @@ default reactor.core.publisher.Mono<java.util.Map<java.lang.Object, java.lang.Ob
     return RxJava2Adapter.singleToMono(aggregate(domain, criteria, analyticsType));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findById_migrated(referenceType, referenceId, auditId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.reporter.api.audit.model.Audit> findById(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String auditId) {
     return RxJava2Adapter.monoToSingle(findById_migrated(referenceType, referenceId, auditId));
 }
@@ -63,7 +68,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.reporter.api.audit.model.Audi
     return RxJava2Adapter.singleToMono(findById(referenceType, referenceId, auditId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(domain, auditId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.reporter.api.audit.model.Audit> findById(java.lang.String domain, java.lang.String auditId) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(domain, auditId));
 }

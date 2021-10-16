@@ -19,6 +19,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
 import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.SystemTask;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -56,7 +57,8 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
         return mapper.map(entity, JdbcSystemTask.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<SystemTask> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -72,7 +74,8 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
 
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<SystemTask> create(SystemTask item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -94,7 +97,8 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<SystemTask> update(SystemTask item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -104,8 +108,13 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("SystemTask can't be updated without control on the operationId"))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<SystemTask> updateIf(SystemTask item, String operationId) {
+ return RxJava2Adapter.monoToSingle(updateIf_migrated(item, operationId));
+}
+@Override
+    public Mono<SystemTask> updateIf_migrated(SystemTask item, String operationId) {
         LOGGER.debug("Update SystemTask with id {}", item.getId());
 
         final DatabaseClient.GenericUpdateSpec updateSpec = dbClient.update().table("system_tasks");
@@ -122,10 +131,11 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
                 .fetch()
                 .rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

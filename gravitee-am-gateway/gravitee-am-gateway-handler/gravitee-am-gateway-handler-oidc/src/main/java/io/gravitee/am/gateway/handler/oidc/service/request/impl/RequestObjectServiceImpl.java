@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.oidc.service.request.impl;
 
 import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.isSignAlgCompliantWithFapi;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
@@ -81,9 +82,14 @@ public class RequestObjectServiceImpl implements RequestObjectService {
     @Autowired
     private Domain domain;
 
-    @Override
+    @Deprecated
+@Override
     public Single<JWT> readRequestObject(String request, Client client, boolean encRequired) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jweService.decrypt(request, encRequired)
+ return RxJava2Adapter.monoToSingle(readRequestObject_migrated(request, client, encRequired));
+}
+@Override
+    public Mono<JWT> readRequestObject_migrated(String request, Client client, boolean encRequired) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jweService.decrypt(request, encRequired)
                 .onErrorResumeNext(err -> {
                     if (err instanceof InvalidRequestObjectException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(err));
@@ -91,39 +97,49 @@ public class RequestObjectServiceImpl implements RequestObjectService {
                     return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException("Malformed request object")));
                 })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JWT, SingleSource<JWT>>toJdkFunction((Function<JWT, SingleSource<JWT>>)jwt -> {
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkRequestObjectAlgorithm(jwt)).then(Mono.defer(()->RxJava2Adapter.singleToMono(validateSignature((SignedJWT)jwt, client)))));
-                }).apply(v)))));
+                }).apply(v))))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<JWT> readRequestObjectFromURI(String requestUri, Client client) {
+ return RxJava2Adapter.monoToSingle(readRequestObjectFromURI_migrated(requestUri, client));
+}
+@Override
+    public Mono<JWT> readRequestObjectFromURI_migrated(String requestUri, Client client) {
         try {
             if (requestUri.startsWith(RESOURCE_OBJECT_URN_PREFIX)) {
                 // Extract the identifier
                 String identifier = requestUri.substring(RESOURCE_OBJECT_URN_PREFIX.length());
 
-                return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(requestObjectRepository.findById(identifier)).switchIfEmpty(Mono.error(new InvalidRequestObjectException())).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<RequestObject, Single<JWT>>)(Function<RequestObject, Single<JWT>>)req -> {
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(requestObjectRepository.findById(identifier)).switchIfEmpty(Mono.error(new InvalidRequestObjectException())).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<RequestObject, Single<JWT>>)(Function<RequestObject, Single<JWT>>)req -> {
                             if (req.getExpireAt().after(new Date())) {
                                 return readRequestObject(req.getPayload(), client, false);
                             }
 
                             return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException()));
-                        }).apply(v))));
+                        }).apply(v)))));
             } else {
-                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(webClient.getAbs(UriBuilder.fromHttpUrl(requestUri).build().toString())
-                        .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(HttpResponse::bodyAsString)).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<JWT>>)(Function<String, Single<JWT>>)s -> readRequestObject(s, client, false)).apply(v))));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(webClient.getAbs(UriBuilder.fromHttpUrl(requestUri).build().toString())
+                        .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(HttpResponse::bodyAsString)).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<JWT>>)(Function<String, Single<JWT>>)s -> readRequestObject(s, client, false)).apply(v)))));
             }
         }
         catch (IllegalArgumentException | URISyntaxException ex) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException(requestUri+" is not valid.")));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException(requestUri+" is not valid."))));
         }
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<RequestObjectRegistrationResponse> registerRequestObject(RequestObjectRegistrationRequest request, Client client) {
+ return RxJava2Adapter.monoToSingle(registerRequestObject_migrated(request, client));
+}
+@Override
+    public Mono<RequestObjectRegistrationResponse> registerRequestObject_migrated(RequestObjectRegistrationRequest request, Client client) {
         try {
             JWT jwt = JWTParser.parse(request.getRequest());
 
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkRequestObjectAlgorithm(jwt)).then(Mono.defer(()->RxJava2Adapter.singleToMono(validateSignature((SignedJWT)jwt, client)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JWT, SingleSource<RequestObject>>toJdkFunction(new Function<JWT, SingleSource<RequestObject>>() {
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkRequestObjectAlgorithm(jwt)).then(Mono.defer(()->RxJava2Adapter.singleToMono(validateSignature((SignedJWT)jwt, client)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JWT, SingleSource<RequestObject>>toJdkFunction(new Function<JWT, SingleSource<RequestObject>>() {
                         @Override
                         public SingleSource<RequestObject> apply(JWT jwt) throws Exception {
                             RequestObject requestObject = new RequestObject();
@@ -149,13 +165,14 @@ public class RequestObjectServiceImpl implements RequestObjectService {
                         response.setExp(requestObject.getExpireAt().getTime());
 
                         return RxJava2Adapter.monoToSingle(Mono.just(response));
-                    }).apply(v)))));
+                    }).apply(v))))));
         } catch (ParseException pe) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException()));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException())));
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateSignature_migrated(jwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<JWT> validateSignature(SignedJWT jwt, Client client) {
  return RxJava2Adapter.monoToSingle(validateSignature_migrated(jwt, client));
 }
@@ -184,7 +201,8 @@ private Mono<JWT> validateSignature_migrated(SignedJWT jwt, Client client) {
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.checkRequestObjectAlgorithm_migrated(jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Completable checkRequestObjectAlgorithm(JWT jwt) {
  return RxJava2Adapter.monoToCompletable(checkRequestObjectAlgorithm_migrated(jwt));
 }

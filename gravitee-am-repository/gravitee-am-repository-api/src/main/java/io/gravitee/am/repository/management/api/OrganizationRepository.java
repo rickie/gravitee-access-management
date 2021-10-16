@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Flowable;
@@ -28,7 +29,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface OrganizationRepository extends CrudRepository<Organization, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> count() {
     return RxJava2Adapter.monoToSingle(count_migrated());
 }
@@ -36,7 +38,8 @@ default reactor.core.publisher.Mono<java.lang.Long> count_migrated() {
     return RxJava2Adapter.singleToMono(count());
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByHrids_migrated(hrids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Organization> findByHrids(java.util.List<java.lang.String> hrids) {
     return RxJava2Adapter.fluxToFlowable(findByHrids_migrated(hrids));
 }

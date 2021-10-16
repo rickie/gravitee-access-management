@@ -17,6 +17,7 @@ package io.gravitee.am.factor.email.provider;
 
 import static java.util.Arrays.asList;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.mfa.InvalidCodeException;
 import io.gravitee.am.common.factor.FactorDataKeys;
 import io.gravitee.am.factor.api.Enrollment;
@@ -65,12 +66,17 @@ public class EmailFactorProvider implements FactorProvider {
     @Autowired
     private EmailFactorConfiguration configuration;
 
-    @Override
+    @Deprecated
+@Override
     public Completable verify(FactorContext context) {
+ return RxJava2Adapter.monoToCompletable(verify_migrated(context));
+}
+@Override
+    public Mono<Void> verify_migrated(FactorContext context) {
         final String code = context.getData(FactorContext.KEY_CODE, String.class);
         final EnrolledFactor enrolledFactor = context.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class);
 
-        return Completable.create(emitter -> {
+        return RxJava2Adapter.completableToMono(Completable.create(emitter -> {
             try {
                 final String otpCode = generateOTP(enrolledFactor);
                 if (!code.equals(otpCode)) {
@@ -85,13 +91,18 @@ public class EmailFactorProvider implements FactorProvider {
                 logger.error("An error occurs while validating 2FA code", ex);
                 emitter.onError(new InvalidCodeException("Invalid 2FA Code"));
             }
-        });
+        }));
 
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Enrollment> enroll(String account) {
-        return RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> new Enrollment(SharedSecret.generate()))));
+ return RxJava2Adapter.monoToSingle(enroll_migrated(account));
+}
+@Override
+    public Mono<Enrollment> enroll_migrated(String account) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> new Enrollment(SharedSecret.generate())))));
     }
 
     @Override
@@ -124,23 +135,29 @@ public class EmailFactorProvider implements FactorProvider {
         return true;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable sendChallenge(FactorContext context) {
+ return RxJava2Adapter.monoToCompletable(sendChallenge_migrated(context));
+}
+@Override
+    public Mono<Void> sendChallenge_migrated(FactorContext context) {
         final EnrolledFactor enrolledFactor = context.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class);
         ResourceManager component = context.getComponent(ResourceManager.class);
         ResourceProvider provider = component.getResourceProvider(configuration.getGraviteeResource());
 
         if (provider instanceof EmailSenderProvider) {
 
-            return generateCodeAndSendEmail(context, (EmailSenderProvider) provider, enrolledFactor);
+            return RxJava2Adapter.completableToMono(generateCodeAndSendEmail(context, (EmailSenderProvider) provider, enrolledFactor));
 
         } else {
 
-            return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication with type EMAIL")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication with type EMAIL"))));
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.generateCodeAndSendEmail_migrated(context, provider, enrolledFactor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Completable generateCodeAndSendEmail(FactorContext context, EmailSenderProvider provider, EnrolledFactor enrolledFactor) {
  return RxJava2Adapter.monoToCompletable(generateCodeAndSendEmail_migrated(context, provider, enrolledFactor));
 }
@@ -183,13 +200,18 @@ private Mono<Void> generateCodeAndSendEmail_migrated(FactorContext context, Emai
         return true;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<EnrolledFactor> changeVariableFactorSecurity(EnrolledFactor factor) {
-        return RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
+ return RxJava2Adapter.monoToSingle(changeVariableFactorSecurity_migrated(factor));
+}
+@Override
+    public Mono<EnrolledFactor> changeVariableFactorSecurity_migrated(EnrolledFactor factor) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             int counter = factor.getSecurity().getData(FactorDataKeys.KEY_MOVING_FACTOR, Integer.class);
             factor.getSecurity().putData(FactorDataKeys.KEY_MOVING_FACTOR, counter + 1);
             factor.getSecurity().removeData(FactorDataKeys.KEY_EXPIRE_AT);
             return factor;
-        })));
+        }))));
     }
 }

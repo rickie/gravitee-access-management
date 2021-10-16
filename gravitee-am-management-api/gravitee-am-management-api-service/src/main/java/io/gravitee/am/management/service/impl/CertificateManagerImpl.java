@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.certificate.api.CertificateProvider;
 import io.gravitee.am.common.event.CertificateEvent;
 import io.gravitee.am.management.service.CertificateManager;
@@ -83,12 +84,18 @@ public class CertificateManagerImpl extends AbstractService<CertificateManager> 
         }
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<CertificateProvider> getCertificateProvider(String certificateId) {
-        return doGetCertificateProvider(certificateId, System.currentTimeMillis());
+ return RxJava2Adapter.monoToMaybe(getCertificateProvider_migrated(certificateId));
+}
+@Override
+    public Mono<CertificateProvider> getCertificateProvider_migrated(String certificateId) {
+        return RxJava2Adapter.maybeToMono(doGetCertificateProvider(certificateId, System.currentTimeMillis()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.doGetCertificateProvider_migrated(certificateId, startTime))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<CertificateProvider> doGetCertificateProvider(String certificateId, long startTime) {
  return RxJava2Adapter.monoToMaybe(doGetCertificateProvider_migrated(certificateId, startTime));
 }

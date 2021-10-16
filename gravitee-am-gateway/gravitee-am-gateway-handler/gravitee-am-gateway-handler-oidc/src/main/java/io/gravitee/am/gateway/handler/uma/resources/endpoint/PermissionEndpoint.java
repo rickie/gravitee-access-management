@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.uma.resources.endpoint;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
@@ -92,7 +93,8 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
      * @param context RoutingContext
      * @return List of PermissionRequest
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<List<PermissionTicketRequest>> extractRequest(RoutingContext context) {
  return RxJava2Adapter.monoToSingle(extractRequest_migrated(context));
 }
@@ -130,7 +132,8 @@ private Mono<List<PermissionTicketRequest>> extractRequest_migrated(RoutingConte
     /**
      * Both resource_id & resource_scopes are mandatory fields.
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.bodyValidation_migrated(toValidate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<List<PermissionTicketRequest>> bodyValidation(List<PermissionTicketRequest> toValidate) {
  return RxJava2Adapter.monoToSingle(bodyValidation_migrated(toValidate));
 }

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.uma.policy.AccessPolicy;
 import io.gravitee.am.repository.common.CrudRepository;
@@ -29,28 +30,32 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface AccessPolicyRepository extends CrudRepository<AccessPolicy, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomain_migrated(domain, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.uma.policy.AccessPolicy>> findByDomain(java.lang.String domain, int page, int size) {
     return RxJava2Adapter.monoToSingle(findByDomain_migrated(domain, page, size));
 }
 default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee.am.model.uma.policy.AccessPolicy>> findByDomain_migrated(String domain, int page, int size) {
     return RxJava2Adapter.singleToMono(findByDomain(domain, page, size));
 }
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndResource_migrated(domain, resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.uma.policy.AccessPolicy> findByDomainAndResource(java.lang.String domain, java.lang.String resource) {
     return RxJava2Adapter.fluxToFlowable(findByDomainAndResource_migrated(domain, resource));
 }
 default reactor.core.publisher.Flux<io.gravitee.am.model.uma.policy.AccessPolicy> findByDomainAndResource_migrated(String domain, String resource) {
     return RxJava2Adapter.flowableToFlux(findByDomainAndResource(domain, resource));
 }
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByResources_migrated(resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.uma.policy.AccessPolicy> findByResources(java.util.List<java.lang.String> resources) {
     return RxJava2Adapter.fluxToFlowable(findByResources_migrated(resources));
 }
 default reactor.core.publisher.Flux<io.gravitee.am.model.uma.policy.AccessPolicy> findByResources_migrated(List<String> resources) {
     return RxJava2Adapter.flowableToFlux(findByResources(resources));
 }
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByResource_migrated(resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countByResource(java.lang.String resource) {
     return RxJava2Adapter.monoToSingle(countByResource_migrated(resource));
 }

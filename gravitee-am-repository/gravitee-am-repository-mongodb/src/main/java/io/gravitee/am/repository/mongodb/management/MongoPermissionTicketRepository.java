@@ -17,6 +17,7 @@ package io.gravitee.am.repository.mongodb.management;
 
 import static com.mongodb.client.model.Filters.eq;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
@@ -60,7 +61,8 @@ public class MongoPermissionTicketRepository extends AbstractManagementMongoRepo
         super.createIndex(permissionTicketCollection, new Document(FIELD_RESET_TIME, 1), new IndexOptions().expireAfter(0l, TimeUnit.SECONDS));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<PermissionTicket> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -70,7 +72,8 @@ public class MongoPermissionTicketRepository extends AbstractManagementMongoRepo
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(permissionTicketCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(ticket))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<PermissionTicket> create(PermissionTicket ticket) {
  return RxJava2Adapter.monoToSingle(create_migrated(ticket));
@@ -82,7 +85,8 @@ public class MongoPermissionTicketRepository extends AbstractManagementMongoRepo
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(permissionTicketCollection.insertOne(permissionTicket))).flatMap(success->RxJava2Adapter.maybeToMono(findById(permissionTicket.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(ticket))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<PermissionTicket> update(PermissionTicket ticket) {
  return RxJava2Adapter.monoToSingle(update_migrated(ticket));
@@ -93,7 +97,8 @@ public class MongoPermissionTicketRepository extends AbstractManagementMongoRepo
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(permissionTicketCollection.replaceOne(eq(FIELD_ID, permissionTicket.getId()), permissionTicket))).flatMap(success->RxJava2Adapter.maybeToMono(findById(permissionTicket.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

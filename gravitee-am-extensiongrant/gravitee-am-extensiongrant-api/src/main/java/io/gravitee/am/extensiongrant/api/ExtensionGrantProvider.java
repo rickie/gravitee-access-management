@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.extensiongrant.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.repository.oauth2.model.request.TokenRequest;
 import io.reactivex.Maybe;
@@ -31,7 +32,8 @@ public interface ExtensionGrantProvider {
      * @param tokenRequest tokenRequest token endpoint request
      * @return User representation of the assertion or empty if no user is involved
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.grant_migrated(tokenRequest))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.User> grant(io.gravitee.am.repository.oauth2.model.request.TokenRequest tokenRequest) {
     return RxJava2Adapter.monoToMaybe(grant_migrated(tokenRequest));
 }

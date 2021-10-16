@@ -22,6 +22,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.BasicDBList;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
@@ -64,32 +65,58 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
         super.createIndex(identitiesCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<IdentityProvider> findAll(ReferenceType referenceType, String referenceId) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(identitiesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Flowable<IdentityProvider> findAll(ReferenceType referenceType) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(identitiesCollection.find(eq(FIELD_REFERENCE_TYPE, referenceType.name()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Flowable<IdentityProvider> findAll() {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(identitiesCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Maybe<IdentityProvider> findById(String identityProviderId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(identitiesCollection.find(eq(FIELD_ID, identityProviderId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Maybe<IdentityProvider> findById(ReferenceType referenceType, String referenceId, String identityProviderId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(identitiesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, identityProviderId))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+@Override
+    public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType, String referenceId) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(identitiesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
     @Deprecated
+@Override
+    public Flowable<IdentityProvider> findAll(ReferenceType referenceType) {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType));
+}
+@Override
+    public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(identitiesCollection.find(eq(FIELD_REFERENCE_TYPE, referenceType.name()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @Deprecated
+@Override
+    public Flowable<IdentityProvider> findAll() {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+@Override
+    public Flux<IdentityProvider> findAll_migrated() {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(identitiesCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<IdentityProvider> findById(String identityProviderId) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(identityProviderId));
+}
+@Override
+    public Mono<IdentityProvider> findById_migrated(String identityProviderId) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(identitiesCollection.find(eq(FIELD_ID, identityProviderId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<IdentityProvider> findById(ReferenceType referenceType, String referenceId, String identityProviderId) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, identityProviderId));
+}
+@Override
+    public Mono<IdentityProvider> findById_migrated(ReferenceType referenceType, String referenceId, String identityProviderId) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(identitiesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, identityProviderId))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<IdentityProvider> create(IdentityProvider item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -106,7 +133,8 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException("Identity provider must be present for create"))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<IdentityProvider> update(IdentityProvider item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -121,7 +149,8 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException("Identity provider must be present for update"))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

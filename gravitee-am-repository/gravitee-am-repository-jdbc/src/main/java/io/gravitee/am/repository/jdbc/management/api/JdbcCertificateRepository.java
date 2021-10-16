@@ -19,6 +19,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
 import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Certificate;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -39,6 +40,7 @@ import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -69,19 +71,30 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
         return mapper.map(entity, JdbcCertificate.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Certificate> findAll() {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+@Override
+    public Flux<Certificate> findAll_migrated() {
         LOGGER.debug("findAll()");
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.certificateRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Flowable<Certificate> findByDomain(String domain) {
-        LOGGER.debug("findByDomain({})", domain);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.certificateRepository.findByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.certificateRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
     @Deprecated
+@Override
+    public Flowable<Certificate> findByDomain(String domain) {
+ return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+@Override
+    public Flux<Certificate> findByDomain_migrated(String domain) {
+        LOGGER.debug("findByDomain({})", domain);
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.certificateRepository.findByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Certificate> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -92,7 +105,8 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.certificateRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve Certificate with id {}", id, error)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Certificate> create(Certificate item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -119,7 +133,8 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create certificate with id {}", item.getId(), error)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Certificate> update(Certificate item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -145,7 +160,8 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to update certificate with id {}", item.getId(), error)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

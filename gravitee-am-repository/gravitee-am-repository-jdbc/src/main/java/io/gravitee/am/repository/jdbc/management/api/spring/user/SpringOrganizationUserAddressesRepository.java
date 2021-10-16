@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.user;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser;
 import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
@@ -29,7 +30,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringOrganizationUserAddressesRepository extends RxJava2CrudRepository<JdbcOrganizationUser.Address, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Address> findByUserId(@org.springframework.data.repository.query.Param(value = "user")
 java.lang.String userId) {
     return RxJava2Adapter.fluxToFlowable(findByUserId_migrated(userId));

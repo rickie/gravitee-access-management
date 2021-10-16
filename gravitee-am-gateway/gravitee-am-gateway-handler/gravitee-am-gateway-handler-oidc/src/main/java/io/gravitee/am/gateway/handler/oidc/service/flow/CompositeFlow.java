@@ -36,6 +36,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -63,12 +64,17 @@ public class CompositeFlow implements Flow, InitializingBean  {
         return false;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AuthorizationResponse> run(AuthorizationRequest authorizationRequest, Client client, User endUser) {
-        return RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable
+ return RxJava2Adapter.monoToSingle(run_migrated(authorizationRequest, client, endUser));
+}
+@Override
+    public Mono<AuthorizationResponse> run_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable
                 .fromIterable(flows), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(flow -> flow.handle(authorizationRequest.getResponseType()))))
                 .switchIfEmpty(Observable.error(new UnsupportedResponseTypeException("Unsupported response type: " + authorizationRequest.getResponseType())))
-                .flatMapSingle(flow -> flow.run(authorizationRequest, client, endUser)).singleOrError();
+                .flatMapSingle(flow -> flow.run(authorizationRequest, client, endUser)).singleOrError());
     }
 
     @Override

@@ -17,6 +17,7 @@ package io.gravitee.am.identityprovider.linkedin.authentication;
 
 import static io.gravitee.am.common.oauth2.Parameters.GRANT_TYPE;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
 import io.gravitee.am.common.oidc.StandardClaims;
@@ -96,7 +97,8 @@ public class LinkedinAuthenticationProvider extends AbstractSocialAuthentication
         return this.client;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.authenticate_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Maybe<Token> authenticate(Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(authenticate_migrated(authentication));
@@ -131,7 +133,8 @@ public class LinkedinAuthenticationProvider extends AbstractSocialAuthentication
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.profile_migrated(accessToken, authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Maybe<User> profile(Token accessToken, Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(profile_migrated(accessToken, authentication));
@@ -157,7 +160,8 @@ return z;
 })))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.requestEmailAddress_migrated(accessToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<Optional<String>> requestEmailAddress(Token accessToken) {
  return RxJava2Adapter.monoToMaybe(requestEmailAddress_migrated(accessToken));
 }

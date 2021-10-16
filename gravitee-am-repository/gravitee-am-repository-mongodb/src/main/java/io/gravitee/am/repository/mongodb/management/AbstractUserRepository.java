@@ -18,6 +18,7 @@ package io.gravitee.am.repository.mongodb.management;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Filters.eq;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.BasicDBObject;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
@@ -86,20 +87,35 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
     }
 
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<User> findAll(ReferenceType referenceType, String referenceId) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(usersCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+@Override
+    public Flux<User> findAll_migrated(ReferenceType referenceType, String referenceId) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(usersCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<User>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
+ return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
+}
+@Override
+    public Mono<Page<User>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
         Single<Long> countOperation = Observable.fromPublisher(usersCollection.countDocuments(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).first(0l);
         Single<Set<User>> usersOperation = Observable.fromPublisher(usersCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))).sort(new BasicDBObject(FIELD_USERNAME, 1)).skip(size * page).limit(size)).map(this::convert).collect(LinkedHashSet::new, Set::add);
-        return Single.zip(countOperation, usersOperation, (count, users) -> new Page<>(users, page, count));
+        return RxJava2Adapter.singleToMono(Single.zip(countOperation, usersOperation, (count, users) -> new Page<>(users, page, count)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<User>> search(ReferenceType referenceType, String referenceId, String query, int page, int size) {
+ return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, query, page, size));
+}
+@Override
+    public Mono<Page<User>> search_migrated(ReferenceType referenceType, String referenceId, String query, int page, int size) {
         Bson searchQuery = or(
                 new BasicDBObject(FIELD_USERNAME, query),
                 new BasicDBObject(FIELD_EMAIL, query),
@@ -129,11 +145,16 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
 
         Single<Long> countOperation = Observable.fromPublisher(usersCollection.countDocuments(mongoQuery)).first(0l);
         Single<Set<User>> usersOperation = Observable.fromPublisher(usersCollection.find(mongoQuery).skip(size * page).limit(size)).map(this::convert).collect(LinkedHashSet::new, Set::add);
-        return Single.zip(countOperation, usersOperation, (count, users) -> new Page<>(users, 0, count));
+        return RxJava2Adapter.singleToMono(Single.zip(countOperation, usersOperation, (count, users) -> new Page<>(users, 0, count)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<User>> search(ReferenceType referenceType, String referenceId, FilterCriteria criteria, int page, int size) {
+ return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
+}
+@Override
+    public Mono<Page<User>> search_migrated(ReferenceType referenceType, String referenceId, FilterCriteria criteria, int page, int size) {
         try {
             BasicDBObject searchQuery = BasicDBObject.parse(FilterCriteriaParser.parse(criteria));
 
@@ -144,51 +165,77 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
 
             Single<Long> countOperation = Observable.fromPublisher(usersCollection.countDocuments(mongoQuery)).first(0l);
             Single<Set<User>> usersOperation = Observable.fromPublisher(usersCollection.find(mongoQuery).skip(size * page).limit(size)).map(this::convert).collect(LinkedHashSet::new, Set::add);
-            return Single.zip(countOperation, usersOperation, (count, users) -> new Page<>(users, 0, count));
+            return RxJava2Adapter.singleToMono(Single.zip(countOperation, usersOperation, (count, users) -> new Page<>(users, 0, count)));
         } catch (Exception ex) {
             if (ex instanceof IllegalArgumentException) {
-                return RxJava2Adapter.monoToSingle(Mono.error(ex));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(ex)));
             }
             logger.error("An error has occurred while searching users with criteria {}", criteria, ex);
-            return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException("An error has occurred while searching users with filter criteria", ex)));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException("An error has occurred while searching users with filter criteria", ex))));
         }
 
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> findByUsernameAndSource(ReferenceType referenceType, String referenceId, String username, String source) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
+ return RxJava2Adapter.monoToMaybe(findByUsernameAndSource_migrated(referenceType, referenceId, username, source));
+}
+@Override
+    public Mono<User> findByUsernameAndSource_migrated(ReferenceType referenceType, String referenceId, String username, String source) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
                 usersCollection
                         .find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_USERNAME, username), eq(FIELD_SOURCE, source)))
                         .limit(1)
-                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Maybe<User> findByExternalIdAndSource(ReferenceType referenceType, String referenceId, String externalId, String source) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
-                usersCollection
-                        .find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_EXTERNAL_ID, externalId), eq(FIELD_SOURCE, source)))
-                        .limit(1)
-                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Flowable<User> findByIdIn(List<String> ids) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(usersCollection.find(in(FIELD_ID, ids))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Maybe<User> findById(ReferenceType referenceType, String referenceId, String userId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, userId))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Maybe<User> findById(String userId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(eq(FIELD_ID, userId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
     @Deprecated
+@Override
+    public Maybe<User> findByExternalIdAndSource(ReferenceType referenceType, String referenceId, String externalId, String source) {
+ return RxJava2Adapter.monoToMaybe(findByExternalIdAndSource_migrated(referenceType, referenceId, externalId, source));
+}
+@Override
+    public Mono<User> findByExternalIdAndSource_migrated(ReferenceType referenceType, String referenceId, String externalId, String source) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
+                usersCollection
+                        .find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_EXTERNAL_ID, externalId), eq(FIELD_SOURCE, source)))
+                        .limit(1)
+                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @Deprecated
+@Override
+    public Flowable<User> findByIdIn(List<String> ids) {
+ return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
+}
+@Override
+    public Flux<User> findByIdIn_migrated(List<String> ids) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(usersCollection.find(in(FIELD_ID, ids))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<User> findById(ReferenceType referenceType, String referenceId, String userId) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, userId));
+}
+@Override
+    public Mono<User> findById_migrated(ReferenceType referenceType, String referenceId, String userId) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, userId))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<User> findById(String userId) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(userId));
+}
+@Override
+    public Mono<User> findById_migrated(String userId) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(eq(FIELD_ID, userId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> create(User item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -200,7 +247,8 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne((T)user))).flatMap(success->RxJava2Adapter.maybeToMono(findById(user.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> update(User item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -211,7 +259,8 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, user.getId()), (T)user))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(user.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

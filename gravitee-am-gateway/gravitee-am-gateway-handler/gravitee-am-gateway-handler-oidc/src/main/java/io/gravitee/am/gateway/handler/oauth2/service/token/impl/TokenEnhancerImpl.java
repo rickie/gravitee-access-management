@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.token.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.oidc.ResponseType;
 import io.gravitee.am.common.oidc.idtoken.Claims;
 import io.gravitee.am.gateway.handler.oauth2.service.request.OAuth2Request;
@@ -42,17 +43,23 @@ public class TokenEnhancerImpl implements TokenEnhancer {
     @Autowired
     private IDTokenService idTokenService;
 
-    @Override
+    @Deprecated
+@Override
     public Single<Token> enhance(Token accessToken, OAuth2Request oAuth2Request, Client client, User endUser, ExecutionContext executionContext) {
+ return RxJava2Adapter.monoToSingle(enhance_migrated(accessToken, oAuth2Request, client, endUser, executionContext));
+}
+@Override
+    public Mono<Token> enhance_migrated(Token accessToken, OAuth2Request oAuth2Request, Client client, User endUser, ExecutionContext executionContext) {
         // enhance token with ID token
         if (oAuth2Request.shouldGenerateIDToken()) {
-            return enhanceIDToken(accessToken, client, endUser, oAuth2Request, executionContext);
+            return RxJava2Adapter.singleToMono(enhanceIDToken(accessToken, client, endUser, oAuth2Request, executionContext));
         } else {
-            return RxJava2Adapter.monoToSingle(Mono.just(accessToken));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(accessToken)));
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enhanceIDToken_migrated(accessToken, client, user, oAuth2Request, executionContext))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Token> enhanceIDToken(Token accessToken, Client client, User user, OAuth2Request oAuth2Request, ExecutionContext executionContext) {
  return RxJava2Adapter.monoToSingle(enhanceIDToken_migrated(accessToken, client, user, oAuth2Request, executionContext));
 }

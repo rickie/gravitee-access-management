@@ -18,6 +18,7 @@ package io.gravitee.am.gateway.handler.root.resources.handler.login;
 import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.*;
 import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.web.UriBuilder;
@@ -158,7 +159,8 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
                         error -> resultHandler.handle(Future.failedFuture(error)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getAuthorizeUrl_migrated(identityProviderId, context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<String> getAuthorizeUrl(String identityProviderId, RoutingContext context) {
  return RxJava2Adapter.monoToMaybe(getAuthorizeUrl_migrated(identityProviderId, context));
 }

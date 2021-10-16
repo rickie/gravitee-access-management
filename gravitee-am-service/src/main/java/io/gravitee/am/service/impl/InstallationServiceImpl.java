@@ -17,6 +17,7 @@ package io.gravitee.am.service.impl;
 
 import static io.gravitee.am.model.Installation.COCKPIT_INSTALLATION_STATUS;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Installation;
 import io.gravitee.am.repository.management.api.InstallationRepository;
@@ -53,37 +54,63 @@ public class InstallationServiceImpl implements InstallationService {
         this.installationRepository = installationRepository;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Installation> get() {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.installationRepository.find()).switchIfEmpty(Mono.error(new InstallationNotFoundException())));
+ return RxJava2Adapter.monoToSingle(get_migrated());
+}
+@Override
+    public Mono<Installation> get_migrated() {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.installationRepository.find()).switchIfEmpty(Mono.error(new InstallationNotFoundException()))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Installation> getOrInitialize() {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.installationRepository.find()).switchIfEmpty(RxJava2Adapter.singleToMono(createInternal())));
+ return RxJava2Adapter.monoToSingle(getOrInitialize_migrated());
+}
+@Override
+    public Mono<Installation> getOrInitialize_migrated() {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.installationRepository.find()).switchIfEmpty(RxJava2Adapter.singleToMono(createInternal()))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Installation> setAdditionalInformation(Map<String, String> additionalInformation) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(get()).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)installation -> {
+ return RxJava2Adapter.monoToSingle(setAdditionalInformation_migrated(additionalInformation));
+}
+@Override
+    public Mono<Installation> setAdditionalInformation_migrated(Map<String, String> additionalInformation) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(get()).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)installation -> {
                     Installation toUpdate = new Installation(installation);
                     toUpdate.setAdditionalInformation(additionalInformation);
 
                     return updateInternal(toUpdate);
-                }).apply(v))));
-    }
-
-    @Override
-    public Single<Installation> addAdditionalInformation(Map<String, String> additionalInformation) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getOrInitialize()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installation -> installation.getAdditionalInformation().putAll(additionalInformation))).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)this::updateInternal).apply(v))));
-    }
-
-    @Override
-    public Completable delete() {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(this.installationRepository.find()).flatMap(installation->RxJava2Adapter.completableToMono(installationRepository.delete(installation.getId()))).then());
+                }).apply(v)))));
     }
 
     @Deprecated
+@Override
+    public Single<Installation> addAdditionalInformation(Map<String, String> additionalInformation) {
+ return RxJava2Adapter.monoToSingle(addAdditionalInformation_migrated(additionalInformation));
+}
+@Override
+    public Mono<Installation> addAdditionalInformation_migrated(Map<String, String> additionalInformation) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getOrInitialize()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installation -> installation.getAdditionalInformation().putAll(additionalInformation))).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)this::updateInternal).apply(v)))));
+    }
+
+    @Deprecated
+@Override
+    public Completable delete() {
+ return RxJava2Adapter.monoToCompletable(delete_migrated());
+}
+@Override
+    public Mono<Void> delete_migrated() {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(this.installationRepository.find()).flatMap(installation->RxJava2Adapter.completableToMono(installationRepository.delete(installation.getId()))).then()));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Installation> createInternal() {
  return RxJava2Adapter.monoToSingle(createInternal_migrated());
 }
@@ -99,7 +126,8 @@ private Mono<Installation> createInternal_migrated() {
         return RxJava2Adapter.singleToMono(installationRepository.create(installation));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateInternal_migrated(toUpdate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Installation> updateInternal(Installation toUpdate) {
  return RxJava2Adapter.monoToSingle(updateInternal_migrated(toUpdate));
 }

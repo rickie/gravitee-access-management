@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.UserProvider;
 import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.am.model.ReferenceType;
@@ -29,7 +30,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface IdentityProviderManager extends Service<IdentityProviderManager> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getUserProvider_migrated(userProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.UserProvider> getUserProvider(java.lang.String userProvider) {
     return RxJava2Adapter.monoToMaybe(getUserProvider_migrated(userProvider));
 }
@@ -37,7 +39,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.UserProv
     return RxJava2Adapter.maybeToMono(getUserProvider(userProvider));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.IdentityProvider> create(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
     return RxJava2Adapter.monoToSingle(create_migrated(referenceType, referenceId));
 }
@@ -45,7 +48,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.IdentityProvider> creat
     return RxJava2Adapter.singleToMono(create(referenceType, referenceId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.IdentityProvider> create(java.lang.String domain) {
     return RxJava2Adapter.monoToSingle(create_migrated(domain));
 }

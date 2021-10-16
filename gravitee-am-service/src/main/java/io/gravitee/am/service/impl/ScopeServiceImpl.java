@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
@@ -88,34 +89,49 @@ public class ScopeServiceImpl implements ScopeService {
     @Autowired
     private AuditService auditService;
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Scope> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Scope> findById_migrated(String id) {
         LOGGER.debug("Find scope by ID: {}", id);
-        return scopeRepository.findById(id)
+        return RxJava2Adapter.maybeToMono(scopeRepository.findById(id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a scope using its ID: {}", id, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a scope using its ID: %s", id), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<Scope>> search(String domain, String query, int page, int size) {
+ return RxJava2Adapter.monoToSingle(search_migrated(domain, query, page, size));
+}
+@Override
+    public Mono<Page<Scope>> search_migrated(String domain, String query, int page, int size) {
         LOGGER.debug("Search scopes by domain and query: {} {}", domain, query);
-        return scopeRepository.search(domain, query, page, size)
+        return RxJava2Adapter.singleToMono(scopeRepository.search(domain, query, page, size)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find scopes by domain and query : {} {}", domain, query, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find scopes by domain and query: %s %s", domain, query), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Scope> create(String domain, NewScope newScope, User principal) {
+ return RxJava2Adapter.monoToSingle(create_migrated(domain, newScope, principal));
+}
+@Override
+    public Mono<Scope> create_migrated(String domain, NewScope newScope, User principal) {
         LOGGER.debug("Create a new scope {} for domain {}", newScope, domain);
         // replace all whitespace by an underscore (whitespace is a reserved keyword to separate tokens)
         String scopeKey = newScope.getKey().replaceAll("\\s+", "_");
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(scopeRepository.findByDomainAndKey(domain, scopeKey)).hasElement().map(RxJavaReactorMigrationUtil.toJdkFunction(empty -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(scopeRepository.findByDomainAndKey(domain, scopeKey)).hasElement().map(RxJavaReactorMigrationUtil.toJdkFunction(empty -> {
                     if (!empty) {
                         throw new ScopeAlreadyExistsException(scopeKey, domain);
                     }
@@ -145,14 +161,19 @@ public class ScopeServiceImpl implements ScopeService {
 
                     LOGGER.error("An error occurs while trying to create a scope", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a scope", ex)));
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(scope -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_CREATED).scope(scope)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_CREATED).throwable(throwable)))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(scope -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_CREATED).scope(scope)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_CREATED).throwable(throwable))))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Scope> create(String domain, NewSystemScope newScope) {
+ return RxJava2Adapter.monoToSingle(create_migrated(domain, newScope));
+}
+@Override
+    public Mono<Scope> create_migrated(String domain, NewSystemScope newScope) {
         LOGGER.debug("Create a new system scope {} for domain {}", newScope, domain);
         String scopeKey = newScope.getKey().toLowerCase();
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(scopeRepository.findByDomainAndKey(domain, scopeKey)).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Scope>>toJdkFunction(empty -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(scopeRepository.findByDomainAndKey(domain, scopeKey)).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Scope>>toJdkFunction(empty -> {
                     if (!empty) {
                         throw new ScopeAlreadyExistsException(scopeKey, domain);
                     }
@@ -181,13 +202,18 @@ public class ScopeServiceImpl implements ScopeService {
                     }
                     LOGGER.error("An error occurs while trying to create a system scope", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a system scope", ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Scope> patch(String domain, String id, PatchScope patchScope, User principal) {
+ return RxJava2Adapter.monoToSingle(patch_migrated(domain, id, patchScope, principal));
+}
+@Override
+    public Mono<Scope> patch_migrated(String domain, String id, PatchScope patchScope, User principal) {
         LOGGER.debug("Patching a scope {} for domain {}", id, domain);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeRepository.findById(id)).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeRepository.findById(id)).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))))
                 .flatMapSingle(oldScope -> {
                     Scope scopeToUpdate = patchScope.patch(oldScope);
                     return update(domain, scopeToUpdate, oldScope, principal);
@@ -198,13 +224,18 @@ public class ScopeServiceImpl implements ScopeService {
                     }
                     LOGGER.error("An error occurs while trying to patch a scope", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to patch a scope", ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Scope> update(String domain, String id, UpdateScope updateScope, User principal) {
+ return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateScope, principal));
+}
+@Override
+    public Mono<Scope> update_migrated(String domain, String id, UpdateScope updateScope, User principal) {
         LOGGER.debug("Update a scope {} for domain {}", id, domain);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeRepository.findById(id)).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeRepository.findById(id)).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))))
                 .flatMapSingle(oldScope -> {
                     Scope scopeToUpdate = new Scope(oldScope);
                     scopeToUpdate.setName(updateScope.getName());
@@ -226,23 +257,32 @@ public class ScopeServiceImpl implements ScopeService {
                     }
                     LOGGER.error("An error occurs while trying to update a scope", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a scope", ex)));
-                });
+                }));
     }
 
-    private Single<Scope> update(String domain, Scope toUpdate, Scope oldValue, User principal) {
+    @Deprecated
+private Single<Scope> update(String domain, Scope toUpdate, Scope oldValue, User principal) {
+ return RxJava2Adapter.monoToSingle(update_migrated(domain, toUpdate, oldValue, principal));
+}
+private Mono<Scope> update_migrated(String domain, Scope toUpdate, Scope oldValue, User principal) {
 
         toUpdate.setUpdatedAt(new Date());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.validateIconUri(toUpdate)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scopeRepository::update).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.validateIconUri(toUpdate)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scopeRepository::update).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope1 -> {
                     // create event for sync process
                     Event event = new Event(Type.SCOPE, new Payload(scope1.getId(), ReferenceType.DOMAIN, scope1.getDomain(), Action.UPDATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(scope1)));
-                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(scope1 -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_UPDATED).oldValue(oldValue).scope(scope1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_UPDATED).throwable(throwable)))));
+                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(scope1 -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_UPDATED).oldValue(oldValue).scope(scope1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_UPDATED).throwable(throwable))))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Scope> update(String domain, String id, UpdateSystemScope updateScope) {
+ return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateScope));
+}
+@Override
+    public Mono<Scope> update_migrated(String domain, String id, UpdateSystemScope updateScope) {
         LOGGER.debug("Update a system scope {} for domain {}", id, domain);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeRepository.findById(id)).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeRepository.findById(id)).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))))
                 .flatMapSingle(scope -> {
                     scope.setName(updateScope.getName());
                     scope.setDescription(updateScope.getDescription());
@@ -263,13 +303,18 @@ public class ScopeServiceImpl implements ScopeService {
                     }
                     LOGGER.error("An error occurs while trying to update a system scope", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a system scope", ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String scopeId, boolean force, User principal) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(scopeId, force, principal));
+}
+@Override
+    public Mono<Void> delete_migrated(String scopeId, boolean force, User principal) {
         LOGGER.debug("Delete scope {}", scopeId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeRepository.findById(scopeId)).switchIfEmpty(Mono.error(new ScopeNotFoundException(scopeId))))
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeRepository.findById(scopeId)).switchIfEmpty(Mono.error(new ScopeNotFoundException(scopeId))))
                 .flatMapSingle(scope -> {
                     if (scope.isSystem() && !force) {
                         throw new SystemScopeDeleteException(scopeId);
@@ -304,71 +349,96 @@ return applicationService.update(application);
                     LOGGER.error("An error occurs while trying to delete scope: {}", scopeId, ex);
                     return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to delete scope: %s", scopeId), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<Scope>> findByDomain(String domain, int page, int size) {
+ return RxJava2Adapter.monoToSingle(findByDomain_migrated(domain, page, size));
+}
+@Override
+    public Mono<Page<Scope>> findByDomain_migrated(String domain, int page, int size) {
         LOGGER.debug("Find scopes by domain: {}", domain);
-        return scopeRepository.findByDomain(domain, page, size)
+        return RxJava2Adapter.singleToMono(scopeRepository.findByDomain(domain, page, size)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find scopes by domain: {}", domain, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find scopes by domain: %s", domain), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Scope> findByDomainAndKey(String domain, String scopeKey) {
+ return RxJava2Adapter.monoToMaybe(findByDomainAndKey_migrated(domain, scopeKey));
+}
+@Override
+    public Mono<Scope> findByDomainAndKey_migrated(String domain, String scopeKey) {
         LOGGER.debug("Find scopes by domain: {} and scope key: {}", domain, scopeKey);
-        return scopeRepository.findByDomainAndKey(domain, scopeKey)
+        return RxJava2Adapter.maybeToMono(scopeRepository.findByDomainAndKey(domain, scopeKey)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find scopes by domain: {} and scope key: {}", domain, scopeKey, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find scopes by domain: %s and scope key: %s", domain, scopeKey), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<Scope>> findByDomainAndKeys(String domain, List<String> scopeKeys) {
+ return RxJava2Adapter.monoToSingle(findByDomainAndKeys_migrated(domain, scopeKeys));
+}
+@Override
+    public Mono<List<Scope>> findByDomainAndKeys_migrated(String domain, List<String> scopeKeys) {
         LOGGER.debug("Find scopes by domain: {} and scope keys: {}", domain, scopeKeys);
         if(scopeKeys==null || scopeKeys.isEmpty()) {
-            return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
         }
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(scopeRepository.findByDomainAndKeys(domain, scopeKeys)).collectList())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(scopeRepository.findByDomainAndKeys(domain, scopeKeys)).collectList())
                 .onErrorResumeNext(ex -> {
                     String keys = scopeKeys!=null?String.join(",",scopeKeys):null;
                     LOGGER.error("An error occurs while trying to find scopes by domain: {} and scope keys: {}", domain, keys, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find scopes by domain: %s and scope keys: %s", domain, keys), ex)));
-                });
+                }));
     }
 
     /**
      * Throw InvalidClientMetadataException if null or empty, or contains unknown scope.
      * @param scopes Array of scope to validate.
      */
-    @Override
+    @Deprecated
+@Override
     public Single<Boolean> validateScope(String domain, List<String> scopes) {
+ return RxJava2Adapter.monoToSingle(validateScope_migrated(domain, scopes));
+}
+@Override
+    public Mono<Boolean> validateScope_migrated(String domain, List<String> scopes) {
         if (scopes == null || scopes.isEmpty()) {
-            return RxJava2Adapter.monoToSingle(Mono.just(true));//nothing to do...
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true)));//nothing to do...
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findByDomain(domain, 0, Integer.MAX_VALUE)).map(RxJavaReactorMigrationUtil.toJdkFunction(domainSet -> domainSet.getData().stream().map(Scope::getKey).collect(Collectors.toSet()))).flatMap(domainScopes->RxJava2Adapter.singleToMono(this.validateScope(domainScopes, scopes))));
-    }
-
-    private Single<Boolean> validateScope(Set<String> domainScopes, List<String> scopes) {
-
-        for (String scope : scopes) {
-            if (!domainScopes.contains(scope)) {
-                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("scope " + scope + " is not valid.")));
-            }
-        }
-
-        return RxJava2Adapter.monoToSingle(Mono.just(true));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findByDomain(domain, 0, Integer.MAX_VALUE)).map(RxJavaReactorMigrationUtil.toJdkFunction(domainSet -> domainSet.getData().stream().map(Scope::getKey).collect(Collectors.toSet()))).flatMap(domainScopes->RxJava2Adapter.singleToMono(this.validateScope(domainScopes, scopes)))));
     }
 
     @Deprecated
+private Single<Boolean> validateScope(Set<String> domainScopes, List<String> scopes) {
+ return RxJava2Adapter.monoToSingle(validateScope_migrated(domainScopes, scopes));
+}
+private Mono<Boolean> validateScope_migrated(Set<String> domainScopes, List<String> scopes) {
+
+        for (String scope : scopes) {
+            if (!domainScopes.contains(scope)) {
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("scope " + scope + " is not valid."))));
+            }
+        }
+
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true)));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateIconUri_migrated(scope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Scope> validateIconUri(Scope scope) {
  return RxJava2Adapter.monoToSingle(validateIconUri_migrated(scope));
 }

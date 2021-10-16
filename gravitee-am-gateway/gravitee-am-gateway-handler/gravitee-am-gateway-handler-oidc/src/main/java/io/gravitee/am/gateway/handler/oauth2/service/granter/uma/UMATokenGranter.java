@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.oauth2.service.granter.uma;
 
 import static io.gravitee.am.common.oauth2.Parameters.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.oauth2.InvalidTokenException;
 import io.gravitee.am.common.exception.uma.RequiredClaims;
 import io.gravitee.am.common.exception.uma.UmaException;
@@ -115,7 +116,8 @@ public class UMATokenGranter extends AbstractTokenGranter {
         domain!=null && domain.getUma()!=null && domain.getUma().isEnabled();
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.grant_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Token> grant(TokenRequest tokenRequest, Client client) {
  return RxJava2Adapter.monoToSingle(grant_migrated(tokenRequest, client));
@@ -126,7 +128,8 @@ public class UMATokenGranter extends AbstractTokenGranter {
                 .flatMapSingle(user -> handleRequest(tokenRequest, client, user.orElse(null))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.parseRequest_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
  return RxJava2Adapter.monoToSingle(parseRequest_migrated(tokenRequest, client));
@@ -175,7 +178,8 @@ public class UMATokenGranter extends AbstractTokenGranter {
         return RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.resolveResourceOwner_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
  return RxJava2Adapter.monoToMaybe(resolveResourceOwner_migrated(tokenRequest, client));
@@ -197,7 +201,8 @@ public class UMATokenGranter extends AbstractTokenGranter {
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.handleRequest_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Token> handleRequest(TokenRequest tokenRequest, Client client, User endUser) {
  return RxJava2Adapter.monoToSingle(handleRequest_migrated(tokenRequest, client, endUser));
 }
@@ -208,7 +213,8 @@ private Mono<Token> handleRequest_migrated(TokenRequest tokenRequest, Client cli
     /**
      * Validates the request to ensure that Client Requested UMA scopes are well pre-registered.
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveRequestedScopes_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<TokenRequest> resolveRequestedScopes(TokenRequest tokenRequest, Client client) {
  return RxJava2Adapter.monoToSingle(resolveRequestedScopes_migrated(tokenRequest, client));
 }
@@ -222,7 +228,8 @@ private Mono<TokenRequest> resolveRequestedScopes_migrated(TokenRequest tokenReq
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(tokenRequest)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolvePermissions_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<TokenRequest> resolvePermissions(TokenRequest tokenRequest, Client client, User endUser) {
  return RxJava2Adapter.monoToSingle(resolvePermissions_migrated(tokenRequest, client, endUser));
 }
@@ -239,7 +246,8 @@ private Mono<TokenRequest> resolvePermissions_migrated(TokenRequest tokenRequest
      * @param resourceSet List<Resource>
      * @return Single<Map<String, Resource>> if no errors
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkRequestedScopesMatchResource_migrated(tokenRequest, resourceSet))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Map<String, Resource>> checkRequestedScopesMatchResource(TokenRequest tokenRequest, List<Resource> resourceSet) {
  return RxJava2Adapter.monoToSingle(checkRequestedScopesMatchResource_migrated(tokenRequest, resourceSet));
 }
@@ -256,7 +264,8 @@ private Mono<Map<String,Resource>> checkRequestedScopesMatchResource_migrated(To
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(resourceSet.stream().collect(Collectors.toMap(Resource::getId, resource -> resource)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveScopeRequestAssessment_migrated(tokenRequest, requestedPermissions, fetchedResources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<List<PermissionRequest>> resolveScopeRequestAssessment(TokenRequest tokenRequest, List<PermissionRequest> requestedPermissions, Map<String, Resource> fetchedResources) {
  return RxJava2Adapter.monoToSingle(resolveScopeRequestAssessment_migrated(tokenRequest, requestedPermissions, fetchedResources));
 }
@@ -285,7 +294,8 @@ private Mono<List<PermissionRequest>> resolveScopeRequestAssessment_migrated(Tok
      * @param requestedPermissions List<PermissionRequest>
      * @return List<PermissionRequest>
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.extendPermissionWithRPT_migrated(tokenRequest, client, endUser, requestedPermissions))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<List<PermissionRequest>> extendPermissionWithRPT(TokenRequest tokenRequest, Client client, User endUser, List<PermissionRequest> requestedPermissions) {
  return RxJava2Adapter.monoToSingle(extendPermissionWithRPT_migrated(tokenRequest, client, endUser, requestedPermissions));
 }
@@ -301,7 +311,8 @@ private Mono<List<PermissionRequest>> extendPermissionWithRPT_migrated(TokenRequ
     /**
      * Provided "previous" Requesting Party Token to extend must belong to the same user & client.
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkRequestingPartyToken_migrated(rpt, client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<JWT> checkRequestingPartyToken(JWT rpt, Client client, User user) {
  return RxJava2Adapter.monoToSingle(checkRequestingPartyToken_migrated(rpt, client, user));
 }
@@ -346,7 +357,8 @@ private Mono<JWT> checkRequestingPartyToken_migrated(JWT rpt, Client client, Use
         return result;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOAuth2Request_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<OAuth2Request> createOAuth2Request(TokenRequest tokenRequest, Client client, User endUser) {
  return RxJava2Adapter.monoToSingle(createOAuth2Request_migrated(tokenRequest, client, endUser));
 }
@@ -376,7 +388,8 @@ private Mono<OAuth2Request> createOAuth2Request_migrated(TokenRequest tokenReque
      * While oauth2 imply user approvals (RO grant access to his resources to an application),
      * here the subject is a Requesting Party that request grant access to someone else resources.
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveRequest_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 protected Single<TokenRequest> resolveRequest(TokenRequest tokenRequest, Client client, User endUser) {
  return RxJava2Adapter.monoToSingle(resolveRequest_migrated(tokenRequest, client, endUser));
 }
@@ -392,7 +405,8 @@ protected Mono<TokenRequest> resolveRequest_migrated(TokenRequest tokenRequest, 
      * @param endUser requesting party
      * @return
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executePolicies_migrated(oAuth2Request, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<OAuth2Request> executePolicies(OAuth2Request oAuth2Request, Client client, User endUser) {
  return RxJava2Adapter.monoToSingle(executePolicies_migrated(oAuth2Request, client, endUser));
 }

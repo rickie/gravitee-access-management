@@ -17,6 +17,7 @@ package io.gravitee.am.repository.mongodb.management;
 
 import static com.mongodb.client.model.Filters.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Email;
@@ -52,71 +53,117 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
         super.createIndex(emailsCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_CLIENT, 1).append(FIELD_TEMPLATE, 1));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Email> findAll() {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(emailsCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+@Override
+    public Flux<Email> findAll_migrated() {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(emailsCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Email> findAll(ReferenceType referenceType, String referenceId) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(emailsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+@Override
+    public Flux<Email> findAll_migrated(ReferenceType referenceType, String referenceId) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(emailsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Email> findByClient(ReferenceType referenceType, String referenceId, String client) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(emailsCollection.find(
+ return RxJava2Adapter.fluxToFlowable(findByClient_migrated(referenceType, referenceId, client));
+}
+@Override
+    public Flux<Email> findByClient_migrated(ReferenceType referenceType, String referenceId, String client) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(emailsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_CLIENT, client))
-                )).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+                )).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Email> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
+ return RxJava2Adapter.monoToMaybe(findByTemplate_migrated(referenceType, referenceId, template));
+}
+@Override
+    public Mono<Email> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
                 emailsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_TEMPLATE, template),
                                 exists(FIELD_CLIENT, false)))
-                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Email> findByDomainAndTemplate(String domain, String template) {
-        return findByTemplate(ReferenceType.DOMAIN, domain, template);
+ return RxJava2Adapter.monoToMaybe(findByDomainAndTemplate_migrated(domain, template));
+}
+@Override
+    public Mono<Email> findByDomainAndTemplate_migrated(String domain, String template) {
+        return RxJava2Adapter.maybeToMono(findByTemplate(ReferenceType.DOMAIN, domain, template));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Email> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
+ return RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(referenceType, referenceId, client, template));
+}
+@Override
+    public Mono<Email> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
                 emailsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_CLIENT, client),
                                 eq(FIELD_TEMPLATE, template)))
-                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Maybe<Email> findByDomainAndClientAndTemplate(String domain, String client, String template) {
-        return findByClientAndTemplate(ReferenceType.DOMAIN, domain, client, template);
-    }
-
-    @Override
-    public Maybe<Email> findById(ReferenceType referenceType, String referenceId, String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(emailsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Maybe<Email> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(emailsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
     @Deprecated
+@Override
+    public Maybe<Email> findByDomainAndClientAndTemplate(String domain, String client, String template) {
+ return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndTemplate_migrated(domain, client, template));
+}
+@Override
+    public Mono<Email> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template) {
+        return RxJava2Adapter.maybeToMono(findByClientAndTemplate(ReferenceType.DOMAIN, domain, client, template));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<Email> findById(ReferenceType referenceType, String referenceId, String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
+}
+@Override
+    public Mono<Email> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(emailsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<Email> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Email> findById_migrated(String id) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(emailsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Email> create(Email item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -128,7 +175,8 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(emailsCollection.insertOne(email))).flatMap(success->RxJava2Adapter.maybeToMono(findById(email.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Email> update(Email item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -139,7 +187,8 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(emailsCollection.replaceOne(eq(FIELD_ID, email.getId()), email))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(email.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

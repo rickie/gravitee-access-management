@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Credential;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.common.CrudRepository;
@@ -30,7 +31,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface CredentialRepository extends CrudRepository<Credential, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Credential> findByUserId(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String userId) {
     return RxJava2Adapter.fluxToFlowable(findByUserId_migrated(referenceType, referenceId, userId));
 }
@@ -38,7 +40,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Credential> findByUserI
     return RxJava2Adapter.flowableToFlux(findByUserId(referenceType, referenceId, userId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUsername_migrated(referenceType, referenceId, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Credential> findByUsername(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String username) {
     return RxJava2Adapter.fluxToFlowable(findByUsername_migrated(referenceType, referenceId, username));
 }
@@ -46,7 +49,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Credential> findByUsern
     return RxJava2Adapter.flowableToFlux(findByUsername(referenceType, referenceId, username));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCredentialId_migrated(referenceType, referenceId, credentialId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Credential> findByCredentialId(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String credentialId) {
     return RxJava2Adapter.fluxToFlowable(findByCredentialId_migrated(referenceType, referenceId, credentialId));
 }
@@ -54,7 +58,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Credential> findByCrede
     return RxJava2Adapter.flowableToFlux(findByCredentialId(referenceType, referenceId, credentialId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable deleteByUserId(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String userId) {
     return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(referenceType, referenceId, userId));
 }
@@ -62,7 +67,8 @@ default reactor.core.publisher.Mono<java.lang.Void> deleteByUserId_migrated(Refe
     return RxJava2Adapter.completableToMono(deleteByUserId(referenceType, referenceId, userId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByAaguid_migrated(referenceType, referenceId, aaguid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable deleteByAaguid(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String aaguid) {
     return RxJava2Adapter.monoToCompletable(deleteByAaguid_migrated(referenceType, referenceId, aaguid));
 }

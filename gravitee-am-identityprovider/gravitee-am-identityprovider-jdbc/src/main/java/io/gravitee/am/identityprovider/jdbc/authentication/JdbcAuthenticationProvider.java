@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.identityprovider.jdbc.authentication;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.exception.authentication.UsernameNotFoundException;
 import io.gravitee.am.common.oidc.StandardClaims;
@@ -55,12 +56,17 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
     @Autowired
     private IdentityProviderRoleMapper roleMapper;
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
+ return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
+}
+@Override
+    public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
         final String username = authentication.getPrincipal().toString();
         final String presentedPassword = authentication.getCredentials().toString();
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(selectUserByMultipleField(username)).collectList().flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(users -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(selectUserByMultipleField(username)).collectList().flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(users -> {
                     if (users.isEmpty()) {
                         return RxJava2Adapter.fluxToFlowable(Flux.error(new UsernameNotFoundException(username)));
                     }
@@ -95,10 +101,11 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
                         return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Bad credentials")));
                     }
                     return RxJava2Adapter.monoToMaybe(Mono.just(createUser(authentication.getContext(), users.get(0))));
-                }).apply(e)))));
+                }).apply(e))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.selectUserByMultipleField_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Flowable<Map<String, Object>> selectUserByMultipleField(String username) {
  return RxJava2Adapter.fluxToFlowable(selectUserByMultipleField_migrated(username));
 }
@@ -125,12 +132,18 @@ private Flux<Map<String,Object>> selectUserByMultipleField_migrated(String usern
         return idxParameters;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> loadUserByUsername(String username) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(selectUserByUsername(username)).map(RxJavaReactorMigrationUtil.toJdkFunction(attributes -> createUser(new SimpleAuthenticationContext(), attributes))));
+ return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
+}
+@Override
+    public Mono<User> loadUserByUsername_migrated(String username) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(selectUserByUsername(username)).map(RxJavaReactorMigrationUtil.toJdkFunction(attributes -> createUser(new SimpleAuthenticationContext(), attributes)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.selectUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<Map<String, Object>> selectUserByUsername(String username) {
  return RxJava2Adapter.monoToMaybe(selectUserByUsername_migrated(username));
 }

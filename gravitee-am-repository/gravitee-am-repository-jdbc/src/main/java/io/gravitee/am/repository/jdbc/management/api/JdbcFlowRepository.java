@@ -19,6 +19,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
 import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.flow.Flow;
@@ -68,13 +69,19 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
         return mapper.map(entity, JdbcFlow.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Flow> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Flow> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(flowRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(e->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Flow, SingleSource<Flow>>)this::completeFlow).apply(e)))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(flowRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(e->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Flow, SingleSource<Flow>>)this::completeFlow).apply(e))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Flow> create(Flow item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -159,7 +166,8 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
         return bean;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Flow> update(Flow item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -196,7 +204,8 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
         return dbClient.delete().from(JdbcFlow.JdbcStep.class).matching(from(where("flow_id").is(flowId))).fetch().rowsUpdated();
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));
@@ -213,25 +222,41 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
                 .as(trx::transactional)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Flow> findById(ReferenceType referenceType, String referenceId, String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
+}
+@Override
+    public Mono<Flow> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("findById({}, {}, {})", referenceType, referenceId, id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(flowRepository.findById(referenceType.name(), referenceId, id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.singleToMono(completeFlow(z))));
-    }
-
-    @Override
-    public Flowable<Flow> findAll(ReferenceType referenceType, String referenceId) {
-        LOGGER.debug("findAll({}, {})", referenceType, referenceId);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flowRepository.findAll(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(flow -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeFlow(flow)).flux()))));
-    }
-
-    @Override
-    public Flowable<Flow> findByApplication(ReferenceType referenceType, String referenceId, String application) {
-        LOGGER.debug("findByApplication({}, {}, {})", referenceType, referenceId, application);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flowRepository.findByApplication(referenceType.name(), referenceId, application)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(flow -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeFlow(flow)).flux()))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(flowRepository.findById(referenceType.name(), referenceId, id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.singleToMono(completeFlow(z)))));
     }
 
     @Deprecated
+@Override
+    public Flowable<Flow> findAll(ReferenceType referenceType, String referenceId) {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+@Override
+    public Flux<Flow> findAll_migrated(ReferenceType referenceType, String referenceId) {
+        LOGGER.debug("findAll({}, {})", referenceType, referenceId);
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flowRepository.findAll(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(flow -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeFlow(flow)).flux())))));
+    }
+
+    @Deprecated
+@Override
+    public Flowable<Flow> findByApplication(ReferenceType referenceType, String referenceId, String application) {
+ return RxJava2Adapter.fluxToFlowable(findByApplication_migrated(referenceType, referenceId, application));
+}
+@Override
+    public Flux<Flow> findByApplication_migrated(ReferenceType referenceType, String referenceId, String application) {
+        LOGGER.debug("findByApplication({}, {}, {})", referenceType, referenceId, application);
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flowRepository.findByApplication(referenceType.name(), referenceId, application)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(flow -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeFlow(flow)).flux())))));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.completeFlow_migrated(flow))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 protected Single<Flow> completeFlow(Flow flow) {
  return RxJava2Adapter.monoToSingle(completeFlow_migrated(flow));
 }

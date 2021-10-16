@@ -20,6 +20,7 @@ import static io.gravitee.am.common.oauth2.ResponseType.CODE;
 import static io.gravitee.am.common.oauth2.ResponseType.TOKEN;
 import static io.gravitee.am.common.oidc.ResponseType.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
 import io.gravitee.am.model.oidc.Client;
@@ -52,7 +53,8 @@ public class GrantTypeUtils {
      * @param application Application with grant_type to validate.
      * @return Single client or error
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(GrantTypeUtils.validateGrantTypes_migrated(application))", imports = {"io.gravitee.am.service.utils.GrantTypeUtils", "reactor.adapter.rxjava.RxJava2Adapter"})
+@Deprecated
 public static Single<Application> validateGrantTypes(Application application) {
  return RxJava2Adapter.monoToSingle(validateGrantTypes_migrated(application));
 }

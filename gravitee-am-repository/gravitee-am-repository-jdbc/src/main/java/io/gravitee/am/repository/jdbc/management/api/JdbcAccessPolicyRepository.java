@@ -20,6 +20,7 @@ import static org.springframework.data.relational.core.query.CriteriaDefinition.
 import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
 import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.uma.policy.AccessPolicy;
@@ -44,6 +45,7 @@ import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -65,37 +67,58 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
         return mapper.map(entity, JdbcAccessPolicy.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<AccessPolicy>> findByDomain(String domain, int page, int size) {
+ return RxJava2Adapter.monoToSingle(findByDomain_migrated(domain, page, size));
+}
+@Override
+    public Mono<Page<AccessPolicy>> findByDomain_migrated(String domain, int page, int size) {
         LOGGER.debug("findByDomain(domain:{}, page:{}, size:{})", domain, page, size);
-        return RxJava2Adapter.monoToSingle(dbClient.select()
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(dbClient.select()
                 .from(JdbcAccessPolicy.class)
                 .project("*") // required for mssql to work with to order column name
                 .matching(from(where("domain").is(domain)))
                 .orderBy(Sort.Order.desc("updated_at"))
                 .page(PageRequest.of(page, size))
-                .as(JdbcAccessPolicy.class).all().collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(content -> content.stream().map(this::toAccessPolicy).collect(Collectors.toList()))).flatMap(content->RxJava2Adapter.singleToMono(accessPolicyRepository.countByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<AccessPolicy>(content, page, count)))));
-    }
-
-    @Override
-    public Flowable<AccessPolicy> findByDomainAndResource(String domain, String resource) {
-        LOGGER.debug("findByDomainAndResource(domain:{}, resources:{})", domain, resource);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(accessPolicyRepository.findByDomainAndResource(domain, resource)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy)));
-    }
-
-    @Override
-    public Flowable<AccessPolicy> findByResources(List<String> resources) {
-        LOGGER.debug("findByResources({})", resources);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(accessPolicyRepository.findByResourceIn(resources)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy)));
-    }
-
-    @Override
-    public Single<Long> countByResource(String resource) {
-        LOGGER.debug("countByResource({})", resource);
-        return accessPolicyRepository.countByResource(resource);
+                .as(JdbcAccessPolicy.class).all().collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(content -> content.stream().map(this::toAccessPolicy).collect(Collectors.toList()))).flatMap(content->RxJava2Adapter.singleToMono(accessPolicyRepository.countByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<AccessPolicy>(content, page, count))))));
     }
 
     @Deprecated
+@Override
+    public Flowable<AccessPolicy> findByDomainAndResource(String domain, String resource) {
+ return RxJava2Adapter.fluxToFlowable(findByDomainAndResource_migrated(domain, resource));
+}
+@Override
+    public Flux<AccessPolicy> findByDomainAndResource_migrated(String domain, String resource) {
+        LOGGER.debug("findByDomainAndResource(domain:{}, resources:{})", domain, resource);
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(accessPolicyRepository.findByDomainAndResource(domain, resource)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy))));
+    }
+
+    @Deprecated
+@Override
+    public Flowable<AccessPolicy> findByResources(List<String> resources) {
+ return RxJava2Adapter.fluxToFlowable(findByResources_migrated(resources));
+}
+@Override
+    public Flux<AccessPolicy> findByResources_migrated(List<String> resources) {
+        LOGGER.debug("findByResources({})", resources);
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(accessPolicyRepository.findByResourceIn(resources)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy))));
+    }
+
+    @Deprecated
+@Override
+    public Single<Long> countByResource(String resource) {
+ return RxJava2Adapter.monoToSingle(countByResource_migrated(resource));
+}
+@Override
+    public Mono<Long> countByResource_migrated(String resource) {
+        LOGGER.debug("countByResource({})", resource);
+        return RxJava2Adapter.singleToMono(accessPolicyRepository.countByResource(resource));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<AccessPolicy> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -106,7 +129,8 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(accessPolicyRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<AccessPolicy> create(AccessPolicy item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -135,7 +159,8 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<AccessPolicy> update(AccessPolicy item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -163,7 +188,8 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

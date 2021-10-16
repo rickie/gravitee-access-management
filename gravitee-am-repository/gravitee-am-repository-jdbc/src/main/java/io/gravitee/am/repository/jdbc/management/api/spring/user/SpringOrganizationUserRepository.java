@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.user;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -33,7 +34,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 @Repository
 public interface SpringOrganizationUserRepository extends RxJava2CrudRepository<JdbcOrganizationUser, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByReference_migrated(refType, refId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countByReference(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId) {
@@ -45,7 +47,8 @@ String refId) {
     return RxJava2Adapter.singleToMono(countByReference(refType, refId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(refType, refId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findById(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "id")
@@ -59,7 +62,8 @@ String id) {
     return RxJava2Adapter.maybeToMono(findById(refType, refId, id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByExternalIdAndSource_migrated(refType, refId, externalId, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findByExternalIdAndSource(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "id")
@@ -75,7 +79,8 @@ String source) {
     return RxJava2Adapter.maybeToMono(findByExternalIdAndSource(refType, refId, externalId, source));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsernameAndSource_migrated(refType, refId, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findByUsernameAndSource(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "name")
@@ -91,7 +96,8 @@ String source) {
     return RxJava2Adapter.maybeToMono(findByUsernameAndSource(refType, refId, username, source));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findByIdIn(@org.springframework.data.repository.query.Param(value = "ids")
 java.util.List<java.lang.String> ids) {
     return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
@@ -101,7 +107,8 @@ List<String> ids) {
     return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(refType, refId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser> findByReference(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId) {

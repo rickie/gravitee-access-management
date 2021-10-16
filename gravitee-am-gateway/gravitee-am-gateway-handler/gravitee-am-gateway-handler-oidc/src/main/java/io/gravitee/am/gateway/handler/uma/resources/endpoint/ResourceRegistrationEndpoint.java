@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.uma.resources.endpoint;
 
 import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
@@ -160,7 +161,8 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
                 );
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<NewResource> extractRequest(RoutingContext context) {
  return RxJava2Adapter.monoToSingle(extractRequest_migrated(context));
 }
@@ -168,7 +170,8 @@ private Mono<NewResource> extractRequest_migrated(RoutingContext context) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(context.getBodyAsJson()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JsonObject, SingleSource<JsonObject>>toJdkFunction(this::bodyValidation).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.bodyValidation_migrated(body))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<JsonObject> bodyValidation(JsonObject body) {
  return RxJava2Adapter.monoToSingle(bodyValidation_migrated(body));
 }

@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.common.vertx.web.handler.impl;
 
 import static io.vertx.ext.web.handler.SessionHandler.DEFAULT_SESSION_TIMEOUT;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User;
@@ -114,7 +115,8 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
                 .subscribe();
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.cleanupSession_migrated(currentSession))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<CookieSession> cleanupSession(CookieSession currentSession) {
  return RxJava2Adapter.monoToSingle(cleanupSession_migrated(currentSession));
 }

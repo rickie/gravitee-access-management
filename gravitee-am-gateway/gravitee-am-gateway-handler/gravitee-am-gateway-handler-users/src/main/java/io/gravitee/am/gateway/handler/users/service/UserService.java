@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.users.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.reactivex.Completable;
@@ -30,7 +31,8 @@ import reactor.core.publisher.Mono;
  */
 public interface UserService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.User> findById(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
@@ -38,7 +40,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> findById_migrated
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.consents_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.Set<io.gravitee.am.model.oauth2.ScopeApproval>> consents(java.lang.String userId) {
     return RxJava2Adapter.monoToSingle(consents_migrated(userId));
 }
@@ -46,7 +49,8 @@ default reactor.core.publisher.Mono<java.util.Set<io.gravitee.am.model.oauth2.Sc
     return RxJava2Adapter.singleToMono(consents(userId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.consents_migrated(userId, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.Set<io.gravitee.am.model.oauth2.ScopeApproval>> consents(java.lang.String userId, java.lang.String clientId) {
     return RxJava2Adapter.monoToSingle(consents_migrated(userId, clientId));
 }
@@ -54,7 +58,8 @@ default reactor.core.publisher.Mono<java.util.Set<io.gravitee.am.model.oauth2.Sc
     return RxJava2Adapter.singleToMono(consents(userId, clientId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.consent_migrated(consentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.oauth2.ScopeApproval> consent(java.lang.String consentId) {
     return RxJava2Adapter.monoToMaybe(consent_migrated(consentId));
 }
@@ -62,7 +67,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.oauth2.ScopeApproval> c
     return RxJava2Adapter.maybeToMono(consent(consentId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeConsent_migrated(userId, consentId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable revokeConsent(java.lang.String userId, java.lang.String consentId, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(revokeConsent_migrated(userId, consentId, principal));
 }
@@ -70,7 +76,8 @@ default reactor.core.publisher.Mono<java.lang.Void> revokeConsent_migrated(Strin
     return RxJava2Adapter.completableToMono(revokeConsent(userId, consentId, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeConsents_migrated(userId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable revokeConsents(java.lang.String userId, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(revokeConsents_migrated(userId, principal));
 }
@@ -78,7 +85,8 @@ default reactor.core.publisher.Mono<java.lang.Void> revokeConsents_migrated(Stri
     return RxJava2Adapter.completableToMono(revokeConsents(userId, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeConsents_migrated(userId, clientId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable revokeConsents(java.lang.String userId, java.lang.String clientId, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(revokeConsents_migrated(userId, clientId, principal));
 }
@@ -86,21 +94,24 @@ default reactor.core.publisher.Mono<java.lang.Void> revokeConsents_migrated(Stri
     return RxJava2Adapter.completableToMono(revokeConsents(userId, clientId, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeConsent_migrated(userId, consentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable revokeConsent(java.lang.String userId, java.lang.String consentId) {
     return RxJava2Adapter.monoToCompletable(revokeConsent_migrated(userId, consentId));
 }default Mono<Void> revokeConsent_migrated(String userId, String consentId) {
         return RxJava2Adapter.completableToMono(revokeConsent(userId, consentId, null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeConsents_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable revokeConsents(java.lang.String userId) {
     return RxJava2Adapter.monoToCompletable(revokeConsents_migrated(userId));
 }default Mono<Void> revokeConsents_migrated(String userId) {
         return RxJava2Adapter.completableToMono(revokeConsents(userId, (io.gravitee.am.identityprovider.api.User) null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeConsents_migrated(userId, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable revokeConsents(java.lang.String userId, java.lang.String clientId) {
     return RxJava2Adapter.monoToCompletable(revokeConsents_migrated(userId, clientId));
 }default Mono<Void> revokeConsents_migrated(String userId, String clientId) {

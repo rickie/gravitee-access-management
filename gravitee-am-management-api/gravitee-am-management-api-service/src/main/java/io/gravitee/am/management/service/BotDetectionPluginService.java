@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.service.model.plugin.BotDetectionPlugin;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -27,7 +28,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface BotDetectionPluginService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.BotDetectionPlugin>> findAll() {
     return RxJava2Adapter.monoToSingle(findAll_migrated());
 }
@@ -35,7 +37,8 @@ default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.
     return RxJava2Adapter.singleToMono(findAll());
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.service.model.plugin.BotDetectionPlugin> findById(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
@@ -43,7 +46,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.service.model.plugin.BotDetec
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<java.lang.String> getSchema(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(getSchema_migrated(id));
 }

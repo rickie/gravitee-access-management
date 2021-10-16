@@ -45,39 +45,74 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ScopeApprovalService scopeApprovalService;
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> findById(String id) {
-        return userService.findById(id);
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<User> findById_migrated(String id) {
+        return RxJava2Adapter.maybeToMono(userService.findById(id));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Set<ScopeApproval>> consents(String userId) {
-        return scopeApprovalService.findByDomainAndUser(domain.getId(), userId).collect(HashSet::new, Set::add);
+ return RxJava2Adapter.monoToSingle(consents_migrated(userId));
+}
+@Override
+    public Mono<Set<ScopeApproval>> consents_migrated(String userId) {
+        return RxJava2Adapter.singleToMono(scopeApprovalService.findByDomainAndUser(domain.getId(), userId).collect(HashSet::new, Set::add));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Set<ScopeApproval>> consents(String userId, String clientId) {
-        return scopeApprovalService.findByDomainAndUserAndClient(domain.getId(), userId, clientId).collect(HashSet::new, Set::add);
+ return RxJava2Adapter.monoToSingle(consents_migrated(userId, clientId));
+}
+@Override
+    public Mono<Set<ScopeApproval>> consents_migrated(String userId, String clientId) {
+        return RxJava2Adapter.singleToMono(scopeApprovalService.findByDomainAndUserAndClient(domain.getId(), userId, clientId).collect(HashSet::new, Set::add));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<ScopeApproval> consent(String consentId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeApprovalService.findById(consentId)).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consentId))));
+ return RxJava2Adapter.monoToMaybe(consent_migrated(consentId));
+}
+@Override
+    public Mono<ScopeApproval> consent_migrated(String consentId) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeApprovalService.findById(consentId)).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consentId)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable revokeConsent(String userId, String consentId, io.gravitee.am.identityprovider.api.User principal) {
-        return scopeApprovalService.revokeByConsent(domain.getId(), userId, consentId, principal);
+ return RxJava2Adapter.monoToCompletable(revokeConsent_migrated(userId, consentId, principal));
+}
+@Override
+    public Mono<Void> revokeConsent_migrated(String userId, String consentId, io.gravitee.am.identityprovider.api.User principal) {
+        return RxJava2Adapter.completableToMono(scopeApprovalService.revokeByConsent(domain.getId(), userId, consentId, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable revokeConsents(String userId, io.gravitee.am.identityprovider.api.User principal) {
-        return scopeApprovalService.revokeByUser(domain.getId(), userId, principal);
+ return RxJava2Adapter.monoToCompletable(revokeConsents_migrated(userId, principal));
+}
+@Override
+    public Mono<Void> revokeConsents_migrated(String userId, io.gravitee.am.identityprovider.api.User principal) {
+        return RxJava2Adapter.completableToMono(scopeApprovalService.revokeByUser(domain.getId(), userId, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable revokeConsents(String userId, String clientId, io.gravitee.am.identityprovider.api.User principal) {
-        return scopeApprovalService.revokeByUserAndClient(domain.getId(), userId, clientId, principal);
+ return RxJava2Adapter.monoToCompletable(revokeConsents_migrated(userId, clientId, principal));
+}
+@Override
+    public Mono<Void> revokeConsents_migrated(String userId, String clientId, io.gravitee.am.identityprovider.api.User principal) {
+        return RxJava2Adapter.completableToMono(scopeApprovalService.revokeByUserAndClient(domain.getId(), userId, clientId, principal));
     }
 
 }

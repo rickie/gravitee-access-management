@@ -17,6 +17,7 @@ package io.gravitee.am.repository.jdbc.management.api;
 
 import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Factor;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -30,6 +31,7 @@ import io.reactivex.Single;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -51,19 +53,30 @@ public class JdbcFactorRepository extends AbstractJdbcRepository implements Fact
         return mapper.map(entity, JdbcFactor.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Factor> findAll() {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+@Override
+    public Flux<Factor> findAll_migrated() {
         LOGGER.debug("findAll()");
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(factorRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Flowable<Factor> findByDomain(String domain) {
-        LOGGER.debug("findByDomain({})", domain);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(factorRepository.findByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(factorRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
     @Deprecated
+@Override
+    public Flowable<Factor> findByDomain(String domain) {
+ return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+@Override
+    public Flux<Factor> findByDomain_migrated(String domain) {
+        LOGGER.debug("findByDomain({})", domain);
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(factorRepository.findByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Factor> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -74,7 +87,8 @@ public class JdbcFactorRepository extends AbstractJdbcRepository implements Fact
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(factorRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Factor> create(Factor item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -92,7 +106,8 @@ public class JdbcFactorRepository extends AbstractJdbcRepository implements Fact
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Factor> update(Factor item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -103,7 +118,8 @@ public class JdbcFactorRepository extends AbstractJdbcRepository implements Fact
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.factorRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

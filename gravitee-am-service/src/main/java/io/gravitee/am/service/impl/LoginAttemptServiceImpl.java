@@ -51,10 +51,15 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
     @Autowired
     private LoginAttemptRepository loginAttemptRepository;
 
-    @Override
+    @Deprecated
+@Override
     public Single<LoginAttempt> loginFailed(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
+ return RxJava2Adapter.monoToSingle(loginFailed_migrated(criteria, accountSettings));
+}
+@Override
+    public Mono<LoginAttempt> loginFailed_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
         LOGGER.debug("Add login attempt for {}", criteria);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findByCriteria(criteria)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findByCriteria(criteria)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optionalLoginAttempt -> {
                     if (optionalLoginAttempt.isPresent()) {
                         LoginAttempt loginAttempt = optionalLoginAttempt.get();
@@ -88,13 +93,18 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
                     }
                     LOGGER.error("An error occurs while trying to add a login attempt", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to add a login attempt", ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable loginSucceeded(LoginAttemptCriteria criteria) {
+ return RxJava2Adapter.monoToCompletable(loginSucceeded_migrated(criteria));
+}
+@Override
+    public Mono<Void> loginSucceeded_migrated(LoginAttemptCriteria criteria) {
         LOGGER.debug("Delete login attempt for {}", criteria);
-        return loginAttemptRepository.delete(criteria)
+        return RxJava2Adapter.completableToMono(loginAttemptRepository.delete(criteria)
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
@@ -102,24 +112,39 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
                     LOGGER.error("An error occurs while trying to delete login attempt for", criteria, ex);
                     return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to delete login attempt: %s", criteria), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable reset(LoginAttemptCriteria criteria) {
-        return loginSucceeded(criteria);
+ return RxJava2Adapter.monoToCompletable(reset_migrated(criteria));
+}
+@Override
+    public Mono<Void> reset_migrated(LoginAttemptCriteria criteria) {
+        return RxJava2Adapter.completableToMono(loginSucceeded(criteria));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<LoginAttempt> checkAccount(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
+ return RxJava2Adapter.monoToMaybe(checkAccount_migrated(criteria, accountSettings));
+}
+@Override
+    public Mono<LoginAttempt> checkAccount_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
         LOGGER.debug("Check account status for {}", criteria);
-        return loginAttemptRepository.findByCriteria(criteria);
+        return RxJava2Adapter.maybeToMono(loginAttemptRepository.findByCriteria(criteria));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<LoginAttempt> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<LoginAttempt> findById_migrated(String id) {
         LOGGER.debug("Find login attempt by id {}", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)).switchIfEmpty(Mono.error(new LoginAttemptNotFoundException(id))))
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)).switchIfEmpty(Mono.error(new LoginAttemptNotFoundException(id))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(ex));
@@ -127,6 +152,6 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
                     LOGGER.error("An error occurs while trying to find login attempt by id {}", id, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to fin login attempt by id: %s", id), ex)));
-                });
+                }));
     }
 }

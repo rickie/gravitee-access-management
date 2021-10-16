@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization;
 
 import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
@@ -158,7 +159,8 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.handleRequestObjectValue_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<JWT> handleRequestObjectValue(RoutingContext context) {
  return RxJava2Adapter.monoToMaybe(handleRequestObjectValue_migrated(context));
 }
@@ -190,7 +192,8 @@ private Mono<JWT> handleRequestObjectValue_migrated(RoutingContext context) {
         return jwt;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateRequestObjectClaims_migrated(context, jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<JWT> validateRequestObjectClaims(RoutingContext context, JWT jwt) {
  return RxJava2Adapter.monoToSingle(validateRequestObjectClaims_migrated(context, jwt));
 }
@@ -270,7 +273,8 @@ private Mono<JWT> validateRequestObjectClaims_migrated(RoutingContext context, J
         return throwUriException ? new InvalidRequestUriException(msg) : new InvalidRequestObjectException(msg);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.handleRequestObjectURI_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<JWT> handleRequestObjectURI(RoutingContext context) {
  return RxJava2Adapter.monoToMaybe(handleRequestObjectURI_migrated(context));
 }

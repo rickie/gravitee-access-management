@@ -18,6 +18,7 @@ package io.gravitee.am.management.handlers.management.api.resources.organization
 import static io.gravitee.am.management.service.permissions.Permissions.of;
 import static io.gravitee.am.management.service.permissions.Permissions.or;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.model.ApplicationEntity;
 import io.gravitee.am.management.handlers.management.api.model.ScopeApprovalEntity;
@@ -140,7 +141,8 @@ public class UserConsentsResource extends AbstractResource {
         return resourceContext.getResource(UserConsentResource.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getClient_migrated(domain, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<ApplicationEntity> getClient(String domain, String clientId) {
  return RxJava2Adapter.monoToSingle(getClient_migrated(domain, clientId));
 }
@@ -149,7 +151,8 @@ private Mono<ApplicationEntity> getClient_migrated(String domain, String clientI
                 .cache());
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getScope_migrated(domain, scopeKey))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<ScopeEntity> getScope(String domain, String scopeKey) {
  return RxJava2Adapter.monoToSingle(getScope_migrated(domain, scopeKey));
 }

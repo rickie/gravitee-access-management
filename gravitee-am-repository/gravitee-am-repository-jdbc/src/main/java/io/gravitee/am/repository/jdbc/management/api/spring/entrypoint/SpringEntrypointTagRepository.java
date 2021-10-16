@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.entrypoint;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcEntrypoint;
 import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
@@ -29,7 +30,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringEntrypointTagRepository extends RxJava2CrudRepository<JdbcEntrypoint.Tag, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByEntrypoint_migrated(entrypointId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEntrypoint.Tag> findAllByEntrypoint(@org.springframework.data.repository.query.Param(value = "epi")
 java.lang.String entrypointId) {
     return RxJava2Adapter.fluxToFlowable(findAllByEntrypoint_migrated(entrypointId));

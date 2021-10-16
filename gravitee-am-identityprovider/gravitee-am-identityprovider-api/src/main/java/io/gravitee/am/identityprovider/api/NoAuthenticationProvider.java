@@ -16,6 +16,8 @@
 package io.gravitee.am.identityprovider.api;
 
 import io.reactivex.Maybe;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -23,13 +25,23 @@ import io.reactivex.Maybe;
  */
 public class NoAuthenticationProvider implements AuthenticationProvider {
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
-        return null;
+ return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
+}
+@Override
+    public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
+        return RxJava2Adapter.maybeToMono(null);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> loadUserByUsername(String username) {
-        return null;
+ return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
+}
+@Override
+    public Mono<User> loadUserByUsername_migrated(String username) {
+        return RxJava2Adapter.maybeToMono(null);
     }
 }

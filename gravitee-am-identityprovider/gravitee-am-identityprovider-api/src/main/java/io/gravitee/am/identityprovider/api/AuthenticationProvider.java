@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.identityprovider.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.common.component.Lifecycle;
 import io.gravitee.common.service.Service;
 import io.reactivex.Maybe;
@@ -28,7 +29,8 @@ import reactor.core.publisher.Mono;
  */
 public interface AuthenticationProvider extends Service<AuthenticationProvider> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(io.gravitee.am.identityprovider.api.Authentication authentication) {
     return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
 }
@@ -36,7 +38,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.User> lo
     return RxJava2Adapter.maybeToMono(loadUserByUsername(authentication));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(java.lang.String username) {
     return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
 }
@@ -44,7 +47,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.User> lo
     return RxJava2Adapter.maybeToMono(loadUserByUsername(username));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadPreAuthenticatedUser_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.User> loadPreAuthenticatedUser(io.gravitee.am.identityprovider.api.Authentication authentication) {
     return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(authentication));
 }default Mono<User> loadPreAuthenticatedUser_migrated(Authentication authentication) {

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.environment;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment;
 import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
@@ -28,7 +29,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringEnvironmentHridsRepository extends RxJava2CrudRepository<JdbcEnvironment.Hrid, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByEnvironmentId_migrated(environmentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment.Hrid> findAllByEnvironmentId(java.lang.String environmentId) {
     return RxJava2Adapter.fluxToFlowable(findAllByEnvironmentId_migrated(environmentId));
 }

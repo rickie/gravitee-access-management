@@ -106,40 +106,65 @@ public class JavaKeyStoreProvider implements CertificateProvider, InitializingBe
         }
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<JWK> privateKey() {
+ return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
+}
+@Override
+    public Flux<JWK> privateKey_migrated() {
         // CertificateProvider only manage RSA key.
         com.nimbusds.jose.jwk.JWK nimbusJwk = new com.nimbusds.jose.jwk.RSAKey.Builder((RSAPublicKey) ((KeyPair) certificateKey.getValue()).getPublic())
                 .privateKey((RSAPrivateKey) ((KeyPair) certificateKey.getValue()).getPrivate())
                 .keyID(configuration.getAlias())
                 .build();
-        return RxJava2Adapter.fluxToFlowable(Flux.fromIterable(convert(nimbusJwk, true).collect(Collectors.toList())));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(convert(nimbusJwk, true).collect(Collectors.toList()))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<io.gravitee.am.certificate.api.Key> key() {
-        return RxJava2Adapter.monoToSingle(Mono.just(certificateKey));
+ return RxJava2Adapter.monoToSingle(key_migrated());
+}
+@Override
+    public Mono<io.gravitee.am.certificate.api.Key> key_migrated() {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificateKey)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<String> publicKey() {
+ return RxJava2Adapter.monoToSingle(publicKey_migrated());
+}
+@Override
+    public Mono<String> publicKey_migrated() {
         // fallback to ssh-rsa
-        return RxJava2Adapter.monoToSingle(Mono.just(certificateKeys
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificateKeys
                         .stream()
                         .filter(c -> c.getFmt().equals(CertificateFormat.SSH_RSA))
                         .map(CertificateKey::getPayload)
                         .findFirst()
-                        .get()));
+                        .get())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<CertificateKey>> publicKeys() {
-        return RxJava2Adapter.monoToSingle(Mono.just(certificateKeys));
+ return RxJava2Adapter.monoToSingle(publicKeys_migrated());
+}
+@Override
+    public Mono<List<CertificateKey>> publicKeys_migrated() {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificateKeys)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<JWK> keys() {
-        return RxJava2Adapter.fluxToFlowable(Flux.fromIterable(keys));
+ return RxJava2Adapter.fluxToFlowable(keys_migrated());
+}
+@Override
+    public Flux<JWK> keys_migrated() {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(keys)));
     }
 
     @Override

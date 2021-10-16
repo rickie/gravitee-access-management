@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.entrypoint;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcEntrypoint;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -30,7 +31,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringEntrypointRepository extends RxJava2CrudRepository<JdbcEntrypoint, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcEntrypoint> findById(@org.springframework.data.repository.query.Param(value = "id")
 java.lang.String id, @org.springframework.data.repository.query.Param(value = "org")
 java.lang.String organizationId) {
@@ -42,7 +44,8 @@ String organizationId) {
     return RxJava2Adapter.maybeToMono(findById(id, organizationId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByOrganization_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEntrypoint> findAllByOrganization(@org.springframework.data.repository.query.Param(value = "org")
 java.lang.String organizationId) {
     return RxJava2Adapter.fluxToFlowable(findAllByOrganization_migrated(organizationId));

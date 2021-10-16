@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Group;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.Page;
@@ -31,7 +32,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface GroupRepository extends CrudRepository<Group, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Group> findByMember(java.lang.String memberId) {
     return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId));
 }
@@ -39,7 +41,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Group> findByMember_mig
     return RxJava2Adapter.flowableToFlux(findByMember(memberId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Group> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
 }
@@ -47,7 +50,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Group> findAll_migrated
     return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.Group>> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, int page, int size) {
     return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
 }
@@ -55,7 +59,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee
     return RxJava2Adapter.singleToMono(findAll(referenceType, referenceId, page, size));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Group> findByIdIn(java.util.List<java.lang.String> ids) {
     return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
 }
@@ -63,7 +68,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Group> findByIdIn_migra
     return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByName_migrated(referenceType, referenceId, groupName))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Group> findByName(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String groupName) {
     return RxJava2Adapter.monoToMaybe(findByName_migrated(referenceType, referenceId, groupName));
 }
@@ -71,7 +77,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Group> findByName_migra
     return RxJava2Adapter.maybeToMono(findByName(referenceType, referenceId, groupName));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, group))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Group> findById(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String group) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, group));
 }

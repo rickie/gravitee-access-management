@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.flow.Flow;
 import io.gravitee.am.model.flow.Type;
@@ -31,7 +32,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface FlowRepository extends CrudRepository<Flow, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.flow.Flow> findById(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
 }
@@ -39,7 +41,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.flow.Flow> findById_mig
     return RxJava2Adapter.maybeToMono(findById(referenceType, referenceId, id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.flow.Flow> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
 }
@@ -47,7 +50,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.flow.Flow> findAll_migr
     return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByApplication_migrated(referenceType, referenceId, application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.flow.Flow> findByApplication(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String application) {
     return RxJava2Adapter.fluxToFlowable(findByApplication_migrated(referenceType, referenceId, application));
 }

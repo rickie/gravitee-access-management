@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.reporter.api.provider;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.analytics.Type;
 import io.gravitee.am.common.audit.Status;
 import io.gravitee.am.model.ReferenceType;
@@ -42,7 +43,8 @@ import reactor.core.publisher.Mono;
 public class NoOpReporter implements AuditReporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(NoOpReporter.class);
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<Audit>> search(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
  return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
@@ -53,7 +55,8 @@ public class NoOpReporter implements AuditReporter {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptyList(), page, size))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(referenceType, referenceId, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
  return RxJava2Adapter.monoToSingle(aggregate_migrated(referenceType, referenceId, criteria, analyticsType));
@@ -79,7 +82,8 @@ public class NoOpReporter implements AuditReporter {
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Audit> findById(ReferenceType referenceType, String referenceId, String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));

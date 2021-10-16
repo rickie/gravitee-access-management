@@ -17,6 +17,7 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.DOMAIN_IDP_UPGRADER;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.management.service.IdentityProviderManager;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.IdentityProvider;
@@ -65,7 +66,8 @@ public class DomainIdpUpgrader implements Upgrader, Ordered {
         return true;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateDefaultIdp_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<IdentityProvider> updateDefaultIdp(Domain domain) {
  return RxJava2Adapter.monoToSingle(updateDefaultIdp_migrated(domain));
 }

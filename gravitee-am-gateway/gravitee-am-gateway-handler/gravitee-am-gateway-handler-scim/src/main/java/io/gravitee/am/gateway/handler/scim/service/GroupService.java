@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.scim.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.scim.model.Group;
 import io.gravitee.am.gateway.handler.scim.model.ListResponse;
 import io.gravitee.am.gateway.handler.scim.model.PatchOp;
@@ -31,7 +32,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface GroupService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.list_migrated(page, size, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.ListResponse<io.gravitee.am.gateway.handler.scim.model.Group>> list(int page, int size, java.lang.String baseUrl) {
     return RxJava2Adapter.monoToSingle(list_migrated(page, size, baseUrl));
 }
@@ -39,7 +41,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.Li
     return RxJava2Adapter.singleToMono(list(page, size, baseUrl));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.gateway.handler.scim.model.Group> findByMember(java.lang.String memberId) {
     return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId));
 }
@@ -47,7 +50,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.gateway.handler.scim.model.Gr
     return RxJava2Adapter.flowableToFlux(findByMember(memberId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.get_migrated(groupId, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.gateway.handler.scim.model.Group> get(java.lang.String groupId, java.lang.String baseUrl) {
     return RxJava2Adapter.monoToMaybe(get_migrated(groupId, baseUrl));
 }
@@ -55,7 +59,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.Gr
     return RxJava2Adapter.maybeToMono(get(groupId, baseUrl));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(group, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.Group> create(io.gravitee.am.gateway.handler.scim.model.Group group, java.lang.String baseUrl) {
     return RxJava2Adapter.monoToSingle(create_migrated(group, baseUrl));
 }
@@ -63,7 +68,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.Gr
     return RxJava2Adapter.singleToMono(create(group, baseUrl));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(groupId, group, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.Group> update(java.lang.String groupId, io.gravitee.am.gateway.handler.scim.model.Group group, java.lang.String baseUrl) {
     return RxJava2Adapter.monoToSingle(update_migrated(groupId, group, baseUrl));
 }
@@ -71,7 +77,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.Gr
     return RxJava2Adapter.singleToMono(update(groupId, group, baseUrl));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.patch_migrated(groupId, patchOp, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.Group> patch(java.lang.String groupId, io.gravitee.am.gateway.handler.scim.model.PatchOp patchOp, java.lang.String baseUrl) {
     return RxJava2Adapter.monoToSingle(patch_migrated(groupId, patchOp, baseUrl));
 }
@@ -79,7 +86,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.Gr
     return RxJava2Adapter.singleToMono(patch(groupId, patchOp, baseUrl));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(groupId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(java.lang.String groupId) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(groupId));
 }

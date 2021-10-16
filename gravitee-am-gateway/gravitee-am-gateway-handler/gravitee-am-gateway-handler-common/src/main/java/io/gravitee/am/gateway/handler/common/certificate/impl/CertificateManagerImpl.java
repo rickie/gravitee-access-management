@@ -51,6 +51,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -140,13 +141,18 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
         eventManager.unsubscribeForEvents(this, CertificateEvent.class, domain.getId());
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<CertificateProvider> get(String id) {
+ return RxJava2Adapter.monoToMaybe(get_migrated(id));
+}
+@Override
+    public Mono<CertificateProvider> get_migrated(String id) {
         if (id == null) {
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
         CertificateProvider certificateProvider = certificateProviderManager.get(id);
-        return certificateProvider != null ? RxJava2Adapter.monoToMaybe(Mono.just(certificateProvider)) : RxJava2Adapter.monoToMaybe(Mono.empty());
+        return RxJava2Adapter.maybeToMono(certificateProvider != null ? RxJava2Adapter.monoToMaybe(Mono.just(certificateProvider)) : RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
     @Override
@@ -158,11 +164,16 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
         return null;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<CertificateProvider> findByAlgorithm(String algorithm) {
+ return RxJava2Adapter.monoToMaybe(findByAlgorithm_migrated(algorithm));
+}
+@Override
+    public Mono<CertificateProvider> findByAlgorithm_migrated(String algorithm) {
 
         if(algorithm==null || algorithm.trim().isEmpty()) {
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
 
         Optional<CertificateProvider> certificate = this
@@ -174,7 +185,7 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
                 )
                 .findFirst();
 
-        return certificate.isPresent()?RxJava2Adapter.monoToMaybe(Mono.just(certificate.get())):RxJava2Adapter.monoToMaybe(Mono.empty());
+        return RxJava2Adapter.maybeToMono(certificate.isPresent() ? RxJava2Adapter.monoToMaybe(Mono.just(certificate.get())) : RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
     @Override
@@ -239,24 +250,44 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
 
         io.gravitee.am.certificate.api.CertificateProvider defaultProvider = new io.gravitee.am.certificate.api.CertificateProvider() {
 
-            @Override
+            @Deprecated
+@Override
             public Single<io.gravitee.am.certificate.api.Key> key() {
-                return RxJava2Adapter.monoToSingle(Mono.just(certificateKey));
+ return RxJava2Adapter.monoToSingle(key_migrated());
+}
+@Override
+            public Mono<io.gravitee.am.certificate.api.Key> key_migrated() {
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificateKey)));
             }
 
-            @Override
+            @Deprecated
+@Override
             public Flowable<JWK> privateKey() {
-                return null;
+ return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
+}
+@Override
+            public Flux<JWK> privateKey_migrated() {
+                return RxJava2Adapter.flowableToFlux(null);
             }
 
-            @Override
+            @Deprecated
+@Override
             public Single<String> publicKey() {
-                return null;
+ return RxJava2Adapter.monoToSingle(publicKey_migrated());
+}
+@Override
+            public Mono<String> publicKey_migrated() {
+                return RxJava2Adapter.singleToMono(null);
             }
 
-            @Override
+            @Deprecated
+@Override
             public Flowable<JWK> keys() {
-                return null;
+ return RxJava2Adapter.fluxToFlowable(keys_migrated());
+}
+@Override
+            public Flux<JWK> keys_migrated() {
+                return RxJava2Adapter.flowableToFlux(null);
             }
 
             @Override
@@ -278,23 +309,43 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
 
         io.gravitee.am.certificate.api.CertificateProvider noneProvider = new io.gravitee.am.certificate.api.CertificateProvider() {
 
-            @Override
+            @Deprecated
+@Override
             public Flowable<JWK> privateKey() {
+ return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
+}
+@Override
+            public Flux<JWK> privateKey_migrated() {
                 throw new UnsupportedOperationException("No private key for \"none\" algorithm");
             }
 
-            @Override
+            @Deprecated
+@Override
             public Single<io.gravitee.am.certificate.api.Key> key() {
+ return RxJava2Adapter.monoToSingle(key_migrated());
+}
+@Override
+            public Mono<io.gravitee.am.certificate.api.Key> key_migrated() {
                 throw new UnsupportedOperationException("No key for \"none\" algorithm");
             }
 
-            @Override
+            @Deprecated
+@Override
             public Single<String> publicKey() {
+ return RxJava2Adapter.monoToSingle(publicKey_migrated());
+}
+@Override
+            public Mono<String> publicKey_migrated() {
                 throw new UnsupportedOperationException("No public key for \"none\" algorithm");
             }
 
-            @Override
+            @Deprecated
+@Override
             public Flowable<JWK> keys() {
+ return RxJava2Adapter.fluxToFlowable(keys_migrated());
+}
+@Override
+            public Flux<JWK> keys_migrated() {
                 throw new UnsupportedOperationException("No keys for \"none\" algorithm");
             }
 

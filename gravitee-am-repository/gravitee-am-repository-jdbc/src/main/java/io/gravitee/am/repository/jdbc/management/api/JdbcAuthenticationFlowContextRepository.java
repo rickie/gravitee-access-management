@@ -49,50 +49,70 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
         return mapper.map(entity, AuthenticationFlowContext.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<AuthenticationFlowContext> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<AuthenticationFlowContext> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
         if (id == null) {
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
-        return RxJava2Adapter.monoToMaybe(dbClient.select()
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(dbClient.select()
                 .from(JdbcAuthenticationFlowContext.class)
                 .matching(from(where("id").is(id)))
-                .as(JdbcAuthenticationFlowContext.class).one().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+                .as(JdbcAuthenticationFlowContext.class).one().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<AuthenticationFlowContext> findLastByTransactionId(String transactionId) {
+ return RxJava2Adapter.monoToMaybe(findLastByTransactionId_migrated(transactionId));
+}
+@Override
+    public Mono<AuthenticationFlowContext> findLastByTransactionId_migrated(String transactionId) {
         LOGGER.debug("findLastByTransactionId({})", transactionId);
         if (transactionId == null) {
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
         
         LocalDateTime now = LocalDateTime.now(UTC);
-        return RxJava2Adapter.monoToMaybe(dbClient.select()
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(dbClient.select()
                 .from(JdbcAuthenticationFlowContext.class)
                 .matching(from(where("transaction_id").is(transactionId).and(where("expire_at").greaterThan(now))))
                 .orderBy(Sort.Order.desc("version"))
-                .as(JdbcAuthenticationFlowContext.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+                .as(JdbcAuthenticationFlowContext.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<AuthenticationFlowContext> findByTransactionId(String transactionId) {
+ return RxJava2Adapter.fluxToFlowable(findByTransactionId_migrated(transactionId));
+}
+@Override
+    public Flux<AuthenticationFlowContext> findByTransactionId_migrated(String transactionId) {
         LOGGER.debug("findByTransactionId({})", transactionId);
         if (transactionId == null) {
-            return RxJava2Adapter.fluxToFlowable(Flux.empty());
+            return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty()));
         }
 
         LocalDateTime now = LocalDateTime.now(UTC);
-        return RxJava2Adapter.fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.select()
                 .from(JdbcAuthenticationFlowContext.class)
                 .matching(from(where("transaction_id").is(transactionId).and(where("expire_at").greaterThan(now))))
                 .orderBy(Sort.Order.desc("version"))
-                .as(JdbcAuthenticationFlowContext.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+                .as(JdbcAuthenticationFlowContext.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AuthenticationFlowContext> create(AuthenticationFlowContext context) {
+ return RxJava2Adapter.monoToSingle(create_migrated(context));
+}
+@Override
+    public Mono<AuthenticationFlowContext> create_migrated(AuthenticationFlowContext context) {
        String id = context.getTransactionId() + "-" + context.getVersion();
         LOGGER.debug("Create AuthenticationContext with id {}", id);
 
@@ -108,29 +128,44 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
 
         Mono<Integer> insertAction = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(insertAction.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(id)).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(id)).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String transactionId) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(transactionId));
+}
+@Override
+    public Mono<Void> delete_migrated(String transactionId) {
         LOGGER.debug("delete({})", transactionId);
-        return monoToCompletable(dbClient.delete()
+        return RxJava2Adapter.completableToMono(monoToCompletable(dbClient.delete()
                 .from(JdbcAuthenticationFlowContext.class)
-                .matching(from(where("transaction_id").is(transactionId))).fetch().rowsUpdated());
+                .matching(from(where("transaction_id").is(transactionId))).fetch().rowsUpdated()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String transactionId, int version) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(transactionId, version));
+}
+@Override
+    public Mono<Void> delete_migrated(String transactionId, int version) {
         LOGGER.debug("delete({}, {})", transactionId, version);
-        return monoToCompletable(dbClient.delete()
+        return RxJava2Adapter.completableToMono(monoToCompletable(dbClient.delete()
                 .from(JdbcAuthenticationFlowContext.class)
-                .matching(from(where("transaction_id").is(transactionId).and(where("version").is(version)))).fetch().rowsUpdated());
+                .matching(from(where("transaction_id").is(transactionId).and(where("version").is(version)))).fetch().rowsUpdated()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable purgeExpiredData() {
+ return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
+}
+@Override
+    public Mono<Void> purgeExpiredData_migrated() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);
-        return dbClient.delete().from(JdbcAuthenticationFlowContext.class).matching(where("expire_at").lessThan(now)).then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to purge authentication contexts", error))).as(RxJava2Adapter::monoToCompletable);
+        return RxJava2Adapter.completableToMono(dbClient.delete().from(JdbcAuthenticationFlowContext.class).matching(where("expire_at").lessThan(now)).then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to purge authentication contexts", error))).as(RxJava2Adapter::monoToCompletable));
     }
 }

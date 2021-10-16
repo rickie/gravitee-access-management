@@ -56,17 +56,27 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
     @Value("${authenticationFlow.retryInterval:1000}")
     private int retryDelay;
 
-    @Override
+    @Deprecated
+@Override
     public Completable clearContext(final String transactionId) {
+ return RxJava2Adapter.monoToCompletable(clearContext_migrated(transactionId));
+}
+@Override
+    public Mono<Void> clearContext_migrated(final String transactionId) {
         if (transactionId == null) {
-            return RxJava2Adapter.monoToCompletable(Mono.empty());
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
         }
-        return authContextRepository.delete(transactionId);
+        return RxJava2Adapter.completableToMono(authContextRepository.delete(transactionId));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<AuthenticationFlowContext> loadContext(final String transactionId, final int expectedVersion) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authContextRepository.findLastByTransactionId(transactionId)).switchIfEmpty(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
+ return RxJava2Adapter.monoToMaybe(loadContext_migrated(transactionId, expectedVersion));
+}
+@Override
+    public Mono<AuthenticationFlowContext> loadContext_migrated(final String transactionId, final int expectedVersion) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authContextRepository.findLastByTransactionId(transactionId)).switchIfEmpty(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             AuthenticationFlowContext context = new AuthenticationFlowContext();
             context.setTransactionId(transactionId);
             context.setVersion(0);
@@ -78,12 +88,17 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
                 throw new AuthenticationFlowConsistencyException();
             }
             return context;
-        }))).retryWhen(new RetryWithDelay(consistencyRetries, retryDelay));
+        }))).retryWhen(new RetryWithDelay(consistencyRetries, retryDelay)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<AuthenticationFlowContext> removeContext(String transactionId, int expectedVersion) {
-        return this.loadContext(transactionId, expectedVersion)
+ return RxJava2Adapter.monoToMaybe(removeContext_migrated(transactionId, expectedVersion));
+}
+@Override
+    public Mono<AuthenticationFlowContext> removeContext_migrated(String transactionId, int expectedVersion) {
+        return RxJava2Adapter.maybeToMono(this.loadContext(transactionId, expectedVersion)
                 .doFinally(() -> {
                     // fire and forget the deletion, in case of error the AuthenticationFLowContext TTL will finally delete the entry
                     // we doesn't want to stop the request processing due to deletion error if context is successfully loaded
@@ -91,7 +106,7 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
                             .subscribe(
                                     () -> LOGGER.info("Deletion of Authentication Flow context '{}' succeeded after loading it", transactionId),
                                     (error) -> LOGGER.warn("Deletion of Authentication Flow context '{}' failed after loading it", transactionId, error));
-                } );
+                } ));
     }
 
     /**

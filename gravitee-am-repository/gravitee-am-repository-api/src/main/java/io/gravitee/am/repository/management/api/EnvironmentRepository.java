@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Environment;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Flowable;
@@ -28,7 +29,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface EnvironmentRepository extends CrudRepository<Environment, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Environment> findAll() {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated());
 }
@@ -36,7 +38,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Environment> findAll_mi
     return RxJava2Adapter.flowableToFlux(findAll());
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Environment> findAll(java.lang.String organizationId) {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
 }
@@ -44,7 +47,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Environment> findAll_mi
     return RxJava2Adapter.flowableToFlux(findAll(organizationId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Environment> findById(java.lang.String id, java.lang.String organizationId) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id, organizationId));
 }
@@ -52,7 +56,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Environment> findById_m
     return RxJava2Adapter.maybeToMono(findById(id, organizationId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> count() {
     return RxJava2Adapter.monoToSingle(count_migrated());
 }

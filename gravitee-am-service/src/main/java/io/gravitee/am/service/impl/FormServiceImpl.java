@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
@@ -76,91 +77,146 @@ public class FormServiceImpl implements FormService {
     @Autowired
     private AuditService auditService;
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Form> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Form> findById_migrated(String id) {
         LOGGER.debug("Find form by id {}", id);
-        return formRepository.findById(id)
+        return RxJava2Adapter.maybeToMono(formRepository.findById(id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a form using its id {}", id, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a form using its id %s", id), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Form> findAll(ReferenceType referenceType, String referenceId) {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+@Override
+    public Flux<Form> findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("Find form by {} {}", referenceType, referenceId);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(formRepository.findAll(referenceType, referenceId)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(formRepository.findAll(referenceType, referenceId)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a form using its {} {}", referenceType, referenceId, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a form using its %s %s", referenceType, referenceId), ex)));
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Form> findAll(ReferenceType referenceType) {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType));
+}
+@Override
+    public Flux<Form> findAll_migrated(ReferenceType referenceType) {
         LOGGER.debug("Find form by type {}", referenceType);
-        return formRepository.findAll(referenceType);
+        return RxJava2Adapter.flowableToFlux(formRepository.findAll(referenceType));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Form> findByDomain(String domain) {
-        return findAll(ReferenceType.DOMAIN, domain);
+ return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+@Override
+    public Flux<Form> findByDomain_migrated(String domain) {
+        return RxJava2Adapter.flowableToFlux(findAll(ReferenceType.DOMAIN, domain));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Form> findByClient(ReferenceType referenceType, String referenceId, String client) {
+ return RxJava2Adapter.fluxToFlowable(findByClient_migrated(referenceType, referenceId, client));
+}
+@Override
+    public Flux<Form> findByClient_migrated(ReferenceType referenceType, String referenceId, String client) {
         LOGGER.debug("Find form by {} {} and client {}", referenceType, referenceId, client);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(formRepository.findByClient(referenceType, referenceId, client)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(formRepository.findByClient(referenceType, referenceId, client)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a form using its {} {} and its client {}", referenceType, referenceId, client, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a form using its %s %s and client %s", referenceType, referenceId, client), ex)));
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Form> findByDomainAndClient(String domain, String client) {
+ return RxJava2Adapter.fluxToFlowable(findByDomainAndClient_migrated(domain, client));
+}
+@Override
+    public Flux<Form> findByDomainAndClient_migrated(String domain, String client) {
         LOGGER.debug("Find form by domain {} and client", domain, client);
-        return findByClient(ReferenceType.DOMAIN, domain, client);
+        return RxJava2Adapter.flowableToFlux(findByClient(ReferenceType.DOMAIN, domain, client));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Form> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
+ return RxJava2Adapter.monoToMaybe(findByTemplate_migrated(referenceType, referenceId, template));
+}
+@Override
+    public Mono<Form> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template) {
         LOGGER.debug("Find form by {} {} and template {}", referenceType, referenceId, template);
-        return formRepository.findByTemplate(referenceType, referenceId, template)
+        return RxJava2Adapter.maybeToMono(formRepository.findByTemplate(referenceType, referenceId, template)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a form using its {} {} and template {}", referenceType, referenceId, template, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a form using its domain %s %s and template %s", referenceType, referenceId, template), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Form> findByDomainAndTemplate(String domain, String template) {
+ return RxJava2Adapter.monoToMaybe(findByDomainAndTemplate_migrated(domain, template));
+}
+@Override
+    public Mono<Form> findByDomainAndTemplate_migrated(String domain, String template) {
         LOGGER.debug("Find form by domain {} and template {}", domain, template);
-        return findByTemplate(ReferenceType.DOMAIN, domain, template);
+        return RxJava2Adapter.maybeToMono(findByTemplate(ReferenceType.DOMAIN, domain, template));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Form> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
+ return RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(referenceType, referenceId, client, template));
+}
+@Override
+    public Mono<Form> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template) {
         LOGGER.debug("Find form by {} {}, client {} and template {}", referenceType, referenceId, client, template);
-        return formRepository.findByClientAndTemplate(referenceType, referenceId, client, template)
+        return RxJava2Adapter.maybeToMono(formRepository.findByClientAndTemplate(referenceType, referenceId, client, template)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a form using its {} {} its client {} and template {}", referenceType, referenceId, client, template, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a form using its %s %s its client %s and template %s", referenceType, referenceId, client, template), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Form> findByDomainAndClientAndTemplate(String domain, String client, String template) {
+ return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndTemplate_migrated(domain, client, template));
+}
+@Override
+    public Mono<Form> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template) {
         LOGGER.debug("Find form by domain {}, client {} and template {}", domain, client, template);
-        return findByClientAndTemplate(ReferenceType.DOMAIN, domain, client, template);
+        return RxJava2Adapter.maybeToMono(findByClientAndTemplate(ReferenceType.DOMAIN, domain, client, template));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<Form>> copyFromClient(String domain, String clientSource, String clientTarget) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(findByDomainAndClient(domain, clientSource)
+ return RxJava2Adapter.monoToSingle(copyFromClient_migrated(domain, clientSource, clientTarget));
+}
+@Override
+    public Mono<List<Form>> copyFromClient_migrated(String domain, String clientSource, String clientTarget) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(findByDomainAndClient(domain, clientSource)
                 .flatMapSingle(source -> {
                     NewForm form = new NewForm();
                     form.setEnabled(source.isEnabled());
@@ -168,32 +224,52 @@ public class FormServiceImpl implements FormService {
                     form.setContent(source.getContent());
                     form.setAssets(source.getAssets());
                     return this.create(domain, clientTarget, form);
-                })).collectList());
+                })).collectList()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Form> create(ReferenceType referenceType, String referenceId, NewForm newForm, User principal) {
+ return RxJava2Adapter.monoToSingle(create_migrated(referenceType, referenceId, newForm, principal));
+}
+@Override
+    public Mono<Form> create_migrated(ReferenceType referenceType, String referenceId, NewForm newForm, User principal) {
         LOGGER.debug("Create a new form {} for {} {}", newForm, referenceType, referenceId);
-        return create0(referenceType, referenceId, null, newForm, principal);
+        return RxJava2Adapter.singleToMono(create0(referenceType, referenceId, null, newForm, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Form> create(String domain, NewForm newForm, User principal) {
+ return RxJava2Adapter.monoToSingle(create_migrated(domain, newForm, principal));
+}
+@Override
+    public Mono<Form> create_migrated(String domain, NewForm newForm, User principal) {
         LOGGER.debug("Create a new form {} for domain {}", newForm, domain);
-        return create0(ReferenceType.DOMAIN, domain, null, newForm, principal);
+        return RxJava2Adapter.singleToMono(create0(ReferenceType.DOMAIN, domain, null, newForm, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Form> create(String domain, String client, NewForm newForm, User principal) {
+ return RxJava2Adapter.monoToSingle(create_migrated(domain, client, newForm, principal));
+}
+@Override
+    public Mono<Form> create_migrated(String domain, String client, NewForm newForm, User principal) {
         LOGGER.debug("Create a new form {} for domain {} and client {}", newForm, domain, client);
-        return create0(ReferenceType.DOMAIN, domain, client, newForm, principal);
+        return RxJava2Adapter.singleToMono(create0(ReferenceType.DOMAIN, domain, client, newForm, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Form> update(ReferenceType referenceType, String referenceId, String id, UpdateForm updateForm, User principal) {
+ return RxJava2Adapter.monoToSingle(update_migrated(referenceType, referenceId, id, updateForm, principal));
+}
+@Override
+    public Mono<Form> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateForm updateForm, User principal) {
         LOGGER.debug("Update a form {} for {}} {}", id, referenceType, referenceId);
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findById(referenceType, referenceId, id)).switchIfEmpty(Mono.error(new FormNotFoundException(id))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findById(referenceType, referenceId, id)).switchIfEmpty(Mono.error(new FormNotFoundException(id))))
                 .flatMapSingle(oldForm -> {
                     Form formToUpdate = new Form(oldForm);
                     formToUpdate.setEnabled(updateForm.isEnabled());
@@ -214,22 +290,33 @@ public class FormServiceImpl implements FormService {
 
                     LOGGER.error("An error occurs while trying to update a form", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a form", ex)));
-                });
-    }
-
-    @Override
-    public Single<Form> update(String domain, String id, UpdateForm updateForm, User principal) {
-        LOGGER.debug("Update a form {} for domain {}", id, domain);
-        return update(ReferenceType.DOMAIN, domain, id, updateForm, principal);
-    }
-
-    @Override
-    public Single<Form> update(String domain, String client, String id, UpdateForm updateForm, User principal) {
-        LOGGER.debug("Update a form {} for domain {} and client {}", id, domain, client);
-        return update(ReferenceType.DOMAIN, domain, id, updateForm, principal);
+                }));
     }
 
     @Deprecated
+@Override
+    public Single<Form> update(String domain, String id, UpdateForm updateForm, User principal) {
+ return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateForm, principal));
+}
+@Override
+    public Mono<Form> update_migrated(String domain, String id, UpdateForm updateForm, User principal) {
+        LOGGER.debug("Update a form {} for domain {}", id, domain);
+        return RxJava2Adapter.singleToMono(update(ReferenceType.DOMAIN, domain, id, updateForm, principal));
+    }
+
+    @Deprecated
+@Override
+    public Single<Form> update(String domain, String client, String id, UpdateForm updateForm, User principal) {
+ return RxJava2Adapter.monoToSingle(update_migrated(domain, client, id, updateForm, principal));
+}
+@Override
+    public Mono<Form> update_migrated(String domain, String client, String id, UpdateForm updateForm, User principal) {
+        LOGGER.debug("Update a form {} for domain {} and client {}", id, domain, client);
+        return RxJava2Adapter.singleToMono(update(ReferenceType.DOMAIN, domain, id, updateForm, principal));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create0_migrated(referenceType, referenceId, client, newForm, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Form> create0(ReferenceType referenceType, String referenceId, String client, NewForm newForm, User principal) {
  return RxJava2Adapter.monoToSingle(create0_migrated(referenceType, referenceId, client, newForm, principal));
 }
@@ -265,10 +352,15 @@ private Mono<Form> create0_migrated(ReferenceType referenceType, String referenc
                 })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(form -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_CREATED).form(form)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_CREATED).throwable(throwable))))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(ReferenceType referenceType, String referenceId, String formId, User principal) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(referenceType, referenceId, formId, principal));
+}
+@Override
+    public Mono<Void> delete_migrated(ReferenceType referenceType, String referenceId, String formId, User principal) {
         LOGGER.debug("Delete form {}", formId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(formRepository.findById(referenceType, referenceId, formId)).switchIfEmpty(Mono.error(new FormNotFoundException(formId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Form, CompletableSource>)page -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(formRepository.findById(referenceType, referenceId, formId)).switchIfEmpty(Mono.error(new FormNotFoundException(formId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Form, CompletableSource>)page -> {
                     // create event for sync process
                     Event event = new Event(Type.FORM, new Payload(page.getId(), page.getReferenceType(), page.getReferenceId(), Action.DELETE));
 
@@ -283,16 +375,22 @@ private Mono<Form> create0_migrated(ReferenceType referenceType, String referenc
                     LOGGER.error("An error occurs while trying to delete form: {}", formId, ex);
                     return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to delete form: %s", formId), ex)));
-                });
-    }
-
-    @Override
-    public Completable delete(String domain, String formId, User principal) {
-
-        return delete(ReferenceType.DOMAIN, domain, formId, principal);
+                }));
     }
 
     @Deprecated
+@Override
+    public Completable delete(String domain, String formId, User principal) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(domain, formId, principal));
+}
+@Override
+    public Mono<Void> delete_migrated(String domain, String formId, User principal) {
+
+        return RxJava2Adapter.completableToMono(delete(ReferenceType.DOMAIN, domain, formId, principal));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkFormUniqueness_migrated(referenceType, referenceId, client, formTemplate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Boolean> checkFormUniqueness(ReferenceType referenceType, String referenceId, String client, String formTemplate) {
  return RxJava2Adapter.monoToSingle(checkFormUniqueness_migrated(referenceType, referenceId, client, formTemplate));
 }

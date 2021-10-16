@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.token.Token;
 import io.gravitee.am.model.oidc.Client;
@@ -51,7 +52,8 @@ public interface TokenGranter {
      * @param client OAuth2 client
      * @return The authorization server authenticates the client and validates the authorization grant, and if valid, issues an access token.
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.grant_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.oauth2.service.token.Token> grant(io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest tokenRequest, io.gravitee.am.model.oidc.Client client) {
     return RxJava2Adapter.monoToSingle(grant_migrated(tokenRequest, client));
 }

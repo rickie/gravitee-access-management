@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcTag;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -28,7 +29,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  * @author GraviteeSource Team
  */
 public interface SpringTagRepository extends RxJava2CrudRepository<JdbcTag, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByOrganization_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcTag> findByOrganization(@org.springframework.data.repository.query.Param(value = "orgId")
 java.lang.String organizationId) {
     return RxJava2Adapter.fluxToFlowable(findByOrganization_migrated(organizationId));
@@ -38,7 +40,8 @@ String organizationId) {
     return RxJava2Adapter.flowableToFlux(findByOrganization(organizationId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcTag> findById(@org.springframework.data.repository.query.Param(value = "tid")
 java.lang.String id, @org.springframework.data.repository.query.Param(value = "orgId")
 java.lang.String organizationId) {

@@ -17,6 +17,7 @@ package io.gravitee.am.reporter.mongodb.audit;
 
 import static com.mongodb.client.model.Filters.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.BasicDBObject;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.model.Accumulators;
@@ -101,7 +102,8 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
     public boolean canSearch() {
         return true;
     }
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<Audit>> search(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
  return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
@@ -117,7 +119,8 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         return RxJava2Adapter.singleToMono(Single.zip(countOperation, auditsOperation, (count, audits) -> new Page<>(audits, page, count)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(referenceType, referenceId, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
  return RxJava2Adapter.monoToSingle(aggregate_migrated(referenceType, referenceId, criteria, analyticsType));
@@ -138,7 +141,8 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Audit> findById(ReferenceType referenceType, String referenceId, String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
@@ -192,7 +196,8 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeHistogram_migrated(criteria, query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Map<Object, Object>> executeHistogram(AuditReportableCriteria criteria, Bson query) {
  return RxJava2Adapter.monoToSingle(executeHistogram_migrated(criteria, query));
 }
@@ -236,7 +241,8 @@ private Mono<Map<Object,Object>> executeHistogram_migrated(AuditReportableCriter
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeGroupBy_migrated(criteria, query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Map<Object, Object>> executeGroupBy(AuditReportableCriteria criteria, Bson query) {
  return RxJava2Adapter.monoToSingle(executeGroupBy_migrated(criteria, query));
 }
@@ -250,7 +256,8 @@ private Mono<Map<Object,Object>> executeGroupBy_migrated(AuditReportableCriteria
                 .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(docs -> docs.stream().collect(Collectors.toMap(d -> ((Document) d.get("_id")).get("_id"), d -> d.get("count")))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeCount_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Map<Object, Object>> executeCount(Bson query) {
  return RxJava2Adapter.monoToSingle(executeCount_migrated(query));
 }
@@ -258,7 +265,8 @@ private Mono<Map<Object,Object>> executeCount_migrated(Bson query) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.countDocuments(query)).first(0l)).map(RxJavaReactorMigrationUtil.toJdkFunction(data -> Collections.singletonMap("data", data)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.bulk_migrated(audits))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Flowable<BulkWriteResult> bulk(List<Audit> audits) {
  return RxJava2Adapter.fluxToFlowable(bulk_migrated(audits));
 }

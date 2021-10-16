@@ -68,10 +68,15 @@ public class IdentityProviderManagerImpl extends AbstractService implements Iden
     private ConcurrentMap<String, IdentityProvider> identities = new ConcurrentHashMap<>();
     private ConcurrentMap<String, UserProvider> userProviders = new ConcurrentHashMap<>();
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<AuthenticationProvider> get(String id) {
+ return RxJava2Adapter.monoToMaybe(get_migrated(id));
+}
+@Override
+    public Mono<AuthenticationProvider> get_migrated(String id) {
         AuthenticationProvider authenticationProvider = providers.get(id);
-        return (authenticationProvider != null) ? RxJava2Adapter.monoToMaybe(Mono.just(authenticationProvider)) : RxJava2Adapter.monoToMaybe(Mono.empty());
+        return RxJava2Adapter.maybeToMono((authenticationProvider != null) ? RxJava2Adapter.monoToMaybe(Mono.just(authenticationProvider)) : RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
     @Override
@@ -79,10 +84,15 @@ public class IdentityProviderManagerImpl extends AbstractService implements Iden
         return identities.get(id);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<UserProvider> getUserProvider(String id) {
+ return RxJava2Adapter.monoToMaybe(getUserProvider_migrated(id));
+}
+@Override
+    public Mono<UserProvider> getUserProvider_migrated(String id) {
         UserProvider userProvider = userProviders.get(id);
-        return (userProvider != null) ? RxJava2Adapter.monoToMaybe(Mono.just(userProvider)) : RxJava2Adapter.monoToMaybe(Mono.empty());
+        return RxJava2Adapter.maybeToMono((userProvider != null) ? RxJava2Adapter.monoToMaybe(Mono.just(userProvider)) : RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
     @Override

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.jwk;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
@@ -30,42 +31,48 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface JWKService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getKeys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.oidc.JWKSet> getKeys() {
     return RxJava2Adapter.monoToSingle(getKeys_migrated());
 }
 default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.JWKSet> getKeys_migrated() {
     return RxJava2Adapter.singleToMono(getKeys());
 }
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getKeys_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.oidc.JWKSet> getKeys(io.gravitee.am.model.oidc.Client client) {
     return RxJava2Adapter.monoToMaybe(getKeys_migrated(client));
 }
 default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.JWKSet> getKeys_migrated(Client client) {
     return RxJava2Adapter.maybeToMono(getKeys(client));
 }
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getDomainPrivateKeys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.oidc.JWKSet> getDomainPrivateKeys() {
     return RxJava2Adapter.monoToMaybe(getDomainPrivateKeys_migrated());
 }
 default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.JWKSet> getDomainPrivateKeys_migrated() {
     return RxJava2Adapter.maybeToMono(getDomainPrivateKeys());
 }
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getKeys_migrated(jwksUri))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.oidc.JWKSet> getKeys(java.lang.String jwksUri) {
     return RxJava2Adapter.monoToMaybe(getKeys_migrated(jwksUri));
 }
 default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.JWKSet> getKeys_migrated(String jwksUri) {
     return RxJava2Adapter.maybeToMono(getKeys(jwksUri));
 }
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getKey_migrated(jwkSet, kid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.jose.JWK> getKey(io.gravitee.am.model.oidc.JWKSet jwkSet, java.lang.String kid) {
     return RxJava2Adapter.monoToMaybe(getKey_migrated(jwkSet, kid));
 }
 default reactor.core.publisher.Mono<io.gravitee.am.model.jose.JWK> getKey_migrated(JWKSet jwkSet, String kid) {
     return RxJava2Adapter.maybeToMono(getKey(jwkSet, kid));
 }
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.filter_migrated(jwkSet, filter))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.jose.JWK> filter(io.gravitee.am.model.oidc.JWKSet jwkSet, java.util.function.Predicate<io.gravitee.am.model.jose.JWK> filter) {
     return RxJava2Adapter.monoToMaybe(filter_migrated(jwkSet, filter));
 }

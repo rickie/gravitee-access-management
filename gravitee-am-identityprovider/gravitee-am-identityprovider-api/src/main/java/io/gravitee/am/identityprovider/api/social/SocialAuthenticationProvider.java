@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.identityprovider.api.social;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.Authentication;
 import io.gravitee.am.identityprovider.api.AuthenticationProvider;
 import io.gravitee.am.identityprovider.api.common.Request;
@@ -47,7 +48,8 @@ public interface SocialAuthenticationProvider extends AuthenticationProvider {
      * @param redirectUri
      * @return
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.asyncSignInUrl_migrated(redirectUri, state))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.common.Request> asyncSignInUrl(java.lang.String redirectUri, java.lang.String state) {
     return RxJava2Adapter.monoToMaybe(asyncSignInUrl_migrated(redirectUri, state));
 }default Mono<Request> asyncSignInUrl_migrated(String redirectUri, String state) {
@@ -65,7 +67,8 @@ default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.common.Request> a
      *
      * @return
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.signOutUrl_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.common.Request> signOutUrl(io.gravitee.am.identityprovider.api.Authentication authentication) {
     return RxJava2Adapter.monoToMaybe(signOutUrl_migrated(authentication));
 }default Mono<Request> signOutUrl_migrated(Authentication authentication) {

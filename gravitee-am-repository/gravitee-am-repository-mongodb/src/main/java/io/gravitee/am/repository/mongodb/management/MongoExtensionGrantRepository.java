@@ -18,6 +18,7 @@ package io.gravitee.am.repository.mongodb.management;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ExtensionGrant;
@@ -52,17 +53,28 @@ public class MongoExtensionGrantRepository extends AbstractManagementMongoReposi
         super.createIndex(extensionGrantsCollection,new Document(FIELD_DOMAIN, 1).append(FIELD_NAME, 1));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<ExtensionGrant> findByDomain(String domain) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(extensionGrantsCollection.find(eq(FIELD_DOMAIN, domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Maybe<ExtensionGrant> findByDomainAndName(String domain, String name) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(extensionGrantsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_NAME, name))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+@Override
+    public Flux<ExtensionGrant> findByDomain_migrated(String domain) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(extensionGrantsCollection.find(eq(FIELD_DOMAIN, domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
     @Deprecated
+@Override
+    public Maybe<ExtensionGrant> findByDomainAndName(String domain, String name) {
+ return RxJava2Adapter.monoToMaybe(findByDomainAndName_migrated(domain, name));
+}
+@Override
+    public Mono<ExtensionGrant> findByDomainAndName_migrated(String domain, String name) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(extensionGrantsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_NAME, name))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(tokenGranterId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<ExtensionGrant> findById(String tokenGranterId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(tokenGranterId));
@@ -72,7 +84,8 @@ public class MongoExtensionGrantRepository extends AbstractManagementMongoReposi
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(extensionGrantsCollection.find(eq(FIELD_ID, tokenGranterId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<ExtensionGrant> create(ExtensionGrant item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -84,7 +97,8 @@ public class MongoExtensionGrantRepository extends AbstractManagementMongoReposi
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(extensionGrantsCollection.insertOne(extensionGrant))).flatMap(success->RxJava2Adapter.maybeToMono(findById(extensionGrant.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<ExtensionGrant> update(ExtensionGrant item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -95,7 +109,8 @@ public class MongoExtensionGrantRepository extends AbstractManagementMongoReposi
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(extensionGrantsCollection.replaceOne(eq(FIELD_ID, extensionGrant.getId()), extensionGrant))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(extensionGrant.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

@@ -18,6 +18,7 @@ package io.gravitee.am.gateway.handler.oauth2.service.assertion.impl;
 import static io.gravitee.am.common.oidc.ClientAuthenticationMethod.JWT_BEARER;
 import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.isSignAlgCompliantWithFapi;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -81,17 +82,22 @@ public class ClientAssertionServiceImpl implements ClientAssertionService {
     @Autowired
     private Domain domain;
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Client> assertClient(String assertionType, String assertion, String basePath) {
+ return RxJava2Adapter.monoToMaybe(assertClient_migrated(assertionType, assertion, basePath));
+}
+@Override
+    public Mono<Client> assertClient_migrated(String assertionType, String assertion, String basePath) {
 
         InvalidClientException unsupportedAssertionType = new InvalidClientException("Unknown or unsupported assertion_type");
 
         if (assertionType == null || assertionType.isEmpty()) {
-            return RxJava2Adapter.monoToMaybe(Mono.error(unsupportedAssertionType));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(unsupportedAssertionType)));
         }
 
         if (JWT_BEARER.equals(assertionType)) {
-            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.validateJWT(assertion, basePath)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(new Function<JWT, MaybeSource<Client>>() {
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.validateJWT(assertion, basePath)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(new Function<JWT, MaybeSource<Client>>() {
                         @Override
                         public MaybeSource<Client> apply(JWT jwt) throws Exception {
                             // Handle client_secret_key client authentication
@@ -102,10 +108,10 @@ public class ClientAssertionServiceImpl implements ClientAssertionService {
                                 return validateSignatureWithPublicKey(jwt);
                             }
                         }
-                    }).apply(v)))));
+                    }).apply(v))))));
         }
 
-        return RxJava2Adapter.monoToMaybe(Mono.error(unsupportedAssertionType));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(unsupportedAssertionType)));
     }
 
     /**
@@ -114,7 +120,8 @@ public class ClientAssertionServiceImpl implements ClientAssertionService {
      * @param assertion jwt as string value.
      * @return
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.validateJWT_migrated(assertion, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<JWT> validateJWT(String assertion, String basePath) {
  return RxJava2Adapter.monoToMaybe(validateJWT_migrated(assertion, basePath));
 }
@@ -161,7 +168,8 @@ private Mono<JWT> validateJWT_migrated(String assertion, String basePath) {
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.validateSignatureWithPublicKey_migrated(jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<Client> validateSignatureWithPublicKey(JWT jwt) {
  return RxJava2Adapter.monoToMaybe(validateSignatureWithPublicKey_migrated(jwt));
 }
@@ -192,7 +200,8 @@ private Mono<Client> validateSignatureWithPublicKey_migrated(JWT jwt) {
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.validateSignatureWithHMAC_migrated(jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<Client> validateSignatureWithHMAC(JWT jwt) {
  return RxJava2Adapter.monoToMaybe(validateSignatureWithHMAC_migrated(jwt));
 }
@@ -240,7 +249,8 @@ private Mono<Client> validateSignatureWithHMAC_migrated(JWT jwt) {
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getClientJwkSet_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<JWKSet> getClientJwkSet(Client client) {
  return RxJava2Adapter.monoToMaybe(getClientJwkSet_migrated(client));
 }

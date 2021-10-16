@@ -41,15 +41,20 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private OrganizationUserService userService;
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
+ return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
+}
+@Override
+    public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
         final AuthenticationContext context = authentication.getContext();
         if (context == null || context.get(KEY_ORGANIZATION_ID) == null) {
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
 
         String username = ((String) authentication.getPrincipal()).toLowerCase();
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, (String)context.get(KEY_ORGANIZATION_ID), username, "gravitee")).filter(RxJavaReactorMigrationUtil.toJdkPredicate(user -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, (String)context.get(KEY_ORGANIZATION_ID), username, "gravitee")).filter(RxJavaReactorMigrationUtil.toJdkPredicate(user -> {
                     String presentedPassword = authentication.getCredentials().toString();
 
                     if (user.getPassword() == null) {
@@ -76,12 +81,17 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
                     idpUser.setEnabled(user.isEnabled());
                     idpUser.setUpdatedAt(user.getUpdatedAt());
                     return idpUser;
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> loadUserByUsername(String username) {
+ return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
+}
+@Override
+    public Mono<User> loadUserByUsername_migrated(String username) {
         // not relevant for Organization users
-        return RxJava2Adapter.monoToMaybe(Mono.empty());
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 }

@@ -30,6 +30,7 @@ import java.util.Collections;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Test;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -85,23 +86,43 @@ public class CertificateProviderManagerTest {
         certificateMetadata.setMetadata(Collections.singletonMap(CertificateMetadata.DIGEST_ALGORITHM_NAME, "none"));
 
         io.gravitee.am.certificate.api.CertificateProvider noneProvider = new io.gravitee.am.certificate.api.CertificateProvider() {
-            @Override
+            @Deprecated
+@Override
             public Flowable<JWK> privateKey() {
+ return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
+}
+@Override
+            public Flux<JWK> privateKey_migrated() {
                 throw new UnsupportedOperationException("No private key for \"none\" algorithm");
             }
 
-            @Override
+            @Deprecated
+@Override
             public Single<io.gravitee.am.certificate.api.Key> key() {
+ return RxJava2Adapter.monoToSingle(key_migrated());
+}
+@Override
+            public Mono<io.gravitee.am.certificate.api.Key> key_migrated() {
                 throw new UnsupportedOperationException("No key for \"none\" algorithm");
             }
 
-            @Override
+            @Deprecated
+@Override
             public Single<String> publicKey() {
+ return RxJava2Adapter.monoToSingle(publicKey_migrated());
+}
+@Override
+            public Mono<String> publicKey_migrated() {
                 throw new UnsupportedOperationException("No public key for \"none\" algorithm");
             }
 
-            @Override
+            @Deprecated
+@Override
             public Flowable<JWK> keys() {
+ return RxJava2Adapter.fluxToFlowable(keys_migrated());
+}
+@Override
+            public Flux<JWK> keys_migrated() {
                 throw new UnsupportedOperationException("No keys for \"none\" algorithm");
             }
 
@@ -127,24 +148,44 @@ public class CertificateProviderManagerTest {
         certificateMetadata.setMetadata(Collections.singletonMap(CertificateMetadata.DIGEST_ALGORITHM_NAME, defaultDigestAlgorithm));
 
         io.gravitee.am.certificate.api.CertificateProvider defaultProvider = new io.gravitee.am.certificate.api.CertificateProvider() {
-            @Override
+            @Deprecated
+@Override
             public Flowable<JWK> privateKey() {
-               return null;
+ return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
+}
+@Override
+            public Flux<JWK> privateKey_migrated() {
+               return RxJava2Adapter.flowableToFlux(null);
             }
 
-            @Override
+            @Deprecated
+@Override
             public Single<io.gravitee.am.certificate.api.Key> key() {
-                return RxJava2Adapter.monoToSingle(Mono.just(certificateKey));
+ return RxJava2Adapter.monoToSingle(key_migrated());
+}
+@Override
+            public Mono<io.gravitee.am.certificate.api.Key> key_migrated() {
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificateKey)));
             }
 
-            @Override
+            @Deprecated
+@Override
             public Single<String> publicKey() {
-                return null;
+ return RxJava2Adapter.monoToSingle(publicKey_migrated());
+}
+@Override
+            public Mono<String> publicKey_migrated() {
+                return RxJava2Adapter.singleToMono(null);
             }
 
-            @Override
+            @Deprecated
+@Override
             public Flowable<JWK> keys() {
-                return null;
+ return RxJava2Adapter.fluxToFlowable(keys_migrated());
+}
+@Override
+            public Flux<JWK> keys_migrated() {
+                return RxJava2Adapter.flowableToFlux(null);
             }
 
             @Override

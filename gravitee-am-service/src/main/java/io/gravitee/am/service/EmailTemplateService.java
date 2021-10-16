@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.Email;
 import io.gravitee.am.model.ReferenceType;
@@ -35,7 +36,8 @@ import reactor.core.publisher.Mono;
  */
 public interface EmailTemplateService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Email> findAll() {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated());
 }
@@ -43,7 +45,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Email> findAll_migrated
     return RxJava2Adapter.flowableToFlux(findAll());
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Email> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
 }
@@ -51,7 +54,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Email> findAll_migrated
     return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByClient_migrated(referenceType, referenceId, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Email> findByClient(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String client) {
     return RxJava2Adapter.fluxToFlowable(findByClient_migrated(referenceType, referenceId, client));
 }
@@ -59,7 +63,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Email> findByClient_mig
     return RxJava2Adapter.flowableToFlux(findByClient(referenceType, referenceId, client));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByTemplate_migrated(referenceType, referenceId, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Email> findByTemplate(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String template) {
     return RxJava2Adapter.monoToMaybe(findByTemplate_migrated(referenceType, referenceId, template));
 }
@@ -67,7 +72,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Email> findByTemplate_m
     return RxJava2Adapter.maybeToMono(findByTemplate(referenceType, referenceId, template));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndTemplate_migrated(domain, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Email> findByDomainAndTemplate(java.lang.String domain, java.lang.String template) {
     return RxJava2Adapter.monoToMaybe(findByDomainAndTemplate_migrated(domain, template));
 }
@@ -75,7 +81,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Email> findByDomainAndT
     return RxJava2Adapter.maybeToMono(findByDomainAndTemplate(domain, template));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientAndTemplate_migrated(referenceType, referenceId, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Email> findByClientAndTemplate(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String client, java.lang.String template) {
     return RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(referenceType, referenceId, client, template));
 }
@@ -83,7 +90,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Email> findByClientAndT
     return RxJava2Adapter.maybeToMono(findByClientAndTemplate(referenceType, referenceId, client, template));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientAndTemplate_migrated(domain, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Email> findByDomainAndClientAndTemplate(java.lang.String domain, java.lang.String client, java.lang.String template) {
     return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndTemplate_migrated(domain, client, template));
 }
@@ -91,7 +99,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Email> findByDomainAndC
     return RxJava2Adapter.maybeToMono(findByDomainAndClientAndTemplate(domain, client, template));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Email> findById(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
@@ -99,7 +108,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Email> findById_migrate
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.copyFromClient_migrated(domain, clientSource, clientTarget))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Email> copyFromClient(java.lang.String domain, java.lang.String clientSource, java.lang.String clientTarget) {
     return RxJava2Adapter.fluxToFlowable(copyFromClient_migrated(domain, clientSource, clientTarget));
 }
@@ -107,7 +117,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Email> copyFromClient_m
     return RxJava2Adapter.flowableToFlux(copyFromClient(domain, clientSource, clientTarget));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId, newEmail, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Email> create(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.service.model.NewEmail newEmail, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(create_migrated(referenceType, referenceId, newEmail, principal));
 }
@@ -115,7 +126,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Email> create_migrated(
     return RxJava2Adapter.singleToMono(create(referenceType, referenceId, newEmail, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, newEmail, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Email> create(java.lang.String domain, io.gravitee.am.service.model.NewEmail newEmail, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(create_migrated(domain, newEmail, principal));
 }
@@ -123,7 +135,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Email> create_migrated(
     return RxJava2Adapter.singleToMono(create(domain, newEmail, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId, client, newEmail, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Email> create(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String client, io.gravitee.am.service.model.NewEmail newEmail, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(create_migrated(referenceType, referenceId, client, newEmail, principal));
 }
@@ -131,7 +144,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Email> create_migrated(
     return RxJava2Adapter.singleToMono(create(referenceType, referenceId, client, newEmail, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, client, newEmail, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Email> create(java.lang.String domain, java.lang.String client, io.gravitee.am.service.model.NewEmail newEmail, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(create_migrated(domain, client, newEmail, principal));
 }
@@ -139,7 +153,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Email> create_migrated(
     return RxJava2Adapter.singleToMono(create(domain, client, newEmail, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateEmail, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Email> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateEmail updateEmail, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateEmail, principal));
 }
@@ -147,7 +162,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Email> update_migrated(
     return RxJava2Adapter.singleToMono(update(domain, id, updateEmail, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, client, id, updateEmail, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Email> update(java.lang.String domain, java.lang.String client, java.lang.String id, io.gravitee.am.service.model.UpdateEmail updateEmail, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(update_migrated(domain, client, id, updateEmail, principal));
 }
@@ -155,7 +171,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Email> update_migrated(
     return RxJava2Adapter.singleToMono(update(domain, client, id, updateEmail, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(emailId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(java.lang.String emailId, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(emailId, principal));
 }
@@ -163,35 +180,40 @@ default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String email
     return RxJava2Adapter.completableToMono(delete(emailId, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, newEmail))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Email> create(java.lang.String domain, io.gravitee.am.service.model.NewEmail newEmail) {
     return RxJava2Adapter.monoToSingle(create_migrated(domain, newEmail));
 }default Mono<Email> create_migrated(String domain, NewEmail newEmail) {
         return RxJava2Adapter.singleToMono(create(domain, newEmail,  null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, client, newEmail))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Email> create(java.lang.String domain, java.lang.String client, io.gravitee.am.service.model.NewEmail newEmail) {
     return RxJava2Adapter.monoToSingle(create_migrated(domain, client, newEmail));
 }default Mono<Email> create_migrated(String domain, String client, NewEmail newEmail) {
         return RxJava2Adapter.singleToMono(create(domain, client, newEmail, null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateEmail))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Email> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateEmail updateEmail) {
     return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateEmail));
 }default Mono<Email> update_migrated(String domain, String id, UpdateEmail updateEmail) {
         return RxJava2Adapter.singleToMono(update(domain, id, updateEmail,  null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, client, id, updateEmail))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Email> update(java.lang.String domain, java.lang.String client, java.lang.String id, io.gravitee.am.service.model.UpdateEmail updateEmail) {
     return RxJava2Adapter.monoToSingle(update_migrated(domain, client, id, updateEmail));
 }default Mono<Email> update_migrated(String domain, String client, String id, UpdateEmail updateEmail) {
         return RxJava2Adapter.singleToMono(update(domain, client, id, updateEmail, null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(emailId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(java.lang.String emailId) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(emailId));
 }default Mono<Void> delete_migrated(String emailId) {

@@ -33,6 +33,8 @@ import io.reactivex.Completable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Ruan Ferreira (ruan@incentive.me)
@@ -65,14 +67,19 @@ public class InfobipResourceProvider implements MFAResourceProvider {
         return this;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable send(MFALink target) {
+ return RxJava2Adapter.monoToCompletable(send_migrated(target));
+}
+@Override
+    public Mono<Void> send_migrated(MFALink target) {
         this.to = target.getTarget();
 
         String messageId = this.configuration.getMessageId();
         String applicationId = this.configuration.getApplicationId();
 
-        return Completable.create((emitter) -> {
+        return RxJava2Adapter.completableToMono(Completable.create((emitter) -> {
             try{
                 TfaStartAuthenticationResponse sendCodeResponse = this.tfaApi.sendTfaPinCodeOverSms(true,
                         new TfaStartAuthenticationRequest()
@@ -96,12 +103,17 @@ public class InfobipResourceProvider implements MFAResourceProvider {
                 this.LOGGER.error("Challenge emission fails", e);
                 emitter.onError(new SendChallengeException("Unable to send challenge"));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable verify(MFAChallenge challenge) {
-        return Completable.create((emitter) -> {
+ return RxJava2Adapter.monoToCompletable(verify_migrated(challenge));
+}
+@Override
+    public Mono<Void> verify_migrated(MFAChallenge challenge) {
+        return RxJava2Adapter.completableToMono(Completable.create((emitter) -> {
             String pin = challenge.getCode();
             try {
                 TfaVerifyPinResponse verifyResponse = this.tfaApi.verifyTfaPhoneNumber(pinId,
@@ -122,6 +134,6 @@ public class InfobipResourceProvider implements MFAResourceProvider {
                 LOGGER.error("Challenge verification fails", e);
                 emitter.onError(new InvalidCodeException("Invalid 2FA Code"));
             }
-        });
+        }));
     }
 }

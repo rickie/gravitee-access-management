@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.identityprovider.inline.authentication.provisioning;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.inline.model.User;
 import io.reactivex.Maybe;
 import java.util.HashMap;
@@ -35,7 +36,8 @@ public class InlineInMemoryUserDetailsManager {
         users.putIfAbsent(user.getUsername().toLowerCase(), user);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Maybe<User> loadUserByUsername(String username) {
  return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
 }

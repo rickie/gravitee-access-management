@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.management.handlers.management.api.model.ApplicationEntity;
 import io.gravitee.am.management.handlers.management.api.model.PasswordValue;
 import io.gravitee.am.management.handlers.management.api.model.StatusEntity;
@@ -266,7 +267,8 @@ public class UserResource extends AbstractResource {
         return resourceContext.getResource(UserCredentialsResource.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.enhanceIdentityProvider_migrated(userEntity))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<UserEntity> enhanceIdentityProvider(UserEntity userEntity) {
  return RxJava2Adapter.monoToMaybe(enhanceIdentityProvider_migrated(userEntity));
 }
@@ -280,7 +282,8 @@ private Mono<UserEntity> enhanceIdentityProvider_migrated(UserEntity userEntity)
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userEntity)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.enhanceClient_migrated(userEntity))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<UserEntity> enhanceClient(UserEntity userEntity) {
  return RxJava2Adapter.monoToMaybe(enhanceClient_migrated(userEntity));
 }

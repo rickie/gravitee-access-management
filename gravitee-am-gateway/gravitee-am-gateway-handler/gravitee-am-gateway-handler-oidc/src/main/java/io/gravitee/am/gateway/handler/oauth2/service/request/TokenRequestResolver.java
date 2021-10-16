@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.request;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
@@ -27,7 +28,8 @@ import reactor.core.publisher.Mono;
  */
 public class TokenRequestResolver extends AbstractRequestResolver<TokenRequest> {
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolve_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Single<TokenRequest> resolve(TokenRequest tokenRequest, Client client, User endUser) {
  return RxJava2Adapter.monoToSingle(resolve_migrated(tokenRequest, client, endUser));
 }

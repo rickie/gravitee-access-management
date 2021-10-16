@@ -17,6 +17,7 @@ package io.gravitee.am.repository.mongodb.management;
 
 import static com.mongodb.client.model.Filters.eq;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Certificate;
@@ -51,17 +52,28 @@ public class MongoCertificateRepository extends AbstractManagementMongoRepositor
         super.createIndex(certificatesCollection, new Document(FIELD_DOMAIN, 1));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Certificate> findByDomain(String domain) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(certificatesCollection.find(eq(FIELD_DOMAIN, domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Flowable<Certificate> findAll() {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(certificatesCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+@Override
+    public Flux<Certificate> findByDomain_migrated(String domain) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(certificatesCollection.find(eq(FIELD_DOMAIN, domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
     @Deprecated
+@Override
+    public Flowable<Certificate> findAll() {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+@Override
+    public Flux<Certificate> findAll_migrated() {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(certificatesCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(certificateId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Certificate> findById(String certificateId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(certificateId));
@@ -71,7 +83,8 @@ public class MongoCertificateRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(certificatesCollection.find(eq(FIELD_ID, certificateId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Certificate> create(Certificate item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -83,7 +96,8 @@ public class MongoCertificateRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(certificatesCollection.insertOne(certificate))).flatMap(success->RxJava2Adapter.maybeToMono(findById(certificate.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Certificate> update(Certificate item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -94,7 +108,8 @@ public class MongoCertificateRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(certificatesCollection.replaceOne(eq(FIELD_ID, certificate.getId()), certificate))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(certificate.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

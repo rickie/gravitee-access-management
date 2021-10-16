@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter.extensiongrant;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.common.oidc.idtoken.Claims;
 import io.gravitee.am.extensiongrant.api.ExtensionGrantProvider;
@@ -84,7 +85,8 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
         return super.handle(grantType, client) && canHandle(client);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.parseRequest_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
  return RxJava2Adapter.monoToSingle(parseRequest_migrated(tokenRequest, client));
@@ -98,7 +100,8 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(tokenRequest)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.resolveResourceOwner_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
  return RxJava2Adapter.monoToMaybe(resolveResourceOwner_migrated(tokenRequest, client));

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.Environment;
 import io.gravitee.am.service.model.NewEnvironment;
@@ -29,7 +30,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface EnvironmentService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findById_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Environment> findById(java.lang.String id, java.lang.String organizationId) {
     return RxJava2Adapter.monoToSingle(findById_migrated(id, organizationId));
 }
@@ -37,7 +39,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Environment> findById_m
     return RxJava2Adapter.singleToMono(findById(id, organizationId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Environment> findById(java.lang.String id) {
     return RxJava2Adapter.monoToSingle(findById_migrated(id));
 }
@@ -45,7 +48,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Environment> findById_m
     return RxJava2Adapter.singleToMono(findById(id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Environment> findAll(java.lang.String organizationId) {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
 }
@@ -53,7 +57,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Environment> findAll_mi
     return RxJava2Adapter.flowableToFlux(findAll(organizationId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.createDefault_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Environment> createDefault() {
     return RxJava2Adapter.monoToMaybe(createDefault_migrated());
 }
@@ -61,7 +66,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Environment> createDefa
     return RxJava2Adapter.maybeToMono(createDefault());
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOrUpdate_migrated(organizationId, environmentId, newEnvironment, createdBy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Environment> createOrUpdate(java.lang.String organizationId, java.lang.String environmentId, io.gravitee.am.service.model.NewEnvironment newEnvironment, io.gravitee.am.identityprovider.api.User createdBy) {
     return RxJava2Adapter.monoToSingle(createOrUpdate_migrated(organizationId, environmentId, newEnvironment, createdBy));
 }

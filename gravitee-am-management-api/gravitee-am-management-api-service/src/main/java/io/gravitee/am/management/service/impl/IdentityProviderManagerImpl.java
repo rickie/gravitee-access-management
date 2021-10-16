@@ -201,17 +201,27 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
         return provider;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<UserProvider> getUserProvider(String userProvider) {
+ return RxJava2Adapter.monoToMaybe(getUserProvider_migrated(userProvider));
+}
+@Override
+    public Mono<UserProvider> getUserProvider_migrated(String userProvider) {
         if (userProvider == null) {
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
         UserProvider userProvider1 = userProviders.get(userProvider);
-        return (userProvider1 != null) ? RxJava2Adapter.monoToMaybe(Mono.just(userProvider1)) : RxJava2Adapter.monoToMaybe(Mono.empty());
+        return RxJava2Adapter.maybeToMono((userProvider1 != null) ? RxJava2Adapter.monoToMaybe(Mono.just(userProvider1)) : RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<IdentityProvider> create(ReferenceType referenceType, String referenceId) {
+ return RxJava2Adapter.monoToSingle(create_migrated(referenceType, referenceId));
+}
+@Override
+    public Mono<IdentityProvider> create_migrated(ReferenceType referenceType, String referenceId) {
         NewIdentityProvider newIdentityProvider = new NewIdentityProvider();
 
         String lowerCaseId = referenceId.toLowerCase();
@@ -271,9 +281,9 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
                     "\"passwordEncoder\":\"BCrypt\"}";
             newIdentityProvider.setConfiguration(providerConfig);
         } else {
-            return RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("Unable to create Default IdentityProvider with " + managementBackend + " backend")));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("Unable to create Default IdentityProvider with " + managementBackend + " backend"))));
         }
-        return identityProviderService.create(referenceType, referenceId, newIdentityProvider, null);
+        return RxJava2Adapter.singleToMono(identityProviderService.create(referenceType, referenceId, newIdentityProvider, null));
     }
 
     private Optional<String> getMongoServers() {
@@ -329,9 +339,14 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
         return "jdbc".equalsIgnoreCase(managementBackend);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<IdentityProvider> create(String domain) {
-        return create(ReferenceType.DOMAIN, domain);
+ return RxJava2Adapter.monoToSingle(create_migrated(domain));
+}
+@Override
+    public Mono<IdentityProvider> create_migrated(String domain) {
+        return RxJava2Adapter.singleToMono(create(ReferenceType.DOMAIN, domain));
     }
 
     @Override

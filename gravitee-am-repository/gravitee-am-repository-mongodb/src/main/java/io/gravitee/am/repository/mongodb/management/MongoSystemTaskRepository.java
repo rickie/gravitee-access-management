@@ -18,6 +18,7 @@ package io.gravitee.am.repository.mongodb.management;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.SystemTask;
@@ -49,7 +50,8 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
         super.init(systemTaskCollection);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<SystemTask> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -59,7 +61,8 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(systemTaskCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(SystemTaskMongo::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<SystemTask> create(SystemTask item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -71,7 +74,8 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.insertOne(task))).flatMap(success->RxJava2Adapter.maybeToMono(findById(task.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<SystemTask> update(SystemTask item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -81,13 +85,19 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("SystemTask can't be updated without control on the operationId"))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<SystemTask> updateIf(SystemTask item, String operationId) {
+ return RxJava2Adapter.monoToSingle(updateIf_migrated(item, operationId));
+}
+@Override
+    public Mono<SystemTask> updateIf_migrated(SystemTask item, String operationId) {
         SystemTaskMongo task = SystemTaskMongo.convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.replaceOne(and(eq(FIELD_ID, task.getId()), eq(FIELD_OPERATION_ID, operationId)), task))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(task.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.replaceOne(and(eq(FIELD_ID, task.getId()), eq(FIELD_OPERATION_ID, operationId)), task))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(task.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

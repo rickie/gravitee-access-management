@@ -17,6 +17,7 @@ package io.gravitee.am.repository.mongodb.management;
 
 import static com.mongodb.client.model.Filters.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
@@ -78,7 +79,8 @@ public abstract class AbstractManagementMongoRepository extends AbstractMongoRep
         }).orElse(null);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.toBsonFilter_migrated(logicalOr, filter))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 protected Maybe<Bson> toBsonFilter(boolean logicalOr, Bson... filter) {
  return RxJava2Adapter.monoToMaybe(toBsonFilter_migrated(logicalOr, filter));
 }

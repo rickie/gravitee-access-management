@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.uma.PermissionRequest;
 import io.gravitee.am.model.uma.PermissionTicket;
 import io.gravitee.am.model.uma.Resource;
@@ -56,27 +57,42 @@ public class PermissionTicketServiceImpl implements PermissionTicketService {
     @Autowired
     private ResourceService resourceService;
 
-    @Override
+    @Deprecated
+@Override
     public Single<PermissionTicket> create(List<PermissionRequest> requestedPermission, String domain, String client) {
+ return RxJava2Adapter.monoToSingle(create_migrated(requestedPermission, domain, client));
+}
+@Override
+    public Mono<PermissionTicket> create_migrated(List<PermissionRequest> requestedPermission, String domain, String client) {
         //Get list of requested resources (same Id may appear twice with difference scopes)
         List<String> requestedResourcesIds = requestedPermission.stream().map(PermissionRequest::getResourceId).distinct().collect(Collectors.toList());
         //Compare with current registered resource set and return permission ticket if everything's correct.
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(resourceService.findByDomainAndClientAndResources(domain, client, requestedResourcesIds)).collectList().flatMap(fetchedResourceSet->RxJava2Adapter.singleToMono(this.validatePermissionRequest(requestedPermission, fetchedResourceSet, requestedResourcesIds)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.uma.PermissionRequest> permissionRequests)->{
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(resourceService.findByDomainAndClientAndResources(domain, client, requestedResourcesIds)).collectList().flatMap(fetchedResourceSet->RxJava2Adapter.singleToMono(this.validatePermissionRequest(requestedPermission, fetchedResourceSet, requestedResourcesIds)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.uma.PermissionRequest> permissionRequests)->{
 String userId = fetchedResourceSet.get(0).getUserId();
 PermissionTicket toCreate = new PermissionTicket();
 return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setClientId(client).setUserId(userId).setCreatedAt(new Date()).setExpireAt(new Date(System.currentTimeMillis() + umaPermissionValidity));
-}))).flatMap(v->RxJava2Adapter.singleToMono((Single<PermissionTicket>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PermissionTicket, Single<PermissionTicket>>)repository::create).apply(v))));
+}))).flatMap(v->RxJava2Adapter.singleToMono((Single<PermissionTicket>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PermissionTicket, Single<PermissionTicket>>)repository::create).apply(v)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<PermissionTicket> findById(String id) {
-        return repository.findById(id);
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<PermissionTicket> findById_migrated(String id) {
+        return RxJava2Adapter.maybeToMono(repository.findById(id));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<PermissionTicket> remove(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(repository.findById(id)).switchIfEmpty(Mono.error(new InvalidPermissionTicketException())))
-                .flatMapSingle(permissionTicket -> RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(repository.delete(permissionTicket.getId())).then(Mono.just(permissionTicket))));
+ return RxJava2Adapter.monoToSingle(remove_migrated(id));
+}
+@Override
+    public Mono<PermissionTicket> remove_migrated(String id) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(repository.findById(id)).switchIfEmpty(Mono.error(new InvalidPermissionTicketException())))
+                .flatMapSingle(permissionTicket -> RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(repository.delete(permissionTicket.getId())).then(Mono.just(permissionTicket)))));
     }
 
     /**
@@ -87,7 +103,8 @@ return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setCl
      * @param requestedResourcesIds List of current requested resource set ids.
      * @return Permission requests input parameter if ok, else an error.
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validatePermissionRequest_migrated(requestedPermissions, registeredResources, requestedResourcesIds))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<List<PermissionRequest>> validatePermissionRequest(List<PermissionRequest> requestedPermissions, List<Resource> registeredResources, List<String> requestedResourcesIds) {
  return RxJava2Adapter.monoToSingle(validatePermissionRequest_migrated(requestedPermissions, registeredResources, requestedResourcesIds));
 }

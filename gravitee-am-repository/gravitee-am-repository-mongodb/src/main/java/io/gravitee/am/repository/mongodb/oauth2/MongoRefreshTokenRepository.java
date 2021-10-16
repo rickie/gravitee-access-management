@@ -18,6 +18,7 @@ package io.gravitee.am.repository.mongodb.oauth2;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.InsertOneModel;
 import com.mongodb.client.model.WriteModel;
@@ -65,7 +66,8 @@ public class MongoRefreshTokenRepository extends AbstractOAuth2MongoRepository i
         super.createIndex(refreshTokenCollection, new Document(FIELD_RESET_TIME, 1), new IndexOptions().expireAfter(0L, TimeUnit.SECONDS));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<RefreshToken> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
@@ -74,45 +76,80 @@ private Mono<RefreshToken> findById_migrated(String id) {
                 .fromPublisher(refreshTokenCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<RefreshToken> findByToken(String token) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(refreshTokenCollection.find(eq(FIELD_TOKEN, token)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findByToken_migrated(token));
+}
+@Override
+    public Mono<RefreshToken> findByToken_migrated(String token) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
+                .fromPublisher(refreshTokenCollection.find(eq(FIELD_TOKEN, token)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<RefreshToken> create(RefreshToken refreshToken) {
+ return RxJava2Adapter.monoToSingle(create_migrated(refreshToken));
+}
+@Override
+    public Mono<RefreshToken> create_migrated(RefreshToken refreshToken) {
         if (refreshToken.getId() == null) {
             refreshToken.setId(RandomString.generate());
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
-                .fromPublisher(refreshTokenCollection.insertOne(convert(refreshToken)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(refreshToken.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
+                .fromPublisher(refreshTokenCollection.insertOne(convert(refreshToken)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(refreshToken.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable bulkWrite(List<RefreshToken> refreshTokens) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.bulkWrite(convert(refreshTokens))));
+ return RxJava2Adapter.monoToCompletable(bulkWrite_migrated(refreshTokens));
+}
+@Override
+    public Mono<Void> bulkWrite_migrated(List<RefreshToken> refreshTokens) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.bulkWrite(convert(refreshTokens)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String token) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteOne(eq(FIELD_TOKEN, token))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(token));
+}
+@Override
+    public Mono<Void> delete_migrated(String token) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteOne(eq(FIELD_TOKEN, token)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable deleteByUserId(String userId) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteMany(eq(FIELD_SUBJECT, userId))));
+ return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(userId));
+}
+@Override
+    public Mono<Void> deleteByUserId_migrated(String userId) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteMany(eq(FIELD_SUBJECT, userId)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable deleteByDomainIdClientIdAndUserId(String domainId, String clientId, String userId) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, userId)))));
+ return RxJava2Adapter.monoToCompletable(deleteByDomainIdClientIdAndUserId_migrated(domainId, clientId, userId));
+}
+@Override
+    public Mono<Void> deleteByDomainIdClientIdAndUserId_migrated(String domainId, String clientId, String userId) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, userId))))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable deleteByDomainIdAndUserId(String domainId, String userId) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_SUBJECT, userId)))));
+ return RxJava2Adapter.monoToCompletable(deleteByDomainIdAndUserId_migrated(domainId, userId));
+}
+@Override
+    public Mono<Void> deleteByDomainIdAndUserId_migrated(String domainId, String userId) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_SUBJECT, userId))))));
     }
 
     private List<WriteModel<RefreshTokenMongo>> convert(List<RefreshToken> refreshTokens) {

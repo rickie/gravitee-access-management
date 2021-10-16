@@ -71,14 +71,19 @@ public class JWTBearerExtensionGrantProvider implements ExtensionGrantProvider, 
         jwtParser = new DefaultJWTParser(publicKey);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> grant(TokenRequest tokenRequest) throws InvalidGrantException {
+ return RxJava2Adapter.monoToMaybe(grant_migrated(tokenRequest));
+}
+@Override
+    public Mono<User> grant_migrated(TokenRequest tokenRequest) throws InvalidGrantException {
         String assertion = tokenRequest.getRequestParameters().get(ASSERTION_QUERY_PARAM);
 
         if (assertion == null) {
             throw new InvalidGrantException("Assertion value is missing");
         }
-        return RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             try {
                 JWT jwt = jwtParser.parse(assertion);
                 return createUser(jwt);
@@ -89,7 +94,7 @@ public class JWTBearerExtensionGrantProvider implements ExtensionGrantProvider, 
                 LOGGER.error(ex.getMessage(), ex.getCause());
                 throw new InvalidGrantException(ex.getMessage(), ex);
             }
-        })).flux().next());
+        })).flux().next()));
     }
 
     public User createUser(JWT jwt) {

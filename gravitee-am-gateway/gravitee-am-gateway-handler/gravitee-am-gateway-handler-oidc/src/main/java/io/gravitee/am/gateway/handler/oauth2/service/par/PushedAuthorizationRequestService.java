@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.par;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.nimbusds.jwt.JWT;
 import io.gravitee.am.gateway.handler.oidc.service.discovery.OpenIDProviderMetadata;
 import io.gravitee.am.model.oidc.Client;
@@ -43,7 +44,8 @@ public interface PushedAuthorizationRequestService {
      * @param client
      * @return
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.readFromURI_migrated(requestUri, client, oidcMetadata))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<com.nimbusds.jwt.JWT> readFromURI(java.lang.String requestUri, io.gravitee.am.model.oidc.Client client, io.gravitee.am.gateway.handler.oidc.service.discovery.OpenIDProviderMetadata oidcMetadata) {
     return RxJava2Adapter.monoToSingle(readFromURI_migrated(requestUri, client, oidcMetadata));
 }
@@ -55,7 +57,8 @@ default reactor.core.publisher.Mono<com.nimbusds.jwt.JWT> readFromURI_migrated(S
      * Register a request object for a given Client
      * @return
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.registerParameters_migrated(par, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.oauth2.service.par.PushedAuthorizationRequestResponse> registerParameters(io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest par, io.gravitee.am.model.oidc.Client client) {
     return RxJava2Adapter.monoToSingle(registerParameters_migrated(par, client));
 }
@@ -69,7 +72,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.oauth2.servic
      * @param uriIdentifier
      * @return
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteRequestUri_migrated(uriIdentifier))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable deleteRequestUri(java.lang.String uriIdentifier) {
     return RxJava2Adapter.monoToCompletable(deleteRequestUri_migrated(uriIdentifier));
 }

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.common.event.Event;
 import io.reactivex.Single;
 import java.util.List;
@@ -26,7 +27,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface EventService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(event))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.common.event.Event> create(io.gravitee.am.model.common.event.Event event) {
     return RxJava2Adapter.monoToSingle(create_migrated(event));
 }
@@ -34,7 +36,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.common.event.Event> cre
     return RxJava2Adapter.singleToMono(create(event));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByTimeFrame_migrated(from, to))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.model.common.event.Event>> findByTimeFrame(long from, long to) {
     return RxJava2Adapter.monoToSingle(findByTimeFrame_migrated(from, to));
 }

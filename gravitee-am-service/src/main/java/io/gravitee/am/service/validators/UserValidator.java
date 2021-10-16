@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.validators;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.IUser;
 import io.gravitee.am.service.exception.EmailFormatInvalidException;
 import io.gravitee.am.service.exception.InvalidUserException;
@@ -63,7 +64,8 @@ public class UserValidator {
         this.usernamePattern = Pattern.compile(usernamePattern);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.validate_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Completable validate(IUser user) {
  return RxJava2Adapter.monoToCompletable(validate_migrated(user));
 }

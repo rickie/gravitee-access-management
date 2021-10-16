@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.reporter.api.provider;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.analytics.Type;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.Page;
@@ -30,7 +31,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface Reporter<R extends Reportable, C extends ReportableCriteria> extends io.gravitee.reporter.api.Reporter {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.common.Page<R>> search(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, C criteria, int page, int size) {
     return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
 }
@@ -38,7 +40,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<R>> search_
     return RxJava2Adapter.singleToMono(search(referenceType, referenceId, criteria, page, size));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(referenceType, referenceId, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.Map<java.lang.Object, java.lang.Object>> aggregate(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, C criteria, io.gravitee.am.common.analytics.Type analyticsType) {
     return RxJava2Adapter.monoToSingle(aggregate_migrated(referenceType, referenceId, criteria, analyticsType));
 }
@@ -46,7 +49,8 @@ default reactor.core.publisher.Mono<java.util.Map<java.lang.Object, java.lang.Ob
     return RxJava2Adapter.singleToMono(aggregate(referenceType, referenceId, criteria, analyticsType));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<R> findById(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
 }

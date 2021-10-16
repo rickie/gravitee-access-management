@@ -20,6 +20,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
 import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
@@ -93,7 +94,8 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         return mapper.map(entity, JdbcOrganizationUser.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<User> findAll(ReferenceType referenceType, String referenceId) {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
@@ -104,7 +106,8 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(userRepository.findByReference(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(user -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeUser(user)).flux())))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<User>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
  return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
@@ -122,7 +125,8 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
                 .flatMap(user -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeUser(user)).flux()), CONCURRENT_FLATMAP)).collectList().flatMap(content->RxJava2Adapter.singleToMono(userRepository.countByReference(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<User>(content, page, count))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<User>> search(ReferenceType referenceType, String referenceId, String query, int page, int size) {
  return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, query, page, size));
@@ -146,7 +150,8 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
                 .flatMap(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeUser(app)).flux()), CONCURRENT_FLATMAP)).collectList().flatMap(data->dbClient.execute(count).bind("value", wildcardSearch ? wildcardValue : query).bind("refId", referenceId).bind("refType", referenceType.name()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<User>(data, page, total))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<User>> search(ReferenceType referenceType, String referenceId, FilterCriteria criteria, int page, int size) {
  return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
@@ -179,7 +184,8 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userFlux.map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(user -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeUser(user)).flux()))).collectList().flatMap(list->userCount.map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<User>(list, page, total))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsernameAndSource_migrated(referenceType, referenceId, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findByUsernameAndSource(ReferenceType referenceType, String referenceId, String username, String source) {
  return RxJava2Adapter.monoToMaybe(findByUsernameAndSource_migrated(referenceType, referenceId, username, source));
@@ -190,7 +196,8 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findByUsernameAndSource(referenceType.name(), referenceId, username, source)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.singleToMono(completeUser(z)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByExternalIdAndSource_migrated(referenceType, referenceId, externalId, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findByExternalIdAndSource(ReferenceType referenceType, String referenceId, String externalId, String source) {
  return RxJava2Adapter.monoToMaybe(findByExternalIdAndSource_migrated(referenceType, referenceId, externalId, source));
@@ -201,7 +208,8 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findByExternalIdAndSource(referenceType.name(), referenceId, externalId, source)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.singleToMono(completeUser(z)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<User> findByIdIn(List<String> ids) {
  return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
@@ -216,7 +224,8 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
                 .flatMap(user -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeUser(user)).flux()), CONCURRENT_FLATMAP));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findById(ReferenceType referenceType, String referenceId, String userId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, userId));
@@ -227,7 +236,8 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findById(referenceType.name(), referenceId, userId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.singleToMono(completeUser(z)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -238,7 +248,8 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.singleToMono(completeUser(z)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> create(User item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -295,7 +306,8 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> update(User item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -352,7 +364,8 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));
@@ -429,7 +442,8 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         return deleteRoles.then(deleteAddresses).then(deleteAttributes).then(deleteEntitlements);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.completeUser_migrated(userToComplete))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<User> completeUser(User userToComplete) {
  return RxJava2Adapter.monoToSingle(completeUser_migrated(userToComplete));
 }

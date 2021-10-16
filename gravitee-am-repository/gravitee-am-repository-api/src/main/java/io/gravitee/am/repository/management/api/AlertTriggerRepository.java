@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertTrigger;
 import io.gravitee.am.repository.common.CrudRepository;
@@ -35,7 +36,8 @@ public interface AlertTriggerRepository extends CrudRepository<AlertTrigger, Str
      * @param referenceId the reference id.
      * @return the list of alert triggers.
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.alert.AlertTrigger> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
 }
@@ -50,7 +52,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.alert.AlertTrigger> fin
      * @param referenceId the reference id.
      * @return the list of alert triggers.
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.alert.AlertTrigger> findByCriteria(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.repository.management.api.search.AlertTriggerCriteria criteria) {
     return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
 }

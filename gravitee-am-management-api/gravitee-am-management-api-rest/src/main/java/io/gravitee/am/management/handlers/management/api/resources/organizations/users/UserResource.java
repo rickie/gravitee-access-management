@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.users;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.management.handlers.management.api.model.PasswordValue;
 import io.gravitee.am.management.handlers.management.api.model.StatusEntity;
 import io.gravitee.am.management.handlers.management.api.model.UserEntity;
@@ -159,7 +160,8 @@ public class UserResource extends AbstractResource {
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
 
     }
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enhanceIdentityProvider_migrated(userEntity))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<UserEntity> enhanceIdentityProvider(UserEntity userEntity) {
  return RxJava2Adapter.monoToSingle(enhanceIdentityProvider_migrated(userEntity));
 }

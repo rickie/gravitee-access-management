@@ -19,6 +19,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
 import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.BotDetection;
 import io.gravitee.am.model.ReferenceType;
@@ -31,6 +32,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -53,26 +55,37 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
         return mapper.map(entity, JdbcBotDetection.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<BotDetection> findAll() {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+@Override
+    public Flux<BotDetection> findAll_migrated() {
         LOGGER.debug("findAll()");
-        return RxJava2Adapter.fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.select()
                 .from(JdbcBotDetection.class)
                 .fetch()
-                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Flowable<BotDetection> findByReference(ReferenceType referenceType, String referenceId) {
-        LOGGER.debug("findByReference({}, {})", referenceType, referenceId);
-        return RxJava2Adapter.fluxToFlowable(dbClient.select()
-                .from(JdbcBotDetection.class)
-                .matching(from(where(REFERENCE_ID_FIELD).is(referenceId).and(where(REF_TYPE_FIELD).is(referenceType.name()))))
-                .fetch()
-                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
     @Deprecated
+@Override
+    public Flowable<BotDetection> findByReference(ReferenceType referenceType, String referenceId) {
+ return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
+}
+@Override
+    public Flux<BotDetection> findByReference_migrated(ReferenceType referenceType, String referenceId) {
+        LOGGER.debug("findByReference({}, {})", referenceType, referenceId);
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.select()
+                .from(JdbcBotDetection.class)
+                .matching(from(where(REFERENCE_ID_FIELD).is(referenceId).and(where(REF_TYPE_FIELD).is(referenceType.name()))))
+                .fetch()
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<BotDetection> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -87,7 +100,8 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
                 .first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<BotDetection> create(BotDetection item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -105,7 +119,8 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<BotDetection> update(BotDetection item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -120,7 +135,8 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

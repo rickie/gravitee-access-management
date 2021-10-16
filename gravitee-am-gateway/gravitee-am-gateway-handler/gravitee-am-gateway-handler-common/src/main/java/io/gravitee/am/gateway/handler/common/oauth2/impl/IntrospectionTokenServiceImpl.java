@@ -56,9 +56,14 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
     @Autowired
     private AccessTokenRepository accessTokenRepository;
 
-    @Override
+    @Deprecated
+@Override
     public Single<JWT> introspect(String token, boolean offlineVerification) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(jwtService.decode(token)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(jwt -> clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).apply(e)))).switchIfEmpty(Mono.error(new InvalidTokenException("Invalid or unknown client for this token"))))
+ return RxJava2Adapter.monoToSingle(introspect_migrated(token, offlineVerification));
+}
+@Override
+    public Mono<JWT> introspect_migrated(String token, boolean offlineVerification) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(jwtService.decode(token)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(jwt -> clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).apply(e)))).switchIfEmpty(Mono.error(new InvalidTokenException("Invalid or unknown client for this token"))))
                 .flatMapSingle(client -> jwtService.decodeAndVerify(token, client))).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, Single<JWT>>)jwt -> {
                     // Just check the JWT signature and JWT validity if offline verification option is enabled
                     // or if the token has just been created (could not be in database so far because of async database storing process delay)
@@ -87,6 +92,6 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
                                 token, details != null ? details : "none", jwt != null ? jwt.toString() : "{}", invalidTokenException);
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));
-                });
+                }));
     }
 }

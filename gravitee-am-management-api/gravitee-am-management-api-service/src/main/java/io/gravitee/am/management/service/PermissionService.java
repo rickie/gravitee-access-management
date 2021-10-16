@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.service.permissions.PermissionAcls;
 import io.gravitee.am.model.*;
@@ -71,7 +72,8 @@ public class PermissionService {
         this.consistencyCache = new ConcurrentHashMap<>();
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAllPermissions_migrated(user, referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Single<Map<Permission, Set<Acl>>> findAllPermissions(User user, ReferenceType referenceType, String referenceId) {
  return RxJava2Adapter.monoToSingle(findAllPermissions_migrated(user, referenceType, referenceId));
 }
@@ -80,7 +82,8 @@ public Mono<Map<Permission,Set<Acl>>> findAllPermissions_migrated(User user, Ref
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findMembershipPermissions(user, Collections.singletonMap(referenceType, referenceId).entrySet().stream())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::aclsPerPermission))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.hasPermission_migrated(user, permissions))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Single<Boolean> hasPermission(User user, PermissionAcls permissions) {
  return RxJava2Adapter.monoToSingle(hasPermission_migrated(user, permissions));
 }
@@ -94,7 +97,8 @@ public Mono<Boolean> hasPermission_migrated(User user, PermissionAcls permission
                 }).apply(v)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.haveConsistentReferenceIds_migrated(permissionAcls))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 protected Single<Boolean> haveConsistentReferenceIds(PermissionAcls permissionAcls) {
  return RxJava2Adapter.monoToSingle(haveConsistentReferenceIds_migrated(permissionAcls));
 }
@@ -142,7 +146,8 @@ protected Mono<Boolean> haveConsistentReferenceIds_migrated(PermissionAcls permi
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isApplicationIdConsistent_migrated(applicationId, domainId, environmentId, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Boolean> isApplicationIdConsistent(String applicationId, String domainId, String environmentId, String organizationId) {
  return RxJava2Adapter.monoToSingle(isApplicationIdConsistent_migrated(applicationId, domainId, environmentId, organizationId));
 }
@@ -163,7 +168,8 @@ private Mono<Boolean> isApplicationIdConsistent_migrated(String applicationId, S
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isDomainIdConsistent_migrated(domainId, environmentId, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Boolean> isDomainIdConsistent(String domainId, String environmentId, String organizationId) {
  return RxJava2Adapter.monoToSingle(isDomainIdConsistent_migrated(domainId, environmentId, organizationId));
 }
@@ -184,7 +190,8 @@ private Mono<Boolean> isDomainIdConsistent_migrated(String domainId, String envi
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isEnvironmentIdConsistent_migrated(environmentId, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Boolean> isEnvironmentIdConsistent(String environmentId, String organizationId) {
  return RxJava2Adapter.monoToSingle(isEnvironmentIdConsistent_migrated(environmentId, organizationId));
 }
@@ -198,7 +205,8 @@ private Mono<Boolean> isEnvironmentIdConsistent_migrated(String environmentId, S
                 .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(false))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findMembershipPermissions_migrated(user, referenceStream))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Map<Membership, Map<Permission, Set<Acl>>>> findMembershipPermissions(User user, Stream<Map.Entry<ReferenceType, String>> referenceStream) {
  return RxJava2Adapter.monoToSingle(findMembershipPermissions_migrated(user, referenceStream));
 }

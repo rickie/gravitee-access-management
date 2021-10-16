@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcExtensionGrant;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -28,7 +29,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  * @author GraviteeSource Team
  */
 public interface SpringExtensionGrantRepository extends RxJava2CrudRepository<JdbcExtensionGrant, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcExtensionGrant> findByDomain(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain) {
     return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
@@ -38,7 +40,8 @@ String domain) {
     return RxJava2Adapter.flowableToFlux(findByDomain(domain));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndName_migrated(domain, name))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcExtensionGrant> findByDomainAndName(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain, @org.springframework.data.repository.query.Param(value = "name")
 java.lang.String name) {

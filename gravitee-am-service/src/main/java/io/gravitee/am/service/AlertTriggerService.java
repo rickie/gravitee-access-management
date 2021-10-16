@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertTrigger;
@@ -30,7 +31,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  * @author GraviteeSource Team
  */
 public interface AlertTriggerService {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.alert.AlertTrigger> getById(java.lang.String id) {
     return RxJava2Adapter.monoToSingle(getById_migrated(id));
 }
@@ -38,7 +40,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.alert.AlertTrigger> get
     return RxJava2Adapter.singleToMono(getById(id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.alert.AlertTrigger> getById(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String id) {
     return RxJava2Adapter.monoToSingle(getById_migrated(referenceType, referenceId, id));
 }
@@ -46,7 +49,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.alert.AlertTrigger> get
     return RxJava2Adapter.singleToMono(getById(referenceType, referenceId, id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndCriteria_migrated(domainId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.alert.AlertTrigger> findByDomainAndCriteria(java.lang.String domainId, io.gravitee.am.repository.management.api.search.AlertTriggerCriteria criteria) {
     return RxJava2Adapter.fluxToFlowable(findByDomainAndCriteria_migrated(domainId, criteria));
 }
@@ -54,7 +58,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.alert.AlertTrigger> fin
     return RxJava2Adapter.flowableToFlux(findByDomainAndCriteria(domainId, criteria));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOrUpdate_migrated(referenceType, referenceId, patchAlertTrigger, byUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.alert.AlertTrigger> createOrUpdate(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.service.model.PatchAlertTrigger patchAlertTrigger, io.gravitee.am.identityprovider.api.User byUser) {
     return RxJava2Adapter.monoToSingle(createOrUpdate_migrated(referenceType, referenceId, patchAlertTrigger, byUser));
 }
@@ -62,7 +67,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.alert.AlertTrigger> cre
     return RxJava2Adapter.singleToMono(createOrUpdate(referenceType, referenceId, patchAlertTrigger, byUser));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(referenceType, referenceId, alertTriggerId, byUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String alertTriggerId, io.gravitee.am.identityprovider.api.User byUser) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(referenceType, referenceId, alertTriggerId, byUser));
 }

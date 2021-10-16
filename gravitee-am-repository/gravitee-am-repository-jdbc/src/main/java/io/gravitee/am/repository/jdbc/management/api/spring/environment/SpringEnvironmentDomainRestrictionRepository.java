@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.environment;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment;
 import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
@@ -28,7 +29,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringEnvironmentDomainRestrictionRepository extends RxJava2CrudRepository<JdbcEnvironment.DomainRestriction, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByEnvironmentId_migrated(envId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment.DomainRestriction> findAllByEnvironmentId(java.lang.String envId) {
     return RxJava2Adapter.fluxToFlowable(findAllByEnvironmentId_migrated(envId));
 }

@@ -80,32 +80,47 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private CredentialService credentialService;
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> get(String userId) {
-        return userService.findById(userId);
+ return RxJava2Adapter.monoToMaybe(get_migrated(userId));
+}
+@Override
+    public Mono<User> get_migrated(String userId) {
+        return RxJava2Adapter.maybeToMono(userService.findById(userId));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<Audit>> getActivity(User user, AuditReportableCriteria criteria, int page, int size) {
+ return RxJava2Adapter.monoToSingle(getActivity_migrated(user, criteria, page, size));
+}
+@Override
+    public Mono<Page<Audit>> getActivity_migrated(User user, AuditReportableCriteria criteria, int page, int size) {
         try {
             Single<Page<Audit>> reporter = auditReporterManager.getReporter().search(ReferenceType.DOMAIN, user.getReferenceId(), criteria, page, size);
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(reporter).map(RxJavaReactorMigrationUtil.toJdkFunction(result -> {
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(reporter).map(RxJavaReactorMigrationUtil.toJdkFunction(result -> {
                 if(Objects.isNull(result) || Objects.isNull(result.getData())){
                     return new Page<>(new ArrayList<>(), 0, 0);
                 }
                 return result;
-            })));
+            }))));
         } catch (Exception ex) {
             LOGGER.error("An error occurs during audits search for {}}: {}", ReferenceType.DOMAIN, user.getReferenceId(), ex);
-            return RxJava2Adapter.monoToSingle(Mono.error(ex));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(ex)));
         }
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> update(User user) {
+ return RxJava2Adapter.monoToSingle(update_migrated(user));
+}
+@Override
+    public Mono<User> update_migrated(User user) {
         LOGGER.debug("Update a user {} for domain {}", user.getUsername(), domain.getName());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
                 .flatMapSingle(userProvider -> {
                     if (user.getExternalId() == null) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("User does not exist in upstream IDP")));
@@ -123,44 +138,74 @@ public class AccountServiceImpl implements AccountService {
                         return userRepository.update(user);
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));
-                }))));
+                })))));
 
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<Factor>> getFactors(String domain) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(factorService.findByDomain(domain)).collectList());
+ return RxJava2Adapter.monoToSingle(getFactors_migrated(domain));
+}
+@Override
+    public Mono<List<Factor>> getFactors_migrated(String domain) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(factorService.findByDomain(domain)).collectList()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Factor> getFactor(String id) {
-        return factorService.findById(id);
+ return RxJava2Adapter.monoToMaybe(getFactor_migrated(id));
+}
+@Override
+    public Mono<Factor> getFactor_migrated(String id) {
+        return RxJava2Adapter.maybeToMono(factorService.findById(id));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> upsertFactor(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
-        return userService.upsertFactor(userId, enrolledFactor, principal);
+ return RxJava2Adapter.monoToSingle(upsertFactor_migrated(userId, enrolledFactor, principal));
+}
+@Override
+    public Mono<User> upsertFactor_migrated(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
+        return RxJava2Adapter.singleToMono(userService.upsertFactor(userId, enrolledFactor, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable removeFactor(String userId, String factorId, io.gravitee.am.identityprovider.api.User principal) {
-        return userService.removeFactor(userId, factorId, principal);
+ return RxJava2Adapter.monoToCompletable(removeFactor_migrated(userId, factorId, principal));
+}
+@Override
+    public Mono<Void> removeFactor_migrated(String userId, String factorId, io.gravitee.am.identityprovider.api.User principal) {
+        return RxJava2Adapter.completableToMono(userService.removeFactor(userId, factorId, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<Credential>> getWebAuthnCredentials(User user) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(credentialService.findByUserId(ReferenceType.DOMAIN, user.getReferenceId(), user.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
+ return RxJava2Adapter.monoToSingle(getWebAuthnCredentials_migrated(user));
+}
+@Override
+    public Mono<List<Credential>> getWebAuthnCredentials_migrated(User user) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(credentialService.findByUserId(ReferenceType.DOMAIN, user.getReferenceId(), user.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
                     removeSensitiveData(credential);
                     return credential;
-                })).collectList());
+                })).collectList()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Credential> getWebAuthnCredential(String id) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(credentialService.findById(id)).switchIfEmpty(Mono.error(new CredentialNotFoundException(id))).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
+ return RxJava2Adapter.monoToSingle(getWebAuthnCredential_migrated(id));
+}
+@Override
+    public Mono<Credential> getWebAuthnCredential_migrated(String id) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(credentialService.findById(id)).switchIfEmpty(Mono.error(new CredentialNotFoundException(id))).map(RxJavaReactorMigrationUtil.toJdkFunction(credential -> {
                     removeSensitiveData(credential);
                     return credential;
-                })));
+                }))));
     }
 
     private io.gravitee.am.identityprovider.api.User convert(io.gravitee.am.model.User user) {

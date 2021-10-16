@@ -55,21 +55,36 @@ public class MongoRequestObjectRepository extends AbstractOAuth2MongoRepository 
         super.createIndex(requestObjectCollection, new Document(FIELD_EXPIRE_AT, 1), new IndexOptions().expireAfter(0L, TimeUnit.SECONDS));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<RequestObject> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(requestObjectCollection.find(eq(FIELD_ID, id)).limit(1).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<RequestObject> findById_migrated(String id) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
+                .fromPublisher(requestObjectCollection.find(eq(FIELD_ID, id)).limit(1).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<RequestObject> create(RequestObject requestObject) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
-                .fromPublisher(requestObjectCollection.insertOne(convert(requestObject)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(requestObject.getId())).single()));
+ return RxJava2Adapter.monoToSingle(create_migrated(requestObject));
+}
+@Override
+    public Mono<RequestObject> create_migrated(RequestObject requestObject) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
+                .fromPublisher(requestObjectCollection.insertOne(convert(requestObject)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(requestObject.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(requestObjectCollection.findOneAndDelete(eq(FIELD_ID, id))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(requestObjectCollection.findOneAndDelete(eq(FIELD_ID, id)))));
     }
 
     private RequestObjectMongo convert(RequestObject requestObject) {

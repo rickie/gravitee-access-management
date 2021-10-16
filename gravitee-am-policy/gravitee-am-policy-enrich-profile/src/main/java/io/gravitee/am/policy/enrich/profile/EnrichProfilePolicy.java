@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.policy.enrich.profile;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.User;
 import io.gravitee.am.policy.enrich.profile.configuration.EnrichProfilePolicyConfiguration;
 import io.gravitee.am.policy.enrich.profile.configuration.Property;
@@ -119,7 +120,8 @@ public class EnrichProfilePolicy {
         return needUpdate;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enrichProfile_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 protected Single<User> enrichProfile(ExecutionContext context) {
  return RxJava2Adapter.monoToSingle(enrichProfile_migrated(context));
 }

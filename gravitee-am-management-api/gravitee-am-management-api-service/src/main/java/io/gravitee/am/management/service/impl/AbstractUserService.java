@@ -77,18 +77,32 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
     protected abstract  BiFunction<String, String, Maybe<Application>> checkClientFunction();
 
     protected abstract T getUserService();
-    @Override
+    @Deprecated
+@Override
     public Single<User> findById(ReferenceType referenceType, String referenceId, String id) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::setInternalStatus)));
+ return RxJava2Adapter.monoToSingle(findById_migrated(referenceType, referenceId, id));
+}
+@Override
+    public Mono<User> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::setInternalStatus))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> update(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal) {
-        return this.update(referenceType, referenceId, id, updateUser, principal, checkClientFunction());
+ return RxJava2Adapter.monoToSingle(update_migrated(referenceType, referenceId, id, updateUser, principal));
+}
+@Override
+    public Mono<User> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal) {
+        return RxJava2Adapter.singleToMono(this.update(referenceType, referenceId, id, updateUser, principal, checkClientFunction()));
     }
 
-    private Single<User> update(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal, BiFunction<String, String, Maybe<Application>> checkClient) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(updateUser)).then(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, id)).flatMap(user->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource())))).flatMapSingle((io.gravitee.am.identityprovider.api.UserProvider userProvider)->{
+    @Deprecated
+private Single<User> update(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal, BiFunction<String, String, Maybe<Application>> checkClient) {
+ return RxJava2Adapter.monoToSingle(update_migrated(referenceType, referenceId, id, updateUser, principal, checkClient));
+}
+private Mono<User> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal, BiFunction<String, String, Maybe<Application>> checkClient) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(updateUser)).then(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, id)).flatMap(user->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource())))).flatMapSingle((io.gravitee.am.identityprovider.api.UserProvider userProvider)->{
 String client = updateUser.getClient() != null ? updateUser.getClient() : user.getClient();
 if (client != null && referenceType == ReferenceType.DOMAIN) {
 return checkClient.apply(referenceId, client).flatMapSingle((io.gravitee.am.model.Application client1)->{
@@ -105,20 +119,30 @@ if (ex instanceof UserNotFoundException) {
 return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserService().update(referenceType, referenceId, id, updateUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::setInternalStatus)));
 }
 return RxJava2Adapter.monoToSingle(Mono.error(ex));
-})).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer((io.gravitee.am.model.User user1)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).oldValue(user).user(user1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))))));
+})).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer((io.gravitee.am.model.User user1)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).oldValue(user).user(user1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable))))))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> updateStatus(ReferenceType referenceType, String referenceId, String id, boolean status, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, id)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
+ return RxJava2Adapter.monoToSingle(updateStatus_migrated(referenceType, referenceId, id, status, principal));
+}
+@Override
+    public Mono<User> updateStatus_migrated(ReferenceType referenceType, String referenceId, String id, boolean status, io.gravitee.am.identityprovider.api.User principal) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, id)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
                     user.setEnabled(status);
                     return getUserService().update(user);
-                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).user(user1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).throwable(throwable)))));
+                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).user(user1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).throwable(throwable))))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(ReferenceType referenceType, String referenceId, String userId, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, userId)).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<UserProvider>, CompletableSource>)(java.util.Optional<io.gravitee.am.identityprovider.api.UserProvider> optUserProvider)->{
+ return RxJava2Adapter.monoToCompletable(delete_migrated(referenceType, referenceId, userId, principal));
+}
+@Override
+    public Mono<Void> delete_migrated(ReferenceType referenceType, String referenceId, String userId, io.gravitee.am.identityprovider.api.User principal) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(getUserService().findById(referenceType, referenceId, userId)).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(identityProviderManager.getUserProvider(user.getSource())).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<UserProvider>, CompletableSource>)(java.util.Optional<io.gravitee.am.identityprovider.api.UserProvider> optUserProvider)->{
 if (!optUserProvider.isPresent()) {
 return RxJava2Adapter.monoToCompletable(Mono.empty());
 }
@@ -131,7 +155,7 @@ return RxJava2Adapter.monoToCompletable(Mono.empty());
 }
 return RxJava2Adapter.monoToCompletable(Mono.error(ex));
 });
-}).apply(y)))).then(RxJava2Adapter.completableToMono(getUserService().delete(userId))).then(RxJava2Adapter.completableToMono(Completable.wrap((ReferenceType.ORGANIZATION != referenceType) ? RxJava2Adapter.monoToCompletable(Mono.empty()) : RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(membershipService.findByMember(userId, MemberType.USER)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Membership, CompletableSource>toJdkFunction((io.gravitee.am.model.Membership membership)->membershipService.delete(membership.getId())).apply(y)))).then()))))).doOnComplete(()->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).user(user)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).throwable(throwable))))).then());
+}).apply(y)))).then(RxJava2Adapter.completableToMono(getUserService().delete(userId))).then(RxJava2Adapter.completableToMono(Completable.wrap((ReferenceType.ORGANIZATION != referenceType) ? RxJava2Adapter.monoToCompletable(Mono.empty()) : RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(membershipService.findByMember(userId, MemberType.USER)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Membership, CompletableSource>toJdkFunction((io.gravitee.am.model.Membership membership)->membershipService.delete(membership.getId())).apply(y)))).then()))))).doOnComplete(()->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).user(user)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).throwable(throwable))))).then()));
     }
 
     protected io.gravitee.am.identityprovider.api.User convert(NewUser newUser) {

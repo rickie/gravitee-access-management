@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.Tag;
 import io.gravitee.am.service.model.NewTag;
@@ -32,7 +33,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface TagService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Tag> findById(java.lang.String id, java.lang.String organizationId) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id, organizationId));
 }
@@ -40,7 +42,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Tag> findById_migrated(
     return RxJava2Adapter.maybeToMono(findById(id, organizationId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Tag> findAll(java.lang.String organizationId) {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
 }
@@ -48,7 +51,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Tag> findAll_migrated(S
     return RxJava2Adapter.flowableToFlux(findAll(organizationId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(tag, organizationId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Tag> create(io.gravitee.am.service.model.NewTag tag, java.lang.String organizationId, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(create_migrated(tag, organizationId, principal));
 }
@@ -56,7 +60,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Tag> create_migrated(Ne
     return RxJava2Adapter.singleToMono(create(tag, organizationId, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(tagId, organizationId, tag, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Tag> update(java.lang.String tagId, java.lang.String organizationId, io.gravitee.am.service.model.UpdateTag tag, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(update_migrated(tagId, organizationId, tag, principal));
 }
@@ -64,7 +69,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Tag> update_migrated(St
     return RxJava2Adapter.singleToMono(update(tagId, organizationId, tag, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(tagId, organizationId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(java.lang.String tagId, java.lang.String organizationId, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(tagId, organizationId, principal));
 }

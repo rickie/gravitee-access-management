@@ -24,12 +24,13 @@ import io.gravitee.plugin.core.api.Plugin;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -43,18 +44,28 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
     @Autowired
     private ResourcePluginManager resourcePluginManager;
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<ResourcePlugin>> findAll(List<String> expand) {
+ return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
+}
+@Override
+    public Mono<List<ResourcePlugin>> findAll_migrated(List<String> expand) {
         LOGGER.debug("List all resource plugins");
-        return Observable.fromIterable(resourcePluginManager.getAll())
+        return RxJava2Adapter.singleToMono(Observable.fromIterable(resourcePluginManager.getAll())
                 .map(plugin -> convert(plugin, expand))
-                .toList();
+                .toList());
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<ResourcePlugin> findById(String resourceId) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(resourceId));
+}
+@Override
+    public Mono<ResourcePlugin> findById_migrated(String resourceId) {
         LOGGER.debug("Find resource plugin by ID: {}", resourceId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 Plugin resource = resourcePluginManager.findById(resourceId);
                 if (resource != null) {
@@ -66,13 +77,18 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
                 LOGGER.error("An error occurs while trying to get resource plugin : {}", resourceId, ex);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get resource plugin : " + resourceId, ex));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<String> getSchema(String resourceId) {
+ return RxJava2Adapter.monoToMaybe(getSchema_migrated(resourceId));
+}
+@Override
+    public Mono<String> getSchema_migrated(String resourceId) {
         LOGGER.debug("Find resource plugin schema by ID: {}", resourceId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 String schema = resourcePluginManager.getSchema(resourceId);
                 if (schema != null) {
@@ -84,13 +100,18 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
                 LOGGER.error("An error occurs while trying to get schema for resource plugin {}", resourceId, e);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get schema for resource plugin " + resourceId, e));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<String> getIcon(String resourceId) {
+ return RxJava2Adapter.monoToMaybe(getIcon_migrated(resourceId));
+}
+@Override
+    public Mono<String> getIcon_migrated(String resourceId) {
         LOGGER.debug("Find resource plugin icon by ID: {}", resourceId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 String icon = resourcePluginManager.getIcon(resourceId);
                 if (icon != null) {
@@ -102,7 +123,7 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
                 LOGGER.error("An error has occurred when trying to get icon for resource plugin {}", resourceId, e);
                 emitter.onError(new TechnicalManagementException("An error has occurred when trying to get icon for resource plugin " + resourceId, e));
             }
-        });
+        }));
     }
 
     private ResourcePlugin convert(Plugin resourcePlugin) {

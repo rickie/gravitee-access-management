@@ -15,20 +15,21 @@
  */
 package io.gravitee.am.service.impl.plugins;
 
-import io.gravitee.am.service.CertificatePluginService;
 import io.gravitee.am.plugins.certificate.core.CertificatePluginManager;
+import io.gravitee.am.service.CertificatePluginService;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.plugin.CertificatePlugin;
 import io.gravitee.plugin.core.api.Plugin;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Set;
-import java.util.stream.Collectors;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -45,10 +46,15 @@ public class CertificatePluginServiceImpl implements CertificatePluginService {
     @Autowired
     private CertificatePluginManager certificatePluginManager;
 
-    @Override
+    @Deprecated
+@Override
     public Single<Set<CertificatePlugin>> findAll() {
+ return RxJava2Adapter.monoToSingle(findAll_migrated());
+}
+@Override
+    public Mono<Set<CertificatePlugin>> findAll_migrated() {
         LOGGER.debug("List all certificate plugins");
-        return Single.create(emitter -> {
+        return RxJava2Adapter.singleToMono(Single.create(emitter -> {
             try {
                 emitter.onSuccess(certificatePluginManager.getAll()
                         .stream()
@@ -58,13 +64,18 @@ public class CertificatePluginServiceImpl implements CertificatePluginService {
                 LOGGER.error("An error occurs while trying to list all certificate plugins", ex);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to list all certificate plugins", ex));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<CertificatePlugin> findById(String certificatePluginId) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(certificatePluginId));
+}
+@Override
+    public Mono<CertificatePlugin> findById_migrated(String certificatePluginId) {
         LOGGER.debug("Find certificate plugin by ID: {}", certificatePluginId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 Plugin certificate = certificatePluginManager.findById(certificatePluginId);
                 if (certificate != null) {
@@ -76,13 +87,18 @@ public class CertificatePluginServiceImpl implements CertificatePluginService {
                 LOGGER.error("An error occurs while trying to get certificate plugin : {}", certificatePluginId, ex);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get certificate plugin : " + certificatePluginId, ex));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<String> getSchema(String certificatePluginId) {
+ return RxJava2Adapter.monoToMaybe(getSchema_migrated(certificatePluginId));
+}
+@Override
+    public Mono<String> getSchema_migrated(String certificatePluginId) {
         LOGGER.debug("Find certificate plugin schema by ID: {}", certificatePluginId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 String schema = certificatePluginManager.getSchema(certificatePluginId);
                 if (schema != null) {
@@ -94,7 +110,7 @@ public class CertificatePluginServiceImpl implements CertificatePluginService {
                 LOGGER.error("An error occurs while trying to get schema for certificate plugin {}", certificatePluginId, e);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get schema for certificate plugin " + certificatePluginId, e));
             }
-        });
+        }));
     }
 
     private CertificatePlugin convert(Plugin certificatePlugin) {

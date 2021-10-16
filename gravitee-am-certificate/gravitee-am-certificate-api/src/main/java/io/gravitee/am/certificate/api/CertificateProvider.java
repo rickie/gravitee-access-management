@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.certificate.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.jose.JWK;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -30,7 +31,8 @@ import reactor.core.publisher.Mono;
  */
 public interface CertificateProvider {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.key_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.certificate.api.Key> key() {
     return RxJava2Adapter.monoToSingle(key_migrated());
 }
@@ -38,7 +40,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.certificate.api.Key> key_migr
     return RxJava2Adapter.singleToMono(key());
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.publicKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.String> publicKey() {
     return RxJava2Adapter.monoToSingle(publicKey_migrated());
 }
@@ -46,7 +49,8 @@ default reactor.core.publisher.Mono<java.lang.String> publicKey_migrated() {
     return RxJava2Adapter.singleToMono(publicKey());
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.privateKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.jose.JWK> privateKey() {
     return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
 }
@@ -54,7 +58,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.jose.JWK> privateKey_mi
     return RxJava2Adapter.flowableToFlux(privateKey());
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.keys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.jose.JWK> keys() {
     return RxJava2Adapter.fluxToFlowable(keys_migrated());
 }
@@ -70,7 +75,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.jose.JWK> keys_migrated
         return null;
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.publicKeys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.certificate.api.CertificateKey>> publicKeys() {
     return RxJava2Adapter.monoToSingle(publicKeys_migrated());
 }default Mono<List<CertificateKey>> publicKeys_migrated() {

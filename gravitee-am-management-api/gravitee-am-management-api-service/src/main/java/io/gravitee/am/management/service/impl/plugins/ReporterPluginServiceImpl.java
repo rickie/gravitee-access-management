@@ -23,12 +23,13 @@ import io.gravitee.plugin.core.api.Plugin;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -42,18 +43,28 @@ public class ReporterPluginServiceImpl implements ReporterPluginService {
     @Autowired
     private ReporterPluginManager reporterPluginManager;
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<ReporterPlugin>> findAll() {
+ return RxJava2Adapter.monoToSingle(findAll_migrated());
+}
+@Override
+    public Mono<List<ReporterPlugin>> findAll_migrated() {
         LOGGER.debug("List all reporter plugins");
-        return Observable.fromIterable(reporterPluginManager.getAll())
+        return RxJava2Adapter.singleToMono(Observable.fromIterable(reporterPluginManager.getAll())
                 .map(this::convert)
-                .toList();
+                .toList());
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<ReporterPlugin> findById(String reporterId) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(reporterId));
+}
+@Override
+    public Mono<ReporterPlugin> findById_migrated(String reporterId) {
         LOGGER.debug("Find reporter plugin by ID: {}", reporterId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 Plugin reporter = reporterPluginManager.findById(reporterId);
                 if (reporter != null) {
@@ -65,13 +76,18 @@ public class ReporterPluginServiceImpl implements ReporterPluginService {
                 LOGGER.error("An error occurs while trying to get reporter plugin : {}", reporterId, ex);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get reporter plugin : " + reporterId, ex));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<String> getSchema(String reporterId) {
+ return RxJava2Adapter.monoToMaybe(getSchema_migrated(reporterId));
+}
+@Override
+    public Mono<String> getSchema_migrated(String reporterId) {
         LOGGER.debug("Find reporter plugin schema by ID: {}", reporterId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 String schema = reporterPluginManager.getSchema(reporterId);
                 if (schema != null) {
@@ -83,7 +99,7 @@ public class ReporterPluginServiceImpl implements ReporterPluginService {
                 LOGGER.error("An error occurs while trying to get schema for reporter plugin {}", reporterId, e);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get schema for reporter plugin " + reporterId, e));
             }
-        });
+        }));
     }
 
     private ReporterPlugin convert(Plugin reporterPlugin) {

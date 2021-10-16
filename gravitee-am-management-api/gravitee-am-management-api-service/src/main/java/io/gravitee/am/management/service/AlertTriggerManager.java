@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.alert.api.trigger.Trigger;
 import io.gravitee.alert.api.trigger.TriggerProvider;
 import io.gravitee.am.common.event.AlertNotifierEvent;
@@ -146,7 +147,8 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
                         throwable -> LOGGER.error("An error occurred when trying to synchronize alert triggers with alerting system for domain [{}] after the alert notifier {} event [{}].", payload.getReferenceId(), event.type().name().toLowerCase(), payload.getId(), throwable));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.registerAETrigger_migrated(trigger))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Trigger> registerAETrigger(Trigger trigger) {
  return RxJava2Adapter.monoToSingle(registerAETrigger_migrated(trigger));
 }
@@ -158,7 +160,8 @@ private Mono<Trigger> registerAETrigger_migrated(Trigger trigger) {
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.prepareAETriggers_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Flowable<Trigger> prepareAETriggers(Domain domain) {
  return RxJava2Adapter.fluxToFlowable(prepareAETriggers_migrated(domain));
 }
@@ -167,7 +170,8 @@ private Flux<Trigger> prepareAETriggers_migrated(Domain domain) {
                 .flatMapSingle(alertTrigger -> this.prepareAETrigger(domain, alertTrigger)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.prepareAETrigger_migrated(domain, alertTrigger))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Trigger> prepareAETrigger(Domain domain, AlertTrigger alertTrigger) {
  return RxJava2Adapter.monoToSingle(prepareAETrigger_migrated(domain, alertTrigger));
 }

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.flow;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.response.AuthorizationResponse;
@@ -56,16 +57,22 @@ public abstract class AbstractFlow implements Flow {
         return responseTypes.contains(responseType);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AuthorizationResponse> run(AuthorizationRequest authorizationRequest, Client client, User endUser) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(prepareResponse(authorizationRequest, client, endUser)).flatMap(response->RxJava2Adapter.singleToMono(processResponse(response, authorizationRequest, client, endUser))));
+ return RxJava2Adapter.monoToSingle(run_migrated(authorizationRequest, client, endUser));
+}
+@Override
+    public Mono<AuthorizationResponse> run_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(prepareResponse(authorizationRequest, client, endUser)).flatMap(response->RxJava2Adapter.singleToMono(processResponse(response, authorizationRequest, client, endUser)))));
     }
 
     protected abstract Single<AuthorizationResponse> prepareResponse(AuthorizationRequest authorizationRequest, Client client, User endUser);
     
     protected abstract Mono<AuthorizationResponse> prepareResponse_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser);
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.processResponse_migrated(authorizationResponse, authorizationRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<AuthorizationResponse> processResponse(AuthorizationResponse authorizationResponse, AuthorizationRequest authorizationRequest, Client client, User endUser) {
  return RxJava2Adapter.monoToSingle(processResponse_migrated(authorizationResponse, authorizationRequest, client, endUser));
 }

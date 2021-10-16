@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.root.service.user;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.root.service.response.RegistrationResponse;
 import io.gravitee.am.gateway.handler.root.service.response.ResetPasswordResponse;
 import io.gravitee.am.gateway.handler.root.service.user.model.ForgotPasswordParameters;
@@ -34,7 +35,8 @@ import reactor.core.publisher.Mono;
  */
 public interface UserService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.verifyToken_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.gateway.handler.root.service.user.model.UserToken> verifyToken(java.lang.String token) {
     return RxJava2Adapter.monoToMaybe(verifyToken_migrated(token));
 }
@@ -42,7 +44,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.root.service.
     return RxJava2Adapter.maybeToMono(verifyToken(token));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.register_migrated(client, user, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.root.service.response.RegistrationResponse> register(io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User user, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(register_migrated(client, user, principal));
 }
@@ -50,7 +53,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.root.service.
     return RxJava2Adapter.singleToMono(register(client, user, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.confirmRegistration_migrated(client, user, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.root.service.response.RegistrationResponse> confirmRegistration(io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User user, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(confirmRegistration_migrated(client, user, principal));
 }
@@ -58,7 +62,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.root.service.
     return RxJava2Adapter.singleToMono(confirmRegistration(client, user, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resetPassword_migrated(client, user, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.root.service.response.ResetPasswordResponse> resetPassword(io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User user, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(resetPassword_migrated(client, user, principal));
 }
@@ -66,7 +71,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.root.service.
     return RxJava2Adapter.singleToMono(resetPassword(client, user, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.forgotPassword_migrated(inputParameters, client, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable forgotPassword(io.gravitee.am.gateway.handler.root.service.user.model.ForgotPasswordParameters inputParameters, io.gravitee.am.model.oidc.Client client, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(forgotPassword_migrated(inputParameters, client, principal));
 }
@@ -74,7 +80,8 @@ default reactor.core.publisher.Mono<java.lang.Void> forgotPassword_migrated(Forg
     return RxJava2Adapter.completableToMono(forgotPassword(inputParameters, client, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addFactor_migrated(userId, enrolledFactor, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.User> addFactor(java.lang.String userId, io.gravitee.am.model.factor.EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(addFactor_migrated(userId, enrolledFactor, principal));
 }
@@ -82,21 +89,24 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> addFactor_migrate
     return RxJava2Adapter.singleToMono(addFactor(userId, enrolledFactor, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.register_migrated(client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.root.service.response.RegistrationResponse> register(io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToSingle(register_migrated(client, user));
 }default Mono<RegistrationResponse> register_migrated(Client client, User user) {
         return RxJava2Adapter.singleToMono(register(client, user, null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resetPassword_migrated(client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.root.service.response.ResetPasswordResponse> resetPassword(io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToSingle(resetPassword_migrated(client, user));
 }default Mono<ResetPasswordResponse> resetPassword_migrated(Client client, User user) {
         return RxJava2Adapter.singleToMono(resetPassword(client, user, null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.forgotPassword_migrated(email, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable forgotPassword(java.lang.String email, io.gravitee.am.model.oidc.Client client) {
     return RxJava2Adapter.monoToCompletable(forgotPassword_migrated(email, client));
 }default Mono<Void> forgotPassword_migrated(String email, Client client) {
@@ -104,7 +114,8 @@ default io.reactivex.Completable forgotPassword(java.lang.String email, io.gravi
         return RxJava2Adapter.completableToMono(forgotPassword(params, client, null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.confirmRegistration_migrated(client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.root.service.response.RegistrationResponse> confirmRegistration(io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToSingle(confirmRegistration_migrated(client, user));
 }default Mono<RegistrationResponse> confirmRegistration_migrated(Client client, User user) {

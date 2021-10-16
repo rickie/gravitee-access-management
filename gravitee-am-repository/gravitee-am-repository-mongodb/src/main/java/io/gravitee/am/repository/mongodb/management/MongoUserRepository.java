@@ -18,6 +18,7 @@ package io.gravitee.am.repository.mongodb.management;
 import static com.mongodb.client.model.Filters.*;
 import static io.gravitee.am.model.ReferenceType.DOMAIN;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
@@ -71,8 +72,13 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
         return UserMongo.class;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<User> findByDomainAndEmail(String domain, String email, boolean strict) {
+ return RxJava2Adapter.fluxToFlowable(findByDomainAndEmail_migrated(domain, email, strict));
+}
+@Override
+    public Flux<User> findByDomainAndEmail_migrated(String domain, String email, boolean strict) {
         BasicDBObject emailQuery = new BasicDBObject(FIELD_EMAIL, (strict) ? email : Pattern.compile(email, Pattern.CASE_INSENSITIVE));
         BasicDBObject emailClaimQuery = new BasicDBObject(FIELD_EMAIL_CLAIM, (strict) ? email : Pattern.compile(email, Pattern.CASE_INSENSITIVE));
         Bson mongoQuery = and(
@@ -80,41 +86,62 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
                 eq(FIELD_REFERENCE_ID, domain),
                 or(emailQuery, emailClaimQuery));
 
-        return RxJava2Adapter.fluxToFlowable(Flux.from(usersCollection.find(mongoQuery)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Maybe<User> findByUsernameAndDomain(String domain, String username) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
-                usersCollection
-                        .find(and(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, domain), eq(FIELD_USERNAME, username)))
-                        .limit(1)
-                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
-    }
-
-    @Override
-    public Single<Long> countByReference(ReferenceType referenceType, String referenceId) {
-        return Observable.fromPublisher(usersCollection.countDocuments(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).first(0l);
-    }
-
-    @Override
-    public Single<Long> countByApplication(String domain, String application) {
-        return Observable.fromPublisher(usersCollection.countDocuments(and(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, domain), eq(FIELD_CLIENT, application)))).first(0l);
-    }
-
-    @Override
-    public Single<Map<Object, Object>> statistics(AnalyticsQuery query) {
-        switch (query.getField()) {
-            case Field.USER_STATUS:
-                return usersStatusRepartition(query);
-            case Field.USER_REGISTRATION:
-                return registrationsStatusRepartition(query);
-        }
-
-        return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap()));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(usersCollection.find(mongoQuery)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
     @Deprecated
+@Override
+    public Maybe<User> findByUsernameAndDomain(String domain, String username) {
+ return RxJava2Adapter.monoToMaybe(findByUsernameAndDomain_migrated(domain, username));
+}
+@Override
+    public Mono<User> findByUsernameAndDomain_migrated(String domain, String username) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
+                usersCollection
+                        .find(and(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, domain), eq(FIELD_USERNAME, username)))
+                        .limit(1)
+                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+    }
+
+    @Deprecated
+@Override
+    public Single<Long> countByReference(ReferenceType referenceType, String referenceId) {
+ return RxJava2Adapter.monoToSingle(countByReference_migrated(referenceType, referenceId));
+}
+@Override
+    public Mono<Long> countByReference_migrated(ReferenceType referenceType, String referenceId) {
+        return RxJava2Adapter.singleToMono(Observable.fromPublisher(usersCollection.countDocuments(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).first(0l));
+    }
+
+    @Deprecated
+@Override
+    public Single<Long> countByApplication(String domain, String application) {
+ return RxJava2Adapter.monoToSingle(countByApplication_migrated(domain, application));
+}
+@Override
+    public Mono<Long> countByApplication_migrated(String domain, String application) {
+        return RxJava2Adapter.singleToMono(Observable.fromPublisher(usersCollection.countDocuments(and(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, domain), eq(FIELD_CLIENT, application)))).first(0l));
+    }
+
+    @Deprecated
+@Override
+    public Single<Map<Object, Object>> statistics(AnalyticsQuery query) {
+ return RxJava2Adapter.monoToSingle(statistics_migrated(query));
+}
+@Override
+    public Mono<Map<Object,Object>> statistics_migrated(AnalyticsQuery query) {
+        switch (query.getField()) {
+            case Field.USER_STATUS:
+                return RxJava2Adapter.singleToMono(usersStatusRepartition(query));
+            case Field.USER_REGISTRATION:
+                return RxJava2Adapter.singleToMono(registrationsStatusRepartition(query));
+        }
+
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap())));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.usersStatusRepartition_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Map<Object, Object>> usersStatusRepartition(AnalyticsQuery query) {
  return RxJava2Adapter.monoToSingle(usersStatusRepartition_migrated(query));
 }
@@ -149,7 +176,8 @@ private Mono<Map<Object,Object>> usersStatusRepartition_migrated(AnalyticsQuery 
                 .first(Collections.emptyMap()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.registrationsStatusRepartition_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Map<Object, Object>> registrationsStatusRepartition(AnalyticsQuery query) {
  return RxJava2Adapter.monoToSingle(registrationsStatusRepartition_migrated(query));
 }

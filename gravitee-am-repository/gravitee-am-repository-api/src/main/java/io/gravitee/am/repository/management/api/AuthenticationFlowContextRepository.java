@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.AuthenticationFlowContext;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
@@ -29,7 +30,8 @@ import reactor.core.publisher.Mono;
  * @author GraviteeSource Team
  */
 public interface AuthenticationFlowContextRepository {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.AuthenticationFlowContext> findById(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
@@ -42,7 +44,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.AuthenticationFlowConte
      * @param transactionId transactionId id
      * @return
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findLastByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.AuthenticationFlowContext> findLastByTransactionId(java.lang.String transactionId) {
     return RxJava2Adapter.monoToMaybe(findLastByTransactionId_migrated(transactionId));
 }
@@ -55,7 +58,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.AuthenticationFlowConte
      * @param transactionId transactionId id
      * @return
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.AuthenticationFlowContext> findByTransactionId(java.lang.String transactionId) {
     return RxJava2Adapter.fluxToFlowable(findByTransactionId_migrated(transactionId));
 }
@@ -68,7 +72,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.AuthenticationFlowConte
      * @param
      * @return
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.AuthenticationFlowContext> create(io.gravitee.am.model.AuthenticationFlowContext context) {
     return RxJava2Adapter.monoToSingle(create_migrated(context));
 }
@@ -81,7 +86,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.AuthenticationFlowConte
      * @param transactionId
      * @return acknowledge of the operation
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(java.lang.String transactionId) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(transactionId));
 }
@@ -95,7 +101,8 @@ default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String trans
      * @param version
      * @return acknowledge of the operation
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(transactionId, version))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(java.lang.String transactionId, int version) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(transactionId, version));
 }
@@ -103,7 +110,8 @@ default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String trans
     return RxJava2Adapter.completableToMono(delete(transactionId, version));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable purgeExpiredData() {
     return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
 }default Mono<Void> purgeExpiredData_migrated() {

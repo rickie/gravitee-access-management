@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.validators;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.VirtualHost;
 import io.gravitee.am.service.exception.InvalidDomainException;
@@ -32,7 +33,8 @@ import reactor.core.publisher.Mono;
  */
 public class DomainValidator {
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, domainRestrictions))", imports = {"io.gravitee.am.service.validators.DomainValidator", "reactor.adapter.rxjava.RxJava2Adapter"})
+@Deprecated
 public static Completable validate(Domain domain, List<String> domainRestrictions) {
  return RxJava2Adapter.monoToCompletable(validate_migrated(domain, domainRestrictions));
 }

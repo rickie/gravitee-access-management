@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcCredential;
 import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
@@ -29,7 +30,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringCredentialRepository extends RxJava2CrudRepository<JdbcCredential, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcCredential> findByUserId(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "userId")
@@ -43,7 +45,8 @@ String userId) {
     return RxJava2Adapter.flowableToFlux(findByUserId(referenceType, referenceId, userId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUsername_migrated(referenceType, referenceId, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcCredential> findByUsername(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "username")
@@ -57,7 +60,8 @@ String username) {
     return RxJava2Adapter.flowableToFlux(findByUsername(referenceType, referenceId, username));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCredentialId_migrated(referenceType, referenceId, credentialId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcCredential> findByCredentialId(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "credId")

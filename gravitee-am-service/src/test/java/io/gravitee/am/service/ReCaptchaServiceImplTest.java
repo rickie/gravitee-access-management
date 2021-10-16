@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.service.impl.ReCaptchaServiceImpl;
 import io.gravitee.common.http.HttpStatusCode;
 import io.reactivex.Single;
@@ -200,7 +201,8 @@ public class ReCaptchaServiceImplTest {
         verify(client).getDelegate();
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.spyHttpRequest_migrated(httpRequest))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 protected Single<HttpRequest> spyHttpRequest(HttpRequest httpRequest) {
  return RxJava2Adapter.monoToSingle(spyHttpRequest_migrated(httpRequest));
 }

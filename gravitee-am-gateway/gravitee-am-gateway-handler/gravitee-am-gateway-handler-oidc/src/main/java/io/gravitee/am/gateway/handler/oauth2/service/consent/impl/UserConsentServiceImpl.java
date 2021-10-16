@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -57,17 +58,27 @@ public class UserConsentServiceImpl implements UserConsentService {
     @Value("${oauth2.approval.expiry:-1}")
     private int approvalExpirySeconds;
 
-    @Override
+    @Deprecated
+@Override
     public Single<Set<String>> checkConsent(Client client, io.gravitee.am.model.User user) {
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalService.findByDomainAndUserAndClient(domain.getId(), user.getId(), client.getClientId())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(approval -> {
+ return RxJava2Adapter.monoToSingle(checkConsent_migrated(client, user));
+}
+@Override
+    public Mono<Set<String>> checkConsent_migrated(Client client, io.gravitee.am.model.User user) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalService.findByDomainAndUserAndClient(domain.getId(), user.getId(), client.getClientId())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(approval -> {
                     Date today = new Date();
                     return (approval.getExpiresAt().after(today) && approval.getStatus() == ScopeApproval.ApprovalStatus.APPROVED);
                 })).map(RxJavaReactorMigrationUtil.toJdkFunction(ScopeApproval::getScope)))
-                .collect(HashSet::new, Set::add);
+                .collect(HashSet::new, Set::add));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<ScopeApproval>> saveConsent(Client client, List<ScopeApproval> approvals, User principal) {
+ return RxJava2Adapter.monoToSingle(saveConsent_migrated(client, approvals, principal));
+}
+@Override
+    public Mono<List<ScopeApproval>> saveConsent_migrated(Client client, List<ScopeApproval> approvals, User principal) {
         // compute expiry date for each approval
         final Map<String, ApplicationScopeSettings> scopeApprovals = client.getScopeSettings()
                 .stream()
@@ -77,12 +88,17 @@ public class UserConsentServiceImpl implements UserConsentService {
 
         approvals.forEach(a -> a.setExpiresAt(computeExpiry(scopeApprovals, a.getScope(), parameterizedScopes)));
         // save consent
-        return scopeApprovalService.saveConsent(domain.getId(), client, approvals);
+        return RxJava2Adapter.singleToMono(scopeApprovalService.saveConsent(domain.getId(), client, approvals));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<Scope>> getConsentInformation(Set<String> consent) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(scopeService.getAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(scopes -> {
+ return RxJava2Adapter.monoToSingle(getConsentInformation_migrated(consent));
+}
+@Override
+    public Mono<List<Scope>> getConsentInformation_migrated(Set<String> consent) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(scopeService.getAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(scopes -> {
                     List<Scope> requestedScopes = new ArrayList<>();
                     for (String requestScope : consent) {
                         Scope requestedScope = scopes
@@ -94,7 +110,7 @@ public class UserConsentServiceImpl implements UserConsentService {
                         requestedScopes.add(requestedScope);
                     }
                     return requestedScopes;
-                })));
+                }))));
     }
 
     private Date computeExpiry(Map<String, ApplicationScopeSettings> scopeApprovals, String scope, List<String> parameterizedScopes) {

@@ -17,6 +17,7 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.POLICY_FLOW_UPGRADER;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.policy.ExtensionPoint;
 import io.gravitee.am.management.service.PolicyPluginService;
 import io.gravitee.am.model.Policy;
@@ -86,7 +87,8 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
         return true;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.migrateToFlows_migrated(policies, domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Completable migrateToFlows(List<Policy> policies, String domain) {
  return RxJava2Adapter.monoToCompletable(migrateToFlows_migrated(policies, domain));
 }

@@ -18,6 +18,7 @@ package io.gravitee.am.identityprovider.franceconnect.authentication;
 import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
 
 import com.google.common.base.Strings;
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
@@ -137,7 +138,8 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.authenticate_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Maybe<Token> authenticate(Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(authenticate_migrated(authentication));
@@ -182,7 +184,8 @@ public class FranceConnectAuthenticationProvider extends AbstractSocialAuthentic
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.profile_migrated(accessToken, authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Maybe<User> profile(Token accessToken, Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(profile_migrated(accessToken, authentication));

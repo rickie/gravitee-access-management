@@ -17,6 +17,7 @@ package io.gravitee.am.repository.jdbc.management.api;
 
 import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Form;
 import io.gravitee.am.model.ReferenceType;
@@ -31,6 +32,7 @@ import io.reactivex.Single;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -52,48 +54,84 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
         return mapper.map(entity, JdbcForm.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Form>  findAll(ReferenceType referenceType, String referenceId) {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+@Override
+    public Flux<Form>  findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findAll({}, {})", referenceType, referenceId);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(formRepository.findAll(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Flowable<Form> findAll(ReferenceType referenceType) {LOGGER.debug("findAll({})", referenceType);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(formRepository.findAll(referenceType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Flowable<Form> findByClient(ReferenceType referenceType, String referenceId, String client) {
-        LOGGER.debug("findByClient({}, {}, {})", referenceType, referenceId, client);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(formRepository.findByClient(referenceType.name(), referenceId, client)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Maybe<Form> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
-        LOGGER.debug("findByTemplate({}, {}, {})", referenceType, referenceId, template);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findByTemplate(referenceType.name(), referenceId, template)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Maybe<Form> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
-        LOGGER.debug("findByClientAndTemplate({}, {}, {}, {})", referenceType, referenceId, client, template);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findByClientAndTemplate(referenceType.name(), referenceId, client, template)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Maybe<Form> findById(ReferenceType referenceType, String referenceId, String id) {
-        LOGGER.debug("findById({}, {}, {})", referenceType, referenceId, id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findById(referenceType.name(), referenceId, id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Maybe<Form> findById(String id) {
-        LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(formRepository.findAll(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
     @Deprecated
+@Override
+    public Flowable<Form> findAll(ReferenceType referenceType) {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType));
+}
+@Override
+    public Flux<Form> findAll_migrated(ReferenceType referenceType) {LOGGER.debug("findAll({})", referenceType);
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(formRepository.findAll(referenceType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @Deprecated
+@Override
+    public Flowable<Form> findByClient(ReferenceType referenceType, String referenceId, String client) {
+ return RxJava2Adapter.fluxToFlowable(findByClient_migrated(referenceType, referenceId, client));
+}
+@Override
+    public Flux<Form> findByClient_migrated(ReferenceType referenceType, String referenceId, String client) {
+        LOGGER.debug("findByClient({}, {}, {})", referenceType, referenceId, client);
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(formRepository.findByClient(referenceType.name(), referenceId, client)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<Form> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
+ return RxJava2Adapter.monoToMaybe(findByTemplate_migrated(referenceType, referenceId, template));
+}
+@Override
+    public Mono<Form> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template) {
+        LOGGER.debug("findByTemplate({}, {}, {})", referenceType, referenceId, template);
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findByTemplate(referenceType.name(), referenceId, template)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<Form> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
+ return RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(referenceType, referenceId, client, template));
+}
+@Override
+    public Mono<Form> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template) {
+        LOGGER.debug("findByClientAndTemplate({}, {}, {}, {})", referenceType, referenceId, client, template);
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findByClientAndTemplate(referenceType.name(), referenceId, client, template)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<Form> findById(ReferenceType referenceType, String referenceId, String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
+}
+@Override
+    public Mono<Form> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
+        LOGGER.debug("findById({}, {}, {})", referenceType, referenceId, id);
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findById(referenceType.name(), referenceId, id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<Form> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Form> findById_migrated(String id) {
+        LOGGER.debug("findById({})", id);
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Form> create(Form item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -111,7 +149,8 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Form> update(Form item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -122,7 +161,8 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.formRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

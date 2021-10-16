@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.policy.enrich.auth;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.model.AuthenticationFlowContext;
 import io.gravitee.am.policy.enrich.auth.configuration.EnrichAuthFlowPolicyConfiguration;
@@ -82,7 +83,8 @@ public class EnrichAuthFlowPolicy {
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enrichAuthFlowContext_migrated(executionContext))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<AuthenticationFlowContext> enrichAuthFlowContext(ExecutionContext executionContext) {
  return RxJava2Adapter.monoToSingle(enrichAuthFlowContext_migrated(executionContext));
 }
