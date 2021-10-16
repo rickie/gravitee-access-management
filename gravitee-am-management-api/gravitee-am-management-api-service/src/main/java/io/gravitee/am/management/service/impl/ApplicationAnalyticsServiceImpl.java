@@ -61,11 +61,7 @@ public class ApplicationAnalyticsServiceImpl implements ApplicationAnalyticsServ
         return Mono.just(new AnalyticsResponse() {});
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeGroupBy_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<AnalyticsResponse> executeGroupBy(AnalyticsQuery query) {
- return RxJava2Adapter.monoToSingle(executeGroupBy_migrated(query));
-}
+    
 private Mono<AnalyticsResponse> executeGroupBy_migrated(AnalyticsQuery query) {
         AuditReportableCriteria.Builder queryBuilder = new AuditReportableCriteria.Builder()
                 .types(Collections.singletonList(query.getField().toUpperCase()));
@@ -83,11 +79,7 @@ private Mono<AnalyticsResponse> executeGroupBy_migrated(AnalyticsQuery query) {
     }
 
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeCount_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<AnalyticsResponse> executeCount(AnalyticsQuery query) {
- return RxJava2Adapter.monoToSingle(executeCount_migrated(query));
-}
+    
 private Mono<AnalyticsResponse> executeCount_migrated(AnalyticsQuery query) {
         AuditReportableCriteria.Builder queryBuilder = new AuditReportableCriteria.Builder()
                 .types(Collections.singletonList(query.getField().toUpperCase()));
@@ -104,11 +96,7 @@ private Mono<AnalyticsResponse> executeCount_migrated(AnalyticsQuery query) {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeDateHistogram_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<AnalyticsResponse> executeDateHistogram(AnalyticsQuery query) {
- return RxJava2Adapter.monoToSingle(executeDateHistogram_migrated(query));
-}
+    
 private Mono<AnalyticsResponse> executeDateHistogram_migrated(AnalyticsQuery query) {
         AuditReportableCriteria.Builder queryBuilder = new AuditReportableCriteria.Builder()
                 .types(Collections.singletonList(query.getField().toUpperCase()));

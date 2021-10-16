@@ -88,11 +88,7 @@ public class JdbcEntrypointRepository extends AbstractJdbcRepository implements 
                 .doOnError(error -> LOGGER.error("Unable to list all entrypoints with organization {}", organizationId, error)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.completeTags_migrated(entrypoint))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Entrypoint> completeTags(Entrypoint entrypoint) {
- return RxJava2Adapter.monoToSingle(completeTags_migrated(entrypoint));
-}
+    
 private Mono<Entrypoint> completeTags_migrated(Entrypoint entrypoint) {
         return tagRepository.findAllByEntrypoint_migrated(entrypoint.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcEntrypoint.Tag::getTag)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(tags -> {
                     entrypoint.setTags(tags);

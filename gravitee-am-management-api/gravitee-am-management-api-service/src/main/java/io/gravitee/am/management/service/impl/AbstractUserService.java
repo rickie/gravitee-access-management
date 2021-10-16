@@ -100,11 +100,7 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
         return this.update_migrated(referenceType, referenceId, id, updateUser, principal, checkClientFunction());
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(referenceType, referenceId, id, updateUser, principal, checkClient))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<User> update(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal, BiFunction<String, String, Maybe<Application>> checkClient) {
- return RxJava2Adapter.monoToSingle(update_migrated(referenceType, referenceId, id, updateUser, principal, checkClient));
-}
+    
 private Mono<User> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal, BiFunction<String, String, Maybe<Application>> checkClient) {
         return userValidator.validate_migrated(updateUser).then(getUserService().findById_migrated(referenceType, referenceId, id).flatMap(user->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource())))).flatMapSingle((io.gravitee.am.identityprovider.api.UserProvider userProvider)->{
 String client = updateUser.getClient() != null ? updateUser.getClient() : user.getClient();

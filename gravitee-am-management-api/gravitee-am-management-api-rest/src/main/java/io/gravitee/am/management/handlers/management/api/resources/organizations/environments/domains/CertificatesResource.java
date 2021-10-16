@@ -86,7 +86,7 @@ public class CertificatesResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
 
         RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.LIST).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapPublisher(__ -> RxJava2Adapter.fluxToFlowable(certificateService.findByDomain_migrated(domain)))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(c -> {
+                        .flatMapPublisher(__ -> certificateService.findByDomain_migrated(domain))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(c -> {
                             if (!StringUtils.isEmpty(use)) {
                                 final JsonObject config = JsonObject.mapFrom(Json.decodeValue(c.getConfiguration(), HashMap.class));
                                 if (config != null && config.getJsonArray("use") != null) {

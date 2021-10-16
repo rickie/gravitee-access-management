@@ -143,11 +143,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         return findById_migrated(organizationId).flatMap(organization->updateInternal_migrated(patchOrganization.patch(organization), updatedBy, organization));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated(toCreate, owner))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Organization> createInternal(Organization toCreate, User owner) {
- return RxJava2Adapter.monoToSingle(createInternal_migrated(toCreate, owner));
-}
+    
 private Mono<Organization> createInternal_migrated(Organization toCreate, User owner) {
 
         Date now = new Date();
@@ -159,11 +155,7 @@ private Mono<Organization> createInternal_migrated(Organization toCreate, User o
         return organizationRepository.create_migrated(toCreate).flatMap(createdOrganization->RxJava2Adapter.completableToMono(Completable.mergeArrayDelayError(RxJava2Adapter.monoToCompletable(entrypointService.createDefaults_migrated(createdOrganization).ignoreElements().then()), RxJava2Adapter.monoToCompletable(roleService.createDefaultRoles_migrated(createdOrganization.getId())))).then(Mono.just(createdOrganization))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(organization -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(organization).principal(owner)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(toCreate).principal(owner).throwable(throwable))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateInternal_migrated(organization, updatedBy, previous))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Organization> updateInternal(Organization organization, User updatedBy, Organization previous) {
- return RxJava2Adapter.monoToSingle(updateInternal_migrated(organization, updatedBy, previous));
-}
+    
 private Mono<Organization> updateInternal_migrated(Organization organization, User updatedBy, Organization previous) {
 
         organization.setUpdatedAt(new Date());

@@ -75,7 +75,7 @@ public class FactorsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
 
         RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.LIST).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapPublisher(___ -> RxJava2Adapter.fluxToFlowable(factorService.findByDomain_migrated(domain)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterFactorInfos)).collectList()))
+                        .flatMapPublisher(___ -> factorService.findByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterFactorInfos)).collectList()))
                 .subscribe(response::resume, response::resume);
     }
 

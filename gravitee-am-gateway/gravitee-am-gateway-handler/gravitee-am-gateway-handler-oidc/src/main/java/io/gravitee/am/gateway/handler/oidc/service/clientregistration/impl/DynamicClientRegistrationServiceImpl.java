@@ -187,11 +187,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
         return clientService.renewClientSecret_migrated(domain.getId(), toRenew.getId()).flatMap(client->applyRegistrationAccessToken_migrated(basePath, client)).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createClientFromRequest_migrated(request, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Client> createClientFromRequest(DynamicClientRegistrationRequest request, String basePath) {
- return RxJava2Adapter.monoToSingle(createClientFromRequest_migrated(request, basePath));
-}
+    
 private Mono<Client> createClientFromRequest_migrated(DynamicClientRegistrationRequest request, String basePath) {
         Client client = new Client();
         client.setClientId(SecureRandomString.generate());
@@ -201,11 +197,7 @@ private Mono<Client> createClientFromRequest_migrated(DynamicClientRegistrationR
         return this.validateClientRegistrationRequest_migrated(request).map(RxJavaReactorMigrationUtil.toJdkFunction(req -> req.patch(client))).flatMap(v->applyDefaultIdentityProvider_migrated(v)).flatMap(v->applyDefaultCertificateProvider_migrated(v)).flatMap(v->applyAccessTokenValidity_migrated(v)).flatMap(app->this.applyRegistrationAccessToken_migrated(basePath, app)).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.create_migrated(ident))).apply(v)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.applyAccessTokenValidity_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Client> applyAccessTokenValidity(Client client) {
- return RxJava2Adapter.monoToSingle(applyAccessTokenValidity_migrated(client));
-}
+    
 private Mono<Client> applyAccessTokenValidity_migrated(Client client) {
         client.setAccessTokenValiditySeconds(environment.getProperty(OPENID_DCR_ACCESS_TOKEN_VALIDITY, Integer.class, domain.useFapiBrazilProfile() ? FAPI_OPENBANKING_BRAZIL_DEFAULT_ACCESS_TOKEN_VALIDITY : Client.DEFAULT_ACCESS_TOKEN_VALIDITY_SECONDS));
         client.setRefreshTokenValiditySeconds(environment.getProperty(OPENID_DCR_REFRESH_TOKEN_VALIDITY, Integer.class, Client.DEFAULT_REFRESH_TOKEN_VALIDITY_SECONDS));
@@ -213,31 +205,13 @@ private Mono<Client> applyAccessTokenValidity_migrated(Client client) {
         return Mono.just(client);
     }
 
-    /**
-     * <pre>
-     * Software_id is based on id field and not client_id because:
-     * this field is not intended to be human readable and is usually opaque to the client and authorization server.
-     * the client may switch back from template to real client and then this is better to not expose it's client_id.
-     * @param request
-     * @param basePath
-     * @return
-     * </pre>
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createClientFromTemplate_migrated(request, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Client> createClientFromTemplate(DynamicClientRegistrationRequest request, String basePath) {
- return RxJava2Adapter.monoToSingle(createClientFromTemplate_migrated(request, basePath));
-}
+    
 private Mono<Client> createClientFromTemplate_migrated(DynamicClientRegistrationRequest request, String basePath) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(clientService.findById_migrated(request.getSoftwareId().get()).switchIfEmpty(Mono.error(new InvalidClientMetadataException("No template found for software_id "+request.getSoftwareId().get()))))
                 .flatMapSingle((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(sanitizeTemplate_migrated(ident)))).map(RxJavaReactorMigrationUtil.toJdkFunction(request::patch)).flatMap(app->this.applyRegistrationAccessToken_migrated(basePath, app)).flatMap(v->clientService.create_migrated(v)).flatMap(client->copyForms_migrated(request.getSoftwareId().get(), client)).flatMap(client->copyEmails_migrated(request.getSoftwareId().get(), client));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.sanitizeTemplate_migrated(template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Client> sanitizeTemplate(Client template) {
- return RxJava2Adapter.monoToSingle(sanitizeTemplate_migrated(template));
-}
+    
 private Mono<Client> sanitizeTemplate_migrated(Client template) {
         if(!template.isTemplate()) {
             return Mono.error(new InvalidClientMetadataException("Client behind software_id is not a template"));
@@ -258,35 +232,17 @@ private Mono<Client> sanitizeTemplate_migrated(Client template) {
         return Mono.just(template);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.copyForms_migrated(sourceId, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Client> copyForms(String sourceId, Client client) {
- return RxJava2Adapter.monoToSingle(copyForms_migrated(sourceId, client));
-}
+    
 private Mono<Client> copyForms_migrated(String sourceId, Client client) {
         return formService.copyFromClient_migrated(domain.getId(), sourceId, client.getId()).flatMap(irrelevant->Mono.just(client));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.copyEmails_migrated(sourceId, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Client> copyEmails(String sourceId, Client client) {
- return RxJava2Adapter.monoToSingle(copyEmails_migrated(sourceId, client));
-}
+    
 private Mono<Client> copyEmails_migrated(String sourceId, Client client) {
         return emailTemplateService.copyFromClient_migrated(domain.getId(), sourceId, client.getId()).collectList().flatMap(irrelevant->Mono.just(client));
     }
 
-    /**
-     * Identity provider is not part of dynamic client registration but needed on the client.
-     * So we set the first identoty provider available on the domain.
-     * @param client App to create
-     * @return
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.applyDefaultIdentityProvider_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Client> applyDefaultIdentityProvider(Client client) {
- return RxJava2Adapter.monoToSingle(applyDefaultIdentityProvider_migrated(client));
-}
+    
 private Mono<Client> applyDefaultIdentityProvider_migrated(Client client) {
         return identityProviderService.findByDomain_migrated(client.getDomain()).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviders -> {
                 if(identityProviders!=null && !identityProviders.isEmpty()) {
@@ -296,17 +252,7 @@ private Mono<Client> applyDefaultIdentityProvider_migrated(Client client) {
             }));
     }
 
-    /**
-     * Certificate provider is not part of dynamic client registration but needed on the client.
-     * So we set the first certificate provider available on the domain.
-     * @param client App to create
-     * @return
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.applyDefaultCertificateProvider_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Client> applyDefaultCertificateProvider(Client client) {
- return RxJava2Adapter.monoToSingle(applyDefaultCertificateProvider_migrated(client));
-}
+    
 private Mono<Client> applyDefaultCertificateProvider_migrated(Client client) {
         return certificateService.findByDomain_migrated(client.getDomain()).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(certificates -> {
                     if(certificates!=null && !certificates.isEmpty()) {
@@ -316,11 +262,7 @@ private Mono<Client> applyDefaultCertificateProvider_migrated(Client client) {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.applyRegistrationAccessToken_migrated(basePath, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Client> applyRegistrationAccessToken(String basePath, Client client) {
- return RxJava2Adapter.monoToSingle(applyRegistrationAccessToken_migrated(basePath, client));
-}
+    
 private Mono<Client> applyRegistrationAccessToken_migrated(String basePath, Client client) {
 
         OpenIDProviderMetadata openIDProviderMetadata = openIDDiscoveryService.getConfiguration(basePath);
@@ -342,39 +284,20 @@ private Mono<Client> applyRegistrationAccessToken_migrated(String basePath, Clie
                 }));
     }
 
-    /**
-     * Validate payload according to openid specifications.
-     *
-     * https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
-     *
-     * @param request DynamicClientRegistrationRequest
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateClientRegistrationRequest_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateClientRegistrationRequest(final DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateClientRegistrationRequest_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateClientRegistrationRequest_migrated(final DynamicClientRegistrationRequest request) {
         LOGGER.debug("Validating dynamic client registration payload");
         return this.validateClientRegistrationRequest_migrated(request, false);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateClientPatchRequest_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateClientPatchRequest(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateClientPatchRequest_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateClientPatchRequest_migrated(DynamicClientRegistrationRequest request) {
         LOGGER.debug("Validating dynamic client registration payload : patch");
         //redirect_uri is mandatory in the request, but in case of patch we may omit it...
         return this.validateClientRegistrationRequest_migrated(request, true);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateClientRegistrationRequest_migrated(request, isPatch))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateClientRegistrationRequest(final DynamicClientRegistrationRequest request, boolean isPatch) {
- return RxJava2Adapter.monoToSingle(validateClientRegistrationRequest_migrated(request, isPatch));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateClientRegistrationRequest_migrated(final DynamicClientRegistrationRequest request, boolean isPatch) {
         if(request==null) {
             return Mono.error(new InvalidClientMetadataException());
@@ -383,11 +306,7 @@ private Mono<DynamicClientRegistrationRequest> validateClientRegistrationRequest
         return this.validateRedirectUri_migrated(request, isPatch).flatMap(v->validateScopes_migrated(v)).flatMap(v->validateGrantType_migrated(v)).flatMap(v->validateResponseType_migrated(v)).flatMap(v->validateSubjectType_migrated(v)).flatMap(v->validateRequestUri_migrated(v)).flatMap(v->validateSectorIdentifierUri_migrated(v)).flatMap(v->validateJKWs_migrated(v)).flatMap(v->validateUserinfoSigningAlgorithm_migrated(v)).flatMap(v->validateUserinfoEncryptionAlgorithm_migrated(v)).flatMap(v->validateIdTokenSigningAlgorithm_migrated(v)).flatMap(v->validateIdTokenEncryptionAlgorithm_migrated(v)).flatMap(v->validateTlsClientAuth_migrated(v)).flatMap(v->validateSelfSignedClientAuth_migrated(v)).flatMap(v->validateAuthorizationSigningAlgorithm_migrated(v)).flatMap(v->validateAuthorizationEncryptionAlgorithm_migrated(v)).flatMap(v->validateRequestObjectSigningAlgorithm_migrated(v)).flatMap(v->validateRequestObjectEncryptionAlgorithm_migrated(v)).flatMap(v->RxJava2Adapter.singleToMono((Single<DynamicClientRegistrationRequest>)RxJavaReactorMigrationUtil.toJdkFunction((Function<DynamicClientRegistrationRequest, Single<DynamicClientRegistrationRequest>>)(io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(enforceWithSoftwareStatement_migrated(ident))).apply(v)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enforceWithSoftwareStatement_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> enforceWithSoftwareStatement(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(enforceWithSoftwareStatement_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> enforceWithSoftwareStatement_migrated(DynamicClientRegistrationRequest request) {
         if (this.domain.useFapiBrazilProfile()) {
             if (request.getSoftwareStatement() == null || request.getSoftwareStatement().isEmpty()) {
@@ -470,18 +389,7 @@ private Mono<DynamicClientRegistrationRequest> enforceWithSoftwareStatement_migr
         return Mono.just(request);
     }
 
-    /**
-     * According to openid specification, redirect_uris are REQUIRED in the request for creation.
-     * But according to the grant type, it may be null or empty.
-     * @param request DynamicClientRegistrationRequest
-     * @param isPatch true if only updating some fields (else means all fields will overwritten)
-     * @return DynamicClientRegistrationRequest
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateRedirectUri_migrated(request, isPatch))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateRedirectUri(DynamicClientRegistrationRequest request, boolean isPatch) {
- return RxJava2Adapter.monoToSingle(validateRedirectUri_migrated(request, isPatch));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateRedirectUri_migrated(DynamicClientRegistrationRequest request, boolean isPatch) {
 
         //Except for patching a client, redirect_uris metadata is required but may be null or empty.
@@ -492,11 +400,7 @@ private Mono<DynamicClientRegistrationRequest> validateRedirectUri_migrated(Dyna
         return Mono.just(request);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateResponseType_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateResponseType(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateResponseType_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateResponseType_migrated(DynamicClientRegistrationRequest request) {
         //if response_type provided, they must be valid.
         if(request.getResponseTypes()!=null) {
@@ -507,11 +411,7 @@ private Mono<DynamicClientRegistrationRequest> validateResponseType_migrated(Dyn
         return Mono.just(request);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateGrantType_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateGrantType(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateGrantType_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateGrantType_migrated(DynamicClientRegistrationRequest request) {
         //if grant_type provided, they must be valid.
         if(request.getGrantTypes()!=null) {
@@ -522,11 +422,7 @@ private Mono<DynamicClientRegistrationRequest> validateGrantType_migrated(Dynami
         return Mono.just(request);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateSubjectType_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateSubjectType(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateSubjectType_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateSubjectType_migrated(DynamicClientRegistrationRequest request) {
         //if subject_type is provided, it must be valid.
         if(request.getSubjectType()!=null && request.getSubjectType().isPresent()) {
@@ -537,11 +433,7 @@ private Mono<DynamicClientRegistrationRequest> validateSubjectType_migrated(Dyna
         return Mono.just(request);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateUserinfoSigningAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateUserinfoSigningAlgorithm(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateUserinfoSigningAlgorithm_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateUserinfoSigningAlgorithm_migrated(DynamicClientRegistrationRequest request) {
         //if userinfo_signed_response_alg is provided, it must be valid.
         if(request.getUserinfoSignedResponseAlg()!=null && request.getUserinfoSignedResponseAlg().isPresent()) {
@@ -552,11 +444,7 @@ private Mono<DynamicClientRegistrationRequest> validateUserinfoSigningAlgorithm_
         return Mono.just(request);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateUserinfoEncryptionAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateUserinfoEncryptionAlgorithm(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateUserinfoEncryptionAlgorithm_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateUserinfoEncryptionAlgorithm_migrated(DynamicClientRegistrationRequest request) {
         if(request.getUserinfoEncryptedResponseEnc()!=null && request.getUserinfoEncryptedResponseAlg()==null) {
             return Mono.error(new InvalidClientMetadataException("When userinfo_encrypted_response_enc is included, userinfo_encrypted_response_alg MUST also be provided"));
@@ -580,11 +468,7 @@ private Mono<DynamicClientRegistrationRequest> validateUserinfoEncryptionAlgorit
     }
 
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateRequestObjectSigningAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateRequestObjectSigningAlgorithm(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateRequestObjectSigningAlgorithm_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateRequestObjectSigningAlgorithm_migrated(DynamicClientRegistrationRequest request) {
         //if userinfo_signed_response_alg is provided, it must be valid.
         if(request.getRequestObjectSigningAlg() !=null && request.getRequestObjectSigningAlg().isPresent()) {
@@ -600,11 +484,7 @@ private Mono<DynamicClientRegistrationRequest> validateRequestObjectSigningAlgor
         return Mono.just(request);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateRequestObjectEncryptionAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateRequestObjectEncryptionAlgorithm(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateRequestObjectEncryptionAlgorithm_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateRequestObjectEncryptionAlgorithm_migrated(DynamicClientRegistrationRequest request) {
         if(request.getRequestObjectEncryptionEnc() !=null && request.getRequestObjectEncryptionAlg()==null) {
             return Mono.error(new InvalidClientMetadataException("When request_object_encryption_enc is included, request_object_encryption_alg MUST also be provided"));
@@ -643,11 +523,7 @@ private Mono<DynamicClientRegistrationRequest> validateRequestObjectEncryptionAl
     }
 
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateIdTokenSigningAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateIdTokenSigningAlgorithm(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateIdTokenSigningAlgorithm_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateIdTokenSigningAlgorithm_migrated(DynamicClientRegistrationRequest request) {
         //if userinfo_signed_response_alg is provided, it must be valid.
         if(request.getIdTokenSignedResponseAlg()!=null && request.getIdTokenSignedResponseAlg().isPresent()) {
@@ -658,11 +534,7 @@ private Mono<DynamicClientRegistrationRequest> validateIdTokenSigningAlgorithm_m
         return Mono.just(request);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateIdTokenEncryptionAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateIdTokenEncryptionAlgorithm(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateIdTokenEncryptionAlgorithm_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateIdTokenEncryptionAlgorithm_migrated(DynamicClientRegistrationRequest request) {
         if(request.getIdTokenEncryptedResponseEnc()!=null && request.getIdTokenEncryptedResponseAlg()==null) {
             return Mono.error(new InvalidClientMetadataException("When id_token_encrypted_response_enc is included, id_token_encrypted_response_alg MUST also be provided"));
@@ -685,11 +557,7 @@ private Mono<DynamicClientRegistrationRequest> validateIdTokenEncryptionAlgorith
         return Mono.just(request);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateRequestUri_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateRequestUri(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateRequestUri_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateRequestUri_migrated(DynamicClientRegistrationRequest request) {
         //Check request_uri well formated
         if(request.getRequestUris()!=null && request.getRequestUris().isPresent()) {
@@ -703,11 +571,7 @@ private Mono<DynamicClientRegistrationRequest> validateRequestUri_migrated(Dynam
         return Mono.just(request);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateSectorIdentifierUri_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateSectorIdentifierUri(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateSectorIdentifierUri_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateSectorIdentifierUri_migrated(DynamicClientRegistrationRequest request) {
         //if sector_identifier_uri is provided, then retrieve content and validate redirect_uris among this list.
         if(request.getSectorIdentifierUri()!=null && request.getSectorIdentifierUri().isPresent()) {
@@ -739,11 +603,7 @@ return RxJava2Adapter.monoToSingle(Mono.just(request));
         return Mono.just(request);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateJKWs_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateJKWs(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateJKWs_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateJKWs_migrated(DynamicClientRegistrationRequest request) {
         //The jwks_uri and jwks parameters MUST NOT be used together.
         if(request.getJwks()!=null && request.getJwks().isPresent() && request.getJwksUri()!=null && request.getJwksUri().isPresent()) {
@@ -766,17 +626,7 @@ private Mono<DynamicClientRegistrationRequest> validateJKWs_migrated(DynamicClie
         return Mono.just(request);
     }
 
-    /**
-     * Remove non allowed scopes (if feature is enabled) and then apply default scopes.
-     * The scopes validations are done later (validateMetadata) on the process.
-     * @param request DynamicClientRegistrationRequest
-     * @return DynamicClientRegistrationRequest
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateScopes_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateScopes(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateScopes_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateScopes_migrated(DynamicClientRegistrationRequest request) {
 
         final boolean hasAllowedScopes = domain.getOidc()!=null && domain.getOidc().getClientRegistrationSettings()!=null &&
@@ -809,11 +659,7 @@ private Mono<DynamicClientRegistrationRequest> validateScopes_migrated(DynamicCl
         return Mono.just(request);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateAuthorizationSigningAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateAuthorizationSigningAlgorithm(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateAuthorizationSigningAlgorithm_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateAuthorizationSigningAlgorithm_migrated(DynamicClientRegistrationRequest request) {
         // Signing an authorization response is required
         // As per https://bitbucket.org/openid/fapi/src/master/Financial_API_JWT_Secured_Authorization_Response_Mode.md#markdown-header-5-client-metadata
@@ -829,11 +675,7 @@ private Mono<DynamicClientRegistrationRequest> validateAuthorizationSigningAlgor
         return Mono.just(request);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateAuthorizationEncryptionAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateAuthorizationEncryptionAlgorithm(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateAuthorizationEncryptionAlgorithm_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateAuthorizationEncryptionAlgorithm_migrated(DynamicClientRegistrationRequest request) {
         if ((request.getAuthorizationEncryptedResponseEnc() != null && request.getAuthorizationEncryptedResponseEnc().isPresent()) &&
                 (request.getAuthorizationEncryptedResponseAlg() == null || !request.getAuthorizationEncryptedResponseAlg().isPresent())) {
@@ -858,22 +700,7 @@ private Mono<DynamicClientRegistrationRequest> validateAuthorizationEncryptionAl
         return Mono.just(request);
     }
 
-    /**
-     * <p>
-     *    A client using the "tls_client_auth" authentication method MUST use exactly one of the
-     *    below metadata parameters to indicate the certificate subject value that the authorization server is
-     *    to expect when authenticating the respective client.
-     * </p>
-     * <a href="https://tools.ietf.org/html/rfc8705#section-2.1.2">Client Registration Metadata</a>
-     *
-     * @param request DynamicClientRegistrationRequest
-     * @return DynamicClientRegistrationRequest
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateTlsClientAuth_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateTlsClientAuth(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateTlsClientAuth_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateTlsClientAuth_migrated(DynamicClientRegistrationRequest request) {
         if(request.getTokenEndpointAuthMethod() != null &&
                 request.getTokenEndpointAuthMethod().isPresent() &&
@@ -952,25 +779,7 @@ private Mono<DynamicClientRegistrationRequest> validateTlsClientAuth_migrated(Dy
         return Mono.just(request);
     }
 
-    /**
-     * <p>
-     *    This method of mutual-TLS OAuth client authentication is intended to
-     *    support client authentication using self-signed certificates.  As a
-     *    prerequisite, the client registers its X.509 certificates (using
-     *    "jwks" defined in [RFC7591]) or a reference to a trusted source for
-     *    its X.509 certificates (using "jwks_uri" from [RFC7591]) with the
-     *    authorization server.
-     * </p>
-     * <a href="https://tools.ietf.org/html/rfc8705#section-2.2.2">Client Registration Metadata</a>
-     *
-     * @param request DynamicClientRegistrationRequest
-     * @return DynamicClientRegistrationRequest
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateSelfSignedClientAuth_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<DynamicClientRegistrationRequest> validateSelfSignedClientAuth(DynamicClientRegistrationRequest request) {
- return RxJava2Adapter.monoToSingle(validateSelfSignedClientAuth_migrated(request));
-}
+    
 private Mono<DynamicClientRegistrationRequest> validateSelfSignedClientAuth_migrated(DynamicClientRegistrationRequest request) {
         if (request.getTokenEndpointAuthMethod() != null &&
                 request.getTokenEndpointAuthMethod().isPresent() &&

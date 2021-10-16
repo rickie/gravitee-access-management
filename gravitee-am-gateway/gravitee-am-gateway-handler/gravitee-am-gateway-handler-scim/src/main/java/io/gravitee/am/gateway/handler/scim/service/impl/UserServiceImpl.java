@@ -357,11 +357,7 @@ return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementExcept
                 .orElseGet(() -> !passwordValidator.isValid(password));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setGroups_migrated(scimUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<User> setGroups(User scimUser) {
- return RxJava2Adapter.monoToSingle(setGroups_migrated(scimUser));
-}
+    
 private Mono<User> setGroups_migrated(User scimUser) {
         // fetch groups
         return groupService.findByMember_migrated(scimUser.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(group -> {
@@ -379,11 +375,7 @@ private Mono<User> setGroups_migrated(User scimUser) {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.checkRoles_migrated(roles))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable checkRoles(List<String> roles) {
- return RxJava2Adapter.monoToCompletable(checkRoles_migrated(roles));
-}
+    
 private Mono<Void> checkRoles_migrated(List<String> roles) {
         if (roles == null || roles.isEmpty()) {
             return Mono.empty();

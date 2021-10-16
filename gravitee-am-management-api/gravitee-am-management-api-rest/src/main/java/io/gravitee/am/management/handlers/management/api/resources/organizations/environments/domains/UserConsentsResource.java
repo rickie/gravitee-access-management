@@ -96,9 +96,9 @@ public class UserConsentsResource extends AbstractResource {
         RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapPublisher(__ -> {
                             if (clientId == null || clientId.isEmpty()) {
-                                return RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUser_migrated(domain, user));
+                                return scopeApprovalService.findByDomainAndUser_migrated(domain, user);
                             }
-                            return RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUserAndClient_migrated(domain, user, clientId));
+                            return scopeApprovalService.findByDomainAndUserAndClient_migrated(domain, user, clientId);
                         })
                         .flatMapSingle(scopeApproval ->
                                 RxJava2Adapter.monoToSingle(getClient_migrated(scopeApproval.getDomain(), scopeApproval.getClientId()).zipWith(getScope_migrated(scopeApproval.getDomain(), scopeApproval.getScope()), RxJavaReactorMigrationUtil.toJdkBiFunction(((clientEntity, scopeEntity) -> {
@@ -141,21 +141,13 @@ public class UserConsentsResource extends AbstractResource {
         return resourceContext.getResource(UserConsentResource.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getClient_migrated(domain, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<ApplicationEntity> getClient(String domain, String clientId) {
- return RxJava2Adapter.monoToSingle(getClient_migrated(domain, clientId));
-}
+    
 private Mono<ApplicationEntity> getClient_migrated(String domain, String clientId) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.findByDomainAndClientId_migrated(domain, clientId).map(RxJavaReactorMigrationUtil.toJdkFunction(ApplicationEntity::new)).defaultIfEmpty(new ApplicationEntity("unknown-id", clientId, "unknown-client-name")).single())
                 .cache());
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getScope_migrated(domain, scopeKey))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<ScopeEntity> getScope(String domain, String scopeKey) {
- return RxJava2Adapter.monoToSingle(getScope_migrated(domain, scopeKey));
-}
+    
 private Mono<ScopeEntity> getScope_migrated(String domain, String scopeKey) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.findByDomainAndKey_migrated(domain, scopeKey).switchIfEmpty(scopeService.findByDomainAndKey_migrated(domain, getScopeBase(scopeKey)).map(RxJavaReactorMigrationUtil.toJdkFunction(entity -> {
                     // set the right scopeKey since the one returned by the service contains the scope definition without parameter

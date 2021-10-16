@@ -443,11 +443,7 @@ public class ResourceServiceImpl implements ResourceService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateScopes_migrated(toValidate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Resource> validateScopes(Resource toValidate) {
- return RxJava2Adapter.monoToSingle(validateScopes_migrated(toValidate));
-}
+    
 private Mono<Resource> validateScopes_migrated(Resource toValidate) {
         if(toValidate.getResourceScopes()==null || toValidate.getResourceScopes().isEmpty()) {
             return Mono.error(new MissingScopeException());
@@ -465,11 +461,7 @@ private Mono<Resource> validateScopes_migrated(Resource toValidate) {
                 }).apply(v)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateIconUri_migrated(toValidate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Resource> validateIconUri(Resource toValidate) {
- return RxJava2Adapter.monoToSingle(validateIconUri_migrated(toValidate));
-}
+    
 private Mono<Resource> validateIconUri_migrated(Resource toValidate) {
         if(toValidate.getIconUri()!=null) {
             try {

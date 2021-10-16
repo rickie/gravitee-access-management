@@ -295,11 +295,7 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
         return delete.then(deleteScopes.as(e -> trx.transactional(e).then()));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.completeWithScopes_migrated(maybeRole, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<Role> completeWithScopes(Maybe<Role> maybeRole, String id) {
- return RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(maybeRole, id));
-}
+    
 private Mono<Role> completeWithScopes_migrated(Maybe<Role> maybeRole, String id) {
         Maybe<List<String>> scopes = RxJava2Adapter.monoToMaybe(oauthScopeRepository.findAllByRole_migrated(id).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcRole.OAuthScope::getScope)).collectList());
 

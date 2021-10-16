@@ -268,11 +268,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.completeDomain_migrated(entity))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Flowable<Domain> completeDomain(Domain entity) {
- return RxJava2Adapter.fluxToFlowable(completeDomain_migrated(entity));
-}
+    
 private Flux<Domain> completeDomain_migrated(Domain entity) {
         return Flux.just(entity).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
                 RxJava2Adapter.fluxToFlowable(identitiesRepository.findAllByDomainId_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcDomain.Identity::getIdentity)).collectList().flux().map(RxJavaReactorMigrationUtil.toJdkFunction(idps -> {

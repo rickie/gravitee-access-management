@@ -225,15 +225,11 @@ public class JWEServiceImpl implements JWEService {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decrypt_migrated(jwe, client, filter, function))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<JWT> decrypt(JWEObject jwe, Client client, Predicate<JWK> filter, JWEDecrypterFunction<JWK, JWEDecrypter> function) {
- return RxJava2Adapter.monoToSingle(decrypt_migrated(jwe, client, filter, function));
-}
+    
 private Mono<JWT> decrypt_migrated(JWEObject jwe, Client client, Predicate<JWK> filter, JWEDecrypterFunction<JWK, JWEDecrypter> function) {
         final Maybe<JWKSet> jwks = client != null ? RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client)) : RxJava2Adapter.monoToMaybe(jwkService.getDomainPrivateKeys_migrated());
         return RxJava2Adapter.flowableToFlux(jwks
-                .flatMapPublisher(jwkset -> RxJava2Adapter.fluxToFlowable(Flux.fromIterable(jwkset.getKeys())))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(filter::test)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(jwk -> jwk.getUse() == null || jwk.getUse().equals(KeyUse.ENCRYPTION.getValue()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(jwk -> jwe.getHeader().getKeyID() == null || jwe.getHeader().getKeyID().equals(jwk.getKid()))).map(RxJavaReactorMigrationUtil.toJdkFunction(function::apply)).map(RxJavaReactorMigrationUtil.toJdkFunction(decrypter -> {
+                .flatMapPublisher(jwkset -> Flux.fromIterable(jwkset.getKeys()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(filter::test)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(jwk -> jwk.getUse() == null || jwk.getUse().equals(KeyUse.ENCRYPTION.getValue()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(jwk -> jwe.getHeader().getKeyID() == null || jwe.getHeader().getKeyID().equals(jwk.getKid()))).map(RxJavaReactorMigrationUtil.toJdkFunction(function::apply)).map(RxJavaReactorMigrationUtil.toJdkFunction(decrypter -> {
                     try {
                         jwe.decrypt(decrypter);
                         return Optional.<JWT>ofNullable(jwe.getPayload().toSignedJWT());
@@ -272,11 +268,7 @@ public Mono<String> encryptAuthorization_migrated(String signedJwt, Client clien
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encrypt_migrated(jwe, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<String> encrypt(JWEObject jwe, Client client) {
- return RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client));
-}
+    
 private Mono<String> encrypt_migrated(JWEObject jwe, Client client) {
 
         JWEAlgorithm algorithm = jwe.getHeader().getAlgorithm();
@@ -319,11 +311,7 @@ private Mono<String> encrypt_migrated(JWEObject jwe, Client client) {
         return Mono.error(new ServerErrorException("Unable to perform Json Web Encryption, unsupported algorithm: "+algorithm.getName()));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encrypt_migrated(jwe, client, filter, function))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<String> encrypt(JWEObject jwe, Client client, Predicate<JWK> filter, JWEEncrypterFunction<JWK, JWEEncrypter> function) {
- return RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client, filter, function));
-}
+    
 private Mono<String> encrypt_migrated(JWEObject jwe, Client client, Predicate<JWK> filter, JWEEncrypterFunction<JWK, JWEEncrypter> function) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client).flatMap(z->jwkService.filter_migrated(z, filter)).switchIfEmpty(Mono.error(new InvalidClientMetadataException("no matching key found to encrypt"))))
                 .flatMapSingle(jwk -> RxJava2Adapter.monoToSingle(Mono.just(function.apply(jwk))))).map(RxJavaReactorMigrationUtil.toJdkFunction(encrypter -> {

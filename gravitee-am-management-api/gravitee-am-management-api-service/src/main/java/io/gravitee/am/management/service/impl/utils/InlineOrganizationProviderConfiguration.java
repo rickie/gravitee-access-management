@@ -126,7 +126,7 @@ public class InlineOrganizationProviderConfiguration extends OrganizationProvide
                 ORGANIZATION_OWNER.name(),
                 ORGANIZATION_USER.name());
 
-        final Map<String, Role> organizationRoles = RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(Flux.merge(RxJava2Adapter.fluxToFlowable(roleService.findRolesByName_migrated(ReferenceType.PLATFORM, Platform.DEFAULT, ReferenceType.ORGANIZATION, roleNames)), RxJava2Adapter.fluxToFlowable(roleService.findRolesByName_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT, ReferenceType.ORGANIZATION, roleNames))))
+        final Map<String, Role> organizationRoles = RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(Flux.merge(roleService.findRolesByName_migrated(ReferenceType.PLATFORM, Platform.DEFAULT, ReferenceType.ORGANIZATION, roleNames), roleService.findRolesByName_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT, ReferenceType.ORGANIZATION, roleNames)))
                 .collect(HashMap<String, Role>::new, (acc, role) -> {
                     acc.put(role.getName(), role);
                 })).block();

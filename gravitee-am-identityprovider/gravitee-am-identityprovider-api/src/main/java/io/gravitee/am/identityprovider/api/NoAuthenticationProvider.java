@@ -34,7 +34,7 @@ public class NoAuthenticationProvider implements AuthenticationProvider {
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
-        return RxJava2Adapter.maybeToMono(null);
+        return null;
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -45,6 +45,6 @@ public class NoAuthenticationProvider implements AuthenticationProvider {
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(String username) {
-        return RxJava2Adapter.maybeToMono(null);
+        return null;
     }
 }

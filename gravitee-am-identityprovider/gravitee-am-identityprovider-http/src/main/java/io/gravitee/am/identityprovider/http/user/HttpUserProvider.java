@@ -252,13 +252,7 @@ public class HttpUserProvider implements UserProvider {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUser_migrated(usersResourceConfiguration, readResourceConfiguration, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<User> findByUser(HttpUsersResourceConfiguration usersResourceConfiguration,
-                                   HttpResourceConfiguration readResourceConfiguration,
-                                   User user) {
- return RxJava2Adapter.monoToMaybe(findByUser_migrated(usersResourceConfiguration, readResourceConfiguration, user));
-}
+    
 private Mono<User> findByUser_migrated(HttpUsersResourceConfiguration usersResourceConfiguration,
                                    HttpResourceConfiguration readResourceConfiguration,
                                    User user) {
@@ -312,15 +306,7 @@ private Mono<User> findByUser_migrated(HttpUsersResourceConfiguration usersResou
         return user;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.processRequest_migrated(templateEngine, httpURI, httpMethod, httpHeaders, httpBody))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<HttpResponse<Buffer>> processRequest(TemplateEngine templateEngine,
-                                                        String httpURI,
-                                                        HttpMethod httpMethod,
-                                                        List<HttpHeader> httpHeaders,
-                                                        String httpBody) {
- return RxJava2Adapter.monoToSingle(processRequest_migrated(templateEngine, httpURI, httpMethod, httpHeaders, httpBody));
-}
+    
 private Mono<HttpResponse<Buffer>> processRequest_migrated(TemplateEngine templateEngine,
                                                         String httpURI,
                                                         HttpMethod httpMethod,

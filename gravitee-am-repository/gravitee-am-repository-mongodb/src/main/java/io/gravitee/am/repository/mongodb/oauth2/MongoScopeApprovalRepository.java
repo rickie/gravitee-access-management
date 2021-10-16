@@ -203,11 +203,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
                 and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user)))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this._findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<ScopeApproval> _findById(String id) {
- return RxJava2Adapter.monoToSingle(_findById_migrated(id));
-}
+    
 private Mono<ScopeApproval> _findById_migrated(String id) {
         return RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.find(eq(FIELD_ID, id)).first())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }

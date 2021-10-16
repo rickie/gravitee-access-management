@@ -332,11 +332,7 @@ public class FormServiceImpl implements FormService {
         return update_migrated(ReferenceType.DOMAIN, domain, id, updateForm, principal);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create0_migrated(referenceType, referenceId, client, newForm, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Form> create0(ReferenceType referenceType, String referenceId, String client, NewForm newForm, User principal) {
- return RxJava2Adapter.monoToSingle(create0_migrated(referenceType, referenceId, client, newForm, principal));
-}
+    
 private Mono<Form> create0_migrated(ReferenceType referenceType, String referenceId, String client, NewForm newForm, User principal) {
         String formId = RandomString.generate();
 
@@ -408,11 +404,7 @@ private Mono<Form> create0_migrated(ReferenceType referenceType, String referenc
         return delete_migrated(ReferenceType.DOMAIN, domain, formId, principal);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkFormUniqueness_migrated(referenceType, referenceId, client, formTemplate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Boolean> checkFormUniqueness(ReferenceType referenceType, String referenceId, String client, String formTemplate) {
- return RxJava2Adapter.monoToSingle(checkFormUniqueness_migrated(referenceType, referenceId, client, formTemplate));
-}
+    
 private Mono<Boolean> checkFormUniqueness_migrated(ReferenceType referenceType, String referenceId, String client, String formTemplate) {
         Maybe<Form> maybeSource = client == null ?
                 RxJava2Adapter.monoToMaybe(findByTemplate_migrated(referenceType, referenceId, formTemplate)) :

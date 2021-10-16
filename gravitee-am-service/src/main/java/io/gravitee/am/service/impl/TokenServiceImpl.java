@@ -142,11 +142,7 @@ public class TokenServiceImpl implements TokenService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByClientId_migrated(application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Long> countByClientId(Application application) {
- return RxJava2Adapter.monoToSingle(countByClientId_migrated(application));
-}
+    
 private Mono<Long> countByClientId_migrated(Application application) {
         if (application.getSettings() == null) {
             return Mono.just(0l);

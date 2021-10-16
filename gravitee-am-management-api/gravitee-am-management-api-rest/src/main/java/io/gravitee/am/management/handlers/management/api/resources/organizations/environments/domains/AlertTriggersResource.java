@@ -63,7 +63,7 @@ public class AlertTriggersResource extends AbstractResource {
             @PathParam("domain") String domainId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.LIST).thenMany(RxJava2Adapter.fluxToFlowable(alertTriggerService.findByDomainAndCriteria_migrated(domainId, new AlertTriggerCriteria()))).sort(Comparator.comparingInt(o -> o.getType().getOrder())).collectList())
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.LIST).thenMany(alertTriggerService.findByDomainAndCriteria_migrated(domainId, new AlertTriggerCriteria())).sort(Comparator.comparingInt(o -> o.getType().getOrder())).collectList())
                 .subscribe(response::resume, response::resume);
     }
 
@@ -86,7 +86,7 @@ public class AlertTriggersResource extends AbstractResource {
 
         final User authenticatedUser = this.getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.UPDATE).thenMany(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(patchAlertTriggers))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.UPDATE).thenMany(Flux.fromIterable(patchAlertTriggers)))
                 .flatMapSingle(patchAlertTrigger -> RxJava2Adapter.monoToSingle(alertTriggerService.createOrUpdate_migrated(ReferenceType.DOMAIN, domainId, patchAlertTrigger, authenticatedUser)))).collectList())
                 .subscribe(response::resume, response::resume);
     }

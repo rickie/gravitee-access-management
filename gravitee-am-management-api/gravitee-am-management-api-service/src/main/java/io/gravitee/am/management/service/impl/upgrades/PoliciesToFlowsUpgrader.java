@@ -87,11 +87,7 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
         return true;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.migrateToFlows_migrated(policies, domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable migrateToFlows(List<Policy> policies, String domain) {
- return RxJava2Adapter.monoToCompletable(migrateToFlows_migrated(policies, domain));
-}
+    
 private Mono<Void> migrateToFlows_migrated(List<Policy> policies, String domain) {
         LOGGER.info("Migrate {} policies to flows for domain {}", policies.size(), domain);
 

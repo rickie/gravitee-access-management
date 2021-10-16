@@ -67,11 +67,7 @@ public class MongoAccessTokenRepository extends AbstractOAuth2MongoRepository im
         super.createIndex(accessTokenCollection, new Document(FIELD_RESET_TIME, 1), new IndexOptions().expireAfter(0L, TimeUnit.SECONDS));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<AccessToken> findById(String id) {
- return RxJava2Adapter.monoToMaybe(findById_migrated(id));
-}
+    
 private Mono<AccessToken> findById_migrated(String id) {
         return RxJava2Adapter.observableToFlux(Observable
                 .fromPublisher(accessTokenCollection.find(eq(FIELD_ID, id)).limit(1).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));

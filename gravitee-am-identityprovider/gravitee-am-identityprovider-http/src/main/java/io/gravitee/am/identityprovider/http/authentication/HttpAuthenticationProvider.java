@@ -152,11 +152,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
         return loadByUsername0_migrated(new SimpleAuthenticationContext(), new DefaultUser(username));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadByUsername0_migrated(authenticationContext, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<User> loadByUsername0(AuthenticationContext authenticationContext, User user) {
- return RxJava2Adapter.monoToMaybe(loadByUsername0_migrated(authenticationContext, user));
-}
+    
 private Mono<User> loadByUsername0_migrated(AuthenticationContext authenticationContext, User user) {
         // prepare request
         final HttpAuthResourcePathsConfiguration authResourceConfiguration = configuration.getAuthenticationResource().getPaths();
@@ -209,15 +205,7 @@ private Mono<User> loadByUsername0_migrated(AuthenticationContext authentication
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.processRequest_migrated(templateEngine, httpURI, httpMethod, httpHeaders, httpBody))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<HttpResponse<Buffer>> processRequest(TemplateEngine templateEngine,
-                                                        String httpURI,
-                                                        HttpMethod httpMethod,
-                                                        List<HttpHeader> httpHeaders,
-                                                        String httpBody) {
- return RxJava2Adapter.monoToSingle(processRequest_migrated(templateEngine, httpURI, httpMethod, httpHeaders, httpBody));
-}
+    
 private Mono<HttpResponse<Buffer>> processRequest_migrated(TemplateEngine templateEngine,
                                                         String httpURI,
                                                         HttpMethod httpMethod,

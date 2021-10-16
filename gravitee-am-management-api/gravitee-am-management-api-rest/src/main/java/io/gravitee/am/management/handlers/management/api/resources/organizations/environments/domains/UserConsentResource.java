@@ -116,11 +116,7 @@ public class UserConsentResource extends AbstractResource {
     }
 
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getClient_migrated(domain, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<ApplicationEntity> getClient(String domain, String clientId) {
- return RxJava2Adapter.monoToSingle(getClient_migrated(domain, clientId));
-}
+    
 private Mono<ApplicationEntity> getClient_migrated(String domain, String clientId) {
         return applicationService.findByDomainAndClientId_migrated(domain, clientId).map(RxJavaReactorMigrationUtil.toJdkFunction(ApplicationEntity::new)).defaultIfEmpty(new ApplicationEntity("unknown-id", clientId, "unknown-client-name")).single();
     }

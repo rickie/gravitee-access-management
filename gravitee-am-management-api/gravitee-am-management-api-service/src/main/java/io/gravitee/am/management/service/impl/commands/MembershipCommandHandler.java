@@ -102,11 +102,7 @@ public class MembershipCommandHandler implements CommandHandler<MembershipComman
     }
 
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findRole_migrated(roleName, organizationId, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Role> findRole(String roleName, String organizationId, ReferenceType assignableType) {
- return RxJava2Adapter.monoToSingle(findRole_migrated(roleName, organizationId, assignableType));
-}
+    
 private Mono<Role> findRole_migrated(String roleName, String organizationId, ReferenceType assignableType) {
 
         SystemRole systemRole = SystemRole.fromName(roleName);

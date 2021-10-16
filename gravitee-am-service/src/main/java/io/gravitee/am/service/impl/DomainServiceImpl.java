@@ -437,11 +437,7 @@ public class DomainServiceImpl implements DomainService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createSystemScopes_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Domain> createSystemScopes(Domain domain) {
- return RxJava2Adapter.monoToSingle(createSystemScopes_migrated(domain));
-}
+    
 private Mono<Domain> createSystemScopes_migrated(Domain domain) {
         return RxJava2Adapter.singleToMono(Observable.fromArray(Scope.values())
                 .flatMapSingle(systemScope -> {
@@ -490,11 +486,7 @@ private Mono<Domain> createSystemScopes_migrated(Domain domain) {
         return uri;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createDefaultCertificate_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Domain> createDefaultCertificate(Domain domain) {
- return RxJava2Adapter.monoToSingle(createDefaultCertificate_migrated(domain));
-}
+    
 private Mono<Domain> createDefaultCertificate_migrated(Domain domain) {
         return certificateService.create_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(certificate -> domain));
     }
@@ -504,11 +496,7 @@ private Mono<Domain> createDefaultCertificate_migrated(Domain domain) {
         return "/" + IdGenerator.generate(domainName);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.validateDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable validateDomain(Domain domain) {
- return RxJava2Adapter.monoToCompletable(validateDomain_migrated(domain));
-}
+    
 private Mono<Void> validateDomain_migrated(Domain domain) {
         if (domain.getReferenceType() != ReferenceType.ENVIRONMENT) {
             return Mono.error(new InvalidDomainException("Domain must be attached to an environment"));
@@ -525,11 +513,7 @@ private Mono<Void> validateDomain_migrated(Domain domain) {
                 }).apply(y)))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.validateDomain_migrated(domain, environment))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable validateDomain(Domain domain, Environment environment) {
- return RxJava2Adapter.monoToCompletable(validateDomain_migrated(domain, environment));
-}
+    
 private Mono<Void> validateDomain_migrated(Domain domain, Environment environment) {
 
         // Get environment domain restrictions and validate all data are correctly defined.

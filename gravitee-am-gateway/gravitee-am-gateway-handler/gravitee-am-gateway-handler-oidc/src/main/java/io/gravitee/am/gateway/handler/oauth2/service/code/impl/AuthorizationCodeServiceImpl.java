@@ -99,11 +99,7 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
                     authorizationCodeRepository.delete_migrated(z.getId()));
   }
 
-  @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.handleInvalidCode_migrated(code))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<AuthorizationCode> handleInvalidCode(String code) {
- return RxJava2Adapter.monoToMaybe(handleInvalidCode_migrated(code));
-}
+  
 private Mono<AuthorizationCode> handleInvalidCode_migrated(String code) {
     // The client MUST NOT use the authorization code more than once.
     // If an authorization code is used more than once, the authorization server MUST deny the

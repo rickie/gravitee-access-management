@@ -134,11 +134,7 @@ public class UsersResource extends AbstractUsersResource {
         return resourceContext.getResource(UserResource.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.filterUserInfos_migrated(hasPermission, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<User> filterUserInfos(Boolean hasPermission, User user) {
- return RxJava2Adapter.monoToSingle(filterUserInfos_migrated(hasPermission, user));
-}
+    
 private Mono<User> filterUserInfos_migrated(Boolean hasPermission, User user) {
         User filteredUser;
         if (hasPermission) {

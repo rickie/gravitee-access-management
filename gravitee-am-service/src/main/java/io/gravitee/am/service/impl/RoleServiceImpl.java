@@ -95,7 +95,7 @@ public class RoleServiceImpl implements RoleService {
         LOGGER.debug("Find roles by {}: {} assignable to {}", referenceType, referenceId, assignableType);
 
         // Organization roles must be zipped with system roles to get a complete list of all roles.
-        return Flux.merge(RxJava2Adapter.fluxToFlowable(findAllSystem_migrated(assignableType)), RxJava2Adapter.fluxToFlowable(roleRepository.findAll_migrated(referenceType, referenceId))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role -> assignableType == null || assignableType == role.getAssignableType())).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return Flux.merge(findAllSystem_migrated(assignableType), roleRepository.findAll_migrated(referenceType, referenceId)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role -> assignableType == null || assignableType == role.getAssignableType())).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find roles by {}: {} assignable to {}", referenceType, referenceId, assignableType, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error occurs while trying to find roles by %s %s assignable to %s", referenceType, referenceId, assignableType), ex)));
                 }));
@@ -402,11 +402,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.upsert_migrated(role))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable upsert(Role role) {
- return RxJava2Adapter.monoToCompletable(upsert_migrated(role));
-}
+    
 private Mono<Void> upsert_migrated(Role role) {
         return roleRepository.findByNameAndAssignableType_migrated(role.getReferenceType(), role.getReferenceId(), role.getName(), role.getAssignableType()).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<Role>, CompletableSource>)optRole -> {
                     if (!optRole.isPresent()) {
@@ -453,11 +449,7 @@ private Mono<Void> upsert_migrated(Role role) {
 
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkRoleUniqueness_migrated(roleName, roleId, referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Set<Role>> checkRoleUniqueness(String roleName, String roleId, ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.monoToSingle(checkRoleUniqueness_migrated(roleName, roleId, referenceType, referenceId));
-}
+    
 private Mono<Set<Role>> checkRoleUniqueness_migrated(String roleName, String roleId, ReferenceType referenceType, String referenceId) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(roleRepository.findAll_migrated(referenceType, referenceId))
                 .collect(HashSet<Role>::new, Set::add)).flatMap(v->RxJava2Adapter.singleToMono((Single<Set<Role>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<HashSet<Role>, Single<Set<Role>>>)roles -> {
@@ -476,11 +468,7 @@ private Mono<Set<Role>> checkRoleUniqueness_migrated(String roleName, String rol
                 && Objects.equals(role1.getOauthScopes(), role2.getOauthScopes());
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllSystem_migrated(assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Flowable<Role> findAllSystem(ReferenceType assignableType) {
- return RxJava2Adapter.fluxToFlowable(findAllSystem_migrated(assignableType));
-}
+    
 private Flux<Role> findAllSystem_migrated(ReferenceType assignableType) {
         LOGGER.debug("Find all global system roles");
 

@@ -139,14 +139,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
 
-    /**
-     * Update ORGANIZATION role to an existing user if the identity provider role mapper has changed
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.updateRoles_migrated(principal, existingUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable updateRoles(User principal, io.gravitee.am.model.User existingUser) {
- return RxJava2Adapter.monoToCompletable(updateRoles_migrated(principal, existingUser));
-}
+    
 private Mono<Void> updateRoles_migrated(User principal, io.gravitee.am.model.User existingUser) {
         // no role defined, continue
         if (principal.getRoles() == null || principal.getRoles().isEmpty()) {

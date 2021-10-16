@@ -204,11 +204,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
         Observable.fromPublisher(usersCollection.createIndex(new Document(configuration.getUsernameField(), 1))).subscribe();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<User> findById(String userId) {
- return RxJava2Adapter.monoToMaybe(findById_migrated(userId));
-}
+    
 private Mono<User> findById_migrated(String userId) {
         return RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(eq(FIELD_ID, userId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }

@@ -272,7 +272,7 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
 }
 @Override
             public Flux<JWK> privateKey_migrated() {
-                return RxJava2Adapter.flowableToFlux(null);
+                return null;
             }
 
             @InlineMe(replacement = "RxJava2Adapter.monoToSingle(publicKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -283,7 +283,7 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
 }
 @Override
             public Mono<String> publicKey_migrated() {
-                return RxJava2Adapter.singleToMono(null);
+                return null;
             }
 
             @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(keys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -294,7 +294,7 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
 }
 @Override
             public Flux<JWK> keys_migrated() {
-                return RxJava2Adapter.flowableToFlux(null);
+                return null;
             }
 
             @Override

@@ -89,11 +89,7 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
                 .as(JdbcScope.class).fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId()).flux()))).collectList().flatMap(content->countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<>(content, page, count))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Long> countByDomain(String domain) {
- return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
-}
+    
 private Mono<Long> countByDomain_migrated(String domain) {
         return dbClient.execute("select count(s."+databaseDialectHelper.toSql(SqlIdentifier.quoted("key"))+") from scopes s where s.domain = :domain")
                 .bind("domain", domain)
@@ -124,11 +120,7 @@ private Mono<Long> countByDomain_migrated(String domain) {
                 .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId()).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<>(data, page, total))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.completeWithClaims_migrated(maybeScope, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<Scope> completeWithClaims(Maybe<Scope> maybeScope, String id) {
- return RxJava2Adapter.monoToMaybe(completeWithClaims_migrated(maybeScope, id));
-}
+    
 private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String id) {
         Maybe<List<String>> scopeClaims = RxJava2Adapter.monoToMaybe(claimRepository.findByScopeId_migrated(id).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcScope.Claims::getClaim)).collectList());
 

@@ -130,7 +130,7 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
 
         @Override
         public Publisher<?> apply(@NonNull Flowable<Throwable> attempts) throws Exception {
-            return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(attempts).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((throwable) -> {
+            return RxJava2Adapter.flowableToFlux(attempts).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((throwable) -> {
                         // perform retry only on Consistency exception
                         if (throwable instanceof AuthenticationFlowConsistencyException) {
                             if (++retryCount < maxRetries) {
@@ -142,7 +142,7 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
                         }
                         // Max retries hit. Just pass the error along.
                         return RxJava2Adapter.fluxToFlowable(Flux.error(throwable));
-                    })));
+                    }));
         }
     }
 }

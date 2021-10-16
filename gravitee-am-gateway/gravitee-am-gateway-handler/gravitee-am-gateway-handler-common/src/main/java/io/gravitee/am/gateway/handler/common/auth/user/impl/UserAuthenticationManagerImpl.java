@@ -221,20 +221,12 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
         return userAuthenticationService.connect_migrated(user, afterAuthentication);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.authenticate0_migrated(client, authentication, authProvider, preAuthenticated))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<UserAuthentication> authenticate0(Client client, Authentication authentication, String authProvider, boolean preAuthenticated) {
- return RxJava2Adapter.monoToMaybe(authenticate0_migrated(client, authentication, authProvider, preAuthenticated));
-}
+    
 private Mono<UserAuthentication> authenticate0_migrated(Client client, Authentication authentication, String authProvider, boolean preAuthenticated) {
         return preAuthentication_migrated(client, authentication, authProvider).then(loadUserByUsername0_migrated(client, authentication, authProvider, preAuthenticated)).flatMap(z->postAuthentication_migrated(client, authentication, authProvider, z).then(Mono.just(z)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername0_migrated(client, authentication, authProvider, preAuthenticated))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<UserAuthentication> loadUserByUsername0(Client client, Authentication authentication, String authProvider, boolean preAuthenticated) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername0_migrated(client, authentication, authProvider, preAuthenticated));
-}
+    
 private Mono<UserAuthentication> loadUserByUsername0_migrated(Client client, Authentication authentication, String authProvider, boolean preAuthenticated) {
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.get_migrated(authProvider).switchIfEmpty(Mono.error(new BadCredentialsException("Unable to load authentication provider " + authProvider + ", an error occurred during the initialization stage"))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(authenticationProvider -> {
                     logger.debug("Authentication attempt using identity provider {} ({})", authenticationProvider, authenticationProvider.getClass().getName());
@@ -263,29 +255,17 @@ private Mono<UserAuthentication> loadUserByUsername0_migrated(Client client, Aut
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.preAuthentication_migrated(client, authentication, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable preAuthentication(Client client, Authentication authentication, String source) {
- return RxJava2Adapter.monoToCompletable(preAuthentication_migrated(client, authentication, source));
-}
+    
 private Mono<Void> preAuthentication_migrated(Client client, Authentication authentication, String source) {
         return preAuthentication_migrated(client, authentication.getPrincipal().toString(), source);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.postAuthentication_migrated(client, authentication, source, userAuthentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable postAuthentication(Client client, Authentication authentication, String source, UserAuthentication userAuthentication) {
- return RxJava2Adapter.monoToCompletable(postAuthentication_migrated(client, authentication, source, userAuthentication));
-}
+    
 private Mono<Void> postAuthentication_migrated(Client client, Authentication authentication, String source, UserAuthentication userAuthentication) {
         return postAuthentication_migrated(client, authentication.getPrincipal().toString(), source, userAuthentication);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.preAuthentication_migrated(client, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable preAuthentication(Client client, String username, String source) {
- return RxJava2Adapter.monoToCompletable(preAuthentication_migrated(client, username, source));
-}
+    
 private Mono<Void> preAuthentication_migrated(Client client, String username, String source) {
         final AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
         if (accountSettings != null && accountSettings.isLoginAttemptsDetectionEnabled()) {
@@ -307,11 +287,7 @@ private Mono<Void> preAuthentication_migrated(Client client, String username, St
         return Mono.empty();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.postAuthentication_migrated(client, username, source, userAuthentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable postAuthentication(Client client, String username, String source, UserAuthentication userAuthentication) {
- return RxJava2Adapter.monoToCompletable(postAuthentication_migrated(client, username, source, userAuthentication));
-}
+    
 private Mono<Void> postAuthentication_migrated(Client client, String username, String source, UserAuthentication userAuthentication) {
         final AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
         if (accountSettings != null && accountSettings.isLoginAttemptsDetectionEnabled()) {

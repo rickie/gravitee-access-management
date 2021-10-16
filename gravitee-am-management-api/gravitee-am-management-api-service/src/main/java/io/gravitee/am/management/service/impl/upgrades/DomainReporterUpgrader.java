@@ -61,11 +61,7 @@ public class DomainReporterUpgrader implements Upgrader, Ordered {
         return true;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.updateDefaultReporter_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable updateDefaultReporter(Domain domain) {
- return RxJava2Adapter.monoToCompletable(updateDefaultReporter_migrated(domain));
-}
+    
 private Mono<Void> updateDefaultReporter_migrated(Domain domain) {
         return reporterService.findByDomain_migrated(domain.getId()).collectList().flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Reporter>, CompletableSource>)reporters -> {
                     if (reporters == null || reporters.isEmpty()) {

@@ -153,11 +153,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
                 );
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<Client> getClient(RoutingContext context) {
- return RxJava2Adapter.monoToMaybe(getClient_migrated(context));
-}
+    
 private Mono<Client> getClient_migrated(RoutingContext context) {
         String clientId = context.request().getParam("client_id");
 

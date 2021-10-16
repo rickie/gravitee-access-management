@@ -502,7 +502,7 @@
 
                             <!-- Cleanup normally. -->
                             -Xep:InvalidThrows:ERROR
-                            -Xep:UnusedMethod:OFF
+                            -Xep:UnusedMethod:ERROR
                             -Xep:UnnecessarilyFullyQualified:OFF
 
                             <!-- Don't start migration just yet -->
@@ -514,7 +514,7 @@
                             <!-- Turn these on once. -->
                             -Xep:MethodReferenceUsage:OFF
                             -Xep:RemoveOldMethods:OFF
-                            -Xep:UnwrapExpressions:OFF
+                            -Xep:UnwrapExpressions:ERROR
 
                             -Xep:Refaster:ERROR
                             -XepOpt:Refaster:NamePattern=(?!TestNG)(?!Optional)(?!AssertJ)(?!Assorted)(?!Stream)(?!RxJava2Adapter)(?!Reactor)(?!Web)(?!String)(?!Stream)(?!Immutable)(?!Int)(?!Mockito)(?!Collection)(?!Comparator)(?!Time).*

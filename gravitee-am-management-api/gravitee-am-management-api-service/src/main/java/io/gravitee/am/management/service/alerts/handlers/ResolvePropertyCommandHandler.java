@@ -66,11 +66,7 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
     }
 
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveProperties_migrated(command))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<String, Map<String, Object>>> resolveProperties(ResolvePropertyCommand command) {
- return RxJava2Adapter.monoToSingle(resolveProperties_migrated(command));
-}
+    
 private Mono<Map<String,Map<String,Object>>> resolveProperties_migrated(ResolvePropertyCommand command) {
 
         Map<String, String> commandProperties = command.getProperties();
@@ -91,11 +87,7 @@ private Mono<Map<String,Map<String,Object>>> resolveProperties_migrated(ResolveP
         return RxJava2Adapter.flowableToFlux(Single.merge(obs)).ignoreElements().then().then(Mono.just(values));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveDomainProperties_migrated(domainId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<String, Object>> resolveDomainProperties(String domainId) {
- return RxJava2Adapter.monoToSingle(resolveDomainProperties_migrated(domainId));
-}
+    
 private Mono<Map<String,Object>> resolveDomainProperties_migrated(String domainId) {
 
         final Map<String, Object> properties = new HashMap<>();
@@ -112,11 +104,7 @@ private Mono<Map<String,Object>> resolveDomainProperties_migrated(String domainI
                 .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(properties))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveApplicationProperties_migrated(applicationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<String, Object>> resolveApplicationProperties(String applicationId) {
- return RxJava2Adapter.monoToSingle(resolveApplicationProperties_migrated(applicationId));
-}
+    
 private Mono<Map<String,Object>> resolveApplicationProperties_migrated(String applicationId) {
 
         final Map<String, Object> properties = new HashMap<>();

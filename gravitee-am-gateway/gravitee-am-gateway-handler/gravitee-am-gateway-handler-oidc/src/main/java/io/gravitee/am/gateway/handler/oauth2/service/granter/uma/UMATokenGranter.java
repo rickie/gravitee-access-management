@@ -201,23 +201,12 @@ public class UMATokenGranter extends AbstractTokenGranter {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.handleRequest_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Token> handleRequest(TokenRequest tokenRequest, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(handleRequest_migrated(tokenRequest, client, endUser));
-}
+    
 private Mono<Token> handleRequest_migrated(TokenRequest tokenRequest, Client client, User endUser) {
         return resolveRequestedScopes_migrated(tokenRequest, client).flatMap(tokenRequest1->this.resolvePermissions_migrated(tokenRequest1, client, endUser)).flatMap(tokenRequest1->this.createOAuth2Request_migrated(tokenRequest1, client, endUser)).flatMap(oAuth2Request->this.executePolicies_migrated(oAuth2Request, client, endUser)).flatMap(oAuth2Request->getTokenService().create_migrated(oAuth2Request, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(token -> this.handleUpgradedToken(tokenRequest, token)));
     }
 
-    /**
-     * Validates the request to ensure that Client Requested UMA scopes are well pre-registered.
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveRequestedScopes_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<TokenRequest> resolveRequestedScopes(TokenRequest tokenRequest, Client client) {
- return RxJava2Adapter.monoToSingle(resolveRequestedScopes_migrated(tokenRequest, client));
-}
+    
 private Mono<TokenRequest> resolveRequestedScopes_migrated(TokenRequest tokenRequest, Client client) {
         if(tokenRequest.getScopes()!=null && !tokenRequest.getScopes().isEmpty()) {
             if(client.getScopeSettings()==null || client.getScopeSettings().isEmpty() || !client.getScopeSettings().stream().map(ApplicationScopeSettings::getScope).collect(Collectors.toList()).containsAll(tokenRequest.getScopes())) {
@@ -228,11 +217,7 @@ private Mono<TokenRequest> resolveRequestedScopes_migrated(TokenRequest tokenReq
         return Mono.just(tokenRequest);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolvePermissions_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<TokenRequest> resolvePermissions(TokenRequest tokenRequest, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(resolvePermissions_migrated(tokenRequest, client, endUser));
-}
+    
 private Mono<TokenRequest> resolvePermissions_migrated(TokenRequest tokenRequest, Client client, User endUser) {
         return this.permissionTicketService.remove_migrated(tokenRequest.getTicket()).map(RxJavaReactorMigrationUtil.toJdkFunction(PermissionTicket::getPermissionRequest)).flatMap(v->RxJava2Adapter.singleToMono((Single<TokenRequest>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<PermissionRequest>, Single<TokenRequest>>)permissionRequests -> {
                     List<String> resourceIds = permissionRequests.stream().map(PermissionRequest::getResourceId).collect(Collectors.toList());
@@ -240,17 +225,7 @@ private Mono<TokenRequest> resolvePermissions_migrated(TokenRequest tokenRequest
                 }).apply(v)));
     }
 
-    /**
-     * Check token request scopes are all known/referenced within the target resources
-     * @param tokenRequest TokenRequest
-     * @param resourceSet List<Resource>
-     * @return Single<Map<String, Resource>> if no errors
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkRequestedScopesMatchResource_migrated(tokenRequest, resourceSet))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<String, Resource>> checkRequestedScopesMatchResource(TokenRequest tokenRequest, List<Resource> resourceSet) {
- return RxJava2Adapter.monoToSingle(checkRequestedScopesMatchResource_migrated(tokenRequest, resourceSet));
-}
+    
 private Mono<Map<String,Resource>> checkRequestedScopesMatchResource_migrated(TokenRequest tokenRequest, List<Resource> resourceSet) {
         //Return InvalidScopeException if the token request contains unbounded resource set scopes.
         if(tokenRequest.getScopes()!=null && !tokenRequest.getScopes().isEmpty()) {
@@ -264,11 +239,7 @@ private Mono<Map<String,Resource>> checkRequestedScopesMatchResource_migrated(To
         return Mono.just(resourceSet.stream().collect(Collectors.toMap(Resource::getId, resource -> resource)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveScopeRequestAssessment_migrated(tokenRequest, requestedPermissions, fetchedResources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<List<PermissionRequest>> resolveScopeRequestAssessment(TokenRequest tokenRequest, List<PermissionRequest> requestedPermissions, Map<String, Resource> fetchedResources) {
- return RxJava2Adapter.monoToSingle(resolveScopeRequestAssessment_migrated(tokenRequest, requestedPermissions, fetchedResources));
-}
+    
 private Mono<List<PermissionRequest>> resolveScopeRequestAssessment_migrated(TokenRequest tokenRequest, List<PermissionRequest> requestedPermissions, Map<String, Resource> fetchedResources) {
         //If request does not contains additional scopes, just return the permission Ticket resources.
         if(tokenRequest.getScopes()==null || tokenRequest.getScopes().isEmpty()) {
@@ -286,19 +257,7 @@ private Mono<List<PermissionRequest>> resolveScopeRequestAssessment_migrated(Tok
                 .collect(Collectors.toList()));
     }
 
-    /**
-     * If a valid Requesting Party Token was provided, then we inject previous permissions from this RPT.
-     * This permissions must be reviewed by the Permission Policy Management as some of them may have been revoked in the meantime.
-     * @param tokenRequest TokenRequest
-     * @param client Client
-     * @param requestedPermissions List<PermissionRequest>
-     * @return List<PermissionRequest>
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.extendPermissionWithRPT_migrated(tokenRequest, client, endUser, requestedPermissions))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<List<PermissionRequest>> extendPermissionWithRPT(TokenRequest tokenRequest, Client client, User endUser, List<PermissionRequest> requestedPermissions) {
- return RxJava2Adapter.monoToSingle(extendPermissionWithRPT_migrated(tokenRequest, client, endUser, requestedPermissions));
-}
+    
 private Mono<List<PermissionRequest>> extendPermissionWithRPT_migrated(TokenRequest tokenRequest, Client client, User endUser, List<PermissionRequest> requestedPermissions) {
         if(!StringUtils.isEmpty(tokenRequest.getRequestingPartyToken())) {
             return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(tokenRequest.getRequestingPartyToken(), client).flatMap(rpt->this.checkRequestingPartyToken_migrated(rpt, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(rpt -> this.mergePermissions(rpt, requestedPermissions))))
@@ -308,14 +267,7 @@ private Mono<List<PermissionRequest>> extendPermissionWithRPT_migrated(TokenRequ
         return Mono.just(requestedPermissions);
     }
 
-    /**
-     * Provided "previous" Requesting Party Token to extend must belong to the same user & client.
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkRequestingPartyToken_migrated(rpt, client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<JWT> checkRequestingPartyToken(JWT rpt, Client client, User user) {
- return RxJava2Adapter.monoToSingle(checkRequestingPartyToken_migrated(rpt, client, user));
-}
+    
 private Mono<JWT> checkRequestingPartyToken_migrated(JWT rpt, Client client, User user) {
         String expectedSub = user!=null?user.getId():client.getClientId();
         if(!expectedSub.equals(rpt.getSub()) || !client.getClientId().equals(rpt.getAud())) {
@@ -357,11 +309,7 @@ private Mono<JWT> checkRequestingPartyToken_migrated(JWT rpt, Client client, Use
         return result;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOAuth2Request_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<OAuth2Request> createOAuth2Request(TokenRequest tokenRequest, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(createOAuth2Request_migrated(tokenRequest, client, endUser));
-}
+    
 private Mono<OAuth2Request> createOAuth2Request_migrated(TokenRequest tokenRequest, Client client, User endUser) {
         //Remove Token Request scopes as they are now injected into each permission requests.
         tokenRequest.setScopes(null);
@@ -397,19 +345,7 @@ protected Mono<TokenRequest> resolveRequest_migrated(TokenRequest tokenRequest, 
         return Mono.error(new TechnicalException("Should not be used"));
     }
 
-    /**
-     * The resource owner works with the authorization server to configure policy conditions (authorization grant rules), which the authorization server executes in the process of issuing access tokens.
-     * The authorization process makes use of claims gathered from the requesting party and client in order to satisfy all operative operative policy conditions.
-     * @param oAuth2Request OAuth 2.0 Token Request
-     * @param client client
-     * @param endUser requesting party
-     * @return
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executePolicies_migrated(oAuth2Request, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<OAuth2Request> executePolicies(OAuth2Request oAuth2Request, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(executePolicies_migrated(oAuth2Request, client, endUser));
-}
+    
 private Mono<OAuth2Request> executePolicies_migrated(OAuth2Request oAuth2Request, Client client, User endUser) {
         List<PermissionRequest> permissionRequests = oAuth2Request.getPermissions();
         if (permissionRequests == null || permissionRequests.isEmpty()) {

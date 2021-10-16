@@ -160,11 +160,7 @@ public class UserResource extends AbstractResource {
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
 
     }
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enhanceIdentityProvider_migrated(userEntity))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<UserEntity> enhanceIdentityProvider(UserEntity userEntity) {
- return RxJava2Adapter.monoToSingle(enhanceIdentityProvider_migrated(userEntity));
-}
+    
 private Mono<UserEntity> enhanceIdentityProvider_migrated(UserEntity userEntity) {
         if (userEntity.getSource() != null) {
             return identityProviderService.findById_migrated(userEntity.getSource()).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {

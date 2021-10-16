@@ -72,11 +72,7 @@ public abstract class AbstractFlow implements Flow {
     
     protected abstract Mono<AuthorizationResponse> prepareResponse_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser);
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.processResponse_migrated(authorizationResponse, authorizationRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<AuthorizationResponse> processResponse(AuthorizationResponse authorizationResponse, AuthorizationRequest authorizationRequest, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(processResponse_migrated(authorizationResponse, authorizationRequest, client, endUser));
-}
+    
 private Mono<AuthorizationResponse> processResponse_migrated(AuthorizationResponse authorizationResponse, AuthorizationRequest authorizationRequest, Client client, User endUser) {
         // Response Mode is not supplied by the client, process the response as usual
         if (authorizationRequest.getResponseMode() == null || !authorizationRequest.getResponseMode().endsWith("jwt")) {

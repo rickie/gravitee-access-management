@@ -79,11 +79,7 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
         return findResourcePage_migrated(domain, page, size, whereClause);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findResourcePage_migrated(domain, page, size, whereClause))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Page<Resource>> findResourcePage(String domain, int page, int size, CriteriaDefinition whereClause) {
- return RxJava2Adapter.monoToSingle(findResourcePage_migrated(domain, page, size, whereClause));
-}
+    
 private Mono<Page<Resource>> findResourcePage_migrated(String domain, int page, int size, CriteriaDefinition whereClause) {
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.select()
                 .from(JdbcResource.class)
@@ -91,14 +87,10 @@ private Mono<Page<Resource>> findResourcePage_migrated(String domain, int page, 
                 .orderBy(Sort.Order.asc("id"))
                 .page(PageRequest.of(page, size))
                 .as(JdbcResource.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
-                .flatMap(res -> RxJava2Adapter.fluxToFlowable(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(res)), res.getId()).flux()), MAX_CONCURRENCY)).collectList().flatMap(content->resourceRepository.countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Resource>(content, page, count))));
+                .flatMap(res -> completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(res)), res.getId()).flux(), MAX_CONCURRENCY)).collectList().flatMap(content->resourceRepository.countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Resource>(content, page, count))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.completeWithScopes_migrated(maybeResource, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<Resource> completeWithScopes(Maybe<Resource> maybeResource, String id) {
- return RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(maybeResource, id));
-}
+    
 private Mono<Resource> completeWithScopes_migrated(Maybe<Resource> maybeResource, String id) {
         Maybe<List<String>> scopes = RxJava2Adapter.monoToMaybe(resourceScopeRepository.findAllByResourceId_migrated(id).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcResource.Scope::getScope)).collectList());
 

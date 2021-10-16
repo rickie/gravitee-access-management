@@ -209,20 +209,12 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository implements
                 .as(trx::transactional);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.retrieveDomainRestrictions_migrated(environment))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Environment> retrieveDomainRestrictions(Environment environment) {
- return RxJava2Adapter.monoToSingle(retrieveDomainRestrictions_migrated(environment));
-}
+    
 private Mono<Environment> retrieveDomainRestrictions_migrated(Environment environment) {
         return domainRestrictionRepository.findAllByEnvironmentId_migrated(environment.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcEnvironment.DomainRestriction::getDomainRestriction)).collectList().doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(domainRestrictions -> LOGGER.debug("findById({}) fetch {} domainRestrictions", environment.getId(), domainRestrictions.size()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment::setDomainRestrictions)).map(RxJavaReactorMigrationUtil.toJdkFunction(domainRestriction -> environment));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.retrieveHrids_migrated(environment))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Environment> retrieveHrids(Environment environment) {
- return RxJava2Adapter.monoToSingle(retrieveHrids_migrated(environment));
-}
+    
 private Mono<Environment> retrieveHrids_migrated(Environment environment) {
         return hridsRepository.findAllByEnvironmentId_migrated(environment.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcEnvironment.Hrid::getHrid)).collectList().doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(hrids -> LOGGER.debug("findById({}) fetch {} hrids", environment.getId(), hrids.size()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment::setHrids)).map(RxJavaReactorMigrationUtil.toJdkFunction(hrids -> environment));
     }

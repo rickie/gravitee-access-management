@@ -266,11 +266,7 @@ public class ScopeServiceImpl implements ScopeService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, toUpdate, oldValue, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Scope> update(String domain, Scope toUpdate, Scope oldValue, User principal) {
- return RxJava2Adapter.monoToSingle(update_migrated(domain, toUpdate, oldValue, principal));
-}
+    
 private Mono<Scope> update_migrated(String domain, Scope toUpdate, Scope oldValue, User principal) {
 
         toUpdate.setUpdatedAt(new Date());
@@ -435,11 +431,7 @@ return RxJava2Adapter.monoToSingle(applicationService.update_migrated(applicatio
         return findByDomain_migrated(domain, 0, Integer.MAX_VALUE).map(RxJavaReactorMigrationUtil.toJdkFunction(domainSet -> domainSet.getData().stream().map(Scope::getKey).collect(Collectors.toSet()))).flatMap(domainScopes->this.validateScope_migrated(domainScopes, scopes));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateScope_migrated(domainScopes, scopes))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Boolean> validateScope(Set<String> domainScopes, List<String> scopes) {
- return RxJava2Adapter.monoToSingle(validateScope_migrated(domainScopes, scopes));
-}
+    
 private Mono<Boolean> validateScope_migrated(Set<String> domainScopes, List<String> scopes) {
 
         for (String scope : scopes) {
@@ -451,11 +443,7 @@ private Mono<Boolean> validateScope_migrated(Set<String> domainScopes, List<Stri
         return Mono.just(true);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateIconUri_migrated(scope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Scope> validateIconUri(Scope scope) {
- return RxJava2Adapter.monoToSingle(validateIconUri_migrated(scope));
-}
+    
 private Mono<Scope> validateIconUri_migrated(Scope scope) {
         if(scope.getIconUri()!=null) {
             try {

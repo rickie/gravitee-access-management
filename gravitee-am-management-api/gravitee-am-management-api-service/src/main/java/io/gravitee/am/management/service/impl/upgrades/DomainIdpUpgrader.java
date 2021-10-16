@@ -66,11 +66,7 @@ public class DomainIdpUpgrader implements Upgrader, Ordered {
         return true;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateDefaultIdp_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<IdentityProvider> updateDefaultIdp(Domain domain) {
- return RxJava2Adapter.monoToSingle(updateDefaultIdp_migrated(domain));
-}
+    
 private Mono<IdentityProvider> updateDefaultIdp_migrated(Domain domain) {
         return identityProviderService.findById_migrated(DEFAULT_IDP_PREFIX + domain.getId()).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<IdentityProvider>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<IdentityProvider>>)isEmpty -> {
                     if (isEmpty) {

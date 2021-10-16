@@ -64,22 +64,14 @@ public class OpenIDScopeUpgrader implements Upgrader, Ordered {
         return true;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOrUpdateSystemScopes_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Domain> createOrUpdateSystemScopes(Domain domain) {
- return RxJava2Adapter.monoToSingle(createOrUpdateSystemScopes_migrated(domain));
-}
+    
 private Mono<Domain> createOrUpdateSystemScopes_migrated(Domain domain) {
         return RxJava2Adapter.singleToMono(Observable.fromArray(io.gravitee.am.common.oidc.Scope.values())
                 .flatMapSingle(scope -> RxJava2Adapter.monoToSingle(createSystemScope_migrated(domain.getId(), scope)))
                 .lastOrError()).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> domain));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createSystemScope_migrated(domain, systemScope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Scope> createSystemScope(String domain, io.gravitee.am.common.oidc.Scope systemScope) {
- return RxJava2Adapter.monoToSingle(createSystemScope_migrated(domain, systemScope));
-}
+    
 private Mono<Scope> createSystemScope_migrated(String domain, io.gravitee.am.common.oidc.Scope systemScope) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(scopeService.findByDomainAndKey_migrated(domain, systemScope.getKey()).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optScope -> {

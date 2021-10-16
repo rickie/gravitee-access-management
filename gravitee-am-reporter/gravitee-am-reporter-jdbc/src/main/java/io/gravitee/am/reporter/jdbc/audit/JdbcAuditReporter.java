@@ -226,17 +226,7 @@ protected Mono<Map<Object,Object>> executeHistogramAggregation_migrated(Referenc
         }));
     }
 
-    /**
-     * Execute the COUNT aggregate function
-     *
-     * @param searchQuery
-     * @return
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeCount_migrated(searchQuery))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<Object, Object>> executeCount(SearchQuery searchQuery) {
- return RxJava2Adapter.monoToSingle(executeCount_migrated(searchQuery));
-}
+    
 private Mono<Map<Object,Object>> executeCount_migrated(SearchQuery searchQuery) {
         if (!ready) {
             LOGGER.debug("Reporter not yet bootstrapped");
@@ -250,18 +240,7 @@ private Mono<Map<Object,Object>> executeCount_migrated(SearchQuery searchQuery) 
         return count.as(Long.class).fetch().first().switchIfEmpty(Mono.just(0l)).map(RxJavaReactorMigrationUtil.toJdkFunction(data -> Collections.singletonMap("data", data)));
     }
 
-    /**
-     * Execute the GROUP_BY aggregate function
-     *
-     * @param searchQuery
-     * @param criteria
-     * @return
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeGroupBy_migrated(searchQuery, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<Object, Object>> executeGroupBy(SearchQuery searchQuery, AuditReportableCriteria criteria) {
- return RxJava2Adapter.monoToSingle(executeGroupBy_migrated(searchQuery, criteria));
-}
+    
 private Mono<Map<Object,Object>> executeGroupBy_migrated(SearchQuery searchQuery, AuditReportableCriteria criteria) {
         if (!ready) {
             LOGGER.debug("Reporter not yet bootstrapped");
@@ -411,11 +390,7 @@ private Mono<Map<Object,Object>> executeGroupBy_migrated(SearchQuery searchQuery
         bulkProcessor.onNext((Audit) reportable);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.bulk_migrated(audits))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Flowable<Audit> bulk(List<Audit> audits) {
- return RxJava2Adapter.fluxToFlowable(bulk_migrated(audits));
-}
+    
 private Flux<Audit> bulk_migrated(List<Audit> audits) {
         if (audits == null || audits.isEmpty()) {
             return Flux.empty();
