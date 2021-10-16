@@ -310,7 +310,7 @@ public class DomainServiceImpl implements DomainService {
                         domain.setCreatedAt(new Date());
                         domain.setUpdatedAt(domain.getCreatedAt());
 
-                        return RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment -> setDeployMode(domain, environment))).flatMap(v->validateDomain_migrated(domain, v)).then().then(Mono.defer(()->domainRepository.create_migrated(domain))));
+                        return RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment -> setDeployMode(domain, environment))).flatMap(e->validateDomain_migrated(domain, e)).then().then(Mono.defer(()->domainRepository.create_migrated(domain))));
                     }
                 }).apply(v)))).flatMap(v->createSystemScopes_migrated(v)).flatMap(v->createDefaultCertificate_migrated(v)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Domain, SingleSource<Domain>>toJdkFunction(domain -> {
                     if (principal == null) {
