@@ -127,7 +127,7 @@ protected Mono<Void> checkAnyPermission_migrated(String organizationId, String e
     
 private Mono<Void> checkPermissions_migrated(User authenticatedUser, PermissionAcls permissionAcls) {
 
-        return hasPermission_migrated(authenticatedUser, permissionAcls).flatMap(ident->checkPermission_migrated(ident)).then();
+        return hasPermission_migrated(authenticatedUser, permissionAcls).flatMap(this::checkPermission_migrated).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.hasPermission_migrated(user, referenceType, referenceId, permission, acls))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

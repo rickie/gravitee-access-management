@@ -83,7 +83,7 @@ public class UserResource extends AbstractResource {
             @PathParam("user") String user,
             @Suspended final AsyncResponse response) {
 
-        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.READ).then(organizationUserService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, user).map(RxJavaReactorMigrationUtil.toJdkFunction(UserEntity::new)).flatMap(v->enhanceIdentityProvider_migrated(v))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.READ).then(organizationUserService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, user).map(RxJavaReactorMigrationUtil.toJdkFunction(UserEntity::new)).flatMap(this::enhanceIdentityProvider_migrated)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PUT

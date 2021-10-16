@@ -36,6 +36,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Implementation of the Resource Owner Password Credentials Grant Flow
@@ -98,8 +99,7 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         String username = tokenRequest.getUsername();
         String password = tokenRequest.getPassword();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userAuthenticationManager.authenticate_migrated(client, new EndUserAuthentication(username, password, new SimpleAuthenticationContext(tokenRequest))))
-                .onErrorResumeNext(ex -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException(ex.getMessage())))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userAuthenticationManager.authenticate_migrated(client, new EndUserAuthentication(username, password, new SimpleAuthenticationContext(tokenRequest))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException(ex.getMessage())))).apply(err)))));
     }
 
     public void setUserAuthenticationManager(UserAuthenticationManager userAuthenticationManager) {

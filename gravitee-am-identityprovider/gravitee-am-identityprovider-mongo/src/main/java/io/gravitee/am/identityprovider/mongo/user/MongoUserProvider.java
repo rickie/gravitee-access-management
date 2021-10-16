@@ -158,7 +158,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
 }
 @Override
     public Mono<User> update_migrated(String id, User updateUser) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(id).switchIfEmpty(Mono.error(new UserNotFoundException(id))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
+        return findById_migrated(id).switchIfEmpty(Mono.error(new UserNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
                     Document document = new Document();
                     // set username (keep the original value)
                     document.put(configuration.getUsernameField(), oldUser.getUsername());

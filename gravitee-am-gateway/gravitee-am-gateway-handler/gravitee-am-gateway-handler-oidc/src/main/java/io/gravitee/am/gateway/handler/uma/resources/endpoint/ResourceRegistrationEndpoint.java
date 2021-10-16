@@ -147,7 +147,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
 
     
 private Mono<NewResource> extractRequest_migrated(RoutingContext context) {
-        return Mono.just(context.getBodyAsJson()).flatMap(v->bodyValidation_migrated(v)).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class)));
+        return Mono.just(context.getBodyAsJson()).flatMap(this::bodyValidation_migrated).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class)));
     }
 
     

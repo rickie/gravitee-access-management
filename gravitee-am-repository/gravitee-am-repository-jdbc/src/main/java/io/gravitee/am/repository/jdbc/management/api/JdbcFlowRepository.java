@@ -78,7 +78,7 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
 @Override
     public Mono<Flow> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.maybeToMono(flowRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(e->completeFlow_migrated(e));
+        return RxJava2Adapter.maybeToMono(flowRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(this::completeFlow_migrated);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -232,7 +232,7 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
 @Override
     public Mono<Flow> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("findById({}, {}, {})", referenceType, referenceId, id);
-        return flowRepository.findById_migrated(referenceType.name(), referenceId, id).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeFlow_migrated(z));
+        return flowRepository.findById_migrated(referenceType.name(), referenceId, id).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(this::completeFlow_migrated);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

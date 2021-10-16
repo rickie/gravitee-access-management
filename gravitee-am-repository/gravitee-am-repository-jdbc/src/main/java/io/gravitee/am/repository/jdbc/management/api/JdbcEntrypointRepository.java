@@ -70,7 +70,7 @@ public class JdbcEntrypointRepository extends AbstractJdbcRepository implements 
 @Override
     public Mono<Entrypoint> findById_migrated(String id, String organizationId) {
         LOGGER.debug("findById({}, {})", id, organizationId);
-        return entrypointRepository.findById_migrated(id, organizationId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeTags_migrated(z)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve entrypoint with id={} and organization={}",
+        return entrypointRepository.findById_migrated(id, organizationId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(this::completeTags_migrated).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve entrypoint with id={} and organization={}",
                         id, organizationId, error)));
     }
 
@@ -105,7 +105,7 @@ private Mono<Entrypoint> completeTags_migrated(Entrypoint entrypoint) {
 @Override
     public Mono<Entrypoint> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.maybeToMono(entrypointRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeTags_migrated(z)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve entrypoint with id={} ", id, error)));
+        return RxJava2Adapter.maybeToMono(entrypointRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(this::completeTags_migrated).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve entrypoint with id={} ", id, error)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

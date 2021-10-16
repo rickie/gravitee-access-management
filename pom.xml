@@ -512,7 +512,7 @@
                             -Xep:AddDefaultMethod:ERROR
 
                             <!-- Turn these on once. -->
-                            -Xep:MethodReferenceUsage:OFF
+                            -Xep:MethodReferenceUsage:ERROR
                             -Xep:RemoveOldMethods:OFF
                             -Xep:UnwrapExpressions:ERROR
 

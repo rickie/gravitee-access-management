@@ -260,8 +260,7 @@ private Mono<List<PermissionRequest>> resolveScopeRequestAssessment_migrated(Tok
     
 private Mono<List<PermissionRequest>> extendPermissionWithRPT_migrated(TokenRequest tokenRequest, Client client, User endUser, List<PermissionRequest> requestedPermissions) {
         if(!StringUtils.isEmpty(tokenRequest.getRequestingPartyToken())) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(tokenRequest.getRequestingPartyToken(), client).flatMap(rpt->this.checkRequestingPartyToken_migrated(rpt, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(rpt -> this.mergePermissions(rpt, requestedPermissions))))
-                    .onErrorResumeNext(throwable -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException("Requesting Party Token (rpt) not valid")))));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(tokenRequest.getRequestingPartyToken(), client).flatMap(rpt->this.checkRequestingPartyToken_migrated(rpt, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(rpt -> this.mergePermissions(rpt, requestedPermissions))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<List<PermissionRequest>>>toJdkFunction(throwable -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException("Requesting Party Token (rpt) not valid")))).apply(err)))));
         }
 
         return Mono.just(requestedPermissions);
@@ -376,9 +375,8 @@ private Mono<OAuth2Request> executePolicies_migrated(OAuth2Request oAuth2Request
                         executionContext.setAttribute("user", new UserProperties(endUser));
                     }
                     // execute the policies
-                    return RxJava2Adapter.monoToCompletable(rulesEngine.fire_migrated(rules, executionContext))
-                            .toSingleDefault(oAuth2Request)
-                            .onErrorResumeNext(ex -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException("Policy conditions are not met for actual request parameters"))));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToCompletable(rulesEngine.fire_migrated(rules, executionContext))
+                            .toSingleDefault(oAuth2Request)).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<OAuth2Request>>toJdkFunction(ex -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException("Policy conditions are not met for actual request parameters")))).apply(err))));
                 }).apply(v)));
     }
 }

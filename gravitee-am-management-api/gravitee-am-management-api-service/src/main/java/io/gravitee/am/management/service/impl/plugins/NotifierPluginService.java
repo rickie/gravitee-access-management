@@ -80,7 +80,7 @@ public Single<NotifierPlugin> findById(String notifierId) {
  return RxJava2Adapter.monoToSingle(findById_migrated(notifierId));
 }
 public Mono<NotifierPlugin> findById_migrated(String notifierId) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> notifierPluginManager.findById(notifierId))).flatMap(z->convert_migrated(z)))
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> notifierPluginManager.findById(notifierId))).flatMap(this::convert_migrated))
                 .onErrorResumeNext(throwable -> {
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error occurs while trying to get notifier plugin " + notifierId, throwable)));
                 })).switchIfEmpty(Mono.defer(()->Mono.error(new NotifierPluginNotFoundException(notifierId))));

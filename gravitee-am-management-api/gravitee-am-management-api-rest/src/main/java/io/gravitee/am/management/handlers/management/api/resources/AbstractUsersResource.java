@@ -31,6 +31,7 @@ import javax.ws.rs.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouuan.compiegne at graviteesource.com)
@@ -77,15 +78,15 @@ private Mono<Page<User>> executeSearchUsers_migrated(CommonUserService service, 
             return service.search_migrated(referenceType, referenceId, query, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE));
         }
         if (filter != null) {
-            return RxJava2Adapter.singleToMono(Single.defer(() -> {
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.defer(() -> {
                 FilterCriteria filterCriteria = FilterCriteria.convert(SCIMFilterParser.parse(filter));
                 return RxJava2Adapter.monoToSingle(service.search_migrated(referenceType, referenceId, filterCriteria, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE)));
-            }).onErrorResumeNext(ex -> {
+            })).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<User>>>toJdkFunction(ex -> {
                 if (ex instanceof IllegalArgumentException) {
                     return RxJava2Adapter.monoToSingle(Mono.error(new BadRequestException(ex.getMessage())));
                 }
                 return RxJava2Adapter.monoToSingle(Mono.error(ex));
-            }));
+            }).apply(err)))));
         }
         return service.findAll_migrated(referenceType, referenceId, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE));
     }

@@ -61,7 +61,7 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
 @Override
     public Mono<LoginAttempt> loginFailed_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
         LOGGER.debug("Add login attempt for {}", criteria);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(loginAttemptRepository.findByCriteria_migrated(criteria).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(loginAttemptRepository.findByCriteria_migrated(criteria).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optionalLoginAttempt -> {
                     if (optionalLoginAttempt.isPresent()) {
                         LoginAttempt loginAttempt = optionalLoginAttempt.get();
@@ -88,14 +88,13 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
                         loginAttempt.setUpdatedAt(loginAttempt.getCreatedAt());
                         return RxJava2Adapter.monoToSingle(loginAttemptRepository.create_migrated(loginAttempt));
                     }
-                })
-                .onErrorResumeNext(ex -> {
+                })).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<LoginAttempt>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to add a login attempt", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to add a login attempt", ex)));
-                }));
+                }).apply(err)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.loginSucceeded_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
