@@ -104,7 +104,7 @@ public class EmailFactorProvider implements FactorProvider {
 }
 @Override
     public Mono<Enrollment> enroll_migrated(String account) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> new Enrollment(SharedSecret.generate())))));
+        return Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> new Enrollment(SharedSecret.generate())));
     }
 
     @Override
@@ -151,11 +151,11 @@ public class EmailFactorProvider implements FactorProvider {
 
         if (provider instanceof EmailSenderProvider) {
 
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(generateCodeAndSendEmail_migrated(context, (EmailSenderProvider) provider, enrolledFactor)));
+            return generateCodeAndSendEmail_migrated(context, (EmailSenderProvider) provider, enrolledFactor);
 
         } else {
 
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication with type EMAIL"))));
+            return Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication with type EMAIL"));
         }
     }
 
@@ -178,19 +178,19 @@ private Mono<Void> generateCodeAndSendEmail_migrated(FactorContext context, Emai
             final String recipient = enrolledFactor.getChannel().getTarget();
             EmailService.EmailWrapper emailWrapper = emailService.createEmail(Template.MFA_CHALLENGE, context.getClient(), asList(recipient), params);
 
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(provider.sendMessage_migrated(emailWrapper.getEmail()))).then(Mono.just(enrolledFactor).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<EnrolledFactor, SingleSource<io.gravitee.am.model.User>>toJdkFunction(ef ->  {
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(provider.sendMessage_migrated(emailWrapper.getEmail()))).then(Mono.just(enrolledFactor).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<EnrolledFactor, SingleSource<io.gravitee.am.model.User>>toJdkFunction(ef ->  {
                                 ef.setPrimary(true);
                                 ef.setStatus(FactorStatus.ACTIVATED);
                                 ef.getSecurity().putData(FactorDataKeys.KEY_EXPIRE_AT, emailWrapper.getExpireAt());
                                 return RxJava2Adapter.monoToSingle(userService.addFactor_migrated(context.getUser().getId(), ef, new DefaultUser(context.getUser())));
-                            }).apply(v)))).then())));
+                            }).apply(v)))).then());
 
         } catch (NoSuchAlgorithmException| InvalidKeyException e) {
             logger.error("Code generation fails", e);
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Code can't be sent"))));
+            return Mono.error(new TechnicalException("Code can't be sent"));
         } catch (Exception e) {
             logger.error("Email templating fails", e);
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Email can't be sent"))));
+            return Mono.error(new TechnicalException("Email can't be sent"));
         }
     }
 
@@ -211,11 +211,11 @@ private Mono<Void> generateCodeAndSendEmail_migrated(FactorContext context, Emai
 }
 @Override
     public Mono<EnrolledFactor> changeVariableFactorSecurity_migrated(EnrolledFactor factor) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
+        return Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             int counter = factor.getSecurity().getData(FactorDataKeys.KEY_MOVING_FACTOR, Integer.class);
             factor.getSecurity().putData(FactorDataKeys.KEY_MOVING_FACTOR, counter + 1);
             factor.getSecurity().removeData(FactorDataKeys.KEY_EXPIRE_AT);
             return factor;
-        }))));
+        }));
     }
 }

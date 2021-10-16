@@ -102,7 +102,7 @@ public class FacebookAuthenticationProvider extends AbstractSocialAuthentication
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticate_migrated(authentication))).flatMap(z->RxJava2Adapter.monoToMaybe(this.profile_migrated(z, authentication)).as(RxJava2Adapter::maybeToMono))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticate_migrated(authentication))).flatMap(z->RxJava2Adapter.monoToMaybe(this.profile_migrated(z, authentication)).as(RxJava2Adapter::maybeToMono));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.authenticate_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -117,7 +117,7 @@ protected Mono<Token> authenticate_migrated(Authentication authentication) {
 
         if (authorizationCode == null || authorizationCode.isEmpty()) {
             LOGGER.debug("Authorization code is missing, skip authentication");
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Missing authorization code"))));
+            return Mono.error(new BadCredentialsException("Missing authorization code"));
         }
 
         MultiMap form = MultiMap.caseInsensitiveMultiMap()
@@ -126,7 +126,7 @@ protected Mono<Token> authenticate_migrated(Authentication authentication) {
                 .set(REDIRECT_URI, (String) authentication.getContext().get(REDIRECT_URI))
                 .set(CODE, authorizationCode);
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
+        return RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
                 .rxSendForm(form)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<Token>>toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException(httpResponse.bodyAsString())));
@@ -134,7 +134,7 @@ protected Mono<Token> authenticate_migrated(Authentication authentication) {
                     }
 
                     return RxJava2Adapter.monoToMaybe(Mono.just(new Token(httpResponse.bodyAsJsonObject().getString(ACCESS_TOKEN), TokenTypeHint.ACCESS_TOKEN)));
-                }).apply(v))))));
+                }).apply(v))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.profile_migrated(accessToken, auth))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -144,7 +144,7 @@ protected Maybe<User> profile(Token accessToken, Authentication auth) {
 }
 protected Mono<User> profile_migrated(Token accessToken, Authentication auth) {
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getUserProfileUri())
+        return RxJava2Adapter.singleToMono(client.postAbs(configuration.getUserProfileUri())
                 .rxSendForm(MultiMap.caseInsensitiveMultiMap()
                         .set(ACCESS_TOKEN, accessToken.getValue())
                         .set(FIELDS, ALL_FIELDS_PARAM))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<User>>toJdkFunction(httpResponse -> {
@@ -153,7 +153,7 @@ protected Mono<User> profile_migrated(Token accessToken, Authentication auth) {
                     }
 
                     return RxJava2Adapter.monoToMaybe(Mono.just(convert(auth.getContext(), httpResponse.bodyAsJsonObject())));
-                }).apply(v))))));
+                }).apply(v))));
     }
 
     private User convert(AuthenticationContext authContext, JsonObject facebookUser) {

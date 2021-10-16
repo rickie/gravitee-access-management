@@ -68,7 +68,7 @@ private Single<Domain> upgradeDomain(Domain domain) {
 }
 private Mono<Domain> upgradeDomain_migrated(Domain domain) {
         if(domain.getOidc()!=null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(domain)));
+            return Mono.just(domain);
         }
 
         PatchClientRegistrationSettings clientRegistrationPatch = new PatchClientRegistrationSettings();

@@ -151,7 +151,7 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
 @Override
     public Mono<CertificateProvider> get_migrated(String id) {
         if (id == null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
         CertificateProvider certificateProvider = certificateProviderManager.get(id);
         return RxJava2Adapter.maybeToMono(certificateProvider != null ? RxJava2Adapter.monoToMaybe(Mono.just(certificateProvider)) : RxJava2Adapter.monoToMaybe(Mono.empty()));
@@ -176,7 +176,7 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
     public Mono<CertificateProvider> findByAlgorithm_migrated(String algorithm) {
 
         if(algorithm==null || algorithm.trim().isEmpty()) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
 
         Optional<CertificateProvider> certificate = this
@@ -261,7 +261,7 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
 }
 @Override
             public Mono<io.gravitee.am.certificate.api.Key> key_migrated() {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificateKey)));
+                return Mono.just(certificateKey);
             }
 
             @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(privateKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")

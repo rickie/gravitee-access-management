@@ -76,9 +76,9 @@ public class UserConsentsEndpointHandler extends AbstractUserConsentEndpointHand
 
         RxJava2Adapter.monoToCompletable(Mono.just(Optional.ofNullable(clientId)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<String>, CompletableSource>)optClient -> {
                     if (optClient.isPresent()) {
-                        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getPrincipal_migrated(context))).flatMap(t->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<User, CompletableSource>toJdkFunction(principal -> RxJava2Adapter.monoToCompletable(userService.revokeConsents_migrated(userId, optClient.get(), principal))).apply(t)))).then());
+                        return RxJava2Adapter.monoToCompletable(getPrincipal_migrated(context).flatMap(v->userService.revokeConsents_migrated(userId, optClient.get(), v)).then());
                     }
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getPrincipal_migrated(context))).flatMap(t->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<User, CompletableSource>toJdkFunction(principal -> RxJava2Adapter.monoToCompletable(userService.revokeConsents_migrated(userId, principal))).apply(t)))).then());
+                    return RxJava2Adapter.monoToCompletable(getPrincipal_migrated(context).flatMap(v->userService.revokeConsents_migrated(userId, v)).then());
                 }).apply(y)))).then())
                 .subscribe(
                         () -> context.response().setStatusCode(204).end(),

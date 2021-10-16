@@ -72,8 +72,8 @@ private Maybe<RefreshToken> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
 private Mono<RefreshToken> findById_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(refreshTokenCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable
+                .fromPublisher(refreshTokenCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -84,8 +84,8 @@ private Mono<RefreshToken> findById_migrated(String id) {
 }
 @Override
     public Mono<RefreshToken> findByToken_migrated(String token) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(refreshTokenCollection.find(eq(FIELD_TOKEN, token)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable
+                .fromPublisher(refreshTokenCollection.find(eq(FIELD_TOKEN, token)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(refreshToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -100,8 +100,8 @@ private Mono<RefreshToken> findById_migrated(String id) {
             refreshToken.setId(RandomString.generate());
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
-                .fromPublisher(refreshTokenCollection.insertOne(convert(refreshToken)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(refreshToken.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single
+                .fromPublisher(refreshTokenCollection.insertOne(convert(refreshToken)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(refreshToken.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(refreshTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -112,7 +112,7 @@ private Mono<RefreshToken> findById_migrated(String id) {
 }
 @Override
     public Mono<Void> bulkWrite_migrated(List<RefreshToken> refreshTokens) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.bulkWrite(convert(refreshTokens)))));
+        return Mono.from(refreshTokenCollection.bulkWrite(convert(refreshTokens)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -123,7 +123,7 @@ private Mono<RefreshToken> findById_migrated(String id) {
 }
 @Override
     public Mono<Void> delete_migrated(String token) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteOne(eq(FIELD_TOKEN, token)))));
+        return Mono.from(refreshTokenCollection.deleteOne(eq(FIELD_TOKEN, token)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -134,7 +134,7 @@ private Mono<RefreshToken> findById_migrated(String id) {
 }
 @Override
     public Mono<Void> deleteByUserId_migrated(String userId) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteMany(eq(FIELD_SUBJECT, userId)))));
+        return Mono.from(refreshTokenCollection.deleteMany(eq(FIELD_SUBJECT, userId)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainIdClientIdAndUserId_migrated(domainId, clientId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -145,7 +145,7 @@ private Mono<RefreshToken> findById_migrated(String id) {
 }
 @Override
     public Mono<Void> deleteByDomainIdClientIdAndUserId_migrated(String domainId, String clientId, String userId) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, userId))))));
+        return Mono.from(refreshTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, userId))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainIdAndUserId_migrated(domainId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -156,7 +156,7 @@ private Mono<RefreshToken> findById_migrated(String id) {
 }
 @Override
     public Mono<Void> deleteByDomainIdAndUserId_migrated(String domainId, String userId) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(refreshTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_SUBJECT, userId))))));
+        return Mono.from(refreshTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_SUBJECT, userId))));
     }
 
     private List<WriteModel<RefreshTokenMongo>> convert(List<RefreshToken> refreshTokens) {

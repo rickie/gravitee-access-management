@@ -57,7 +57,7 @@ public class CertificatePluginResource {
             @PathParam("certificate") String certificateId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificatePluginService.findById_migrated(certificateId))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPlugin -> Response.ok(certificateId).build())).switchIfEmpty(Mono.error(new CertificatePluginNotFoundException(certificateId))))
+        RxJava2Adapter.monoToMaybe(certificatePluginService.findById_migrated(certificateId).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPlugin -> Response.ok(certificateId).build())).switchIfEmpty(Mono.error(new CertificatePluginNotFoundException(certificateId))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -71,7 +71,7 @@ public class CertificatePluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the certificate exists
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificatePluginService.findById_migrated(certificateId))).switchIfEmpty(Mono.error(new CertificatePluginNotFoundException(certificateId))).flatMap(z->RxJava2Adapter.monoToMaybe(certificatePluginService.getSchema_migrated(certificateId)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new CertificatePluginSchemaNotFoundException(certificateId))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificatePluginSchema -> Response.ok(certificatePluginSchema).build())))
+        RxJava2Adapter.monoToMaybe(certificatePluginService.findById_migrated(certificateId).switchIfEmpty(Mono.error(new CertificatePluginNotFoundException(certificateId))).flatMap(z->certificatePluginService.getSchema_migrated(certificateId)).switchIfEmpty(Mono.error(new CertificatePluginSchemaNotFoundException(certificateId))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificatePluginSchema -> Response.ok(certificatePluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

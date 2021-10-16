@@ -144,7 +144,7 @@ public class ClientManagerImpl extends AbstractService implements ClientManager,
 
     private void deployClient(String applicationId) {
         logger.info("Deploying application {} for domain {}", applicationId, domain.getName());
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationRepository.findById_migrated(applicationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)))
+        RxJava2Adapter.monoToMaybe(applicationRepository.findById_migrated(applicationId).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)))
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         client -> {

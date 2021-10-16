@@ -126,7 +126,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
                     }));
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while authenticating the user {}", ex);
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InternalAuthenticationServiceException("An error has occurred while authenticating the user", ex))));
+            return Mono.error(new InternalAuthenticationServiceException("An error has occurred while authenticating the user", ex));
         }
     }
 
@@ -138,7 +138,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
 }
 @Override
     public Mono<User> loadPreAuthenticatedUser_migrated(Authentication authentication) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(loadByUsername0_migrated(authentication.getContext(), new DefaultUser((io.gravitee.am.model.User) authentication.getPrincipal()))));
+        return loadByUsername0_migrated(authentication.getContext(), new DefaultUser((io.gravitee.am.model.User) authentication.getPrincipal()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -149,7 +149,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(String username) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(loadByUsername0_migrated(new SimpleAuthenticationContext(), new DefaultUser(username))));
+        return loadByUsername0_migrated(new SimpleAuthenticationContext(), new DefaultUser(username));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadByUsername0_migrated(authenticationContext, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -161,22 +161,22 @@ private Mono<User> loadByUsername0_migrated(AuthenticationContext authentication
         // prepare request
         final HttpAuthResourcePathsConfiguration authResourceConfiguration = configuration.getAuthenticationResource().getPaths();
         if (authResourceConfiguration == null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
         if (authResourceConfiguration.getLoadPreAuthUserResource() == null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
 
         final HttpResourceConfiguration readResourceConfiguration = authResourceConfiguration.getLoadPreAuthUserResource();
 
         if (readResourceConfiguration.getBaseURL() == null) {
             LOGGER.warn("Missing pre-authenticated user resource base URL");
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
 
         if (readResourceConfiguration.getHttpMethod() == null) {
             LOGGER.warn("Missing pre-authenticated user resource HTTP method");
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
 
         try {
@@ -205,7 +205,7 @@ private Mono<User> loadByUsername0_migrated(AuthenticationContext authentication
                     }));
         } catch (Exception ex) {
             LOGGER.error("An error has occurred when loading pre-authenticated user {}", user.getUsername() != null ? user.getUsername() : user.getEmail(), ex);
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error has occurred when when loading pre-authenticated user", ex))));
+            return Mono.error(new TechnicalManagementException("An error has occurred when when loading pre-authenticated user", ex));
         }
     }
 

@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
 }
 @Override
     public Mono<User> findById_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(id)));
+        return userService.findById_migrated(id);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.consents_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
 }
 @Override
     public Mono<ScopeApproval> consent_migrated(String consentId) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(scopeApprovalService.findById_migrated(consentId))).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consentId)))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(scopeApprovalService.findById_migrated(consentId))).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consentId)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeConsent_migrated(userId, consentId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
 }
 @Override
     public Mono<Void> revokeConsent_migrated(String userId, String consentId, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(scopeApprovalService.revokeByConsent_migrated(domain.getId(), userId, consentId, principal)));
+        return scopeApprovalService.revokeByConsent_migrated(domain.getId(), userId, consentId, principal);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeConsents_migrated(userId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
 }
 @Override
     public Mono<Void> revokeConsents_migrated(String userId, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(scopeApprovalService.revokeByUser_migrated(domain.getId(), userId, principal)));
+        return scopeApprovalService.revokeByUser_migrated(domain.getId(), userId, principal);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeConsents_migrated(userId, clientId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -120,7 +120,7 @@ public class UserServiceImpl implements UserService {
 }
 @Override
     public Mono<Void> revokeConsents_migrated(String userId, String clientId, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(scopeApprovalService.revokeByUserAndClient_migrated(domain.getId(), userId, clientId, principal)));
+        return scopeApprovalService.revokeByUserAndClient_migrated(domain.getId(), userId, clientId, principal);
     }
 
 }

@@ -72,7 +72,7 @@ public class EmailTemplateServiceTest {
 
     @Test
     public void shouldFindAll() {
-        when(emailRepository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Email()))));
+        when(emailRepository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flux.just(new Email()));
         TestSubscriber testObserver = RxJava2Adapter.fluxToFlowable(emailTemplateService.findAll_migrated(ReferenceType.DOMAIN, DOMAIN)).test();
 
         testObserver.awaitTerminalEvent();
@@ -83,7 +83,7 @@ public class EmailTemplateServiceTest {
 
     @Test
     public void shouldFindByDomainAndTemplate() {
-        when(emailRepository.findByTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, Template.LOGIN.template())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Email()))));
+        when(emailRepository.findByTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, Template.LOGIN.template())).thenReturn(Mono.just(new Email()));
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(emailTemplateService.findByDomainAndTemplate_migrated(DOMAIN, Template.LOGIN.template())).test();
 
         testObserver.awaitTerminalEvent();
@@ -94,7 +94,7 @@ public class EmailTemplateServiceTest {
 
     @Test
     public void shouldFindByDomainAndTemplate_notExistingEmail() {
-        when(emailRepository.findByTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, Template.LOGIN.template())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(emailRepository.findByTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, Template.LOGIN.template())).thenReturn(Mono.empty());
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(emailTemplateService.findByDomainAndTemplate_migrated(DOMAIN, Template.LOGIN.template())).test();
         testObserver.awaitTerminalEvent();
 
@@ -103,7 +103,7 @@ public class EmailTemplateServiceTest {
 
     @Test
     public void shouldFindByDomainAndTemplate_technicalException() {
-        when(emailRepository.findByTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, Template.LOGIN.template())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(emailRepository.findByTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, Template.LOGIN.template())).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToMaybe(emailTemplateService.findByDomainAndTemplate_migrated(DOMAIN, Template.LOGIN.template())).subscribe(testObserver);
 
@@ -115,9 +115,9 @@ public class EmailTemplateServiceTest {
     public void shouldCreate() {
         NewEmail newEmail = Mockito.mock(NewEmail.class);
         when(newEmail.getTemplate()).thenReturn(Template.REGISTRATION);
-        when(emailRepository.findByTemplate_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(emailRepository.create_migrated(any(Email.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Email()))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(emailRepository.findByTemplate_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), anyString())).thenReturn(Mono.empty());
+        when(emailRepository.create_migrated(any(Email.class))).thenReturn(Mono.just(new Email()));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(emailTemplateService.create_migrated(DOMAIN, newEmail)).test();
         testObserver.awaitTerminalEvent();
@@ -133,7 +133,7 @@ public class EmailTemplateServiceTest {
     public void shouldCreate_technicalException() {
         NewEmail newEmail = Mockito.mock(NewEmail.class);
         when(newEmail.getTemplate()).thenReturn(Template.REGISTRATION);
-        when(emailRepository.findByTemplate_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(emailRepository.findByTemplate_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), anyString())).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(emailTemplateService.create_migrated(DOMAIN, newEmail)).subscribe(testObserver);
@@ -148,7 +148,7 @@ public class EmailTemplateServiceTest {
     public void shouldCreate_uniquenessException() {
         NewEmail newEmail = Mockito.mock(NewEmail.class);
         when(newEmail.getTemplate()).thenReturn(Template.REGISTRATION);
-        when(emailRepository.findByTemplate_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Email()))));
+        when(emailRepository.findByTemplate_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), any())).thenReturn(Mono.just(new Email()));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(emailTemplateService.create_migrated(DOMAIN, newEmail)).subscribe(testObserver);
@@ -162,9 +162,9 @@ public class EmailTemplateServiceTest {
     @Test
     public void shouldUpdate() {
         UpdateEmail updateEmail = Mockito.mock(UpdateEmail.class);
-        when(emailRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-email")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Email()))));
-        when(emailRepository.update_migrated(any(Email.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Email()))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(emailRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-email")).thenReturn(Mono.just(new Email()));
+        when(emailRepository.update_migrated(any(Email.class))).thenReturn(Mono.just(new Email()));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(emailTemplateService.update_migrated(DOMAIN, "my-email", updateEmail)).test();
         testObserver.awaitTerminalEvent();
@@ -180,7 +180,7 @@ public class EmailTemplateServiceTest {
     @Test
     public void shouldUpdate_technicalException() {
         UpdateEmail updateEmail = Mockito.mock(UpdateEmail.class);
-        when(emailRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN,"my-email")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(emailRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN,"my-email")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(emailTemplateService.update_migrated(DOMAIN, "my-email", updateEmail)).subscribe(testObserver);
@@ -194,7 +194,7 @@ public class EmailTemplateServiceTest {
 
     @Test
     public void shouldUpdate_emailNotFound() {
-        when(emailRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN,"my-email")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(emailRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN,"my-email")).thenReturn(Mono.empty());
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(emailTemplateService.update_migrated(DOMAIN, "my-email", new UpdateEmail())).subscribe(testObserver);
@@ -207,7 +207,7 @@ public class EmailTemplateServiceTest {
 
     @Test
     public void shouldDelete_notExistingEmail() {
-        when(emailRepository.findById_migrated("my-email")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(emailRepository.findById_migrated("my-email")).thenReturn(Mono.empty());
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(emailTemplateService.delete_migrated("my-email")).test();
 
@@ -219,8 +219,8 @@ public class EmailTemplateServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(emailRepository.findById_migrated("my-email")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Email()))));
-        when(emailRepository.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(TechnicalException::new))));
+        when(emailRepository.findById_migrated("my-email")).thenReturn(Mono.just(new Email()));
+        when(emailRepository.delete_migrated(anyString())).thenReturn(Mono.error(TechnicalException::new));
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(emailTemplateService.delete_migrated("my-email")).test();
 
@@ -235,9 +235,9 @@ public class EmailTemplateServiceTest {
         email.setReferenceType(ReferenceType.DOMAIN);
         email.setReferenceId(DOMAIN);
 
-        when(emailRepository.findById_migrated(email.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(email))));
-        when(emailRepository.delete_migrated(email.getId())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(emailRepository.findById_migrated(email.getId())).thenReturn(Mono.just(email));
+        when(emailRepository.delete_migrated(email.getId())).thenReturn(Mono.empty());
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(emailTemplateService.delete_migrated(email.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -272,13 +272,13 @@ public class EmailTemplateServiceTest {
         mailTwo.setTemplate("error");
         mailTwo.setExpiresAfter(1000);
 
-        when(emailRepository.findByClient_migrated(ReferenceType.DOMAIN, DOMAIN, sourceUid)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(mailOne, mailTwo))));
-        when(emailRepository.findByClientAndTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, targetUid, "login")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(emailRepository.findByClientAndTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, targetUid, "error")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(emailRepository.create_migrated(any())).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(emailRepository.findByClient_migrated(ReferenceType.DOMAIN, DOMAIN, sourceUid)).thenReturn(Flux.just(mailOne, mailTwo));
+        when(emailRepository.findByClientAndTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, targetUid, "login")).thenReturn(Mono.empty());
+        when(emailRepository.findByClientAndTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, targetUid, "error")).thenReturn(Mono.empty());
+        when(emailRepository.create_migrated(any())).thenAnswer(i -> Mono.just(i.getArgument(0)));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
-        TestObserver<List<Email>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(emailTemplateService.copyFromClient_migrated(DOMAIN, sourceUid, targetUid))).collectList()).test();
+        TestObserver<List<Email>> testObserver = RxJava2Adapter.monoToSingle(emailTemplateService.copyFromClient_migrated(DOMAIN, sourceUid, targetUid).collectList()).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(emails -> emails != null && emails.size() == 2 && emails.stream().filter(
                 email -> email.getReferenceType() == ReferenceType.DOMAIN &&
@@ -311,8 +311,8 @@ public class EmailTemplateServiceTest {
         mailOne.setContent("mailContent");
         mailOne.setExpiresAfter(0);
 
-        when(emailRepository.findByClientAndTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, targetUid, "login")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Email()))));
-        when(emailRepository.findByClient_migrated(ReferenceType.DOMAIN, DOMAIN, sourceUid)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(mailOne))));
+        when(emailRepository.findByClientAndTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, targetUid, "login")).thenReturn(Mono.just(new Email()));
+        when(emailRepository.findByClient_migrated(ReferenceType.DOMAIN, DOMAIN, sourceUid)).thenReturn(Flux.just(mailOne));
 
         TestSubscriber<Email> testSubscriber = RxJava2Adapter.fluxToFlowable(emailTemplateService.copyFromClient_migrated(DOMAIN, sourceUid, targetUid)).test();
         testSubscriber.assertNotComplete();

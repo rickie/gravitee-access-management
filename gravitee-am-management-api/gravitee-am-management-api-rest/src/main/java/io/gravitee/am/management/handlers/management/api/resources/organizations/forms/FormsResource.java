@@ -67,7 +67,7 @@ public class FormsResource extends AbstractResource {
             @NotNull @QueryParam("template") Template formTemplate,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.READ)).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(formService.findByTemplate_migrated(ReferenceType.ORGANIZATION, organizationId, formTemplate.template()))).map(RxJavaReactorMigrationUtil.toJdkFunction(page -> Response.ok(page).build())).defaultIfEmpty(Response.ok(new Form(false, formTemplate.template())).build())).as(RxJava2Adapter::monoToMaybe)
+        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.READ).then(formService.findByTemplate_migrated(ReferenceType.ORGANIZATION, organizationId, formTemplate.template()).map(RxJavaReactorMigrationUtil.toJdkFunction(page -> Response.ok(page).build())).defaultIfEmpty(Response.ok(new Form(false, formTemplate.template())).build())).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -85,7 +85,7 @@ public class FormsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.CREATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(formService.create_migrated(ReferenceType.ORGANIZATION, organizationId, newForm, authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(form -> Response
+        RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.CREATE).then(formService.create_migrated(ReferenceType.ORGANIZATION, organizationId, newForm, authenticatedUser).map(RxJavaReactorMigrationUtil.toJdkFunction(form -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/forms/" + form.getId()))
                                 .entity(form)
                                 .build()))))

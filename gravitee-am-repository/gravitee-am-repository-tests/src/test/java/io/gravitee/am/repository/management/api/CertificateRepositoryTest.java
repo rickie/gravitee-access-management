@@ -43,7 +43,7 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
         Certificate certificate = buildCertificate();
         certificate.setDomain("DomainTestFindByDomain");
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(certificateRepository.create_migrated(certificate))).block();
+        certificateRepository.create_migrated(certificate).block();
 
         // fetch certificates
         TestSubscriber<Certificate> testSubscriber = RxJava2Adapter.fluxToFlowable(certificateRepository.findByDomain_migrated("DomainTestFindByDomain")).test();
@@ -79,7 +79,7 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
         // create certificate
         Certificate certificate = buildCertificate();
         certificate.setName("testFindById");
-        Certificate certificateCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(certificateRepository.create_migrated(certificate))).block();
+        Certificate certificateCreated = certificateRepository.create_migrated(certificate).block();
 
         // fetch certificate
         TestObserver<Certificate> testObserver = RxJava2Adapter.monoToMaybe(certificateRepository.findById_migrated(certificateCreated.getId())).test();
@@ -118,7 +118,7 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create certificate
         Certificate certificate = buildCertificate();
-        Certificate certificateCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(certificateRepository.create_migrated(certificate))).block();
+        Certificate certificateCreated = certificateRepository.create_migrated(certificate).block();
 
         // update certificate
         Certificate updatedCertificate = new Certificate(certificateCreated);
@@ -137,7 +137,7 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
     public void testDelete() throws TechnicalException {
         // create certificate
         Certificate certificate = buildCertificate();
-        Certificate certificateCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(certificateRepository.create_migrated(certificate))).block();
+        Certificate certificateCreated = certificateRepository.create_migrated(certificate).block();
 
         // fetch certificate
         TestObserver<Certificate> testObserver = RxJava2Adapter.monoToMaybe(certificateRepository.findById_migrated(certificateCreated.getId())).test();

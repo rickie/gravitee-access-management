@@ -97,10 +97,10 @@ public class TagServiceImpl implements TagService {
 @Override
     public Flux<Tag> findAll_migrated(String organizationId) {
         LOGGER.debug("Find all tags");
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(tagRepository.findAll_migrated(organizationId))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(tagRepository.findAll_migrated(organizationId))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find all tags", ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find all tags", ex)));
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(newTag, organizationId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -114,7 +114,7 @@ public class TagServiceImpl implements TagService {
         LOGGER.debug("Create a new tag: {}", newTag);
         String id = humanReadableId(newTag.getName());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(id, organizationId))).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Tag>>toJdkFunction(empty -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(id, organizationId))).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Tag>>toJdkFunction(empty -> {
                     if (!empty) {
                         throw new TagAlreadyExistsException(newTag.getName());
                     } else {
@@ -135,7 +135,7 @@ public class TagServiceImpl implements TagService {
 
                     LOGGER.error("An error occurs while trying to create a tag", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a tag", ex)));
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(tag -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).tag(tag).principal(principal).type(EventType.TAG_CREATED)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).referenceId(organizationId).principal(principal).type(EventType.TAG_CREATED).throwable(throwable))))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(tag -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).tag(tag).principal(principal).type(EventType.TAG_CREATED)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).referenceId(organizationId).principal(principal).type(EventType.TAG_CREATED).throwable(throwable))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(tagId, organizationId, updateTag, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -147,7 +147,7 @@ public class TagServiceImpl implements TagService {
 @Override
     public Mono<Tag> update_migrated(String tagId, String organizationId, UpdateTag updateTag, User principal) {
         LOGGER.debug("Update an existing tag: {}", updateTag);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(tagId, organizationId))).switchIfEmpty(Mono.error(new TagNotFoundException(tagId))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(tagId, organizationId).switchIfEmpty(Mono.error(new TagNotFoundException(tagId))))
                 .flatMapSingle(oldTag -> {
                     Tag tag = new Tag();
                     tag.setId(tagId);
@@ -156,7 +156,7 @@ public class TagServiceImpl implements TagService {
                     tag.setCreatedAt(oldTag.getCreatedAt());
                     tag.setUpdatedAt(new Date());
 
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.update_migrated(tag))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(tag1 -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_UPDATED).tag(tag1).oldValue(oldTag)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_UPDATED).throwable(throwable)))));
+                    return RxJava2Adapter.monoToSingle(tagRepository.update_migrated(tag).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(tag1 -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_UPDATED).tag(tag1).oldValue(oldTag)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_UPDATED).throwable(throwable)))));
                 })
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -177,7 +177,7 @@ public class TagServiceImpl implements TagService {
 @Override
     public Mono<Void> delete_migrated(String tagId, String orgaizationId, User principal) {
         LOGGER.debug("Delete tag {}", tagId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(tagId, orgaizationId))).switchIfEmpty(Mono.error(new TagNotFoundException(tagId))).flatMap(tag->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(tagRepository.delete_migrated(tagId))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(domainService.findAll_migrated()).flatMapObservable(Observable::fromIterable).flatMapCompletable((io.gravitee.am.model.Domain domain)->{
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(tagRepository.findById_migrated(tagId, orgaizationId).switchIfEmpty(Mono.error(new TagNotFoundException(tagId))).flatMap(tag->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(tagRepository.delete_migrated(tagId).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(domainService.findAll_migrated()).flatMapObservable(Observable::fromIterable).flatMapCompletable((io.gravitee.am.model.Domain domain)->{
 if (domain.getTags() != null) {
 domain.getTags().remove(tagId);
 return RxJava2Adapter.monoToSingle(domainService.update_migrated(domain.getId(), domain)).toCompletable();

@@ -79,7 +79,7 @@ public class OrganizationCommandHandlerTest {
                         && newOrganization.getDescription().equals(organizationPayload.getDescription())
                         && newOrganization.getName().equals(organizationPayload.getName())
                         && newOrganization.getDomainRestrictions().equals(organizationPayload.getDomainRestrictions())),
-                isNull())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Organization()))));
+                isNull())).thenReturn(Mono.just(new Organization()));
 
         TestObserver<OrganizationReply> obs = cut.handle(command).test();
 
@@ -98,7 +98,7 @@ public class OrganizationCommandHandlerTest {
         organizationPayload.setName("Organization name");
         organizationPayload.setDomainRestrictions(Arrays.asList("domain.restriction1.io", "domain.restriction2.io"));
 
-        when(organizationService.createOrUpdate_migrated(eq("orga#1"), any(NewOrganization.class), isNull())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException()))));
+        when(organizationService.createOrUpdate_migrated(eq("orga#1"), any(NewOrganization.class), isNull())).thenReturn(Mono.error(new TechnicalException()));
 
         TestObserver<OrganizationReply> obs = cut.handle(command).test();
 

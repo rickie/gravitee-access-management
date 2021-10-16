@@ -89,13 +89,13 @@ protected Mono<Bson> toBsonFilter_migrated(boolean logicalOr, Bson... filter) {
         List<Bson> filterCriteria = Stream.of(filter).filter(Objects::nonNull).collect(Collectors.toList());
 
         if (filterCriteria.isEmpty()) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
 
         if (logicalOr) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(or(filterCriteria))));
+            return Mono.just(or(filterCriteria));
         } else {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(and(filterCriteria))));
+            return Mono.just(and(filterCriteria));
         }
     }
 }

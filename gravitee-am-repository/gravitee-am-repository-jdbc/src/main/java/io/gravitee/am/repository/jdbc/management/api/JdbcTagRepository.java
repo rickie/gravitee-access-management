@@ -62,7 +62,7 @@ public class JdbcTagRepository extends AbstractJdbcRepository implements TagRepo
 @Override
     public Mono<Tag> findById_migrated(String id, String organizationId) {
         LOGGER.debug("findById({}, {})", id, organizationId);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(id, organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(id, organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -74,7 +74,7 @@ public class JdbcTagRepository extends AbstractJdbcRepository implements TagRepo
 @Override
     public Flux<Tag> findAll_migrated(String organizationId) {
         LOGGER.debug("findAll({})", organizationId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(tagRepository.findByOrganization_migrated(organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(tagRepository.findByOrganization_migrated(organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -86,7 +86,7 @@ public class JdbcTagRepository extends AbstractJdbcRepository implements TagRepo
 @Override
     public Mono<Tag> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(tagRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.maybeToMono(tagRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -105,7 +105,7 @@ public class JdbcTagRepository extends AbstractJdbcRepository implements TagRepo
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
+        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -117,7 +117,7 @@ public class JdbcTagRepository extends AbstractJdbcRepository implements TagRepo
 @Override
     public Mono<Tag> update_migrated(Tag item) {
         LOGGER.debug("Update tag with id {}", item.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tagRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.singleToMono(tagRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

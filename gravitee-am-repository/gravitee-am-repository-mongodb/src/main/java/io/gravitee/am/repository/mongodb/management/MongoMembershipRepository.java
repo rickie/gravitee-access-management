@@ -67,7 +67,7 @@ public class MongoMembershipRepository extends AbstractManagementMongoRepository
 }
 @Override
     public Flux<Membership> findByReference_migrated(String referenceId, ReferenceType referenceType) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(membershipsCollection.find(and(eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_REFERENCE_TYPE, referenceType.name())))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(membershipsCollection.find(and(eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_REFERENCE_TYPE, referenceType.name())))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -78,7 +78,7 @@ public class MongoMembershipRepository extends AbstractManagementMongoRepository
 }
 @Override
     public Flux<Membership> findByMember_migrated(String memberId, MemberType memberType) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(membershipsCollection.find(and(eq(FIELD_MEMBER_ID, memberId), eq(FIELD_MEMBER_TYPE, memberType.name())))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(membershipsCollection.find(and(eq(FIELD_MEMBER_ID, memberId), eq(FIELD_MEMBER_TYPE, memberType.name())))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -106,7 +106,7 @@ public class MongoMembershipRepository extends AbstractManagementMongoRepository
             eqUserId = eq(FIELD_ROLE, criteria.getRoleId().get());
         }
 
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(toBsonFilter_migrated(criteria.isLogicalOR(), eqGroupId, eqUserId))).map(RxJavaReactorMigrationUtil.toJdkFunction(filter -> and(eqReference, filter))).switchIfEmpty(Mono.just(eqReference)).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> RxJava2Adapter.fluxToFlowable(Flux.from(membershipsCollection.find(filter))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(toBsonFilter_migrated(criteria.isLogicalOR(), eqGroupId, eqUserId))).map(RxJavaReactorMigrationUtil.toJdkFunction(filter -> and(eqReference, filter))).switchIfEmpty(Mono.just(eqReference)).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> RxJava2Adapter.fluxToFlowable(Flux.from(membershipsCollection.find(filter))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByReferenceAndMember_migrated(referenceType, referenceId, memberType, memberId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -117,9 +117,9 @@ public class MongoMembershipRepository extends AbstractManagementMongoRepository
 }
 @Override
     public Mono<Membership> findByReferenceAndMember_migrated(ReferenceType referenceType, String referenceId, MemberType memberType, String memberId) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(membershipsCollection.find(
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(membershipsCollection.find(
                 and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId),
-                        eq(FIELD_MEMBER_TYPE, memberType.name()), eq(FIELD_MEMBER_ID, memberId))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+                        eq(FIELD_MEMBER_TYPE, memberType.name()), eq(FIELD_MEMBER_ID, memberId))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -130,7 +130,7 @@ public class MongoMembershipRepository extends AbstractManagementMongoRepository
 }
 @Override
     public Mono<Membership> findById_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(membershipsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(membershipsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -143,7 +143,7 @@ public class MongoMembershipRepository extends AbstractManagementMongoRepository
     public Mono<Membership> create_migrated(Membership item) {
         MembershipMongo membership = convert(item);
         membership.setId(membership.getId() == null ? RandomString.generate() : membership.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(membershipsCollection.insertOne(membership))).map(RxJavaReactorMigrationUtil.toJdkFunction(success -> convert(membership)))));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(membershipsCollection.insertOne(membership))).map(RxJavaReactorMigrationUtil.toJdkFunction(success -> convert(membership)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -155,7 +155,7 @@ public class MongoMembershipRepository extends AbstractManagementMongoRepository
 @Override
     public Mono<Membership> update_migrated(Membership item) {
         MembershipMongo membership = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(membershipsCollection.replaceOne(eq(FIELD_ID, membership.getId()), membership))).map(RxJavaReactorMigrationUtil.toJdkFunction(success -> convert(membership)))));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(membershipsCollection.replaceOne(eq(FIELD_ID, membership.getId()), membership))).map(RxJavaReactorMigrationUtil.toJdkFunction(success -> convert(membership)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -166,7 +166,7 @@ public class MongoMembershipRepository extends AbstractManagementMongoRepository
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(membershipsCollection.deleteOne(eq(FIELD_ID, id)))));
+        return Mono.from(membershipsCollection.deleteOne(eq(FIELD_ID, id)));
     }
 
     private Membership convert(MembershipMongo membershipMongo) {

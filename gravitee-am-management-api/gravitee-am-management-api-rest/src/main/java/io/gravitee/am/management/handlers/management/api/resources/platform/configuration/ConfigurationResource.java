@@ -67,7 +67,7 @@ public class ConfigurationResource {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void getAlertServiceStatus(@Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertService.isAlertingAvailable_migrated())).map(RxJavaReactorMigrationUtil.toJdkFunction(AlertServiceStatusEntity::new)))
+        RxJava2Adapter.monoToSingle(alertService.isAlertingAvailable_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(AlertServiceStatusEntity::new)))
                 .subscribe(response::resume, response::resume);
     }
 

@@ -571,7 +571,7 @@ public class JWKServiceTest {
         key.setKid("my-test-key");
 
         CertificateProvider certificateProvider = mock(CertificateProvider.class);
-        when(certificateProvider.keys_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(key))));
+        when(certificateProvider.keys_migrated()).thenReturn(Flux.just(key));
 
         when(certificateManager.providers()).thenReturn(Collections.singletonList(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
 
@@ -601,9 +601,9 @@ public class JWKServiceTest {
         key.setKid("my-test-key-2");
 
         CertificateProvider certificateProvider = mock(CertificateProvider.class);
-        when(certificateProvider.keys_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(key))));
+        when(certificateProvider.keys_migrated()).thenReturn(Flux.just(key));
         CertificateProvider certificateProvider2 = mock(CertificateProvider.class);
-        when(certificateProvider2.keys_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(key2))));
+        when(certificateProvider2.keys_migrated()).thenReturn(Flux.just(key2));
 
         List<io.gravitee.am.gateway.certificate.CertificateProvider> certificateProviders = new ArrayList<>();
         certificateProviders.add(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider));

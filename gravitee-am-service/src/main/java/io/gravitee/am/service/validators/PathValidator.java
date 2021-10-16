@@ -39,23 +39,23 @@ public static Completable validate(String path) {
 public static Mono<Void> validate_migrated(String path) {
 
         if (path == null || "".equals(path)) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidPathException("Path must not be null or empty"))));
+            return Mono.error(new InvalidPathException("Path must not be null or empty"));
         }
 
         Matcher matcher = PATH_PATTERN.matcher(path);
 
         if (!matcher.matches()) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidPathException("Path [" + path + "] is invalid"))));
+            return Mono.error(new InvalidPathException("Path [" + path + "] is invalid"));
         }
 
         if (!path.startsWith("/")) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidPathException("Path must start with a '/'"))));
+            return Mono.error(new InvalidPathException("Path must start with a '/'"));
         }
 
         if (path.contains("//")) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidPathException("Path [" + path + "] is invalid"))));
+            return Mono.error(new InvalidPathException("Path [" + path + "] is invalid"));
         }
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        return Mono.empty();
     }
 }

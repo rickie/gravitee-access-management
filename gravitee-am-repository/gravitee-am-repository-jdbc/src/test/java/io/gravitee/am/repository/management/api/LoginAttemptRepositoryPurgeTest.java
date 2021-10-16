@@ -58,15 +58,15 @@ public class LoginAttemptRepositoryPurgeTest extends AbstractManagementTest {
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
 
-        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(attemptExpired.getId()))).block());
-        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(attemptExpired2.getId()))).block());
-        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(attemptNotExpired.getId()))).block());
+        assertNull(repository.findById_migrated(attemptExpired.getId()).block());
+        assertNull(repository.findById_migrated(attemptExpired2.getId()).block());
+        assertNotNull(repository.findById_migrated(attemptNotExpired.getId()).block());
 
         TestObserver<Void> test = RxJava2Adapter.monoToCompletable(repository.purgeExpiredData_migrated()).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(attemptNotExpired.getId()))).block());
+        assertNotNull(repository.findById_migrated(attemptNotExpired.getId()).block());
     }
 
     private LoginAttempt buildLoginAttempt(Instant expiredAt) {

@@ -71,7 +71,7 @@ public class IdentityProvidersResource extends AbstractResource {
             @QueryParam("userProvider") boolean userProvider,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.LIST))).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, organizationId))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(identityProvider -> {
+        RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.LIST).then(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, organizationId).filter(RxJavaReactorMigrationUtil.toJdkPredicate(identityProvider -> {
                             if (userProvider) {
                                 return identityProviderManager.userProviderExists(identityProvider.getId());
                             }
@@ -95,7 +95,7 @@ public class IdentityProvidersResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.CREATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderService.create_migrated(ReferenceType.ORGANIZATION, organizationId, newIdentityProvider, authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProvider -> Response
+        RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.CREATE).then(identityProviderService.create_migrated(ReferenceType.ORGANIZATION, organizationId, newIdentityProvider, authenticatedUser).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProvider -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/identities/" + identityProvider.getId()))
                                 .entity(identityProvider)
                                 .build()))))

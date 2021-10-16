@@ -37,7 +37,7 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
     public void testFindById() {
         // create task
         SystemTask task = buildSystemTask();
-        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(taskRepository.create_migrated(task))).block();
+        SystemTask systemTaskCreated = taskRepository.create_migrated(task).block();
 
         // fetch task
         TestObserver<SystemTask> testObserver = RxJava2Adapter.monoToMaybe(taskRepository.findById_migrated(systemTaskCreated.getId())).test();
@@ -83,7 +83,7 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdateIf() {
         SystemTask task = buildSystemTask();
-        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(taskRepository.create_migrated(task))).block();
+        SystemTask systemTaskCreated = taskRepository.create_migrated(task).block();
 
         SystemTask updatedSystemTask = buildSystemTask();
         updatedSystemTask.setId(systemTaskCreated.getId());
@@ -99,7 +99,7 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdateIf_mismatch() {
         SystemTask task = buildSystemTask();
-        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(taskRepository.create_migrated(task))).block();
+        SystemTask systemTaskCreated = taskRepository.create_migrated(task).block();
 
         SystemTask updatedSystemTask = buildSystemTask();
         updatedSystemTask.setId(systemTaskCreated.getId());
@@ -116,7 +116,7 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
     @Test
     public void testDelete() {
         SystemTask task = buildSystemTask();
-        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(taskRepository.create_migrated(task))).block();
+        SystemTask systemTaskCreated = taskRepository.create_migrated(task).block();
 
         // fetch SystemTask
         TestObserver<SystemTask> testObserver = RxJava2Adapter.monoToMaybe(taskRepository.findById_migrated(systemTaskCreated.getId())).test();

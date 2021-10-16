@@ -45,7 +45,7 @@ public class ScopeServiceImpl implements ScopeService {
 }
 @Override
     public Mono<Set<Scope>> getAll_migrated() {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(scopeManager.findAll())));
+        return Mono.just(scopeManager.findAll());
     }
 
     @Override

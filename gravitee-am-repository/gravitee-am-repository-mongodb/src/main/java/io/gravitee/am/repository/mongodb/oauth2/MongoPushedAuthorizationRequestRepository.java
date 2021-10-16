@@ -68,8 +68,8 @@ public class MongoPushedAuthorizationRequestRepository extends AbstractOAuth2Mon
 }
 @Override
     public Mono<PushedAuthorizationRequest> findById_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(parCollection.find(eq(FIELD_ID, id)).limit(1).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable
+                .fromPublisher(parCollection.find(eq(FIELD_ID, id)).limit(1).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(par))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -81,8 +81,8 @@ public class MongoPushedAuthorizationRequestRepository extends AbstractOAuth2Mon
 @Override
     public Mono<PushedAuthorizationRequest> create_migrated(PushedAuthorizationRequest par) {
         par.setId(par.getId() == null ? RandomString.generate() : par.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
-                .fromPublisher(parCollection.insertOne(convert(par)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(par.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single
+                .fromPublisher(parCollection.insertOne(convert(par)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(par.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -93,7 +93,7 @@ public class MongoPushedAuthorizationRequestRepository extends AbstractOAuth2Mon
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(parCollection.findOneAndDelete(eq(FIELD_ID, id)))));
+        return Mono.from(parCollection.findOneAndDelete(eq(FIELD_ID, id)));
     }
 
     private PushedAuthorizationRequestMongo convert(PushedAuthorizationRequest par) {

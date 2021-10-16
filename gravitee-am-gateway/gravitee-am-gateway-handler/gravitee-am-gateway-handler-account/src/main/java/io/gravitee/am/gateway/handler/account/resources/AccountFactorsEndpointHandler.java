@@ -401,7 +401,7 @@ public class AccountFactorsEndpointHandler {
                               EnrollmentAccount account,
                               User endUser,
                               Handler<AsyncResult<EnrolledFactor>> handler) {
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(factorProvider.enroll_migrated(endUser.getUsername()))).map(RxJavaReactorMigrationUtil.toJdkFunction(enrollment -> {
+        RxJava2Adapter.monoToSingle(factorProvider.enroll_migrated(endUser.getUsername()).map(RxJavaReactorMigrationUtil.toJdkFunction(enrollment -> {
                     final EnrolledFactor enrolledFactor = buildEnrolledFactor(factor, enrollment, account, endUser);
                     if (factorProvider.checkSecurityFactor(enrolledFactor)) {
                         return enrolledFactor;

@@ -60,7 +60,7 @@ public class RevocationServiceTest {
         Client client = new Client();
         client.setClientId("wrong-client-id");
 
-        when(tokenService.getAccessToken_migrated("token", client)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(accessToken))));
+        when(tokenService.getAccessToken_migrated("token", client)).thenReturn(Mono.just(accessToken));
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(revocationTokenService.revoke_migrated(revocationTokenRequest, client)).test();
 
@@ -80,8 +80,8 @@ public class RevocationServiceTest {
         Client client = new Client();
         client.setClientId("client-id");
 
-        when(tokenService.getAccessToken_migrated("token", client)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(tokenService.getRefreshToken_migrated("token", client)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(tokenService.getAccessToken_migrated("token", client)).thenReturn(Mono.empty());
+        when(tokenService.getRefreshToken_migrated("token", client)).thenReturn(Mono.empty());
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(revocationTokenService.revoke_migrated(revocationTokenRequest, client)).test();
 
@@ -105,8 +105,8 @@ public class RevocationServiceTest {
         AccessToken accessToken = new AccessToken("token");
         accessToken.setClientId("client-id");
 
-        when(tokenService.getAccessToken_migrated("token", client)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(accessToken))));
-        when(tokenService.deleteAccessToken_migrated("token")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(tokenService.getAccessToken_migrated("token", client)).thenReturn(Mono.just(accessToken));
+        when(tokenService.deleteAccessToken_migrated("token")).thenReturn(Mono.empty());
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(revocationTokenService.revoke_migrated(revocationTokenRequest, client)).test();
 
@@ -131,8 +131,8 @@ public class RevocationServiceTest {
         Token refreshToken = new RefreshToken("token");
         refreshToken.setClientId("client-id");
 
-        when(tokenService.getRefreshToken_migrated("token", client)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(refreshToken))));
-        when(tokenService.deleteRefreshToken_migrated("token")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(tokenService.getRefreshToken_migrated("token", client)).thenReturn(Mono.just(refreshToken));
+        when(tokenService.deleteRefreshToken_migrated("token")).thenReturn(Mono.empty());
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(revocationTokenService.revoke_migrated(revocationTokenRequest, client)).test();
 

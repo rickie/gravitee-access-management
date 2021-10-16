@@ -148,7 +148,7 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
 
             String authorization = getAuthorizationHeader("POST", configuration.getRequestTokenUrl(), emptyMap(), parameters, new OAuthCredentials(configuration));
 
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(getClient().postAbs(getConfiguration().getRequestTokenUrl())
+            return RxJava2Adapter.singleToMono(getClient().postAbs(getConfiguration().getRequestTokenUrl())
                     .putHeader(HttpHeaders.AUTHORIZATION, authorization)
                     .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         if (httpResponse.statusCode() != 200) {
@@ -187,10 +187,10 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
                         }
 
                         throw new BadCredentialsException("Token returned by Twitter mismatch");
-                    }))));
+                    }));
         } catch (BadCredentialsException e) {
             LOGGER.error("An error occurs while building Sign In URL", e);
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
     }
 
@@ -207,12 +207,12 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
 
         if (oauthToken == null || oauthToken.isEmpty() || tokenMemory.getIfPresent(oauthToken) == null) {
             LOGGER.debug("OAuth Token is missing, skip authentication");
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Missing OAuth Token"))));
+            return Mono.error(new BadCredentialsException("Missing OAuth Token"));
         }
 
         if (tokenVerifier == null || tokenVerifier.isEmpty()) {
             LOGGER.debug("Token Verifier is missing, skip authentication");
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Missing Token Verifier"))));
+            return Mono.error(new BadCredentialsException("Missing Token Verifier"));
         }
 
         Map<String, String> parameters = Maps.<String, String>builder()
@@ -233,7 +233,7 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
 
         tokenMemory.invalidate(oauthToken);
         MultiMap form = MultiMap.caseInsensitiveMultiMap().set(OAUTH_VERIFIER, tokenVerifier);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
+        return RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
                 .putHeader(HttpHeaders.AUTHORIZATION, authorization)
                 .rxSendForm(form)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<Token>>toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
@@ -254,7 +254,7 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
                         }
                     }
                     return RxJava2Adapter.monoToMaybe(Mono.just(new Token(token, secret, TokenTypeHint.ACCESS_TOKEN)));
-                }).apply(v))))));
+                }).apply(v))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.profile_migrated(token, authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -281,7 +281,7 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
                 parameters, oauthParams,
                 new OAuthCredentials(configuration, token.getValue(), token.getSecret()));
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserProfileUri()+"?include_email=true")
+        return RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserProfileUri()+"?include_email=true")
                 .putHeader(HttpHeaders.AUTHORIZATION, authorization)
                 //.rxSendForm(form)
                 .rxSend()).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<User>>toJdkFunction(httpResponse -> {
@@ -299,7 +299,7 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
                     user.setRoles(applyRoleMapping(authentication.getContext(), jsonObject.getMap()));
 
                     return RxJava2Adapter.monoToMaybe(Mono.just(user));
-                }).apply(v))))));
+                }).apply(v))));
     }
 
     @Override

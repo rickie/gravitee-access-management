@@ -75,7 +75,7 @@ public class ScopeApprovalServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(scopeApprovalRepository.findById_migrated("my-consent")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new ScopeApproval()))));
+        when(scopeApprovalRepository.findById_migrated("my-consent")).thenReturn(Mono.just(new ScopeApproval()));
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(scopeApprovalService.findById_migrated("my-consent")).test();
 
         testObserver.awaitTerminalEvent();
@@ -86,7 +86,7 @@ public class ScopeApprovalServiceTest {
 
     @Test
     public void shouldFindById_notExistingScopeApproval() {
-        when(scopeApprovalRepository.findById_migrated("my-consent")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(scopeApprovalRepository.findById_migrated("my-consent")).thenReturn(Mono.empty());
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(scopeApprovalService.findById_migrated("my-consent")).test();
         testObserver.awaitTerminalEvent();
 
@@ -95,7 +95,7 @@ public class ScopeApprovalServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(scopeApprovalRepository.findById_migrated("my-consent")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(scopeApprovalRepository.findById_migrated("my-consent")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToMaybe(scopeApprovalService.findById_migrated("my-consent")).subscribe(testObserver);
 
@@ -109,7 +109,7 @@ public class ScopeApprovalServiceTest {
         dummyScopeApproval.setUserId("");
         dummyScopeApproval.setClientId("");
         dummyScopeApproval.setScope("");
-        when(scopeApprovalRepository.findByDomainAndUser_migrated(DOMAIN, "userId")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(dummyScopeApproval))));
+        when(scopeApprovalRepository.findByDomainAndUser_migrated(DOMAIN, "userId")).thenReturn(Flux.just(dummyScopeApproval));
         TestObserver<HashSet<ScopeApproval>> testObserver = RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUser_migrated(DOMAIN, "userId")).collect(HashSet<ScopeApproval>::new, Set::add).test();
         testObserver.awaitTerminalEvent();
 
@@ -120,7 +120,7 @@ public class ScopeApprovalServiceTest {
 
     @Test
     public void shouldFindByDomainAndUser_technicalException() {
-        when(scopeApprovalRepository.findByDomainAndUser_migrated(DOMAIN, "userId")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(scopeApprovalRepository.findByDomainAndUser_migrated(DOMAIN, "userId")).thenReturn(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestSubscriber<ScopeApproval> testSubscriber = RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUser_migrated(DOMAIN, "userId")).test();
 
@@ -134,7 +134,7 @@ public class ScopeApprovalServiceTest {
         dummyScopeApproval.setUserId("");
         dummyScopeApproval.setClientId("");
         dummyScopeApproval.setScope("");
-        when(scopeApprovalRepository.findByDomainAndUserAndClient_migrated(DOMAIN, "userId", "clientId")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(dummyScopeApproval))));
+        when(scopeApprovalRepository.findByDomainAndUserAndClient_migrated(DOMAIN, "userId", "clientId")).thenReturn(Flux.just(dummyScopeApproval));
         TestObserver<HashSet<ScopeApproval>> testObserver = RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUserAndClient_migrated(DOMAIN, "userId", "clientId")).collect(HashSet<ScopeApproval>::new, Set::add).test();
         testObserver.awaitTerminalEvent();
 
@@ -145,7 +145,7 @@ public class ScopeApprovalServiceTest {
 
     @Test
     public void shouldFindByDomainAndUserAndClient_technicalException() {
-        when(scopeApprovalRepository.findByDomainAndUserAndClient_migrated(DOMAIN, "userId", "clientId")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(scopeApprovalRepository.findByDomainAndUserAndClient_migrated(DOMAIN, "userId", "clientId")).thenReturn(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestSubscriber testSubscriber = RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUserAndClient_migrated(DOMAIN, "userId", "clientId")).test();
 
@@ -155,7 +155,7 @@ public class ScopeApprovalServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new User()))));
+        when(userService.findById_migrated(anyString())).thenReturn(Mono.just(new User()));
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(scopeApprovalService.revokeByConsent_migrated("my-domain", "user-id", "my-consent")).test();
 
         testObserver.assertError(TechnicalManagementException.class);
@@ -164,16 +164,16 @@ public class ScopeApprovalServiceTest {
 
     @Test
     public void shouldDelete() {
-        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new User()))));
-        when(accessTokenRepository.deleteByDomainIdClientIdAndUserId_migrated("my-domain", "client-id", "user-id")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(refreshTokenRepository.deleteByDomainIdClientIdAndUserId_migrated("my-domain", "client-id", "user-id")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(userService.findById_migrated(anyString())).thenReturn(Mono.just(new User()));
+        when(accessTokenRepository.deleteByDomainIdClientIdAndUserId_migrated("my-domain", "client-id", "user-id")).thenReturn(Mono.empty());
+        when(refreshTokenRepository.deleteByDomainIdClientIdAndUserId_migrated("my-domain", "client-id", "user-id")).thenReturn(Mono.empty());
 
         ScopeApproval scopeApproval = new ScopeApproval();
         scopeApproval.setClientId("client-id");
         scopeApproval.setDomain("my-domain");
         scopeApproval.setUserId("user-id");
-        when(scopeApprovalRepository.delete_migrated("my-consent")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(scopeApprovalRepository.findById_migrated("my-consent")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(scopeApproval))));
+        when(scopeApprovalRepository.delete_migrated("my-consent")).thenReturn(Mono.empty());
+        when(scopeApprovalRepository.findById_migrated("my-consent")).thenReturn(Mono.just(scopeApproval));
 
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(scopeApprovalService.revokeByConsent_migrated("my-domain", "user-id", "my-consent")).test();
@@ -194,11 +194,11 @@ public class ScopeApprovalServiceTest {
         scopeApproval.setDomain("my-domain");
         scopeApproval.setUserId("user-id");
 
-        when(userService.findById_migrated("user-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new User()))));
-        when(scopeApprovalRepository.findByDomainAndUser_migrated("my-domain", "user-id")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(scopeApproval))));
-        when(scopeApprovalRepository.deleteByDomainAndUser_migrated("my-domain", "user-id")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(accessTokenRepository.deleteByDomainIdAndUserId_migrated("my-domain", "user-id")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(refreshTokenRepository.deleteByDomainIdAndUserId_migrated("my-domain", "user-id")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(userService.findById_migrated("user-id")).thenReturn(Mono.just(new User()));
+        when(scopeApprovalRepository.findByDomainAndUser_migrated("my-domain", "user-id")).thenReturn(Flux.just(scopeApproval));
+        when(scopeApprovalRepository.deleteByDomainAndUser_migrated("my-domain", "user-id")).thenReturn(Mono.empty());
+        when(accessTokenRepository.deleteByDomainIdAndUserId_migrated("my-domain", "user-id")).thenReturn(Mono.empty());
+        when(refreshTokenRepository.deleteByDomainIdAndUserId_migrated("my-domain", "user-id")).thenReturn(Mono.empty());
 
         TestObserver<Void> testObserver = RxJava2Adapter.monoToCompletable(scopeApprovalService.revokeByUser_migrated("my-domain", "user-id", new DefaultUser("user-id"))).test();
         testObserver.awaitTerminalEvent();
@@ -212,7 +212,7 @@ public class ScopeApprovalServiceTest {
     @Test
     public void shouldRevokeByUser_UserNotFoundException() {
 
-        when(userService.findById_migrated("user-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(userService.findById_migrated("user-id")).thenReturn(Mono.empty());
 
         TestObserver<Void> testObserver = RxJava2Adapter.monoToCompletable(scopeApprovalService.revokeByUser_migrated("my-domain", "user-id", new DefaultUser("user-id"))).test();
         testObserver.assertError(UserNotFoundException.class);
@@ -226,11 +226,11 @@ public class ScopeApprovalServiceTest {
         scopeApproval.setDomain("my-domain");
         scopeApproval.setUserId("user-id");
 
-        when(userService.findById_migrated("user-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new User()))));
-        when(scopeApprovalRepository.findByDomainAndUserAndClient_migrated("my-domain", "user-id", "client-id")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(scopeApproval))));
-        when(scopeApprovalRepository.deleteByDomainAndUserAndClient_migrated("my-domain", "user-id", "client-id")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(accessTokenRepository.deleteByDomainIdClientIdAndUserId_migrated("my-domain", "client-id", "user-id")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(refreshTokenRepository.deleteByDomainIdClientIdAndUserId_migrated("my-domain", "client-id", "user-id")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(userService.findById_migrated("user-id")).thenReturn(Mono.just(new User()));
+        when(scopeApprovalRepository.findByDomainAndUserAndClient_migrated("my-domain", "user-id", "client-id")).thenReturn(Flux.just(scopeApproval));
+        when(scopeApprovalRepository.deleteByDomainAndUserAndClient_migrated("my-domain", "user-id", "client-id")).thenReturn(Mono.empty());
+        when(accessTokenRepository.deleteByDomainIdClientIdAndUserId_migrated("my-domain", "client-id", "user-id")).thenReturn(Mono.empty());
+        when(refreshTokenRepository.deleteByDomainIdClientIdAndUserId_migrated("my-domain", "client-id", "user-id")).thenReturn(Mono.empty());
 
         TestObserver<Void> testObserver = RxJava2Adapter.monoToCompletable(scopeApprovalService.revokeByUserAndClient_migrated("my-domain", "user-id", "client-id", new DefaultUser("user-id"))).test();
         testObserver.awaitTerminalEvent();
@@ -244,7 +244,7 @@ public class ScopeApprovalServiceTest {
     @Test
     public void shouldRevokeByUserAndClient_UserNotFoundException() {
 
-        when(userService.findById_migrated("user-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(userService.findById_migrated("user-id")).thenReturn(Mono.empty());
 
         TestObserver<Void> testObserver = RxJava2Adapter.monoToCompletable(scopeApprovalService.revokeByUserAndClient_migrated("my-domain", "user-id", "client-id", new DefaultUser("user-id"))).test();
         testObserver.assertError(UserNotFoundException.class);

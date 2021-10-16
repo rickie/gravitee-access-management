@@ -84,7 +84,7 @@ public Maybe<User> loadUserByUsername(Authentication authentication) {
 }
 public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
         String username = ((String) authentication.getPrincipal()).toLowerCase();
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(findUserByMultipleField_migrated(username))).collectList().flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(users -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(findUserByMultipleField_migrated(username))).collectList().flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(users -> {
                     if (users.isEmpty()) {
                         return RxJava2Adapter.fluxToFlowable(Flux.error(new UsernameNotFoundException(username)));
                     }
@@ -120,7 +120,7 @@ public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Bad credentials")));
                     }
                     return RxJava2Adapter.monoToMaybe(Mono.just(this.createUser(authentication.getContext(), users.get(0))));
-                }).apply(e))))));
+                }).apply(e))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findUserByMultipleField_migrated(value))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -134,7 +134,7 @@ private Flux<Document> findUserByMultipleField_migrated(String value) {
         String rawQuery = findQuery.replaceAll("\\?", value);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(usersCol.find(query))));
+        return Flux.from(usersCol.find(query));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -144,7 +144,7 @@ public Maybe<User> loadUserByUsername(String username) {
 }
 public Mono<User> loadUserByUsername_migrated(String username) {
         final String encodedUsername = username.toLowerCase();
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findUserByUsername_migrated(encodedUsername))).map(RxJavaReactorMigrationUtil.toJdkFunction(document -> createUser(new SimpleAuthenticationContext(), document)))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findUserByUsername_migrated(encodedUsername))).map(RxJavaReactorMigrationUtil.toJdkFunction(document -> createUser(new SimpleAuthenticationContext(), document)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -157,7 +157,7 @@ private Mono<Document> findUserByUsername_migrated(String username) {
         String rawQuery = this.configuration.getFindUserByUsernameQuery().replaceAll("\\?", username);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCol.find(query).first()), BackpressureStrategy.BUFFER).next()));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCol.find(query).first()), BackpressureStrategy.BUFFER).next();
     }
 
     private User createUser(AuthenticationContext authContext, Document document) {

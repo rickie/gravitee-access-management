@@ -52,13 +52,13 @@ public class ApplicationAnalyticsServiceImpl implements ApplicationAnalyticsServ
     public Mono<AnalyticsResponse> execute_migrated(AnalyticsQuery query) {
         switch (query.getType()) {
             case DATE_HISTO:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(executeDateHistogram_migrated(query)));
+                return executeDateHistogram_migrated(query);
             case GROUP_BY:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(executeGroupBy_migrated(query)));
+                return executeGroupBy_migrated(query);
             case COUNT:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(executeCount_migrated(query)));
+                return executeCount_migrated(query);
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new AnalyticsResponse() {})));
+        return Mono.just(new AnalyticsResponse() {});
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeGroupBy_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -76,9 +76,9 @@ private Mono<AnalyticsResponse> executeGroupBy_migrated(AnalyticsQuery query) {
 
         switch (query.getField()) {
             case Field.USER_STATUS:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.statistics_migrated(query))).map(RxJavaReactorMigrationUtil.toJdkFunction(AnalyticsGroupByResponse::new))));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.statistics_migrated(query))).map(RxJavaReactorMigrationUtil.toJdkFunction(AnalyticsGroupByResponse::new));
             default :
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new AnalyticsResponse() {})));
+                return Mono.just(new AnalyticsResponse() {});
         }
     }
 
@@ -98,9 +98,9 @@ private Mono<AnalyticsResponse> executeCount_migrated(AnalyticsQuery query) {
 
         switch (query.getField()) {
             case Field.USER:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.countByApplication_migrated(query.getDomain(), query.getApplication()))).map(RxJavaReactorMigrationUtil.toJdkFunction(AnalyticsCountResponse::new))));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.countByApplication_migrated(query.getDomain(), query.getApplication()))).map(RxJavaReactorMigrationUtil.toJdkFunction(AnalyticsCountResponse::new));
             default:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(auditService.aggregate_migrated(query.getDomain(), queryBuilder.build(), query.getType()))).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> new AnalyticsCountResponse((Long) values.values().iterator().next())))));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(auditService.aggregate_migrated(query.getDomain(), queryBuilder.build(), query.getType()))).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> new AnalyticsCountResponse((Long) values.values().iterator().next())));
         }
     }
 
@@ -117,7 +117,7 @@ private Mono<AnalyticsResponse> executeDateHistogram_migrated(AnalyticsQuery que
         queryBuilder.interval(query.getInterval());
         queryBuilder.accessPointId(query.getApplication());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(auditService.aggregate_migrated(query.getDomain(), queryBuilder.build(), query.getType()))).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(auditService.aggregate_migrated(query.getDomain(), queryBuilder.build(), query.getType()))).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> {
                     Timestamp timestamp = new Timestamp(query.getFrom(), query.getTo(), query.getInterval());
                     List<Bucket> buckets = values
                             .entrySet()
@@ -134,7 +134,7 @@ private Mono<AnalyticsResponse> executeDateHistogram_migrated(AnalyticsQuery que
                     analyticsHistogramResponse.setTimestamp(timestamp);
                     analyticsHistogramResponse.setValues(buckets);
                     return analyticsHistogramResponse;
-                }))));
+                }));
     }
 
 }

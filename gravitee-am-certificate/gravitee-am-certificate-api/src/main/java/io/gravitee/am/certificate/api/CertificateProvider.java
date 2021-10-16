@@ -80,6 +80,6 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.jose.JWK> keys_migrated
 default io.reactivex.Single<java.util.List<io.gravitee.am.certificate.api.CertificateKey>> publicKeys() {
     return RxJava2Adapter.monoToSingle(publicKeys_migrated());
 }default Mono<List<CertificateKey>> publicKeys_migrated() {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
+        return Mono.just(Collections.emptyList());
     }
 }

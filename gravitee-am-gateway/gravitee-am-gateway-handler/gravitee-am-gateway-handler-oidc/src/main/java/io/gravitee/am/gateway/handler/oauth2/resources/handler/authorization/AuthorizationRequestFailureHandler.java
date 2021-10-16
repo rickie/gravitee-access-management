@@ -182,7 +182,7 @@ public class AuthorizationRequestFailureHandler implements Handler<RoutingContex
             jwtException.setExp(Instant.now().plusSeconds(this.codeValidityInSec).getEpochSecond());
 
             // Sign if needed, else return unsigned JWT
-            RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.encodeAuthorization_migrated(jwtException.build(), client))).flatMap(authorization->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jweService.encryptAuthorization_migrated(authorization, client)))))
+            RxJava2Adapter.monoToSingle(jwtService.encodeAuthorization_migrated(jwtException.build(), client).flatMap(authorization->jweService.encryptAuthorization_migrated(authorization, client)))
                     .subscribe(
                             jwt -> handler.handle(Future.succeededFuture(
                                     jwtException.buildRedirectUri(

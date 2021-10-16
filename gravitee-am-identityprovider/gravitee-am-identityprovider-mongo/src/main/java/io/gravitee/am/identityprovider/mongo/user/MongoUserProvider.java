@@ -87,7 +87,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
         String rawQuery = this.configuration.getFindUserByEmailQuery().replaceAll("\\?", email);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(query).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(query).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -104,7 +104,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
         String rawQuery = this.configuration.getFindUserByUsernameQuery().replaceAll("\\?", encodedUsername);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(query).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(query).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -118,7 +118,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
         // lowercase username to avoid duplicate account
         final String username = user.getUsername().toLowerCase();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByUsername_migrated(username))).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByUsername_migrated(username))).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
                     if (!isEmpty) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new UserAlreadyExistsException(user.getUsername())));
                     } else {
@@ -146,7 +146,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
                         document.put(FIELD_UPDATED_AT, document.get(FIELD_CREATED_AT));
                         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne(document))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(document.getString(FIELD_ID)))).single()));
                     }
-                }).apply(v)))));
+                }).apply(v)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(id, updateUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -157,7 +157,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
 }
 @Override
     public Mono<User> update_migrated(String id, User updateUser) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(id))).switchIfEmpty(Mono.error(new UserNotFoundException(id))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(findById_migrated(id).switchIfEmpty(Mono.error(new UserNotFoundException(id))))
                 .flatMapSingle(oldUser -> {
                     Document document = new Document();
                     // set username (keep the original value)
@@ -181,7 +181,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
                     // set date fields
                     document.put(FIELD_CREATED_AT, oldUser.getCreatedAt());
                     document.put(FIELD_UPDATED_AT, new Date());
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, oldUser.getId()), document))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(oldUser.getId()))).single()));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, oldUser.getId()), document))).flatMap(updateResult->findById_migrated(oldUser.getId()).single()));
                 }));
     }
 
@@ -193,7 +193,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(id))).switchIfEmpty(Mono.error(new UserNotFoundException(id))).flatMap(idpUser->Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id)))).then()));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(id))).switchIfEmpty(Mono.error(new UserNotFoundException(id))).flatMap(idpUser->Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id)))).then();
     }
 
     @Override
@@ -210,7 +210,7 @@ private Maybe<User> findById(String userId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(userId));
 }
 private Mono<User> findById_migrated(String userId) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(eq(FIELD_ID, userId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(eq(FIELD_ID, userId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     private User convert(Document document) {

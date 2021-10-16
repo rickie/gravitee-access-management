@@ -86,9 +86,9 @@ public abstract class AbstractSocialAuthenticationProvider<T extends SocialIdent
             Request request = new Request();
             request.setMethod(HttpMethod.GET);
             request.setUri(endpoint);
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(request)));
+            return Mono.just(request);
         } else {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
     }
 
@@ -100,7 +100,7 @@ public abstract class AbstractSocialAuthenticationProvider<T extends SocialIdent
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticate(authentication)).flatMap(z->profile(z, authentication).as(RxJava2Adapter::maybeToMono))));
+        return RxJava2Adapter.maybeToMono(authenticate(authentication)).flatMap(z->profile(z, authentication).as(RxJava2Adapter::maybeToMono));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -111,7 +111,7 @@ public abstract class AbstractSocialAuthenticationProvider<T extends SocialIdent
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(String username) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        return Mono.empty();
     }
 
 

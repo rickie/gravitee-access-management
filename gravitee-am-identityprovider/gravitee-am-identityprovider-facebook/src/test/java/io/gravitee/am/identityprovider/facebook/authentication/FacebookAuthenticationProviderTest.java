@@ -115,7 +115,7 @@ public class FacebookAuthenticationProviderTest {
         when(configuration.getScopes()).thenReturn(Collections.emptySet());
 
         final String state = RandomString.generate();
-        Request request = (Request)RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(cut.asyncSignInUrl_migrated("https://gravitee.io", state))).block();
+        Request request = (Request)cut.asyncSignInUrl_migrated("https://gravitee.io", state).block();
 
         assertNotNull(request);
         assertEquals(HttpMethod.GET, request.getMethod());

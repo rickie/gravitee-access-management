@@ -67,13 +67,13 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
 
     @Override
     public boolean upgrade() {
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(policyRepository.collectionExists_migrated())).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)collectionExists -> {
+        RxJava2Adapter.monoToCompletable(policyRepository.collectionExists_migrated().flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)collectionExists -> {
                     if (collectionExists) {
                         LOGGER.info("Policies collection exists, upgrading policies to flows");
-                        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(policyRepository.findAll_migrated())).groupBy(RxJavaReactorMigrationUtil.toJdkFunction(Policy::getDomain)).map(RxJavaReactorMigrationUtil::groupedFluxToGroupedFlowable).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<GroupedFlowable<String, Policy>, CompletableSource>toJdkFunction(policiesPerDomain -> {
+                        return RxJava2Adapter.monoToCompletable(policyRepository.findAll_migrated().groupBy(RxJavaReactorMigrationUtil.toJdkFunction(Policy::getDomain)).map(RxJavaReactorMigrationUtil::groupedFluxToGroupedFlowable).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<GroupedFlowable<String, Policy>, CompletableSource>toJdkFunction(policiesPerDomain -> {
                                     final String domain = policiesPerDomain.getKey();
-                                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(policiesPerDomain).collectList().flatMap(x->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<List<Policy>, CompletableSource>toJdkFunction(policies -> RxJava2Adapter.monoToCompletable(migrateToFlows_migrated(policies, domain))).apply(x)))).then());
-                                }).apply(z)))).then().then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(policyRepository.deleteCollection_migrated()))));
+                                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(policiesPerDomain).collectList().flatMap(v->migrateToFlows_migrated(v, domain)).then());
+                                }).apply(z)))).then().then(policyRepository.deleteCollection_migrated()));
                     } else {
                         LOGGER.info("Policies collection doesn't exist, skip upgrade");
                         return RxJava2Adapter.monoToCompletable(Mono.empty());
@@ -117,13 +117,13 @@ private Mono<Void> migrateToFlows_migrated(List<Policy> policies, String domain)
             }
         }
 
-        return RxJava2Adapter.completableToMono(Observable.fromIterable(flows.values())
+        return Observable.fromIterable(flows.values())
                 .flatMapCompletable(flow -> RxJava2Adapter.monoToSingle(flowService.create_migrated(ReferenceType.DOMAIN, domain, flow)).toCompletable())
-                .doOnComplete(() -> LOGGER.info("Policies migrated to flows for domain {}", domain)).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.info("Error during policies migration for domain {}", domain, error))).as(RxJava2Adapter::monoToCompletable));
+                .doOnComplete(() -> LOGGER.info("Policies migrated to flows for domain {}", domain)).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.info("Error during policies migration for domain {}", domain, error)));
     }
 
     private Step createStep(Policy policy) {
-        final PolicyPlugin policyPlugin = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(policyPluginService.findById_migrated(policy.getType()))).block();
+        final PolicyPlugin policyPlugin = policyPluginService.findById_migrated(policy.getType()).block();
         final Step step = new Step();
         step.setName(policyPlugin != null ? policyPlugin.getName() : policy.getType());
         step.setEnabled(policy.isEnabled());

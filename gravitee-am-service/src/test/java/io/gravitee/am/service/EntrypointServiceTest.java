@@ -81,7 +81,7 @@ public class EntrypointServiceTest {
     public void shouldFindById() {
 
         Entrypoint entrypoint = new Entrypoint();
-        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(entrypoint))));
+        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Mono.just(entrypoint));
 
         TestObserver<Entrypoint> obs = RxJava2Adapter.monoToSingle(cut.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).test();
 
@@ -93,7 +93,7 @@ public class EntrypointServiceTest {
     @Test
     public void shouldFindById_notExistingEntrypoint() {
 
-        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Mono.empty());
 
         TestObserver<Entrypoint> obs = RxJava2Adapter.monoToSingle(cut.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).test();
 
@@ -104,7 +104,7 @@ public class EntrypointServiceTest {
     @Test
     public void shouldFindById_technicalException() {
 
-        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver<Entrypoint> obs = RxJava2Adapter.monoToSingle(cut.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).test();
 
@@ -118,8 +118,8 @@ public class EntrypointServiceTest {
         Organization organization = new Organization();
         organization.setId(ORGANIZATION_ID);
 
-        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(organization))));
-        when(entrypointRepository.create_migrated(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.just(organization));
+        when(entrypointRepository.create_migrated(any(Entrypoint.class))).thenAnswer(i -> Mono.just(i.getArgument(0)));
 
         TestSubscriber<Entrypoint> obs = RxJava2Adapter.fluxToFlowable(cut.createDefaults_migrated(organization)).test();
 
@@ -145,9 +145,9 @@ public class EntrypointServiceTest {
         organization.setId(ORGANIZATION_ID);
         organization.setDomainRestrictions(Arrays.asList("domain1.gravitee.io", "domain2.gravitee.io"));
 
-        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(organization))));
-        when(entrypointRepository.create_migrated(argThat(e -> e != null && e.getUrl().equals("https://domain1.gravitee.io") && e.isDefaultEntrypoint()))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
-        when(entrypointRepository.create_migrated(argThat(e -> e != null && e.getUrl().equals("https://domain2.gravitee.io") && !e.isDefaultEntrypoint()))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.just(organization));
+        when(entrypointRepository.create_migrated(argThat(e -> e != null && e.getUrl().equals("https://domain1.gravitee.io") && e.isDefaultEntrypoint()))).thenAnswer(i -> Mono.just(i.getArgument(0)));
+        when(entrypointRepository.create_migrated(argThat(e -> e != null && e.getUrl().equals("https://domain2.gravitee.io") && !e.isDefaultEntrypoint()))).thenAnswer(i -> Mono.just(i.getArgument(0)));
 
         TestSubscriber<Entrypoint> obs = RxJava2Adapter.fluxToFlowable(cut.createDefaults_migrated(organization)).test();
 
@@ -183,8 +183,8 @@ public class EntrypointServiceTest {
         newEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         newEntrypoint.setUrl("https://auth.company.com");
 
-        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(organization))));
-        when(entrypointRepository.create_migrated(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.just(organization));
+        when(entrypointRepository.create_migrated(any(Entrypoint.class))).thenAnswer(i -> Mono.just(i.getArgument(0)));
 
         TestObserver<Entrypoint> obs = RxJava2Adapter.monoToSingle(cut.create_migrated(ORGANIZATION_ID, newEntrypoint, user)).test();
 
@@ -220,7 +220,7 @@ public class EntrypointServiceTest {
         newEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         newEntrypoint.setUrl("invalid");
 
-        when(entrypointRepository.create_migrated(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(entrypointRepository.create_migrated(any(Entrypoint.class))).thenAnswer(i -> Mono.just(i.getArgument(0)));
 
         TestObserver<Entrypoint> obs = RxJava2Adapter.monoToSingle(cut.create_migrated(ORGANIZATION_ID, newEntrypoint, user)).test();
 
@@ -246,9 +246,9 @@ public class EntrypointServiceTest {
         updateEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         updateEntrypoint.setUrl("https://auth.company.com");
 
-        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Organization()))));
-        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingEntrypoint))));
-        when(entrypointRepository.update_migrated(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.just(new Organization()));
+        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Mono.just(existingEntrypoint));
+        when(entrypointRepository.update_migrated(any(Entrypoint.class))).thenAnswer(i -> Mono.just(i.getArgument(0)));
 
         TestObserver<Entrypoint> obs = RxJava2Adapter.monoToSingle(cut.update_migrated(ENTRYPOINT_ID, ORGANIZATION_ID, updateEntrypoint, user)).test();
 
@@ -289,8 +289,8 @@ public class EntrypointServiceTest {
         updateEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         updateEntrypoint.setUrl("invalid");
 
-        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingEntrypoint))));
-        when(entrypointRepository.update_migrated(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Mono.just(existingEntrypoint));
+        when(entrypointRepository.update_migrated(any(Entrypoint.class))).thenAnswer(i -> Mono.just(i.getArgument(0)));
 
         TestObserver<Entrypoint> obs = RxJava2Adapter.monoToSingle(cut.update_migrated(ENTRYPOINT_ID, ORGANIZATION_ID, updateEntrypoint, user)).test();
 
@@ -306,7 +306,7 @@ public class EntrypointServiceTest {
         DefaultUser user = new DefaultUser("test");
         user.setId(USER_ID);
 
-        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Mono.empty());
 
         TestObserver<Entrypoint> obs = RxJava2Adapter.monoToSingle(cut.update_migrated(ENTRYPOINT_ID, ORGANIZATION_ID, new UpdateEntrypoint(), user)).test();
 
@@ -336,9 +336,9 @@ public class EntrypointServiceTest {
         updateEntrypoint.setTags(Arrays.asList("tag#1", "tags#2"));
         updateEntrypoint.setUrl("https://changed.com");
 
-        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Organization()))));
-        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingEntrypoint))));
-        when(entrypointRepository.update_migrated(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.just(new Organization()));
+        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Mono.just(existingEntrypoint));
+        when(entrypointRepository.update_migrated(any(Entrypoint.class))).thenAnswer(i -> Mono.just(i.getArgument(0)));
 
         TestObserver<Entrypoint> obs = RxJava2Adapter.monoToSingle(cut.update_migrated(ENTRYPOINT_ID, ORGANIZATION_ID, updateEntrypoint, user)).test();
 
@@ -384,8 +384,8 @@ public class EntrypointServiceTest {
         updateEntrypoint.setTags(Collections.emptyList());
         updateEntrypoint.setUrl("https://changed.com");
 
-        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingEntrypoint))));
-        when(entrypointRepository.update_migrated(any(Entrypoint.class))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Mono.just(existingEntrypoint));
+        when(entrypointRepository.update_migrated(any(Entrypoint.class))).thenAnswer(i -> Mono.just(i.getArgument(0)));
 
         TestObserver<Entrypoint> obs;
 
@@ -419,8 +419,8 @@ public class EntrypointServiceTest {
         existingEntrypoint.setId(ENTRYPOINT_ID);
         existingEntrypoint.setOrganizationId(ORGANIZATION_ID);
 
-        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingEntrypoint))));
-        when(entrypointRepository.delete_migrated(ENTRYPOINT_ID)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Mono.just(existingEntrypoint));
+        when(entrypointRepository.delete_migrated(ENTRYPOINT_ID)).thenReturn(Mono.empty());
 
         TestObserver<Void> obs = RxJava2Adapter.monoToCompletable(cut.delete_migrated(ENTRYPOINT_ID, ORGANIZATION_ID, user)).test();
 
@@ -445,7 +445,7 @@ public class EntrypointServiceTest {
         DefaultUser user = new DefaultUser("test");
         user.setId(USER_ID);
 
-        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(entrypointRepository.findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID)).thenReturn(Mono.empty());
 
         TestObserver<Void> obs = RxJava2Adapter.monoToCompletable(cut.delete_migrated(ENTRYPOINT_ID, ORGANIZATION_ID, user)).test();
 

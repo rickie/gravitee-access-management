@@ -76,7 +76,7 @@ public class UpdateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeSCIMUpdateUserEndpoint_invalid_password() throws Exception {
         router.route("/Users").handler(userEndpoint::update);
-        when(userService.update_migrated(eq(null), any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("Field [password] is invalid")))));
+        when(userService.update_migrated(eq(null), any(), any())).thenReturn(Mono.error(new InvalidValueException("Field [password] is invalid")));
 
         testRequest(
                 HttpMethod.PUT,
@@ -98,7 +98,7 @@ public class UpdateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldInvokeSCIMUpdateUserEndpoint_valid_password() throws Exception {
         router.route("/Users").handler(userEndpoint::update);
-        when(userService.update_migrated(any(), any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(getUser()))));
+        when(userService.update_migrated(any(), any(), any())).thenReturn(Mono.just(getUser()));
 
         testRequest(
                 HttpMethod.PUT,
@@ -114,7 +114,7 @@ public class UpdateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeSCIMUpdateUserEndpoint_invalid_roles() throws Exception {
         router.route("/Users").handler(userEndpoint::update);
-        when(userService.update_migrated(any(), any(), anyString())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("Role [role-1] can not be found.")))));
+        when(userService.update_migrated(any(), any(), anyString())).thenReturn(Mono.error(new InvalidValueException("Role [role-1] can not be found.")));
 
         testRequest(
                 HttpMethod.PUT,
@@ -136,7 +136,7 @@ public class UpdateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturn400WhenInvalidUserException() throws Exception {
         router.route("/Users").handler(userEndpoint::update);
-        when(userService.update_migrated(any(), any(), anyString())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidUserException("Invalid user infos")))));
+        when(userService.update_migrated(any(), any(), anyString())).thenReturn(Mono.error(new InvalidUserException("Invalid user infos")));
 
         testRequest(
                 HttpMethod.PUT,
@@ -158,7 +158,7 @@ public class UpdateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturn400WhenEmailFormatInvalidException() throws Exception {
         router.route("/Users").handler(userEndpoint::update);
-        when(userService.update_migrated(any(), any(), anyString())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new EmailFormatInvalidException("Invalid email")))));
+        when(userService.update_migrated(any(), any(), anyString())).thenReturn(Mono.error(new EmailFormatInvalidException("Invalid email")));
 
         testRequest(
                 HttpMethod.PUT,

@@ -112,7 +112,7 @@ public class UserConsentEndpointHandlerTest extends RxWebTestBase {
         JWT jwt = new JWT();
         jwt.setAud("client-id");
 
-        when(userService.consent_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new ScopeApprovalNotFoundException("consentId")))));
+        when(userService.consent_migrated(anyString())).thenReturn(Mono.error(new ScopeApprovalNotFoundException("consentId")));
 
         router.route("/users/:userId/consents/:consentId")
                 .handler(userConsentEndpointHandler::get)
@@ -131,7 +131,7 @@ public class UserConsentEndpointHandlerTest extends RxWebTestBase {
         JWT jwt = new JWT();
         jwt.setAud("client-id");
 
-        when(userService.consent_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new ScopeApproval()))));
+        when(userService.consent_migrated(anyString())).thenReturn(Mono.just(new ScopeApproval()));
 
         router.route("/users/:userId/consents/:consentId")
                 .handler(userConsentEndpointHandler::get)
@@ -147,8 +147,8 @@ public class UserConsentEndpointHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldRevokeConsent() throws Exception {
-        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new User()))));
-        when(userService.revokeConsent_migrated(anyString(), anyString(), any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(userService.findById_migrated(anyString())).thenReturn(Mono.just(new User()));
+        when(userService.revokeConsent_migrated(anyString(), anyString(), any())).thenReturn(Mono.empty());
 
         router.route("/users/:userId/consents/:consentId")
                 .handler(rc -> {

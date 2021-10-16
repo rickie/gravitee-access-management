@@ -117,7 +117,7 @@ public class PermissionEndpointTest {
         when(context.response()).thenReturn(response);
         when(response.putHeader(anyString(),anyString())).thenReturn(response);
         when(response.setStatusCode(anyInt())).thenReturn(response);
-        when(permissionTicketService.create_migrated(anyList(), eq(DOMAIN_ID), eq(CLIENT_ID))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(success))));
+        when(permissionTicketService.create_migrated(anyList(), eq(DOMAIN_ID), eq(CLIENT_ID))).thenReturn(Mono.just(success));
         endpoint.handle(context);
         verify(response, times(1)).putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
         verify(context.response(), times(1)).setStatusCode(intCaptor.capture());
@@ -135,7 +135,7 @@ public class PermissionEndpointTest {
         when(context.response()).thenReturn(response);
         when(response.putHeader(anyString(),anyString())).thenReturn(response);
         when(response.setStatusCode(anyInt())).thenReturn(response);
-        when(permissionTicketService.create_migrated(anyList(), eq(DOMAIN_ID), eq(CLIENT_ID))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(success))));
+        when(permissionTicketService.create_migrated(anyList(), eq(DOMAIN_ID), eq(CLIENT_ID))).thenReturn(Mono.just(success));
         endpoint.handle(context);
         verify(response, times(1)).putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
         verify(context.response(), times(1)).setStatusCode(intCaptor.capture());

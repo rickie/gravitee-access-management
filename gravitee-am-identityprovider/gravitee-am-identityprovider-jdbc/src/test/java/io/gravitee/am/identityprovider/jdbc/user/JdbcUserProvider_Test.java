@@ -88,11 +88,11 @@ public abstract class JdbcUserProvider_Test {
     public void shouldUpdate() {
         DefaultUser user = new DefaultUser("userToUpdate");
         user.setCredentials("password");
-        User createdUser = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userProvider.create_migrated(user))).block();
+        User createdUser = userProvider.create_migrated(user).block();
 
         DefaultUser updateUser = new DefaultUser("userToUpdate");
         updateUser.setCredentials("password2");
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userProvider.update_migrated(createdUser.getId(), updateUser))).block();
+        userProvider.update_migrated(createdUser.getId(), updateUser).block();
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated("userToUpdate")).test();
         testObserver.awaitTerminalEvent();
@@ -114,7 +114,7 @@ public abstract class JdbcUserProvider_Test {
     @Test
     public void shouldDelete() {
         DefaultUser user = new DefaultUser("userToDelete");
-        User createdUser = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userProvider.create_migrated(user))).block();
+        User createdUser = userProvider.create_migrated(user).block();
         RxJava2Adapter.monoToCompletable(userProvider.delete_migrated(createdUser.getId())).blockingGet();
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated("userToDelete")).test();

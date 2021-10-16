@@ -67,9 +67,9 @@ public class CurrentUserResource extends AbstractResource {
         // Get the organization the current user is logged on.
         String organizationId = (String) authenticatedUser.getAdditionalInformation().getOrDefault(Claims.organization, Organization.DEFAULT);
 
-        final Single<List<String>> organizationPermissions = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(permissionService.findAllPermissions_migrated(authenticatedUser, ReferenceType.ORGANIZATION, organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(Permission::flatten)));
+        final Single<List<String>> organizationPermissions = RxJava2Adapter.monoToSingle(permissionService.findAllPermissions_migrated(authenticatedUser, ReferenceType.ORGANIZATION, organizationId).map(RxJavaReactorMigrationUtil.toJdkFunction(Permission::flatten)));
 
-        final Single<List<String>> platformPermissions = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(permissionService.findAllPermissions_migrated(authenticatedUser, ReferenceType.PLATFORM, Platform.DEFAULT))).map(RxJavaReactorMigrationUtil.toJdkFunction(Permission::flatten)));
+        final Single<List<String>> platformPermissions = RxJava2Adapter.monoToSingle(permissionService.findAllPermissions_migrated(authenticatedUser, ReferenceType.PLATFORM, Platform.DEFAULT).map(RxJavaReactorMigrationUtil.toJdkFunction(Permission::flatten)));
 
         RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.zip(platformPermissions, organizationPermissions,
                 (p, o) -> {

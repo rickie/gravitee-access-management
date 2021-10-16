@@ -119,8 +119,8 @@ public class JWEServiceTest {
         Client client = new Client();
         client.setIdTokenEncryptedResponseAlg(alg);
 
-        when(jwkService.getKeys_migrated(client)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.filter_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.filter_migrated(any(),any())).thenReturn(Mono.empty());
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(jweService.encryptIdToken_migrated("JWT", client)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -166,8 +166,8 @@ public class JWEServiceTest {
         Client client = new Client();
         client.setIdTokenEncryptedResponseAlg(alg);
 
-        when(jwkService.getKeys_migrated(client)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.filter_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(jwk))));
+        when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.filter_migrated(any(),any())).thenReturn(Mono.just(jwk));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(jweService.encryptIdToken_migrated("JWT", client)).test();
         testObserver.assertError(ServerErrorException.class);

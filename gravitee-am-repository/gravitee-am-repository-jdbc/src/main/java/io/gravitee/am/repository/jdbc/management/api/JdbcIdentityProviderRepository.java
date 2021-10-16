@@ -78,7 +78,7 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 @Override
     public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findAll({}, {}", referenceType, referenceId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(this.identityProviderRepository.findAll_migrated(referenceType.name(), referenceId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(this.identityProviderRepository.findAll_migrated(referenceType.name(), referenceId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -90,7 +90,7 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 @Override
     public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType) {
         LOGGER.debug("findAll()");
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(this.identityProviderRepository.findAll_migrated(referenceType.name()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(this.identityProviderRepository.findAll_migrated(referenceType.name()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -102,7 +102,7 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 @Override
     public Flux<IdentityProvider> findAll_migrated() {
         LOGGER.debug("findAll()");
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.identityProviderRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.flowableToFlux(this.identityProviderRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, identityProviderId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -114,7 +114,7 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 @Override
     public Mono<IdentityProvider> findById_migrated(ReferenceType referenceType, String referenceId, String identityProviderId) {
         LOGGER.debug("findById({},{},{})", referenceType, referenceId, identityProviderId);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.identityProviderRepository.findById_migrated(referenceType.name(), referenceId, identityProviderId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.identityProviderRepository.findById_migrated(referenceType.name(), referenceId, identityProviderId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -126,7 +126,7 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 @Override
     public Mono<IdentityProvider> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.identityProviderRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.maybeToMono(this.identityProviderRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -158,7 +158,7 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
+        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -190,7 +190,7 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 
         Mono<Integer> action = updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
+        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

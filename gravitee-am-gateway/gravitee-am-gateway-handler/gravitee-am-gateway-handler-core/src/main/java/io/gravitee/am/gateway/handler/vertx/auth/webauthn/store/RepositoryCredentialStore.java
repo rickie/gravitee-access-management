@@ -64,8 +64,8 @@ public class RepositoryCredentialStore {
         Promise<List<Authenticator>> promise = Promise.promise();
 
         Single<List<Credential>> fetchCredentials = query.getUserName() != null ?
-                RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialService.findByUsername_migrated(ReferenceType.DOMAIN, domain.getId(), query.getUserName()))).collectList()) :
-                RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialService.findByCredentialId_migrated(ReferenceType.DOMAIN, domain.getId(), query.getCredID()))).collectList());
+                RxJava2Adapter.monoToSingle(credentialService.findByUsername_migrated(ReferenceType.DOMAIN, domain.getId(), query.getUserName()).collectList()) :
+                RxJava2Adapter.monoToSingle(credentialService.findByCredentialId_migrated(ReferenceType.DOMAIN, domain.getId(), query.getCredID()).collectList());
 
         RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fetchCredentials).flatMap(v->RxJava2Adapter.singleToMono((Single<List<Authenticator>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Credential>, Single<List<Authenticator>>>)credentials -> {
                     if (credentials.isEmpty() && query.getUserName() != null) {
@@ -130,7 +130,7 @@ public class RepositoryCredentialStore {
     public Future<Void> store(Authenticator authenticator) {
         Promise<Void> promise = Promise.promise();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialService.findByCredentialId_migrated(ReferenceType.DOMAIN, domain.getId(), authenticator.getCredID()))).collectList().flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Credential>, CompletableSource>)credentials -> {
+        RxJava2Adapter.monoToCompletable(credentialService.findByCredentialId_migrated(ReferenceType.DOMAIN, domain.getId(), authenticator.getCredID()).collectList().flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Credential>, CompletableSource>)credentials -> {
                     if (credentials.isEmpty()) {
                         // no credential found, create it
                         return RxJava2Adapter.monoToCompletable(create_migrated(authenticator));
@@ -140,7 +140,7 @@ public class RepositoryCredentialStore {
                                 .flatMapCompletable(credential -> {
                                     credential.setCounter(authenticator.getCounter());
                                     credential.setUpdatedAt(new Date());
-                                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialService.update_migrated(credential))).then());
+                                    return RxJava2Adapter.monoToCompletable(credentialService.update_migrated(credential).then());
                                 });
                     }
                 }).apply(y)))).then())
@@ -169,7 +169,7 @@ private Mono<Void> create_migrated(Authenticator authenticator) {
         credential.setAttestationStatement(authenticator.getAttestationCertificates().toString());
         credential.setCreatedAt(new Date());
         credential.setUpdatedAt(credential.getCreatedAt());
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialService.create_migrated(credential))).then()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialService.create_migrated(credential))).then();
     }
 
     private Authenticator convert(Credential credential) {

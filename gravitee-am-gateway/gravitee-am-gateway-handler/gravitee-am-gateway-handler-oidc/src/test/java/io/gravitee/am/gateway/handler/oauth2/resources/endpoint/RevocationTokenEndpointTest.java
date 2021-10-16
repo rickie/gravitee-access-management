@@ -96,7 +96,7 @@ public class RevocationTokenEndpointTest extends RxWebTestBase {
             }
         });
 
-        when(revocationTokenService.revoke_migrated(any(), any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidGrantException()))));
+        when(revocationTokenService.revoke_migrated(any(), any())).thenReturn(Mono.error(new InvalidGrantException()));
 
         testRequest(
                 HttpMethod.POST, "/oauth/revoke?token=toto",
@@ -115,7 +115,7 @@ public class RevocationTokenEndpointTest extends RxWebTestBase {
         });
 
         // invalid token results on completable to complete without error
-        when(revocationTokenService.revoke_migrated(any(), any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(revocationTokenService.revoke_migrated(any(), any())).thenReturn(Mono.empty());
 
         testRequest(
                 HttpMethod.POST, "/oauth/revoke?token=toto",
@@ -134,7 +134,7 @@ public class RevocationTokenEndpointTest extends RxWebTestBase {
         });
 
         // invalid token results on completable to complete without error
-        when(revocationTokenService.revoke_migrated(any(), any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new RuntimeException()))));
+        when(revocationTokenService.revoke_migrated(any(), any())).thenReturn(Mono.error(new RuntimeException()));
 
         testRequest(
                 HttpMethod.POST, "/oauth/revoke?token=toto",

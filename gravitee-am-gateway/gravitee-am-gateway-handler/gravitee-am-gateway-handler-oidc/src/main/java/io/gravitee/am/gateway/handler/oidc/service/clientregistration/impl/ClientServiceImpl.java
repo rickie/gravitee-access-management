@@ -68,14 +68,14 @@ public class ClientServiceImpl implements ClientService {
 @Override
     public Mono<Client> findById_migrated(String id) {
         LOGGER.debug("Find client by ID: {}", id);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationService.findById_migrated(id))).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationService.findById_migrated(id))).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> {
                     Client client = application.toClient();
                     // Send an empty array in case of no grant types
                     if (client.getAuthorizedGrantTypes() == null) {
                         client.setAuthorizedGrantTypes(Collections.emptyList());
                     }
                     return client;
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -89,7 +89,7 @@ public class ClientServiceImpl implements ClientService {
         LOGGER.debug("Create a client {} for domain {}", client, client.getDomain());
 
         if(client.getDomain()==null || client.getDomain().trim().isEmpty()) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("No domain set on client"))));
+            return Mono.error(new InvalidClientMetadataException("No domain set on client"));
         }
 
         boolean clientIdGenerated = false;
@@ -121,7 +121,7 @@ public class ClientServiceImpl implements ClientService {
         client.setCreatedAt(new Date());
         client.setUpdatedAt(client.getCreatedAt());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.create_migrated(convert(client)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.create_migrated(convert(client)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -135,10 +135,10 @@ public class ClientServiceImpl implements ClientService {
         LOGGER.debug("Update client {} for domain {}", client.getClientId(), client.getDomain());
 
         if(client.getDomain()==null || client.getDomain().trim().isEmpty()) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("No domain set on client"))));
+            return Mono.error(new InvalidClientMetadataException("No domain set on client"));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.update_migrated(convert(client)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.update_migrated(convert(client)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(clientId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -150,7 +150,7 @@ public class ClientServiceImpl implements ClientService {
 @Override
     public Mono<Void> delete_migrated(String clientId, User principal) {
         LOGGER.debug("Delete client {}", clientId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(applicationService.delete_migrated(clientId, principal)));
+        return applicationService.delete_migrated(clientId, principal);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.renewClientSecret_migrated(domain, id, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -162,7 +162,7 @@ public class ClientServiceImpl implements ClientService {
 @Override
     public Mono<Client> renewClientSecret_migrated(String domain, String id, User principal) {
         LOGGER.debug("Renew client secret for client {} in domain {}", id, domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.renewClientSecret_migrated(domain, id, principal))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.renewClientSecret_migrated(domain, id, principal))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient));
     }
 
     private Application convert(Client client) {

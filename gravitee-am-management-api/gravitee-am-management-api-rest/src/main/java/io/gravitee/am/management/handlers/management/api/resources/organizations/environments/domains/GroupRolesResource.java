@@ -83,7 +83,7 @@ public class GroupRolesResource extends AbstractResource {
             @PathParam("group") String group,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->RxJava2Adapter.monoToMaybe(groupService.findById_migrated(group)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new GroupNotFoundException(group))))
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.READ).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->groupService.findById_migrated(group)).switchIfEmpty(Mono.error(new GroupNotFoundException(group))))
                         .flatMapSingle(group1 -> {
                             if (group1.getRoles() == null || group1.getRoles().isEmpty()) {
                                 return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()));
@@ -112,7 +112,7 @@ public class GroupRolesResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapSingle(domain1 -> RxJava2Adapter.monoToSingle(groupService.assignRoles_migrated(ReferenceType.DOMAIN, domain, group, roles, authenticatedUser))))))
                 .subscribe(response::resume, response::resume);
     }

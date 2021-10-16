@@ -77,7 +77,7 @@ public class AlertTriggerServiceTest {
     @Test
     public void getById() {
         final AlertTrigger alertTrigger = new AlertTrigger();
-        when(alertTriggerRepository.findById_migrated(ALERT_TRIGGER_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(alertTrigger))));
+        when(alertTriggerRepository.findById_migrated(ALERT_TRIGGER_ID)).thenReturn(Mono.just(alertTrigger));
         final TestObserver<AlertTrigger> obs = RxJava2Adapter.monoToSingle(cut.getById_migrated(ALERT_TRIGGER_ID)).test();
 
         obs.awaitTerminalEvent();
@@ -86,7 +86,7 @@ public class AlertTriggerServiceTest {
 
     @Test
     public void getByIdNotFound() {
-        when(alertTriggerRepository.findById_migrated(ALERT_TRIGGER_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(alertTriggerRepository.findById_migrated(ALERT_TRIGGER_ID)).thenReturn(Mono.empty());
         final TestObserver<AlertTrigger> obs = RxJava2Adapter.monoToSingle(cut.getById_migrated(ALERT_TRIGGER_ID)).test();
 
         obs.awaitTerminalEvent();
@@ -97,7 +97,7 @@ public class AlertTriggerServiceTest {
     public void findByDomainAndCriteria() {
         final AlertTrigger alertTrigger = new AlertTrigger();
         final AlertTriggerCriteria criteria = new AlertTriggerCriteria();
-        when(alertTriggerRepository.findByCriteria_migrated(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(alertTrigger))));
+        when(alertTriggerRepository.findByCriteria_migrated(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(Flux.just(alertTrigger));
         final TestSubscriber<AlertTrigger> obs = RxJava2Adapter.fluxToFlowable(cut.findByDomainAndCriteria_migrated(DOMAIN_ID, criteria)).test();
 
         obs.awaitTerminalEvent();
@@ -116,9 +116,9 @@ public class AlertTriggerServiceTest {
         patchAlertTrigger.setEnabled(Optional.of(true));
         patchAlertTrigger.setAlertNotifiers(Optional.of(alertNotifierIds));
 
-        when(alertTriggerRepository.findByCriteria_migrated(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(alertTriggerRepository.create_migrated(any(AlertTrigger.class))).thenAnswer(i-> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
-        when(eventService.create_migrated(any(Event.class))).thenAnswer(i-> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(alertTriggerRepository.findByCriteria_migrated(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(Flux.empty());
+        when(alertTriggerRepository.create_migrated(any(AlertTrigger.class))).thenAnswer(i-> Mono.just(i.getArgument(0)));
+        when(eventService.create_migrated(any(Event.class))).thenAnswer(i-> Mono.just(i.getArgument(0)));
 
         final TestObserver<AlertTrigger> obs = RxJava2Adapter.monoToSingle(cut.createOrUpdate_migrated(ReferenceType.DOMAIN, DOMAIN_ID, patchAlertTrigger, new DefaultUser(USERNAME))).test();
 
@@ -153,9 +153,9 @@ public class AlertTriggerServiceTest {
         final AlertTrigger existingAlertTrigger = new AlertTrigger();
         existingAlertTrigger.setId(ALERT_TRIGGER_ID);
         existingAlertTrigger.setType(AlertTriggerType.TOO_MANY_LOGIN_FAILURES);
-        when(alertTriggerRepository.findByCriteria_migrated(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(existingAlertTrigger))));
-        when(alertTriggerRepository.update_migrated(any(AlertTrigger.class))).thenAnswer(i-> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
-        when(eventService.create_migrated(any(Event.class))).thenAnswer(i-> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(alertTriggerRepository.findByCriteria_migrated(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(Flux.just(existingAlertTrigger));
+        when(alertTriggerRepository.update_migrated(any(AlertTrigger.class))).thenAnswer(i-> Mono.just(i.getArgument(0)));
+        when(eventService.create_migrated(any(Event.class))).thenAnswer(i-> Mono.just(i.getArgument(0)));
 
         final TestObserver<AlertTrigger> obs = RxJava2Adapter.monoToSingle(cut.createOrUpdate_migrated(ReferenceType.DOMAIN, DOMAIN_ID, patchAlertTrigger, new DefaultUser(USERNAME))).test();
 

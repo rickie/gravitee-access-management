@@ -508,7 +508,7 @@
                             <!-- Don't start migration just yet -->
                             -Xep:InlineMeInliner:ERROR
                             -Xep:InlineMeSuggester:ERROR
-                            -Xep:InlineMockitoStatements:OFF
+                            -Xep:InlineMockitoStatements:ERROR
                             -Xep:AddDefaultMethod:ERROR
 
                             <!-- Turn these on once. -->
@@ -516,8 +516,8 @@
                             -Xep:RemoveOldMethods:OFF
                             -Xep:UnwrapExpressions:OFF
 
-                            -Xep:Refaster:OFF
-                            -XepOpt:Refaster:NamePattern=(?!RxJava)(?!TestNG)(?!Optional)(?!AssertJ)(?!Assorted)(?!Stream)(?!RxJava2Adapter)(?!Reactor)(?!Web)(?!String)(?!Stream)(?!Immutable)(?!Int)(?!Mockito)(?!Collection)(?!Comparator)(?!Time).*
+                            -Xep:Refaster:ERROR
+                            -XepOpt:Refaster:NamePattern=(?!TestNG)(?!Optional)(?!AssertJ)(?!Assorted)(?!Stream)(?!RxJava2Adapter)(?!Reactor)(?!Web)(?!String)(?!Stream)(?!Immutable)(?!Int)(?!Mockito)(?!Collection)(?!Comparator)(?!Time).*
                             <!-- (?!RxJava) -->
 
                             -Xep:CountMethods:OFF

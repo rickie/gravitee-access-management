@@ -132,7 +132,7 @@ public class GoogleAuthenticationProviderTest {
         when(configuration.getClientId()).thenReturn("testClientId");
 
         final String state = RandomString.generate();
-        Request request = (Request) RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(provider.asyncSignInUrl_migrated("https://gravitee.io", state))).block();
+        Request request = (Request) provider.asyncSignInUrl_migrated("https://gravitee.io", state).block();
 
         Assert.assertNotNull(request);
         assertEquals(HttpMethod.GET, request.getMethod());

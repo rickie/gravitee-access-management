@@ -46,8 +46,8 @@ public class ExtensionGrantResourceTest extends JerseySpringTest {
         mockExtensionGrant.setName("extensionGrant-name");
         mockExtensionGrant.setDomain(domainId);
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockExtensionGrant)))).when(extensionGrantService).findById_migrated(extensionGrantId);
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(mockExtensionGrant)).when(extensionGrantService).findById_migrated(extensionGrantId);
 
         final Response response = target("domains").path(domainId).path("extensionGrants").path(extensionGrantId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -65,8 +65,8 @@ public class ExtensionGrantResourceTest extends JerseySpringTest {
 
         final String extensionGrantId = "extensionGrant-id";
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(extensionGrantService).findById_migrated(extensionGrantId);
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.empty()).when(extensionGrantService).findById_migrated(extensionGrantId);
 
         final Response response = target("domains").path(domainId).path("extensionGrants").path(extensionGrantId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -78,7 +78,7 @@ public class ExtensionGrantResourceTest extends JerseySpringTest {
         final String domainId = "domain-id";
         final String extensionGrantId = "extensionGrant-id";
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.empty()).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("extensionGrants").path(extensionGrantId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -96,8 +96,8 @@ public class ExtensionGrantResourceTest extends JerseySpringTest {
         mockExtensionGrant.setName("extensionGrant-name");
         mockExtensionGrant.setDomain("wrong-domain");
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockExtensionGrant)))).when(extensionGrantService).findById_migrated(extensionGrantId);
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(mockExtensionGrant)).when(extensionGrantService).findById_migrated(extensionGrantId);
 
         final Response response = target("domains").path(domainId).path("extensionGrants").path(extensionGrantId).request().get();
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());

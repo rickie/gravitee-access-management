@@ -82,9 +82,9 @@ public class TokenServiceTest {
 
         Set<Application> applications = new HashSet<>(Arrays.asList(app1, app2));
 
-        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(applications))));
-        when(accessTokenRepository.countByClientId_migrated("app1")).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(2l))));
-        when(accessTokenRepository.countByClientId_migrated("app2")).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(1l))));
+        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(Mono.just(applications));
+        when(accessTokenRepository.countByClientId_migrated("app1")).thenReturn(Mono.just(2l));
+        when(accessTokenRepository.countByClientId_migrated("app2")).thenReturn(Mono.just(1l));
 
         TestObserver<TotalToken> testObserver = RxJava2Adapter.monoToSingle(tokenService.findTotalTokensByDomain_migrated(DOMAIN)).test();
         testObserver.awaitTerminalEvent();
@@ -96,7 +96,7 @@ public class TokenServiceTest {
 
     @Test
     public void shouldFindTotalTokensByDomain_technicalException() {
-        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver<TotalToken> testObserver = RxJava2Adapter.monoToSingle(tokenService.findTotalTokensByDomain_migrated(DOMAIN)).test();
 
@@ -123,7 +123,7 @@ public class TokenServiceTest {
         app2.setSettings(app2Settings);
 
         Set<Application> applications = new HashSet<>(Arrays.asList(app1, app2));
-        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(applications))));
+        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(Mono.just(applications));
 
         TestObserver<TotalToken> testObserver = RxJava2Adapter.monoToSingle(tokenService.findTotalTokensByDomain_migrated(DOMAIN)).test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -150,9 +150,9 @@ public class TokenServiceTest {
 
         Set<Application> applications = new HashSet<>(Arrays.asList(app1, app2));
 
-        when(applicationService.findAll_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(applications))));
-        when(accessTokenRepository.countByClientId_migrated("app1")).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(2l))));
-        when(accessTokenRepository.countByClientId_migrated("app2")).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(1l))));
+        when(applicationService.findAll_migrated()).thenReturn(Mono.just(applications));
+        when(accessTokenRepository.countByClientId_migrated("app1")).thenReturn(Mono.just(2l));
+        when(accessTokenRepository.countByClientId_migrated("app2")).thenReturn(Mono.just(1l));
 
         TestObserver<TotalToken> testObserver = RxJava2Adapter.monoToSingle(tokenService.findTotalTokens_migrated()).test();
         testObserver.awaitTerminalEvent();
@@ -164,7 +164,7 @@ public class TokenServiceTest {
 
     @Test
     public void shouldFindTotalTokens_technicalException() {
-        when(applicationService.findAll_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(applicationService.findAll_migrated()).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver<TotalToken> testObserver = RxJava2Adapter.monoToSingle(tokenService.findTotalTokens_migrated()).test();
 
@@ -191,7 +191,7 @@ public class TokenServiceTest {
         app2.setSettings(app2Settings);
 
         Set<Application> applications = new HashSet<>(Arrays.asList(app1, app2));
-        when(applicationService.findAll_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(applications))));
+        when(applicationService.findAll_migrated()).thenReturn(Mono.just(applications));
 
         TestObserver<TotalToken> testObserver = RxJava2Adapter.monoToSingle(tokenService.findTotalTokens_migrated()).test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -200,8 +200,8 @@ public class TokenServiceTest {
 
     @Test
     public void shouldDeleteTokensByUser() {
-        when(accessTokenRepository.deleteByUserId_migrated("userId")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(refreshTokenRepository.deleteByUserId_migrated("userId")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(accessTokenRepository.deleteByUserId_migrated("userId")).thenReturn(Mono.empty());
+        when(refreshTokenRepository.deleteByUserId_migrated("userId")).thenReturn(Mono.empty());
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(tokenService.deleteByUserId_migrated("userId")).test();
         testObserver.assertComplete();

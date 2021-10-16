@@ -50,7 +50,7 @@ public class InstallationUpgrader implements Upgrader, Ordered {
 
     @Override
     public boolean upgrade() {
-        final Installation installation = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(installationService.getOrInitialize_migrated())).block();
+        final Installation installation = installationService.getOrInitialize_migrated().block();
         logger.info("Current installation id is [{}]", installation.getId());
         return true;
     }

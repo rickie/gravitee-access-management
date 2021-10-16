@@ -60,7 +60,7 @@ public class InlineAuthenticationProviderTest {
         when(user.getUsername()).thenReturn("username");
         when(user.getPassword()).thenReturn("password");
 
-        when(userDetailsService.loadUserByUsername_migrated("username")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
+        when(userDetailsService.loadUserByUsername_migrated("username")).thenReturn(Mono.just(user));
         when(passwordEncoder.matches((String) authentication.getCredentials(), user.getPassword())).thenReturn(true);
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(inlineAuthenticationProvider.loadUserByUsername_migrated(authentication)).test();
@@ -79,7 +79,7 @@ public class InlineAuthenticationProviderTest {
 
         io.gravitee.am.identityprovider.inline.model.User user = mock(io.gravitee.am.identityprovider.inline.model.User.class);
 
-        when(userDetailsService.loadUserByUsername_migrated("username")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
+        when(userDetailsService.loadUserByUsername_migrated("username")).thenReturn(Mono.just(user));
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(inlineAuthenticationProvider.loadUserByUsername_migrated(authentication)).test();
         testObserver.assertError(BadCredentialsException.class);
@@ -90,7 +90,7 @@ public class InlineAuthenticationProviderTest {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getPrincipal()).thenReturn("username");
 
-        when(userDetailsService.loadUserByUsername_migrated("username")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UsernameNotFoundException("username")))));
+        when(userDetailsService.loadUserByUsername_migrated("username")).thenReturn(Mono.error(new UsernameNotFoundException("username")));
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(inlineAuthenticationProvider.loadUserByUsername_migrated(authentication)).test();
         testObserver.assertError(UsernameNotFoundException.class);

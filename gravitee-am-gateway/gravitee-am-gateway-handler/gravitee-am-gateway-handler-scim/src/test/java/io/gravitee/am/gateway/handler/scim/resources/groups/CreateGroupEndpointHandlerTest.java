@@ -75,7 +75,7 @@ public class CreateGroupEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldInvokeSCIMCreateGroupsEndpoint() throws Exception {
         router.route("/Groups").handler(groupsEndpoint::create);
-        when(groupService.create_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(getGroup()))));
+        when(groupService.create_migrated(any(), any())).thenReturn(Mono.just(getGroup()));
 
         testRequest(
                 HttpMethod.POST,
@@ -92,7 +92,7 @@ public class CreateGroupEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturn409WhenNameAlreadyExists() throws Exception {
         router.route("/Groups").handler(groupsEndpoint::create);
-        when(groupService.create_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new UniquenessException("Display name already exists")))));
+        when(groupService.create_migrated(any(), any())).thenReturn(Mono.error(new UniquenessException("Display name already exists")));
 
         testRequest(
                 HttpMethod.POST,
@@ -114,7 +114,7 @@ public class CreateGroupEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturn400WhenInvalidGroupException() throws Exception {
         router.route("/Groups").handler(groupsEndpoint::create);
-        when(groupService.create_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidGroupException("Invalid group infos")))));
+        when(groupService.create_migrated(any(), any())).thenReturn(Mono.error(new InvalidGroupException("Invalid group infos")));
 
         testRequest(
                 HttpMethod.POST,

@@ -41,7 +41,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
     public void findByUserId() throws TechnicalException {
         // create credential
         Credential credential = buildCredential();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.create_migrated(credential))).block();
+        credentialRepository.create_migrated(credential).block();
 
         // fetch credentials
         TestSubscriber<Credential> testObserver = RxJava2Adapter.fluxToFlowable(credentialRepository.findByUserId_migrated(credential.getReferenceType(), credential.getReferenceId(), credential.getUserId())).test();
@@ -56,7 +56,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
     public void findByUsername() throws TechnicalException {
         // create credential
         Credential credential = buildCredential();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.create_migrated(credential))).block();
+        credentialRepository.create_migrated(credential).block();
 
         // fetch credentials
         TestSubscriber<Credential> testSubscriber = RxJava2Adapter.fluxToFlowable(credentialRepository.findByUsername_migrated(credential.getReferenceType(), credential.getReferenceId(), credential.getUsername())).test();
@@ -71,7 +71,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
     public void findByCredentialId() throws TechnicalException {
         // create credential
         Credential credential = buildCredential();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.create_migrated(credential))).block();
+        credentialRepository.create_migrated(credential).block();
 
         // fetch credentials
         TestSubscriber<Credential> testSubscriber = RxJava2Adapter.fluxToFlowable(credentialRepository.findByCredentialId_migrated(credential.getReferenceType(), credential.getReferenceId(), credential.getCredentialId())).test();
@@ -101,7 +101,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create credential
         Credential credential = buildCredential();
-        Credential credentialCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.create_migrated(credential))).block();
+        Credential credentialCreated = credentialRepository.create_migrated(credential).block();
 
         // fetch credential
         TestObserver<Credential> testObserver = RxJava2Adapter.monoToMaybe(credentialRepository.findById_migrated(credentialCreated.getId())).test();
@@ -141,7 +141,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create credential
         Credential credential = buildCredential();
-        Credential credentialCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.create_migrated(credential))).block();
+        Credential credentialCreated = credentialRepository.create_migrated(credential).block();
 
         // update credential
         Credential updateCredential = buildCredential();
@@ -160,7 +160,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
     public void testDelete() throws TechnicalException {
         // create credential
         Credential credential = buildCredential();
-        Credential credentialCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.create_migrated(credential))).block();
+        Credential credentialCreated = credentialRepository.create_migrated(credential).block();
 
         // fetch credential
         TestObserver<Credential> testObserver = RxJava2Adapter.monoToMaybe(credentialRepository.findById_migrated(credentialCreated.getId())).test();
@@ -185,7 +185,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         credential.setReferenceType(ReferenceType.DOMAIN);
         credential.setReferenceId("domain-id");
         credential.setUserId("user-id");
-        Credential credentialCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.create_migrated(credential))).block();
+        Credential credentialCreated = credentialRepository.create_migrated(credential).block();
 
         // fetch credential
         TestSubscriber<Credential> testSubscriber = RxJava2Adapter.fluxToFlowable(credentialRepository.findByUserId_migrated(ReferenceType.DOMAIN, "domain-id", "user-id")).test();
@@ -215,7 +215,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         credential.setReferenceType(ReferenceType.DOMAIN);
         credential.setReferenceId("domain-id");
         credential.setUserId("user-id");
-        Credential credentialCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.create_migrated(credential))).block();
+        Credential credentialCreated = credentialRepository.create_migrated(credential).block();
 
         // fetch credential
         TestSubscriber<Credential> testSubscriber = RxJava2Adapter.fluxToFlowable(credentialRepository.findByUserId_migrated(ReferenceType.DOMAIN, "domain-id", "user-id")).test();
@@ -247,7 +247,7 @@ public class CredentialRepositoryTest extends AbstractManagementTest {
         credential.setReferenceId("domain-id");
         credential.setUserId("user-id");
         credential.setAaguid("aaguid");
-        Credential credentialCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.create_migrated(credential))).block();
+        Credential credentialCreated = credentialRepository.create_migrated(credential).block();
 
         // fetch credential
         TestSubscriber<Credential> testSubscriber = RxJava2Adapter.fluxToFlowable(credentialRepository.findByUserId_migrated(ReferenceType.DOMAIN, "domain-id", "user-id")).test();

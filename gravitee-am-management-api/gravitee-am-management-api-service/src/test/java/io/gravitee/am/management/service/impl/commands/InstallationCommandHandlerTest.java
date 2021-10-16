@@ -75,8 +75,8 @@ public class InstallationCommandHandlerTest extends TestCase {
         installationPayload.setId(INSTALLATION_ID);
         installationPayload.setStatus("ACCEPTED");
 
-        when(installationService.getOrInitialize_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(installation))));
-        when(installationService.setAdditionalInformation_migrated(anyMap())).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(installation))));
+        when(installationService.getOrInitialize_migrated()).thenReturn(Mono.just(installation));
+        when(installationService.setAdditionalInformation_migrated(anyMap())).thenAnswer(i -> Mono.just(installation));
 
         TestObserver<InstallationReply> obs = cut.handle(command).test();
 
@@ -101,8 +101,8 @@ public class InstallationCommandHandlerTest extends TestCase {
         installationPayload.setId(INSTALLATION_ID);
         installationPayload.setStatus("ACCEPTED");
 
-        when(installationService.getOrInitialize_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(installation))));
-        when(installationService.setAdditionalInformation_migrated(anyMap())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException()))));
+        when(installationService.getOrInitialize_migrated()).thenReturn(Mono.just(installation));
+        when(installationService.setAdditionalInformation_migrated(anyMap())).thenReturn(Mono.error(new TechnicalException()));
 
         TestObserver<InstallationReply> obs = cut.handle(command).test();
 

@@ -81,7 +81,7 @@ public class EmailManagerImpl extends AbstractService<EmailManager> implements E
         eventManager.subscribeForEvents(this, EmailEvent.class);
 
         logger.info("Initializing emails");
-        RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(emailTemplateService.findAll_migrated())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(Email::isEnabled)))
+        RxJava2Adapter.fluxToFlowable(emailTemplateService.findAll_migrated().filter(RxJavaReactorMigrationUtil.toJdkPredicate(Email::isEnabled)))
                 .blockingIterable()
                 .forEach(this::loadEmail);
     }

@@ -97,7 +97,7 @@ public class EventBusReporterWrapper implements Reporter, Handler<Message<Report
 }
 @Override
     public Mono<Page> search_migrated(ReferenceType referenceType, String referenceId, ReportableCriteria criteria, int page, int size) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(reporter.search_migrated(referenceType, referenceId, criteria, page, size)));
+        return reporter.search_migrated(referenceType, referenceId, criteria, page, size);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(referenceType, referenceId, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -108,7 +108,7 @@ public class EventBusReporterWrapper implements Reporter, Handler<Message<Report
 }
 @Override
     public Mono<Map<Object,Object>> aggregate_migrated(ReferenceType referenceType, String referenceId, ReportableCriteria criteria, Type analyticsType) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(reporter.aggregate_migrated(referenceType, referenceId, criteria, analyticsType)));
+        return reporter.aggregate_migrated(referenceType, referenceId, criteria, analyticsType);
     }
 
     @Override

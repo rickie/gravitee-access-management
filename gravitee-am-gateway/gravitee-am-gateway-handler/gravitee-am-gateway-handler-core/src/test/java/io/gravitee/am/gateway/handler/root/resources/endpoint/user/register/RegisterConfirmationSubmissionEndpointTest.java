@@ -77,7 +77,7 @@ public class RegisterConfirmationSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.confirmRegistration_migrated(eq(client), eq(user), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new RegistrationResponse()))));
+        when(userService.confirmRegistration_migrated(eq(client), eq(user), any())).thenReturn(Mono.just(new RegistrationResponse()));
 
         testRequest(
                 HttpMethod.POST, "/confirmRegistration?client_id=client-id",
@@ -110,7 +110,7 @@ public class RegisterConfirmationSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.confirmRegistration_migrated(eq(client), eq(user), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(registrationResponse))));
+        when(userService.confirmRegistration_migrated(eq(client), eq(user), any())).thenReturn(Mono.just(registrationResponse));
 
         testRequest(
                 HttpMethod.POST, "/confirmRegistration?client_id=client-id",

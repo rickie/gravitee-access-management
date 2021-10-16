@@ -73,14 +73,14 @@ public class PurgeManagerTest {
 
     @Before
     public void prepare() {
-        when(accessTokenRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(loginAttemptRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(permissionTicketRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(authorizationCodeRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(scopeApprovalRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(refreshTokenRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(requestObjectRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(authenticationFlowContextRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(accessTokenRepository.purgeExpiredData_migrated()).thenReturn(Mono.empty());
+        when(loginAttemptRepository.purgeExpiredData_migrated()).thenReturn(Mono.empty());
+        when(permissionTicketRepository.purgeExpiredData_migrated()).thenReturn(Mono.empty());
+        when(authorizationCodeRepository.purgeExpiredData_migrated()).thenReturn(Mono.empty());
+        when(scopeApprovalRepository.purgeExpiredData_migrated()).thenReturn(Mono.empty());
+        when(refreshTokenRepository.purgeExpiredData_migrated()).thenReturn(Mono.empty());
+        when(requestObjectRepository.purgeExpiredData_migrated()).thenReturn(Mono.empty());
+        when(authenticationFlowContextRepository.purgeExpiredData_migrated()).thenReturn(Mono.empty());
     }
 
     @Test

@@ -42,7 +42,7 @@ public class DefaultEnvironmentUpgrader implements Upgrader, Ordered {
     public boolean upgrade() {
 
         try {
-            Environment environment = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(environmentService.createDefault_migrated())).block();
+            Environment environment = environmentService.createDefault_migrated().block();
 
             if (environment != null) {
                 logger.info("Default environment successfully created");

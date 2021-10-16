@@ -58,7 +58,7 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
 }
 @Override
     public Mono<List<PolicyPlugin>> findAll_migrated() {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findAll_migrated(null)));
+        return findAll_migrated(null);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

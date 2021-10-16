@@ -62,7 +62,7 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
 @Override
     public Flux<Reporter> findAll_migrated() {
         LOGGER.debug("findAll()");
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(reporterRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.flowableToFlux(reporterRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -74,7 +74,7 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
 @Override
     public Flux<Reporter> findByDomain_migrated(String domain) {
         LOGGER.debug("findByDomain({})", domain);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(reporterRepository.findByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(reporterRepository.findByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -86,7 +86,7 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
 @Override
     public Mono<Reporter> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(reporterRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.maybeToMono(reporterRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -105,7 +105,7 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertResult.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
+        return insertResult.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -117,7 +117,7 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
 @Override
     public Mono<Reporter> update_migrated(Reporter item) {
         LOGGER.debug("Update reporter with id '{}'", item.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(reporterRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.singleToMono(reporterRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

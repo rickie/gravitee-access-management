@@ -201,7 +201,7 @@ public class MFAEnrollEndpoint extends AbstractEndpoint implements Handler<Routi
 
     private void load(Map<io.gravitee.am.model.Factor, FactorProvider> providers, User user, Handler<AsyncResult<List<Factor>>> handler) {
         Observable.fromIterable(providers.entrySet())
-                .flatMapSingle(entry -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(entry.getValue().enroll_migrated(user.getUsername()))).map(RxJavaReactorMigrationUtil.toJdkFunction(enrollment -> new Factor(entry.getKey(), enrollment))))
+                .flatMapSingle(entry -> RxJava2Adapter.monoToSingle(entry.getValue().enroll_migrated(user.getUsername()).map(RxJavaReactorMigrationUtil.toJdkFunction(enrollment -> new Factor(entry.getKey(), enrollment))))
                 )
                 .toList()
                 .subscribe(

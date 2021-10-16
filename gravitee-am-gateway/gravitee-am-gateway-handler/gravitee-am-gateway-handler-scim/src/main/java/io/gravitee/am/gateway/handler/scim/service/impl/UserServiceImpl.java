@@ -134,7 +134,7 @@ public class UserServiceImpl implements UserService {
 @Override
     public Mono<User> get_migrated(String userId, String baseUrl) {
         LOGGER.debug("Find user by id : {}", userId);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userRepository.findById_migrated(userId))).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> convert(user1, baseUrl, false))).flatMap(z->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(setGroups_migrated(z)))))
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userRepository.findById_migrated(userId).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> convert(user1, baseUrl, false))).flatMap(z->setGroups_migrated(z)))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a user using its ID {}", userId, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
@@ -157,16 +157,16 @@ public class UserServiceImpl implements UserService {
 
         // check password
         if (isInvalidUserPassword(user)) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("Field [password] is invalid"))));
+            return Mono.error(new InvalidValueException("Field [password] is invalid"));
         }
 
         // check if user is unique
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userRepository.findByUsernameAndSource_migrated(ReferenceType.DOMAIN, domain.getId(), user.getUserName(), source))).hasElement().map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(userRepository.findByUsernameAndSource_migrated(ReferenceType.DOMAIN, domain.getId(), user.getUserName(), source).hasElement().map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
                     if (!isEmpty) {
                         throw new UniquenessException("User with username [" + user.getUserName() + "] already exists");
                     }
                     return true;
-                })).flatMap(__->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkRoles_migrated(user.getRoles())))).then().then(Mono.defer(()->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(source))))).switchIfEmpty(Mono.error(new UserProviderNotFoundException(source))))
+                })).flatMap(__->checkRoles_migrated(user.getRoles())).then().then(Mono.defer(()->identityProviderManager.getUserProvider_migrated(source))).switchIfEmpty(Mono.error(new UserProviderNotFoundException(source))))
                 .flatMapSingle(userProvider -> {
                     io.gravitee.am.model.User userModel = convert(user);
                     // set technical ID
@@ -180,7 +180,7 @@ public class UserServiceImpl implements UserService {
                     userModel.setEnabled(userModel.getPassword() != null);
 
                     // store user in its identity provider
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(userModel))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userProvider.create_migrated(convert(userModel)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(idpUser -> {
+                    return RxJava2Adapter.monoToSingle(userValidator.validate_migrated(userModel).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userProvider.create_migrated(convert(userModel)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(idpUser -> {
                                 // AM 'users' collection is not made for authentication (but only management stuff)
                                 // clear password
                                 userModel.setPassword(null);
@@ -221,13 +221,13 @@ public class UserServiceImpl implements UserService {
 
         // check password
         if (isInvalidUserPassword(user)) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("Field [password] is invalid"))));
+            return Mono.error(new InvalidValueException("Field [password] is invalid"));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userRepository.findById_migrated(userId))).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(userRepository.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))
                 .flatMapSingle(existingUser -> {
                     // check roles
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkRoles_migrated(user.getRoles()))).then(RxJava2Adapter.singleToMono(Single.defer(() -> {
+                    return RxJava2Adapter.monoToSingle(checkRoles_migrated(user.getRoles()).then(RxJava2Adapter.singleToMono(Single.defer(() -> {
                                 io.gravitee.am.model.User userToUpdate = convert(user);
                                 // set immutable attribute
                                 userToUpdate.setId(existingUser.getId());
@@ -242,7 +242,7 @@ public class UserServiceImpl implements UserService {
 
                                 UserFactorUpdater.updateFactors(existingUser.getFactors(), existingUser, userToUpdate);
 
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(userToUpdate))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(userToUpdate.getSource()))).switchIfEmpty(Mono.error(new UserProviderNotFoundException(userToUpdate.getSource()))))
+                                return RxJava2Adapter.monoToSingle(userValidator.validate_migrated(userToUpdate).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(userToUpdate.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(userToUpdate.getSource()))))
                                         .flatMapSingle(userProvider -> {
                                             // no idp user check if we need to create it
                                             if (userToUpdate.getExternalId() == null) {
@@ -300,7 +300,7 @@ public class UserServiceImpl implements UserService {
 @Override
     public Mono<User> patch_migrated(String userId, PatchOp patchOp, String baseUrl) {
         LOGGER.debug("Patch user {}", userId);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(get_migrated(userId, baseUrl))).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)user -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(get_migrated(userId, baseUrl).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)user -> {
                     ObjectNode node = objectMapper.convertValue(user, ObjectNode.class);
                     patchOp.getOperations().forEach(operation -> operation.apply(node));
                     User userToPatch = objectMapper.treeToValue(node, User.class);
@@ -332,7 +332,7 @@ public class UserServiceImpl implements UserService {
 @Override
     public Mono<Void> delete_migrated(String userId) {
         LOGGER.debug("Delete user {}", userId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userRepository.findById_migrated(userId))).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()))).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))).flatMap(userProvider->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userProvider.delete_migrated(user.getExternalId())))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userRepository.delete_migrated(userId))))).onErrorResumeNext((java.lang.Throwable ex)->{
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userRepository.findById_migrated(userId))).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()))).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))).flatMap(userProvider->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userProvider.delete_migrated(user.getExternalId())))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userRepository.delete_migrated(userId))))).onErrorResumeNext((java.lang.Throwable ex)->{
 if (ex instanceof UserNotFoundException) {
 return RxJava2Adapter.monoToCompletable(userRepository.delete_migrated(userId));
 }
@@ -344,7 +344,7 @@ return RxJava2Adapter.monoToCompletable(Mono.error(ex));
 LOGGER.error("An error occurs while trying to delete user: {}", userId, ex);
 return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to delete user: %s", userId), ex)));
 }
-}))).then()));
+}))).then();
     }
 
     private boolean isInvalidUserPassword(User user) {
@@ -364,7 +364,7 @@ private Single<User> setGroups(User scimUser) {
 }
 private Mono<User> setGroups_migrated(User scimUser) {
         // fetch groups
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(groupService.findByMember_migrated(scimUser.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(group -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(groupService.findByMember_migrated(scimUser.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(group -> {
                     Member member = new Member();
                     member.setValue(group.getId());
                     member.setDisplay(group.getDisplayName());
@@ -376,7 +376,7 @@ private Mono<User> setGroups_migrated(User scimUser) {
                     } else {
                         return scimUser;
                     }
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.checkRoles_migrated(roles))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -386,17 +386,17 @@ private Completable checkRoles(List<String> roles) {
 }
 private Mono<Void> checkRoles_migrated(List<String> roles) {
         if (roles == null || roles.isEmpty()) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
+            return Mono.empty();
         }
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.findByIdIn_migrated(roles))).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.findByIdIn_migrated(roles))).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
                     if (roles1.size() != roles.size()) {
                         // find difference between the two list
                         roles.removeAll(roles1.stream().map(Role::getId).collect(Collectors.toList()));
                         throw new RoleNotFoundException(String.join(",", roles));
                     }
                     return roles1;
-                })).then()));
+                })).then();
     }
 
     private User convert(io.gravitee.am.model.User user, String baseUrl, boolean listing) {

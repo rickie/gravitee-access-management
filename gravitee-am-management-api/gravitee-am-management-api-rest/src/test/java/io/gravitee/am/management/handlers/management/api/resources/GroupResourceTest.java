@@ -47,8 +47,8 @@ public class GroupResourceTest extends JerseySpringTest {
         mockGroup.setName("group-name");
         mockGroup.setReferenceId(domainId);
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup)))).when(groupService).findById_migrated(groupId);
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(mockGroup)).when(groupService).findById_migrated(groupId);
 
         final Response response = target("domains").path(domainId).path("groups").path(groupId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -66,8 +66,8 @@ public class GroupResourceTest extends JerseySpringTest {
 
         final String groupId = "group-id";
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(groupService).findById_migrated(groupId);
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.empty()).when(groupService).findById_migrated(groupId);
 
         final Response response = target("domains").path(domainId).path("groups").path(groupId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -76,7 +76,7 @@ public class GroupResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetGroup_technicalManagementException() {
         final String domainId = "domain-id";
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs"))))).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.error(new TechnicalManagementException("error occurs"))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("groups").path("group-1").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());

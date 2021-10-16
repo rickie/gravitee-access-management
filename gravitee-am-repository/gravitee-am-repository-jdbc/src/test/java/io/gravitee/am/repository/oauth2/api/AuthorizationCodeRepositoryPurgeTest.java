@@ -59,15 +59,15 @@ public class AuthorizationCodeRepositoryPurgeTest extends AbstractOAuthTest {
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(code))).block());
-        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(codeExpired))).block());
+        assertNotNull(authorizationCodeRepository.findByCode_migrated(code).block());
+        assertNull(authorizationCodeRepository.findByCode_migrated(codeExpired).block());
 
         TestObserver<Void> testPurge = RxJava2Adapter.monoToCompletable(authorizationCodeRepository.purgeExpiredData_migrated()).test();
         testPurge.awaitTerminalEvent();
         testPurge.assertNoErrors();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(code))).block());
-        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(codeExpired))).block());
+        assertNotNull(authorizationCodeRepository.findByCode_migrated(code).block());
+        assertNull(authorizationCodeRepository.findByCode_migrated(codeExpired).block());
 
     }
 

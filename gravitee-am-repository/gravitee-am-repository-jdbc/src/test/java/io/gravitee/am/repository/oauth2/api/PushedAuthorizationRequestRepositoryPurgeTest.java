@@ -58,15 +58,15 @@ public class PushedAuthorizationRequestRepositoryPurgeTest extends AbstractOAuth
         RxJava2Adapter.monoToSingle(parRepository.create_migrated(object1)).test().awaitTerminalEvent();
         RxJava2Adapter.monoToSingle(parRepository.create_migrated(object2)).test().awaitTerminalEvent();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(parRepository.findById_migrated(object1.getId()))).block());
-        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(parRepository.findById_migrated(object2.getId()))).block());
+        assertNotNull(parRepository.findById_migrated(object1.getId()).block());
+        assertNull(parRepository.findById_migrated(object2.getId()).block());
 
         TestObserver<Void> testPurge = RxJava2Adapter.monoToCompletable(parRepository.purgeExpiredData_migrated()).test();
         testPurge.awaitTerminalEvent();
         testPurge.assertNoErrors();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(parRepository.findById_migrated(object1.getId()))).block());
-        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(parRepository.findById_migrated(object2.getId()))).block());
+        assertNotNull(parRepository.findById_migrated(object1.getId()).block());
+        assertNull(parRepository.findById_migrated(object2.getId()).block());
 
     }
 

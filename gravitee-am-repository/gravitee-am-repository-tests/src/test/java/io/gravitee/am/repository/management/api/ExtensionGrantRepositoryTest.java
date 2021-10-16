@@ -40,10 +40,10 @@ public class ExtensionGrantRepositoryTest extends AbstractManagementTest {
         // create extension grant
         ExtensionGrant extensionGrant = buildExtensionGrant();
         extensionGrant.setDomain("testDomain");
-        ExtensionGrant createdGrant = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(extensionGrantRepository.create_migrated(extensionGrant))).block();
+        ExtensionGrant createdGrant = extensionGrantRepository.create_migrated(extensionGrant).block();
 
         ExtensionGrant excludedElement = buildExtensionGrant();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(extensionGrantRepository.create_migrated(excludedElement))).block();
+        extensionGrantRepository.create_migrated(excludedElement).block();
 
         // fetch extension grants
         TestSubscriber<ExtensionGrant> testSubscriber = RxJava2Adapter.fluxToFlowable(extensionGrantRepository.findByDomain_migrated("testDomain")).test();
@@ -59,7 +59,7 @@ public class ExtensionGrantRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create extension grant
         ExtensionGrant extensionGrant = buildExtensionGrant();
-        ExtensionGrant extensionGrantCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(extensionGrantRepository.create_migrated(extensionGrant))).block();
+        ExtensionGrant extensionGrantCreated = extensionGrantRepository.create_migrated(extensionGrant).block();
 
         // fetch extension grant
         TestObserver<ExtensionGrant> testObserver = RxJava2Adapter.monoToMaybe(extensionGrantRepository.findById_migrated(extensionGrantCreated.getId())).test();
@@ -115,7 +115,7 @@ public class ExtensionGrantRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create extension grant
         ExtensionGrant extensionGrant = buildExtensionGrant();
-        ExtensionGrant extensionGrantCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(extensionGrantRepository.create_migrated(extensionGrant))).block();
+        ExtensionGrant extensionGrantCreated = extensionGrantRepository.create_migrated(extensionGrant).block();
 
         // update extension grant
         ExtensionGrant updatedExtension = new ExtensionGrant();
@@ -134,7 +134,7 @@ public class ExtensionGrantRepositoryTest extends AbstractManagementTest {
     public void testDelete() throws TechnicalException {
         // create extension grant
         ExtensionGrant extensionGrant = buildExtensionGrant();
-        ExtensionGrant extensionGrantCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(extensionGrantRepository.create_migrated(extensionGrant))).block();
+        ExtensionGrant extensionGrantCreated = extensionGrantRepository.create_migrated(extensionGrant).block();
 
         // fetch extension grant
         TestObserver<ExtensionGrant> testObserver = RxJava2Adapter.monoToMaybe(extensionGrantRepository.findById_migrated(extensionGrantCreated.getId())).test();

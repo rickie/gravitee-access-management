@@ -77,7 +77,7 @@ public class FlowsResource extends AbstractResource {
 
         User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.LIST))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(hasAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.READ))).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(hasPermission -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(flowService.findAll_migrated(ReferenceType.DOMAIN, domain, true))).map(RxJavaReactorMigrationUtil.toJdkFunction(flow ->  filterFlowInfos(hasPermission, flow)))))).collectList()))
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.LIST).then(hasAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.READ).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(hasPermission -> RxJava2Adapter.fluxToFlowable(flowService.findAll_migrated(ReferenceType.DOMAIN, domain, true).map(RxJavaReactorMigrationUtil.toJdkFunction(flow ->  filterFlowInfos(hasPermission, flow)))))).collectList()))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -100,7 +100,7 @@ public class FlowsResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FLOW, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(flowService.createOrUpdate_migrated(ReferenceType.DOMAIN, domain, convert(flows), authenticatedUser)))).map(RxJavaReactorMigrationUtil.toJdkFunction(updatedFlows -> updatedFlows.stream().map(FlowEntity::new).collect(Collectors.toList())))))
                 .subscribe(response::resume, response::resume);
     }

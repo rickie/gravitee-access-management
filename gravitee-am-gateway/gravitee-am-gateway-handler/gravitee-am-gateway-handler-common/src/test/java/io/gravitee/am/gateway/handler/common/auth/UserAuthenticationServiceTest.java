@@ -75,10 +75,10 @@ public class UserAuthenticationServiceTest {
         when(createdUser.isEnabled()).thenReturn(true);
 
         when(domain.getId()).thenReturn(domainId);
-        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(userService.findByDomainAndUsernameAndSource_migrated(domainId, username, source)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(userService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(createdUser))));
-        when(userService.enhance_migrated(createdUser)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(createdUser))));
+        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(Mono.empty());
+        when(userService.findByDomainAndUsernameAndSource_migrated(domainId, username, source)).thenReturn(Mono.empty());
+        when(userService.create_migrated(any())).thenReturn(Mono.just(createdUser));
+        when(userService.enhance_migrated(createdUser)).thenReturn(Mono.just(createdUser));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(userAuthenticationService.connect_migrated(user)).test();
         testObserver.awaitTerminalEvent();
@@ -104,9 +104,9 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.isEnabled()).thenReturn(true);
 
         when(domain.getId()).thenReturn(domainId);
-        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mock(User.class)))));
-        when(userService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updatedUser))));
-        when(userService.enhance_migrated(updatedUser)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updatedUser))));
+        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(Mono.just(mock(User.class)));
+        when(userService.update_migrated(any())).thenReturn(Mono.just(updatedUser));
+        when(userService.enhance_migrated(updatedUser)).thenReturn(Mono.just(updatedUser));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(userAuthenticationService.connect_migrated(user)).test();
         testObserver.awaitTerminalEvent();
@@ -132,8 +132,8 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.isEnabled()).thenReturn(false);
 
         when(domain.getId()).thenReturn(domainId);
-        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mock(User.class)))));
-        when(userService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updatedUser))));
+        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(Mono.just(mock(User.class)));
+        when(userService.update_migrated(any())).thenReturn(Mono.just(updatedUser));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(userAuthenticationService.connect_migrated(user)).test();
         testObserver.awaitTerminalEvent();
@@ -168,10 +168,10 @@ public class UserAuthenticationServiceTest {
         when(createdUser.getRoles()).thenReturn(Arrays.asList("idp-role", "idp2-role"));
 
         when(domain.getId()).thenReturn(domainId);
-        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(userService.findByDomainAndUsernameAndSource_migrated(domainId, username, source)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(userService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(createdUser))));
-        when(userService.enhance_migrated(createdUser)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(createdUser))));
+        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(Mono.empty());
+        when(userService.findByDomainAndUsernameAndSource_migrated(domainId, username, source)).thenReturn(Mono.empty());
+        when(userService.create_migrated(any())).thenReturn(Mono.just(createdUser));
+        when(userService.enhance_migrated(createdUser)).thenReturn(Mono.just(createdUser));
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userAuthenticationService.connect_migrated(user)).test();
         testObserver.awaitTerminalEvent();
@@ -207,9 +207,9 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.getRoles()).thenReturn(Arrays.asList("idp-role", "idp2-role"));
 
         when(domain.getId()).thenReturn(domainId);
-        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mock(User.class)))));
-        when(userService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updatedUser))));
-        when(userService.enhance_migrated(updatedUser)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updatedUser))));
+        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(Mono.just(mock(User.class)));
+        when(userService.update_migrated(any())).thenReturn(Mono.just(updatedUser));
+        when(userService.enhance_migrated(updatedUser)).thenReturn(Mono.just(updatedUser));
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userAuthenticationService.connect_migrated(user)).test();
         testObserver.awaitTerminalEvent();
@@ -246,9 +246,9 @@ public class UserAuthenticationServiceTest {
         when(updatedUser.getRoles()).thenReturn(Arrays.asList("group-role", "group2-role"));
 
         when(domain.getId()).thenReturn(domainId);
-        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mock(User.class)))));
-        when(userService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updatedUser))));
-        when(userService.enhance_migrated(updatedUser)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updatedUser))));
+        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(Mono.just(mock(User.class)));
+        when(userService.update_migrated(any())).thenReturn(Mono.just(updatedUser));
+        when(userService.enhance_migrated(updatedUser)).thenReturn(Mono.just(updatedUser));
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userAuthenticationService.connect_migrated(user)).test();
         testObserver.awaitTerminalEvent();
@@ -283,9 +283,9 @@ public class UserAuthenticationServiceTest {
         existingAdditionalInformation.put("op_id_token", "token1");
         existingUser.setAdditionalInformation(existingAdditionalInformation);
 
-        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingUser))));
-        when(userService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updatedUser))));
-        when(userService.enhance_migrated(updatedUser)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updatedUser))));
+        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(Mono.just(existingUser));
+        when(userService.update_migrated(any())).thenReturn(Mono.just(updatedUser));
+        when(userService.enhance_migrated(updatedUser)).thenReturn(Mono.just(updatedUser));
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userAuthenticationService.connect_migrated(user)).test();
         testObserver.awaitTerminalEvent();
@@ -320,9 +320,9 @@ public class UserAuthenticationServiceTest {
         existingAdditionalInformation.put("op_id_token", "token1");
         existingUser.setAdditionalInformation(existingAdditionalInformation);
 
-        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingUser))));
-        when(userService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updatedUser))));
-        when(userService.enhance_migrated(updatedUser)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updatedUser))));
+        when(userService.findByDomainAndExternalIdAndSource_migrated(domainId, id, source)).thenReturn(Mono.just(existingUser));
+        when(userService.update_migrated(any())).thenReturn(Mono.just(updatedUser));
+        when(userService.enhance_migrated(updatedUser)).thenReturn(Mono.just(updatedUser));
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userAuthenticationService.connect_migrated(user)).test();
         testObserver.awaitTerminalEvent();

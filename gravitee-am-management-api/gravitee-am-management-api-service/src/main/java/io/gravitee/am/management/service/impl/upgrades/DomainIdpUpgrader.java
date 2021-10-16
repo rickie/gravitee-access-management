@@ -72,13 +72,13 @@ private Single<IdentityProvider> updateDefaultIdp(Domain domain) {
  return RxJava2Adapter.monoToSingle(updateDefaultIdp_migrated(domain));
 }
 private Mono<IdentityProvider> updateDefaultIdp_migrated(Domain domain) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(DEFAULT_IDP_PREFIX + domain.getId()))).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<IdentityProvider>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<IdentityProvider>>)isEmpty -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(DEFAULT_IDP_PREFIX + domain.getId()))).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<IdentityProvider>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<IdentityProvider>>)isEmpty -> {
                     if (isEmpty) {
                         logger.info("No default idp found for domain {}, update domain", domain.getName());
                         return RxJava2Adapter.monoToSingle(identityProviderManager.create_migrated(domain.getId()));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(new IdentityProvider()));
-                }).apply(v)))));
+                }).apply(v)));
     }
 
     @Override

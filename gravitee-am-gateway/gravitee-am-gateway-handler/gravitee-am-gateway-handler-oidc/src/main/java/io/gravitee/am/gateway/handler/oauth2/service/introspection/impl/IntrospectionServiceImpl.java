@@ -54,10 +54,10 @@ public class IntrospectionServiceImpl implements IntrospectionService {
 }
 @Override
     public Mono<IntrospectionResponse> introspect_migrated(IntrospectionRequest introspectionRequest) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tokenService.introspect_migrated(introspectionRequest.getToken()))).flatMap(v->RxJava2Adapter.singleToMono((Single<IntrospectionResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<IntrospectionResponse>>)token -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tokenService.introspect_migrated(introspectionRequest.getToken()).flatMap(v->RxJava2Adapter.singleToMono((Single<IntrospectionResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<IntrospectionResponse>>)token -> {
                     AccessToken accessToken = (AccessToken) token;
                     if (accessToken.getSubject() != null && !accessToken.getSubject().equals(accessToken.getClientId())) {
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(accessToken.getSubject()))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> convert(accessToken, user))).defaultIfEmpty(convert(accessToken, null)).single());
+                        return RxJava2Adapter.monoToSingle(userService.findById_migrated(accessToken.getSubject()).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> convert(accessToken, user))).defaultIfEmpty(convert(accessToken, null)).single());
 
                     } else {
                         return RxJava2Adapter.monoToSingle(Mono.just(convert(accessToken, null)));

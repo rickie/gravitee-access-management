@@ -62,7 +62,7 @@ public class AlertNotifierResource extends AbstractResource {
             @PathParam("notifierId") String notifierId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertNotifierService.getById_migrated(ReferenceType.DOMAIN, domainId, notifierId)))))
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST).then(alertNotifierService.getById_migrated(ReferenceType.DOMAIN, domainId, notifierId)))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -86,7 +86,7 @@ public class AlertNotifierResource extends AbstractResource {
 
         final User authenticatedUser = this.getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertNotifierService.update_migrated(ReferenceType.DOMAIN, domainId, notifierId, patchAlertNotifier, authenticatedUser)))))
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.UPDATE).then(alertNotifierService.update_migrated(ReferenceType.DOMAIN, domainId, notifierId, patchAlertNotifier, authenticatedUser)))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -108,7 +108,7 @@ public class AlertNotifierResource extends AbstractResource {
 
         final User authenticatedUser = this.getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(alertNotifierService.delete_migrated(ReferenceType.DOMAIN, domainId, notifierId, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST).then(alertNotifierService.delete_migrated(ReferenceType.DOMAIN, domainId, notifierId, authenticatedUser)))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

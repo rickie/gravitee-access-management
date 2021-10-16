@@ -68,11 +68,11 @@ public class PermissionTicketServiceImpl implements PermissionTicketService {
         //Get list of requested resources (same Id may appear twice with difference scopes)
         List<String> requestedResourcesIds = requestedPermission.stream().map(PermissionRequest::getResourceId).distinct().collect(Collectors.toList());
         //Compare with current registered resource set and return permission ticket if everything's correct.
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(resourceService.findByDomainAndClientAndResources_migrated(domain, client, requestedResourcesIds))).collectList().flatMap(fetchedResourceSet->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validatePermissionRequest_migrated(requestedPermission, fetchedResourceSet, requestedResourcesIds))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.uma.PermissionRequest> permissionRequests)->{
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(resourceService.findByDomainAndClientAndResources_migrated(domain, client, requestedResourcesIds))).collectList().flatMap(fetchedResourceSet->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validatePermissionRequest_migrated(requestedPermission, fetchedResourceSet, requestedResourcesIds))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.uma.PermissionRequest> permissionRequests)->{
 String userId = fetchedResourceSet.get(0).getUserId();
 PermissionTicket toCreate = new PermissionTicket();
 return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setClientId(client).setUserId(userId).setCreatedAt(new Date()).setExpireAt(new Date(System.currentTimeMillis() + umaPermissionValidity));
-}))).flatMap(v->RxJava2Adapter.singleToMono((Single<PermissionTicket>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PermissionTicket, Single<PermissionTicket>>)(PermissionTicket ident) -> RxJava2Adapter.monoToSingle(repository.create_migrated(ident))).apply(v)))));
+}))).flatMap(v->RxJava2Adapter.singleToMono((Single<PermissionTicket>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PermissionTicket, Single<PermissionTicket>>)(PermissionTicket ident) -> RxJava2Adapter.monoToSingle(repository.create_migrated(ident))).apply(v)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -83,7 +83,7 @@ return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setCl
 }
 @Override
     public Mono<PermissionTicket> findById_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(id)));
+        return repository.findById_migrated(id);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.remove_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -94,8 +94,8 @@ return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setCl
 }
 @Override
     public Mono<PermissionTicket> remove_migrated(String id) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(id))).switchIfEmpty(Mono.error(new InvalidPermissionTicketException())))
-                .flatMapSingle(permissionTicket -> RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(repository.delete_migrated(permissionTicket.getId()))).then(Mono.just(permissionTicket)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(id).switchIfEmpty(Mono.error(new InvalidPermissionTicketException())))
+                .flatMapSingle(permissionTicket -> RxJava2Adapter.monoToSingle(repository.delete_migrated(permissionTicket.getId()).then(Mono.just(permissionTicket)))));
     }
 
     /**
@@ -114,12 +114,12 @@ private Single<List<PermissionRequest>> validatePermissionRequest(List<Permissio
 private Mono<List<PermissionRequest>> validatePermissionRequest_migrated(List<PermissionRequest> requestedPermissions, List<Resource> registeredResources, List<String> requestedResourcesIds) {
         //Check fetched resources is not empty
         if(registeredResources==null || registeredResources.isEmpty()) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_ID)));
+            return Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_ID);
         }
 
         //Resources must belong to the same resource owner
         if (registeredResources.size() > 1 && registeredResources.stream().map(Resource::getUserId).distinct().count() > 1) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_OWNER)));
+            return Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_OWNER);
         }
 
         //Build map with resource ID as key.
@@ -127,14 +127,14 @@ private Mono<List<PermissionRequest>> validatePermissionRequest_migrated(List<Pe
 
         //If the fetched resources does not contains all the requested ids, then return an invalid resource id error.
         if(!resourceSetMap.keySet().containsAll(requestedResourcesIds)) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_ID)));
+            return Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_ID);
         }
 
         //If current resource set does not contains all the requested scopes, then return an invalid scope error.
         for(PermissionRequest requestResourceScope:requestedPermissions) {
             Resource fetchedResource = resourceSetMap.get(requestResourceScope.getResourceId());
             if(!fetchedResource.getResourceScopes().containsAll(requestResourceScope.getResourceScopes())) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_SCOPE_RESOURCE)));
+                return Mono.error(InvalidPermissionRequestException.INVALID_SCOPE_RESOURCE);
             }
         }
 
@@ -144,7 +144,7 @@ private Mono<List<PermissionRequest>> validatePermissionRequest_migrated(List<Pe
         }
 
         //Everything is matching.
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(requestedPermissions)));
+        return Mono.just(requestedPermissions);
     }
 
     /**

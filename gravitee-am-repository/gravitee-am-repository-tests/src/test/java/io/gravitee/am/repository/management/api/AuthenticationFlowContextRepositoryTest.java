@@ -90,9 +90,9 @@ public class AuthenticationFlowContextRepositoryTest extends AbstractManagementT
     @Test
     public void shouldDelete() {
         AuthenticationFlowContext entity = generateAuthContext();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authenticationFlowContextRepository.create_migrated(entity))).block();
+        authenticationFlowContextRepository.create_migrated(entity).block();
         entity = generateAuthContext(Instant.now(), 2);
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authenticationFlowContextRepository.create_migrated(entity))).block();
+        authenticationFlowContextRepository.create_migrated(entity).block();
 
         TestSubscriber<AuthenticationFlowContext> testList = RxJava2Adapter.fluxToFlowable(authenticationFlowContextRepository.findByTransactionId_migrated(TRANSACTION_ID)).test();
         testList.awaitTerminalEvent();
@@ -112,9 +112,9 @@ public class AuthenticationFlowContextRepositoryTest extends AbstractManagementT
     @Test
     public void shouldDeleteSingle() {
         AuthenticationFlowContext entity = generateAuthContext();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authenticationFlowContextRepository.create_migrated(entity))).block();
+        authenticationFlowContextRepository.create_migrated(entity).block();
         entity = generateAuthContext(Instant.now(), 2);
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authenticationFlowContextRepository.create_migrated(entity))).block();
+        authenticationFlowContextRepository.create_migrated(entity).block();
 
         TestSubscriber<AuthenticationFlowContext> testList = RxJava2Adapter.fluxToFlowable(authenticationFlowContextRepository.findByTransactionId_migrated(TRANSACTION_ID)).test();
         testList.awaitTerminalEvent();
@@ -130,7 +130,7 @@ public class AuthenticationFlowContextRepositoryTest extends AbstractManagementT
         testList.assertNoErrors();
         testList.assertValueCount(1);
 
-        AuthenticationFlowContext readValue = RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(authenticationFlowContextRepository.findByTransactionId_migrated(TRANSACTION_ID))).blockFirst();
+        AuthenticationFlowContext readValue = authenticationFlowContextRepository.findByTransactionId_migrated(TRANSACTION_ID).blockFirst();
         assertNotNull(readValue);
         assertEquals("Expected version 2 because version 1 should be deleted", 2, readValue.getVersion());
     }
@@ -138,9 +138,9 @@ public class AuthenticationFlowContextRepositoryTest extends AbstractManagementT
     @Test
     public void shouldFind() {
         AuthenticationFlowContext entity = generateAuthContext();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authenticationFlowContextRepository.create_migrated(entity))).block();
+        authenticationFlowContextRepository.create_migrated(entity).block();
         entity = generateAuthContext(Instant.now(), 2);
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authenticationFlowContextRepository.create_migrated(entity))).block();
+        authenticationFlowContextRepository.create_migrated(entity).block();
 
         TestSubscriber<AuthenticationFlowContext> testList = RxJava2Adapter.fluxToFlowable(authenticationFlowContextRepository.findByTransactionId_migrated(TRANSACTION_ID)).test();
         testList.awaitTerminalEvent();
@@ -165,9 +165,9 @@ public class AuthenticationFlowContextRepositoryTest extends AbstractManagementT
     @Test
     public void shouldNotFindExpiredData() {
         AuthenticationFlowContext entity = generateAuthContext(Instant.now().minus(10, ChronoUnit.MINUTES), 1);
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authenticationFlowContextRepository.create_migrated(entity))).block();
+        authenticationFlowContextRepository.create_migrated(entity).block();
         entity = generateAuthContext(Instant.now(), 2);
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authenticationFlowContextRepository.create_migrated(entity))).block();
+        authenticationFlowContextRepository.create_migrated(entity).block();
 
         TestSubscriber<AuthenticationFlowContext> testList = RxJava2Adapter.fluxToFlowable(authenticationFlowContextRepository.findByTransactionId_migrated(TRANSACTION_ID)).test();
         testList.awaitTerminalEvent();

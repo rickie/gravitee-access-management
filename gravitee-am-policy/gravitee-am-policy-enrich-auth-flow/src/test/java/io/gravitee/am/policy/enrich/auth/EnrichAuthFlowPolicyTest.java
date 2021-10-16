@@ -120,7 +120,7 @@ public class EnrichAuthFlowPolicyTest {
                 new Property("key", "myValue"),
                 new Property("key-tpl", "{#request.params['"+REQUEST_PARAM+"']}")));
 
-        when(authContextRepository.create_migrated(any())).then((arg) -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(arg.getArgument(0)))));
+        when(authContextRepository.create_migrated(any())).then((arg) -> Mono.just(arg.getArgument(0)));
 
         EnrichAuthFlowPolicy enrichAuthFlowPolicy = buildPolicy();
         enrichAuthFlowPolicy.onRequest(request, response, executionContext, policyChain);

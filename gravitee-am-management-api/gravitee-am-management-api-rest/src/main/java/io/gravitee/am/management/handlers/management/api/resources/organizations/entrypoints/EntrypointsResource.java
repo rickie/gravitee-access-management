@@ -66,7 +66,7 @@ public class EntrypointsResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ENTRYPOINT, Acl.LIST))).thenMany(RxJava2Adapter.fluxToFlowable(entrypointService.findAll_migrated(organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterEntrypointInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList())
+        RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ENTRYPOINT, Acl.LIST).thenMany(RxJava2Adapter.fluxToFlowable(entrypointService.findAll_migrated(organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterEntrypointInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList())
                 .subscribe(response::resume, response::resume);
     }
 
@@ -85,7 +85,7 @@ public class EntrypointsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ENTRYPOINT, Acl.CREATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(entrypointService.create_migrated(organizationId, newEntrypoint, authenticatedUser)))))
+        RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ENTRYPOINT, Acl.CREATE).then(entrypointService.create_migrated(organizationId, newEntrypoint, authenticatedUser)))
                 .subscribe(entrypoint -> response.resume(Response
                                 .created(URI.create("/organizations/" + organizationId + "/entrypoints/" + entrypoint.getId()))
                                 .entity(entrypoint)

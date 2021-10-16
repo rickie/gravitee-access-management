@@ -47,7 +47,7 @@ public class AlertTriggerRepositoryTest extends AbstractManagementTest {
     public void testFindById() {
         // create idp
         AlertTrigger alertTrigger = buildAlertTrigger();
-        AlertTrigger alertTriggerCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertTriggerRepository.create_migrated(alertTrigger))).block();
+        AlertTrigger alertTriggerCreated = alertTriggerRepository.create_migrated(alertTrigger).block();
 
         // fetch idp
         TestObserver<AlertTrigger> testObserver = RxJava2Adapter.monoToMaybe(alertTriggerRepository.findById_migrated(alertTriggerCreated.getId())).test();
@@ -78,7 +78,7 @@ public class AlertTriggerRepositoryTest extends AbstractManagementTest {
     public void testUpdate() {
         // create idp
         AlertTrigger alertTrigger = buildAlertTrigger();
-        AlertTrigger alertTriggerCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertTriggerRepository.create_migrated(alertTrigger))).block();
+        AlertTrigger alertTriggerCreated = alertTriggerRepository.create_migrated(alertTrigger).block();
 
         // update idp
         AlertTrigger updatedAlertTrigger = buildAlertTrigger();
@@ -98,7 +98,7 @@ public class AlertTriggerRepositoryTest extends AbstractManagementTest {
     public void testDelete() {
         // create idp
         AlertTrigger alertTrigger = buildAlertTrigger();
-        AlertTrigger alertTriggerCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertTriggerRepository.create_migrated(alertTrigger))).block();
+        AlertTrigger alertTriggerCreated = alertTriggerRepository.create_migrated(alertTrigger).block();
 
         // delete idp
         TestObserver<Void> testObserver1 = RxJava2Adapter.monoToCompletable(alertTriggerRepository.delete_migrated(alertTriggerCreated.getId())).test();
@@ -112,10 +112,10 @@ public class AlertTriggerRepositoryTest extends AbstractManagementTest {
     public void findByCriteria_alertNotifiers() {
         AlertTrigger alertTriggerToCreate = buildAlertTrigger();
         alertTriggerToCreate.setAlertNotifiers(Collections.emptyList());
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertTriggerRepository.create_migrated(alertTriggerToCreate))).block();
+        alertTriggerRepository.create_migrated(alertTriggerToCreate).block();
 
         alertTriggerToCreate = buildAlertTrigger();
-        AlertTrigger alertTriggerCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertTriggerRepository.create_migrated(alertTriggerToCreate))).block();
+        AlertTrigger alertTriggerCreated = alertTriggerRepository.create_migrated(alertTriggerToCreate).block();
 
         AlertTriggerCriteria criteria = new AlertTriggerCriteria();
         criteria.setEnabled(false);
@@ -128,7 +128,7 @@ public class AlertTriggerRepositoryTest extends AbstractManagementTest {
         testObserver1.assertNoValues();
 
         alertTriggerCreated.setEnabled(false);
-        final AlertTrigger alertTriggerUpdated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertTriggerRepository.update_migrated(alertTriggerCreated))).block();
+        final AlertTrigger alertTriggerUpdated = alertTriggerRepository.update_migrated(alertTriggerCreated).block();
         testObserver1 = RxJava2Adapter.fluxToFlowable(alertTriggerRepository.findByCriteria_migrated(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).test();
         testObserver1.awaitTerminalEvent();
         testObserver1.assertComplete();
@@ -139,7 +139,7 @@ public class AlertTriggerRepositoryTest extends AbstractManagementTest {
     @Test
     public void findByCriteria_type() {
         AlertTrigger alertTriggerToCreate = buildAlertTrigger();
-        AlertTrigger alertTriggerCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertTriggerRepository.create_migrated(alertTriggerToCreate))).block();
+        AlertTrigger alertTriggerCreated = alertTriggerRepository.create_migrated(alertTriggerToCreate).block();
 
         AlertTriggerCriteria criteria = new AlertTriggerCriteria();
         criteria.setEnabled(true);
@@ -163,8 +163,8 @@ public class AlertTriggerRepositoryTest extends AbstractManagementTest {
         AlertTrigger alertTriggerToCreate1 = buildAlertTrigger();
         AlertTrigger alertTriggerToCreate2 = buildAlertTrigger();
         alertTriggerToCreate2.setReferenceId("domain#2");
-        AlertTrigger alertTriggerCreated1 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertTriggerRepository.create_migrated(alertTriggerToCreate1))).block();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertTriggerRepository.create_migrated(alertTriggerToCreate2))).block();
+        AlertTrigger alertTriggerCreated1 = alertTriggerRepository.create_migrated(alertTriggerToCreate1).block();
+        alertTriggerRepository.create_migrated(alertTriggerToCreate2).block();
 
         testObserver1 = RxJava2Adapter.fluxToFlowable(alertTriggerRepository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID)).test();
 
@@ -184,8 +184,8 @@ public class AlertTriggerRepositoryTest extends AbstractManagementTest {
         AlertTrigger alertTriggerToCreate1 = buildAlertTrigger();
         AlertTrigger alertTriggerToCreate2 = buildAlertTrigger();
         alertTriggerToCreate2.setReferenceId("domain#2");
-        AlertTrigger alertTriggerCreated1 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertTriggerRepository.create_migrated(alertTriggerToCreate1))).block();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertTriggerRepository.create_migrated(alertTriggerToCreate2))).block();
+        AlertTrigger alertTriggerCreated1 = alertTriggerRepository.create_migrated(alertTriggerToCreate1).block();
+        alertTriggerRepository.create_migrated(alertTriggerToCreate2).block();
 
         final AlertTriggerCriteria criteria = new AlertTriggerCriteria();
         criteria.setAlertNotifierIds(Collections.emptyList());

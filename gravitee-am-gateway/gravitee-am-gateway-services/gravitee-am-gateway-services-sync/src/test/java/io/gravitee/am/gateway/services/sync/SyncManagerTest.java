@@ -91,7 +91,7 @@ public class SyncManagerTest {
 
     @Test
     public void init_test_empty_domains() {
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.empty());
 
         syncManager.refresh();
 
@@ -106,7 +106,7 @@ public class SyncManagerTest {
         domain.setId("domain-1");
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain))));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain));
 
         syncManager.refresh();
 
@@ -125,7 +125,7 @@ public class SyncManagerTest {
         domain2.setId("domain-2");
         domain2.setReferenceId("env-2");
         domain2.setEnabled(true);
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain, domain2))));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain, domain2));
 
         syncManager.refresh();
 
@@ -148,7 +148,7 @@ public class SyncManagerTest {
         domain3.setId("domain-3");
         domain3.setReferenceId("env-3");
         domain3.setEnabled(false);
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain, domain2, domain3))));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain, domain2, domain3));
 
         syncManager.refresh();
 
@@ -163,7 +163,7 @@ public class SyncManagerTest {
         domain.setId("domain-1");
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain))));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain));
 
         syncManager.refresh();
 
@@ -171,7 +171,7 @@ public class SyncManagerTest {
         event.setType(Type.DOMAIN);
         event.setPayload(new Payload("domain-1", ReferenceType.DOMAIN, "domain-1", Action.DELETE));
 
-        when(eventRepository.findByTimeFrame_migrated(any(Long.class), any(Long.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(event))));
+        when(eventRepository.findByTimeFrame_migrated(any(Long.class), any(Long.class))).thenReturn(Flux.just(event));
 
         syncManager.refresh();
 
@@ -187,7 +187,7 @@ public class SyncManagerTest {
         domain.setReferenceId("env-1");
         domain.setEnabled(true);
         domain.setUpdatedAt(new Date(System.currentTimeMillis() - 60 * 1000));
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain))));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain));
 
         syncManager.refresh();
 
@@ -201,8 +201,8 @@ public class SyncManagerTest {
         domainToUpdate.setEnabled(true);
         domainToUpdate.setUpdatedAt(new Date());
 
-        when(eventRepository.findByTimeFrame_migrated(any(Long.class), any(Long.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(event))));
-        when(domainRepository.findById_migrated(domainToUpdate.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domainToUpdate))));
+        when(eventRepository.findByTimeFrame_migrated(any(Long.class), any(Long.class))).thenReturn(Flux.just(event));
+        when(domainRepository.findById_migrated(domainToUpdate.getId())).thenReturn(Mono.just(domainToUpdate));
         when(securityDomainManager.get(domainToUpdate.getId())).thenReturn(domain);
 
         syncManager.refresh();
@@ -214,14 +214,14 @@ public class SyncManagerTest {
 
     @Test
     public void shouldPropagateEvents() {
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.empty());
         syncManager.refresh();
 
         Event event = new Event();
         event.setType(Type.IDENTITY_PROVIDER);
         event.setPayload(new Payload("idp-1", ReferenceType.DOMAIN, "domain-1", Action.UPDATE));
 
-        when(eventRepository.findByTimeFrame_migrated(any(Long.class), any(Long.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(event))));
+        when(eventRepository.findByTimeFrame_migrated(any(Long.class), any(Long.class))).thenReturn(Flux.just(event));
 
         syncManager.refresh();
 
@@ -283,8 +283,8 @@ public class SyncManagerTest {
         domain.setEnabled(true);
 
         when(environment.getProperty(ENVIRONMENTS_SYSTEM_PROPERTY)).thenReturn("dev,prod");
-        when(environmentRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(env))));
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain))));
+        when(environmentRepository.findAll_migrated()).thenReturn(Flux.just(env));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain));
 
         syncManager.afterPropertiesSet();
         syncManager.refresh();
@@ -312,8 +312,8 @@ public class SyncManagerTest {
         domain2.setEnabled(true);
 
         when(environment.getProperty(ENVIRONMENTS_SYSTEM_PROPERTY)).thenReturn("dev,prod");
-        when(environmentRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(env))));
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain, domain2))));
+        when(environmentRepository.findAll_migrated()).thenReturn(Flux.just(env));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain, domain2));
 
         syncManager.afterPropertiesSet();
         syncManager.refresh();
@@ -343,8 +343,8 @@ public class SyncManagerTest {
         domain2.setEnabled(true);
 
         when(environment.getProperty(ENVIRONMENTS_SYSTEM_PROPERTY)).thenReturn("dev,prod");
-        when(environmentRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(env, env2))));
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain, domain2))));
+        when(environmentRepository.findAll_migrated()).thenReturn(Flux.just(env, env2));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain, domain2));
 
         syncManager.afterPropertiesSet();
         syncManager.refresh();
@@ -374,8 +374,8 @@ public class SyncManagerTest {
         domain2.setEnabled(true);
 
         when(environment.getProperty(ENVIRONMENTS_SYSTEM_PROPERTY)).thenReturn("dev");
-        when(environmentRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(env, env2))));
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain, domain2))));
+        when(environmentRepository.findAll_migrated()).thenReturn(Flux.just(env, env2));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain, domain2));
 
         syncManager.afterPropertiesSet();
         syncManager.refresh();
@@ -409,9 +409,9 @@ public class SyncManagerTest {
         domain2.setEnabled(true);
 
         when(environment.getProperty(ORGANIZATIONS_SYSTEM_PROPERTY)).thenReturn("gravitee");
-        when(organizationRepository.findByHrids_migrated(anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(organization))));
-        when(environmentRepository.findAll_migrated(organization.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(env, env2))));
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain, domain2))));
+        when(organizationRepository.findByHrids_migrated(anyList())).thenReturn(Flux.just(organization));
+        when(environmentRepository.findAll_migrated(organization.getId())).thenReturn(Flux.just(env, env2));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain, domain2));
 
         syncManager.afterPropertiesSet();
         syncManager.refresh();
@@ -465,10 +465,10 @@ public class SyncManagerTest {
         domain4.setEnabled(true);
 
         when(environment.getProperty(ORGANIZATIONS_SYSTEM_PROPERTY)).thenReturn("gravitee,gravitee2");
-        when(organizationRepository.findByHrids_migrated(anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(organization, organization2))));
-        when(environmentRepository.findAll_migrated(organization.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(env, env2))));
-        when(environmentRepository.findAll_migrated(organization2.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(env3, env4))));
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain, domain2, domain3, domain4))));
+        when(organizationRepository.findByHrids_migrated(anyList())).thenReturn(Flux.just(organization, organization2));
+        when(environmentRepository.findAll_migrated(organization.getId())).thenReturn(Flux.just(env, env2));
+        when(environmentRepository.findAll_migrated(organization2.getId())).thenReturn(Flux.just(env3, env4));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain, domain2, domain3, domain4));
 
         syncManager.afterPropertiesSet();
         syncManager.refresh();
@@ -526,10 +526,10 @@ public class SyncManagerTest {
 
         when(environment.getProperty(ORGANIZATIONS_SYSTEM_PROPERTY)).thenReturn("gravitee,gravitee2");
         when(environment.getProperty(ENVIRONMENTS_SYSTEM_PROPERTY)).thenReturn("dev");
-        when(organizationRepository.findByHrids_migrated(anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(organization, organization2))));
-        when(environmentRepository.findAll_migrated(organization.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(env, env2))));
-        when(environmentRepository.findAll_migrated(organization2.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(env3, env4))));
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain, domain2, domain3, domain4))));
+        when(organizationRepository.findByHrids_migrated(anyList())).thenReturn(Flux.just(organization, organization2));
+        when(environmentRepository.findAll_migrated(organization.getId())).thenReturn(Flux.just(env, env2));
+        when(environmentRepository.findAll_migrated(organization2.getId())).thenReturn(Flux.just(env3, env4));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain, domain2, domain3, domain4));
 
         syncManager.afterPropertiesSet();
         syncManager.refresh();
@@ -589,10 +589,10 @@ public class SyncManagerTest {
         when(environment.getProperty(ORGANIZATIONS_SYSTEM_PROPERTY)).thenReturn("gravitee,gravitee2");
         when(environment.getProperty(ENVIRONMENTS_SYSTEM_PROPERTY)).thenReturn("dev");
         when(environment.getProperty(SHARDING_TAGS_SYSTEM_PROPERTY)).thenReturn("private");
-        when(organizationRepository.findByHrids_migrated(anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(organization, organization2))));
-        when(environmentRepository.findAll_migrated(organization.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(env, env2))));
-        when(environmentRepository.findAll_migrated(organization2.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(env3, env4))));
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain, domain2, domain3, domain4))));
+        when(organizationRepository.findByHrids_migrated(anyList())).thenReturn(Flux.just(organization, organization2));
+        when(environmentRepository.findAll_migrated(organization.getId())).thenReturn(Flux.just(env, env2));
+        when(environmentRepository.findAll_migrated(organization2.getId())).thenReturn(Flux.just(env3, env4));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain, domain2, domain3, domain4));
 
         syncManager.afterPropertiesSet();
         syncManager.refresh();
@@ -612,7 +612,7 @@ public class SyncManagerTest {
         domain.setEnabled(true);
         domain.setTags(new HashSet<>(Arrays.asList(domainTags)));
 
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain))));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(domain));
 
         syncManager.refresh();
 

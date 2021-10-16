@@ -47,7 +47,7 @@ public class SystemRoleResourceTest extends JerseySpringTest {
         mockRole.setId(roleId);
         mockRole.setName("role-name");
 
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(mockRole)))).when(roleService).findById_migrated(ReferenceType.PLATFORM, Platform.DEFAULT, roleId);
+        doReturn(Mono.just(mockRole)).when(roleService).findById_migrated(ReferenceType.PLATFORM, Platform.DEFAULT, roleId);
 
         final Response response = target("platform").path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -61,7 +61,7 @@ public class SystemRoleResourceTest extends JerseySpringTest {
 
         final String roleId = "role-id";
 
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new RoleNotFoundException(roleId))))).when(roleService).findById_migrated(ReferenceType.PLATFORM, Platform.DEFAULT, roleId);
+        doReturn(Mono.error(new RoleNotFoundException(roleId))).when(roleService).findById_migrated(ReferenceType.PLATFORM, Platform.DEFAULT, roleId);
 
         final Response response = target("platform").path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());

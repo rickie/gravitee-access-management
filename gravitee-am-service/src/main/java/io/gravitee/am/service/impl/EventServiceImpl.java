@@ -76,7 +76,7 @@ public class EventServiceImpl implements EventService {
 @Override
     public Mono<List<Event>> findByTimeFrame_migrated(long from, long to) {
         LOGGER.debug("Find events with time frame {} and {}", from, to);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(eventRepository.findByTimeFrame_migrated(from, to))).collectList())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventRepository.findByTimeFrame_migrated(from, to).collectList())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));

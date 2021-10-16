@@ -35,7 +35,7 @@ public interface UserProvider extends Service<UserProvider> {
 default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.User> findByEmail(java.lang.String email) {
     return RxJava2Adapter.monoToMaybe(findByEmail_migrated(email));
 }default Mono<User> findByEmail_migrated(String email) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        return Mono.empty();
     }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

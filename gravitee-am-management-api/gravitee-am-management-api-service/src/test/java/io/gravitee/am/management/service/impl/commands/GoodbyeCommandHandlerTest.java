@@ -64,7 +64,7 @@ public class GoodbyeCommandHandlerTest extends TestCase {
     public void handle() {
         GoodbyeCommand command = new GoodbyeCommand();
         final Installation installation = new Installation();
-        when(installationService.addAdditionalInformation_migrated(any(Map.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(installation))));
+        when(installationService.addAdditionalInformation_migrated(any(Map.class))).thenReturn(Mono.just(installation));
 
         TestObserver<GoodbyeReply> obs = cut.handle(command).test();
 
@@ -81,7 +81,7 @@ public class GoodbyeCommandHandlerTest extends TestCase {
     public void handleWithException() {
         GoodbyeCommand command = new GoodbyeCommand();
 
-        when(installationService.addAdditionalInformation_migrated(any(Map.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new RuntimeException("Unexpected error")))));
+        when(installationService.addAdditionalInformation_migrated(any(Map.class))).thenReturn(Mono.error(new RuntimeException("Unexpected error")));
 
         TestObserver<GoodbyeReply> obs = cut.handle(command).test();
 

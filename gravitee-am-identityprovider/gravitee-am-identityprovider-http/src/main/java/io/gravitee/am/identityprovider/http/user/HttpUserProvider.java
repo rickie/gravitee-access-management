@@ -91,7 +91,7 @@ public class HttpUserProvider implements UserProvider {
         final DefaultUser user = new DefaultUser();
         user.setEmail(email);
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByUser_migrated(usersResourceConfiguration, readResourceConfiguration, user)));
+        return findByUser_migrated(usersResourceConfiguration, readResourceConfiguration, user);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -107,7 +107,7 @@ public class HttpUserProvider implements UserProvider {
         final HttpResourceConfiguration readResourceConfiguration = usersResourceConfiguration.getPaths().getReadResource();
         final DefaultUser user = new DefaultUser(username);
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByUser_migrated(usersResourceConfiguration, readResourceConfiguration, user)));
+        return findByUser_migrated(usersResourceConfiguration, readResourceConfiguration, user);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -153,7 +153,7 @@ public class HttpUserProvider implements UserProvider {
                     }));
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while creating the user {}", user.getUsername(), ex);
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error has occurred while creating the user", ex))));
+            return Mono.error(new TechnicalManagementException("An error has occurred while creating the user", ex));
         }
     }
 
@@ -201,7 +201,7 @@ public class HttpUserProvider implements UserProvider {
                     }));
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while updating the user {}", updateUser.getUsername(), ex);
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error has occurred while updating the user", ex))));
+            return Mono.error(new TechnicalManagementException("An error has occurred while updating the user", ex));
         }
     }
 
@@ -248,7 +248,7 @@ public class HttpUserProvider implements UserProvider {
                     }));
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while deleting the user {}", id, ex);
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException("An error has occurred while deleting the user", ex))));
+            return Mono.error(new TechnicalManagementException("An error has occurred while deleting the user", ex));
         }
     }
 
@@ -289,7 +289,7 @@ private Mono<User> findByUser_migrated(HttpUsersResourceConfiguration usersResou
                     }));
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while searching the user {}", user.getUsername() != null ? user.getUsername() : user.getEmail(), ex);
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error has occurred while searching the user", ex))));
+            return Mono.error(new TechnicalManagementException("An error has occurred while searching the user", ex));
         }
     }
 

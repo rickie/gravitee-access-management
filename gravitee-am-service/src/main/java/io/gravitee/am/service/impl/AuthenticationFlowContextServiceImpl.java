@@ -66,9 +66,9 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
 @Override
     public Mono<Void> clearContext_migrated(final String transactionId) {
         if (transactionId == null) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
+            return Mono.empty();
         }
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(authContextRepository.delete_migrated(transactionId)));
+        return authContextRepository.delete_migrated(transactionId);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadContext_migrated(transactionId, expectedVersion))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -79,7 +79,7 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
 }
 @Override
     public Mono<AuthenticationFlowContext> loadContext_migrated(final String transactionId, final int expectedVersion) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authContextRepository.findLastByTransactionId_migrated(transactionId))).switchIfEmpty(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authContextRepository.findLastByTransactionId_migrated(transactionId).switchIfEmpty(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             AuthenticationFlowContext context = new AuthenticationFlowContext();
             context.setTransactionId(transactionId);
             context.setVersion(0);

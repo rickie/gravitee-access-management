@@ -58,7 +58,7 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
 }
 @Override
     public Mono<SystemTask> findById_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(systemTaskCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(SystemTaskMongo::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(systemTaskCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(SystemTaskMongo::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -71,7 +71,7 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
     public Mono<SystemTask> create_migrated(SystemTask item) {
         SystemTaskMongo task = SystemTaskMongo.convert(item);
         task.setId(task.getId() == null ? RandomString.generate() : task.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.insertOne(task))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(task.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.insertOne(task))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(task.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -82,7 +82,7 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
 }
 @Override
     public Mono<SystemTask> update_migrated(SystemTask item) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("SystemTask can't be updated without control on the operationId"))));
+        return Mono.error(new IllegalStateException("SystemTask can't be updated without control on the operationId"));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateIf_migrated(item, operationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -94,7 +94,7 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
 @Override
     public Mono<SystemTask> updateIf_migrated(SystemTask item, String operationId) {
         SystemTaskMongo task = SystemTaskMongo.convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.replaceOne(and(eq(FIELD_ID, task.getId()), eq(FIELD_OPERATION_ID, operationId)), task))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(task.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(systemTaskCollection.replaceOne(and(eq(FIELD_ID, task.getId()), eq(FIELD_OPERATION_ID, operationId)), task))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(task.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -105,6 +105,6 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(systemTaskCollection.deleteOne(eq(FIELD_ID, id)))));
+        return Mono.from(systemTaskCollection.deleteOne(eq(FIELD_ID, id)));
     }
 }

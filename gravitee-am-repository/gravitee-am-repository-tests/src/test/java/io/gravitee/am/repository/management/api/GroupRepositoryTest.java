@@ -82,7 +82,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindById() {
         Group group = buildGroup();
-        Group createdGroup = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(group))).block();
+        Group createdGroup = repository.create_migrated(group).block();
 
         TestObserver<Group> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdGroup.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -96,7 +96,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindById_WithRef() {
         Group group = buildGroup();
-        Group createdGroup = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(group))).block();
+        Group createdGroup = repository.create_migrated(group).block();
 
         TestObserver<Group> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdGroup.getReferenceType(), createdGroup.getReferenceId(), createdGroup.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -110,7 +110,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldUpdate() {
         Group group = buildGroup();
-        Group createdGroup = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(group))).block();
+        Group createdGroup = repository.create_migrated(group).block();
 
         Group toUpdate = buildGroup();
         toUpdate.setId(createdGroup.getId());
@@ -137,7 +137,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldDelete() {
         Group group = buildGroup();
-        Group createdGroup = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(group))).block();
+        Group createdGroup = repository.create_migrated(group).block();
 
         // validate the creation using findById
         TestObserver<Group> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdGroup.getId())).test();
@@ -153,23 +153,23 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         testDelete.assertComplete();
         testDelete.assertNoErrors();
 
-        final Group existAfterDelete = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdGroup.getId()))).block();
+        final Group existAfterDelete = repository.findById_migrated(createdGroup.getId()).block();
         assertNull(existAfterDelete);
     }
 
     @Test
     public void shouldFindByMember() {
         Group group1 = buildGroup();
-        Group createdGroup1 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(group1))).block();
+        Group createdGroup1 = repository.create_migrated(group1).block();
         final String member1 = group1.getMembers().get(0);
         final String member2 = group1.getMembers().get(1);
 
         Group group2 = buildGroup();
         // create a second group to add the same member as group 1
         group2.getMembers().add(member1);
-        Group createdGroup2 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(group2))).block();
+        Group createdGroup2 = repository.create_migrated(group2).block();
 
-        TestObserver<List<Group>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findByMember_migrated(member1))).collectList()).test();
+        TestObserver<List<Group>> testObserver = RxJava2Adapter.monoToSingle(repository.findByMember_migrated(member1).collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -177,7 +177,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(g -> g.size() == 2);
         testObserver.assertValue(g -> g.stream().map(Group::getId).collect(Collectors.toSet()).containsAll(Arrays.asList(createdGroup1.getId(), createdGroup2.getId())));
 
-        testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findByMember_migrated(member2))).collectList()).test();
+        testObserver = RxJava2Adapter.monoToSingle(repository.findByMember_migrated(member2).collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -188,29 +188,29 @@ public class GroupRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldFindAll() {
-        List<Group> emptyList = RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID))).collectList().block();
+        List<Group> emptyList = repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID).collectList().block();
         assertNotNull(emptyList);
         assertTrue(emptyList.isEmpty());
 
         final int loop = 10;
         for (int i = 0; i < loop; ++i) {
             // build 10 group with random domain
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(buildGroup()))).block();
+            repository.create_migrated(buildGroup()).block();
         }
 
         for (int i = 0; i < loop; ++i) {
             // build 10 group with DOMAIN_ID
             final Group item = buildGroup();
             item.setReferenceId(DOMAIN_ID);
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(item))).block();
+            repository.create_migrated(item).block();
         }
 
-        List<Group> groupOfDomain = RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID))).collectList().block();
+        List<Group> groupOfDomain = repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID).collectList().block();
         assertNotNull(groupOfDomain);
         assertEquals(loop, groupOfDomain.size());
         assertEquals(loop, groupOfDomain.stream().filter(g -> g.getReferenceId().equals(DOMAIN_ID) && g.getReferenceType() == ReferenceType.DOMAIN).count());
 
-        groupOfDomain = RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID))).collectList().block();
+        groupOfDomain = repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID).collectList().block();
         assertNotNull(groupOfDomain);
         assertEquals(loop, groupOfDomain.size());
         assertEquals(loop, groupOfDomain.stream().filter(g -> g.getReferenceId().equals(DOMAIN_ID) && g.getReferenceType() == ReferenceType.DOMAIN).count());
@@ -218,24 +218,24 @@ public class GroupRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldFindAll_WithPage() {
-        List<Group> emptyList = RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID))).collectList().block();
+        List<Group> emptyList = repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID).collectList().block();
         assertNotNull(emptyList);
         assertTrue(emptyList.isEmpty());
 
         final int loop = 10;
         for (int i = 0; i < loop; ++i) {
             // build 10 group with random domain
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(buildGroup()))).block();
+            repository.create_migrated(buildGroup()).block();
         }
 
         for (int i = 0; i < loop; ++i) {
             // build 10 group with DOMAIN_ID
             final Group item = buildGroup();
             item.setReferenceId(DOMAIN_ID);
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(item))).block();
+            repository.create_migrated(item).block();
         }
 
-        Page<Group> groupOfDomain = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID, 0, 20))).block();
+        Page<Group> groupOfDomain = repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID, 0, 20).block();
         assertNotNull(groupOfDomain);
         assertEquals(0, groupOfDomain.getCurrentPage());
         assertEquals(loop, groupOfDomain.getTotalCount());
@@ -245,7 +245,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
 
         final Collection<Group> data = groupOfDomain.getData();
 
-        groupOfDomain = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID, 0, 5))).block();
+        groupOfDomain = repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID, 0, 5).block();
         assertNotNull(groupOfDomain);
         assertEquals(loop, groupOfDomain.getTotalCount());
         assertEquals(0, groupOfDomain.getCurrentPage());
@@ -255,7 +255,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
 
         final Collection<Group> data1 = groupOfDomain.getData();
 
-        groupOfDomain = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID, 1, 5))).block();
+        groupOfDomain = repository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID, 1, 5).block();
         assertNotNull(groupOfDomain);
         assertEquals(loop, groupOfDomain.getTotalCount());
         assertEquals(1, groupOfDomain.getCurrentPage());
@@ -278,13 +278,13 @@ public class GroupRepositoryTest extends AbstractManagementTest {
         List<String> ids = new ArrayList<>();
         for (int i = 0; i < loop; ++i) {
             // build 10 group with random domain
-            Group createdGroup = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(buildGroup()))).block();
+            Group createdGroup = repository.create_migrated(buildGroup()).block();
             if (i %2 == 0) {
                 ids.add(createdGroup.getId());
             }
         }
 
-        final TestObserver<List<Group>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findByIdIn_migrated(ids))).collectList()).test();
+        final TestObserver<List<Group>> testObserver = RxJava2Adapter.monoToSingle(repository.findByIdIn_migrated(ids).collectList()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(lg -> lg.size() == ids.size());
@@ -294,7 +294,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindByName() {
         Group group = buildGroup();
-        Group createdGroup = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(group))).block();
+        Group createdGroup = repository.create_migrated(group).block();
 
         TestObserver<Group> testObserver = RxJava2Adapter.monoToMaybe(repository.findByName_migrated(group.getReferenceType(), group.getReferenceId(), group.getName())).test();
         testObserver.awaitTerminalEvent();
@@ -308,7 +308,7 @@ public class GroupRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindByName_unknown() {
         Group group = buildGroup();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(group))).block();
+        repository.create_migrated(group).block();
 
         TestObserver<Group> testObserver = RxJava2Adapter.monoToMaybe(repository.findByName_migrated(group.getReferenceType(), group.getReferenceId(), "unknown")).test();
         testObserver.awaitTerminalEvent();

@@ -110,7 +110,7 @@ public class AuthorizationRequestEndUserConsentHandlerTest extends RxWebTestBase
         authorizationRequest.setClientId(clientId);
         authorizationRequest.setScopes(Collections.singleton(autoApproveScope));
 
-        when(userConsentService.checkConsent_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet()))));
+        when(userConsentService.checkConsent_migrated(any(), any())).thenReturn(Mono.just(Collections.emptySet()));
 
         router.route().order(-1).handler(routingContext -> {
             routingContext.setUser(new io.vertx.reactivex.ext.auth.User(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user)));
@@ -147,7 +147,7 @@ public class AuthorizationRequestEndUserConsentHandlerTest extends RxWebTestBase
         authorizationRequest.setClientId(clientId);
         authorizationRequest.setScopes(Collections.singleton(autoApproveScope));
 
-        when(userConsentService.checkConsent_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(autoApproveScope)))));
+        when(userConsentService.checkConsent_migrated(any(), any())).thenReturn(Mono.just(Collections.singleton(autoApproveScope)));
 
         router.route().order(-1).handler(routingContext -> {
             routingContext.put("client", client);

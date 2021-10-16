@@ -109,10 +109,10 @@ public class FactorServiceImpl implements FactorService {
 @Override
     public Flux<Factor> findByDomain_migrated(String domain) {
         LOGGER.debug("Find factors by domain: {}", domain);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(factorRepository.findByDomain_migrated(domain))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(factorRepository.findByDomain_migrated(domain))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find factors by domain", ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find factors by domain", ex)));
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, newFactor, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -135,7 +135,7 @@ public class FactorServiceImpl implements FactorService {
         factor.setCreatedAt(new Date());
         factor.setUpdatedAt(factor.getCreatedAt());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factor))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction((Factor  ident) -> RxJava2Adapter.monoToSingle(factorRepository.create_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(factor1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factor))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction((Factor  ident) -> RxJava2Adapter.monoToSingle(factorRepository.create_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(factor1 -> {
                     // create event for sync process
                     Event event = new Event(Type.FACTOR, new Payload(factor1.getId(), ReferenceType.DOMAIN, factor1.getDomain(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(factor1)));
@@ -147,7 +147,7 @@ public class FactorServiceImpl implements FactorService {
 
                     LOGGER.error("An error occurs while trying to create a factor", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a factor", ex)));
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_CREATED).factor(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_CREATED).throwable(throwable))))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_CREATED).factor(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_CREATED).throwable(throwable))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkFactorConfiguration_migrated(factor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -162,11 +162,11 @@ private Mono<Factor> checkFactorConfiguration_migrated(Factor factor) {
             String countryCodes = configuration.getString(CONFIG_KEY_COUNTRY_CODES);
             for(String code : countryCodes.split(",")) {
                 if (!COUNTRY_CODES.contains(code.trim().toUpperCase(Locale.ROOT))) {
-                    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new FactorConfigurationException(CONFIG_KEY_COUNTRY_CODES, code))));
+                    return Mono.error(new FactorConfigurationException(CONFIG_KEY_COUNTRY_CODES, code));
                 }
             }
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(factor)));
+        return Mono.just(factor);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateFactor, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -179,17 +179,17 @@ private Mono<Factor> checkFactorConfiguration_migrated(Factor factor) {
     public Mono<Factor> update_migrated(String domain, String id, UpdateFactor updateFactor, User principal) {
         LOGGER.debug("Update an factor {} for domain {}", id, domain);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(factorRepository.findById_migrated(id))).switchIfEmpty(Mono.error(new FactorNotFoundException(id))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(factorRepository.findById_migrated(id).switchIfEmpty(Mono.error(new FactorNotFoundException(id))))
                 .flatMapSingle(oldFactor -> {
                     Factor factorToUpdate = new Factor(oldFactor);
                     factorToUpdate.setName(updateFactor.getName());
                     factorToUpdate.setConfiguration(updateFactor.getConfiguration());
                     factorToUpdate.setUpdatedAt(new Date());
 
-                    return  RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factorToUpdate))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction((Factor ident) -> RxJava2Adapter.monoToSingle(factorRepository.update_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(factor1 -> {
+                    return  RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factorToUpdate).flatMap(v->factorRepository.update_migrated(v)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(factor1 -> {
                                 // create event for sync process
                                 Event event = new Event(Type.FACTOR, new Payload(factor1.getId(), ReferenceType.DOMAIN, factor1.getDomain(), Action.UPDATE));
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(factor1)));
+                                return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(factor1)));
                             }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_UPDATED).oldValue(oldFactor).factor(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_UPDATED).throwable(throwable)))));
                 })
                 .onErrorResumeNext(ex -> {
@@ -212,7 +212,7 @@ private Mono<Factor> checkFactorConfiguration_migrated(Factor factor) {
     public Mono<Void> delete_migrated(String domain, String factorId, User principal) {
         LOGGER.debug("Delete factor {}", factorId);
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(factorRepository.findById_migrated(factorId))).switchIfEmpty(Mono.error(new FactorNotFoundException(factorId))))
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(factorRepository.findById_migrated(factorId).switchIfEmpty(Mono.error(new FactorNotFoundException(factorId))))
                 .flatMapSingle(factor -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByFactor_migrated(factorId)).count()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Long, SingleSource<Factor>>toJdkFunction(applications -> {
                             if (applications > 0) {
                                 throw new FactorWithApplicationsException();
@@ -221,7 +221,7 @@ private Mono<Factor> checkFactorConfiguration_migrated(Factor factor) {
                         }).apply(v))))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Factor, CompletableSource>)factor -> {
                     // create event for sync process
                     Event event = new Event(Type.FACTOR, new Payload(factorId, ReferenceType.DOMAIN, domain, Action.DELETE));
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(factorRepository.delete_migrated(factorId))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event)))))
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(factorRepository.delete_migrated(factorId).then(eventService.create_migrated(event)))
                             .toCompletable()
                             .doOnComplete(() -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_DELETED).factor(factor)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_DELETED).throwable(throwable)))));
                 }).apply(y)))).then())

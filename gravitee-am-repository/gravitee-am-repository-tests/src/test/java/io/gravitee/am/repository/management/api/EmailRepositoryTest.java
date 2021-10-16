@@ -69,7 +69,7 @@ public class EmailRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindById() {
         Email email = buildEmail();
-        Email createdEmail = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(email))).block();
+        Email createdEmail = repository.create_migrated(email).block();
 
         TestObserver<Email> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdEmail.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -82,7 +82,7 @@ public class EmailRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindById_withRef() {
         Email email = buildEmail();
-        Email createdEmail = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(email))).block();
+        Email createdEmail = repository.create_migrated(email).block();
 
         TestObserver<Email> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdEmail.getReferenceType(), createdEmail.getReferenceId(), createdEmail.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -95,7 +95,7 @@ public class EmailRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldUpdateEmail() {
         Email email = buildEmail();
-        Email createdEmail = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(email))).block();
+        Email createdEmail = repository.create_migrated(email).block();
 
         TestObserver<Email> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdEmail.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -127,7 +127,7 @@ public class EmailRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldDeleteById() {
         Email email = buildEmail();
-        Email createdEmail = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(email))).block();
+        Email createdEmail = repository.create_migrated(email).block();
 
         TestObserver<Email> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdEmail.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -154,12 +154,12 @@ public class EmailRepositoryTest extends AbstractManagementTest {
 
         final int loop = 10;
         List<Email> emails = IntStream.range(0, loop).mapToObj(__ -> buildEmail()).collect(Collectors.toList());
-        emails.forEach(email -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(email))).map(RxJavaReactorMigrationUtil.toJdkFunction(e -> {
+        emails.forEach(email -> repository.create_migrated(email).map(RxJavaReactorMigrationUtil.toJdkFunction(e -> {
             email.setId(e.getId());
             return e;
         })).block());
 
-        TestSubscriber<String> testIdSubscriber = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findAll_migrated())).map(RxJavaReactorMigrationUtil.toJdkFunction(Email::getId))).test();
+        TestSubscriber<String> testIdSubscriber = RxJava2Adapter.fluxToFlowable(repository.findAll_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(Email::getId))).test();
         testIdSubscriber.awaitTerminalEvent();
         testIdSubscriber.assertNoErrors();
         testIdSubscriber.assertValueCount(loop);
@@ -179,15 +179,15 @@ public class EmailRepositoryTest extends AbstractManagementTest {
             email.setReferenceId(FIXED_REF_ID);
             return email;
         }).collect(Collectors.toList());
-        emails.forEach(email -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(email))).map(RxJavaReactorMigrationUtil.toJdkFunction(e -> {
+        emails.forEach(email -> repository.create_migrated(email).map(RxJavaReactorMigrationUtil.toJdkFunction(e -> {
             email.setId(e.getId());
             return e;
         })).block());
 
         // random refId
-        IntStream.range(0, loop).forEach(email -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(buildEmail()))).block());
+        IntStream.range(0, loop).forEach(email -> repository.create_migrated(buildEmail()).block());
 
-        TestSubscriber<String> testIdSubscriber = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findAll_migrated(ReferenceType.DOMAIN, FIXED_REF_ID))).map(RxJavaReactorMigrationUtil.toJdkFunction(Email::getId))).test();
+        TestSubscriber<String> testIdSubscriber = RxJava2Adapter.fluxToFlowable(repository.findAll_migrated(ReferenceType.DOMAIN, FIXED_REF_ID).map(RxJavaReactorMigrationUtil.toJdkFunction(Email::getId))).test();
         testIdSubscriber.awaitTerminalEvent();
         testIdSubscriber.assertNoErrors();
         testIdSubscriber.assertValueCount(loop);
@@ -208,7 +208,7 @@ public class EmailRepositoryTest extends AbstractManagementTest {
             email.setClient(FIXED_CLI_ID);
             return email;
         }).collect(Collectors.toList());
-        emails.forEach(email -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(email))).map(RxJavaReactorMigrationUtil.toJdkFunction(e -> {
+        emails.forEach(email -> repository.create_migrated(email).map(RxJavaReactorMigrationUtil.toJdkFunction(e -> {
             email.setId(e.getId());
             return e;
         })).block());
@@ -216,10 +216,10 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         for (int i = 0; i < loop; i++) {
             final Email email = buildEmail();
             email.setReferenceId(FIXED_REF_ID);
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(email))).block();
+            repository.create_migrated(email).block();
         }
 
-        TestSubscriber<String> testIdSubscriber = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findByClient_migrated(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID))).map(RxJavaReactorMigrationUtil.toJdkFunction(Email::getId))).test();
+        TestSubscriber<String> testIdSubscriber = RxJava2Adapter.fluxToFlowable(repository.findByClient_migrated(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID).map(RxJavaReactorMigrationUtil.toJdkFunction(Email::getId))).test();
         testIdSubscriber.awaitTerminalEvent();
         testIdSubscriber.assertNoErrors();
         testIdSubscriber.assertValueCount(loop);
@@ -237,14 +237,14 @@ public class EmailRepositoryTest extends AbstractManagementTest {
         for (int i = 0; i < loop; i++) {
             final Email email = buildEmail();
             email.setReferenceId(FIXED_REF_ID);
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(email))).block();
+            repository.create_migrated(email).block();
         }
 
         final Email email = buildEmail();
         email.setReferenceId(FIXED_REF_ID);
         email.setTemplate("MyTemplateId");
         email.setClient(null);
-        Email templateEmail = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(email))).block();
+        Email templateEmail = repository.create_migrated(email).block();
 
         TestObserver<Email> testMaybe = RxJava2Adapter.monoToMaybe(repository.findByTemplate_migrated(ReferenceType.DOMAIN, FIXED_REF_ID, "MyTemplateId")).test();
         testMaybe.awaitTerminalEvent();
@@ -264,14 +264,14 @@ public class EmailRepositoryTest extends AbstractManagementTest {
             final Email email = buildEmail();
             email.setReferenceId(FIXED_REF_ID);
             email.setClient(FIXED_CLI_ID);
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(email))).block();
+            repository.create_migrated(email).block();
         }
 
         final Email email = buildEmail();
         email.setReferenceId(FIXED_REF_ID);
         email.setClient(FIXED_CLI_ID);
         email.setTemplate("MyTemplateId");
-        Email templateEmail = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(email))).block();
+        Email templateEmail = repository.create_migrated(email).block();
 
         TestObserver<Email> testMaybe = RxJava2Adapter.monoToMaybe(repository.findByClientAndTemplate_migrated(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID, "MyTemplateId")).test();
         testMaybe.awaitTerminalEvent();

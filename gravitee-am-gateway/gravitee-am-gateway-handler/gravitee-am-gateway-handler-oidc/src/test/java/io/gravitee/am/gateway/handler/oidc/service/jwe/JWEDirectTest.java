@@ -91,8 +91,8 @@ public class JWEDirectTest {
         client.setIdTokenEncryptedResponseAlg("dir");
         client.setIdTokenEncryptedResponseEnc(this.enc);
 
-        when(jwkService.getKeys_migrated(client)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.filter_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(key))));
+        when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.filter_migrated(any(),any())).thenReturn(Mono.just(key));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(jweService.encryptIdToken_migrated("JWT", client)).test();
         testObserver.assertNoErrors();
@@ -122,8 +122,8 @@ public class JWEDirectTest {
         client.setUserinfoEncryptedResponseAlg("dir");
         client.setUserinfoEncryptedResponseEnc(this.enc);
 
-        when(jwkService.getKeys_migrated(client)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.filter_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(key))));
+        when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.filter_migrated(any(),any())).thenReturn(Mono.just(key));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(jweService.encryptUserinfo_migrated("JWT", client)).test();
         testObserver.assertNoErrors();
@@ -152,8 +152,8 @@ public class JWEDirectTest {
         client.setIdTokenEncryptedResponseAlg("dir");
         client.setIdTokenEncryptedResponseEnc(this.enc);
 
-        when(jwkService.getKeys_migrated(client)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.filter_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(key))));
+        when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.filter_migrated(any(),any())).thenReturn(Mono.just(key));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(jweService.encryptIdToken_migrated("JWT", client)).test();
         testObserver.assertError(ServerErrorException.class);
@@ -177,8 +177,8 @@ public class JWEDirectTest {
         client.setUserinfoEncryptedResponseAlg("dir");
         client.setUserinfoEncryptedResponseEnc(this.enc);
 
-        when(jwkService.getKeys_migrated(client)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.filter_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(key))));
+        when(jwkService.getKeys_migrated(client)).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.filter_migrated(any(),any())).thenReturn(Mono.just(key));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(jweService.encryptUserinfo_migrated("JWT", client)).test();
         testObserver.assertError(ServerErrorException.class);

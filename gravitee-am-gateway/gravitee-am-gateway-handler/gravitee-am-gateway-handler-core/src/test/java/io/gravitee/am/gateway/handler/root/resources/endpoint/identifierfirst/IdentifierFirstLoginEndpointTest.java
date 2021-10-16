@@ -100,7 +100,7 @@ public class IdentifierFirstLoginEndpointTest extends RxWebTestBase {
     @Test
     public void mustInvokeIdentifierFirstLoginEndpoint() throws Exception {
         router.route(HttpMethod.GET, "/login/identifier").handler(get200AssertMockRoutingContextHandler(identifierFirstLoginEndpoint));
-        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(appClient))));
+        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(Mono.just(appClient));
         testRequest(
                 HttpMethod.GET, "/login/identifier?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.OK_200, "OK");
@@ -115,7 +115,7 @@ public class IdentifierFirstLoginEndpointTest extends RxWebTestBase {
 
     @Test
     public void mustNotInvokeIdentifierFirstLoginEndpoint_wrongClientId() throws Exception {
-        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(Mono.empty());
         testRequest(
                 HttpMethod.GET, "/login/identifier?client_id=" + appClient.getClientId(),
                 HttpStatusCode.BAD_REQUEST_400, "Bad Request");

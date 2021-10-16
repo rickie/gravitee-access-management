@@ -84,14 +84,14 @@ private Single<List<Scope>> upgradeDomain(Domain domain) {
 }
 private Mono<List<Scope>> upgradeDomain_migrated(Domain domain) {
         logger.info("Looking for scopes for domain id[{}] name[{}]", domain.getId(), domain.getName());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE))).flatMap(v->RxJava2Adapter.singleToMono((Single<List<Scope>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Page<Scope>, Single<List<Scope>>>)scopes -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE))).flatMap(v->RxJava2Adapter.singleToMono((Single<List<Scope>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Page<Scope>, Single<List<Scope>>>)scopes -> {
                     if (scopes.getData().isEmpty()) {
                         logger.info("No scope found for domain id[{}] name[{}]. Upgrading...", domain.getId(), domain.getName());
                         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(createAppScopes_migrated(domain))).flatMap(irrelevant->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(createRoleScopes_migrated(domain)))));
                     }
                     logger.info("No scope to update, skip upgrade");
                     return RxJava2Adapter.monoToSingle(Mono.just(new ArrayList<>(scopes.getData())));
-                }).apply(v)))));
+                }).apply(v)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createAppScopes_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -100,7 +100,7 @@ private Single<List<Scope>> createAppScopes(Domain domain) {
  return RxJava2Adapter.monoToSingle(createAppScopes_migrated(domain));
 }
 private Mono<List<Scope>> createAppScopes_migrated(Domain domain) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.findByDomain_migrated(domain.getId()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(applications -> applications != null)))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.monoToMaybe(applicationService.findByDomain_migrated(domain.getId()).filter(RxJavaReactorMigrationUtil.toJdkPredicate(applications -> applications != null)))
                 .flatMapObservable(Observable::fromIterable), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(app -> app.getSettings() != null && app.getSettings().getOauth() != null)).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<Application, ObservableSource<String>>toJdkFunction(app -> Observable.fromIterable(app.getSettings().getOauth().getScopes())).apply(z)), BackpressureStrategy.BUFFER)))
                 .flatMapSingle(scope -> RxJava2Adapter.monoToSingle(createScope_migrated(domain.getId(), scope)))
                 .toList());
@@ -112,7 +112,7 @@ private Single<List<Scope>> createRoleScopes(Domain domain) {
  return RxJava2Adapter.monoToSingle(createRoleScopes_migrated(domain));
 }
 private Mono<List<Scope>> createRoleScopes_migrated(Domain domain) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.findByDomain_migrated(domain.getId()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(roles -> roles != null)))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.monoToMaybe(roleService.findByDomain_migrated(domain.getId()).filter(RxJavaReactorMigrationUtil.toJdkPredicate(roles -> roles != null)))
                 .flatMapObservable(Observable::fromIterable), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role -> role.getOauthScopes() != null)).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<Role, ObservableSource<String>>toJdkFunction(role -> Observable.fromIterable(role.getOauthScopes())).apply(z)), BackpressureStrategy.BUFFER)))
                 .flatMapSingle(scope -> RxJava2Adapter.monoToSingle(createScope_migrated(domain.getId(), scope)))
                 .toList());
@@ -124,7 +124,7 @@ private Single<Scope> createScope(String domain, String scopeKey) {
  return RxJava2Adapter.monoToSingle(createScope_migrated(domain, scopeKey));
 }
 private Mono<Scope> createScope_migrated(String domain, String scopeKey) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.findByDomain_migrated(domain, 0, Integer.MAX_VALUE))).flatMap(v->RxJava2Adapter.singleToMono((Single<Scope>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Page<Scope>, Single<Scope>>)scopes -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.findByDomain_migrated(domain, 0, Integer.MAX_VALUE))).flatMap(v->RxJava2Adapter.singleToMono((Single<Scope>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Page<Scope>, Single<Scope>>)scopes -> {
                     Optional<Scope> optScope = scopes.getData().stream().filter(scope -> scope.getKey().equalsIgnoreCase(scopeKey)).findFirst();
                     if (!optScope.isPresent()) {
                         logger.info("Create a new scope key[{}] for domain[{}]", scopeKey, domain);
@@ -135,7 +135,7 @@ private Mono<Scope> createScope_migrated(String domain, String scopeKey) {
                         return RxJava2Adapter.monoToSingle(scopeService.create_migrated(domain, scope));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(optScope.get()));
-                }).apply(v)))));
+                }).apply(v)));
     }
 
     @Override

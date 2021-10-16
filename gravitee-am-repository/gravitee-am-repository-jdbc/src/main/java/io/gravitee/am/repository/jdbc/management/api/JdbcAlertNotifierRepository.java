@@ -68,7 +68,7 @@ public class JdbcAlertNotifierRepository extends AbstractJdbcRepository implemen
     public Mono<AlertNotifier> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.alertNotifierRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.maybeToMono(this.alertNotifierRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(alertNotifier))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -82,11 +82,11 @@ public class JdbcAlertNotifierRepository extends AbstractJdbcRepository implemen
         alertNotifier.setId(alertNotifier.getId() == null ? RandomString.generate() : alertNotifier.getId());
         LOGGER.debug("create alert notifier with id {}", alertNotifier.getId());
 
-        return RxJava2Adapter.singleToMono(monoToSingle(dbClient.insert()
+        return dbClient.insert()
                 .into(JdbcAlertNotifier.class)
                 .using(toJdbcAlertNotifier(alertNotifier))
                 .then()
-                .then(maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(alertNotifier.getId()))))));
+                .then(maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(alertNotifier.getId()))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(alertNotifier))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -99,11 +99,11 @@ public class JdbcAlertNotifierRepository extends AbstractJdbcRepository implemen
     public Mono<AlertNotifier> update_migrated(AlertNotifier alertNotifier) {
         LOGGER.debug("update alert notifier with id {}", alertNotifier.getId());
 
-        return RxJava2Adapter.singleToMono(monoToSingle(dbClient.update()
+        return dbClient.update()
                 .table(JdbcAlertNotifier.class)
                 .using(toJdbcAlertNotifier(alertNotifier))
                 .matching(from(where("id").is(alertNotifier.getId()))).then()
-                .then(maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(alertNotifier.getId()))))));
+                .then(maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(alertNotifier.getId()))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -126,7 +126,7 @@ public class JdbcAlertNotifierRepository extends AbstractJdbcRepository implemen
 }
 @Override
     public Flux<AlertNotifier> findAll_migrated(ReferenceType referenceType, String referenceId) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, new AlertNotifierCriteria())));
+        return findByCriteria_migrated(referenceType, referenceId, new AlertNotifierCriteria());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

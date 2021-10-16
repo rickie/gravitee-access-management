@@ -139,7 +139,7 @@ public class EnrichProfilePolicyTest {
         User user = mock(User.class);
         when(executionContext.getAttribute("user")).thenReturn(user);
 
-        when(userRepository.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new RuntimeException("Exception thrown for test")))));
+        when(userRepository.update_migrated(any())).thenReturn(Mono.error(new RuntimeException("Exception thrown for test")));
 
 
         new EnrichProfilePolicy(configuration){
@@ -181,7 +181,7 @@ public class EnrichProfilePolicyTest {
         when(user.getAdditionalInformation()).thenReturn(additionalInformation);
         when(executionContext.getAttribute("user")).thenReturn(user);
 
-        when(userRepository.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(userRepository.update_migrated(any())).thenReturn(Mono.just(user));
 
         EnrichProfilePolicy enrichProfilePolicy = new EnrichProfilePolicy(configuration);
         enrichProfilePolicy.onRequest(request, response, executionContext, policyChain);

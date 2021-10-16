@@ -90,7 +90,7 @@ public class TokenServiceImpl implements TokenService {
 @Override
     public Mono<TotalToken> findTotalTokensByApplication_migrated(Application application) {
         LOGGER.debug("Find total tokens by application : {}", application);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(countByClientId_migrated(application))).map(RxJavaReactorMigrationUtil.toJdkFunction(totalAccessTokens -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(countByClientId_migrated(application).map(RxJavaReactorMigrationUtil.toJdkFunction(totalAccessTokens -> {
                     TotalToken totalToken = new TotalToken();
                     totalToken.setTotalAccessTokens(totalAccessTokens);
                     return totalToken;
@@ -134,7 +134,7 @@ public class TokenServiceImpl implements TokenService {
 @Override
     public Mono<Void> deleteByUserId_migrated(String userId) {
         LOGGER.debug("Delete tokens by user : {}", userId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(accessTokenRepository.deleteByUserId_migrated(userId))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(refreshTokenRepository.deleteByUserId_migrated(userId)))))
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(accessTokenRepository.deleteByUserId_migrated(userId).then(refreshTokenRepository.deleteByUserId_migrated(userId)))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to delete tokens by user {}", userId, ex);
                     return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
@@ -149,11 +149,11 @@ private Single<Long> countByClientId(Application application) {
 }
 private Mono<Long> countByClientId_migrated(Application application) {
         if (application.getSettings() == null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(0l)));
+            return Mono.just(0l);
         }
         if (application.getSettings().getOauth() == null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(0l)));
+            return Mono.just(0l);
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accessTokenRepository.countByClientId_migrated(application.getSettings().getOauth().getClientId())));
+        return accessTokenRepository.countByClientId_migrated(application.getSettings().getOauth().getClientId());
     }
 }

@@ -53,7 +53,7 @@ public class DomainsResourceTest extends JerseySpringTest {
         mockDomain2.setId("domain-id-2");
         mockDomain2.setName("domain-name-2");
 
-        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(mockDomain, mockDomain2)))).when(domainService).findAllByEnvironment_migrated(eq(Organization.DEFAULT), eq(Environment.DEFAULT));
+        doReturn(Flux.just(mockDomain, mockDomain2)).when(domainService).findAllByEnvironment_migrated(eq(Organization.DEFAULT), eq(Environment.DEFAULT));
 
         final Response response = target("domains").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -64,7 +64,7 @@ public class DomainsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetDomains_technicalManagementException() {
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("error occurs"))))).when(domainService).findAll_migrated();
+        doReturn(Mono.error(new TechnicalManagementException("error occurs"))).when(domainService).findAll_migrated();
 
         final Response response = target("domains").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -79,9 +79,9 @@ public class DomainsResourceTest extends JerseySpringTest {
         domain.setId("domain-id");
         domain.setName("domain-name");
 
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(domain)))).when(domainService).create_migrated(eq("DEFAULT"), eq("DEFAULT"), any(), any());
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new IdentityProvider())))).when(identityProviderManager).create_migrated(domain.getId());
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Reporter())))).when(reporterService).createDefault_migrated(domain.getId());
+        doReturn(Mono.just(domain)).when(domainService).create_migrated(eq("DEFAULT"), eq("DEFAULT"), any(), any());
+        doReturn(Mono.just(new IdentityProvider())).when(identityProviderManager).create_migrated(domain.getId());
+        doReturn(Mono.just(new Reporter())).when(reporterService).createDefault_migrated(domain.getId());
 
         final Response response = target("domains").request().post(Entity.json(newDomain));
         assertEquals(HttpStatusCode.CREATED_201, response.getStatus());

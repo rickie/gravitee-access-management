@@ -93,7 +93,7 @@ public class UserConsentEndpoint implements Handler<RoutingContext> {
         if (prompt) {
             consentInformation = RxJava2Adapter.monoToSingle(userConsentService.getConsentInformation_migrated(requestedConsents));
         } else {
-            consentInformation = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userConsentService.checkConsent_migrated(client, user))).flatMap(v->RxJava2Adapter.singleToMono((Single<List<Scope>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Set<String>, Single<List<Scope>>>)approvedConsent -> {
+            consentInformation = RxJava2Adapter.monoToSingle(userConsentService.checkConsent_migrated(client, user).flatMap(v->RxJava2Adapter.singleToMono((Single<List<Scope>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Set<String>, Single<List<Scope>>>)approvedConsent -> {
                         // user approved consent, continue
                         if (approvedConsent.containsAll(requestedConsents)) {
                             //redirectToAuthorize

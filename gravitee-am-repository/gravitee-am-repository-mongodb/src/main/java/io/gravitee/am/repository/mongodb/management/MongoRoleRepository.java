@@ -70,7 +70,7 @@ public class MongoRoleRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Flux<Role> findAll_migrated(ReferenceType referenceType, String referenceId) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(rolesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType == null ? null : referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(rolesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType == null ? null : referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -122,7 +122,7 @@ public class MongoRoleRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Flux<Role> findByIdIn_migrated(List<String> ids) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(rolesCollection.find(in(FIELD_ID, ids))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(rolesCollection.find(in(FIELD_ID, ids))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, role))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -133,7 +133,7 @@ public class MongoRoleRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Mono<Role> findById_migrated(ReferenceType referenceType, String referenceId, String role) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(rolesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, role))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(rolesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, role))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(role))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -144,7 +144,7 @@ public class MongoRoleRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Mono<Role> findById_migrated(String role) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(rolesCollection.find(eq(FIELD_ID, role)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(rolesCollection.find(eq(FIELD_ID, role)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -157,7 +157,7 @@ public class MongoRoleRepository extends AbstractManagementMongoRepository imple
     public Mono<Role> create_migrated(Role item) {
         RoleMongo role = convert(item);
         role.setId(role.getId() == null ? RandomString.generate() : role.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(rolesCollection.insertOne(role))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(role.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(rolesCollection.insertOne(role))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(role.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -169,7 +169,7 @@ public class MongoRoleRepository extends AbstractManagementMongoRepository imple
 @Override
     public Mono<Role> update_migrated(Role item) {
         RoleMongo role = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(rolesCollection.replaceOne(eq(FIELD_ID, role.getId()), role))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(role.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(rolesCollection.replaceOne(eq(FIELD_ID, role.getId()), role))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(role.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -180,7 +180,7 @@ public class MongoRoleRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(rolesCollection.deleteOne(eq(FIELD_ID, id)))));
+        return Mono.from(rolesCollection.deleteOne(eq(FIELD_ID, id)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByNameAndAssignableType_migrated(referenceType, referenceId, name, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -191,7 +191,7 @@ public class MongoRoleRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Mono<Role> findByNameAndAssignableType_migrated(ReferenceType referenceType, String referenceId, String name, ReferenceType assignableType) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(rolesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_NAME, name), eq(FIELD_ASSIGNABLE_TYPE, assignableType.name()))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(rolesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_NAME, name), eq(FIELD_ASSIGNABLE_TYPE, assignableType.name()))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByNamesAndAssignableType_migrated(referenceType, referenceId, names, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -202,7 +202,7 @@ public class MongoRoleRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Flux<Role> findByNamesAndAssignableType_migrated(ReferenceType referenceType, String referenceId, List<String> names, ReferenceType assignableType) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(rolesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), in(FIELD_NAME, names), eq(FIELD_ASSIGNABLE_TYPE, assignableType.name())))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(rolesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), in(FIELD_NAME, names), eq(FIELD_ASSIGNABLE_TYPE, assignableType.name())))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     private Role convert(RoleMongo roleMongo) {

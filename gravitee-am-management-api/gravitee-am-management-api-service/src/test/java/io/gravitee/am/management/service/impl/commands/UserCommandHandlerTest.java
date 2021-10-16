@@ -91,7 +91,7 @@ public class UserCommandHandlerTest {
                         && newUser.getAdditionalInformation().get("info1").equals(additionalInformation.get("info1"))
                         && newUser.getAdditionalInformation().get("info2").equals(additionalInformation.get("info2"))
                         && newUser.getAdditionalInformation().get(StandardClaims.PICTURE).equals(userPayload.getPicture()))))
-                .thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new User()))));
+                .thenReturn(Mono.just(new User()));
 
         TestObserver<UserReply> obs = cut.handle(command).test();
 
@@ -109,7 +109,7 @@ public class UserCommandHandlerTest {
         userPayload.setOrganizationId("orga#1");
 
         when(userService.createOrUpdate_migrated(eq(ReferenceType.ORGANIZATION), eq("orga#1"), any(NewUser.class)))
-                .thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException()))));
+                .thenReturn(Mono.error(new TechnicalException()));
 
         TestObserver<UserReply> obs = cut.handle(command).test();
 

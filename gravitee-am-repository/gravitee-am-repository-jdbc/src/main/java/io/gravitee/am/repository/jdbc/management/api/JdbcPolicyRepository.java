@@ -44,7 +44,7 @@ public class JdbcPolicyRepository extends AbstractJdbcRepository implements Poli
 }
 @Override
     public Flux<Policy> findAll_migrated() {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        return Flux.empty();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.collectionExists_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -55,7 +55,7 @@ public class JdbcPolicyRepository extends AbstractJdbcRepository implements Poli
 }
 @Override
     public Mono<Boolean> collectionExists_migrated() {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(false)));
+        return Mono.just(false);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteCollection_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -66,6 +66,6 @@ public class JdbcPolicyRepository extends AbstractJdbcRepository implements Poli
 }
 @Override
     public Mono<Void> deleteCollection_migrated() {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        return Mono.empty();
     }
 }

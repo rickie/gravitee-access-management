@@ -48,10 +48,10 @@ public class DomainRepositoryTest extends AbstractManagementTest {
     public void testFindAll() throws TechnicalException {
         // create domain
         Domain domain = initDomain();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.create_migrated(domain))).block();
+        domainRepository.create_migrated(domain).block();
 
         // fetch domains
-        TestObserver<List<Domain>> testObserver1 = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(domainRepository.findAll_migrated())).collectList()).test();
+        TestObserver<List<Domain>> testObserver1 = RxJava2Adapter.monoToSingle(domainRepository.findAll_migrated().collectList()).test();
         testObserver1.awaitTerminalEvent();
 
         testObserver1.assertComplete();
@@ -107,14 +107,14 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         Domain domain = initDomain();
         domain.setReferenceType(ReferenceType.ENVIRONMENT);
         domain.setReferenceId("environment#1");
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.create_migrated(domain))).block();
+        domainRepository.create_migrated(domain).block();
 
         // create domain on different environment.
         Domain otherDomain = initDomain();
         otherDomain.setReferenceType(ReferenceType.ENVIRONMENT);
         otherDomain.setReferenceId("environment#2");
         otherDomain.setVhosts(null);
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.create_migrated(otherDomain))).block();
+        domainRepository.create_migrated(otherDomain).block();
 
         // fetch domains
         TestSubscriber<Domain> testObserver1 = RxJava2Adapter.fluxToFlowable(domainRepository.findAllByReferenceId_migrated("environment#1")).test();
@@ -129,7 +129,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
     public void testFindInIds() {
         // create domain
         Domain domain = initDomain();
-        Domain domainCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.create_migrated(domain))).block();
+        Domain domainCreated = domainRepository.create_migrated(domain).block();
 
         // fetch domains
         TestSubscriber<Domain> testSubscriber = RxJava2Adapter.fluxToFlowable(domainRepository.findByIdIn_migrated(Collections.singleton(domainCreated.getId()))).test();
@@ -144,7 +144,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create domain
         Domain domain = initDomain();
-        Domain domainCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.create_migrated(domain))).block();
+        Domain domainCreated = domainRepository.create_migrated(domain).block();
 
         // fetch domain
         TestObserver<Domain> testObserver = RxJava2Adapter.monoToMaybe(domainRepository.findById_migrated(domainCreated.getId())).test();
@@ -200,7 +200,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create domain
         Domain domain = initDomain();
-        Domain domainCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.create_migrated(domain))).block();
+        Domain domainCreated = domainRepository.create_migrated(domain).block();
 
         // update domain
         Domain updatedDomain = initDomain();
@@ -250,7 +250,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
     public void testDelete() throws TechnicalException {
         // create domain
         Domain domain = initDomain();
-        Domain domainCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.create_migrated(domain))).block();
+        Domain domainCreated = domainRepository.create_migrated(domain).block();
 
         // fetch domain
         TestObserver<Domain> testObserver = RxJava2Adapter.monoToMaybe(domainRepository.findById_migrated(domainCreated.getId())).test();
@@ -270,7 +270,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
     @Test
     public void findByCriteria() {
         Domain domainToCreate = initDomain();
-        Domain domainCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.create_migrated(domainToCreate))).block();
+        Domain domainCreated = domainRepository.create_migrated(domainToCreate).block();
 
         DomainCriteria criteria = new DomainCriteria();
         criteria.setAlertEnabled(true);
@@ -282,7 +282,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         testObserver1.assertNoValues();
 
         domainCreated.setAlertEnabled(true);
-        final Domain domainUpdated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.update_migrated(domainCreated))).block();
+        final Domain domainUpdated = domainRepository.update_migrated(domainCreated).block();
         testObserver1 = RxJava2Adapter.fluxToFlowable(domainRepository.findAllByCriteria_migrated(criteria)).test();
         testObserver1.awaitTerminalEvent();
         testObserver1.assertComplete();
@@ -297,7 +297,7 @@ public class DomainRepositoryTest extends AbstractManagementTest {
         Domain domain = initDomain();
         domain.setReferenceType(ReferenceType.ENVIRONMENT);
         domain.setReferenceId("environment#1");
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.create_migrated(domain))).block();
+        domainRepository.create_migrated(domain).block();
 
         // fetch domains
         TestSubscriber<Domain> testObserver1 = RxJava2Adapter.fluxToFlowable(domainRepository.search_migrated("environment#1", "testName")).test();

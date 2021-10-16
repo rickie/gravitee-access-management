@@ -72,7 +72,7 @@ public class AuthorizationCodeServiceTest {
         User user = new User();
         user.setUsername("my-username-id");
 
-        when(authorizationCodeRepository.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new AuthorizationCode()))));
+        when(authorizationCodeRepository.create_migrated(any())).thenReturn(Mono.just(new AuthorizationCode()));
 
         TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToSingle(authorizationCodeService.create_migrated(authorizationRequest, user)).test();
         testObserver.assertComplete();
@@ -95,9 +95,9 @@ public class AuthorizationCodeServiceTest {
         authorizationCode.setCode("my-code");
         authorizationCode.setClientId("my-client-id");
 
-        when(authorizationCodeRepository.findByCode_migrated(authorizationCode.getCode())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(authorizationCode))));
-        when(authorizationCodeRepository.delete_migrated(authorizationCode.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(authorizationCode))));
-        when(accessTokenRepository.findByAuthorizationCode_migrated(authorizationCode.getCode())).thenReturn(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.empty()), BackpressureStrategy.BUFFER));
+        when(authorizationCodeRepository.findByCode_migrated(authorizationCode.getCode())).thenReturn(Mono.just(authorizationCode));
+        when(authorizationCodeRepository.delete_migrated(authorizationCode.getId())).thenReturn(Mono.just(authorizationCode));
+        when(accessTokenRepository.findByAuthorizationCode_migrated(authorizationCode.getCode())).thenReturn(Flux.empty());
 
         TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToMaybe(authorizationCodeService.remove_migrated(authorizationCode.getCode(), client)).test();
         testObserver.assertComplete();
@@ -132,9 +132,9 @@ public class AuthorizationCodeServiceTest {
 
         List<AccessToken> tokens = Arrays.asList(accessToken, accessToken2);
 
-        when(authorizationCodeRepository.findByCode_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(authorizationCodeRepository.findByCode_migrated(any())).thenReturn(Mono.empty());
         when(accessTokenRepository.findByAuthorizationCode_migrated(anyString())).thenReturn(RxJava2Adapter.observableToFlux(Observable.fromIterable(tokens), BackpressureStrategy.BUFFER));
-        when(accessTokenRepository.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(accessTokenRepository.delete_migrated(anyString())).thenReturn(Mono.empty());
 
         TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToMaybe(authorizationCodeService.remove_migrated(authorizationCode.getCode(), client)).test();
         testObserver.assertError(InvalidGrantException.class);
@@ -170,10 +170,10 @@ public class AuthorizationCodeServiceTest {
 
         List<AccessToken> tokens = Arrays.asList(accessToken, accessToken2);
 
-        when(authorizationCodeRepository.findByCode_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(authorizationCodeRepository.findByCode_migrated(any())).thenReturn(Mono.empty());
         when(accessTokenRepository.findByAuthorizationCode_migrated(anyString())).thenReturn(RxJava2Adapter.observableToFlux(Observable.fromIterable(tokens), BackpressureStrategy.BUFFER));
-        when(accessTokenRepository.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(refreshTokenRepository.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(accessTokenRepository.delete_migrated(anyString())).thenReturn(Mono.empty());
+        when(refreshTokenRepository.delete_migrated(anyString())).thenReturn(Mono.empty());
 
         TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToMaybe(authorizationCodeService.remove_migrated(authorizationCode.getCode(), client)).test();
         testObserver.assertError(InvalidGrantException.class);

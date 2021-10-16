@@ -46,36 +46,36 @@ public static Mono<Void> validate_migrated(VirtualHost vhost, List<String> domai
         String host = vhost.getHost();
 
         if (host == null || "".equals(host)) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host is required"))));
+            return Mono.error(new InvalidVirtualHostException("Host is required"));
         }
 
         String[] split = host.split(":");
         String hostWithoutPort = split[0];
 
         if (!InternetDomainName.isValid(hostWithoutPort)) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host [" + hostWithoutPort + "] is invalid"))));
+            return Mono.error(new InvalidVirtualHostException("Host [" + hostWithoutPort + "] is invalid"));
         }
 
         if(!isValidDomainOrSubDomain(hostWithoutPort, domainRestrictions)) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host [" + hostWithoutPort + "] must be a subdomain of " + domainRestrictions))));
+            return Mono.error(new InvalidVirtualHostException("Host [" + hostWithoutPort + "] must be a subdomain of " + domainRestrictions));
         }
 
         if (host.contains(":") && split.length < 2) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host port for [" + host + "] is invalid"))));
+            return Mono.error(new InvalidVirtualHostException("Host port for [" + host + "] is invalid"));
         }
 
         if (split.length > 1) {
             try {
                 int port = Integer.parseInt(split[1]);
                 if (port < 0 || port > 65535) {
-                    return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host port [" + port + "] is invalid"))));
+                    return Mono.error(new InvalidVirtualHostException("Host port [" + port + "] is invalid"));
                 }
             } catch (NumberFormatException nfe) {
-                return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host port for [" + host + "] is invalid"))));
+                return Mono.error(new InvalidVirtualHostException("Host port for [" + host + "] is invalid"));
             }
         }
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(PathValidator.validate_migrated(vhost.getPath())));
+        return PathValidator.validate_migrated(vhost.getPath());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(VirtualHostValidator.validateDomainVhosts_migrated(domain, domains))", imports = {"io.gravitee.am.service.validators.VirtualHostValidator", "reactor.adapter.rxjava.RxJava2Adapter"})
@@ -119,11 +119,11 @@ public static Mono<Void> validateDomainVhosts_migrated(Domain domain, List<Domai
                 // Check is the domain context path overlap a path of another domain.
                 for (String otherPath : pathsToCheck) {
                     if (overlap(vhost.getPath(), otherPath)) {
-                        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Path [" + vhost.getPath() + "] overlap path defined in another security domain"))));
+                        return Mono.error(new InvalidVirtualHostException("Path [" + vhost.getPath() + "] overlap path defined in another security domain"));
                     }
 
                     if (overlap(otherPath, vhost.getPath())) {
-                        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Path [" + vhost.getPath() + "] is overlapped by another security domain"))));
+                        return Mono.error(new InvalidVirtualHostException("Path [" + vhost.getPath() + "] is overlapped by another security domain"));
                     }
                 }
             }
@@ -135,16 +135,16 @@ public static Mono<Void> validateDomainVhosts_migrated(Domain domain, List<Domai
             // Check is the domain context path overlap a path of another domain.
             for (String otherPath : paths) {
                 if (overlap(domain.getPath(), otherPath)) {
-                    return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Path [" + domain.getPath() + "] overlap path defined in another security domain"))));
+                    return Mono.error(new InvalidVirtualHostException("Path [" + domain.getPath() + "] overlap path defined in another security domain"));
                 }
 
                 if (overlap(otherPath, domain.getPath())) {
-                    return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Path [" + domain.getPath() + "] is overlapped by another security domain"))));
+                    return Mono.error(new InvalidVirtualHostException("Path [" + domain.getPath() + "] is overlapped by another security domain"));
                 }
             }
         }
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        return Mono.empty();
     }
 
     private static boolean overlap(String path, String other) {

@@ -76,14 +76,14 @@ public class ReCaptchaServiceImpl implements ReCaptchaService {
 
         if (!this.isEnabled()) {
             logger.debug("ReCaptchaService is disabled");
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true)));
+            return Mono.just(true);
         }
 
         logger.debug("ReCaptchaService is enabled");
 
         if (token == null || "".equals(token.trim())) {
             logger.debug("Recaptcha token is empty");
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(false)));
+            return Mono.just(false);
         }
 
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.post(URI.create(serviceUrl).toString())

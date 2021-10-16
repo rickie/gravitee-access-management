@@ -105,11 +105,11 @@ public class PermissionServiceTest {
         role.setAssignableType(ReferenceType.ORGANIZATION);
         role.setPermissionAcls(Permission.of(ORGANIZATION, READ));
 
-        when(groupService.findByMember_migrated(user.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(groupService.findByMember_migrated(user.getId())).thenReturn(Flux.empty());
         when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), argThat(criteria -> criteria.getUserId().get().equals(user.getId())
                 && !criteria.getGroupIds().isPresent()
-                && criteria.isLogicalOR()))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(membership))));
-        when(roleService.findByIdIn_migrated(Arrays.asList(membership.getRoleId()))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(role)))));
+                && criteria.isLogicalOR()))).thenReturn(Flux.just(membership));
+        when(roleService.findByIdIn_migrated(Arrays.asList(membership.getRoleId()))).thenReturn(Mono.just(Collections.singleton(role)));
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.hasPermission_migrated(user, of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, Permission.ORGANIZATION, READ)))
                 .test();
@@ -143,11 +143,11 @@ public class PermissionServiceTest {
         group.setReferenceId(ORGANIZATION_ID);
         group.setMembers(Arrays.asList(user.getId()));
 
-        when(groupService.findByMember_migrated(user.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(group))));
+        when(groupService.findByMember_migrated(user.getId())).thenReturn(Flux.just(group));
         when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), argThat(criteria -> criteria.getUserId().get().equals(user.getId())
                 && criteria.getGroupIds().get().equals(Arrays.asList(group.getId()))
-                && criteria.isLogicalOR()))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(membership))));
-        when(roleService.findByIdIn_migrated(Arrays.asList(membership.getRoleId()))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(role)))));
+                && criteria.isLogicalOR()))).thenReturn(Flux.just(membership));
+        when(roleService.findByIdIn_migrated(Arrays.asList(membership.getRoleId()))).thenReturn(Mono.just(Collections.singleton(role)));
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.hasPermission_migrated(user, of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, Permission.ORGANIZATION, READ)))
                 .test();
@@ -163,8 +163,8 @@ public class PermissionServiceTest {
         DefaultUser user = new DefaultUser("user");
         user.setId(USER_ID);
 
-        when(groupService.findByMember_migrated(user.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(groupService.findByMember_migrated(user.getId())).thenReturn(Flux.empty());
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flux.empty());
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.hasPermission_migrated(user, of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, Permission.ORGANIZATION, READ)))
                 .test();
@@ -223,13 +223,13 @@ public class PermissionServiceTest {
         Environment environment = new Environment();
         environment.setOrganizationId(ORGANIZATION_ID);
 
-        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(environment))));
-        when(groupService.findByMember_migrated(user.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(organizationMembership))));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ENVIRONMENT), eq(ENVIRONMENT_ID), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(environmentMembership))));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domainMembership))));
-        when(roleService.findByIdIn_migrated(Arrays.asList(organizationMembership.getRoleId(), environmentMembership.getRoleId(), domainMembership.getRoleId()))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Arrays.asList(organizationRole, environmentRole, domainRole))))));
+        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(Mono.just(domain));
+        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Mono.just(environment));
+        when(groupService.findByMember_migrated(user.getId())).thenReturn(Flux.empty());
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flux.just(organizationMembership));
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ENVIRONMENT), eq(ENVIRONMENT_ID), any(MembershipCriteria.class))).thenReturn(Flux.just(environmentMembership));
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class))).thenReturn(Flux.just(domainMembership));
+        when(roleService.findByIdIn_migrated(Arrays.asList(organizationMembership.getRoleId(), environmentMembership.getRoleId(), domainMembership.getRoleId()))).thenReturn(Mono.just(new HashSet<>(Arrays.asList(organizationRole, environmentRole, domainRole))));
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.hasPermission_migrated(user, and(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, DOMAIN, READ),
                         of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, DOMAIN, READ),
@@ -277,12 +277,12 @@ public class PermissionServiceTest {
         Environment environment = new Environment();
         environment.setOrganizationId(ORGANIZATION_ID);
 
-        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(environment))));
-        when(groupService.findByMember_migrated(user.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(organizationMembership))));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domainMembership))));
-        when(roleService.findByIdIn_migrated(Arrays.asList(organizationMembership.getRoleId(), domainMembership.getRoleId()))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Arrays.asList(organizationRole, domainRole))))));
+        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(Mono.just(domain));
+        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Mono.just(environment));
+        when(groupService.findByMember_migrated(user.getId())).thenReturn(Flux.empty());
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flux.just(organizationMembership));
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class))).thenReturn(Flux.just(domainMembership));
+        when(roleService.findByIdIn_migrated(Arrays.asList(organizationMembership.getRoleId(), domainMembership.getRoleId()))).thenReturn(Mono.just(new HashSet<>(Arrays.asList(organizationRole, domainRole))));
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.hasPermission_migrated(user, and(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, Permission.ORGANIZATION, READ),
                         of(ReferenceType.DOMAIN, DOMAIN_ID, Permission.DOMAIN, READ)))).test();
@@ -329,12 +329,12 @@ public class PermissionServiceTest {
         Environment environment = new Environment();
         environment.setOrganizationId(ORGANIZATION_ID);
 
-        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(environment))));
-        when(groupService.findByMember_migrated(user.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(organizationMembership))));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domainMembership))));
-        when(roleService.findByIdIn_migrated(Arrays.asList(organizationMembership.getRoleId(), domainMembership.getRoleId()))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Arrays.asList(organizationRole, domainRole))))));
+        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(Mono.just(domain));
+        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Mono.just(environment));
+        when(groupService.findByMember_migrated(user.getId())).thenReturn(Flux.empty());
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flux.just(organizationMembership));
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class))).thenReturn(Flux.just(domainMembership));
+        when(roleService.findByIdIn_migrated(Arrays.asList(organizationMembership.getRoleId(), domainMembership.getRoleId()))).thenReturn(Mono.just(new HashSet<>(Arrays.asList(organizationRole, domainRole))));
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.hasPermission_migrated(user, or(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, Permission.ORGANIZATION, READ),
                         of(ReferenceType.DOMAIN, DOMAIN_ID, Permission.DOMAIN, READ)))).test(); // OR instead of AND
@@ -369,12 +369,12 @@ public class PermissionServiceTest {
         Environment environment = new Environment();
         environment.setOrganizationId(ORGANIZATION_ID);
 
-        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(environment))));
-        when(groupService.findByMember_migrated(user.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(membership))));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(roleService.findByIdIn_migrated(Arrays.asList(membership.getRoleId()))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Arrays.asList(role))))));
+        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(Mono.just(domain));
+        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Mono.just(environment));
+        when(groupService.findByMember_migrated(user.getId())).thenReturn(Flux.empty());
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flux.just(membership));
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), any(MembershipCriteria.class))).thenReturn(Flux.empty());
+        when(roleService.findByIdIn_migrated(Arrays.asList(membership.getRoleId()))).thenReturn(Mono.just(new HashSet<>(Arrays.asList(role))));
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.hasPermission_migrated(user, and(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, DOMAIN, READ),
                         of(ReferenceType.DOMAIN, DOMAIN_ID, Permission.DOMAIN, CREATE)))).test();
@@ -402,9 +402,9 @@ public class PermissionServiceTest {
         role.setAssignableType(ReferenceType.ORGANIZATION);// The role is assignable to organization only by affected to an application.
         role.setPermissionAcls(Permission.of(APPLICATION, READ));
 
-        when(groupService.findByMember_migrated(user.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.APPLICATION), eq(APPLICATION_ID), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(membership))));
-        when(roleService.findByIdIn_migrated(Arrays.asList(membership.getRoleId()))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Arrays.asList(role))))));
+        when(groupService.findByMember_migrated(user.getId())).thenReturn(Flux.empty());
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.APPLICATION), eq(APPLICATION_ID), any(MembershipCriteria.class))).thenReturn(Flux.just(membership));
+        when(roleService.findByIdIn_migrated(Arrays.asList(membership.getRoleId()))).thenReturn(Mono.just(new HashSet<>(Arrays.asList(role))));
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.hasPermission_migrated(user, of(ReferenceType.APPLICATION, APPLICATION_ID, APPLICATION, READ)))
                 .test();
@@ -460,9 +460,9 @@ public class PermissionServiceTest {
         group.setReferenceId(ORGANIZATION_ID);
         group.setMembers(Arrays.asList(user.getId()));
 
-        when(groupService.findByMember_migrated(user.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(group))));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(organizationMembership, groupMembership))));
-        when(roleService.findByIdIn_migrated(Arrays.asList(organizationMembership.getRoleId(), groupMembership.getRoleId()))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Arrays.asList(organizationRole, groupRole))))));
+        when(groupService.findByMember_migrated(user.getId())).thenReturn(Flux.just(group));
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flux.just(organizationMembership, groupMembership));
+        when(roleService.findByIdIn_migrated(Arrays.asList(organizationMembership.getRoleId(), groupMembership.getRoleId()))).thenReturn(Mono.just(new HashSet<>(Arrays.asList(organizationRole, groupRole))));
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.hasPermission_migrated(user, of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, Permission.ORGANIZATION, READ, CREATE))).test();
 
@@ -508,9 +508,9 @@ public class PermissionServiceTest {
         group.setReferenceId(ORGANIZATION_ID);
         group.setMembers(Arrays.asList(user.getId()));
 
-        when(groupService.findByMember_migrated(user.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(group))));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(organizationMembership, groupMembership))));
-        when(roleService.findByIdIn_migrated(Arrays.asList(organizationMembership.getRoleId(), groupMembership.getRoleId()))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Arrays.asList(organizationRole, groupRole))))));
+        when(groupService.findByMember_migrated(user.getId())).thenReturn(Flux.just(group));
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(ORGANIZATION_ID), any(MembershipCriteria.class))).thenReturn(Flux.just(organizationMembership, groupMembership));
+        when(roleService.findByIdIn_migrated(Arrays.asList(organizationMembership.getRoleId(), groupMembership.getRoleId()))).thenReturn(Mono.just(new HashSet<>(Arrays.asList(organizationRole, groupRole))));
 
         TestObserver<Map<Permission, Set<Acl>>> obs = RxJava2Adapter.monoToSingle(cut.findAllPermissions_migrated(user, ReferenceType.ORGANIZATION, ORGANIZATION_ID)).test();
 
@@ -533,9 +533,9 @@ public class PermissionServiceTest {
         Environment environment = new Environment();
         environment.setOrganizationId(ORGANIZATION_ID);
 
-        when(applicationService.findById_migrated(eq(APPLICATION_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(application))));
-        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(environment))));
+        when(applicationService.findById_migrated(eq(APPLICATION_ID))).thenReturn(Mono.just(application));
+        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(Mono.just(domain));
+        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Mono.just(environment));
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.haveConsistentReferenceIds_migrated(or(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, APPLICATION, READ),
                 of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, APPLICATION, READ),
@@ -560,9 +560,9 @@ public class PermissionServiceTest {
         Environment environment = new Environment();
         environment.setOrganizationId(ORGANIZATION_ID);
 
-        when(applicationService.findById_migrated(eq(APPLICATION_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(application))));
-        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(environment))));
+        when(applicationService.findById_migrated(eq(APPLICATION_ID))).thenReturn(Mono.just(application));
+        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(Mono.just(domain));
+        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Mono.just(environment));
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.haveConsistentReferenceIds_migrated(or(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, APPLICATION, READ),
                 of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, APPLICATION, READ),
@@ -588,9 +588,9 @@ public class PermissionServiceTest {
         Environment environment = new Environment();
         environment.setOrganizationId(ORGANIZATION_ID);
 
-        when(applicationService.findById_migrated(eq(APPLICATION_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(application))));
-        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(environment))));
+        when(applicationService.findById_migrated(eq(APPLICATION_ID))).thenReturn(Mono.just(application));
+        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(Mono.just(domain));
+        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Mono.just(environment));
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.haveConsistentReferenceIds_migrated(or(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, APPLICATION, READ),
                 of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, APPLICATION, READ),
@@ -612,9 +612,9 @@ public class PermissionServiceTest {
         domain.setReferenceType(ReferenceType.ENVIRONMENT);
         domain.setReferenceId(ENVIRONMENT_ID);
 
-        when(applicationService.findById_migrated(eq(APPLICATION_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(application))));
-        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new EnvironmentNotFoundException(ENVIRONMENT_ID)))));
+        when(applicationService.findById_migrated(eq(APPLICATION_ID))).thenReturn(Mono.just(application));
+        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(Mono.just(domain));
+        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Mono.error(new EnvironmentNotFoundException(ENVIRONMENT_ID)));
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.haveConsistentReferenceIds_migrated(or(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, APPLICATION, READ),
                 of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, APPLICATION, READ),
@@ -653,9 +653,9 @@ public class PermissionServiceTest {
         Environment environment = new Environment();
         environment.setOrganizationId(ORGANIZATION_ID);
 
-        when(applicationService.findById_migrated(eq(APPLICATION_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(application))));
-        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(environment))));
+        when(applicationService.findById_migrated(eq(APPLICATION_ID))).thenReturn(Mono.just(application));
+        when(domainService.findById_migrated(eq(DOMAIN_ID))).thenReturn(Mono.just(domain));
+        when(environmentService.findById_migrated(eq(ENVIRONMENT_ID), eq(ORGANIZATION_ID))).thenReturn(Mono.just(environment));
 
         TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.haveConsistentReferenceIds_migrated(or(of(ReferenceType.ORGANIZATION, ORGANIZATION_ID, APPLICATION, READ),
                 of(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, APPLICATION, READ),

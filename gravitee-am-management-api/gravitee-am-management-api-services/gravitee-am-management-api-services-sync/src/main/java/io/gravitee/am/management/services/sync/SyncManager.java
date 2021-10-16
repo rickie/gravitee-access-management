@@ -62,7 +62,7 @@ public class SyncManager {
 
         // search for events and compute them
         logger.debug("Events synchronization");
-        List<Event> events = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.findByTimeFrame_migrated(lastRefreshAt - lastDelay, nextLastRefreshAt))).block();
+        List<Event> events = eventService.findByTimeFrame_migrated(lastRefreshAt - lastDelay, nextLastRefreshAt).block();
 
         if (events != null && !events.isEmpty()) {
             // Extract only the latest events by type and id

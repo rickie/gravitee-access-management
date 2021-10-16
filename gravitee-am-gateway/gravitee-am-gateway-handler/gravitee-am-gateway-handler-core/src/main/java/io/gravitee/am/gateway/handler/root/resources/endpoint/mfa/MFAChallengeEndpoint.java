@@ -220,7 +220,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
     }
 
     private void saveFactor(User user, Single<EnrolledFactor> enrolledFactor, Handler<AsyncResult<User>> handler) {
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(enrolledFactor).flatMap(factor->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.addFactor_migrated(user.getId(), factor, new DefaultUser(user))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(enrolledFactor).flatMap(factor->userService.addFactor_migrated(user.getId(), factor, new DefaultUser(user))))
                 .subscribe(
                         user1 -> handler.handle(Future.succeededFuture(user1)),
                         error -> handler.handle(Future.failedFuture(error))

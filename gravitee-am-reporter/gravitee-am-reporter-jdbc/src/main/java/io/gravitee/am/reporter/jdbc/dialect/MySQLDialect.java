@@ -60,7 +60,7 @@ public class MySQLDialect extends AbstractDialect {
         // Sequence Generator exist only since MySQL 8.x
         // process multiple queries to build the result
         Map<Long, Long> intervals = intervals(criteria);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Flux.fromIterable(intervals.keySet()).flatMap(slot -> {
+        return Flux.fromIterable(intervals.keySet()).flatMap(slot -> {
             String beginSlot = dateTimeFormatter.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(slot), ZoneId.of(ZoneOffset.UTC.getId())));
             String endSlot = dateTimeFormatter.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(slot + criteria.interval()), ZoneId.of(ZoneOffset.UTC.getId())));
             String query =
@@ -82,7 +82,7 @@ public class MySQLDialect extends AbstractDialect {
             }
 
             return dbClient.execute(query).fetch().all();
-        }).collectList()));
+        }).collectList();
     }
 
     @Override

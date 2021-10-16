@@ -82,7 +82,7 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
                 .or(where("expire_at").isNull()));
         from = from.matching(from(whereClause));
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(from.as(JdbcLoginAttempt.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return from.as(JdbcLoginAttempt.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     private Criteria buildWhereClause(LoginAttemptCriteria criteria) {
@@ -119,7 +119,7 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         Criteria whereClause = buildWhereClause(criteria);
 
         if (!whereClause.isEmpty()) {
-            return RxJava2Adapter.completableToMono(monoToCompletable(dbClient.delete().from(JdbcLoginAttempt.class).matching(from(whereClause)).then()));
+            return dbClient.delete().from(JdbcLoginAttempt.class).matching(from(whereClause)).then();
         }
 
         throw new RepositoryIllegalQueryException("Unable to delete from LoginAttempt without criteria");
@@ -135,7 +135,7 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
     public Mono<LoginAttempt> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -154,7 +154,7 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(item.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single())));
+        return action.flatMap(i->RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(item.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -166,7 +166,7 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
 @Override
     public Mono<LoginAttempt> update_migrated(LoginAttempt item) {
         LOGGER.debug("update loginAttempt with id '{}'", item.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(loginAttemptRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.singleToMono(loginAttemptRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -189,6 +189,6 @@ public Completable purgeExpiredData() {
 public Mono<Void> purgeExpiredData_migrated() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);
-        return RxJava2Adapter.completableToMono(monoToCompletable(dbClient.delete().from(JdbcLoginAttempt.class).matching(where("expire_at").lessThan(now)).then()));
+        return dbClient.delete().from(JdbcLoginAttempt.class).matching(where("expire_at").lessThan(now)).then();
     }
 }

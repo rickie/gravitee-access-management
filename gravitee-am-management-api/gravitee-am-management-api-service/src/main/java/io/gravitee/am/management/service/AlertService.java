@@ -53,6 +53,6 @@ public Single<Boolean> isAlertingAvailable() {
 public Mono<Boolean> isAlertingAvailable_migrated() {
         LOGGER.debug("Get alert available status");
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(!this.triggerProviderManager.findAll().isEmpty())));
+        return Mono.just(!this.triggerProviderManager.findAll().isEmpty());
     }
 }

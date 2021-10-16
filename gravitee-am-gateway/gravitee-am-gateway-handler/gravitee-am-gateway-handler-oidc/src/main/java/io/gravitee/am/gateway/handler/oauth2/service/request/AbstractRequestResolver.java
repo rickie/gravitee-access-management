@@ -109,11 +109,11 @@ protected Mono<R> resolveAuthorizedScopes_migrated(R request, Client client, Use
         }
 
         if (!invalidScopes.isEmpty()) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidScopeException("Invalid scope(s): " + invalidScopes.stream().collect(Collectors.joining(SCOPE_DELIMITER))))));
+            return Mono.error(new InvalidScopeException("Invalid scope(s): " + invalidScopes.stream().collect(Collectors.joining(SCOPE_DELIMITER))));
         }
 
         if (resolvedScopes.isEmpty() && (requestScopes != null && !requestScopes.isEmpty())) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidScopeException("Invalid scope(s): " + requestScopes.stream().collect(Collectors.joining(SCOPE_DELIMITER))))));
+            return Mono.error(new InvalidScopeException("Invalid scope(s): " + requestScopes.stream().collect(Collectors.joining(SCOPE_DELIMITER))));
         }
 
         // only put default values if there is no requested scopes
@@ -121,7 +121,7 @@ protected Mono<R> resolveAuthorizedScopes_migrated(R request, Client client, Use
             request.setScopes(resolvedScopes);
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
 

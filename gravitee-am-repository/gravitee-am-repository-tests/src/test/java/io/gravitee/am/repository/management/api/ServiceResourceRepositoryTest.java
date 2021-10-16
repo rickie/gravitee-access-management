@@ -41,7 +41,7 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
         // create res
         ServiceResource resource = buildResource();
         resource.setReferenceId("testDomain");
-        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceResourceRepository.create_migrated(resource))).block();
+        ServiceResource resourceCreated = serviceResourceRepository.create_migrated(resource).block();
 
         // fetch factors
         TestSubscriber<ServiceResource> testDomain = RxJava2Adapter.fluxToFlowable(serviceResourceRepository.findByReference_migrated(ReferenceType.DOMAIN, "testDomain")).test();
@@ -74,7 +74,7 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create resource
         ServiceResource resource = buildResource();
-        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceResourceRepository.create_migrated(resource))).block();
+        ServiceResource resourceCreated = serviceResourceRepository.create_migrated(resource).block();
 
         // fetch resource
         TestObserver<ServiceResource> testObserver = RxJava2Adapter.monoToMaybe(serviceResourceRepository.findById_migrated(resourceCreated.getId())).test();
@@ -115,7 +115,7 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdate() throws TechnicalException {
         ServiceResource resource = buildResource();
-        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceResourceRepository.create_migrated(resource))).block();
+        ServiceResource resourceCreated = serviceResourceRepository.create_migrated(resource).block();
 
         ServiceResource updateResource = buildResource();
         updateResource.setId(resourceCreated.getId());
@@ -137,7 +137,7 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
     @Test
     public void testDelete() throws TechnicalException {
         ServiceResource resource = buildResource();
-        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceResourceRepository.create_migrated(resource))).block();
+        ServiceResource resourceCreated = serviceResourceRepository.create_migrated(resource).block();
 
         TestObserver<ServiceResource> testObserver = RxJava2Adapter.monoToMaybe(serviceResourceRepository.findById_migrated(resourceCreated.getId())).test();
         testObserver.awaitTerminalEvent();

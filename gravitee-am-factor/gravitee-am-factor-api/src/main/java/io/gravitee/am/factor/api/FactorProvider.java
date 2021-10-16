@@ -71,7 +71,7 @@ default reactor.core.publisher.Mono<java.lang.Void> sendChallenge_migrated(Facto
 default io.reactivex.Single<io.gravitee.am.model.factor.EnrolledFactor> changeVariableFactorSecurity(io.gravitee.am.model.factor.EnrolledFactor factor) {
     return RxJava2Adapter.monoToSingle(changeVariableFactorSecurity_migrated(factor));
 }default Mono<EnrolledFactor> changeVariableFactorSecurity_migrated(EnrolledFactor factor) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(factor)));
+        return Mono.just(factor);
     }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.generateQrCode_migrated(user, enrolledFactor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -79,6 +79,6 @@ default io.reactivex.Single<io.gravitee.am.model.factor.EnrolledFactor> changeVa
 default io.reactivex.Maybe<java.lang.String> generateQrCode(io.gravitee.am.model.User user, io.gravitee.am.model.factor.EnrolledFactor enrolledFactor) {
     return RxJava2Adapter.monoToMaybe(generateQrCode_migrated(user, enrolledFactor));
 }default Mono<String> generateQrCode_migrated(User user, EnrolledFactor enrolledFactor) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        return Mono.empty();
     }
 }

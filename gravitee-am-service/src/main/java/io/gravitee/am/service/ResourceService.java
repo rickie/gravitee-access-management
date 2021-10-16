@@ -210,6 +210,6 @@ default reactor.core.publisher.Mono<java.lang.Void> deleteAccessPolicy_migrated(
 default io.reactivex.Single<java.util.Set<io.gravitee.am.model.uma.Resource>> findByDomain(java.lang.String domain) {
     return RxJava2Adapter.monoToSingle(findByDomain_migrated(domain));
 }default Mono<Set<Resource>> findByDomain_migrated(String domain) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findByDomain(domain, 0, Integer.MAX_VALUE)).map(RxJavaReactorMigrationUtil.toJdkFunction(pagedResources -> (pagedResources.getData() == null) ? Collections.emptySet() : new HashSet<>(pagedResources.getData())))));
+        return RxJava2Adapter.singleToMono(findByDomain(domain, 0, Integer.MAX_VALUE)).map(RxJavaReactorMigrationUtil.toJdkFunction(pagedResources -> (pagedResources.getData() == null) ? Collections.emptySet() : new HashSet<>(pagedResources.getData())));
     }
 }

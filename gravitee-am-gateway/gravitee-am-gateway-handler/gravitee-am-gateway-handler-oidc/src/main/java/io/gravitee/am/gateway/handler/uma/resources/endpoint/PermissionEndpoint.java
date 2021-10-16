@@ -70,7 +70,7 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<List<PermissionTicketRequest>, SingleSource<List<PermissionTicketRequest>>>toJdkFunction((java.util.List<io.gravitee.am.gateway.handler.uma.resources.request.PermissionTicketRequest> ident) -> RxJava2Adapter.monoToSingle(bodyValidation_migrated(ident))).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toPermissionRequest)).flatMap(permissionRequests->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(permissionTicketService.create_migrated(permissionRequests, domain.getId(), client.getId())))).map(RxJavaReactorMigrationUtil.toJdkFunction(PermissionTicketResponse::from)))
+        RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context).flatMap(v->bodyValidation_migrated(v)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toPermissionRequest)).flatMap(permissionRequests->permissionTicketService.create_migrated(permissionRequests, domain.getId(), client.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(PermissionTicketResponse::from)))
                 .subscribe(
                         permission -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -106,7 +106,7 @@ private Mono<List<PermissionTicketRequest>> extractRequest_migrated(RoutingConte
             json = context.getBody().toJson();
         }
         catch (RuntimeException err) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Unable to parse body permission request"))));
+            return Mono.error(new InvalidRequestException("Unable to parse body permission request"));
         }
 
         if(json instanceof JsonArray) {
@@ -114,7 +114,7 @@ private Mono<List<PermissionTicketRequest>> extractRequest_migrated(RoutingConte
         } else {
             result = Arrays.asList(((JsonObject)json).mapTo(PermissionTicketRequest.class));
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(result)));
+        return Mono.just(result);
     }
 
     private List<PermissionTicketRequest> convert(List<LinkedHashMap> list) {
@@ -139,9 +139,9 @@ private Single<List<PermissionTicketRequest>> bodyValidation(List<PermissionTick
 }
 private Mono<List<PermissionTicketRequest>> bodyValidation_migrated(List<PermissionTicketRequest> toValidate) {
         if(toValidate.stream().filter(invalidPermissionRequest()).count() > 0) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("resource_id and resource_scopes are mandatory."))));
+            return Mono.error(new InvalidRequestException("resource_id and resource_scopes are mandatory."));
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(toValidate)));
+        return Mono.just(toValidate);
     }
 
     /**

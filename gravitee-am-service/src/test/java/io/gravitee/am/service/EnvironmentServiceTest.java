@@ -82,7 +82,7 @@ public class EnvironmentServiceTest {
     public void shouldFindByIdAndOrgId() {
 
         Environment environment = new Environment();
-        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(environment))));
+        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(Mono.just(environment));
 
         TestObserver<Environment> obs = RxJava2Adapter.monoToSingle(cut.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).test();
 
@@ -94,7 +94,7 @@ public class EnvironmentServiceTest {
     @Test
     public void shouldFindByIdAndOrgId_notExistingEnvironment() {
 
-        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(Mono.empty());
 
         TestObserver<Environment> obs = RxJava2Adapter.monoToSingle(cut.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).test();
 
@@ -105,7 +105,7 @@ public class EnvironmentServiceTest {
     @Test
     public void shouldFindByIdAndOrgId_technicalException() {
 
-        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver<Environment> obs = RxJava2Adapter.monoToSingle(cut.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).test();
 
@@ -117,7 +117,7 @@ public class EnvironmentServiceTest {
     public void shouldFindById() {
 
         Environment environment = new Environment();
-        when(environmentRepository.findById_migrated(ENVIRONMENT_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(environment))));
+        when(environmentRepository.findById_migrated(ENVIRONMENT_ID)).thenReturn(Mono.just(environment));
 
         TestObserver<Environment> obs = RxJava2Adapter.monoToSingle(cut.findById_migrated(ENVIRONMENT_ID)).test();
 
@@ -129,7 +129,7 @@ public class EnvironmentServiceTest {
     @Test
     public void shouldFindById_notExistingEnvironment() {
 
-        when(environmentRepository.findById_migrated(ENVIRONMENT_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(environmentRepository.findById_migrated(ENVIRONMENT_ID)).thenReturn(Mono.empty());
 
         TestObserver<Environment> obs = RxJava2Adapter.monoToSingle(cut.findById_migrated(ENVIRONMENT_ID)).test();
 
@@ -140,7 +140,7 @@ public class EnvironmentServiceTest {
     @Test
     public void shouldFindById_technicalException() {
 
-        when(environmentRepository.findById_migrated(ENVIRONMENT_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(environmentRepository.findById_migrated(ENVIRONMENT_ID)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver<Environment> obs = RxJava2Adapter.monoToSingle(cut.findById_migrated(ENVIRONMENT_ID)).test();
 
@@ -152,7 +152,7 @@ public class EnvironmentServiceTest {
     public void shouldFindAll() {
 
         Environment environment = new Environment();
-        when(environmentRepository.findAll_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(environment))));
+        when(environmentRepository.findAll_migrated(ORGANIZATION_ID)).thenReturn(Flux.just(environment));
 
         TestSubscriber<Environment> obs = RxJava2Adapter.fluxToFlowable(cut.findAll_migrated(ORGANIZATION_ID)).test();
 
@@ -164,7 +164,7 @@ public class EnvironmentServiceTest {
     @Test
     public void shouldFindAll_noEnvironment() {
 
-        when(environmentRepository.findAll_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(environmentRepository.findAll_migrated(ORGANIZATION_ID)).thenReturn(Flux.empty());
 
         TestSubscriber<Environment> obs = RxJava2Adapter.fluxToFlowable(cut.findAll_migrated(ORGANIZATION_ID)).test();
 
@@ -177,7 +177,7 @@ public class EnvironmentServiceTest {
     @Test
     public void shouldFindAll_TechnicalException() {
 
-        when(environmentRepository.findAll_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(environmentRepository.findAll_migrated(ORGANIZATION_ID)).thenReturn(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestSubscriber<Environment> obs = RxJava2Adapter.fluxToFlowable(cut.findAll_migrated(ORGANIZATION_ID)).test();
 
@@ -192,8 +192,8 @@ public class EnvironmentServiceTest {
         defaultEnvironment.setId(Environment.DEFAULT);
         defaultEnvironment.setOrganizationId(ORGANIZATION_ID);
 
-        when(environmentRepository.count_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(0L))));
-        when(environmentRepository.create_migrated(argThat(environment -> environment.getId().equals(Environment.DEFAULT)))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(defaultEnvironment))));
+        when(environmentRepository.count_migrated()).thenReturn(Mono.just(0L));
+        when(environmentRepository.create_migrated(argThat(environment -> environment.getId().equals(Environment.DEFAULT)))).thenReturn(Mono.just(defaultEnvironment));
 
         TestObserver<Environment> obs = RxJava2Adapter.monoToMaybe(cut.createDefault_migrated()).test();
 
@@ -216,7 +216,7 @@ public class EnvironmentServiceTest {
         Environment defaultEnvironment = new Environment();
         defaultEnvironment.setId("DEFAULT");
 
-        when(environmentRepository.count_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(1L))));
+        when(environmentRepository.count_migrated()).thenReturn(Mono.just(1L));
 
         TestObserver<Environment> obs = RxJava2Adapter.monoToMaybe(cut.createDefault_migrated()).test();
 
@@ -235,9 +235,9 @@ public class EnvironmentServiceTest {
         Organization organization = new Organization();
         organization.setId(ORGANIZATION_ID);
 
-        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(organization))));
-        when(environmentRepository.create_migrated(argThat(environment -> environment.getId().equals(ENVIRONMENT_ID)))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(Mono.empty());
+        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.just(organization));
+        when(environmentRepository.create_migrated(argThat(environment -> environment.getId().equals(ENVIRONMENT_ID)))).thenAnswer(i -> Mono.just(i.getArgument(0)));
 
         NewEnvironment newEnvironment = new NewEnvironment();
         newEnvironment.setName("TestName");
@@ -279,9 +279,9 @@ public class EnvironmentServiceTest {
         Organization organization = new Organization();
         organization.setId(ORGANIZATION_ID);
 
-        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(organization))));
-        when(environmentRepository.create_migrated(argThat(environment -> environment.getId().equals(ENVIRONMENT_ID)))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException()))));
+        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(Mono.empty());
+        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.just(organization));
+        when(environmentRepository.create_migrated(argThat(environment -> environment.getId().equals(ENVIRONMENT_ID)))).thenReturn(Mono.error(new TechnicalManagementException()));
 
         NewEnvironment newEnvironment = new NewEnvironment();
         newEnvironment.setName("TestName");
@@ -311,8 +311,8 @@ public class EnvironmentServiceTest {
     @Test
     public void shouldCreate_organizationNotFound() {
 
-        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new OrganizationNotFoundException(ORGANIZATION_ID)))));
+        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(Mono.empty());
+        when(organizationService.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.error(new OrganizationNotFoundException(ORGANIZATION_ID)));
 
         NewEnvironment newEnvironment = new NewEnvironment();
         newEnvironment.setName("TestName");
@@ -337,8 +337,8 @@ public class EnvironmentServiceTest {
         existingEnvironment.setId(ENVIRONMENT_ID);
         existingEnvironment.setOrganizationId(ORGANIZATION_ID);
 
-        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingEnvironment))));
-        when(environmentRepository.update_migrated(argThat(environment -> environment.getId().equals(ENVIRONMENT_ID)))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(Mono.just(existingEnvironment));
+        when(environmentRepository.update_migrated(argThat(environment -> environment.getId().equals(ENVIRONMENT_ID)))).thenAnswer(i -> Mono.just(i.getArgument(0)));
 
         NewEnvironment newEnvironment = new NewEnvironment();
         newEnvironment.setName("TestName");
@@ -381,8 +381,8 @@ public class EnvironmentServiceTest {
         existingEnvironment.setId(ENVIRONMENT_ID);
         existingEnvironment.setOrganizationId(ORGANIZATION_ID);
 
-        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingEnvironment))));
-        when(environmentRepository.update_migrated(argThat(environment -> environment.getId().equals(ENVIRONMENT_ID)))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException()))));
+        when(environmentRepository.findById_migrated(ENVIRONMENT_ID, ORGANIZATION_ID)).thenReturn(Mono.just(existingEnvironment));
+        when(environmentRepository.update_migrated(argThat(environment -> environment.getId().equals(ENVIRONMENT_ID)))).thenReturn(Mono.error(new TechnicalManagementException()));
 
         NewEnvironment newEnvironment = new NewEnvironment();
         newEnvironment.setName("TestName");

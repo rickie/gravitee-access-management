@@ -120,7 +120,7 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
                 .privateKey((RSAPrivateKey) ((KeyPair) certificateKey.getValue()).getPrivate())
                 .keyID(configuration.getAlias())
                 .build();
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(convert(nimbusJwk, true).collect(Collectors.toList()))));
+        return Flux.fromIterable(convert(nimbusJwk, true).collect(Collectors.toList()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.key_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -131,7 +131,7 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
 }
 @Override
     public Mono<io.gravitee.am.certificate.api.Key> key_migrated() {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificateKey)));
+        return Mono.just(certificateKey);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.publicKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -143,12 +143,12 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
 @Override
     public Mono<String> publicKey_migrated() {
         // fallback to ssh-rsa
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificateKeys
+        return Mono.just(certificateKeys
                         .stream()
                         .filter(c -> c.getFmt().equals(CertificateFormat.SSH_RSA))
                         .map(CertificateKey::getPayload)
                         .findFirst()
-                        .get())));
+                        .get());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.publicKeys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -159,7 +159,7 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
 }
 @Override
     public Mono<List<CertificateKey>> publicKeys_migrated() {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificateKeys)));
+        return Mono.just(certificateKeys);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.keys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -170,7 +170,7 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
 }
 @Override
     public Flux<JWK> keys_migrated() {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(keys)));
+        return Flux.fromIterable(keys);
     }
 
     @Override

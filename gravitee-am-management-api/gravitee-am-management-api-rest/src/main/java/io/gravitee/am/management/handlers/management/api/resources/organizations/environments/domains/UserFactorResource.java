@@ -78,7 +78,7 @@ public class UserFactorResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->RxJava2Adapter.monoToMaybe(userService.findById_migrated(user)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new UserNotFoundException(user))))
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->userService.findById_migrated(user)).switchIfEmpty(Mono.error(new UserNotFoundException(user))))
                         .flatMapSingle(user1 -> {
                             if (user1.getFactors() != null) {
                                 List<EnrolledFactor> enrolledFactors = user1.getFactors()

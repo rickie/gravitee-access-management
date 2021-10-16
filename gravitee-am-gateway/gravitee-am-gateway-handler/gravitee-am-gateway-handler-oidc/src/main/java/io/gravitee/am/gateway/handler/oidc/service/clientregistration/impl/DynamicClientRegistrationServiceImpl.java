@@ -138,9 +138,9 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
     public Mono<Client> create_migrated(DynamicClientRegistrationRequest request, String basePath) {
         //If Dynamic client registration from template is enabled and request contains a software_id
         if(domain.isDynamicClientRegistrationTemplateEnabled() && request.getSoftwareId()!=null && request.getSoftwareId().isPresent()) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.createClientFromTemplate_migrated(request, basePath)));
+            return this.createClientFromTemplate_migrated(request, basePath);
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.createClientFromRequest_migrated(request, basePath)));
+        return this.createClientFromRequest_migrated(request, basePath);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.patch_migrated(toPatch, request, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -151,7 +151,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
 }
 @Override
     public Mono<Client> patch_migrated(Client toPatch, DynamicClientRegistrationRequest request, String basePath) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validateClientPatchRequest_migrated(request))).map(RxJavaReactorMigrationUtil.toJdkFunction(req -> req.patch(toPatch))).flatMap(app->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.applyRegistrationAccessToken_migrated(basePath, app)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validateClientPatchRequest_migrated(request))).map(RxJavaReactorMigrationUtil.toJdkFunction(req -> req.patch(toPatch))).flatMap(app->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.applyRegistrationAccessToken_migrated(basePath, app)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(toUpdate, request, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -162,7 +162,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
 }
 @Override
     public Mono<Client> update_migrated(Client toUpdate, DynamicClientRegistrationRequest request, String basePath) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validateClientRegistrationRequest_migrated(request))).map(RxJavaReactorMigrationUtil.toJdkFunction(req -> req.patch(toUpdate))).flatMap(app->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.applyRegistrationAccessToken_migrated(basePath, app)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validateClientRegistrationRequest_migrated(request))).map(RxJavaReactorMigrationUtil.toJdkFunction(req -> req.patch(toUpdate))).flatMap(app->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.applyRegistrationAccessToken_migrated(basePath, app)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.delete_migrated(toDelete))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -184,7 +184,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
 }
 @Override
     public Mono<Client> renewSecret_migrated(Client toRenew, String basePath) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(clientService.renewClientSecret_migrated(domain.getId(), toRenew.getId()))).flatMap(client->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applyRegistrationAccessToken_migrated(basePath, client)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(clientService.renewClientSecret_migrated(domain.getId(), toRenew.getId()))).flatMap(client->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applyRegistrationAccessToken_migrated(basePath, client)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.update_migrated(ident))).apply(v)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createClientFromRequest_migrated(request, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -198,7 +198,7 @@ private Mono<Client> createClientFromRequest_migrated(DynamicClientRegistrationR
         client.setClientName(ClientServiceImpl.DEFAULT_CLIENT_NAME);
         client.setDomain(domain.getId());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validateClientRegistrationRequest_migrated(request))).map(RxJavaReactorMigrationUtil.toJdkFunction(req -> req.patch(client))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(applyDefaultIdentityProvider_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(applyDefaultCertificateProvider_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(applyAccessTokenValidity_migrated(ident))).apply(v)))).flatMap(app->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.applyRegistrationAccessToken_migrated(basePath, app)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.create_migrated(ident))).apply(v)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validateClientRegistrationRequest_migrated(request))).map(RxJavaReactorMigrationUtil.toJdkFunction(req -> req.patch(client))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(applyDefaultIdentityProvider_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(applyDefaultCertificateProvider_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(applyAccessTokenValidity_migrated(ident))).apply(v)))).flatMap(app->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.applyRegistrationAccessToken_migrated(basePath, app)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Client>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Client, Single<Client>>)(io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.create_migrated(ident))).apply(v)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.applyAccessTokenValidity_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -210,7 +210,7 @@ private Mono<Client> applyAccessTokenValidity_migrated(Client client) {
         client.setAccessTokenValiditySeconds(environment.getProperty(OPENID_DCR_ACCESS_TOKEN_VALIDITY, Integer.class, domain.useFapiBrazilProfile() ? FAPI_OPENBANKING_BRAZIL_DEFAULT_ACCESS_TOKEN_VALIDITY : Client.DEFAULT_ACCESS_TOKEN_VALIDITY_SECONDS));
         client.setRefreshTokenValiditySeconds(environment.getProperty(OPENID_DCR_REFRESH_TOKEN_VALIDITY, Integer.class, Client.DEFAULT_REFRESH_TOKEN_VALIDITY_SECONDS));
         client.setIdTokenValiditySeconds(environment.getProperty(OPENID_DCR_ID_TOKEN_VALIDITY, Integer.class, Client.DEFAULT_ID_TOKEN_VALIDITY_SECONDS));
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(client)));
+        return Mono.just(client);
     }
 
     /**
@@ -229,8 +229,8 @@ private Single<Client> createClientFromTemplate(DynamicClientRegistrationRequest
  return RxJava2Adapter.monoToSingle(createClientFromTemplate_migrated(request, basePath));
 }
 private Mono<Client> createClientFromTemplate_migrated(DynamicClientRegistrationRequest request, String basePath) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientService.findById_migrated(request.getSoftwareId().get()))).switchIfEmpty(Mono.error(new InvalidClientMetadataException("No template found for software_id "+request.getSoftwareId().get()))))
-                .flatMapSingle((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(sanitizeTemplate_migrated(ident)))).map(RxJavaReactorMigrationUtil.toJdkFunction(request::patch)).flatMap(app->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.applyRegistrationAccessToken_migrated(basePath, app)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.create_migrated(ident))).apply(v)))).flatMap(client->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(copyForms_migrated(request.getSoftwareId().get(), client)))).flatMap(client->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(copyEmails_migrated(request.getSoftwareId().get(), client))))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientService.findById_migrated(request.getSoftwareId().get()))).switchIfEmpty(Mono.error(new InvalidClientMetadataException("No template found for software_id "+request.getSoftwareId().get()))))
+                .flatMapSingle((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(sanitizeTemplate_migrated(ident)))).map(RxJavaReactorMigrationUtil.toJdkFunction(request::patch)).flatMap(app->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.applyRegistrationAccessToken_migrated(basePath, app)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(clientService.create_migrated(ident))).apply(v)))).flatMap(client->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(copyForms_migrated(request.getSoftwareId().get(), client)))).flatMap(client->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(copyEmails_migrated(request.getSoftwareId().get(), client))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.sanitizeTemplate_migrated(template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -240,7 +240,7 @@ private Single<Client> sanitizeTemplate(Client template) {
 }
 private Mono<Client> sanitizeTemplate_migrated(Client template) {
         if(!template.isTemplate()) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Client behind software_id is not a template"))));
+            return Mono.error(new InvalidClientMetadataException("Client behind software_id is not a template"));
         }
         //Erase potential confidential values.
         template.setClientId(SecureRandomString.generate());
@@ -255,7 +255,7 @@ private Mono<Client> sanitizeTemplate_migrated(Client template) {
         //Set it as non template
         template.setTemplate(false);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(template)));
+        return Mono.just(template);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.copyForms_migrated(sourceId, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -264,7 +264,7 @@ private Single<Client> copyForms(String sourceId, Client client) {
  return RxJava2Adapter.monoToSingle(copyForms_migrated(sourceId, client));
 }
 private Mono<Client> copyForms_migrated(String sourceId, Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(formService.copyFromClient_migrated(domain.getId(), sourceId, client.getId()))).flatMap(irrelevant->Mono.just(client))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(formService.copyFromClient_migrated(domain.getId(), sourceId, client.getId()))).flatMap(irrelevant->Mono.just(client));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.copyEmails_migrated(sourceId, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -273,7 +273,7 @@ private Single<Client> copyEmails(String sourceId, Client client) {
  return RxJava2Adapter.monoToSingle(copyEmails_migrated(sourceId, client));
 }
 private Mono<Client> copyEmails_migrated(String sourceId, Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(emailTemplateService.copyFromClient_migrated(domain.getId(), sourceId, client.getId()))).collectList().flatMap(irrelevant->Mono.just(client))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(emailTemplateService.copyFromClient_migrated(domain.getId(), sourceId, client.getId()))).collectList().flatMap(irrelevant->Mono.just(client));
     }
 
     /**
@@ -288,12 +288,12 @@ private Single<Client> applyDefaultIdentityProvider(Client client) {
  return RxJava2Adapter.monoToSingle(applyDefaultIdentityProvider_migrated(client));
 }
 private Mono<Client> applyDefaultIdentityProvider_migrated(Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(identityProviderService.findByDomain_migrated(client.getDomain()))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviders -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(identityProviderService.findByDomain_migrated(client.getDomain()))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(identityProviders -> {
                 if(identityProviders!=null && !identityProviders.isEmpty()) {
                     client.setIdentities(Collections.singleton(identityProviders.get(0).getId()));
                 }
                 return client;
-            }))));
+            }));
     }
 
     /**
@@ -308,12 +308,12 @@ private Single<Client> applyDefaultCertificateProvider(Client client) {
  return RxJava2Adapter.monoToSingle(applyDefaultCertificateProvider_migrated(client));
 }
 private Mono<Client> applyDefaultCertificateProvider_migrated(Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(certificateService.findByDomain_migrated(client.getDomain()))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(certificates -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(certificateService.findByDomain_migrated(client.getDomain()))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(certificates -> {
                     if(certificates!=null && !certificates.isEmpty()) {
                         client.setCertificate(certificates.get(0).getId());
                     }
                     return client;
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.applyRegistrationAccessToken_migrated(basePath, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -335,11 +335,11 @@ private Mono<Client> applyRegistrationAccessToken_migrated(String basePath, Clie
         jwt.setScope(Scope.DCR.getKey());
         jwt.setJti(SecureRandomString.generate());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.encode_migrated(jwt, client))).map(RxJavaReactorMigrationUtil.toJdkFunction(token -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.encode_migrated(jwt, client))).map(RxJavaReactorMigrationUtil.toJdkFunction(token -> {
                     client.setRegistrationAccessToken(token);
                     client.setRegistrationClientUri(openIDProviderMetadata.getRegistrationEndpoint()+"/"+client.getClientId());
                     return client;
-                }))));
+                }));
     }
 
     /**
@@ -356,7 +356,7 @@ private Single<DynamicClientRegistrationRequest> validateClientRegistrationReque
 }
 private Mono<DynamicClientRegistrationRequest> validateClientRegistrationRequest_migrated(final DynamicClientRegistrationRequest request) {
         LOGGER.debug("Validating dynamic client registration payload");
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validateClientRegistrationRequest_migrated(request, false)));
+        return this.validateClientRegistrationRequest_migrated(request, false);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateClientPatchRequest_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -367,7 +367,7 @@ private Single<DynamicClientRegistrationRequest> validateClientPatchRequest(Dyna
 private Mono<DynamicClientRegistrationRequest> validateClientPatchRequest_migrated(DynamicClientRegistrationRequest request) {
         LOGGER.debug("Validating dynamic client registration payload : patch");
         //redirect_uri is mandatory in the request, but in case of patch we may omit it...
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validateClientRegistrationRequest_migrated(request, true)));
+        return this.validateClientRegistrationRequest_migrated(request, true);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateClientRegistrationRequest_migrated(request, isPatch))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -377,10 +377,10 @@ private Single<DynamicClientRegistrationRequest> validateClientRegistrationReque
 }
 private Mono<DynamicClientRegistrationRequest> validateClientRegistrationRequest_migrated(final DynamicClientRegistrationRequest request, boolean isPatch) {
         if(request==null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException())));
+            return Mono.error(new InvalidClientMetadataException());
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validateRedirectUri_migrated(request, isPatch))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateScopes_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateGrantType_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateResponseType_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateSubjectType_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateRequestUri_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateSectorIdentifierUri_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateJKWs_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateUserinfoSigningAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateUserinfoEncryptionAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateIdTokenSigningAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateIdTokenEncryptionAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateTlsClientAuth_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateSelfSignedClientAuth_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateAuthorizationSigningAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateAuthorizationEncryptionAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateRequestObjectSigningAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateRequestObjectEncryptionAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono((Single<DynamicClientRegistrationRequest>)RxJavaReactorMigrationUtil.toJdkFunction((Function<DynamicClientRegistrationRequest, Single<DynamicClientRegistrationRequest>>)(io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(enforceWithSoftwareStatement_migrated(ident))).apply(v)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validateRedirectUri_migrated(request, isPatch))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateScopes_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateGrantType_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateResponseType_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateSubjectType_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateRequestUri_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateSectorIdentifierUri_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateJKWs_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateUserinfoSigningAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateUserinfoEncryptionAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateIdTokenSigningAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateIdTokenEncryptionAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateTlsClientAuth_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateSelfSignedClientAuth_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateAuthorizationSigningAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateAuthorizationEncryptionAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateRequestObjectSigningAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<DynamicClientRegistrationRequest, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(validateRequestObjectEncryptionAlgorithm_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono((Single<DynamicClientRegistrationRequest>)RxJavaReactorMigrationUtil.toJdkFunction((Function<DynamicClientRegistrationRequest, Single<DynamicClientRegistrationRequest>>)(io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest ident) -> RxJava2Adapter.monoToSingle(enforceWithSoftwareStatement_migrated(ident))).apply(v)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enforceWithSoftwareStatement_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -391,12 +391,12 @@ private Single<DynamicClientRegistrationRequest> enforceWithSoftwareStatement(Dy
 private Mono<DynamicClientRegistrationRequest> enforceWithSoftwareStatement_migrated(DynamicClientRegistrationRequest request) {
         if (this.domain.useFapiBrazilProfile()) {
             if (request.getSoftwareStatement() == null || request.getSoftwareStatement().isEmpty()) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("software_statement is required"))));
+                return Mono.error(new InvalidClientMetadataException("software_statement is required"));
             }
 
             final String directoryJwksUri = environment.getProperty(FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI);
             if (Strings.isNullOrEmpty(directoryJwksUri)) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("No jwks_uri for OpenBanking Directory, unable to validate software_statement"))));
+                return Mono.error(new InvalidClientMetadataException("No jwks_uri for OpenBanking Directory, unable to validate software_statement"));
             }
 
             try {
@@ -405,7 +405,7 @@ private Mono<DynamicClientRegistrationRequest> enforceWithSoftwareStatement_migr
                 if (jwt instanceof SignedJWT) {
                     final SignedJWT signedJWT = (SignedJWT) jwt;
                     if (isSignAlgCompliantWithFapi(signedJWT.getHeader().getAlgorithm().getName())) {
-                        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(directoryJwksUri))).flatMap(z->RxJava2Adapter.monoToMaybe(jwkService.getKey_migrated(z, signedJWT.getHeader().getKeyID())).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new TechnicalManagementException("Invalid jwks_uri for OpenBanking Directory"))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(jwk -> jwsService.isValidSignature(signedJWT, jwk))).switchIfEmpty(Mono.error(new InvalidClientMetadataException("Invalid signature for software_statement"))).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> {
+                        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(directoryJwksUri))).flatMap(z->RxJava2Adapter.monoToMaybe(jwkService.getKey_migrated(z, signedJWT.getHeader().getKeyID())).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new TechnicalManagementException("Invalid jwks_uri for OpenBanking Directory"))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(jwk -> jwsService.isValidSignature(signedJWT, jwk))).switchIfEmpty(Mono.error(new InvalidClientMetadataException("Invalid signature for software_statement"))).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> {
                                     LOGGER.debug("software_statement is valid, check claims regarding the registration request information");
                                     JSONObject softwareStatement = signedJWT.getPayload().toJSONObject();
                                     final Number iat = softwareStatement.getAsNumber("iat");
@@ -457,17 +457,17 @@ private Mono<DynamicClientRegistrationRequest> enforceWithSoftwareStatement_migr
                                     }
 
                                     return request;
-                                }))));
+                                }));
                     }
                 }
 
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("software_statement isn't signed or doesn't use PS256"))));
+                return Mono.error(new InvalidClientMetadataException("software_statement isn't signed or doesn't use PS256"));
 
             } catch (ParseException pe) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("signature of software_statement is invalid"))));
+                return Mono.error(new InvalidClientMetadataException("signature of software_statement is invalid"));
             }
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     /**
@@ -486,10 +486,10 @@ private Mono<DynamicClientRegistrationRequest> validateRedirectUri_migrated(Dyna
 
         //Except for patching a client, redirect_uris metadata is required but may be null or empty.
         if(!isPatch && request.getRedirectUris() == null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRedirectUriException())));
+            return Mono.error(new InvalidRedirectUriException());
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateResponseType_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -501,10 +501,10 @@ private Mono<DynamicClientRegistrationRequest> validateResponseType_migrated(Dyn
         //if response_type provided, they must be valid.
         if(request.getResponseTypes()!=null) {
             if(!ResponseTypeUtils.isSupportedResponseType(request.getResponseTypes().orElse(Collections.emptyList()))) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Invalid response type."))));
+                return Mono.error(new InvalidClientMetadataException("Invalid response type."));
             }
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateGrantType_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -516,10 +516,10 @@ private Mono<DynamicClientRegistrationRequest> validateGrantType_migrated(Dynami
         //if grant_type provided, they must be valid.
         if(request.getGrantTypes()!=null) {
             if (!GrantTypeUtils.isSupportedGrantType(request.getGrantTypes().orElse(Collections.emptyList()))) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Missing or invalid grant type."))));
+                return Mono.error(new InvalidClientMetadataException("Missing or invalid grant type."));
             }
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateSubjectType_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -531,10 +531,10 @@ private Mono<DynamicClientRegistrationRequest> validateSubjectType_migrated(Dyna
         //if subject_type is provided, it must be valid.
         if(request.getSubjectType()!=null && request.getSubjectType().isPresent()) {
             if(!SubjectTypeUtils.isValidSubjectType(request.getSubjectType().get())) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unsupported subject type"))));
+                return Mono.error(new InvalidClientMetadataException("Unsupported subject type"));
             }
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateUserinfoSigningAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -546,10 +546,10 @@ private Mono<DynamicClientRegistrationRequest> validateUserinfoSigningAlgorithm_
         //if userinfo_signed_response_alg is provided, it must be valid.
         if(request.getUserinfoSignedResponseAlg()!=null && request.getUserinfoSignedResponseAlg().isPresent()) {
             if(!JWAlgorithmUtils.isValidUserinfoSigningAlg(request.getUserinfoSignedResponseAlg().get())) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unsupported userinfo signing algorithm"))));
+                return Mono.error(new InvalidClientMetadataException("Unsupported userinfo signing algorithm"));
             }
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateUserinfoEncryptionAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -559,16 +559,16 @@ private Single<DynamicClientRegistrationRequest> validateUserinfoEncryptionAlgor
 }
 private Mono<DynamicClientRegistrationRequest> validateUserinfoEncryptionAlgorithm_migrated(DynamicClientRegistrationRequest request) {
         if(request.getUserinfoEncryptedResponseEnc()!=null && request.getUserinfoEncryptedResponseAlg()==null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("When userinfo_encrypted_response_enc is included, userinfo_encrypted_response_alg MUST also be provided"))));
+            return Mono.error(new InvalidClientMetadataException("When userinfo_encrypted_response_enc is included, userinfo_encrypted_response_alg MUST also be provided"));
         }
         //if userinfo_encrypted_response_alg is provided, it must be valid.
         if(request.getUserinfoEncryptedResponseAlg()!=null && request.getUserinfoEncryptedResponseAlg().isPresent()) {
             if(!JWAlgorithmUtils.isValidUserinfoResponseAlg(request.getUserinfoEncryptedResponseAlg().get())) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unsupported userinfo_encrypted_response_alg value"))));
+                return Mono.error(new InvalidClientMetadataException("Unsupported userinfo_encrypted_response_alg value"));
             }
             if(request.getUserinfoEncryptedResponseEnc()!=null && request.getUserinfoEncryptedResponseEnc().isPresent()) {
                 if(!JWAlgorithmUtils.isValidUserinfoResponseEnc(request.getUserinfoEncryptedResponseEnc().get())) {
-                    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unsupported userinfo_encrypted_response_enc value"))));
+                    return Mono.error(new InvalidClientMetadataException("Unsupported userinfo_encrypted_response_enc value"));
                 }
             }
             else {
@@ -576,7 +576,7 @@ private Mono<DynamicClientRegistrationRequest> validateUserinfoEncryptionAlgorit
                 request.setUserinfoEncryptedResponseEnc(Optional.of(JWAlgorithmUtils.getDefaultUserinfoResponseEnc()));
             }
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
 
@@ -589,15 +589,15 @@ private Mono<DynamicClientRegistrationRequest> validateRequestObjectSigningAlgor
         //if userinfo_signed_response_alg is provided, it must be valid.
         if(request.getRequestObjectSigningAlg() !=null && request.getRequestObjectSigningAlg().isPresent()) {
             if(!JWAlgorithmUtils.isValidRequestObjectSigningAlg(request.getRequestObjectSigningAlg().get())) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unsupported request object signing algorithm"))));
+                return Mono.error(new InvalidClientMetadataException("Unsupported request object signing algorithm"));
             }
 
             if (this.domain.usePlainFapiProfile() && !isSignAlgCompliantWithFapi(request.getRequestObjectSigningAlg().get())) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("request_object_signing_alg shall be PS256"))));
+                return Mono.error(new InvalidClientMetadataException("request_object_signing_alg shall be PS256"));
             }
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateRequestObjectEncryptionAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -607,18 +607,18 @@ private Single<DynamicClientRegistrationRequest> validateRequestObjectEncryption
 }
 private Mono<DynamicClientRegistrationRequest> validateRequestObjectEncryptionAlgorithm_migrated(DynamicClientRegistrationRequest request) {
         if(request.getRequestObjectEncryptionEnc() !=null && request.getRequestObjectEncryptionAlg()==null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("When request_object_encryption_enc is included, request_object_encryption_alg MUST also be provided"))));
+            return Mono.error(new InvalidClientMetadataException("When request_object_encryption_enc is included, request_object_encryption_alg MUST also be provided"));
         }
 
         //if userinfo_encrypted_response_alg is provided, it must be valid.
         if(request.getRequestObjectEncryptionAlg()!=null && request.getRequestObjectEncryptionAlg().isPresent()) {
             if(!domain.useFapiBrazilProfile() && !JWAlgorithmUtils.isValidRequestObjectAlg(request.getRequestObjectEncryptionAlg().get())) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unsupported request_object_encryption_alg value"))));
+                return Mono.error(new InvalidClientMetadataException("Unsupported request_object_encryption_alg value"));
             }
 
             if(request.getRequestObjectEncryptionEnc()!=null && request.getRequestObjectEncryptionEnc().isPresent()) {
                 if(!JWAlgorithmUtils.isValidRequestObjectEnc(request.getRequestObjectEncryptionEnc().get())) {
-                    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unsupported request_object_encryption_enc value"))));
+                    return Mono.error(new InvalidClientMetadataException("Unsupported request_object_encryption_enc value"));
                 }
             }
             else {
@@ -639,7 +639,7 @@ private Mono<DynamicClientRegistrationRequest> validateRequestObjectEncryptionAl
             }
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
 
@@ -652,10 +652,10 @@ private Mono<DynamicClientRegistrationRequest> validateIdTokenSigningAlgorithm_m
         //if userinfo_signed_response_alg is provided, it must be valid.
         if(request.getIdTokenSignedResponseAlg()!=null && request.getIdTokenSignedResponseAlg().isPresent()) {
             if(!JWAlgorithmUtils.isValidIdTokenSigningAlg(request.getIdTokenSignedResponseAlg().get())) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unsupported id_token signing algorithm"))));
+                return Mono.error(new InvalidClientMetadataException("Unsupported id_token signing algorithm"));
             }
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateIdTokenEncryptionAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -665,16 +665,16 @@ private Single<DynamicClientRegistrationRequest> validateIdTokenEncryptionAlgori
 }
 private Mono<DynamicClientRegistrationRequest> validateIdTokenEncryptionAlgorithm_migrated(DynamicClientRegistrationRequest request) {
         if(request.getIdTokenEncryptedResponseEnc()!=null && request.getIdTokenEncryptedResponseAlg()==null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("When id_token_encrypted_response_enc is included, id_token_encrypted_response_alg MUST also be provided"))));
+            return Mono.error(new InvalidClientMetadataException("When id_token_encrypted_response_enc is included, id_token_encrypted_response_alg MUST also be provided"));
         }
         //if id_token_encrypted_response_alg is provided, it must be valid.
         if(request.getIdTokenEncryptedResponseAlg()!=null && request.getIdTokenEncryptedResponseAlg().isPresent()) {
             if(!JWAlgorithmUtils.isValidIdTokenResponseAlg(request.getIdTokenEncryptedResponseAlg().get())) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unsupported id_token_encrypted_response_alg value"))));
+                return Mono.error(new InvalidClientMetadataException("Unsupported id_token_encrypted_response_alg value"));
             }
             if(request.getIdTokenEncryptedResponseEnc()!=null && request.getIdTokenEncryptedResponseEnc().isPresent()) {
                 if(!JWAlgorithmUtils.isValidIdTokenResponseEnc(request.getIdTokenEncryptedResponseEnc().get())) {
-                    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unsupported id_token_encrypted_response_enc value"))));
+                    return Mono.error(new InvalidClientMetadataException("Unsupported id_token_encrypted_response_enc value"));
                 }
             }
             else {
@@ -682,7 +682,7 @@ private Mono<DynamicClientRegistrationRequest> validateIdTokenEncryptionAlgorith
                 request.setIdTokenEncryptedResponseEnc(Optional.of(JWAlgorithmUtils.getDefaultIdTokenResponseEnc()));
             }
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateRequestUri_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -697,10 +697,10 @@ private Mono<DynamicClientRegistrationRequest> validateRequestUri_migrated(Dynam
                 //throw exception if uri mal formated
                 request.getRequestUris().get().stream().forEach(this::formatUrl);
             } catch (InvalidClientMetadataException err) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("request_uris: "+err.getMessage()))));
+                return Mono.error(new InvalidClientMetadataException("request_uris: "+err.getMessage()));
             }
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateSectorIdentifierUri_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -717,14 +717,14 @@ private Mono<DynamicClientRegistrationRequest> validateSectorIdentifierUri_migra
                 //throw exception if uri mal formated
                 uri = formatUrl(request.getSectorIdentifierUri().get());
             } catch (InvalidClientMetadataException err) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("sector_identifier_uri: "+err.getMessage()))));
+                return Mono.error(new InvalidClientMetadataException("sector_identifier_uri: "+err.getMessage()));
             }
 
             if(!uri.getScheme().equalsIgnoreCase("https")) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Scheme must be https for sector_identifier_uri : "+request.getSectorIdentifierUri().get()))));
+                return Mono.error(new InvalidClientMetadataException("Scheme must be https for sector_identifier_uri : "+request.getSectorIdentifierUri().get()));
             }
 
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.getAbs(uri.toString())
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.getAbs(uri.toString())
                     .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(HttpResponse::bodyAsString)).map(RxJavaReactorMigrationUtil.toJdkFunction(JsonArray::new)))
                     .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unable to parse sector_identifier_uri : "+ uri.toString()))))).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(Flowable::fromIterable)))
                     .cast(String.class)
@@ -734,9 +734,9 @@ return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRedirectUriException("r
 } else {
 return RxJava2Adapter.monoToSingle(Mono.just(request));
 }
-}).apply(v)))))));
+}).apply(v)))));
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateJKWs_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -747,12 +747,12 @@ private Single<DynamicClientRegistrationRequest> validateJKWs(DynamicClientRegis
 private Mono<DynamicClientRegistrationRequest> validateJKWs_migrated(DynamicClientRegistrationRequest request) {
         //The jwks_uri and jwks parameters MUST NOT be used together.
         if(request.getJwks()!=null && request.getJwks().isPresent() && request.getJwksUri()!=null && request.getJwksUri().isPresent()) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The jwks_uri and jwks parameters MUST NOT be used together."))));
+            return Mono.error(new InvalidClientMetadataException("The jwks_uri and jwks parameters MUST NOT be used together."));
         }
 
         //Check jwks_uri
         if(request.getJwksUri()!=null && request.getJwksUri().isPresent()) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(request.getJwksUri().get()))).switchIfEmpty(Mono.error(new InvalidClientMetadataException("No JWK found behind jws uri..."))))
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(request.getJwksUri().get()).switchIfEmpty(Mono.error(new InvalidClientMetadataException("No JWK found behind jws uri..."))))
                     .flatMapSingle(jwkSet -> {
                         /* Uncomment if we expect to save it as fallback
                         if(jwkSet!=null && jwkSet.isPresent()) {
@@ -763,7 +763,7 @@ private Mono<DynamicClientRegistrationRequest> validateJKWs_migrated(DynamicClie
                     }));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     /**
@@ -806,7 +806,7 @@ private Mono<DynamicClientRegistrationRequest> validateScopes_migrated(DynamicCl
             request.setScope(Optional.of(String.join(SCOPE_DELIMITER,domain.getOidc().getClientRegistrationSettings().getDefaultScopes())));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateAuthorizationSigningAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -823,10 +823,10 @@ private Mono<DynamicClientRegistrationRequest> validateAuthorizationSigningAlgor
         }
 
         if (!JWAlgorithmUtils.isValidAuthorizationSigningAlg(request.getAuthorizationSignedResponseAlg().get())) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unsupported authorization signing algorithm"))));
+            return Mono.error(new InvalidClientMetadataException("Unsupported authorization signing algorithm"));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateAuthorizationEncryptionAlgorithm_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -837,25 +837,25 @@ private Single<DynamicClientRegistrationRequest> validateAuthorizationEncryption
 private Mono<DynamicClientRegistrationRequest> validateAuthorizationEncryptionAlgorithm_migrated(DynamicClientRegistrationRequest request) {
         if ((request.getAuthorizationEncryptedResponseEnc() != null && request.getAuthorizationEncryptedResponseEnc().isPresent()) &&
                 (request.getAuthorizationEncryptedResponseAlg() == null || !request.getAuthorizationEncryptedResponseAlg().isPresent())) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("When authorization_encrypted_response_enc is included, authorization_encrypted_response_alg MUST also be provided"))));
+            return Mono.error(new InvalidClientMetadataException("When authorization_encrypted_response_enc is included, authorization_encrypted_response_alg MUST also be provided"));
         }
 
         // If authorization_encrypted_response_alg is provided, it must be valid.
         if (request.getAuthorizationEncryptedResponseAlg() != null && request.getAuthorizationEncryptedResponseAlg().isPresent()) {
             if (!JWAlgorithmUtils.isValidAuthorizationResponseAlg(request.getAuthorizationEncryptedResponseAlg().get())) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unsupported authorization_encrypted_response_alg value"))));
+                return Mono.error(new InvalidClientMetadataException("Unsupported authorization_encrypted_response_alg value"));
             }
 
             if (request.getAuthorizationEncryptedResponseEnc() != null && request.getAuthorizationEncryptedResponseEnc().isPresent()) {
                 if (!JWAlgorithmUtils.isValidAuthorizationResponseEnc(request.getAuthorizationEncryptedResponseEnc().get())) {
-                    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unsupported authorization_encrypted_response_enc value"))));
+                    return Mono.error(new InvalidClientMetadataException("Unsupported authorization_encrypted_response_enc value"));
                 }
             } else {
                 // Apply default value if authorization_encrypted_response_alg is informed and not authorization_encrypted_response_enc.
                 request.setAuthorizationEncryptedResponseEnc(Optional.of(JWAlgorithmUtils.getDefaultAuthorizationResponseEnc()));
             }
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     /**
@@ -884,7 +884,7 @@ private Mono<DynamicClientRegistrationRequest> validateTlsClientAuth_migrated(Dy
                     (request.getTlsClientAuthSanIp() == null || ! request.getTlsClientAuthSanIp().isPresent()) &&
                     (request.getTlsClientAuthSanEmail() == null || ! request.getTlsClientAuthSanEmail().isPresent()) &&
                     (request.getTlsClientAuthSanUri() == null || ! request.getTlsClientAuthSanUri().isPresent())) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Missing TLS parameter for tls_client_auth."))));
+                return Mono.error(new InvalidClientMetadataException("Missing TLS parameter for tls_client_auth."));
             }
 
             if (request.getTlsClientAuthSubjectDn() != null && request.getTlsClientAuthSubjectDn().isPresent() && (
@@ -892,31 +892,31 @@ private Mono<DynamicClientRegistrationRequest> validateTlsClientAuth_migrated(Dy
                             (request.getTlsClientAuthSanEmail() != null && request.getTlsClientAuthSanEmail().isPresent()) ||
                             (request.getTlsClientAuthSanIp() != null && request.getTlsClientAuthSanIp().isPresent()) ||
                             (request.getTlsClientAuthSanUri() != null && request.getTlsClientAuthSanUri().isPresent()))) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."))));
+                return Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."));
             } else if (request.getTlsClientAuthSanDns() != null && request.getTlsClientAuthSanDns().isPresent() && (
                     (request.getTlsClientAuthSubjectDn() != null && request.getTlsClientAuthSubjectDn().isPresent()) ||
                             (request.getTlsClientAuthSanEmail() != null && request.getTlsClientAuthSanEmail().isPresent()) ||
                             (request.getTlsClientAuthSanIp() != null && request.getTlsClientAuthSanIp().isPresent()) ||
                             (request.getTlsClientAuthSanUri() != null && request.getTlsClientAuthSanUri().isPresent()))) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."))));
+                return Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."));
             } else if (request.getTlsClientAuthSanIp() != null && request.getTlsClientAuthSanIp().isPresent() && (
                     (request.getTlsClientAuthSubjectDn() != null && request.getTlsClientAuthSubjectDn().isPresent()) ||
                             (request.getTlsClientAuthSanDns() != null && request.getTlsClientAuthSanDns().isPresent()) ||
                             (request.getTlsClientAuthSanEmail() != null && request.getTlsClientAuthSanEmail().isPresent()) ||
                             (request.getTlsClientAuthSanUri() != null && request.getTlsClientAuthSanUri().isPresent()))) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."))));
+                return Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."));
             } else if (request.getTlsClientAuthSanEmail() != null && request.getTlsClientAuthSanEmail().isPresent() && (
                     (request.getTlsClientAuthSubjectDn() != null && request.getTlsClientAuthSubjectDn().isPresent()) ||
                             (request.getTlsClientAuthSanDns() != null && request.getTlsClientAuthSanDns().isPresent()) ||
                             (request.getTlsClientAuthSanIp() != null && request.getTlsClientAuthSanIp().isPresent()) ||
                             (request.getTlsClientAuthSanUri() != null && request.getTlsClientAuthSanUri().isPresent()))) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."))));
+                return Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."));
             } else if (request.getTlsClientAuthSanUri() != null && request.getTlsClientAuthSanUri().isPresent() && (
                     (request.getTlsClientAuthSubjectDn() != null && request.getTlsClientAuthSubjectDn().isPresent()) ||
                             (request.getTlsClientAuthSanDns() != null && request.getTlsClientAuthSanDns().isPresent()) ||
                             (request.getTlsClientAuthSanIp() != null && request.getTlsClientAuthSanIp().isPresent()) ||
                             (request.getTlsClientAuthSanEmail() != null && request.getTlsClientAuthSanEmail().isPresent()))) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."))));
+                return Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."));
             }
 
             // because only TLS parameter is authorized, we force the missing options to empty to avoid
@@ -949,7 +949,7 @@ private Mono<DynamicClientRegistrationRequest> validateTlsClientAuth_migrated(Dy
             }
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     /**
@@ -977,10 +977,10 @@ private Mono<DynamicClientRegistrationRequest> validateSelfSignedClientAuth_migr
                 ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH.equalsIgnoreCase(request.getTokenEndpointAuthMethod().get())) {
             if ((request.getJwks() == null || !request.getJwks().isPresent()) &&
                     (request.getJwksUri() == null || !request.getJwksUri().isPresent())) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The self_signed_tls_client_auth requires at least a jwks or a valid jwks_uri."))));
+                return Mono.error(new InvalidClientMetadataException("The self_signed_tls_client_auth requires at least a jwks or a valid jwks_uri."));
             }
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
+        return Mono.just(request);
     }
 
     /**

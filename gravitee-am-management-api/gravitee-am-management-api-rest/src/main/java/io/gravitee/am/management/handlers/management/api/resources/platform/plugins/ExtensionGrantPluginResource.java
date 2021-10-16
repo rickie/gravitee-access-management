@@ -57,7 +57,7 @@ public class ExtensionGrantPluginResource {
             @PathParam("extensionGrant") String extensionGrantId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(extensionGrantPluginService.findById_migrated(extensionGrantId))).switchIfEmpty(Mono.error(new ExtensionGrantPluginNotFoundException(extensionGrantId))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPlugin -> Response.ok(extensionGrantPlugin).build())))
+        RxJava2Adapter.monoToMaybe(extensionGrantPluginService.findById_migrated(extensionGrantId).switchIfEmpty(Mono.error(new ExtensionGrantPluginNotFoundException(extensionGrantId))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPlugin -> Response.ok(extensionGrantPlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -70,7 +70,7 @@ public class ExtensionGrantPluginResource {
                           @Suspended final AsyncResponse response) {
 
         // Check that the extension grant exists
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(extensionGrantPluginService.findById_migrated(extensionGrantId))).switchIfEmpty(Mono.error(new ExtensionGrantPluginNotFoundException(extensionGrantId))).flatMap(z->RxJava2Adapter.monoToMaybe(extensionGrantPluginService.getSchema_migrated(extensionGrantId)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ExtensionGrantPluginSchemaNotFoundException(extensionGrantId))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPluginSchema -> Response.ok(extensionGrantPluginSchema).build())))
+        RxJava2Adapter.monoToMaybe(extensionGrantPluginService.findById_migrated(extensionGrantId).switchIfEmpty(Mono.error(new ExtensionGrantPluginNotFoundException(extensionGrantId))).flatMap(z->extensionGrantPluginService.getSchema_migrated(extensionGrantId)).switchIfEmpty(Mono.error(new ExtensionGrantPluginSchemaNotFoundException(extensionGrantId))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPluginSchema -> Response.ok(extensionGrantPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

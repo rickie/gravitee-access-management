@@ -82,7 +82,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(scopeRepository.findById_migrated("my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Scope()))));
+        when(scopeRepository.findById_migrated("my-scope")).thenReturn(Mono.just(new Scope()));
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(scopeService.findById_migrated("my-scope")).test();
 
         testObserver.awaitTerminalEvent();
@@ -93,7 +93,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindById_notExistingScope() {
-        when(scopeRepository.findById_migrated("my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(scopeRepository.findById_migrated("my-scope")).thenReturn(Mono.empty());
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(scopeService.findById_migrated("my-scope")).test();
         testObserver.awaitTerminalEvent();
 
@@ -102,7 +102,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(scopeRepository.findById_migrated("my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(scopeRepository.findById_migrated("my-scope")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToMaybe(scopeService.findById_migrated("my-scope")).subscribe(testObserver);
 
@@ -112,7 +112,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(scopeRepository.findByDomain_migrated(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(new Scope()),0,1)))));
+        when(scopeRepository.findByDomain_migrated(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(Mono.just(new Page<>(Collections.singleton(new Scope()),0,1)));
         TestObserver<Page<Scope>> testObserver = RxJava2Adapter.monoToSingle(scopeService.findByDomain_migrated(DOMAIN, 0, Integer.MAX_VALUE)).test();
         testObserver.awaitTerminalEvent();
 
@@ -123,7 +123,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(scopeRepository.findByDomain_migrated(DOMAIN, 0, 1)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(scopeRepository.findByDomain_migrated(DOMAIN, 0, 1)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(scopeService.findByDomain_migrated(DOMAIN, 0, 1)).subscribe(testObserver);
@@ -134,14 +134,14 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldFindByDomainAndKey_technicalException() {
-        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "my-scope")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
         TestObserver<Scope> testObserver = RxJava2Adapter.monoToMaybe(scopeService.findByDomainAndKey_migrated(DOMAIN, "my-scope")).test();
         testObserver.assertNotComplete().assertError(TechnicalManagementException.class);
     }
 
     @Test
     public void shouldFindByDomainAndKey() {
-        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Scope()))));
+        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "my-scope")).thenReturn(Mono.just(new Scope()));
         TestObserver<Scope> testObserver = RxJava2Adapter.monoToMaybe(scopeService.findByDomainAndKey_migrated(DOMAIN, "my-scope")).test();
         testObserver.assertComplete().assertNoErrors().assertValue(Objects::nonNull);
     }
@@ -161,7 +161,7 @@ public class ScopeServiceTest {
     @Test
     public void shouldFindByDomainAndKeys_technicalException() {
         List<String> searchingScopes = Arrays.asList("a","b");
-        when(scopeRepository.findByDomainAndKeys_migrated(DOMAIN, searchingScopes)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(scopeRepository.findByDomainAndKeys_migrated(DOMAIN, searchingScopes)).thenReturn(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
         TestObserver<List<Scope>> testObserver = RxJava2Adapter.monoToSingle(scopeService.findByDomainAndKeys_migrated(DOMAIN, searchingScopes)).test();
         testObserver.assertNotComplete().assertError(TechnicalManagementException.class);
     }
@@ -169,7 +169,7 @@ public class ScopeServiceTest {
     @Test
     public void shouldFindByDomainAndKeys() {
         List<String> searchingScopes = Arrays.asList("a","b");
-        when(scopeRepository.findByDomainAndKeys_migrated(DOMAIN, searchingScopes)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Scope()))));
+        when(scopeRepository.findByDomainAndKeys_migrated(DOMAIN, searchingScopes)).thenReturn(Flux.just(new Scope()));
         TestObserver<List<Scope>> testObserver = RxJava2Adapter.monoToSingle(scopeService.findByDomainAndKeys_migrated(DOMAIN, searchingScopes)).test();
         testObserver.assertComplete().assertNoErrors().assertValue(scopes -> scopes.size()==1);
     }
@@ -179,9 +179,9 @@ public class ScopeServiceTest {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("my-scope");
         when(newScope.getIconUri()).thenReturn("https://gravitee.io/icon");
-        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(scopeRepository.create_migrated(any(Scope.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "my-scope")).thenReturn(Mono.empty());
+        when(scopeRepository.create_migrated(any(Scope.class))).thenReturn(Mono.just(new Scope()));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(scopeService.create_migrated(DOMAIN, newScope)).test();
         testObserver.awaitTerminalEvent();
@@ -198,9 +198,9 @@ public class ScopeServiceTest {
     public void shouldCreate_keyUpperCase() {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("MY-SCOPE");
-        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "MY-SCOPE")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(scopeRepository.create_migrated(any(Scope.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "MY-SCOPE")).thenReturn(Mono.empty());
+        when(scopeRepository.create_migrated(any(Scope.class))).thenReturn(Mono.just(new Scope()));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(scopeService.create_migrated(DOMAIN, newScope)).test();
         testObserver.awaitTerminalEvent();
@@ -222,9 +222,9 @@ public class ScopeServiceTest {
     public void shouldCreate_whiteSpaces() {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("MY scope");
-        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "MY_scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(scopeRepository.create_migrated(any(Scope.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "MY_scope")).thenReturn(Mono.empty());
+        when(scopeRepository.create_migrated(any(Scope.class))).thenReturn(Mono.just(new Scope()));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(scopeService.create_migrated(DOMAIN, newScope)).test();
         testObserver.awaitTerminalEvent();
@@ -247,7 +247,7 @@ public class ScopeServiceTest {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("my-scope");
         when(newScope.getIconUri()).thenReturn("malformedIconUri");
-        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "my-scope")).thenReturn(Mono.empty());
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(scopeService.create_migrated(DOMAIN, newScope)).subscribe(testObserver);
@@ -263,7 +263,7 @@ public class ScopeServiceTest {
     public void shouldNotCreate_technicalException() {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("my-scope");
-        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "my-scope")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(scopeService.create_migrated(DOMAIN, newScope)).subscribe(testObserver);
@@ -278,7 +278,7 @@ public class ScopeServiceTest {
     public void shouldNotCreate_existingScope() {
         NewScope newScope = Mockito.mock(NewScope.class);
         when(newScope.getKey()).thenReturn("my-scope");
-        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Scope()))));
+        when(scopeRepository.findByDomainAndKey_migrated(DOMAIN, "my-scope")).thenReturn(Mono.just(new Scope()));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(scopeService.create_migrated(DOMAIN, newScope)).subscribe(testObserver);
@@ -306,9 +306,9 @@ public class ScopeServiceTest {
 
         ArgumentCaptor<Scope> argument = ArgumentCaptor.forClass(Scope.class);
 
-        when(scopeRepository.findById_migrated(scopeId)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(toPatch))));
-        when(scopeRepository.update_migrated(argument.capture())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(scopeRepository.findById_migrated(scopeId)).thenReturn(Mono.just(toPatch));
+        when(scopeRepository.update_migrated(argument.capture())).thenReturn(Mono.just(new Scope()));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(scopeService.patch_migrated(DOMAIN, scopeId, patch)).test();
 
@@ -338,9 +338,9 @@ public class ScopeServiceTest {
 
         ArgumentCaptor<Scope> argument = ArgumentCaptor.forClass(Scope.class);
 
-        when(scopeRepository.findById_migrated(scopeId)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(toPatch))));
-        when(scopeRepository.update_migrated(argument.capture())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(scopeRepository.findById_migrated(scopeId)).thenReturn(Mono.just(toPatch));
+        when(scopeRepository.update_migrated(argument.capture())).thenReturn(Mono.just(new Scope()));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(scopeService.patch_migrated(DOMAIN, scopeId, patch)).test();
 
@@ -358,7 +358,7 @@ public class ScopeServiceTest {
         Scope toPatch = new Scope();
         toPatch.setId("toPatchId");
 
-        when(scopeRepository.findById_migrated("toPatchId")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(scopeRepository.findById_migrated("toPatchId")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(scopeService.patch_migrated(DOMAIN, "toPatchId", new PatchScope())).test();
 
@@ -369,7 +369,7 @@ public class ScopeServiceTest {
     @Test
     public void shouldNotPatch_scopeNotFound() {
         PatchScope patchScope = new PatchScope();
-        when(scopeRepository.findById_migrated("my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(scopeRepository.findById_migrated("my-scope")).thenReturn(Mono.empty());
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(scopeService.patch_migrated(DOMAIN, "my-scope", patchScope)).subscribe(testObserver);
@@ -385,7 +385,7 @@ public class ScopeServiceTest {
     public void shouldNotPatch_malformedIconUri() {
         PatchScope patchScope = new PatchScope();
         patchScope.setIconUri(Optional.of("malformedIconUri"));
-        when(scopeRepository.findById_migrated("my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Scope()))));
+        when(scopeRepository.findById_migrated("my-scope")).thenReturn(Mono.just(new Scope()));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(scopeService.patch_migrated(DOMAIN, "my-scope", patchScope)).subscribe(testObserver);
@@ -414,9 +414,9 @@ public class ScopeServiceTest {
 
         ArgumentCaptor<Scope> argument = ArgumentCaptor.forClass(Scope.class);
 
-        when(scopeRepository.findById_migrated(scopeId)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(toUpdate))));
-        when(scopeRepository.update_migrated(argument.capture())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(scopeRepository.findById_migrated(scopeId)).thenReturn(Mono.just(toUpdate));
+        when(scopeRepository.update_migrated(argument.capture())).thenReturn(Mono.just(new Scope()));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(scopeService.update_migrated(DOMAIN, scopeId, updateScope)).test();
 
@@ -445,9 +445,9 @@ public class ScopeServiceTest {
 
         ArgumentCaptor<Scope> argument = ArgumentCaptor.forClass(Scope.class);
 
-        when(scopeRepository.findById_migrated(scopeId)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(toUpdate))));
-        when(scopeRepository.update_migrated(argument.capture())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(scopeRepository.findById_migrated(scopeId)).thenReturn(Mono.just(toUpdate));
+        when(scopeRepository.update_migrated(argument.capture())).thenReturn(Mono.just(new Scope()));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(scopeService.update_migrated(DOMAIN, scopeId, updateScope)).test();
 
@@ -477,9 +477,9 @@ public class ScopeServiceTest {
 
         ArgumentCaptor<Scope> argument = ArgumentCaptor.forClass(Scope.class);
 
-        when(scopeRepository.findById_migrated(scopeId)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(toUpdate))));
-        when(scopeRepository.update_migrated(argument.capture())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(scopeRepository.findById_migrated(scopeId)).thenReturn(Mono.just(toUpdate));
+        when(scopeRepository.update_migrated(argument.capture())).thenReturn(Mono.just(new Scope()));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(scopeService.update_migrated(DOMAIN, scopeId, updateScope)).test();
 
@@ -494,7 +494,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldNotUpdate() {
-        when(scopeRepository.findById_migrated("toUpdateId")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(scopeRepository.findById_migrated("toUpdateId")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(scopeService.update_migrated(DOMAIN, "toUpdateId", new UpdateScope())).test();
 
@@ -507,7 +507,7 @@ public class ScopeServiceTest {
         UpdateScope updateScope = new UpdateScope();
         updateScope.setIconUri("malformedIconUri");
 
-        when(scopeRepository.findById_migrated("toUpdateId")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Scope()))));
+        when(scopeRepository.findById_migrated("toUpdateId")).thenReturn(Mono.just(new Scope()));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(scopeService.update_migrated(DOMAIN, "toUpdateId", updateScope)).subscribe(testObserver);
@@ -536,9 +536,9 @@ public class ScopeServiceTest {
 
         ArgumentCaptor<Scope> argument = ArgumentCaptor.forClass(Scope.class);
 
-        when(scopeRepository.findById_migrated(scopeId)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(toUpdate))));
-        when(scopeRepository.update_migrated(argument.capture())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(scopeRepository.findById_migrated(scopeId)).thenReturn(Mono.just(toUpdate));
+        when(scopeRepository.update_migrated(argument.capture())).thenReturn(Mono.just(new Scope()));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(scopeService.update_migrated(DOMAIN, scopeId, updateScope)).test();
 
@@ -556,7 +556,7 @@ public class ScopeServiceTest {
         Scope toUpdate = new Scope();
         toUpdate.setId("toUpdateId");
 
-        when(scopeRepository.findById_migrated("toUpdateId")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(scopeRepository.findById_migrated("toUpdateId")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(scopeService.update_migrated(DOMAIN, "toUpdateId", new UpdateSystemScope())).test();
 
@@ -566,7 +566,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldDelete_notExistingScope() {
-        when(scopeRepository.findById_migrated("my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(scopeRepository.findById_migrated("my-scope")).thenReturn(Mono.empty());
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToCompletable(scopeService.delete_migrated("my-scope", false)).subscribe(testObserver);
@@ -577,7 +577,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(scopeRepository.findById_migrated("my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(scopeRepository.findById_migrated("my-scope")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToCompletable(scopeService.delete_migrated("my-scope", false)).subscribe(testObserver);
@@ -588,7 +588,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldDelete2_technicalException() {
-        when(scopeRepository.findById_migrated("my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Scope()))));
+        when(scopeRepository.findById_migrated("my-scope")).thenReturn(Mono.just(new Scope()));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToCompletable(scopeService.delete_migrated("my-scope", false)).subscribe(testObserver);
@@ -599,7 +599,7 @@ public class ScopeServiceTest {
 
     @Test
     public void shouldDelete3_technicalException() {
-        when(scopeRepository.findById_migrated("my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Scope()))));
+        when(scopeRepository.findById_migrated("my-scope")).thenReturn(Mono.just(new Scope()));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToCompletable(scopeService.delete_migrated("my-scope", false)).subscribe(testObserver);
@@ -612,12 +612,12 @@ public class ScopeServiceTest {
     public void shouldDelete_light() {
         Scope scope = mock(Scope.class);
         when(scope.getDomain()).thenReturn(DOMAIN);
-        when(roleService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet()))));
-        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet()))));
-        when(scopeRepository.findById_migrated("my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(scope))));
-        when(scopeRepository.delete_migrated("my-scope")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(scopeApprovalRepository.deleteByDomainAndScopeKey_migrated(scope.getDomain(), scope.getKey())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(roleService.findByDomain_migrated(DOMAIN)).thenReturn(Mono.just(Collections.emptySet()));
+        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(Mono.just(Collections.emptySet()));
+        when(scopeRepository.findById_migrated("my-scope")).thenReturn(Mono.just(scope));
+        when(scopeRepository.delete_migrated("my-scope")).thenReturn(Mono.empty());
+        when(scopeApprovalRepository.deleteByDomainAndScopeKey_migrated(scope.getDomain(), scope.getKey())).thenReturn(Mono.empty());
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(scopeService.delete_migrated("my-scope", false)).test();
         testObserver.awaitTerminalEvent();
@@ -649,14 +649,14 @@ public class ScopeServiceTest {
         when(applicationSettings.getOauth()).thenReturn(applicationOAuthSettings);
         when(application.getSettings()).thenReturn(applicationSettings);
 
-        when(roleService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(role)))));
-        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(application)))));
-        when(roleService.update_migrated(anyString(), anyString(), any(UpdateRole.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Role()))));
-        when(applicationService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Application()))));
-        when(scopeRepository.findById_migrated("my-scope")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(scope))));
-        when(scopeRepository.delete_migrated("my-scope")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(scopeApprovalRepository.deleteByDomainAndScopeKey_migrated(scope.getDomain(), scope.getKey())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(roleService.findByDomain_migrated(DOMAIN)).thenReturn(Mono.just(Collections.singleton(role)));
+        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(Mono.just(Collections.singleton(application)));
+        when(roleService.update_migrated(anyString(), anyString(), any(UpdateRole.class))).thenReturn(Mono.just(new Role()));
+        when(applicationService.update_migrated(any())).thenReturn(Mono.just(new Application()));
+        when(scopeRepository.findById_migrated("my-scope")).thenReturn(Mono.just(scope));
+        when(scopeRepository.delete_migrated("my-scope")).thenReturn(Mono.empty());
+        when(scopeApprovalRepository.deleteByDomainAndScopeKey_migrated(scope.getDomain(), scope.getKey())).thenReturn(Mono.empty());
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(scopeService.delete_migrated("my-scope", false)).test();
         testObserver.awaitTerminalEvent();
@@ -677,7 +677,7 @@ public class ScopeServiceTest {
         Scope scope = new Scope();
         scope.setKey("scope-key");
         scope.setSystem(true);
-        when(scopeRepository.findById_migrated("scope-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(scope))));
+        when(scopeRepository.findById_migrated("scope-id")).thenReturn(Mono.just(scope));
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(scopeService.delete_migrated("scope-id", false)).test();
         testObserver.assertError(SystemScopeDeleteException.class);
@@ -694,14 +694,14 @@ public class ScopeServiceTest {
 
     @Test
     public void validateScope_unknownScope() {
-        when(scopeRepository.findByDomain_migrated(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(new Scope("valid")),0,1)))));
+        when(scopeRepository.findByDomain_migrated(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(Mono.just(new Page<>(Collections.singleton(new Scope("valid")),0,1)));
         TestObserver<Boolean> testObserver = RxJava2Adapter.monoToSingle(scopeService.validateScope_migrated(DOMAIN, Arrays.asList("unknown"))).test();
         testObserver.assertError(InvalidClientMetadataException.class);
     }
 
     @Test
     public void validateScope_validScope() {
-        when(scopeRepository.findByDomain_migrated(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(new Scope("valid")),0,1)))));
+        when(scopeRepository.findByDomain_migrated(DOMAIN, 0, Integer.MAX_VALUE)).thenReturn(Mono.just(new Page<>(Collections.singleton(new Scope("valid")),0,1)));
         TestObserver<Boolean> testObserver = RxJava2Adapter.monoToSingle(scopeService.validateScope_migrated(DOMAIN, Arrays.asList("valid"))).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();

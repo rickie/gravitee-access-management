@@ -124,7 +124,7 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
 
         final Payload payload = (Payload) event.content();
         RxJava2Adapter.monoToMaybe(domainService.findById_migrated(payload.getReferenceId()))
-                .flatMapSingle(domain -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertTriggerService.getById_migrated(payload.getId()))).flatMap(alertTrigger->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.prepareAETrigger_migrated(domain, alertTrigger)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Trigger>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Trigger, Single<Trigger>>)(io.gravitee.alert.api.trigger.Trigger ident) -> RxJava2Adapter.monoToSingle(registerAETrigger_migrated(ident))).apply(v)))))
+                .flatMapSingle(domain -> RxJava2Adapter.monoToSingle(alertTriggerService.getById_migrated(payload.getId()).flatMap(alertTrigger->this.prepareAETrigger_migrated(domain, alertTrigger)).flatMap(v->RxJava2Adapter.singleToMono((Single<Trigger>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Trigger, Single<Trigger>>)(io.gravitee.alert.api.trigger.Trigger ident) -> RxJava2Adapter.monoToSingle(registerAETrigger_migrated(ident))).apply(v)))))
                 .subscribe(aeTrigger -> LOGGER.info("Alert trigger [{}] synchronized with the alerting system.", aeTrigger.getId()),
                         throwable -> LOGGER.error("An error occurred when trying to synchronize alert trigger [{}] with alerting system", payload.getId(), throwable));
     }
@@ -138,7 +138,7 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
         alertTriggerCriteria.setEnabled(true);
         alertTriggerCriteria.setAlertNotifierIds(Collections.singletonList(payload.getId()));
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(payload.getReferenceId()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(domain -> domain.isEnabled() && domain.isAlertEnabled())))
+        RxJava2Adapter.monoToMaybe(domainService.findById_migrated(payload.getReferenceId()).filter(RxJavaReactorMigrationUtil.toJdkPredicate(domain -> domain.isEnabled() && domain.isAlertEnabled())))
                 .flatMapPublisher(domain -> RxJava2Adapter.fluxToFlowable(this.alertTriggerService.findByDomainAndCriteria_migrated(domain.getId(), alertTriggerCriteria))
                         .flatMapSingle(alertTrigger -> RxJava2Adapter.monoToSingle(prepareAETrigger_migrated(domain, alertTrigger)))
                         .flatMapSingle((io.gravitee.alert.api.trigger.Trigger ident) -> RxJava2Adapter.monoToSingle(registerAETrigger_migrated(ident))))
@@ -180,6 +180,6 @@ private Mono<Trigger> prepareAETrigger_migrated(Domain domain, AlertTrigger aler
         alertNotifierCriteria.setEnabled(true);
         alertNotifierCriteria.setIds(alertTrigger.getAlertNotifiers());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(alertNotifierService.findByReferenceAndCriteria_migrated(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(alertNotifiers -> AlertTriggerFactory.create(alertTrigger, alertNotifiers, environment))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(trigger -> trigger.setEnabled(domain.isEnabled() && domain.isAlertEnabled() && trigger.isEnabled())))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(alertNotifierService.findByReferenceAndCriteria_migrated(alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), alertNotifierCriteria))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(alertNotifiers -> AlertTriggerFactory.create(alertTrigger, alertNotifiers, environment))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(trigger -> trigger.setEnabled(domain.isEnabled() && domain.isAlertEnabled() && trigger.isEnabled())));
     }
 }

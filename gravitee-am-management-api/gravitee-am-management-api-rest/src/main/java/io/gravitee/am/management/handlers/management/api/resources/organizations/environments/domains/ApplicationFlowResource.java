@@ -72,7 +72,7 @@ public class ApplicationFlowResource extends AbstractResource {
             @PathParam("flow") String flow,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.APPLICATION_FLOW, Acl.READ)).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(flowService.findById_migrated(ReferenceType.DOMAIN, domain, flow))).switchIfEmpty(Mono.error(new FlowNotFoundException(flow))).map(RxJavaReactorMigrationUtil.toJdkFunction(FlowEntity::new))).as(RxJava2Adapter::monoToMaybe)
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.APPLICATION_FLOW, Acl.READ).then(flowService.findById_migrated(ReferenceType.DOMAIN, domain, flow).switchIfEmpty(Mono.error(new FlowNotFoundException(flow))).map(RxJavaReactorMigrationUtil.toJdkFunction(FlowEntity::new))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -96,7 +96,7 @@ public class ApplicationFlowResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.APPLICATION_FLOW, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(flowService.update(ReferenceType.DOMAIN, domain, flow, convert(updateFlow), authenticatedUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(FlowEntity::new))))
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.APPLICATION_FLOW, Acl.UPDATE).then(RxJava2Adapter.singleToMono(flowService.update(ReferenceType.DOMAIN, domain, flow, convert(updateFlow), authenticatedUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(FlowEntity::new))))
                 .subscribe(response::resume, response::resume);
     }
 

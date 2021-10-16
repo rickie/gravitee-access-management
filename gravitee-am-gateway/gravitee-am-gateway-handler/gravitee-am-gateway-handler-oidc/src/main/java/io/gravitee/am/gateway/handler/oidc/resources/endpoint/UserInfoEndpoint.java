@@ -88,7 +88,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String subject = accessToken.getSub();
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(subject))).switchIfEmpty(Mono.error(new InvalidTokenException("No user found for this token"))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(subject).switchIfEmpty(Mono.error(new InvalidTokenException("No user found for this token"))))
                 // enhance user information
                 .flatMapSingle(user -> RxJava2Adapter.monoToSingle(enhance_migrated(user, accessToken)))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> processClaims(user, accessToken))).flatMap(v->RxJava2Adapter.singleToMono((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Map<String, Object>, Single<String>>)claims -> {
                         if (!expectSignedOrEncryptedUserInfo(client)) {
@@ -104,7 +104,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
                             jwt.setIat(new Date().getTime() / 1000l);
                             jwt.setExp(accessToken.getExp() / 1000l);
 
-                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.encodeUserinfo_migrated(jwt, client))).flatMap(userinfo->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jweService.encryptUserinfo_migrated(userinfo, client)))));//Encrypt if needed, else return JWT
+                            return RxJava2Adapter.monoToSingle(jwtService.encodeUserinfo_migrated(jwt, client).flatMap(userinfo->jweService.encryptUserinfo_migrated(userinfo, client)));//Encrypt if needed, else return JWT
                         }
                     }).apply(v))))
                 .subscribe(
@@ -230,10 +230,10 @@ private Single<User> enhance(User user, JWT accessToken) {
 }
 private Mono<User> enhance_migrated(User user, JWT accessToken) {
         if (!loadRoles(user, accessToken) && !loadGroups(accessToken)) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user)));
+            return Mono.just(user);
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.enhance_migrated(user))).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.enhance_migrated(user))).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> {
                     Map<String, Object> userClaims = user.getAdditionalInformation() == null ?
                             new HashMap<>() :
                             new HashMap<>(user.getAdditionalInformation());
@@ -246,7 +246,7 @@ private Mono<User> enhance_migrated(User user, JWT accessToken) {
                     }
                     user1.setAdditionalInformation(userClaims);
                     return user1;
-                }))));
+                }));
     }
 
     /**

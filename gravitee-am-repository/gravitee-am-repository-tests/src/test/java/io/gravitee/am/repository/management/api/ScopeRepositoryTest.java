@@ -41,7 +41,7 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         scope.setName("testName");
         scope.setDomain("testDomain");
         scope.setClaims(Arrays.asList("claim1", "claim2"));
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.create_migrated(scope))).block();
+        scopeRepository.create_migrated(scope).block();
 
         // fetch scopes
         TestObserver<Page<Scope>> testObserver = RxJava2Adapter.monoToSingle(scopeRepository.findByDomain_migrated("testDomain", 0, Integer.MAX_VALUE)).test();
@@ -60,12 +60,12 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         scope.setName("firstOne");
         scope.setKey("one");
         scope.setDomain("testDomain");
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.create_migrated(scope))).block();
+        scopeRepository.create_migrated(scope).block();
 
         scope.setId(null);
         scope.setName("anotherOne");
         scope.setDomain("another");
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.create_migrated(scope))).block();
+        scopeRepository.create_migrated(scope).block();
 
 
         // fetch scopes
@@ -84,21 +84,21 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         scope.setName("firstOne");
         scope.setKey("one");
         scope.setDomain("testDomain");
-        Scope scopeCreated1 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.create_migrated(scope))).block();
+        Scope scopeCreated1 = scopeRepository.create_migrated(scope).block();
 
         scope.setId(null);
         scope.setName("anotherOne");
         scope.setDomain("another");
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.create_migrated(scope))).block();
+        scopeRepository.create_migrated(scope).block();
 
         scope.setId(null);
         scope.setName("secondOne");
         scope.setKey("two");
         scope.setDomain("testDomain");
-        Scope scopeCreated2 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.create_migrated(scope))).block();
+        Scope scopeCreated2 = scopeRepository.create_migrated(scope).block();
 
         // fetch scopes
-        TestObserver<List<Scope>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(scopeRepository.findByDomainAndKeys_migrated("testDomain", Arrays.asList("one","two","three")))).collectList()).test();
+        TestObserver<List<Scope>> testObserver = RxJava2Adapter.monoToSingle(scopeRepository.findByDomainAndKeys_migrated("testDomain", Arrays.asList("one","two","three")).collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -115,7 +115,7 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
     public void testFindById() {
         // create scope
         Scope scope = buildScope();
-        Scope scopeCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.create_migrated(scope))).block();
+        Scope scopeCreated = scopeRepository.create_migrated(scope).block();
 
         // fetch scope
         TestObserver<Scope> testObserver = RxJava2Adapter.monoToMaybe(scopeRepository.findById_migrated(scopeCreated.getId())).test();
@@ -180,7 +180,7 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
     public void testUpdate() {
         // create scope
         Scope scope = buildScope();
-        Scope scopeCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.create_migrated(scope))).block();
+        Scope scopeCreated = scopeRepository.create_migrated(scope).block();
 
         // update scope
         Scope updatedScope = buildScope();
@@ -199,7 +199,7 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         // create scope
         Scope scope = new Scope();
         scope.setName("testName");
-        Scope scopeCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.create_migrated(scope))).block();
+        Scope scopeCreated = scopeRepository.create_migrated(scope).block();
 
         // fetch scope
         TestObserver<Scope> testObserver = RxJava2Adapter.monoToMaybe(scopeRepository.findById_migrated(scopeCreated.getId())).test();
@@ -224,7 +224,7 @@ public class ScopeRepositoryTest extends AbstractManagementTest {
         scope.setName("testName");
         scope.setKey("testName");
         scope.setClaims(Arrays.asList("claim1", "claim2"));
-        Scope scopeCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.create_migrated(scope))).block();
+        Scope scopeCreated = scopeRepository.create_migrated(scope).block();
 
         TestObserver<Page<Scope>> testObserver = RxJava2Adapter.monoToSingle(scopeRepository.search_migrated(scopeCreated.getDomain(), "*" + scopeName + "*", 0, Integer.MAX_VALUE)).test();
         testObserver.awaitTerminalEvent();

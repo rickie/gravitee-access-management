@@ -39,7 +39,7 @@ public class AuthorizationCodeRepositoryTest extends AbstractOAuthTest {
         authorizationCode.setCode(code);
         authorizationCode.setContextVersion(1);
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authorizationCodeRepository.create_migrated(authorizationCode))).block();
+        authorizationCodeRepository.create_migrated(authorizationCode).block();
 
         TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(code)).test();
         testObserver.awaitTerminalEvent();
@@ -67,7 +67,7 @@ public class AuthorizationCodeRepositoryTest extends AbstractOAuthTest {
         authorizationCode.setCode(code);
 
         TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToSingle(authorizationCodeRepository.create_migrated(authorizationCode))
-                .toCompletable().as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.delete_migrated(code)))).as(RxJava2Adapter::monoToMaybe)
+                .toCompletable().as(RxJava2Adapter::completableToMono).then(authorizationCodeRepository.delete_migrated(code)).as(RxJava2Adapter::monoToMaybe)
                 .test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();

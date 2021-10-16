@@ -162,13 +162,13 @@ public class UmaTokenGranterTest {
         when(rpt.getSub()).thenReturn(USER_ID);
         when(rpt.getAud()).thenReturn(CLIENT_ID);
         when(rpt.get("permissions")).thenReturn(new LinkedList(Arrays.asList(permission)));
-        when(jwtService.decodeAndVerify_migrated(RQP_ID_TOKEN, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
-        when(jwtService.decodeAndVerify_migrated(RPT_OLD_TOKEN, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(rpt))));
-        when(userAuthenticationManager.loadPreAuthenticatedUser_migrated(USER_ID, tokenRequest)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
-        when(permissionTicketService.remove_migrated(TICKET_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new PermissionTicket().setId(TICKET_ID).setPermissionRequest(permissions)))));
-        when(resourceService.findByResources_migrated(Arrays.asList(RS_ONE, RS_TWO))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Resource().setId(RS_ONE).setResourceScopes(Arrays.asList("scopeA", "scopeB", "scopeC")), new Resource().setId(RS_TWO).setResourceScopes(Arrays.asList("scopeA", "scopeB", "scopeD"))))));
-        when(tokenService.create_migrated(oauth2RequestCaptor.capture(), eq(client), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new AccessToken("success")))));
-        when(resourceService.findAccessPoliciesByResources_migrated(anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(jwtService.decodeAndVerify_migrated(RQP_ID_TOKEN, client)).thenReturn(Mono.just(jwt));
+        when(jwtService.decodeAndVerify_migrated(RPT_OLD_TOKEN, client)).thenReturn(Mono.just(rpt));
+        when(userAuthenticationManager.loadPreAuthenticatedUser_migrated(USER_ID, tokenRequest)).thenReturn(Mono.just(user));
+        when(permissionTicketService.remove_migrated(TICKET_ID)).thenReturn(Mono.just(new PermissionTicket().setId(TICKET_ID).setPermissionRequest(permissions)));
+        when(resourceService.findByResources_migrated(Arrays.asList(RS_ONE, RS_TWO))).thenReturn(Flux.just(new Resource().setId(RS_ONE).setResourceScopes(Arrays.asList("scopeA", "scopeB", "scopeC")), new Resource().setId(RS_TWO).setResourceScopes(Arrays.asList("scopeA", "scopeB", "scopeD"))));
+        when(tokenService.create_migrated(oauth2RequestCaptor.capture(), eq(client), any())).thenReturn(Mono.just(new AccessToken("success")));
+        when(resourceService.findAccessPoliciesByResources_migrated(anyList())).thenReturn(Flux.empty());
     }
 
     @Test
@@ -220,21 +220,21 @@ public class UmaTokenGranterTest {
 
     @Test
     public void grant_user_technicalException() {
-        when(userAuthenticationManager.loadPreAuthenticatedUser_migrated(USER_ID, tokenRequest)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(userAuthenticationManager.loadPreAuthenticatedUser_migrated(USER_ID, tokenRequest)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
         TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(UmaException.class).assertError(this::assertNeedInfo);
     }
 
     @Test
     public void grant_user_notFound() {
-        when(userAuthenticationManager.loadPreAuthenticatedUser_migrated(USER_ID, tokenRequest)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(userAuthenticationManager.loadPreAuthenticatedUser_migrated(USER_ID, tokenRequest)).thenReturn(Mono.empty());
         TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(UmaException.class).assertError(this::assertNeedInfo);
     }
 
     @Test
     public void grant_ticketNotFound() {
-        when(permissionTicketService.remove_migrated(TICKET_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(InvalidPermissionTicketException::new)))));
+        when(permissionTicketService.remove_migrated(TICKET_ID)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(InvalidPermissionTicketException::new)));
         TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(InvalidPermissionTicketException.class);
     }
@@ -260,7 +260,7 @@ public class UmaTokenGranterTest {
     @Test
     public void grant_rptExpiredOrMalformed() {
         parameters.add(RPT, RPT_OLD_TOKEN);
-        when(jwtService.decodeAndVerify_migrated(RPT_OLD_TOKEN, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(InvalidTokenException::new)))));
+        when(jwtService.decodeAndVerify_migrated(RPT_OLD_TOKEN, client)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(InvalidTokenException::new)));
         TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(InvalidGrantException.class);
     }
@@ -371,9 +371,9 @@ public class UmaTokenGranterTest {
         AccessPolicy policy = mock(AccessPolicy.class);
         when(policy.getType()).thenReturn(AccessPolicyType.GROOVY);
         ExecutionContext executionContext = mock(ExecutionContext.class);
-        when(resourceService.findAccessPoliciesByResources_migrated(anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(policy))));
+        when(resourceService.findAccessPoliciesByResources_migrated(anyList())).thenReturn(Flux.just(policy));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
-        when(rulesEngine.fire_migrated(any(), any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new PolicyChainException("Policy requirements have failed")))));
+        when(rulesEngine.fire_migrated(any(), any())).thenReturn(Mono.error(new PolicyChainException("Policy requirements have failed")));
         TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(InvalidGrantException.class);
     }
@@ -383,9 +383,9 @@ public class UmaTokenGranterTest {
         AccessPolicy policy = mock(AccessPolicy.class);
         when(policy.getType()).thenReturn(AccessPolicyType.GROOVY);
         ExecutionContext executionContext = mock(ExecutionContext.class);
-        when(resourceService.findAccessPoliciesByResources_migrated(anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(policy))));
+        when(resourceService.findAccessPoliciesByResources_migrated(anyList())).thenReturn(Flux.just(policy));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
-        when(rulesEngine.fire_migrated(any(), any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(rulesEngine.fire_migrated(any(), any())).thenReturn(Mono.empty());
         TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertComplete().assertNoErrors().assertValue(token -> "success".equals(token.getValue()));
         OAuth2Request result = oauth2RequestCaptor.getValue();

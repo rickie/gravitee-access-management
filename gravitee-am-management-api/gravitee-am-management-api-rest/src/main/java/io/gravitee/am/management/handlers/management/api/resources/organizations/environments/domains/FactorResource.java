@@ -81,7 +81,7 @@ public class FactorResource extends AbstractResource {
             @PathParam("factor") String factor,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.READ)).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->RxJava2Adapter.monoToMaybe(factorService.findById_migrated(factor)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new FactorNotFoundException(factor))).map(RxJavaReactorMigrationUtil.toJdkFunction(factor1 -> {
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->factorService.findById_migrated(factor)).switchIfEmpty(Mono.error(new FactorNotFoundException(factor))).map(RxJavaReactorMigrationUtil.toJdkFunction(factor1 -> {
                             if (!factor1.getDomain().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Factor does not belong to domain");
                             }
@@ -109,7 +109,7 @@ public class FactorResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(factorService.update_migrated(domain, factor, updateFactor, authenticatedUser))))))
                 .subscribe(response::resume, response::resume);
     }
@@ -131,7 +131,7 @@ public class FactorResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.DELETE))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(factorService.delete_migrated(domain, factor, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FACTOR, Acl.DELETE).then(factorService.delete_migrated(domain, factor, authenticatedUser)))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

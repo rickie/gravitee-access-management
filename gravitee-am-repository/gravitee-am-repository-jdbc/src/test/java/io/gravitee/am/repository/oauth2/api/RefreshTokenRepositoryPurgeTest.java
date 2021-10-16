@@ -61,15 +61,15 @@ public class RefreshTokenRepositoryPurgeTest extends AbstractOAuthTest {
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(refreshTokenRepository.findByToken_migrated("my-token"))).block());
-        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(refreshTokenRepository.findByToken_migrated("my-token2"))).block());
+        assertNotNull(refreshTokenRepository.findByToken_migrated("my-token").block());
+        assertNull(refreshTokenRepository.findByToken_migrated("my-token2").block());
 
         TestObserver<Void> testPurge = RxJava2Adapter.monoToCompletable(refreshTokenRepository.purgeExpiredData_migrated()).test();
         testPurge.awaitTerminalEvent();
         testPurge.assertNoErrors();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(refreshTokenRepository.findByToken_migrated("my-token"))).block());
-        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(refreshTokenRepository.findByToken_migrated("my-token2"))).block());
+        assertNotNull(refreshTokenRepository.findByToken_migrated("my-token").block());
+        assertNull(refreshTokenRepository.findByToken_migrated("my-token2").block());
 
     }
 

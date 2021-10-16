@@ -48,6 +48,6 @@ public class ServiceProviderConfigServiceImpl implements ServiceProviderConfigSe
         serviceProviderConfiguration.setEtag(new ComplexType(false));
         serviceProviderConfiguration.setAuthenticationSchemes(Collections.singletonList(AuthenticationScheme.OAUTH_BEARER_TOKEN));
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(serviceProviderConfiguration)));
+        return Mono.just(serviceProviderConfiguration);
     }
 }

@@ -60,7 +60,7 @@ public class MongoAlertNotifierRepository extends AbstractManagementMongoReposit
 }
 @Override
     public Mono<AlertNotifier> findById_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -73,7 +73,7 @@ public class MongoAlertNotifierRepository extends AbstractManagementMongoReposit
     public Flux<AlertNotifier> findAll_migrated(ReferenceType referenceType, String referenceId) {
         Bson eqReference = and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId));
 
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(eqReference)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(collection.find(eqReference)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -98,7 +98,7 @@ public class MongoAlertNotifierRepository extends AbstractManagementMongoReposit
         if (!filters.isEmpty()) {
             query = and(eqReference, criteria.isLogicalOR() ? or(filters) : and(filters));
         }
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(and(eqReference, query))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(collection.find(and(eqReference, query))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(alertNotifier))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -110,7 +110,7 @@ public class MongoAlertNotifierRepository extends AbstractManagementMongoReposit
 @Override
     public Mono<AlertNotifier> create_migrated(AlertNotifier alertNotifier) {
         alertNotifier.setId(alertNotifier.getId() == null ? RandomString.generate() : alertNotifier.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(alertNotifier)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(alertNotifier.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(alertNotifier)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(alertNotifier.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(alertNotifier))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -122,7 +122,7 @@ public class MongoAlertNotifierRepository extends AbstractManagementMongoReposit
 @Override
     public Mono<AlertNotifier> update_migrated(AlertNotifier alertNotifier) {
         AlertNotifierMongo alertNotifierMongo = convert(alertNotifier);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, alertNotifierMongo.getId()), alertNotifierMongo))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(alertNotifierMongo.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, alertNotifierMongo.getId()), alertNotifierMongo))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(alertNotifierMongo.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -133,7 +133,7 @@ public class MongoAlertNotifierRepository extends AbstractManagementMongoReposit
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id)))));
+        return Mono.from(collection.deleteOne(eq(FIELD_ID, id)));
     }
 
     private AlertNotifier convert(AlertNotifierMongo alertNotifierMongo) {

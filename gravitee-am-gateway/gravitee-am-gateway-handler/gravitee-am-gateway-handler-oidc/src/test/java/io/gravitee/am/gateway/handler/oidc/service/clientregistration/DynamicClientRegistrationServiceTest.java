@@ -138,24 +138,24 @@ public class DynamicClientRegistrationServiceTest {
         reset(domain, environment);
 
         when(domain.getId()).thenReturn(DOMAIN_ID);
-        when(identityProviderService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(certificateService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(identityProviderService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.empty());
+        when(certificateService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.empty());
         when(openIDProviderMetadata.getRegistrationEndpoint()).thenReturn("https://issuer/register");
         when(openIDDiscoveryService.getConfiguration(BASE_PATH)).thenReturn(openIDProviderMetadata);
         when(openIDProviderMetadata.getIssuer()).thenReturn("https://issuer");
-        when(jwtService.encode_migrated(any(JWT.class),any(Client.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("jwt"))));
+        when(jwtService.encode_migrated(any(JWT.class),any(Client.class))).thenReturn(Mono.just("jwt"));
 
         when(clientService.create_migrated(any())).thenAnswer(i -> {
             Client res = i.getArgument(0);
             res.setId(ID_TARGET);
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(res)));
+            return Mono.just(res);
         });
-        when(clientService.update_migrated(any())).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
-        when(clientService.delete_migrated(any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(clientService.update_migrated(any())).thenAnswer(i -> Mono.just(i.getArgument(0)));
+        when(clientService.delete_migrated(any())).thenReturn(Mono.empty());
         when(clientService.renewClientSecret_migrated(any(), any())).thenAnswer(i -> {
             Client toRenew = new Client();
             toRenew.setClientSecret("secretRenewed");
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(toRenew)));
+            return Mono.just(toRenew);
         });
 
         when(domain.useFapiBrazilProfile()).thenReturn(false);
@@ -213,7 +213,7 @@ public class DynamicClientRegistrationServiceTest {
     public void create_applyDefaultIdentiyProvider() {
         IdentityProvider identityProvider = Mockito.mock(IdentityProvider.class);
         when(identityProvider.getId()).thenReturn("identity-provider-id-123");
-        when(identityProviderService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(identityProvider))));
+        when(identityProviderService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.just(identityProvider));
 
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
@@ -228,7 +228,7 @@ public class DynamicClientRegistrationServiceTest {
     public void create_applyDefaultCertificateProvider() {
         Certificate certificate = Mockito.mock(Certificate.class);
         when(certificate.getId()).thenReturn("certificate-id-123");
-        when(certificateService.findByDomain_migrated(any())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(certificate))));
+        when(certificateService.findByDomain_migrated(any())).thenReturn(Flux.just(certificate));
 
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
@@ -689,7 +689,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setJwksUri(Optional.of("something"));
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.empty());
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -703,7 +703,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setJwksUri(Optional.of("something"));
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
@@ -774,7 +774,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.of(Arrays.asList("https://graviee.io/callback")));
         request.setJwksUri(Optional.of("something"));
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.patch_migrated(new Client(), request, BASE_PATH)).test();
         testObserver.assertNoErrors();
@@ -834,7 +834,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setSoftwareId(Optional.of("123"));
 
         when(domain.isDynamicClientRegistrationTemplateEnabled()).thenReturn(true);
-        when(clientService.findById_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(clientService.findById_migrated(any())).thenReturn(Mono.empty());
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNotComplete();
@@ -859,7 +859,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setApplicationType(Optional.of("app"));
 
         when(domain.isDynamicClientRegistrationTemplateEnabled()).thenReturn(true);
-        when(clientService.findById_migrated("123")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(template))));
+        when(clientService.findById_migrated("123")).thenReturn(Mono.just(template));
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNotComplete();
@@ -884,10 +884,10 @@ public class DynamicClientRegistrationServiceTest {
         request.setSoftwareId(Optional.of(ID_SOURCE));
         request.setApplicationType(Optional.of("app"));
 
-        when(formService.copyFromClient_migrated(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()))));
-        when(emailTemplateService.copyFromClient_migrated(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(formService.copyFromClient_migrated(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(Mono.just(Collections.emptyList()));
+        when(emailTemplateService.copyFromClient_migrated(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(Flux.empty());
         when(domain.isDynamicClientRegistrationTemplateEnabled()).thenReturn(true);
-        when(clientService.findById_migrated("123")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(template))));
+        when(clientService.findById_migrated("123")).thenReturn(Mono.just(template));
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertComplete().assertNoErrors();
@@ -1073,8 +1073,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(false);
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
@@ -1097,8 +1097,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
@@ -1124,8 +1124,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
@@ -1148,8 +1148,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
@@ -1173,8 +1173,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
@@ -1200,8 +1200,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
@@ -1227,8 +1227,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
@@ -1260,8 +1260,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
@@ -1296,8 +1296,8 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
-        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(new JWKSet()));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(Mono.just(new io.gravitee.am.model.jose.RSAKey()));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
         TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();

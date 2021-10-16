@@ -55,9 +55,9 @@ default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.common.Request> a
 }default Mono<Request> asyncSignInUrl_migrated(String redirectUri, String state) {
         Request request = signInUrl(redirectUri, state);
         if (request != null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(request)));
+            return Mono.just(request);
         } else {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
     }
 
@@ -72,6 +72,6 @@ default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.common.Request> a
 default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.common.Request> signOutUrl(io.gravitee.am.identityprovider.api.Authentication authentication) {
     return RxJava2Adapter.monoToMaybe(signOutUrl_migrated(authentication));
 }default Mono<Request> signOutUrl_migrated(Authentication authentication) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        return Mono.empty();
     }
 }

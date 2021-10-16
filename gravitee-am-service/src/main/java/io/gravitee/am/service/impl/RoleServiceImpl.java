@@ -95,10 +95,10 @@ public class RoleServiceImpl implements RoleService {
         LOGGER.debug("Find roles by {}: {} assignable to {}", referenceType, referenceId, assignableType);
 
         // Organization roles must be zipped with system roles to get a complete list of all roles.
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.merge(RxJava2Adapter.fluxToFlowable(findAllSystem_migrated(assignableType)), RxJava2Adapter.fluxToFlowable(roleRepository.findAll_migrated(referenceType, referenceId))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role -> assignableType == null || assignableType == role.getAssignableType())).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return Flux.merge(RxJava2Adapter.fluxToFlowable(findAllSystem_migrated(assignableType)), RxJava2Adapter.fluxToFlowable(roleRepository.findAll_migrated(referenceType, referenceId))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role -> assignableType == null || assignableType == role.getAssignableType())).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find roles by {}: {} assignable to {}", referenceType, referenceId, assignableType, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error occurs while trying to find roles by %s %s assignable to %s", referenceType, referenceId, assignableType), ex)));
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -121,7 +121,7 @@ public class RoleServiceImpl implements RoleService {
 }
 @Override
     public Mono<Page<Role>> findByDomain_migrated(String domain, int page, int size) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleRepository.findAll_migrated(ReferenceType.DOMAIN, domain, page, size)));
+        return roleRepository.findAll_migrated(ReferenceType.DOMAIN, domain, page, size);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.searchByDomain_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -132,7 +132,7 @@ public class RoleServiceImpl implements RoleService {
 }
 @Override
     public Mono<Page<Role>> searchByDomain_migrated(String domain, String query, int page, int size) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleRepository.search_migrated(ReferenceType.DOMAIN, domain, query, page, size)));
+        return roleRepository.search_migrated(ReferenceType.DOMAIN, domain, query, page, size);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -145,12 +145,12 @@ public class RoleServiceImpl implements RoleService {
     public Mono<Role> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("Find role by ID: {}", id);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleRepository.findById_migrated(referenceType, referenceId, id))
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleRepository.findById_migrated(referenceType, referenceId, id))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a role using its ID: {}", id, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a role using its ID: %s", id), ex)));
-                })).switchIfEmpty(Mono.error(new RoleNotFoundException(id)))));
+                })).switchIfEmpty(Mono.error(new RoleNotFoundException(id)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -179,7 +179,7 @@ public class RoleServiceImpl implements RoleService {
 @Override
     public Mono<Role> findSystemRole_migrated(SystemRole systemRole, ReferenceType assignableType) {
         LOGGER.debug("Find system role : {} for the type : {}", systemRole.name(), assignableType);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleRepository.findByNameAndAssignableType_migrated(ReferenceType.PLATFORM, Platform.DEFAULT, systemRole.name(), assignableType))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(Role::isSystem)))
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleRepository.findByNameAndAssignableType_migrated(ReferenceType.PLATFORM, Platform.DEFAULT, systemRole.name(), assignableType).filter(RxJavaReactorMigrationUtil.toJdkPredicate(Role::isSystem)))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find system role : {} for type : {}", systemRole.name(), assignableType, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
@@ -195,12 +195,12 @@ public class RoleServiceImpl implements RoleService {
 }
 @Override
     public Flux<Role> findRolesByName_migrated(ReferenceType referenceType, String referenceId, ReferenceType assignableType, List<String> roleNames) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(roleRepository.findByNamesAndAssignableType_migrated(referenceType, referenceId, roleNames, assignableType))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(roleRepository.findByNamesAndAssignableType_migrated(referenceType, referenceId, roleNames, assignableType))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     String joinedRoles = roleNames.stream().collect(Collectors.joining(", "));
                     LOGGER.error("An error occurs while trying to find roles : {}", joinedRoles, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find roles : %s", joinedRoles), ex)));
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findDefaultRole_migrated(organizationId, defaultRole, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -212,7 +212,7 @@ public class RoleServiceImpl implements RoleService {
 @Override
     public Mono<Role> findDefaultRole_migrated(String organizationId, DefaultRole defaultRole, ReferenceType assignableType) {
         LOGGER.debug("Find default role {} of organization {} for the type {}", defaultRole.name(), organizationId, assignableType);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleRepository.findByNameAndAssignableType_migrated(ReferenceType.ORGANIZATION, organizationId, defaultRole.name(), assignableType))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(Role::isDefaultRole)))
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleRepository.findByNameAndAssignableType_migrated(ReferenceType.ORGANIZATION, organizationId, defaultRole.name(), assignableType).filter(RxJavaReactorMigrationUtil.toJdkPredicate(Role::isDefaultRole)))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find default role {} of organization {} for the type {}", defaultRole.name(), organizationId, assignableType, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
@@ -249,7 +249,7 @@ public class RoleServiceImpl implements RoleService {
         String roleId = RandomString.generate();
 
         // check if role name is unique
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkRoleUniqueness_migrated(newRole.getName(), roleId, referenceType, referenceId))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Set<Role>, SingleSource<Role>>toJdkFunction(__ -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkRoleUniqueness_migrated(newRole.getName(), roleId, referenceType, referenceId))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Set<Role>, SingleSource<Role>>toJdkFunction(__ -> {
                     Role role = new Role();
                     role.setId(roleId);
                     role.setReferenceType(referenceType);
@@ -273,7 +273,7 @@ public class RoleServiceImpl implements RoleService {
 
                     LOGGER.error("An error occurs while trying to create a role", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a role", ex)));
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(role -> auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_CREATED).role(role)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_CREATED).throwable(throwable))))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(role -> auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_CREATED).role(role)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_CREATED).throwable(throwable))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, newRole, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -285,7 +285,7 @@ public class RoleServiceImpl implements RoleService {
 @Override
     public Mono<Role> create_migrated(String domain, NewRole newRole, User principal) {
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(create_migrated(ReferenceType.DOMAIN, domain, newRole, principal)));
+        return create_migrated(ReferenceType.DOMAIN, domain, newRole, principal);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(referenceType, referenceId, id, updateRole, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -298,7 +298,7 @@ public class RoleServiceImpl implements RoleService {
     public Mono<Role> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateRole updateRole, User principal) {
         LOGGER.debug("Update a role {} for {} {}", id, referenceType, referenceId);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findById_migrated(referenceType, referenceId, id))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Role, SingleSource<Role>>toJdkFunction(role -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findById_migrated(referenceType, referenceId, id).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Role, SingleSource<Role>>toJdkFunction(role -> {
                     if (role.isSystem()) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new SystemRoleUpdateException(role.getName())));
                     }
@@ -310,16 +310,16 @@ public class RoleServiceImpl implements RoleService {
                     return RxJava2Adapter.monoToSingle(Mono.just(role));
                 }).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Role>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Role, Single<Role>>)oldRole -> {
                     // check if role name is unique
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkRoleUniqueness_migrated(updateRole.getName(), oldRole.getId(), referenceType, referenceId))).flatMap(t->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Set<Role>, SingleSource<Role>>toJdkFunction(irrelevant -> {
+                    return RxJava2Adapter.monoToSingle(checkRoleUniqueness_migrated(updateRole.getName(), oldRole.getId(), referenceType, referenceId).flatMap(t->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Set<Role>, SingleSource<Role>>toJdkFunction(irrelevant -> {
                                 Role roleToUpdate = new Role(oldRole);
                                 roleToUpdate.setName(updateRole.getName());
                                 roleToUpdate.setDescription(updateRole.getDescription());
                                 roleToUpdate.setPermissionAcls(Permission.unflatten(updateRole.getPermissions()));
                                 roleToUpdate.setOauthScopes(updateRole.getOauthScopes());
                                 roleToUpdate.setUpdatedAt(new Date());
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleRepository.update_migrated(roleToUpdate))).flatMap(x->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Role, SingleSource<Role>>toJdkFunction(role -> {
+                                return RxJava2Adapter.monoToSingle(roleRepository.update_migrated(roleToUpdate).flatMap(x->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Role, SingleSource<Role>>toJdkFunction(role -> {
                                             Event event = new Event(Type.ROLE, new Payload(role.getId(), role.getReferenceType(), role.getReferenceId(), Action.UPDATE));
-                                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(role)));
+                                            return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(role)));
                                         }).apply(x)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(role -> auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_UPDATED).oldValue(oldRole).role(role)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_UPDATED).throwable(throwable)))));
                             }).apply(t)))));
                 }).apply(v))))
@@ -342,7 +342,7 @@ public class RoleServiceImpl implements RoleService {
 @Override
     public Mono<Role> update_migrated(String domain, String id, UpdateRole updateRole, User principal) {
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(update_migrated(ReferenceType.DOMAIN, domain, id, updateRole, principal)));
+        return update_migrated(ReferenceType.DOMAIN, domain, id, updateRole, principal);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(referenceType, referenceId, roleId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -354,12 +354,12 @@ public class RoleServiceImpl implements RoleService {
 @Override
     public Mono<Void> delete_migrated(ReferenceType referenceType, String referenceId, String roleId, User principal) {
         LOGGER.debug("Delete role {}", roleId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleRepository.findById_migrated(referenceType, referenceId, roleId))).switchIfEmpty(Mono.error(new RoleNotFoundException(roleId))).map(RxJavaReactorMigrationUtil.toJdkFunction(role -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(roleRepository.findById_migrated(referenceType, referenceId, roleId).switchIfEmpty(Mono.error(new RoleNotFoundException(roleId))).map(RxJavaReactorMigrationUtil.toJdkFunction(role -> {
                     if (role.isSystem()) {
                         throw new SystemRoleDeleteException(roleId);
                     }
                     return role;
-                })).flatMap(role->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(roleRepository.delete_migrated(roleId))).then(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(eventService.create_migrated(new Event(Type.ROLE, new Payload(role.getId(), role.getReferenceType(), role.getReferenceId(), Action.DELETE)))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_DELETED).role(role)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_DELETED).throwable(throwable))))).then())
+                })).flatMap(role->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(roleRepository.delete_migrated(roleId).then(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(eventService.create_migrated(new Event(Type.ROLE, new Payload(role.getId(), role.getReferenceType(), role.getReferenceId(), Action.DELETE)))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_DELETED).role(role)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).principal(principal).type(EventType.ROLE_DELETED).throwable(throwable))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
@@ -408,7 +408,7 @@ private Completable upsert(Role role) {
  return RxJava2Adapter.monoToCompletable(upsert_migrated(role));
 }
 private Mono<Void> upsert_migrated(Role role) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleRepository.findByNameAndAssignableType_migrated(role.getReferenceType(), role.getReferenceId(), role.getName(), role.getAssignableType()))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<Role>, CompletableSource>)optRole -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleRepository.findByNameAndAssignableType_migrated(role.getReferenceType(), role.getReferenceId(), role.getName(), role.getAssignableType()))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<Role>, CompletableSource>)optRole -> {
                     if (!optRole.isPresent()) {
                         LOGGER.debug("Create a system role {}", role.getAssignableType() + ":" + role.getName());
                         role.setCreatedAt(new Date());
@@ -449,7 +449,7 @@ private Mono<Void> upsert_migrated(Role role) {
                                 })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(role1 -> auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).type(EventType.ROLE_UPDATED).oldValue(currentRole).role(role1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(RoleAuditBuilder.class).type(EventType.ROLE_UPDATED).throwable(throwable)))))
                                 .toCompletable();
                     }
-                }).apply(y)))).then()));
+                }).apply(y)))).then();
 
     }
 
@@ -459,7 +459,7 @@ private Single<Set<Role>> checkRoleUniqueness(String roleName, String roleId, Re
  return RxJava2Adapter.monoToSingle(checkRoleUniqueness_migrated(roleName, roleId, referenceType, referenceId));
 }
 private Mono<Set<Role>> checkRoleUniqueness_migrated(String roleName, String roleId, ReferenceType referenceType, String referenceId) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(roleRepository.findAll_migrated(referenceType, referenceId))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(roleRepository.findAll_migrated(referenceType, referenceId))
                 .collect(HashSet<Role>::new, Set::add)).flatMap(v->RxJava2Adapter.singleToMono((Single<Set<Role>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<HashSet<Role>, Single<Set<Role>>>)roles -> {
                     if (roles.stream()
                             .filter(role -> !role.getId().equals(roleId))
@@ -467,7 +467,7 @@ private Mono<Set<Role>> checkRoleUniqueness_migrated(String roleName, String rol
                         throw new RoleAlreadyExistsException(roleName);
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(roles));
-                }).apply(v)))));
+                }).apply(v)));
     }
 
     private boolean permissionsAreEquals(Role role1, Role role2) {
@@ -485,7 +485,7 @@ private Flux<Role> findAllSystem_migrated(ReferenceType assignableType) {
         LOGGER.debug("Find all global system roles");
 
         // Exclude roles internal only and non assignable roles.
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(roleRepository.findAll_migrated(ReferenceType.PLATFORM, Platform.DEFAULT))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role -> role.isSystem() && !role.isInternalOnly())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role -> assignableType == null || role.getAssignableType() == assignableType))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(roleRepository.findAll_migrated(ReferenceType.PLATFORM, Platform.DEFAULT))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role -> role.isSystem() && !role.isInternalOnly())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(role -> assignableType == null || role.getAssignableType() == assignableType));
     }
 
     private static List<Role> buildSystemRoles() {

@@ -61,17 +61,17 @@ public static Single<Application> validateGrantTypes(Application application) {
 public static Mono<Application> validateGrantTypes_migrated(Application application) {
         // no application to check, continue
         if (application==null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("No application to validate grant"))));
+            return Mono.error(new InvalidClientMetadataException("No application to validate grant"));
         }
 
         // no application settings to check, continue
         if (application.getSettings() == null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(application)));
+            return Mono.just(application);
         }
 
         // no application oauth settings to check, continue
         if (application.getSettings().getOauth() == null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(application)));
+            return Mono.just(application);
         }
 
         // Each security domain can have multiple extension grant with the same grant_type
@@ -79,7 +79,7 @@ public static Mono<Application> validateGrantTypes_migrated(Application applicat
         ApplicationOAuthSettings oAuthSettings = application.getSettings().getOauth();
         List<String> formattedClientGrantTypes = oAuthSettings.getGrantTypes() == null ? null : oAuthSettings.getGrantTypes().stream().map(str -> str.split(EXTENSION_GRANT_SEPARATOR)[0]).collect(Collectors.toList());
         if(!isSupportedGrantType(formattedClientGrantTypes)) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Missing or invalid grant type."))));
+            return Mono.error(new InvalidClientMetadataException("Missing or invalid grant type."));
         }
 
         //Ensure correspondance between response & grant types.
@@ -92,9 +92,9 @@ public static Mono<Application> validateGrantTypes_migrated(Application applicat
             List<String> allowedRefreshTokenGrant = Arrays.asList(AUTHORIZATION_CODE, PASSWORD, JWT_BEARER);//, CLIENT_CREDENTIALS, HYBRID);
             //return true if there is no element in common
             if(Collections.disjoint(formattedClientGrantTypes, allowedRefreshTokenGrant)) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException(
+                return Mono.error(new InvalidClientMetadataException(
                         REFRESH_TOKEN+" grant type must be associated with one of "+String.join(", ",allowedRefreshTokenGrant)
-                ))));
+                ));
             }
         }
 
@@ -112,7 +112,7 @@ public static Mono<Application> validateGrantTypes_migrated(Application applicat
         }
         */
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(application)));
+        return Mono.just(application);
     }
 
     public static List<String> getSupportedGrantTypes() {

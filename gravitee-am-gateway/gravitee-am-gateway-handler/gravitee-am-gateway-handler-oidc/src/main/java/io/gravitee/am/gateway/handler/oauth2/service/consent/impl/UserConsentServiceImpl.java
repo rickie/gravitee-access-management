@@ -67,7 +67,7 @@ public class UserConsentServiceImpl implements UserConsentService {
 }
 @Override
     public Mono<Set<String>> checkConsent_migrated(Client client, io.gravitee.am.model.User user) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUserAndClient_migrated(domain.getId(), user.getId(), client.getClientId()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(approval -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUserAndClient_migrated(domain.getId(), user.getId(), client.getClientId()).filter(RxJavaReactorMigrationUtil.toJdkPredicate(approval -> {
                     Date today = new Date();
                     return (approval.getExpiresAt().after(today) && approval.getStatus() == ScopeApproval.ApprovalStatus.APPROVED);
                 })).map(RxJavaReactorMigrationUtil.toJdkFunction(ScopeApproval::getScope)))
@@ -91,7 +91,7 @@ public class UserConsentServiceImpl implements UserConsentService {
 
         approvals.forEach(a -> a.setExpiresAt(computeExpiry(scopeApprovals, a.getScope(), parameterizedScopes)));
         // save consent
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeApprovalService.saveConsent_migrated(domain.getId(), client, approvals)));
+        return scopeApprovalService.saveConsent_migrated(domain.getId(), client, approvals);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getConsentInformation_migrated(consent))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -102,7 +102,7 @@ public class UserConsentServiceImpl implements UserConsentService {
 }
 @Override
     public Mono<List<Scope>> getConsentInformation_migrated(Set<String> consent) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.getAll_migrated())).map(RxJavaReactorMigrationUtil.toJdkFunction(scopes -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.getAll_migrated())).map(RxJavaReactorMigrationUtil.toJdkFunction(scopes -> {
                     List<Scope> requestedScopes = new ArrayList<>();
                     for (String requestScope : consent) {
                         Scope requestedScope = scopes
@@ -114,7 +114,7 @@ public class UserConsentServiceImpl implements UserConsentService {
                         requestedScopes.add(requestedScope);
                     }
                     return requestedScopes;
-                }))));
+                }));
     }
 
     private Date computeExpiry(Map<String, ApplicationScopeSettings> scopeApprovals, String scope, List<String> parameterizedScopes) {

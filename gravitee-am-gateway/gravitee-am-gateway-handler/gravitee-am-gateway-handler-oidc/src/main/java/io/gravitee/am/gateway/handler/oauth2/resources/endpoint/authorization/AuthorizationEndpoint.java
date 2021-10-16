@@ -88,7 +88,7 @@ public class AuthorizationEndpoint implements Handler<RoutingContext> {
         RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(parService.deleteRequestUri_migrated(uriIdentifier)).onErrorResumeNext((err) -> {
             logger.warn("Deletion of Pushed Authorization Request with id '{}' failed", uriIdentifier, err);
             return RxJava2Adapter.monoToCompletable(Mono.empty());
-        })).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flow.run_migrated(request, client, endUser)))))
+        })).then(flow.run_migrated(request, client, endUser)))
                 .subscribe(
                         authorizationResponse -> {
                             try {

@@ -234,10 +234,10 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(Mono.just(client));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
-        when(jwkService.getKey_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(key))));
+        when(jwkService.getKey_migrated(any(),any())).thenReturn(Mono.just(key));
 
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
 
@@ -275,10 +275,10 @@ public class ClientAssertionServiceTest {
         signedJWT.sign(new RSASSASigner(privateKey));
         String assertion = signedJWT.serialize();
 
-        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(Mono.just(client));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
-        when(jwkService.getKey_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(key))));
+        when(jwkService.getKey_migrated(any(),any())).thenReturn(Mono.just(key));
         when(jwsService.isValidSignature(any(),any())).thenReturn(true);
 
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
@@ -306,7 +306,7 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(Mono.just(client));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
@@ -335,10 +335,10 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(Mono.just(client));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
-        when(jwkService.getKey_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(key))));
+        when(jwkService.getKey_migrated(any(),any())).thenReturn(Mono.just(key));
         when(jwsService.isValidSignature(any(),any())).thenReturn(true);
 
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
@@ -385,7 +385,7 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(Mono.just(client));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
@@ -418,11 +418,11 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(Mono.just(client));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
-        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(jwkSet))));
-        when(jwkService.getKey_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(key))));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(Mono.just(jwkSet));
+        when(jwkService.getKey_migrated(any(),any())).thenReturn(Mono.just(key));
         when(jwsService.isValidSignature(any(),any())).thenReturn(true);
 
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
@@ -450,7 +450,7 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(Mono.just(client));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
@@ -504,7 +504,7 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(Mono.just(client));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
@@ -537,7 +537,7 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(Mono.just(client));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
