@@ -504,6 +504,7 @@
                             -Xep:InvalidThrows:ERROR
                             -Xep:UnusedMethod:ERROR
                             -Xep:UnnecessarilyFullyQualified:OFF
+                            -Xep:RemoveUnusedImports:ERROR
 
                             <!-- Don't start migration just yet -->
                             -Xep:InlineMeInliner:ERROR
@@ -521,7 +522,7 @@
                             <!-- (?!RxJava) -->
 
                             -Xep:CountMethods:OFF
-                            -XepOpt:Directory=before_run
+                            -XepOpt:Directory=after_p2_run_12
 
                             <!-- Turning off rules with way too many changes: -->
                             -Xep:AndroidJdkLibsChecker:OFF
@@ -534,7 +535,6 @@
                             -Xep:StaticImport:OFF
                             -Xep:MockitoStubbing:OFF
                             -Xep:JUnitMethodDeclaration:OFF
-                            -Xep:RemoveUnusedImports:OFF
                             -Xep:RedundantStringConversion:OFF
                             -Xep:CannotMockFinalClass:OFF
                             -Xep:FieldCanBeFinal:OFF
@@ -556,7 +556,7 @@
 
 <!--                            -XepDisableAllChecks-->
 <!--                            -Xep:CountMethods:ERROR-->
-<!--                            -XepOpt:Directory=p2_run_1-->
+<!--                            -XepOpt:Directory=p2_run_12-->
 
                             <!-- Error Prone args for patch checks -->
                             ${error-prone.args}
