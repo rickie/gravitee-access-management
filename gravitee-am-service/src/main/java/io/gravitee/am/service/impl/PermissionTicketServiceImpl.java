@@ -72,7 +72,7 @@ public class PermissionTicketServiceImpl implements PermissionTicketService {
 String userId = fetchedResourceSet.get(0).getUserId();
 PermissionTicket toCreate = new PermissionTicket();
 return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setClientId(client).setUserId(userId).setCreatedAt(new Date()).setExpireAt(new Date(System.currentTimeMillis() + umaPermissionValidity));
-}))).flatMap(v->RxJava2Adapter.singleToMono((Single<PermissionTicket>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PermissionTicket, Single<PermissionTicket>>)(T ident) -> RxJava2Adapter.monoToSingle(repository.create_migrated(ident))).apply(v)))));
+}))).flatMap(v->RxJava2Adapter.singleToMono((Single<PermissionTicket>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PermissionTicket, Single<PermissionTicket>>)(PermissionTicket ident) -> RxJava2Adapter.monoToSingle(repository.create_migrated(ident))).apply(v)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

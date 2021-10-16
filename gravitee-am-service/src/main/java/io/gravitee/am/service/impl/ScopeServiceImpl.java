@@ -152,7 +152,7 @@ public class ScopeServiceImpl implements ScopeService {
                     scope.setUpdatedAt(new Date());
 
                     return scope;
-                })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction((io.gravitee.am.model.oauth2.Scope ident) -> RxJava2Adapter.monoToSingle(validateIconUri_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction((T ident) -> RxJava2Adapter.monoToSingle(scopeRepository.create_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope -> {
+                })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction((io.gravitee.am.model.oauth2.Scope ident) -> RxJava2Adapter.monoToSingle(validateIconUri_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction((Scope ident) -> RxJava2Adapter.monoToSingle(scopeRepository.create_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope -> {
                     // create event for sync process
                     Event event = new Event(Type.SCOPE, new Payload(scope.getId(), ReferenceType.DOMAIN, scope.getDomain(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(scope)));
@@ -274,7 +274,7 @@ private Single<Scope> update(String domain, Scope toUpdate, Scope oldValue, User
 private Mono<Scope> update_migrated(String domain, Scope toUpdate, Scope oldValue, User principal) {
 
         toUpdate.setUpdatedAt(new Date());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validateIconUri_migrated(toUpdate))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction((T ident) -> RxJava2Adapter.monoToSingle(scopeRepository.update_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validateIconUri_migrated(toUpdate))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction((Scope ident) -> RxJava2Adapter.monoToSingle(scopeRepository.update_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope1 -> {
                     // create event for sync process
                     Event event = new Event(Type.SCOPE, new Payload(scope1.getId(), ReferenceType.DOMAIN, scope1.getDomain(), Action.UPDATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(scope1)));

@@ -135,7 +135,7 @@ public class FactorServiceImpl implements FactorService {
         factor.setCreatedAt(new Date());
         factor.setUpdatedAt(factor.getCreatedAt());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factor))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction((T ident) -> RxJava2Adapter.monoToSingle(factorRepository.create_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(factor1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factor))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction((Factor  ident) -> RxJava2Adapter.monoToSingle(factorRepository.create_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(factor1 -> {
                     // create event for sync process
                     Event event = new Event(Type.FACTOR, new Payload(factor1.getId(), ReferenceType.DOMAIN, factor1.getDomain(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(factor1)));
@@ -186,7 +186,7 @@ private Mono<Factor> checkFactorConfiguration_migrated(Factor factor) {
                     factorToUpdate.setConfiguration(updateFactor.getConfiguration());
                     factorToUpdate.setUpdatedAt(new Date());
 
-                    return  RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factorToUpdate))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction((T ident) -> RxJava2Adapter.monoToSingle(factorRepository.update_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(factor1 -> {
+                    return  RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factorToUpdate))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction((Factor ident) -> RxJava2Adapter.monoToSingle(factorRepository.update_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(factor1 -> {
                                 // create event for sync process
                                 Event event = new Event(Type.FACTOR, new Payload(factor1.getId(), ReferenceType.DOMAIN, factor1.getDomain(), Action.UPDATE));
                                 return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(factor1)));

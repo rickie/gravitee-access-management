@@ -218,7 +218,7 @@ public class CertificateServiceImpl implements CertificateService {
                     }
                 });
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateSingle).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction((T ident) -> RxJava2Adapter.monoToSingle(certificateRepository.create_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificate -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateSingle).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction((Certificate ident) -> RxJava2Adapter.monoToSingle(certificateRepository.create_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificate -> {
                     Event event = new Event(Type.CERTIFICATE, new Payload(certificate.getId(), ReferenceType.DOMAIN, certificate.getDomain(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(certificate)));
                 }).apply(v)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
@@ -317,7 +317,7 @@ public class CertificateServiceImpl implements CertificateService {
                         emitter.onSuccess(certificateToUpdate);
                     });
 
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateSingle).flatMap(t->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction((T ident) -> RxJava2Adapter.monoToSingle(certificateRepository.update_migrated(ident))).apply(t)))).flatMap(o->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificate1 -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateSingle).flatMap(t->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction((Certificate ident) -> RxJava2Adapter.monoToSingle(certificateRepository.update_migrated(ident))).apply(t)))).flatMap(o->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificate1 -> {
                                 Event event = new Event(Type.CERTIFICATE, new Payload(certificate1.getId(), ReferenceType.DOMAIN, certificate1.getDomain(), Action.UPDATE));
                                 return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(certificate1)));
                             }).apply(o)))))

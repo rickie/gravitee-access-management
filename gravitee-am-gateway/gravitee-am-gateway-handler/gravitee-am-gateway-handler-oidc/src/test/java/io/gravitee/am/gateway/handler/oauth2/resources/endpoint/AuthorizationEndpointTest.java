@@ -1262,7 +1262,7 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
         when(jweService.encryptAuthorization_migrated(anyString(), eq(client))).then(new Answer<Single<String>>() {
             @Override
             public Single<String> answer(InvocationOnMock invocation) throws Throwable {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just((String)invocation.getArguments()[0])));
+                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just((String)invocation.getArguments()[0]))));
             }
         });
 
