@@ -122,7 +122,11 @@ public abstract class AbstractSocialAuthenticationProvider<T extends SocialIdent
 
     protected abstract Maybe<Token> authenticate(Authentication authentication);
 
+    protected abstract Mono<Token> authenticate_migrated(Authentication authentication);
+
     protected abstract Maybe<User> profile(Token token, Authentication authentication);
+
+    protected abstract Mono<User> profile_migrated(Token token, Authentication authentication);
 
     protected abstract Map<String, Object> defaultClaims(Map<String, Object> attributes);
 

@@ -62,6 +62,8 @@ public abstract class AbstractFlow implements Flow {
     }
 
     protected abstract Single<AuthorizationResponse> prepareResponse(AuthorizationRequest authorizationRequest, Client client, User endUser);
+    
+    protected abstract Mono<AuthorizationResponse> prepareResponse_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser);
 
     @Deprecated
 private Single<AuthorizationResponse> processResponse(AuthorizationResponse authorizationResponse, AuthorizationRequest authorizationRequest, Client client, User endUser) {

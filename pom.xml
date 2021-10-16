@@ -430,6 +430,21 @@
             <artifactId>error_prone_migration</artifactId>
             <version>HEAD-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>io.projectreactor.addons</groupId>
+            <artifactId>reactor-adapter</artifactId>
+            <version>3.3.3.RELEASE</version>
+        </dependency>
+        <dependency>
+            <artifactId>reactor-core</artifactId>
+            <groupId>io.projectreactor</groupId>
+            <version>3.3.3.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>io.reactivex.rxjava2</groupId>
+            <artifactId>rxjava</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -541,7 +556,7 @@
 
 <!--                            -XepDisableAllChecks-->
 <!--                            -Xep:CountMethods:ERROR-->
-<!--                            -XepOpt:Directory=after_part_1-->
+<!--                            -XepOpt:Directory=p2_run_1-->
 
                             <!-- Error Prone args for patch checks -->
                             ${error-prone.args}
