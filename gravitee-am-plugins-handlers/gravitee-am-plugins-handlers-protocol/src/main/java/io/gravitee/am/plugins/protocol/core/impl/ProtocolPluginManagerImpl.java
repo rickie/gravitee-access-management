@@ -31,7 +31,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.ConfigurableEnvironment;
 
-import java.net.URLClassLoader;
+
 import java.util.HashMap;
 import java.util.Map;
 

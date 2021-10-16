@@ -16,9 +16,9 @@
 package io.gravitee.am.extensiongrant.api;
 
 import com.google.errorprone.annotations.InlineMe;
-import io.gravitee.am.identityprovider.api.User;
+
 import io.gravitee.am.repository.oauth2.model.request.TokenRequest;
-import io.reactivex.Maybe;
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

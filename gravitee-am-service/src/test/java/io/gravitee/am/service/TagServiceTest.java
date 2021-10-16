@@ -27,8 +27,8 @@ import io.gravitee.am.service.exception.TagNotFoundException;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.impl.TagServiceImpl;
 import io.gravitee.am.service.model.NewTag;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import io.reactivex.observers.TestObserver;
 import org.junit.Test;
 import org.junit.runner.RunWith;

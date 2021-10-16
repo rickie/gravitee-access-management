@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.common.exception.uma;
 
-import io.gravitee.common.util.MultiValueMap;
+
 
 import java.util.List;
 

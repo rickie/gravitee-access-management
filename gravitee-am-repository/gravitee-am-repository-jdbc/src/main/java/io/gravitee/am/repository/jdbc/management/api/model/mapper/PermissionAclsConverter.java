@@ -22,7 +22,7 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.repository.jdbc.common.JSONMapper;
 
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)

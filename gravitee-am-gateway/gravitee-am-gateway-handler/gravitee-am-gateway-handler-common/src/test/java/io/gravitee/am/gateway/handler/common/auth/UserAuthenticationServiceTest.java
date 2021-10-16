@@ -26,8 +26,8 @@ import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Group;
 import io.gravitee.am.model.Role;
 import io.gravitee.am.model.User;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.Arrays;
 import java.util.HashMap;

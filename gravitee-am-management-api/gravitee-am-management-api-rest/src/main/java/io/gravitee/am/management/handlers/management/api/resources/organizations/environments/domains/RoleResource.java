@@ -15,8 +15,8 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
-import static io.gravitee.am.management.service.permissions.Permissions.of;
-import static io.gravitee.am.management.service.permissions.Permissions.or;
+
+
 
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.model.RoleEntity;
@@ -31,9 +31,9 @@ import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.exception.RoleNotFoundException;
 import io.gravitee.am.service.model.UpdateRole;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;

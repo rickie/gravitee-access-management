@@ -27,9 +27,9 @@ import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.exception.FactorNotFoundException;
 import io.gravitee.am.service.model.UpdateServiceResource;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;

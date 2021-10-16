@@ -18,17 +18,17 @@ package io.gravitee.am.management.handlers.management.api.resources.organization
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.Credential;
-import io.gravitee.am.model.Domain;
+
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.CredentialService;
 import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.exception.CredentialNotFoundException;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
-import io.reactivex.Maybe;
-import io.reactivex.functions.Function;
+
+
+
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;

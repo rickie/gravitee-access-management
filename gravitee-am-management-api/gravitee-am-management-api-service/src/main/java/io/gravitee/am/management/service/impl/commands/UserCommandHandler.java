@@ -17,7 +17,7 @@ package io.gravitee.am.management.service.impl.commands;
 
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.management.service.OrganizationUserService;
-import io.gravitee.am.management.service.UserService;
+
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.service.model.NewUser;
 import io.gravitee.cockpit.api.command.Command;

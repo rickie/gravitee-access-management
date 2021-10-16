@@ -17,7 +17,7 @@ package io.gravitee.am.management.service.impl.commands;
 
 import static io.gravitee.am.management.service.impl.commands.UserCommandHandler.COCKPIT_SOURCE;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.Membership;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.Role;
@@ -28,7 +28,7 @@ import io.gravitee.am.model.permissions.SystemRole;
 import io.gravitee.am.service.MembershipService;
 import io.gravitee.am.service.OrganizationUserService;
 import io.gravitee.am.service.RoleService;
-import io.gravitee.am.service.UserService;
+
 import io.gravitee.am.service.exception.InvalidRoleException;
 import io.gravitee.cockpit.api.command.Command;
 import io.gravitee.cockpit.api.command.CommandHandler;

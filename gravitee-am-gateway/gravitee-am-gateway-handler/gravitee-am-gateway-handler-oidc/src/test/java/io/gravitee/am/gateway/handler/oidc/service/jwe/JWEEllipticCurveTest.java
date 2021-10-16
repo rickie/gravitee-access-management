@@ -33,7 +33,7 @@ import io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils;
 import io.gravitee.am.model.jose.ECKey;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
-import io.reactivex.Maybe;
+
 import io.reactivex.observers.TestObserver;
 import java.util.Arrays;
 import java.util.Collection;

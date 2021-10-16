@@ -32,8 +32,8 @@ import io.gravitee.am.model.User;
 import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.am.service.exception.ScopeApprovalNotFoundException;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
+
+
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.http.HttpMethod;
 import org.junit.Ignore;
@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 

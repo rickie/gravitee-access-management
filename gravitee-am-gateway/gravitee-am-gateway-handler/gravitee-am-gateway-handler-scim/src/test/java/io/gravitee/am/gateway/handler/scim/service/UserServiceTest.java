@@ -37,9 +37,9 @@ import io.gravitee.am.repository.management.api.UserRepository;
 import io.gravitee.am.service.RoleService;
 import io.gravitee.am.service.validators.PasswordValidator;
 import io.gravitee.am.service.validators.UserValidator;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.Arrays;
 import java.util.Collections;

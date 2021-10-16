@@ -194,7 +194,7 @@ public class ReporterServiceImpl implements ReporterService {
         reporter.setCreatedAt(new Date());
         reporter.setUpdatedAt(reporter.getCreatedAt());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkReporterConfiguration_migrated(reporter).flatMap(ignore->reporterRepository.create_migrated(reporter)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Reporter, SingleSource<Reporter>>toJdkFunction(reporter1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkReporterConfiguration_migrated(reporter).flatMap(ignore->reporterRepository.create_migrated(reporter)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Reporter, SingleSource<Reporter>>toJdkFunction(reporter1 -> {
                     // create event for sync process
                     Event event = new Event(Type.REPORTER, new Payload(reporter1.getId(), ReferenceType.DOMAIN, reporter1.getDomain(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(reporter1)));
@@ -205,7 +205,7 @@ public class ReporterServiceImpl implements ReporterService {
                         message += ex.getMessage();
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(message, ex)));
-                }).apply(err))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(reporter1 -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_CREATED).reporter(reporter1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_CREATED).throwable(throwable))));
+                }).apply(err))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(reporter1 -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_CREATED).reporter(reporter1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_CREATED).throwable(throwable))));
     }
 
 
@@ -219,7 +219,7 @@ public class ReporterServiceImpl implements ReporterService {
     public Mono<Reporter> update_migrated(String domain, String id, UpdateReporter updateReporter, User principal) {
         LOGGER.debug("Update a reporter {} for domain {}", id, domain);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(reporterRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ReporterNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Reporter, SingleSource<Reporter>>toJdkFunction(oldReporter -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(reporterRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ReporterNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Reporter, SingleSource<Reporter>>toJdkFunction(oldReporter -> {
                     Reporter reporterToUpdate = new Reporter(oldReporter);
                     reporterToUpdate.setEnabled(updateReporter.isEnabled());
                     reporterToUpdate.setName(updateReporter.getName());
@@ -244,7 +244,7 @@ return RxJava2Adapter.monoToSingle(Mono.just(reporter1));
                         message += ex.getMessage();
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(message, ex)));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(reporterId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.common.vertx.web.handler.impl;
 
 import static io.vertx.ext.web.handler.SessionHandler.DEFAULT_SESSION_TIMEOUT;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User;

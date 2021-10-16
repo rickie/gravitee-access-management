@@ -21,9 +21,9 @@ import static org.junit.Assert.assertNotNull;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.oauth2.AbstractOAuthTest;
 import io.gravitee.am.repository.oauth2.model.AccessToken;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.Arrays;
 import org.junit.Test;

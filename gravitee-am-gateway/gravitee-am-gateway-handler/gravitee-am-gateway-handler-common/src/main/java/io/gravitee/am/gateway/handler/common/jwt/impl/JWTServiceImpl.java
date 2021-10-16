@@ -24,7 +24,7 @@ import io.gravitee.am.gateway.certificate.CertificateProvider;
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Maybe;
+
 import io.reactivex.Single;
 import java.util.Base64;
 import java.util.Map;

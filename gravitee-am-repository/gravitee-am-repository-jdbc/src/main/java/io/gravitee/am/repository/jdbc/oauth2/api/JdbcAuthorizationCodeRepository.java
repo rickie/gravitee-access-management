@@ -23,7 +23,7 @@ import static reactor.adapter.rxjava.RxJava2Adapter.*;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
-import io.gravitee.am.repository.jdbc.management.api.model.JdbcLoginAttempt;
+
 import io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAuthorizationCode;
 import io.gravitee.am.repository.jdbc.oauth2.api.spring.SpringAuthorizationCodeRepository;
 import io.gravitee.am.repository.oauth2.api.AuthorizationCodeRepository;

@@ -25,8 +25,8 @@ import io.gravitee.am.service.ServiceResourceService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.NewServiceResource;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import io.swagger.annotations.*;
 import java.net.URI;
 import javax.validation.Valid;

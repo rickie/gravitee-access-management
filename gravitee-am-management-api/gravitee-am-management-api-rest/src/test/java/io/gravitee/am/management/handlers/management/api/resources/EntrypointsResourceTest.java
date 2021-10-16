@@ -27,15 +27,15 @@ import io.gravitee.am.model.Entrypoint;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.NewEntrypoint;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
+
+
 import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

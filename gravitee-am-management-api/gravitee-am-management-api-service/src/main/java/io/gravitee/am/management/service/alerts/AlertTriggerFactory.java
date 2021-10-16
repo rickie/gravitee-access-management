@@ -24,7 +24,7 @@ import io.gravitee.notifier.api.Notification;
 import org.springframework.core.env.Environment;
 
 import java.util.List;
-import java.util.Map;
+
 import java.util.stream.Collectors;
 
 /**

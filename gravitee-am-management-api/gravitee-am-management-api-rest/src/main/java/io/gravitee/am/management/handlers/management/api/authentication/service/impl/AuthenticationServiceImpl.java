@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.authentication.service.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.oidc.CustomClaims;
 import io.gravitee.am.common.oidc.StandardClaims;
@@ -37,7 +37,7 @@ import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.AuthenticationAuditBuilder;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
-import io.reactivex.Maybe;
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
@@ -83,7 +83,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String organizationId = details.get(Claims.organization);
 
         final String source = details.get(SOURCE);
-        io.gravitee.am.model.User endUser = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.findByExternalIdAndSource_migrated(ReferenceType.ORGANIZATION, organizationId, principal.getId(), source).switchIfEmpty(Mono.defer(()->userService.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, organizationId, principal.getUsername(), source))).switchIfEmpty(Mono.error(new UserNotFoundException(principal.getUsername()))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(existingUser -> {
+        io.gravitee.am.model.User endUser = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.findByExternalIdAndSource_migrated(ReferenceType.ORGANIZATION, organizationId, principal.getId(), source).switchIfEmpty(Mono.defer(()->userService.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, organizationId, principal.getUsername(), source))).switchIfEmpty(Mono.error(new UserNotFoundException(principal.getUsername()))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(existingUser -> {
                     existingUser.setSource(details.get(SOURCE));
                     existingUser.setLoggedAt(new Date());
                     existingUser.setLoginsCount(existingUser.getLoginsCount() + 1);
@@ -108,7 +108,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         return RxJava2Adapter.monoToSingle(userService.create_migrated(newUser).flatMap(user->userService.setRoles_migrated(principal, user).then(Mono.just(user))));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));
-                }).apply(err))))).flatMap(userService::enhance_migrated).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> auditService.report(AuditBuilder.builder(AuthenticationAuditBuilder.class).principal(authentication).referenceType(ReferenceType.ORGANIZATION)
+                }).apply(err))).flatMap(userService::enhance_migrated).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> auditService.report(AuditBuilder.builder(AuthenticationAuditBuilder.class).principal(authentication).referenceType(ReferenceType.ORGANIZATION)
                         .referenceId(organizationId).user(user)))).block();
 
         principal.setId(endUser.getId());

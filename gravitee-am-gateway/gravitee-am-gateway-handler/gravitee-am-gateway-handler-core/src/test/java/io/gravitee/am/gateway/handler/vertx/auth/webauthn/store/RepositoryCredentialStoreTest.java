@@ -23,7 +23,7 @@ import io.gravitee.am.model.Credential;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.service.CredentialService;
-import io.reactivex.Flowable;
+
 import io.vertx.ext.auth.webauthn.Authenticator;
 import java.util.List;
 import org.junit.Assert;
@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 
 /**

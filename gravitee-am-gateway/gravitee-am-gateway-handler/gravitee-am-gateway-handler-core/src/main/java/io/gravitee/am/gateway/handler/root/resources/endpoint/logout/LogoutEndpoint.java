@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.root.resources.endpoint.logout;
 
 import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.jwt.ExpiredJWTException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.oidc.Parameters;

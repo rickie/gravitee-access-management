@@ -17,21 +17,21 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.INSTALLATION_UPGRADER;
 
-import io.gravitee.am.model.Domain;
+
 import io.gravitee.am.model.Installation;
-import io.gravitee.am.model.oauth2.Scope;
+
 import io.gravitee.am.service.*;
-import io.gravitee.am.service.model.NewScope;
-import io.reactivex.Observable;
-import io.reactivex.Single;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+
+
+
+
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)

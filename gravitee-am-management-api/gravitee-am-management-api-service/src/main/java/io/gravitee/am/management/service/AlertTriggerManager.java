@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.service;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.alert.api.trigger.Trigger;
 import io.gravitee.alert.api.trigger.TriggerProvider;
 import io.gravitee.am.common.event.AlertNotifierEvent;
@@ -36,7 +36,7 @@ import io.gravitee.am.service.DomainService;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventManager;
 import io.gravitee.common.service.AbstractService;
-import io.reactivex.Flowable;
+
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import java.util.Collections;

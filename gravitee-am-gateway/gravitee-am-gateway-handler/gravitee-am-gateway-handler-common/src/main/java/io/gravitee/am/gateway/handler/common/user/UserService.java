@@ -19,9 +19,9 @@ import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.factor.EnrolledFactor;
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.List;
+
+
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

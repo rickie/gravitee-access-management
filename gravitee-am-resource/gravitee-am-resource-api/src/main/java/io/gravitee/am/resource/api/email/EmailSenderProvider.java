@@ -18,7 +18,7 @@ package io.gravitee.am.resource.api.email;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.email.Email;
 import io.gravitee.am.resource.api.ResourceProvider;
-import io.reactivex.Completable;
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

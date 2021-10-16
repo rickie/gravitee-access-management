@@ -40,8 +40,8 @@ import io.gravitee.am.model.jose.*;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.Optional;
@@ -91,13 +91,13 @@ public class JWEServiceImpl implements JWEService {
                 new Payload(signedJwt)
         );
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<String>>toJdkFunction(throwable -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<String>>toJdkFunction(throwable -> {
                     if(throwable instanceof OAuth2Exception) {
                         return RxJava2Adapter.monoToSingle(Mono.error(throwable));
                     }
                     LOGGER.error(throwable.getMessage(), throwable);
                     return RxJava2Adapter.monoToSingle(Mono.error(new ServerErrorException("Unable to encrypt id_token")));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encryptUserinfo_migrated(signedJwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -121,13 +121,13 @@ public class JWEServiceImpl implements JWEService {
                 new Payload(signedJwt)
         );
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<String>>toJdkFunction(throwable -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<String>>toJdkFunction(throwable -> {
                     if(throwable instanceof OAuth2Exception) {
                         return RxJava2Adapter.monoToSingle(Mono.error(throwable));
                     }
                     LOGGER.error(throwable.getMessage(), throwable);
                     return RxJava2Adapter.monoToSingle(Mono.error(new ServerErrorException("Unable to encrypt userinfo")));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isEncrypted_migrated(jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -256,13 +256,13 @@ public Mono<String> encryptAuthorization_migrated(String signedJwt, Client clien
                 new Payload(signedJwt)
         );
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<String>>toJdkFunction(throwable -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<String>>toJdkFunction(throwable -> {
                     if(throwable instanceof OAuth2Exception) {
                         return RxJava2Adapter.monoToSingle(Mono.error(throwable));
                     }
                     LOGGER.error(throwable.getMessage(), throwable);
                     return RxJava2Adapter.monoToSingle(Mono.error(new ServerErrorException("Unable to encrypt authorization")));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     

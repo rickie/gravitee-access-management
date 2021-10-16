@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.vertx.auth.webauthn.store;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.oidc.StandardClaims;

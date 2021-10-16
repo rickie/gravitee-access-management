@@ -25,17 +25,17 @@ import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.ScopeService;
 import io.gravitee.am.service.model.NewSystemScope;
 import io.gravitee.am.service.model.UpdateSystemScope;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import java.util.Arrays;
-import java.util.HashSet;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

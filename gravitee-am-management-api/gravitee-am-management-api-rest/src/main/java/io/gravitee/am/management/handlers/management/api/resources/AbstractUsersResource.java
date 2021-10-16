@@ -78,7 +78,7 @@ private Mono<Page<User>> executeSearchUsers_migrated(CommonUserService service, 
             return service.search_migrated(referenceType, referenceId, query, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE));
         }
         if (filter != null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.defer(() -> {
+            return RxJava2Adapter.singleToMono(Single.defer(() -> {
                 FilterCriteria filterCriteria = FilterCriteria.convert(SCIMFilterParser.parse(filter));
                 return RxJava2Adapter.monoToSingle(service.search_migrated(referenceType, referenceId, filterCriteria, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE)));
             })).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<User>>>toJdkFunction(ex -> {
@@ -86,7 +86,7 @@ private Mono<Page<User>> executeSearchUsers_migrated(CommonUserService service, 
                     return RxJava2Adapter.monoToSingle(Mono.error(new BadRequestException(ex.getMessage())));
                 }
                 return RxJava2Adapter.monoToSingle(Mono.error(ex));
-            }).apply(err)))));
+            }).apply(err)));
         }
         return service.findAll_migrated(referenceType, referenceId, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE));
     }

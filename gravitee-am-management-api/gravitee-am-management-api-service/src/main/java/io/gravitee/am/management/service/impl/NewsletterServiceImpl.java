@@ -20,8 +20,8 @@ import io.reactivex.Single;
 import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;
-import java.util.ArrayList;
-import java.util.Arrays;
+
+
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;

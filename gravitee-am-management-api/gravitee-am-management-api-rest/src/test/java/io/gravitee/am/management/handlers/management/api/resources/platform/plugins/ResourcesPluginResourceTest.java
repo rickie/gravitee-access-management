@@ -19,16 +19,16 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
-import io.gravitee.am.service.exception.TechnicalManagementException;
-import io.gravitee.am.service.model.plugin.IdentityProviderPlugin;
+
+
 import io.gravitee.am.service.model.plugin.ResourcePlugin;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Single;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

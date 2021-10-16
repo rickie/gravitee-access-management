@@ -40,14 +40,14 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.exception.ApplicationNotFoundException;
 import io.gravitee.am.service.model.PatchApplication;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

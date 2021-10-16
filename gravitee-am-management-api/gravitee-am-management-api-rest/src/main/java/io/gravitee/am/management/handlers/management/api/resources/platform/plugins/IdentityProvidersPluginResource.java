@@ -16,18 +16,18 @@
 package io.gravitee.am.management.handlers.management.api.resources.platform.plugins;
 
 import io.gravitee.am.management.service.IdentityProviderPluginService;
-import io.gravitee.am.management.service.impl.IdentityProviderManagerImpl;
+
 import io.gravitee.am.service.model.plugin.IdentityProviderPlugin;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import io.reactivex.functions.Function;
+
+
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Consumer;
+
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -38,7 +38,7 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

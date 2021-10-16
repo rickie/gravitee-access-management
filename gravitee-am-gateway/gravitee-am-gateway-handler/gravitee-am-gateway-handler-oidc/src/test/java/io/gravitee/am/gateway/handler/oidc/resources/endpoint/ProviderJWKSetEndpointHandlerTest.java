@@ -24,7 +24,7 @@ import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.jose.RSAKey;
 import io.gravitee.am.model.oidc.JWKSet;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Single;
+
 import io.vertx.core.http.HttpMethod;
 import java.util.Collections;
 import org.junit.Test;
@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

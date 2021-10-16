@@ -16,12 +16,12 @@
 package io.gravitee.am.management.service;
 
 import com.google.errorprone.annotations.InlineMe;
-import io.gravitee.am.identityprovider.api.UserProvider;
-import io.gravitee.am.model.IdentityProvider;
+
+
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.common.service.Service;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

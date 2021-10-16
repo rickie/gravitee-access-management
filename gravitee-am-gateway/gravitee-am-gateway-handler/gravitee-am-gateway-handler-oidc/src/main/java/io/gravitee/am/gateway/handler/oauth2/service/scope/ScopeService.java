@@ -17,9 +17,9 @@ package io.gravitee.am.gateway.handler.oauth2.service.scope;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.oauth2.Scope;
-import io.reactivex.Single;
+
 import java.util.List;
-import java.util.Set;
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

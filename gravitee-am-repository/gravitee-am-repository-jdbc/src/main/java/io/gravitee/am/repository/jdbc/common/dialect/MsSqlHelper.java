@@ -15,10 +15,10 @@
  */
 package io.gravitee.am.repository.jdbc.common.dialect;
 
-import io.gravitee.am.model.ReferenceType;
+
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
 import org.springframework.data.r2dbc.dialect.R2dbcDialect;
-import org.springframework.data.relational.core.sql.SqlIdentifier;
+
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)

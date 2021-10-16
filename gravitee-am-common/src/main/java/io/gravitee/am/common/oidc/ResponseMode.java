@@ -16,7 +16,7 @@
 package io.gravitee.am.common.oidc;
 
 import java.util.Arrays;
-import java.util.Collection;
+
 import java.util.List;
 
 /**

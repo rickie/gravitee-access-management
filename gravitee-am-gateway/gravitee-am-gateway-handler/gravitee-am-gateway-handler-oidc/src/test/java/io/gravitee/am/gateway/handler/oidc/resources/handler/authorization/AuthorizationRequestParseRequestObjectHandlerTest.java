@@ -24,29 +24,29 @@ import com.nimbusds.jose.util.IOUtils;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
-import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
-import io.gravitee.am.gateway.handler.oidc.exception.ClientRegistrationForbiddenException;
-import io.gravitee.am.gateway.handler.oidc.service.request.RequestObjectService;
-import io.gravitee.am.model.Domain;
-import io.vertx.reactivex.ext.web.RoutingContext;
-import org.junit.Assert;
+
+
+
+
+
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+
+
+
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.spec.PKCS8EncodedKeySpec;
+
+
+
 import java.util.Date;
 
-import static org.mockito.Mockito.doNothing;
+
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)

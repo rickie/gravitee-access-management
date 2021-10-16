@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNull;
 import io.gravitee.am.repository.jdbc.oauth2.api.JdbcPushedAuthorizationRequestRepository;
 import io.gravitee.am.repository.oauth2.AbstractOAuthTest;
 import io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest;
-import io.gravitee.am.repository.oidc.model.RequestObject;
+
 import io.gravitee.common.util.LinkedMultiValueMap;
 import io.reactivex.observers.TestObserver;
 import java.time.Instant;

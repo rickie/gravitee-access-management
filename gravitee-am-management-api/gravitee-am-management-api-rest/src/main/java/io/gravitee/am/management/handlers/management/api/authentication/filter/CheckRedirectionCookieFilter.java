@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.authentication.filter;
 
-import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;

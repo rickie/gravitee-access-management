@@ -35,8 +35,8 @@ import io.gravitee.cockpit.api.command.membership.MembershipCommand;
 import io.gravitee.cockpit.api.command.membership.MembershipPayload;
 import io.gravitee.cockpit.api.command.membership.MembershipReply;
 import io.gravitee.common.utils.UUID;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;

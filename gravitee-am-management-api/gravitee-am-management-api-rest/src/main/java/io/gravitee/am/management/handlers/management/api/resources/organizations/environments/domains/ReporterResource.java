@@ -28,8 +28,8 @@ import io.gravitee.am.service.model.UpdateReporter;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import io.reactivex.functions.Function;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

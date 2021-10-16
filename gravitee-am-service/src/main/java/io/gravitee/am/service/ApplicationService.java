@@ -19,14 +19,14 @@ import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.application.ApplicationType;
-import io.gravitee.am.model.common.Page;
+
 import io.gravitee.am.service.model.NewApplication;
 import io.gravitee.am.service.model.PatchApplication;
-import io.gravitee.am.service.model.TopApplication;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
+
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;

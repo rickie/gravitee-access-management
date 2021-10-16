@@ -31,7 +31,7 @@ import io.gravitee.am.service.exception.ResourceNotFoundException;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
-import io.reactivex.Maybe;
+
 import io.reactivex.schedulers.Schedulers;
 import java.util.HashSet;
 import java.util.Map;

@@ -26,8 +26,8 @@ import io.gravitee.am.gateway.handler.common.oauth2.impl.IntrospectionTokenServi
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.repository.oauth2.api.AccessTokenRepository;
 import io.gravitee.am.repository.oauth2.model.AccessToken;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import io.reactivex.observers.TestObserver;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

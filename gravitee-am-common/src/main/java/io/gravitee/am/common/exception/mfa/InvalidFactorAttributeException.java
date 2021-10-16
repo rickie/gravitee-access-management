@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.common.exception.mfa;
 
-import io.gravitee.am.common.exception.authentication.AuthenticationException;
+
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)

@@ -27,14 +27,14 @@ import io.gravitee.am.model.Email;
 import io.gravitee.am.service.exception.EmailNotFoundException;
 import io.gravitee.am.service.model.UpdateEmail;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import org.junit.Ignore;
 import org.junit.Test;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

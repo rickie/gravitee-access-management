@@ -30,7 +30,7 @@ import io.gravitee.am.service.exception.EmailFormatInvalidException;
 import io.gravitee.am.service.exception.InvalidUserException;
 import io.gravitee.am.service.exception.UserAlreadyExistsException;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Single;
+
 import io.vertx.core.http.HttpMethod;
 import io.vertx.reactivex.ext.web.handler.BodyHandler;
 import java.util.Collections;
@@ -38,7 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

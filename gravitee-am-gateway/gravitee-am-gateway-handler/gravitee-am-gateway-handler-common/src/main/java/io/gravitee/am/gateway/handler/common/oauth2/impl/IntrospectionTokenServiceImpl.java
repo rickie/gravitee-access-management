@@ -22,10 +22,10 @@ import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.gravitee.am.gateway.handler.common.oauth2.IntrospectionTokenService;
-import io.gravitee.am.model.oidc.Client;
+
 import io.gravitee.am.repository.oauth2.api.AccessTokenRepository;
-import io.reactivex.Maybe;
-import io.reactivex.MaybeSource;
+
+
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import java.time.Instant;
@@ -65,7 +65,7 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
 }
 @Override
     public Mono<JWT> introspect_migrated(String token, boolean offlineVerification) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(jwtService.decode_migrated(token).flatMap(e->clientService.findByDomainAndClientId_migrated(e.getDomain(), e.getAud())).switchIfEmpty(Mono.error(new InvalidTokenException("Invalid or unknown client for this token"))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(jwtService.decode_migrated(token).flatMap(e->clientService.findByDomainAndClientId_migrated(e.getDomain(), e.getAud())).switchIfEmpty(Mono.error(new InvalidTokenException("Invalid or unknown client for this token"))))
                 .flatMapSingle(client -> RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(token, client)))).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, Single<JWT>>)jwt -> {
                     // Just check the JWT signature and JWT validity if offline verification option is enabled
                     // or if the token has just been created (could not be in database so far because of async database storing process delay)
@@ -93,6 +93,6 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
                                 token, details != null ? details : "none", jwt != null ? jwt.toString() : "{}", invalidTokenException);
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));
-                }).apply(err)))));
+                }).apply(err)));
     }
 }

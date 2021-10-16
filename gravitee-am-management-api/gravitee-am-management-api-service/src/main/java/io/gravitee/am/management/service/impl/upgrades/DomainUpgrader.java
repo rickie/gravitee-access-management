@@ -17,14 +17,14 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.DOMAIN_UPGRADER;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.model.PatchDomain;
 import io.gravitee.am.service.model.openid.PatchClientRegistrationSettings;
 import io.gravitee.am.service.model.openid.PatchOIDCSettings;
 import io.reactivex.Observable;
-import io.reactivex.Single;
+
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

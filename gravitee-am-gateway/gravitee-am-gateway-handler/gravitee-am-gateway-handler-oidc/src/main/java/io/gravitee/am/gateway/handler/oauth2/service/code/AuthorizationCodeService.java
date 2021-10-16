@@ -19,9 +19,9 @@ import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

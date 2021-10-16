@@ -135,7 +135,7 @@ public class FactorServiceImpl implements FactorService {
         factor.setCreatedAt(new Date());
         factor.setUpdatedAt(factor.getCreatedAt());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factor).flatMap(v->factorRepository.create_migrated(v)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(factor1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factor).flatMap(v->factorRepository.create_migrated(v)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(factor1 -> {
                     // create event for sync process
                     Event event = new Event(Type.FACTOR, new Payload(factor1.getId(), ReferenceType.DOMAIN, factor1.getDomain(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(factor1)));
@@ -146,7 +146,7 @@ public class FactorServiceImpl implements FactorService {
 
                     LOGGER.error("An error occurs while trying to create a factor", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a factor", ex)));
-                }).apply(err))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_CREATED).factor(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_CREATED).throwable(throwable))));
+                }).apply(err))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_CREATED).factor(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_CREATED).throwable(throwable))));
     }
 
     
@@ -174,7 +174,7 @@ private Mono<Factor> checkFactorConfiguration_migrated(Factor factor) {
     public Mono<Factor> update_migrated(String domain, String id, UpdateFactor updateFactor, User principal) {
         LOGGER.debug("Update an factor {} for domain {}", id, domain);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(factorRepository.findById_migrated(id).switchIfEmpty(Mono.error(new FactorNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(oldFactor -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(factorRepository.findById_migrated(id).switchIfEmpty(Mono.error(new FactorNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(oldFactor -> {
                     Factor factorToUpdate = new Factor(oldFactor);
                     factorToUpdate.setName(updateFactor.getName());
                     factorToUpdate.setConfiguration(updateFactor.getConfiguration());
@@ -192,7 +192,7 @@ private Mono<Factor> checkFactorConfiguration_migrated(Factor factor) {
 
                     LOGGER.error("An error occurs while trying to update a factor", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a factor", ex)));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(domain, factorId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -21,7 +21,7 @@ import io.gravitee.am.model.permissions.Permission;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
+
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)

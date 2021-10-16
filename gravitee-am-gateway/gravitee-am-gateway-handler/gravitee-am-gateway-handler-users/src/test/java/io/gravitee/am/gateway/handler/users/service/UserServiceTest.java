@@ -23,9 +23,9 @@ import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.am.service.ScopeApprovalService;
 import io.gravitee.am.service.exception.ScopeApprovalNotFoundException;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
+
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.Set;
 import org.junit.Test;

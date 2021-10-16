@@ -17,7 +17,7 @@ package io.gravitee.am.model;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
+
 
 /**
  * @author Florent CHAMFROY (florent.chamfroy at graviteesource.com)

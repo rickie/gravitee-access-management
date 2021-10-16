@@ -39,7 +39,7 @@ import io.gravitee.common.event.EventManager;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Single;
 import io.reactivex.functions.BiConsumer;
-import io.reactivex.schedulers.Schedulers;
+
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
 import java.util.Collection;

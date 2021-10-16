@@ -17,12 +17,12 @@ package io.gravitee.am.management.service;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ReferenceType;
-import io.gravitee.am.model.User;
-import io.gravitee.am.model.common.Page;
+
+
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
 import io.gravitee.am.service.model.UpdateUser;
-import io.reactivex.Completable;
-import io.reactivex.Single;
+
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
 

@@ -26,12 +26,12 @@ import io.gravitee.am.gateway.handler.oauth2.service.par.PushedAuthorizationRequ
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.response.AuthorizationResponse;
 import io.gravitee.am.gateway.handler.oidc.service.flow.Flow;
-import io.gravitee.am.model.Domain;
+
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Completable;
-import io.reactivex.Single;
+
+
 import io.vertx.core.Handler;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.ext.auth.User;

@@ -25,7 +25,7 @@ import io.gravitee.am.repository.oauth2.api.AuthorizationCodeRepository;
 import io.gravitee.am.repository.oauth2.api.RefreshTokenRepository;
 import io.gravitee.am.repository.oauth2.api.ScopeApprovalRepository;
 import io.gravitee.am.repository.oidc.api.RequestObjectRepository;
-import io.reactivex.Completable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Before;
@@ -34,7 +34,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

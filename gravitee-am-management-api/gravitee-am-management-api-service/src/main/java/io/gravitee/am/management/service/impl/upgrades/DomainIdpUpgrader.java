@@ -17,7 +17,7 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.DOMAIN_IDP_UPGRADER;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.management.service.IdentityProviderManager;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.IdentityProvider;

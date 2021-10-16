@@ -24,7 +24,7 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.AlertTriggerService;
 import io.gravitee.am.service.model.PatchAlertTrigger;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Single;
+
 import io.swagger.annotations.*;
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -32,7 +32,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

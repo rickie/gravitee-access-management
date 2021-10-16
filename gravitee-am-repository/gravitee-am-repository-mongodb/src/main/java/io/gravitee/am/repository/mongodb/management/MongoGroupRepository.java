@@ -16,7 +16,7 @@
 package io.gravitee.am.repository.mongodb.management;
 
 import static com.mongodb.client.model.Filters.*;
-import static io.gravitee.am.model.ReferenceType.DOMAIN;
+
 
 import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.BasicDBObject;

@@ -25,8 +25,8 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.FlowService;
 import io.gravitee.am.service.exception.FlowNotFoundException;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;

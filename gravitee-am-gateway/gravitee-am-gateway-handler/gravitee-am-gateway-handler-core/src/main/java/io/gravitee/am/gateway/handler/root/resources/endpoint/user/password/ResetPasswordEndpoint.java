@@ -22,13 +22,13 @@ import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.PasswordSettings;
 import io.gravitee.am.model.Template;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.common.http.HttpHeaders;
-import io.gravitee.common.http.MediaType;
+
+
 import io.vertx.core.Handler;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.common.template.TemplateEngine;
-import io.vertx.reactivex.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

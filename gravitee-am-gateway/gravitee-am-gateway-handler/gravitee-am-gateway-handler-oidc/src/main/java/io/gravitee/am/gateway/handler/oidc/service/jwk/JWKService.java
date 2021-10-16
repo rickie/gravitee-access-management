@@ -19,8 +19,8 @@ import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import java.util.function.Predicate;
 import reactor.adapter.rxjava.RxJava2Adapter;
 

@@ -26,8 +26,8 @@ import io.gravitee.cockpit.api.command.hello.HelloCommand;
 import io.gravitee.cockpit.api.command.hello.HelloReply;
 import io.gravitee.node.api.Node;
 import io.reactivex.Single;
-import io.reactivex.SingleSource;
-import java.util.Map;
+
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;

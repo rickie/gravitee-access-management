@@ -39,7 +39,7 @@ import io.gravitee.am.service.AuthenticationFlowContextService;
 import io.gravitee.am.service.PermissionTicketService;
 import io.gravitee.am.service.ResourceService;
 import io.reactivex.BackpressureStrategy;
-import io.reactivex.Maybe;
+
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.util.Objects;

@@ -23,7 +23,7 @@ import io.gravitee.am.management.handlers.management.api.authentication.http.Jet
 import io.gravitee.am.management.handlers.management.api.authentication.manager.idp.IdentityProviderManager;
 import io.gravitee.am.management.handlers.management.api.authentication.provider.generator.JWTGenerator;
 import io.gravitee.am.management.handlers.management.api.authentication.provider.security.EndUserAuthentication;
-import io.gravitee.am.management.handlers.management.api.authentication.service.AuthenticationService;
+
 import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.am.model.ReferenceType;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.web.util.UriComponentsBuilder;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)

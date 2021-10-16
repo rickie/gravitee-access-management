@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.oauth2.service.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.gravitee.common.util.MultiValueMap;
+
 
 import java.util.List;
 

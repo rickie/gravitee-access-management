@@ -21,7 +21,7 @@ import io.gravitee.am.jwt.JWTParser;
 import io.gravitee.am.management.handlers.management.api.authentication.provider.security.EndUserAuthentication;
 import io.gravitee.am.management.handlers.management.api.authentication.web.WebAuthenticationDetails;
 import io.gravitee.am.management.service.OrganizationUserService;
-import io.gravitee.am.management.service.UserService;
+
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.service.AuditService;
 import io.gravitee.am.service.reporter.builder.AuditBuilder;
@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.core.env.Environment;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

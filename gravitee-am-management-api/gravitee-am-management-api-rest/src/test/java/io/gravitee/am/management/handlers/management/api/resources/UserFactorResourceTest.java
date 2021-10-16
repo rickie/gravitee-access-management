@@ -24,12 +24,12 @@ import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.factor.EnrolledFactor;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import java.util.Collections;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

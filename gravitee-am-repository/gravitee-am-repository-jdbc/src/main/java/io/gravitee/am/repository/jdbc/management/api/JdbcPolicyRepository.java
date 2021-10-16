@@ -22,8 +22,8 @@ import io.gravitee.am.repository.management.api.PolicyRepository;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import java.util.Collections;
-import java.util.List;
+
+
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;

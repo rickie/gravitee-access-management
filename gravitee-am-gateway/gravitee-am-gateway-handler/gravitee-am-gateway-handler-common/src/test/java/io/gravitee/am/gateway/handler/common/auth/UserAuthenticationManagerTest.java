@@ -39,7 +39,7 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.LoginAttemptService;
 import io.gravitee.common.event.EventManager;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import io.reactivex.observers.TestObserver;
 import java.util.Arrays;
 import java.util.Collections;

@@ -21,7 +21,7 @@ import io.gravitee.gateway.api.ExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.function.Predicate;
+
 
 import static org.springframework.util.StringUtils.isEmpty;
 

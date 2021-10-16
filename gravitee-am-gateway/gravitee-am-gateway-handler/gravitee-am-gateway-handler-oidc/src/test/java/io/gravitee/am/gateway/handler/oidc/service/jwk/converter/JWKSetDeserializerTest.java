@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.gravitee.am.model.oidc.JWKSet;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
-import io.vertx.core.json.Json;
+
 import io.vertx.core.json.jackson.DatabindCodec;
 import org.junit.Test;
 

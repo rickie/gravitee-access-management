@@ -31,10 +31,10 @@ import io.gravitee.am.plugins.policy.core.PolicyPluginManager;
 import io.gravitee.am.service.FlowService;
 import io.gravitee.el.TemplateEngine;
 import io.gravitee.gateway.api.ExecutionContext;
-import io.gravitee.gateway.api.Request;
-import io.gravitee.gateway.api.Response;
-import io.gravitee.gateway.api.context.SimpleExecutionContext;
-import io.reactivex.Flowable;
+
+
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.Collections;
 import java.util.List;

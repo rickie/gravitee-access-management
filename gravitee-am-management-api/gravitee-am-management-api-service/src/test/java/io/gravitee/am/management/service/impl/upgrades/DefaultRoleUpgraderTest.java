@@ -20,13 +20,13 @@ import static org.mockito.Mockito.when;
 
 import io.gravitee.am.repository.exceptions.TechnicalException;
 import io.gravitee.am.service.RoleService;
-import io.reactivex.Completable;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

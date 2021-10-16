@@ -30,11 +30,11 @@ import io.gravitee.common.http.MediaType;
 import io.reactivex.functions.Consumer;
 import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
-import io.vertx.reactivex.core.http.HttpServerRequest;
+
 import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

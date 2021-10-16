@@ -28,14 +28,14 @@ import io.gravitee.cockpit.api.command.Command;
 import io.gravitee.cockpit.api.command.hello.HelloCommand;
 import io.gravitee.cockpit.api.command.hello.HelloPayload;
 import io.gravitee.node.api.Node;
-import io.reactivex.Single;
+
 import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

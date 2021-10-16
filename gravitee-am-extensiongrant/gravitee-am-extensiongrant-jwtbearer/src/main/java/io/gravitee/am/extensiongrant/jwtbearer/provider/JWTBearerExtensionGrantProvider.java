@@ -31,9 +31,9 @@ import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.jwt.DefaultJWTParser;
 import io.gravitee.am.jwt.JWTParser;
 import io.gravitee.am.repository.oauth2.model.request.TokenRequest;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;

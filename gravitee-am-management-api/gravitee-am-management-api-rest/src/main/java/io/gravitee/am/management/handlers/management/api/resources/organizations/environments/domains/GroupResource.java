@@ -15,15 +15,15 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
-import static io.gravitee.am.management.service.permissions.Permissions.of;
-import static io.gravitee.am.management.service.permissions.Permissions.or;
+
+
 
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.model.Acl;
-import io.gravitee.am.model.Domain;
+
 import io.gravitee.am.model.Group;
 import io.gravitee.am.model.ReferenceType;
-import io.gravitee.am.model.User;
+
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.GroupService;
@@ -31,12 +31,12 @@ import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.exception.GroupNotFoundException;
 import io.gravitee.am.service.model.UpdateGroup;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
+
+
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
-import io.reactivex.Single;
-import io.reactivex.functions.Function;
+
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;

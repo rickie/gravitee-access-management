@@ -19,8 +19,8 @@ import com.nimbusds.jwt.proc.JWTProcessor;
 import io.gravitee.am.common.jwt.SignatureAlgorithm;
 import io.gravitee.am.common.oauth2.ResponseType;
 import io.gravitee.am.common.oidc.Scope;
-import io.gravitee.am.identityprovider.api.DefaultIdentityProviderMapper;
-import io.gravitee.am.identityprovider.api.DefaultIdentityProviderRoleMapper;
+
+
 import io.gravitee.am.identityprovider.api.IdentityProviderMapper;
 import io.gravitee.am.identityprovider.api.IdentityProviderRoleMapper;
 import io.gravitee.am.identityprovider.api.oidc.OpenIDConnectIdentityProviderConfiguration;

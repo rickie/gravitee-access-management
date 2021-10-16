@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.platform.plugins;
 
-import io.gravitee.am.management.handlers.management.api.model.ErrorEntity;
+
 import io.gravitee.am.management.service.impl.plugins.NotifierPluginService;
 import io.gravitee.am.service.model.plugin.AbstractPlugin;
 import io.gravitee.am.service.model.plugin.NotifierPlugin;
@@ -35,7 +35,7 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

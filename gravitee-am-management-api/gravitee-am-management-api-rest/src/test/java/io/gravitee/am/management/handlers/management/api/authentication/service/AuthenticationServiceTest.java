@@ -23,15 +23,15 @@ import io.gravitee.am.management.handlers.management.api.authentication.service.
 import io.gravitee.am.model.*;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.membership.MemberType;
-import io.gravitee.am.model.permissions.DefaultRole;
+
 import io.gravitee.am.service.AuditService;
 import io.gravitee.am.service.MembershipService;
 import io.gravitee.am.service.OrganizationUserService;
 import io.gravitee.am.service.RoleService;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
+
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +40,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

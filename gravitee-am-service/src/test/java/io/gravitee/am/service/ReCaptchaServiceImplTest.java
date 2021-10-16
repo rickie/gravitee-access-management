@@ -21,10 +21,10 @@ import static org.mockito.Mockito.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.service.impl.ReCaptchaServiceImpl;
-import io.gravitee.common.http.HttpStatusCode;
+
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
-import io.reactivex.schedulers.TestScheduler;
+
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.impl.ClientPhase;

@@ -40,7 +40,7 @@ import io.gravitee.platform.repository.api.RepositoryScopeProvider;
 import io.gravitee.plugin.alert.spring.AlertPluginConfiguration;
 import io.gravitee.plugin.core.spring.PluginConfiguration;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.Json;
+
 import io.vertx.core.json.jackson.DatabindCodec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

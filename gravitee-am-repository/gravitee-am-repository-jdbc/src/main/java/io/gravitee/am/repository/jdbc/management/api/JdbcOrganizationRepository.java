@@ -21,7 +21,7 @@ import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
-import io.gravitee.am.model.Environment;
+
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization;

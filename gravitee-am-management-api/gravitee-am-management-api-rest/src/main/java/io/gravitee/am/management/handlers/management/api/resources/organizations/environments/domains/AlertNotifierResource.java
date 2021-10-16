@@ -24,8 +24,8 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.AlertNotifierService;
 import io.gravitee.am.service.model.PatchAlertNotifier;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Completable;
-import io.reactivex.Single;
+
+
 import io.swagger.annotations.*;
 import javax.inject.Inject;
 import javax.validation.Valid;

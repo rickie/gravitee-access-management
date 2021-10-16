@@ -17,7 +17,7 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.OPENID_SCOPE_UPGRADER;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.oauth2.Scope;
 import io.gravitee.am.service.DomainService;
@@ -25,7 +25,7 @@ import io.gravitee.am.service.ScopeService;
 import io.gravitee.am.service.model.NewSystemScope;
 import io.gravitee.am.service.model.UpdateSystemScope;
 import io.reactivex.Observable;
-import io.reactivex.Single;
+
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -29,7 +29,7 @@ import io.gravitee.am.gateway.handler.oidc.service.jwe.JWEService;
 import io.gravitee.am.gateway.handler.oidc.service.request.RequestObjectService;
 import io.gravitee.am.gateway.handler.oidc.service.request.impl.RequestObjectServiceImpl;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Single;
+
 import io.reactivex.observers.TestObserver;
 import java.text.ParseException;
 import net.minidev.json.JSONObject;

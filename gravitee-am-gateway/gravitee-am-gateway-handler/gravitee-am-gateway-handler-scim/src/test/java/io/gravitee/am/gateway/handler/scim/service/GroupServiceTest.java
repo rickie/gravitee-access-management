@@ -32,9 +32,9 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
 import io.gravitee.am.repository.management.api.GroupRepository;
 import io.gravitee.am.repository.management.api.UserRepository;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.Collections;
 import org.junit.Assert;

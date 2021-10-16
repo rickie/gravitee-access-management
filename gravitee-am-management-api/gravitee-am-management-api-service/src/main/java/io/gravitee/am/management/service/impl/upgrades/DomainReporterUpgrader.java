@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.service.impl.upgrades;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Reporter;
 import io.gravitee.am.service.DomainService;

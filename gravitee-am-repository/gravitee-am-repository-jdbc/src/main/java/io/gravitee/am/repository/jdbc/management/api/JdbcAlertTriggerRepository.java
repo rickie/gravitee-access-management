@@ -25,7 +25,7 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertTrigger;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcAlertTrigger;
-import io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization;
+
 import io.gravitee.am.repository.jdbc.management.api.spring.alert.SpringAlertTriggerAlertNotifierRepository;
 import io.gravitee.am.repository.jdbc.management.api.spring.alert.SpringAlertTriggerRepository;
 import io.gravitee.am.repository.management.api.AlertTriggerRepository;

@@ -18,10 +18,10 @@ package io.gravitee.am.reporter.jdbc.dialect;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
-import io.reactivex.Single;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+
+
+
+
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import reactor.adapter.rxjava.RxJava2Adapter;
 

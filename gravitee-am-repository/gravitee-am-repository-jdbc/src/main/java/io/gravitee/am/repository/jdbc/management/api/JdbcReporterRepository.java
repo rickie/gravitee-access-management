@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;

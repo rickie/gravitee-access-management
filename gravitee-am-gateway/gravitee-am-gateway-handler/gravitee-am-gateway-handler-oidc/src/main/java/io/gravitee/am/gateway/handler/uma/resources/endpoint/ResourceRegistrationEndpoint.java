@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.uma.resources.endpoint;
 
 import static io.gravitee.am.gateway.handler.uma.constants.UMAConstants.*;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
@@ -32,9 +32,9 @@ import io.gravitee.am.service.model.NewResource;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.HttpStatusCode;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
-import io.reactivex.SingleSource;
+
+
+
 import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;

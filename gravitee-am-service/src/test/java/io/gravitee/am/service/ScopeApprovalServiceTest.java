@@ -29,9 +29,9 @@ import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.exception.UserNotFoundException;
 import io.gravitee.am.service.impl.ScopeApprovalServiceImpl;
 import io.gravitee.am.service.reporter.builder.UserConsentAuditBuilder;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
+
+
+
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
 import java.util.HashSet;

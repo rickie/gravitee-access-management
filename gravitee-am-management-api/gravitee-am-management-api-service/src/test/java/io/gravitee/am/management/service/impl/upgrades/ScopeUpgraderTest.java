@@ -21,22 +21,22 @@ import static org.mockito.Mockito.*;
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Role;
-import io.gravitee.am.model.application.ApplicationAdvancedSettings;
+
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
 import io.gravitee.am.model.application.ApplicationSettings;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.oauth2.Scope;
-import io.gravitee.am.model.oidc.Client;
+
 import io.gravitee.am.service.*;
 import io.gravitee.am.service.model.NewScope;
-import io.reactivex.Single;
+
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

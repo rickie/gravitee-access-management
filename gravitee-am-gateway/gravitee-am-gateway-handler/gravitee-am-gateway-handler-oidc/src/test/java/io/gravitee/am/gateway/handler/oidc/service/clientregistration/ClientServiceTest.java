@@ -28,9 +28,9 @@ import io.gravitee.am.service.exception.ClientNotFoundException;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 import io.gravitee.am.service.exception.InvalidRedirectUriException;
 import io.gravitee.am.service.exception.TechnicalManagementException;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.Collections;
 import org.junit.Assert;

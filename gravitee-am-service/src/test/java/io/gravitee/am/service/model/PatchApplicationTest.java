@@ -16,14 +16,14 @@
 package io.gravitee.am.service.model;
 
 import io.gravitee.am.model.account.AccountSettings;
-import io.gravitee.am.model.login.LoginSettings;
+
 import io.gravitee.am.model.permissions.Permission;
-import io.gravitee.am.model.scim.SCIMSettings;
-import io.gravitee.am.service.model.openid.PatchClientRegistrationSettings;
-import io.gravitee.am.service.model.openid.PatchOIDCSettings;
+
+
+
 import org.junit.Test;
 
-import javax.swing.text.html.Option;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;

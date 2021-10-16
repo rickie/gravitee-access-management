@@ -26,8 +26,8 @@ import io.gravitee.am.repository.oauth2.api.RefreshTokenRepository;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.impl.TokenServiceImpl;
 import io.gravitee.am.service.model.TotalToken;
-import io.reactivex.Completable;
-import io.reactivex.Single;
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.Arrays;
 import java.util.HashSet;

@@ -30,7 +30,7 @@ import io.gravitee.cockpit.api.command.CommandStatus;
 import io.gravitee.cockpit.api.command.user.UserCommand;
 import io.gravitee.cockpit.api.command.user.UserPayload;
 import io.gravitee.cockpit.api.command.user.UserReply;
-import io.reactivex.Single;
+
 import io.reactivex.observers.TestObserver;
 import java.util.HashMap;
 import org.junit.Before;
@@ -38,7 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.service.impl.upgrades;
 
-import static io.reactivex.Single.just;
+
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -29,10 +29,10 @@ import io.gravitee.am.model.flow.Type;
 import io.gravitee.am.repository.management.api.PolicyRepository;
 import io.gravitee.am.service.FlowService;
 import io.gravitee.am.service.model.plugin.PolicyPlugin;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
+
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Test;
@@ -41,7 +41,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.util.CollectionUtils;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

@@ -17,7 +17,7 @@ package io.gravitee.am.management.service.impl.commands;
 
 import static io.gravitee.am.model.Installation.COCKPIT_INSTALLATION_STATUS;
 
-import io.gravitee.am.model.Installation;
+
 import io.gravitee.am.service.InstallationService;
 import io.gravitee.cockpit.api.command.Command;
 import io.gravitee.cockpit.api.command.CommandHandler;

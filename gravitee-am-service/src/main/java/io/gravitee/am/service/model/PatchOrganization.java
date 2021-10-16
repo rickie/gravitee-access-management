@@ -20,7 +20,7 @@ import io.gravitee.am.service.utils.SetterUtils;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)

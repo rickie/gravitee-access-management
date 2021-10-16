@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.vertx;
 
 import io.gravitee.am.gateway.reactor.Reactor;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
+
 import io.vertx.core.Promise;
 import io.vertx.reactivex.core.http.HttpServer;
 import org.slf4j.Logger;

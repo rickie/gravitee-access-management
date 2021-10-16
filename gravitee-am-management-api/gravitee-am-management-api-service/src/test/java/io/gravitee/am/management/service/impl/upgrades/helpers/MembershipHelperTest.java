@@ -19,20 +19,20 @@ import static org.mockito.Mockito.*;
 
 import io.gravitee.am.model.*;
 import io.gravitee.am.model.membership.MemberType;
-import io.gravitee.am.model.permissions.DefaultRole;
+
 import io.gravitee.am.model.permissions.SystemRole;
 import io.gravitee.am.repository.management.api.search.MembershipCriteria;
 import io.gravitee.am.service.MembershipService;
 import io.gravitee.am.service.RoleService;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

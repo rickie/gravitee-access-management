@@ -18,7 +18,7 @@ package io.gravitee.am.management.handlers.management.api.resources.platform.plu
 import io.gravitee.am.management.service.ResourcePluginService;
 import io.gravitee.am.management.service.exception.ResourcePluginNotFoundException;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Maybe;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.inject.Inject;
@@ -31,7 +31,7 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

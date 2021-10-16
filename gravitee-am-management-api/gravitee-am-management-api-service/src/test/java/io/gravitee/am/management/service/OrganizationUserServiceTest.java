@@ -34,10 +34,10 @@ import io.gravitee.am.service.exception.*;
 import io.gravitee.am.service.model.NewUser;
 import io.gravitee.am.service.validators.PasswordValidator;
 import io.gravitee.am.service.validators.UserValidator;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.HashMap;
 import org.junit.Test;

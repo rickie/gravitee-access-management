@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.audits;
 
-import io.gravitee.am.common.audit.EventType;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.model.AuditParam;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
@@ -27,11 +27,11 @@ import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
 import io.gravitee.am.reporter.api.audit.model.Audit;
-import io.gravitee.am.reporter.api.audit.model.AuditEntity;
-import io.gravitee.am.reporter.api.audit.model.AuditOutcome;
+
+
 import io.gravitee.am.service.DomainService;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Single;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -43,9 +43,9 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

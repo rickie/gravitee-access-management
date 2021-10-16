@@ -28,7 +28,7 @@ import io.reactivex.*;
 import io.reactivex.BackpressureStrategy;
 import java.util.List;
 import javax.annotation.PostConstruct;
-import org.bson.Document;
+
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;

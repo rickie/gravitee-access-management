@@ -26,7 +26,7 @@ import io.gravitee.am.gateway.handler.oauth2.service.token.TokenService;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
-import io.reactivex.Maybe;
+
 import io.reactivex.functions.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

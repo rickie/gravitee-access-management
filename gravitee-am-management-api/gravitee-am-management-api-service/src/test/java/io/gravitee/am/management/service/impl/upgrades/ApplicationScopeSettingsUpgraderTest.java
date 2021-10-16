@@ -20,15 +20,15 @@ import static org.mockito.Mockito.*;
 import io.gravitee.am.model.*;
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
 import io.gravitee.am.model.application.ApplicationSettings;
-import io.gravitee.am.model.oauth2.Scope;
+
 import io.gravitee.am.repository.management.api.ApplicationRepository;
 import io.gravitee.am.repository.management.api.SystemTaskRepository;
 import io.gravitee.common.util.Maps;
 import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import java.util.Arrays;
-import java.util.Collections;
+
 import java.util.UUID;
 import org.junit.Test;
 import org.junit.runner.RunWith;

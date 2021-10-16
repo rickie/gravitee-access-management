@@ -30,9 +30,9 @@ import io.gravitee.am.repository.management.api.search.MembershipCriteria;
 import io.gravitee.am.service.exception.*;
 import io.gravitee.am.service.impl.MembershipServiceImpl;
 import io.gravitee.am.service.model.NewMembership;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.reactivex.observers.TestObserver;
 import org.junit.Test;
 import org.junit.runner.RunWith;

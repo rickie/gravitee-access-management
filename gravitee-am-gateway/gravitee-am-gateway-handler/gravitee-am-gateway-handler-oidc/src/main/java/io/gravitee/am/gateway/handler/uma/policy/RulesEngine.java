@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.uma.policy;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.gateway.api.ExecutionContext;
-import io.reactivex.Completable;
+
 import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;
 

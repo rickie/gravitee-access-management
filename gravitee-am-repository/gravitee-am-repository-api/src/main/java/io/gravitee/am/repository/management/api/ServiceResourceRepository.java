@@ -19,7 +19,7 @@ import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.resource.ServiceResource;
 import io.gravitee.am.repository.common.CrudRepository;
-import io.reactivex.Flowable;
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

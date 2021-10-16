@@ -25,7 +25,7 @@ import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.PatchDomain;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Completable;
-import io.reactivex.Maybe;
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.swagger.annotations.ApiOperation;
@@ -73,7 +73,7 @@ public class DomainResource extends AbstractDomainResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission_migrated(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Domain, SingleSource<Domain>>toJdkFunction(domain -> RxJava2Adapter.monoToSingle(findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domainId).map(RxJavaReactorMigrationUtil.toJdkFunction(userPermissions -> filterDomainInfos(domain, userPermissions))))).apply(y))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Domain, SingleSource<Domain>>toJdkFunction(domain -> RxJava2Adapter.monoToSingle(findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domainId).map(RxJavaReactorMigrationUtil.toJdkFunction(userPermissions -> filterDomainInfos(domain, userPermissions))))).apply(y))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PUT

@@ -17,7 +17,7 @@ package io.gravitee.am.reporter.file.formatter.csv;
 
  import io.gravitee.am.reporter.file.audit.ReportEntry;
  import io.gravitee.am.reporter.file.formatter.AbstractFormatter;
- import io.gravitee.reporter.api.Reportable;
+ 
  import io.vertx.core.buffer.Buffer;
 
  /**
