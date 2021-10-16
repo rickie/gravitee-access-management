@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
@@ -123,7 +124,8 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
         throw new IllegalStateException("signInUrl isn't implemented for Twitter IdP");
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.asyncSignInUrl_migrated(redirectUri, state))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Request> asyncSignInUrl(String redirectUri, String state) {
  return RxJava2Adapter.monoToMaybe(asyncSignInUrl_migrated(redirectUri, state));
@@ -192,7 +194,8 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.authenticate_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Maybe<Token> authenticate(Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(authenticate_migrated(authentication));
@@ -254,7 +257,8 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
                 }).apply(v))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.profile_migrated(token, authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Maybe<User> profile(Token token, Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(profile_migrated(token, authentication));

@@ -30,8 +30,13 @@ import reactor.core.publisher.Mono;
  */
 public class ServiceProviderConfigServiceImpl implements ServiceProviderConfigService {
 
-    @Override
+    @Deprecated
+@Override
     public Single<ServiceProviderConfiguration> get() {
+ return RxJava2Adapter.monoToSingle(get_migrated());
+}
+@Override
+    public Mono<ServiceProviderConfiguration> get_migrated() {
         ServiceProviderConfiguration serviceProviderConfiguration = new ServiceProviderConfiguration();
         serviceProviderConfiguration.setPatch(new ComplexType(true));
         serviceProviderConfiguration.setBulk(new ComplexType(false));
@@ -41,6 +46,6 @@ public class ServiceProviderConfigServiceImpl implements ServiceProviderConfigSe
         serviceProviderConfiguration.setEtag(new ComplexType(false));
         serviceProviderConfiguration.setAuthenticationSchemes(Collections.singletonList(AuthenticationScheme.OAUTH_BEARER_TOKEN));
 
-        return RxJava2Adapter.monoToSingle(Mono.just(serviceProviderConfiguration));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(serviceProviderConfiguration)));
     }
 }

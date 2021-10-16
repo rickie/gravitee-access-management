@@ -50,32 +50,52 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
     @Autowired
     private IdentityProviderPluginManager identityProviderPluginManager;
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<IdentityProviderPlugin>> findAll(List<String> expand) {
-        return this.findAll(false, null);
+ return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
+}
+@Override
+    public Mono<List<IdentityProviderPlugin>> findAll_migrated(List<String> expand) {
+        return RxJava2Adapter.singleToMono(this.findAll(false, null));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<IdentityProviderPlugin>> findAll(Boolean external) {
-        return this.findAll(external, null);
+ return RxJava2Adapter.monoToSingle(findAll_migrated(external));
+}
+@Override
+    public Mono<List<IdentityProviderPlugin>> findAll_migrated(Boolean external) {
+        return RxJava2Adapter.singleToMono(this.findAll(external, null));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<IdentityProviderPlugin>> findAll(Boolean external, List<String> expand) {
+ return RxJava2Adapter.monoToSingle(findAll_migrated(external, expand));
+}
+@Override
+    public Mono<List<IdentityProviderPlugin>> findAll_migrated(Boolean external, List<String> expand) {
         LOGGER.debug("List all identity provider plugins");
-        return RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromIterable(identityProviderPluginManager.getAll().entrySet()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(entry -> (external != null && external) == entry.getKey().external())))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromIterable(identityProviderPluginManager.getAll().entrySet()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(entry -> (external != null && external) == entry.getKey().external())))
             .map(entry -> convert(entry.getValue(), expand))
             .toList()
             .onErrorResumeNext(ex -> {
                 LOGGER.error("An error occurs while trying to list all identity provider plugins", ex);
                 return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to list all identity provider plugins", ex)));
-            });
+            }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<IdentityProviderPlugin> findById(String identityProviderId) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(identityProviderId));
+}
+@Override
+    public Mono<IdentityProviderPlugin> findById_migrated(String identityProviderId) {
         LOGGER.debug("Find identity provider plugin by ID: {}", identityProviderId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 Plugin identityProvider = identityProviderPluginManager.findById(identityProviderId);
                 if (identityProvider != null) {
@@ -87,13 +107,18 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
                 LOGGER.error("An error occurs while trying to get identity provider plugin : {}", identityProviderId, ex);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get identity provider plugin : " + identityProviderId, ex));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<String> getSchema(String identityProviderId) {
+ return RxJava2Adapter.monoToMaybe(getSchema_migrated(identityProviderId));
+}
+@Override
+    public Mono<String> getSchema_migrated(String identityProviderId) {
         LOGGER.debug("Find identity provider plugin schema by ID: {}", identityProviderId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 String schema = identityProviderPluginManager.getSchema(identityProviderId);
                 if (schema != null) {
@@ -105,13 +130,18 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
                 LOGGER.error("An error occurs while trying to get schema for identity provider plugin {}", identityProviderId, e);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get schema for identity provider plugin " + identityProviderId, e));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<String> getIcon(String identityProviderId) {
+ return RxJava2Adapter.monoToMaybe(getIcon_migrated(identityProviderId));
+}
+@Override
+    public Mono<String> getIcon_migrated(String identityProviderId) {
         LOGGER.debug("Find identity provider plugin schema by ID: {}", identityProviderId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 String icon = identityProviderPluginManager.getIcon(identityProviderId);
                 if (icon != null) {
@@ -123,7 +153,7 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
                 LOGGER.error("An error occurs while trying to get icon for identity provider plugin {}", identityProviderId, e);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get icon for identity provider plugin " + identityProviderId, e));
             }
-        });
+        }));
     }
 
     private IdentityProviderPlugin convert(Plugin identityProviderPlugin) {

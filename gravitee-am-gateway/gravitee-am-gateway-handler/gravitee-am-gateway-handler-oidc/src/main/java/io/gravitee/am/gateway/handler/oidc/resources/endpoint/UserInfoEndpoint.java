@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.resources.endpoint;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.exception.oauth2.InvalidTokenException;
 import io.gravitee.am.common.jwt.JWT;
@@ -222,7 +223,8 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
      * @param accessToken The access token with required scopes
      * @return enhanced user
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enhance_migrated(user, accessToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<User> enhance(User user, JWT accessToken) {
  return RxJava2Adapter.monoToSingle(enhance_migrated(user, accessToken));
 }

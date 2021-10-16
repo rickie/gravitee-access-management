@@ -47,12 +47,17 @@ public class OTPFactorProvider implements FactorProvider {
     @Autowired
     private OTPFactorConfiguration otpFactorConfiguration;
 
-    @Override
+    @Deprecated
+@Override
     public Completable verify(FactorContext context) {
+ return RxJava2Adapter.monoToCompletable(verify_migrated(context));
+}
+@Override
+    public Mono<Void> verify_migrated(FactorContext context) {
         final String code = context.getData(FactorContext.KEY_CODE, String.class);
         final EnrolledFactor enrolledFactor = context.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class);
 
-        return Completable.create(emitter -> {
+        return RxJava2Adapter.completableToMono(Completable.create(emitter -> {
             try {
                 final String otpCode = TOTP.generateTOTP(SharedSecret.base32Str2Hex(enrolledFactor.getSecurity().getValue()));
                 if (!code.equals(otpCode)) {
@@ -63,16 +68,21 @@ public class OTPFactorProvider implements FactorProvider {
                 logger.error("An error occurs while validating 2FA code", ex);
                 emitter.onError(new InvalidCodeException("Invalid 2FA Code"));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Enrollment> enroll(String account) {
-        return RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
+ return RxJava2Adapter.monoToSingle(enroll_migrated(account));
+}
+@Override
+    public Mono<Enrollment> enroll_migrated(String account) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             final String key = SharedSecret.generate();
             final String barCode = QRCode.generate(QRCode.generateURI(key, otpFactorConfiguration.getIssuer(), account), 200, 200);
             return new Enrollment(key, barCode);
-        })));
+        }))));
     }
 
     @Override
@@ -80,10 +90,15 @@ public class OTPFactorProvider implements FactorProvider {
         return false;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable sendChallenge(FactorContext context) {
+ return RxJava2Adapter.monoToCompletable(sendChallenge_migrated(context));
+}
+@Override
+    public Mono<Void> sendChallenge_migrated(FactorContext context) {
         // OTP Challenge not need to be sent
-        return RxJava2Adapter.monoToCompletable(Mono.empty());
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 
     @Override
@@ -99,12 +114,17 @@ public class OTPFactorProvider implements FactorProvider {
         return valid;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<String> generateQrCode(User user, EnrolledFactor enrolledFactor) {
-        return RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
+ return RxJava2Adapter.monoToMaybe(generateQrCode_migrated(user, enrolledFactor));
+}
+@Override
+    public Mono<String> generateQrCode_migrated(User user, EnrolledFactor enrolledFactor) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             final String key = enrolledFactor.getSecurity().getValue();
             final String username = user.getUsername();
             return QRCode.generate(QRCode.generateURI(key, otpFactorConfiguration.getIssuer(), username), 200, 200);
-        })));
+        }))));
     }
 }

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.scim.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.scim.model.ServiceProviderConfiguration;
 import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
@@ -25,7 +26,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface ServiceProviderConfigService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.get_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.ServiceProviderConfiguration> get() {
     return RxJava2Adapter.monoToSingle(get_migrated());
 }

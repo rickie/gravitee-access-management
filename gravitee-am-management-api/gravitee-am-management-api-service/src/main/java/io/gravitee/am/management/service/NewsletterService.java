@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.reactivex.Single;
 import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;
@@ -35,7 +36,8 @@ public interface NewsletterService {
      * Get tag lines
      * @return tag lines
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getTaglines_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<java.lang.String>> getTaglines() {
     return RxJava2Adapter.monoToSingle(getTaglines_migrated());
 }

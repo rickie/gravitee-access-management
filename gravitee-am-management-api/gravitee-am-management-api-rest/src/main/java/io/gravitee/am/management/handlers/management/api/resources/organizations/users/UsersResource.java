@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.users;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractUsersResource;
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.ReferenceType;
@@ -111,7 +112,8 @@ public class UsersResource extends AbstractUsersResource {
         return resourceContext.getResource(UserResource.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.filterUserInfos_migrated(organizationPermissions, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<User> filterUserInfos(Map<Permission, Set<Acl>> organizationPermissions, User user) {
  return RxJava2Adapter.monoToSingle(filterUserInfos_migrated(organizationPermissions, user));
 }

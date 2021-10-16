@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.domain;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcDomain;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -30,7 +31,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringDomainRepository extends RxJava2CrudRepository<JdbcDomain, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByReferenceId_migrated(refId, refType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcDomain> findAllByReferenceId(@org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType) {
@@ -42,7 +44,8 @@ String refType) {
     return RxJava2Adapter.flowableToFlux(findAllByReferenceId(refId, refType));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByHrid_migrated(refId, refType, hrid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcDomain> findByHrid(@org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "hrid")

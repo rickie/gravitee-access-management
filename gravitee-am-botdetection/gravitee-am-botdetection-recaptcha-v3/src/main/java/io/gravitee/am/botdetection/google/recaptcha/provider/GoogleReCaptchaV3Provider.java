@@ -66,16 +66,21 @@ public class GoogleReCaptchaV3Provider implements BotDetectionProvider  {
         return this;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Boolean> validate(BotDetectionContext context) {
+ return RxJava2Adapter.monoToSingle(validate_migrated(context));
+}
+@Override
+    public Mono<Boolean> validate_migrated(BotDetectionContext context) {
         final String token = context.getHeader(configuration.getTokenParameterName()).orElse(context.getParameter(configuration.getTokenParameterName()).orElse(null));
 
         if (token == null || "".equals(token.trim())) {
             LOGGER.debug("Recaptcha token is empty");
-            return RxJava2Adapter.monoToSingle(Mono.just(false));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(false)));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.post(URI.create(configuration.getServiceUrl()).toString())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.post(URI.create(configuration.getServiceUrl()).toString())
                 .rxSendForm(MultiMap.caseInsensitiveMultiMap().set("secret", configuration.getSecretKey()).set("response", token))).map(RxJavaReactorMigrationUtil.toJdkFunction(buffer -> {
 
                     if (buffer.statusCode() != 200) {
@@ -96,6 +101,6 @@ public class GoogleReCaptchaV3Provider implements BotDetectionProvider  {
                 .onErrorResumeNext(throwable -> {
                     LOGGER.error("An error occurred when trying to validate ReCaptcha token.", throwable);
                     return RxJava2Adapter.monoToSingle(Mono.just(false));
-                });
+                }));
     }
 }

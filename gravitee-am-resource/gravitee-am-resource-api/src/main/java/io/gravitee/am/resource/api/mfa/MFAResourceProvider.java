@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.resource.api.mfa;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.resource.api.ResourceProvider;
 import io.reactivex.Completable;
 import reactor.adapter.rxjava.RxJava2Adapter;
@@ -24,14 +25,16 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  * @author GraviteeSource Team
  */
 public interface MFAResourceProvider extends ResourceProvider {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.send_migrated(target))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable send(io.gravitee.am.resource.api.mfa.MFALink target) {
     return RxJava2Adapter.monoToCompletable(send_migrated(target));
 }
 default reactor.core.publisher.Mono<java.lang.Void> send_migrated(MFALink target) {
     return RxJava2Adapter.completableToMono(send(target));
 }
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.verify_migrated(challenge))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable verify(io.gravitee.am.resource.api.mfa.MFAChallenge challenge) {
     return RxJava2Adapter.monoToCompletable(verify_migrated(challenge));
 }

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.analytics.AnalyticsQuery;
@@ -35,7 +36,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface UserRepository extends CommonUserRepository {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.User> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
 }
@@ -43,7 +45,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.User> findAll_migrated(
     return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.User>> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, int page, int size) {
     return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
 }
@@ -51,7 +54,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee
     return RxJava2Adapter.singleToMono(findAll(referenceType, referenceId, page, size));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.User>> search(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String query, int page, int size) {
     return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, query, page, size));
 }
@@ -59,7 +63,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee
     return RxJava2Adapter.singleToMono(search(referenceType, referenceId, query, page, size));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.User>> search(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.repository.management.api.search.FilterCriteria criteria, int page, int size) {
     return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
 }
@@ -67,7 +72,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee
     return RxJava2Adapter.singleToMono(search(referenceType, referenceId, criteria, page, size));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndEmail_migrated(domain, email, strict))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.User> findByDomainAndEmail(java.lang.String domain, java.lang.String email, boolean strict) {
     return RxJava2Adapter.fluxToFlowable(findByDomainAndEmail_migrated(domain, email, strict));
 }
@@ -75,7 +81,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.User> findByDomainAndEm
     return RxJava2Adapter.flowableToFlux(findByDomainAndEmail(domain, email, strict));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsernameAndDomain_migrated(domain, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.User> findByUsernameAndDomain(java.lang.String domain, java.lang.String username) {
     return RxJava2Adapter.monoToMaybe(findByUsernameAndDomain_migrated(domain, username));
 }
@@ -83,7 +90,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> findByUsernameAnd
     return RxJava2Adapter.maybeToMono(findByUsernameAndDomain(domain, username));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsernameAndSource_migrated(referenceType, referenceId, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.User> findByUsernameAndSource(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String username, java.lang.String source) {
     return RxJava2Adapter.monoToMaybe(findByUsernameAndSource_migrated(referenceType, referenceId, username, source));
 }
@@ -91,7 +99,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> findByUsernameAnd
     return RxJava2Adapter.maybeToMono(findByUsernameAndSource(referenceType, referenceId, username, source));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByExternalIdAndSource_migrated(referenceType, referenceId, externalId, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.User> findByExternalIdAndSource(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String externalId, java.lang.String source) {
     return RxJava2Adapter.monoToMaybe(findByExternalIdAndSource_migrated(referenceType, referenceId, externalId, source));
 }
@@ -99,7 +108,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> findByExternalIdA
     return RxJava2Adapter.maybeToMono(findByExternalIdAndSource(referenceType, referenceId, externalId, source));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.User> findByIdIn(java.util.List<java.lang.String> ids) {
     return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
 }
@@ -107,7 +117,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.User> findByIdIn_migrat
     return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.User> findById(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String userId) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, userId));
 }
@@ -115,7 +126,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> findById_migrated
     return RxJava2Adapter.maybeToMono(findById(referenceType, referenceId, userId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countByReference(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
     return RxJava2Adapter.monoToSingle(countByReference_migrated(referenceType, referenceId));
 }
@@ -123,7 +135,8 @@ default reactor.core.publisher.Mono<java.lang.Long> countByReference_migrated(Re
     return RxJava2Adapter.singleToMono(countByReference(referenceType, referenceId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByApplication_migrated(domain, application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countByApplication(java.lang.String domain, java.lang.String application) {
     return RxJava2Adapter.monoToSingle(countByApplication_migrated(domain, application));
 }
@@ -131,7 +144,8 @@ default reactor.core.publisher.Mono<java.lang.Long> countByApplication_migrated(
     return RxJava2Adapter.singleToMono(countByApplication(domain, application));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.statistics_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.Map<java.lang.Object, java.lang.Object>> statistics(io.gravitee.am.model.analytics.AnalyticsQuery query) {
     return RxJava2Adapter.monoToSingle(statistics_migrated(query));
 }

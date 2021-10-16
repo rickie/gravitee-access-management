@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.analytics.Field;
 import io.gravitee.am.common.analytics.Type;
 import io.gravitee.am.common.audit.EventType;
@@ -54,20 +55,26 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     @Autowired
     private UserService userService;
 
-    @Override
+    @Deprecated
+@Override
     public Single<AnalyticsResponse> execute(AnalyticsQuery query) {
+ return RxJava2Adapter.monoToSingle(execute_migrated(query));
+}
+@Override
+    public Mono<AnalyticsResponse> execute_migrated(AnalyticsQuery query) {
         switch (query.getType()) {
             case DATE_HISTO:
-                return executeDateHistogram(query);
+                return RxJava2Adapter.singleToMono(executeDateHistogram(query));
             case GROUP_BY:
-                return executeGroupBy(query);
+                return RxJava2Adapter.singleToMono(executeGroupBy(query));
             case COUNT:
-                return executeCount(query);
+                return RxJava2Adapter.singleToMono(executeCount(query));
         }
-        return RxJava2Adapter.monoToSingle(Mono.just(new AnalyticsResponse() {}));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new AnalyticsResponse() {})));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeDateHistogram_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<AnalyticsResponse> executeDateHistogram(AnalyticsQuery query) {
  return RxJava2Adapter.monoToSingle(executeDateHistogram_migrated(query));
 }
@@ -97,7 +104,8 @@ private Mono<AnalyticsResponse> executeDateHistogram_migrated(AnalyticsQuery que
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeGroupBy_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<AnalyticsResponse> executeGroupBy(AnalyticsQuery query) {
  return RxJava2Adapter.monoToSingle(executeGroupBy_migrated(query));
 }
@@ -123,7 +131,8 @@ private Mono<AnalyticsResponse> executeGroupBy_migrated(AnalyticsQuery query) {
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.fetchMetadata_migrated(analyticsGroupByResponse))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<AnalyticsResponse> fetchMetadata(AnalyticsGroupByResponse analyticsGroupByResponse) {
  return RxJava2Adapter.monoToSingle(fetchMetadata_migrated(analyticsGroupByResponse));
 }
@@ -149,7 +158,8 @@ private Mono<AnalyticsResponse> fetchMetadata_migrated(AnalyticsGroupByResponse 
 
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeCount_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<AnalyticsResponse> executeCount(AnalyticsQuery query) {
  return RxJava2Adapter.monoToSingle(executeCount_migrated(query));
 }
@@ -170,7 +180,8 @@ private Mono<AnalyticsResponse> executeCount_migrated(AnalyticsQuery query) {
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeGroupBy_migrated(domain, criteria, type))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<AnalyticsResponse> executeGroupBy(String domain, AuditReportableCriteria criteria, Type type) {
  return RxJava2Adapter.monoToSingle(executeGroupBy_migrated(domain, criteria, type));
 }

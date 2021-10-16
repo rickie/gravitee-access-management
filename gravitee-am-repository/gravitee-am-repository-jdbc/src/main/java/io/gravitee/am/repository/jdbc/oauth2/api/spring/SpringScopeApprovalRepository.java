@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.oauth2.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -31,7 +32,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 @Repository
 public interface SpringScopeApprovalRepository extends RxJava2CrudRepository<JdbcScopeApproval, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUserAndClient_migrated(domain, user, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUserAndClient(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain, @org.springframework.data.repository.query.Param(value = "user")
 java.lang.String user, @org.springframework.data.repository.query.Param(value = "client")
@@ -45,7 +47,8 @@ String client) {
     return RxJava2Adapter.flowableToFlux(findByDomainAndUserAndClient(domain, user, client));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUser_migrated(domain, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUser(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain, @org.springframework.data.repository.query.Param(value = "user")
 java.lang.String user) {
@@ -57,7 +60,8 @@ String user) {
     return RxJava2Adapter.flowableToFlux(findByDomainAndUser(domain, user));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndUserAndClientAndScope_migrated(domain, user, client, scope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUserAndClientAndScope(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain, @org.springframework.data.repository.query.Param(value = "user")
 java.lang.String user, @org.springframework.data.repository.query.Param(value = "client")

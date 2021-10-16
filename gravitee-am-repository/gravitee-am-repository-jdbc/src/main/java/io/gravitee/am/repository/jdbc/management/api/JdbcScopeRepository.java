@@ -19,6 +19,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
 import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.oauth2.Scope;
@@ -69,20 +70,26 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
         return mapper.map(entity, JdbcScope.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<Scope>> findByDomain(String domain, int page, int size) {
+ return RxJava2Adapter.monoToSingle(findByDomain_migrated(domain, page, size));
+}
+@Override
+    public Mono<Page<Scope>> findByDomain_migrated(String domain, int page, int size) {
 
         LOGGER.debug("findByDomain({}, {}, {})", domain, page, size);
-        return RxJava2Adapter.monoToSingle(dbClient.select()
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(dbClient.select()
                 .from("scopes")
                 .project("*")
                 .matching(from(where("domain").is(domain)))
                 .orderBy(Sort.Order.by("scopes."+databaseDialectHelper.toSql(SqlIdentifier.quoted("key"))))
                 .page(PageRequest.of(page, size))
-                .as(JdbcScope.class).fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId())).flux()))).collectList().flatMap(content->RxJava2Adapter.singleToMono(countByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<>(content, page, count)))));
+                .as(JdbcScope.class).fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId())).flux()))).collectList().flatMap(content->RxJava2Adapter.singleToMono(countByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<>(content, page, count))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Long> countByDomain(String domain) {
  return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
 }
@@ -93,8 +100,13 @@ private Mono<Long> countByDomain_migrated(String domain) {
                 .fetch().first()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<Scope>> search(String domain, String query, int page, int size) {
+ return RxJava2Adapter.monoToSingle(search_migrated(domain, query, page, size));
+}
+@Override
+    public Mono<Page<Scope>> search_migrated(String domain, String query, int page, int size) {
         LOGGER.debug("search({}, {})", domain, query);
 
         boolean wildcardSearch = query.contains("*");
@@ -103,14 +115,15 @@ private Mono<Long> countByDomain_migrated(String domain) {
         String search = this.databaseDialectHelper.buildSearchScopeQuery(wildcardSearch, page, size);
         String count = this.databaseDialectHelper.buildCountScopeQuery(wildcardSearch);
 
-        return RxJava2Adapter.monoToSingle(dbClient.execute(search)
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(dbClient.execute(search)
                 .bind("domain", domain)
                 .bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase())
                 .as(JdbcScope.class)
-                .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId())).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<>(data, page, total)))));
+                .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId())).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<>(data, page, total))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.completeWithClaims_migrated(maybeScope, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<Scope> completeWithClaims(Maybe<Scope> maybeScope, String id) {
  return RxJava2Adapter.monoToMaybe(completeWithClaims_migrated(maybeScope, id));
 }
@@ -124,29 +137,40 @@ private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String 
         }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Scope> findByDomainAndKey(String domain, String key) {
+ return RxJava2Adapter.monoToMaybe(findByDomainAndKey_migrated(domain, key));
+}
+@Override
+    public Mono<Scope> findByDomainAndKey_migrated(String domain, String key) {
         LOGGER.debug("findByDomainAndKey({}, {})", domain, key);
-        return RxJava2Adapter.monoToMaybe(dbClient.select().from(JdbcScope.class)
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(dbClient.select().from(JdbcScope.class)
                 .project("*")
                 .matching(from(where("domain").is(domain)
                         .and(where(databaseDialectHelper.toSql(SqlIdentifier.quoted("key"))).is(key))))
                 .as(JdbcScope.class)
-                .first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(z)), z.getId()).as(RxJava2Adapter::maybeToMono)));
+                .first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(z)), z.getId()).as(RxJava2Adapter::maybeToMono))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Scope> findByDomainAndKeys(String domain, List<String> keys) {
+ return RxJava2Adapter.fluxToFlowable(findByDomainAndKeys_migrated(domain, keys));
+}
+@Override
+    public Flux<Scope> findByDomainAndKeys_migrated(String domain, List<String> keys) {
         LOGGER.debug("findByDomainAndKeys({}, {})", domain, keys);
-        return RxJava2Adapter.fluxToFlowable(dbClient.select().from(JdbcScope.class)
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.select().from(JdbcScope.class)
                 .project("*")
                 .matching(from(where("domain").is(domain)
                         .and(where(databaseDialectHelper.toSql(SqlIdentifier.quoted("key"))).in(keys))))
                 .as(JdbcScope.class)
-                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId())).flux()))));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId())).flux())))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Scope> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -157,7 +181,8 @@ private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String 
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(z)), z.getId()).as(RxJava2Adapter::maybeToMono))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Scope> create(Scope item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -198,7 +223,8 @@ private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String 
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Scope> update(Scope item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -242,7 +268,8 @@ private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String 
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(deleteClaims.then(action).as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

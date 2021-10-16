@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.JdbcInstallationRepository;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcInstallation;
 import io.reactivex.Maybe;
@@ -31,7 +32,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 @Repository
 public interface SpringInstallationRepository extends RxJava2CrudRepository<JdbcInstallation, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcInstallation> findById(@org.springframework.data.repository.query.Param(value = "id")
 java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));

@@ -17,6 +17,7 @@ package io.gravitee.am.management.service.impl.commands;
 
 import static io.gravitee.am.management.service.impl.commands.UserCommandHandler.COCKPIT_SOURCE;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Membership;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.Role;
@@ -101,7 +102,8 @@ public class MembershipCommandHandler implements CommandHandler<MembershipComman
     }
 
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findRole_migrated(roleName, organizationId, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Role> findRole(String roleName, String organizationId, ReferenceType assignableType) {
  return RxJava2Adapter.monoToSingle(findRole_migrated(roleName, organizationId, assignableType));
 }

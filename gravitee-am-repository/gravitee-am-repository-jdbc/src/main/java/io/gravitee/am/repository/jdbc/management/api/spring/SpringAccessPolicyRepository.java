@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcAccessPolicy;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -32,7 +33,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringAccessPolicyRepository extends RxJava2CrudRepository<JdbcAccessPolicy, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countByDomain(java.lang.String domain) {
     return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
 }
@@ -40,7 +42,8 @@ default reactor.core.publisher.Mono<java.lang.Long> countByDomain_migrated(Strin
     return RxJava2Adapter.singleToMono(countByDomain(domain));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain, page))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcAccessPolicy> findByDomain(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain, org.springframework.data.domain.Pageable page) {
     return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain, page));
@@ -50,7 +53,8 @@ String domain, Pageable page) {
     return RxJava2Adapter.flowableToFlux(findByDomain(domain, page));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByResource_migrated(resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countByResource(java.lang.String resource) {
     return RxJava2Adapter.monoToSingle(countByResource_migrated(resource));
 }
@@ -58,7 +62,8 @@ default reactor.core.publisher.Mono<java.lang.Long> countByResource_migrated(Str
     return RxJava2Adapter.singleToMono(countByResource(resource));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndResource_migrated(domain, resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcAccessPolicy> findByDomainAndResource(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain, @org.springframework.data.repository.query.Param(value = "resource")
 java.lang.String resource) {
@@ -70,7 +75,8 @@ String resource) {
     return RxJava2Adapter.flowableToFlux(findByDomainAndResource(domain, resource));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByResourceIn_migrated(resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcAccessPolicy> findByResourceIn(@org.springframework.data.repository.query.Param(value = "resources")
 java.util.List<java.lang.String> resources) {
     return RxJava2Adapter.fluxToFlowable(findByResourceIn_migrated(resources));

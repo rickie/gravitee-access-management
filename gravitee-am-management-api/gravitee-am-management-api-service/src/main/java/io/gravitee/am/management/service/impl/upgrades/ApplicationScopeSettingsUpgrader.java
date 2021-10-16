@@ -17,6 +17,7 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.APPLICATION_SCOPE_SETTINGS_UPGRADER;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.SystemTask;
 import io.gravitee.am.model.SystemTaskStatus;
 import io.gravitee.am.model.SystemTaskTypes;
@@ -95,7 +96,8 @@ public class ApplicationScopeSettingsUpgrader implements Upgrader, Ordered {
         return upgraded;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.processUpgrade_migrated(instanceOperationId, task, conditionalOperationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Boolean> processUpgrade(String instanceOperationId, SystemTask task, String conditionalOperationId) {
  return RxJava2Adapter.monoToSingle(processUpgrade_migrated(instanceOperationId, task, conditionalOperationId));
 }
@@ -109,7 +111,8 @@ private Mono<Boolean> processUpgrade_migrated(String instanceOperationId, System
                 }).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> true))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createSystemTask_migrated(operationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<SystemTask> createSystemTask(String operationId) {
  return RxJava2Adapter.monoToSingle(createSystemTask_migrated(operationId));
 }
@@ -128,7 +131,8 @@ private Mono<SystemTask> createSystemTask_migrated(String operationId) {
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateSystemTask_migrated(task, status, operationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<SystemTask>  updateSystemTask(SystemTask task, SystemTaskStatus status, String operationId) {
  return RxJava2Adapter.monoToSingle(updateSystemTask_migrated(task, status, operationId));
 }
@@ -138,7 +142,8 @@ private Mono<SystemTask>  updateSystemTask_migrated(SystemTask task, SystemTaskS
         return RxJava2Adapter.singleToMono(systemTaskRepository.updateIf(task, operationId));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.migrateScopeSettings_migrated(task))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Boolean> migrateScopeSettings(SystemTask task) {
  return RxJava2Adapter.monoToSingle(migrateScopeSettings_migrated(task));
 }

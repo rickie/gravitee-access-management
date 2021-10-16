@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.analytics.AnalyticsQuery;
@@ -42,7 +43,8 @@ public interface OrganizationUserService extends CommonUserService {
      * @param principal of the user (may be null if creation comes from the Console action, not from a login)
      * @param user on who the default role must be applied
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.setRoles_migrated(principal, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable setRoles(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToCompletable(setRoles_migrated(principal, user));
 }
@@ -55,7 +57,8 @@ default reactor.core.publisher.Mono<java.lang.Void> setRoles_migrated(io.gravite
      * @param user
      * @return
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.setRoles_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable setRoles(io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToCompletable(setRoles_migrated(user));
 }

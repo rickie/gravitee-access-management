@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.model.account.AccountSettings;
 import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
@@ -29,7 +30,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface LoginAttemptService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.loginSucceeded_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable loginSucceeded(io.gravitee.am.repository.management.api.search.LoginAttemptCriteria criteria) {
     return RxJava2Adapter.monoToCompletable(loginSucceeded_migrated(criteria));
 }
@@ -37,7 +39,8 @@ default reactor.core.publisher.Mono<java.lang.Void> loginSucceeded_migrated(Logi
     return RxJava2Adapter.completableToMono(loginSucceeded(criteria));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.loginFailed_migrated(criteria, accountSettings))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.LoginAttempt> loginFailed(io.gravitee.am.repository.management.api.search.LoginAttemptCriteria criteria, io.gravitee.am.model.account.AccountSettings accountSettings) {
     return RxJava2Adapter.monoToSingle(loginFailed_migrated(criteria, accountSettings));
 }
@@ -45,7 +48,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.LoginAttempt> loginFail
     return RxJava2Adapter.singleToMono(loginFailed(criteria, accountSettings));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.reset_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable reset(io.gravitee.am.repository.management.api.search.LoginAttemptCriteria criteria) {
     return RxJava2Adapter.monoToCompletable(reset_migrated(criteria));
 }
@@ -53,7 +57,8 @@ default reactor.core.publisher.Mono<java.lang.Void> reset_migrated(LoginAttemptC
     return RxJava2Adapter.completableToMono(reset(criteria));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.checkAccount_migrated(criteria, accountSettings))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.LoginAttempt> checkAccount(io.gravitee.am.repository.management.api.search.LoginAttemptCriteria criteria, io.gravitee.am.model.account.AccountSettings accountSettings) {
     return RxJava2Adapter.monoToMaybe(checkAccount_migrated(criteria, accountSettings));
 }
@@ -61,7 +66,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.LoginAttempt> checkAcco
     return RxJava2Adapter.maybeToMono(checkAccount(criteria, accountSettings));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.LoginAttempt> findById(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }

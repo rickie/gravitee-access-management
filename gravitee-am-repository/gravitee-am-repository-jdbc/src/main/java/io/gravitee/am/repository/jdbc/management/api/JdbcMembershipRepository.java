@@ -20,6 +20,7 @@ import static org.springframework.data.relational.core.query.CriteriaDefinition.
 import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
 import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Membership;
 import io.gravitee.am.model.ReferenceType;
@@ -38,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -58,20 +60,35 @@ public class JdbcMembershipRepository extends AbstractJdbcRepository implements 
         return mapper.map(entity, JdbcMembership.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Membership> findByReference(String referenceId, ReferenceType referenceType) {
+ return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceId, referenceType));
+}
+@Override
+    public Flux<Membership> findByReference_migrated(String referenceId, ReferenceType referenceType) {
         LOGGER.debug("findByReference({},{})", referenceId, referenceType);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.membershipRepository.findByReference(referenceId, referenceType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.membershipRepository.findByReference(referenceId, referenceType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Membership> findByMember(String memberId, MemberType memberType) {
+ return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId, memberType));
+}
+@Override
+    public Flux<Membership> findByMember_migrated(String memberId, MemberType memberType) {
         LOGGER.debug("findByMember({},{})", memberId, memberType);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.membershipRepository.findByMember(memberId, memberType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.membershipRepository.findByMember(memberId, memberType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Membership> findByCriteria(ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
+ return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
+}
+@Override
+    public Flux<Membership> findByCriteria_migrated(ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
         LOGGER.debug("findByCriteria({},{},{}", referenceType, referenceId, criteria);
         Criteria whereClause = Criteria.empty();
         Criteria groupClause = Criteria.empty();
@@ -93,20 +110,26 @@ public class JdbcMembershipRepository extends AbstractJdbcRepository implements 
 
         whereClause = whereClause.and(referenceClause.and(criteria.isLogicalOR() ? userClause.or(groupClause) : userClause.and(groupClause)));
 
-        return RxJava2Adapter.fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.select()
                 .from(JdbcMembership.class)
                 .matching(from(whereClause))
                 .as(JdbcMembership.class)
-                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Maybe<Membership> findByReferenceAndMember(ReferenceType referenceType, String referenceId, MemberType memberType, String memberId) {
-        LOGGER.debug("findByReferenceAndMember({},{},{},{})", referenceType,referenceId,memberType,memberId);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.membershipRepository.findByReferenceAndMember(referenceId, referenceType.name(), memberId, memberType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
     @Deprecated
+@Override
+    public Maybe<Membership> findByReferenceAndMember(ReferenceType referenceType, String referenceId, MemberType memberType, String memberId) {
+ return RxJava2Adapter.monoToMaybe(findByReferenceAndMember_migrated(referenceType, referenceId, memberType, memberId));
+}
+@Override
+    public Mono<Membership> findByReferenceAndMember_migrated(ReferenceType referenceType, String referenceId, MemberType memberType, String memberId) {
+        LOGGER.debug("findByReferenceAndMember({},{},{},{})", referenceType,referenceId,memberType,memberId);
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.membershipRepository.findByReferenceAndMember(referenceId, referenceType.name(), memberId, memberType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Membership> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -117,7 +140,8 @@ public class JdbcMembershipRepository extends AbstractJdbcRepository implements 
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(membershipRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Membership> create(Membership item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -135,7 +159,8 @@ public class JdbcMembershipRepository extends AbstractJdbcRepository implements 
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Membership> update(Membership item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -146,7 +171,8 @@ public class JdbcMembershipRepository extends AbstractJdbcRepository implements 
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

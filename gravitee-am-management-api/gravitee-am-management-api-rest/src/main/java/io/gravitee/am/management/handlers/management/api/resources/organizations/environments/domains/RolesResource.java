@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.model.Acl;
@@ -126,7 +127,8 @@ public class RolesResource extends AbstractResource {
         return resourceContext.getResource(RoleResource.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.searchRoles_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Page<Role>> searchRoles(String domain, String query, int page, int size) {
  return RxJava2Adapter.monoToSingle(searchRoles_migrated(domain, query, page, size));
 }

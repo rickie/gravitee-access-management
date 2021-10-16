@@ -17,6 +17,7 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.SCOPE_UPGRADER;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Role;
@@ -76,7 +77,8 @@ public class ScopeUpgrader implements Upgrader, Ordered {
         return true;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.upgradeDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<List<Scope>> upgradeDomain(Domain domain) {
  return RxJava2Adapter.monoToSingle(upgradeDomain_migrated(domain));
 }
@@ -92,7 +94,8 @@ private Mono<List<Scope>> upgradeDomain_migrated(Domain domain) {
                 }).apply(v)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createAppScopes_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<List<Scope>> createAppScopes(Domain domain) {
  return RxJava2Adapter.monoToSingle(createAppScopes_migrated(domain));
 }
@@ -103,7 +106,8 @@ private Mono<List<Scope>> createAppScopes_migrated(Domain domain) {
                 .toList());
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createRoleScopes_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<List<Scope>> createRoleScopes(Domain domain) {
  return RxJava2Adapter.monoToSingle(createRoleScopes_migrated(domain));
 }
@@ -114,7 +118,8 @@ private Mono<List<Scope>> createRoleScopes_migrated(Domain domain) {
                 .toList());
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createScope_migrated(domain, scopeKey))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Scope> createScope(String domain, String scopeKey) {
  return RxJava2Adapter.monoToSingle(createScope_migrated(domain, scopeKey));
 }

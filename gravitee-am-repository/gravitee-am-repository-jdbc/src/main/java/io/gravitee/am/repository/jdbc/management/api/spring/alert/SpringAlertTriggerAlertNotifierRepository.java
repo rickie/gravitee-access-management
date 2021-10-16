@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.alert;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcAlertTrigger;
 import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
@@ -30,7 +31,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 @Repository
 public interface SpringAlertTriggerAlertNotifierRepository extends RxJava2CrudRepository<JdbcAlertTrigger.AlertNotifier, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByAlertTriggerId_migrated(alertTriggerId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcAlertTrigger.AlertNotifier> findByAlertTriggerId(@org.springframework.data.repository.query.Param(value = "alertTriggerId")
 java.lang.String alertTriggerId) {
     return RxJava2Adapter.fluxToFlowable(findByAlertTriggerId_migrated(alertTriggerId));

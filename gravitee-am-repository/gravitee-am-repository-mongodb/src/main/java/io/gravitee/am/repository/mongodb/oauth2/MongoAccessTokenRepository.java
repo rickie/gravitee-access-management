@@ -18,6 +18,7 @@ package io.gravitee.am.repository.mongodb.oauth2;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.InsertOneModel;
 import com.mongodb.client.model.WriteModel;
@@ -34,6 +35,7 @@ import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -65,7 +67,8 @@ public class MongoAccessTokenRepository extends AbstractOAuth2MongoRepository im
         super.createIndex(accessTokenCollection, new Document(FIELD_RESET_TIME, 1), new IndexOptions().expireAfter(0L, TimeUnit.SECONDS));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<AccessToken> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
@@ -74,67 +77,122 @@ private Mono<AccessToken> findById_migrated(String id) {
                 .fromPublisher(accessTokenCollection.find(eq(FIELD_ID, id)).limit(1).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<AccessToken> findByToken(String token) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(accessTokenCollection.find(eq(FIELD_TOKEN, token)).limit(1).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findByToken_migrated(token));
+}
+@Override
+    public Mono<AccessToken> findByToken_migrated(String token) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
+                .fromPublisher(accessTokenCollection.find(eq(FIELD_TOKEN, token)).limit(1).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AccessToken> create(AccessToken accessToken) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
-                .fromPublisher(accessTokenCollection.insertOne(convert(accessToken)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(accessToken.getId())).single()));
+ return RxJava2Adapter.monoToSingle(create_migrated(accessToken));
+}
+@Override
+    public Mono<AccessToken> create_migrated(AccessToken accessToken) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
+                .fromPublisher(accessTokenCollection.insertOne(convert(accessToken)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(accessToken.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable bulkWrite(List<AccessToken> accessTokens) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.bulkWrite(convert(accessTokens))));
+ return RxJava2Adapter.monoToCompletable(bulkWrite_migrated(accessTokens));
+}
+@Override
+    public Mono<Void> bulkWrite_migrated(List<AccessToken> accessTokens) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.bulkWrite(convert(accessTokens)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String token) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.findOneAndDelete(eq(FIELD_TOKEN, token))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(token));
+}
+@Override
+    public Mono<Void> delete_migrated(String token) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.findOneAndDelete(eq(FIELD_TOKEN, token)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Observable<AccessToken> findByClientIdAndSubject(String clientId, String subject) {
-        return Observable
+ return RxJava2Adapter.fluxToObservable(findByClientIdAndSubject_migrated(clientId, subject));
+}
+@Override
+    public Flux<AccessToken> findByClientIdAndSubject_migrated(String clientId, String subject) {
+        return RxJava2Adapter.observableToFlux(Observable
                 .fromPublisher(accessTokenCollection.find(and(eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, subject))))
-                .map(this::convert);
+                .map(this::convert), BackpressureStrategy.BUFFER);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Observable<AccessToken> findByClientId(String clientId) {
-        return Observable
+ return RxJava2Adapter.fluxToObservable(findByClientId_migrated(clientId));
+}
+@Override
+    public Flux<AccessToken> findByClientId_migrated(String clientId) {
+        return RxJava2Adapter.observableToFlux(Observable
                 .fromPublisher(accessTokenCollection.find(eq(FIELD_CLIENT, clientId)))
-                .map(this::convert);
+                .map(this::convert), BackpressureStrategy.BUFFER);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Observable<AccessToken> findByAuthorizationCode(String authorizationCode) {
-        return Observable
+ return RxJava2Adapter.fluxToObservable(findByAuthorizationCode_migrated(authorizationCode));
+}
+@Override
+    public Flux<AccessToken> findByAuthorizationCode_migrated(String authorizationCode) {
+        return RxJava2Adapter.observableToFlux(Observable
                 .fromPublisher(accessTokenCollection.find(eq(FIELD_AUTHORIZATION_CODE, authorizationCode)))
-                .map(this::convert);
+                .map(this::convert), BackpressureStrategy.BUFFER);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Long> countByClientId(String clientId) {
-        return Single.fromPublisher(accessTokenCollection.countDocuments(eq(FIELD_CLIENT, clientId)));
+ return RxJava2Adapter.monoToSingle(countByClientId_migrated(clientId));
+}
+@Override
+    public Mono<Long> countByClientId_migrated(String clientId) {
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(accessTokenCollection.countDocuments(eq(FIELD_CLIENT, clientId))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable deleteByUserId(String userId) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.deleteMany(eq(FIELD_SUBJECT, userId))));
+ return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(userId));
+}
+@Override
+    public Mono<Void> deleteByUserId_migrated(String userId) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.deleteMany(eq(FIELD_SUBJECT, userId)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable deleteByDomainIdClientIdAndUserId(String domainId, String clientId, String userId) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, userId)))));
+ return RxJava2Adapter.monoToCompletable(deleteByDomainIdClientIdAndUserId_migrated(domainId, clientId, userId));
+}
+@Override
+    public Mono<Void> deleteByDomainIdClientIdAndUserId_migrated(String domainId, String clientId, String userId) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, userId))))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable deleteByDomainIdAndUserId(String domainId, String userId) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_SUBJECT, userId)))));
+ return RxJava2Adapter.monoToCompletable(deleteByDomainIdAndUserId_migrated(domainId, userId));
+}
+@Override
+    public Mono<Void> deleteByDomainIdAndUserId_migrated(String domainId, String userId) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_SUBJECT, userId))))));
     }
 
     private List<WriteModel<AccessTokenMongo>> convert(List<AccessToken> accessTokens) {

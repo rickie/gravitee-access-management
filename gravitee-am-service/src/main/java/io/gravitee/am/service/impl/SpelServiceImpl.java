@@ -21,11 +21,6 @@ import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.util.MultiValueMap;
 import io.gravitee.el.spel.context.SecuredMethodResolver;
 import io.reactivex.Single;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
-import org.springframework.stereotype.Component;
-
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
@@ -34,6 +29,12 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
+import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Guillaume CUSNIEUX (guillaume.cusnieux at graviteesource.com)
@@ -66,9 +67,14 @@ public class SpelServiceImpl implements SpelService {
         }
     };
 
-    @Override
+    @Deprecated
+@Override
     public Single<JSONObject> getGrammar() {
-        return Single.create(emitter -> {
+ return RxJava2Adapter.monoToSingle(getGrammar_migrated());
+}
+@Override
+    public Mono<JSONObject> getGrammar_migrated() {
+        return RxJava2Adapter.singleToMono(Single.create(emitter -> {
             try {
                 JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
                 InputStream resourceAsStream = this.getClass().getResourceAsStream(GRAMMAR_PATH);
@@ -79,7 +85,7 @@ public class SpelServiceImpl implements SpelService {
             } catch (ParseException | UnsupportedEncodingException e) {
                 emitter.onError(new TechnicalManagementException("An error has occurred while trying load Spel grammar", e));
             }
-        });
+        }));
     }
 
     private Map<String, Object> buildTypes() {

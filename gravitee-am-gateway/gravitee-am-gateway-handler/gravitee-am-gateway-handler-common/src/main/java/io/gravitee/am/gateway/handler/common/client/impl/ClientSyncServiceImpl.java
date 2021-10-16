@@ -42,33 +42,53 @@ public class ClientSyncServiceImpl implements ClientSyncService {
     @Autowired
     private ClientManager clientManager;
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Client> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Client> findById_migrated(String id) {
         final Client client = clientManager.get(id);
-        return client != null ? RxJava2Adapter.monoToMaybe(Mono.just(client)) : RxJava2Adapter.monoToMaybe(Mono.empty());
+        return RxJava2Adapter.maybeToMono(client != null ? RxJava2Adapter.monoToMaybe(Mono.just(client)) : RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Client> findByClientId(String clientId) {
-        return findByDomainAndClientId(domain.getId(), clientId);
+ return RxJava2Adapter.monoToMaybe(findByClientId_migrated(clientId));
+}
+@Override
+    public Mono<Client> findByClientId_migrated(String clientId) {
+        return RxJava2Adapter.maybeToMono(findByDomainAndClientId(domain.getId(), clientId));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Client> findByDomainAndClientId(String domain, String clientId) {
+ return RxJava2Adapter.monoToMaybe(findByDomainAndClientId_migrated(domain, clientId));
+}
+@Override
+    public Mono<Client> findByDomainAndClientId_migrated(String domain, String clientId) {
         final Optional<Client> optClient = clientManager.entities()
                 .stream()
                 .filter(client -> !client.isTemplate() && client.getDomain().equals(domain) && client.getClientId().equals(clientId))
                 .findFirst();
-        return optClient.isPresent() ? RxJava2Adapter.monoToMaybe(Mono.just(optClient.get())) : RxJava2Adapter.monoToMaybe(Mono.empty());
+        return RxJava2Adapter.maybeToMono(optClient.isPresent() ? RxJava2Adapter.monoToMaybe(Mono.just(optClient.get())) : RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<Client>> findTemplates() {
+ return RxJava2Adapter.monoToSingle(findTemplates_migrated());
+}
+@Override
+    public Mono<List<Client>> findTemplates_migrated() {
         final List<Client> templates = clientManager.entities()
                 .stream()
                 .filter(client -> client.isTemplate() && client.getDomain().equals(domain.getId()))
                 .collect(Collectors.toList());
-        return RxJava2Adapter.monoToSingle(Mono.just(templates));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(templates)));
     }
 
     @Override

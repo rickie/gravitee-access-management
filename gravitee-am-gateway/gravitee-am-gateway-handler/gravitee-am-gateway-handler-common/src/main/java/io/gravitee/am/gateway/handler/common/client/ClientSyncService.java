@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.client;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -28,7 +29,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface ClientSyncService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.oidc.Client> findById(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
@@ -36,7 +38,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> findById_m
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientId_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.oidc.Client> findByClientId(java.lang.String clientId) {
     return RxJava2Adapter.monoToMaybe(findByClientId_migrated(clientId));
 }
@@ -44,7 +47,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> findByClie
     return RxJava2Adapter.maybeToMono(findByClientId(clientId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientId_migrated(domain, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.oidc.Client> findByDomainAndClientId(java.lang.String domain, java.lang.String clientId) {
     return RxJava2Adapter.monoToMaybe(findByDomainAndClientId_migrated(domain, clientId));
 }
@@ -52,7 +56,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> findByDoma
     return RxJava2Adapter.maybeToMono(findByDomainAndClientId(domain, clientId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTemplates_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.model.oidc.Client>> findTemplates() {
     return RxJava2Adapter.monoToSingle(findTemplates_migrated());
 }

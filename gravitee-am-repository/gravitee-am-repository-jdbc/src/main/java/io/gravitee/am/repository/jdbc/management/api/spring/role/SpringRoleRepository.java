@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.role;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcRole;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -33,7 +34,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 @Repository
 public interface SpringRoleRepository extends RxJava2CrudRepository<JdbcRole, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByReference_migrated(refType, refId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countByReference(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId) {
@@ -45,7 +47,8 @@ String refId) {
     return RxJava2Adapter.singleToMono(countByReference(refType, refId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(refType, refId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findByReference(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId) {
@@ -57,7 +60,8 @@ String refId) {
     return RxJava2Adapter.flowableToFlux(findByReference(refType, refId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(roles))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findByIdIn(@org.springframework.data.repository.query.Param(value = "rid")
 java.util.List<java.lang.String> roles) {
     return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(roles));
@@ -67,7 +71,8 @@ List<String> roles) {
     return RxJava2Adapter.flowableToFlux(findByIdIn(roles));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(refType, refId, role))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findById(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "rid")
@@ -81,7 +86,8 @@ String role) {
     return RxJava2Adapter.maybeToMono(findById(refType, refId, role));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByNameAndAssignableType_migrated(refType, refId, name, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findByNameAndAssignableType(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "name")
@@ -97,7 +103,8 @@ String assignableType) {
     return RxJava2Adapter.maybeToMono(findByNameAndAssignableType(refType, refId, name, assignableType));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByNamesAndAssignableType_migrated(refType, refId, names, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findByNamesAndAssignableType(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "names")

@@ -56,36 +56,66 @@ public class MongoAuthenticationFlowContextRepository extends AbstractManagement
         super.createIndex(authContextCollection, new Document(FIELD_RESET_TIME, 1), new IndexOptions().expireAfter(0l, TimeUnit.SECONDS));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<AuthenticationFlowContext> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(authContextCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<AuthenticationFlowContext> findById_migrated(String id) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(authContextCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<AuthenticationFlowContext> findLastByTransactionId(String transactionId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findLastByTransactionId_migrated(transactionId));
+}
+@Override
+    public Mono<AuthenticationFlowContext> findLastByTransactionId_migrated(String transactionId) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<AuthenticationFlowContext> findByTransactionId(String transactionId) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.fluxToFlowable(findByTransactionId_migrated(transactionId));
+}
+@Override
+    public Flux<AuthenticationFlowContext> findByTransactionId_migrated(String transactionId) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AuthenticationFlowContext> create(AuthenticationFlowContext context) {
+ return RxJava2Adapter.monoToSingle(create_migrated(context));
+}
+@Override
+    public Mono<AuthenticationFlowContext> create_migrated(AuthenticationFlowContext context) {
         AuthenticationFlowContextMongo contextMongo = convert(context);
         contextMongo.setId(context.getTransactionId() + "-" + context.getVersion());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(authContextCollection.insertOne(contextMongo))).flatMap(success->RxJava2Adapter.maybeToMono(findById(contextMongo.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(authContextCollection.insertOne(contextMongo))).flatMap(success->RxJava2Adapter.maybeToMono(findById(contextMongo.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String transactionId) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(authContextCollection.deleteMany(eq(FIELD_TRANSACTION_ID, transactionId))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(transactionId));
+}
+@Override
+    public Mono<Void> delete_migrated(String transactionId) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(authContextCollection.deleteMany(eq(FIELD_TRANSACTION_ID, transactionId)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String transactionId, int version) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(authContextCollection.deleteOne(and(eq(FIELD_TRANSACTION_ID, transactionId), eq(FIELD_VERSION, version)))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(transactionId, version));
+}
+@Override
+    public Mono<Void> delete_migrated(String transactionId, int version) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(authContextCollection.deleteOne(and(eq(FIELD_TRANSACTION_ID, transactionId), eq(FIELD_VERSION, version))))));
     }
 
     private AuthenticationFlowContext convert(AuthenticationFlowContextMongo entity) {

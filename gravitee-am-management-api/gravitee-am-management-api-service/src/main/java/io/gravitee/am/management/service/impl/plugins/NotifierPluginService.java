@@ -18,6 +18,7 @@ package io.gravitee.am.management.service.impl.plugins;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.management.service.exception.NotifierPluginNotFoundException;
 import io.gravitee.am.management.service.exception.NotifierPluginSchemaNotFoundException;
 import io.gravitee.am.plugins.notifier.core.NotifierPluginManager;
@@ -61,7 +62,8 @@ public class NotifierPluginService {
         this.objectMapper = objectMapper;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Flowable<NotifierPlugin> findAll(String... expand) {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated(expand));
 }
@@ -72,7 +74,8 @@ public Flux<NotifierPlugin> findAll_migrated(String... expand) {
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findById_migrated(notifierId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Single<NotifierPlugin> findById(String notifierId) {
  return RxJava2Adapter.monoToSingle(findById_migrated(notifierId));
 }
@@ -83,7 +86,8 @@ public Mono<NotifierPlugin> findById_migrated(String notifierId) {
                 })).switchIfEmpty(Mono.defer(()->Mono.error(new NotifierPluginNotFoundException(notifierId))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getSchema_migrated(notifierId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Single<String> getSchema(String notifierId) {
  return RxJava2Adapter.monoToSingle(getSchema_migrated(notifierId));
 }
@@ -109,7 +113,8 @@ public Mono<String> getSchema_migrated(String notifierId) {
                 })).switchIfEmpty(Mono.defer(()->Mono.error(new NotifierPluginSchemaNotFoundException(notifierId))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(notifierId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Maybe<String> getIcon(String notifierId) {
  return RxJava2Adapter.monoToMaybe(getIcon_migrated(notifierId));
 }
@@ -121,7 +126,8 @@ public Mono<String> getIcon_migrated(String notifierId) {
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getDocumentation_migrated(notifierId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Maybe<String> getDocumentation(String notifierId) {
  return RxJava2Adapter.monoToMaybe(getDocumentation_migrated(notifierId));
 }
@@ -133,7 +139,8 @@ public Mono<String> getDocumentation_migrated(String notifierId) {
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.convert_migrated(plugin, expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<NotifierPlugin> convert(Plugin plugin, String... expand) {
  return RxJava2Adapter.monoToSingle(convert_migrated(plugin, expand));
 }

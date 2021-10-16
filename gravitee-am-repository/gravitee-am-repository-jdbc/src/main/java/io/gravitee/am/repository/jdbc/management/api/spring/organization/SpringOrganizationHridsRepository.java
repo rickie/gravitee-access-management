@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.organization;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization;
 import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
@@ -28,7 +29,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringOrganizationHridsRepository extends RxJava2CrudRepository<JdbcOrganization.Hrid, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByOrganizationId_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization.Hrid> findAllByOrganizationId(java.lang.String organizationId) {
     return RxJava2Adapter.fluxToFlowable(findAllByOrganizationId_migrated(organizationId));
 }

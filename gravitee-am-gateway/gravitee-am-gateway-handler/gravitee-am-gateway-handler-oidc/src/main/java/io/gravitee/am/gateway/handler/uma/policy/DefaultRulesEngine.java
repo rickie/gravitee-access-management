@@ -46,20 +46,25 @@ public class DefaultRulesEngine implements RulesEngine {
     @Autowired
     private PolicyPluginManager policyPluginManager;
 
-    @Override
+    @Deprecated
+@Override
     public Completable fire(List<Rule> rules, ExecutionContext executionContext) {
+ return RxJava2Adapter.monoToCompletable(fire_migrated(rules, executionContext));
+}
+@Override
+    public Mono<Void> fire_migrated(List<Rule> rules, ExecutionContext executionContext) {
         if (rules.isEmpty()) {
             LOGGER.debug("No rules registered!");
-            return RxJava2Adapter.monoToCompletable(Mono.empty());
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
         }
 
-        return Completable.create(emitter -> {
+        return RxJava2Adapter.completableToMono(Completable.create(emitter -> {
             policyChainProcessorFactory
                     .create(resolve(rules), executionContext)
                     .handler(executionContext1 -> emitter.onComplete())
                     .errorHandler(processorFailure -> emitter.onError(new PolicyChainException(processorFailure.message(), processorFailure.statusCode(), processorFailure.key(), processorFailure.parameters(), processorFailure.contentType())))
                     .handle(executionContext);
-        });
+        }));
     }
 
     protected List<Policy> resolve(List<Rule> rules) {

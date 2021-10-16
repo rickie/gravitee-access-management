@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.resources.endpoint;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
 import io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest;
@@ -79,7 +80,8 @@ public class DynamicClientRegistrationEndpoint implements Handler<RoutingContext
                 );
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 protected Single<DynamicClientRegistrationRequest> extractRequest(RoutingContext context) {
  return RxJava2Adapter.monoToSingle(extractRequest_migrated(context));
 }

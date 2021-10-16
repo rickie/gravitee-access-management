@@ -125,14 +125,19 @@ public class BotDetectionManagerImpl extends AbstractService implements BotDetec
         }
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Boolean> validate(BotDetectionContext context) {
+ return RxJava2Adapter.monoToSingle(validate_migrated(context));
+}
+@Override
+    public Mono<Boolean> validate_migrated(BotDetectionContext context) {
         final BotDetectionProvider botDetectionProvider = this.providers.get(context.getPluginId());
         if (botDetectionProvider != null) {
-            return botDetectionProvider.validate(context);
+            return RxJava2Adapter.singleToMono(botDetectionProvider.validate(context));
         } else {
             LOGGER.error("No BotDetectionProvider matches the pluginId '{}'", context.getPluginId());
-            return RxJava2Adapter.monoToSingle(Mono.just(false));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(false)));
         }
     }
 

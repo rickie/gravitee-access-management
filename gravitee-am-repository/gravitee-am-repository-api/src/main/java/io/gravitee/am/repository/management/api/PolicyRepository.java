@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Policy;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Completable;
@@ -33,7 +34,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 @Deprecated
 public interface PolicyRepository {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Policy> findAll() {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated());
 }
@@ -41,7 +43,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Policy> findAll_migrate
     return RxJava2Adapter.flowableToFlux(findAll());
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.collectionExists_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Boolean> collectionExists() {
     return RxJava2Adapter.monoToSingle(collectionExists_migrated());
 }
@@ -49,7 +52,8 @@ default reactor.core.publisher.Mono<java.lang.Boolean> collectionExists_migrated
     return RxJava2Adapter.singleToMono(collectionExists());
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteCollection_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable deleteCollection() {
     return RxJava2Adapter.monoToCompletable(deleteCollection_migrated());
 }

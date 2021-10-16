@@ -51,8 +51,13 @@ public class SMSFactorProvider implements FactorProvider {
     @Autowired
     private SMSFactorConfiguration configuration;
 
-    @Override
+    @Deprecated
+@Override
     public Completable verify(FactorContext context) {
+ return RxJava2Adapter.monoToCompletable(verify_migrated(context));
+}
+@Override
+    public Mono<Void> verify_migrated(FactorContext context) {
         final String code = context.getData(FactorContext.KEY_CODE, String.class);
         final EnrolledFactor enrolledFactor = context.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class);
         ResourceManager component = context.getComponent(ResourceManager.class);
@@ -60,15 +65,20 @@ public class SMSFactorProvider implements FactorProvider {
         if (provider instanceof MFAResourceProvider) {
             MFAResourceProvider mfaProvider = (MFAResourceProvider)provider;
             MFAChallenge challenge = new MFAChallenge(enrolledFactor.getChannel().getTarget(), code);
-            return mfaProvider.verify(challenge);
+            return RxJava2Adapter.completableToMono(mfaProvider.verify(challenge));
         } else {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS"))));
         }
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Enrollment> enroll(String account) {
-        return RxJava2Adapter.monoToSingle(Mono.just(new Enrollment(this.configuration.countries())));
+ return RxJava2Adapter.monoToSingle(enroll_migrated(account));
+}
+@Override
+    public Mono<Enrollment> enroll_migrated(String account) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Enrollment(this.configuration.countries()))));
     }
 
     @Override
@@ -76,17 +86,22 @@ public class SMSFactorProvider implements FactorProvider {
         return true;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable sendChallenge(FactorContext context) {
+ return RxJava2Adapter.monoToCompletable(sendChallenge_migrated(context));
+}
+@Override
+    public Mono<Void> sendChallenge_migrated(FactorContext context) {
         final EnrolledFactor enrolledFactor = context.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class);
         ResourceManager component = context.getComponent(ResourceManager.class);
         ResourceProvider provider = component.getResourceProvider(configuration.getGraviteeResource());
         if (provider instanceof MFAResourceProvider) {
             MFAResourceProvider mfaProvider = (MFAResourceProvider)provider;
             MFALink link = new MFALink(MFAType.SMS, enrolledFactor.getChannel().getTarget());
-            return mfaProvider.send(link);
+            return RxJava2Adapter.completableToMono(mfaProvider.send(link));
         } else {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS"))));
         }
     }
 

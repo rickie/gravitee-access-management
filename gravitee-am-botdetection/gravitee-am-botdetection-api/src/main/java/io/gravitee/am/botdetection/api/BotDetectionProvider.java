@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.botdetection.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.common.component.Lifecycle;
 import io.gravitee.common.service.Service;
 import io.reactivex.Single;
@@ -30,7 +31,8 @@ public interface BotDetectionProvider extends Service<BotDetectionProvider> {
         return Lifecycle.State.INITIALIZED;
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validate_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Boolean> validate(io.gravitee.am.botdetection.api.BotDetectionContext context) {
     return RxJava2Adapter.monoToSingle(validate_migrated(context));
 }

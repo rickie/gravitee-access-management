@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.user;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcUser;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -34,7 +35,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 @Repository
 public interface SpringUserRepository extends RxJava2CrudRepository<JdbcUser, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByReference_migrated(refType, refId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countByReference(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId) {
@@ -46,7 +48,8 @@ String refId) {
     return RxJava2Adapter.singleToMono(countByReference(refType, refId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByClient_migrated(refType, refId, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countByClient(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "client")
@@ -60,7 +63,8 @@ String client) {
     return RxJava2Adapter.singleToMono(countByClient(refType, refId, client));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(refType, refId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcUser> findById(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "id")
@@ -74,7 +78,8 @@ String id) {
     return RxJava2Adapter.maybeToMono(findById(refType, refId, id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByExternalIdAndSource_migrated(refType, refId, externalId, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcUser> findByExternalIdAndSource(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "id")
@@ -90,7 +95,8 @@ String source) {
     return RxJava2Adapter.maybeToMono(findByExternalIdAndSource(refType, refId, externalId, source));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsernameAndSource_migrated(refType, refId, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcUser> findByUsernameAndSource(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "name")
@@ -106,7 +112,8 @@ String source) {
     return RxJava2Adapter.maybeToMono(findByUsernameAndSource(refType, refId, username, source));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsername_migrated(refType, refId, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcUser> findByUsername(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "name")
@@ -120,7 +127,8 @@ String username) {
     return RxJava2Adapter.maybeToMono(findByUsername(refType, refId, username));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcUser> findByIdIn(@org.springframework.data.repository.query.Param(value = "ids")
 java.util.List<java.lang.String> ids) {
     return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
@@ -130,7 +138,8 @@ List<String> ids) {
     return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(refType, refId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcUser> findByReference(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId) {
@@ -142,7 +151,8 @@ String refId) {
     return RxJava2Adapter.flowableToFlux(findByReference(refType, refId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countLockedUser_migrated(refType, refId, notLocked, lockedUntil))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countLockedUser(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "nl")
@@ -158,7 +168,8 @@ LocalDateTime lockedUntil) {
     return RxJava2Adapter.singleToMono(countLockedUser(refType, refId, notLocked, lockedUntil));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countLockedUserByClient_migrated(refType, refId, client, notLocked, lockedUntil))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countLockedUserByClient(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "client")
@@ -176,7 +187,8 @@ LocalDateTime lockedUntil) {
     return RxJava2Adapter.singleToMono(countLockedUserByClient(refType, refId, client, notLocked, lockedUntil));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countDisabledUser_migrated(refType, refId, enabled))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countDisabledUser(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "en")
@@ -190,7 +202,8 @@ boolean enabled) {
     return RxJava2Adapter.singleToMono(countDisabledUser(refType, refId, enabled));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countDisabledUserByClient_migrated(refType, refId, client, enabled))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countDisabledUserByClient(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "client")
@@ -206,7 +219,8 @@ boolean enabled) {
     return RxJava2Adapter.singleToMono(countDisabledUserByClient(refType, refId, client, enabled));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countInactiveUser_migrated(refType, refId, threshold))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countInactiveUser(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "threshold")
@@ -220,7 +234,8 @@ LocalDateTime threshold) {
     return RxJava2Adapter.singleToMono(countInactiveUser(refType, refId, threshold));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countInactiveUserByClient_migrated(refType, refId, client, threshold))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countInactiveUserByClient(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "client")
@@ -236,7 +251,8 @@ LocalDateTime threshold) {
     return RxJava2Adapter.singleToMono(countInactiveUserByClient(refType, refId, client, threshold));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countPreRegisteredUser_migrated(refType, refId, preRegister))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countPreRegisteredUser(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "pre")
@@ -250,7 +266,8 @@ boolean preRegister) {
     return RxJava2Adapter.singleToMono(countPreRegisteredUser(refType, refId, preRegister));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countRegistrationCompletedUser_migrated(refType, refId, preRegister, completed))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countRegistrationCompletedUser(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String refId, @org.springframework.data.repository.query.Param(value = "pre")

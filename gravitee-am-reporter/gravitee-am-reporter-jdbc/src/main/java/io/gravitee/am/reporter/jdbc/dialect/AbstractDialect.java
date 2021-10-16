@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -236,11 +237,16 @@ public abstract class AbstractDialect implements DialectHelper {
         return " ORDER BY a.timestamp DESC LIMIT " + size + " OFFSET " + (page * size);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<Map<String, Object>>> buildAndProcessHistogram(DatabaseClient dbClient, ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
+ return RxJava2Adapter.monoToSingle(buildAndProcessHistogram_migrated(dbClient, referenceType, referenceId, criteria));
+}
+@Override
+    public Mono<List<Map<String,Object>>> buildAndProcessHistogram_migrated(DatabaseClient dbClient, ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
         SearchQuery searchQuery = buildHistogramQuery(referenceType, referenceId, criteria);
         DatabaseClient.GenericExecuteSpec histogram = dbClient.execute(searchQuery.getQuery());
-        return RxJava2Adapter.monoToSingle(histogram.fetch().all().collectList());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(histogram.fetch().all().collectList()));
     }
 
 }

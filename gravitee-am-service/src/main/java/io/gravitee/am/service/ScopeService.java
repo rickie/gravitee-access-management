@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.oauth2.Scope;
@@ -34,7 +35,8 @@ import reactor.core.publisher.Mono;
  */
 public interface ScopeService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.oauth2.Scope> findById(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
@@ -42,7 +44,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.oauth2.Scope> findById_
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, scope, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.oauth2.Scope> create(java.lang.String domain, io.gravitee.am.service.model.NewScope scope, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(create_migrated(domain, scope, principal));
 }
@@ -50,7 +53,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.oauth2.Scope> create_mi
     return RxJava2Adapter.singleToMono(create(domain, scope, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, scope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.oauth2.Scope> create(java.lang.String domain, io.gravitee.am.service.model.NewSystemScope scope) {
     return RxJava2Adapter.monoToSingle(create_migrated(domain, scope));
 }
@@ -58,7 +62,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.oauth2.Scope> create_mi
     return RxJava2Adapter.singleToMono(create(domain, scope));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomain_migrated(domain, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.oauth2.Scope>> findByDomain(java.lang.String domain, int page, int size) {
     return RxJava2Adapter.monoToSingle(findByDomain_migrated(domain, page, size));
 }
@@ -66,7 +71,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee
     return RxJava2Adapter.singleToMono(findByDomain(domain, page, size));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndKey_migrated(domain, scopeKey))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.oauth2.Scope> findByDomainAndKey(java.lang.String domain, java.lang.String scopeKey) {
     return RxJava2Adapter.monoToMaybe(findByDomainAndKey_migrated(domain, scopeKey));
 }
@@ -74,7 +80,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.oauth2.Scope> findByDom
     return RxJava2Adapter.maybeToMono(findByDomainAndKey(domain, scopeKey));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomainAndKeys_migrated(domain, scopeKeys))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.model.oauth2.Scope>> findByDomainAndKeys(java.lang.String domain, java.util.List<java.lang.String> scopeKeys) {
     return RxJava2Adapter.monoToSingle(findByDomainAndKeys_migrated(domain, scopeKeys));
 }
@@ -82,7 +89,8 @@ default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.model.oauth2.S
     return RxJava2Adapter.singleToMono(findByDomainAndKeys(domain, scopeKeys));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.patch_migrated(domain, id, patchScope, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.oauth2.Scope> patch(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.PatchScope patchScope, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(patch_migrated(domain, id, patchScope, principal));
 }
@@ -90,7 +98,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.oauth2.Scope> patch_mig
     return RxJava2Adapter.singleToMono(patch(domain, id, patchScope, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateScope, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.oauth2.Scope> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateScope updateScope, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateScope, principal));
 }
@@ -98,7 +107,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.oauth2.Scope> update_mi
     return RxJava2Adapter.singleToMono(update(domain, id, updateScope, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateScope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.oauth2.Scope> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateSystemScope updateScope) {
     return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateScope));
 }
@@ -106,7 +116,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.oauth2.Scope> update_mi
     return RxJava2Adapter.singleToMono(update(domain, id, updateScope));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(scopeId, force, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(java.lang.String scopeId, boolean force, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(scopeId, force, principal));
 }
@@ -114,7 +125,8 @@ default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String scope
     return RxJava2Adapter.completableToMono(delete(scopeId, force, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.oauth2.Scope>> search(java.lang.String domain, java.lang.String query, int page, int size) {
     return RxJava2Adapter.monoToSingle(search_migrated(domain, query, page, size));
 }
@@ -126,7 +138,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee
      * Throw InvalidClientMetadataException if null or empty, or contains unknown scope.
      * @param scopes Array of scope to validate.
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateScope_migrated(domain, scopes))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Boolean> validateScope(java.lang.String domain, java.util.List<java.lang.String> scopes) {
     return RxJava2Adapter.monoToSingle(validateScope_migrated(domain, scopes));
 }
@@ -134,28 +147,32 @@ default reactor.core.publisher.Mono<java.lang.Boolean> validateScope_migrated(St
     return RxJava2Adapter.singleToMono(validateScope(domain, scopes));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, scope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.oauth2.Scope> create(java.lang.String domain, io.gravitee.am.service.model.NewScope scope) {
     return RxJava2Adapter.monoToSingle(create_migrated(domain, scope));
 }default Mono<Scope> create_migrated(String domain, NewScope scope) {
         return RxJava2Adapter.singleToMono(create(domain, scope, null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.patch_migrated(domain, id, patchScope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.oauth2.Scope> patch(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.PatchScope patchScope) {
     return RxJava2Adapter.monoToSingle(patch_migrated(domain, id, patchScope));
 }default Mono<Scope> patch_migrated(String domain, String id, PatchScope patchScope) {
         return RxJava2Adapter.singleToMono(patch(domain, id, patchScope, null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateScope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.oauth2.Scope> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateScope updateScope) {
     return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateScope));
 }default Mono<Scope> update_migrated(String domain, String id, UpdateScope updateScope) {
         return RxJava2Adapter.singleToMono(update(domain, id, updateScope, null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(scopeId, force))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(java.lang.String scopeId, boolean force) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(scopeId, force));
 }default Mono<Void> delete_migrated(String scopeId, boolean force) {

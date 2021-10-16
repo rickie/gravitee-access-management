@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcMonitoring;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -30,7 +31,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface SpringNodeMonitoringRepository extends RxJava2CrudRepository<JdbcMonitoring, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByNodeIdAndType_migrated(nodeId, type))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcMonitoring> findByNodeIdAndType(@org.springframework.data.repository.query.Param(value = "nodeId")
 java.lang.String nodeId, @org.springframework.data.repository.query.Param(value = "type")
 java.lang.String type) {
@@ -42,7 +44,8 @@ String type) {
     return RxJava2Adapter.maybeToMono(findByNodeIdAndType(nodeId, type));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTypeAndTimeFrame_migrated(type, from, to))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcMonitoring> findByTypeAndTimeFrame(@org.springframework.data.repository.query.Param(value = "type")
 java.lang.String type, @org.springframework.data.repository.query.Param(value = "from")
 java.time.LocalDateTime from, @org.springframework.data.repository.query.Param(value = "to")

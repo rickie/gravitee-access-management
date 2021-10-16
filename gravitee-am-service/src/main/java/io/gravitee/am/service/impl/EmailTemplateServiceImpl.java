@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
@@ -75,81 +76,126 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     @Autowired
     private AuditService auditService;
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Email> findAll(ReferenceType referenceType, String referenceId) {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+@Override
+    public Flux<Email> findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("Find all emails for {} {}", referenceType, referenceId);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAll(referenceType, referenceId)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAll(referenceType, referenceId)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find all emails for {} {}", referenceType, referenceId, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error occurs while trying to find a all emails for %s %s", referenceType, referenceId), ex)));
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Email> findAll() {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+@Override
+    public Flux<Email> findAll_migrated() {
         LOGGER.debug("Find all emails");
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAll()).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAll()).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find all emails", ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find a all emails", ex)));
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Email> findByClient(ReferenceType referenceType, String referenceId, String client) {
+ return RxJava2Adapter.fluxToFlowable(findByClient_migrated(referenceType, referenceId, client));
+}
+@Override
+    public Flux<Email> findByClient_migrated(ReferenceType referenceType, String referenceId, String client) {
         LOGGER.debug("Find email by {} {} and client {}", referenceType, referenceId, client);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findByClient(referenceType, referenceId, client)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findByClient(referenceType, referenceId, client)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a email using its {} {} and its client {}", referenceType, referenceId, client, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a email using its %s %s and its client %s", referenceType, referenceId, client), ex)));
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Email> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
+ return RxJava2Adapter.monoToMaybe(findByTemplate_migrated(referenceType, referenceId, template));
+}
+@Override
+    public Mono<Email> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template) {
         LOGGER.debug("Find email by {} {} and template {}", referenceType, referenceId, template);
-        return emailRepository.findByTemplate(referenceType, referenceId, template)
+        return RxJava2Adapter.maybeToMono(emailRepository.findByTemplate(referenceType, referenceId, template)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a email using its {} {} and template {}", referenceType, referenceId, template, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a email using its %s %s and template %s", referenceType, referenceId, template), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Email> findByDomainAndTemplate(String domain, String template) {
+ return RxJava2Adapter.monoToMaybe(findByDomainAndTemplate_migrated(domain, template));
+}
+@Override
+    public Mono<Email> findByDomainAndTemplate_migrated(String domain, String template) {
 
-        return findByTemplate(ReferenceType.DOMAIN, domain, template);
+        return RxJava2Adapter.maybeToMono(findByTemplate(ReferenceType.DOMAIN, domain, template));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Email> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
+ return RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(referenceType, referenceId, client, template));
+}
+@Override
+    public Mono<Email> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template) {
         LOGGER.debug("Find email by {} {}, client {} and template {}", referenceType, referenceId, client, template);
-        return emailRepository.findByClientAndTemplate(referenceType, referenceId, client, template)
+        return RxJava2Adapter.maybeToMono(emailRepository.findByClientAndTemplate(referenceType, referenceId, client, template)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a email using its {} {} its client {} and template {}", referenceType, referenceId, client, template, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a email using its %s %s its client %s and template %s", referenceType, referenceId, client, template), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Email> findByDomainAndClientAndTemplate(String domain, String client, String template) {
-        return findByClientAndTemplate(ReferenceType.DOMAIN, domain, client, template);
+ return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndTemplate_migrated(domain, client, template));
+}
+@Override
+    public Mono<Email> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template) {
+        return RxJava2Adapter.maybeToMono(findByClientAndTemplate(ReferenceType.DOMAIN, domain, client, template));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Email> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Email> findById_migrated(String id) {
         LOGGER.debug("Find email by id {}", id);
-        return emailRepository.findById(id)
+        return RxJava2Adapter.maybeToMono(emailRepository.findById(id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a email using its id {}", id, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a email using its id %s", id), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Email> copyFromClient(String domain, String clientSource, String clientTarget) {
-        return findByClient(ReferenceType.DOMAIN, domain, clientSource)
+ return RxJava2Adapter.fluxToFlowable(copyFromClient_migrated(domain, clientSource, clientTarget));
+}
+@Override
+    public Flux<Email> copyFromClient_migrated(String domain, String clientSource, String clientTarget) {
+        return RxJava2Adapter.flowableToFlux(findByClient(ReferenceType.DOMAIN, domain, clientSource)
                 .flatMapSingle(source -> {
                     NewEmail email = new NewEmail();
                     email.setEnabled(source.isEnabled());
@@ -160,47 +206,82 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                     email.setContent(source.getContent());
                     email.setExpiresAfter(source.getExpiresAfter());
                     return this.create(domain, clientTarget, email);
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Email> create(ReferenceType referenceType, String referenceId, NewEmail newEmail, User principal) {
+ return RxJava2Adapter.monoToSingle(create_migrated(referenceType, referenceId, newEmail, principal));
+}
+@Override
+    public Mono<Email> create_migrated(ReferenceType referenceType, String referenceId, NewEmail newEmail, User principal) {
         LOGGER.debug("Create a new email {} for {} {}", newEmail, referenceType, referenceId);
-        return create0(referenceType, referenceId, null, newEmail, principal);
+        return RxJava2Adapter.singleToMono(create0(referenceType, referenceId, null, newEmail, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Email> create(String domain, NewEmail newEmail, User principal) {
-        return create(ReferenceType.DOMAIN, domain, newEmail, principal);
+ return RxJava2Adapter.monoToSingle(create_migrated(domain, newEmail, principal));
+}
+@Override
+    public Mono<Email> create_migrated(String domain, NewEmail newEmail, User principal) {
+        return RxJava2Adapter.singleToMono(create(ReferenceType.DOMAIN, domain, newEmail, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Email> create(ReferenceType referenceType, String referenceId, String client, NewEmail newEmail, User principal) {
+ return RxJava2Adapter.monoToSingle(create_migrated(referenceType, referenceId, client, newEmail, principal));
+}
+@Override
+    public Mono<Email> create_migrated(ReferenceType referenceType, String referenceId, String client, NewEmail newEmail, User principal) {
         LOGGER.debug("Create a new email {} for {} {} and client {}", newEmail, referenceType, referenceId, client);
-        return create0(referenceType, referenceId, client, newEmail, principal);
+        return RxJava2Adapter.singleToMono(create0(referenceType, referenceId, client, newEmail, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Email> create(String domain, String client, NewEmail newEmail, User principal) {
-        return create(ReferenceType.DOMAIN, domain, client, newEmail, principal);
+ return RxJava2Adapter.monoToSingle(create_migrated(domain, client, newEmail, principal));
+}
+@Override
+    public Mono<Email> create_migrated(String domain, String client, NewEmail newEmail, User principal) {
+        return RxJava2Adapter.singleToMono(create(ReferenceType.DOMAIN, domain, client, newEmail, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Email> update(String domain, String id, UpdateEmail updateEmail, User principal) {
+ return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateEmail, principal));
+}
+@Override
+    public Mono<Email> update_migrated(String domain, String id, UpdateEmail updateEmail, User principal) {
         LOGGER.debug("Update an email {} for domain {}", id, domain);
-        return update0(ReferenceType.DOMAIN, domain, id, updateEmail, principal);
+        return RxJava2Adapter.singleToMono(update0(ReferenceType.DOMAIN, domain, id, updateEmail, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Email> update(String domain, String client, String id, UpdateEmail updateEmail, User principal) {
+ return RxJava2Adapter.monoToSingle(update_migrated(domain, client, id, updateEmail, principal));
+}
+@Override
+    public Mono<Email> update_migrated(String domain, String client, String id, UpdateEmail updateEmail, User principal) {
         LOGGER.debug("Update an email {} for domain {} and client {}", id, domain, client);
-        return update0(ReferenceType.DOMAIN, domain, id, updateEmail, principal);
+        return RxJava2Adapter.singleToMono(update0(ReferenceType.DOMAIN, domain, id, updateEmail, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String emailId, User principal) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(emailId, principal));
+}
+@Override
+    public Mono<Void> delete_migrated(String emailId, User principal) {
         LOGGER.debug("Delete email {}", emailId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(emailRepository.findById(emailId)).switchIfEmpty(Mono.error(new EmailNotFoundException(emailId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Email, CompletableSource>)email -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(emailRepository.findById(emailId)).switchIfEmpty(Mono.error(new EmailNotFoundException(emailId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Email, CompletableSource>)email -> {
                     // create event for sync process
                     Event event = new Event(Type.EMAIL, new Payload(email.getId(), email.getReferenceType(), email.getReferenceId(), Action.DELETE));
                     return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(emailRepository.delete(emailId)).then(RxJava2Adapter.singleToMono(eventService.create(event))))
@@ -215,11 +296,12 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                     LOGGER.error("An error occurs while trying to delete email: {}", emailId, ex);
                     return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to delete email: %s", emailId), ex)));
-                });
+                }));
     }
 
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create0_migrated(referenceType, referenceId, client, newEmail, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Email> create0(ReferenceType referenceType, String referenceId, String client, NewEmail newEmail, User principal) {
  return RxJava2Adapter.monoToSingle(create0_migrated(referenceType, referenceId, client, newEmail, principal));
 }
@@ -258,7 +340,8 @@ private Mono<Email> create0_migrated(ReferenceType referenceType, String referen
                 })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(email -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_CREATED).email(email)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_CREATED).throwable(throwable))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update0_migrated(referenceType, referenceId, id, updateEmail, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Email> update0(ReferenceType referenceType, String referenceId, String id, UpdateEmail updateEmail, User principal) {
  return RxJava2Adapter.monoToSingle(update0_migrated(referenceType, referenceId, id, updateEmail, principal));
 }
@@ -290,7 +373,8 @@ private Mono<Email> update0_migrated(ReferenceType referenceType, String referen
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkEmailUniqueness_migrated(referenceType, referenceId, client, emailTemplate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Boolean> checkEmailUniqueness(ReferenceType referenceType, String referenceId, String client, String emailTemplate) {
  return RxJava2Adapter.monoToSingle(checkEmailUniqueness_migrated(referenceType, referenceId, client, emailTemplate));
 }

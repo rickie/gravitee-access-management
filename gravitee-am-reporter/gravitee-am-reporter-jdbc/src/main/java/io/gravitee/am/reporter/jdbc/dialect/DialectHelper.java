@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.reporter.jdbc.dialect;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
 import io.reactivex.Single;
@@ -30,7 +31,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface DialectHelper {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.buildAndProcessHistogram_migrated(dbClient, referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<java.util.Map<java.lang.String, java.lang.Object>>> buildAndProcessHistogram(org.springframework.data.r2dbc.core.DatabaseClient dbClient, io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.reporter.api.audit.AuditReportableCriteria criteria) {
     return RxJava2Adapter.monoToSingle(buildAndProcessHistogram_migrated(dbClient, referenceType, referenceId, criteria));
 }

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.service.model.plugin.ResourcePlugin;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -29,7 +30,8 @@ public interface ResourcePluginService {
     String MANIFEST_KEY_CATEGORIES = "categories";
     String EXPAND_ICON = "icon";
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.ResourcePlugin>> findAll(java.util.List<java.lang.String> expand) {
     return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
 }
@@ -37,7 +39,8 @@ default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.
     return RxJava2Adapter.singleToMono(findAll(expand));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.service.model.plugin.ResourcePlugin> findById(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
@@ -45,7 +48,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.service.model.plugin.Resource
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<java.lang.String> getSchema(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(getSchema_migrated(id));
 }
@@ -53,7 +57,8 @@ default reactor.core.publisher.Mono<java.lang.String> getSchema_migrated(String 
     return RxJava2Adapter.maybeToMono(getSchema(id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(resourceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<java.lang.String> getIcon(java.lang.String resourceId) {
     return RxJava2Adapter.monoToMaybe(getIcon_migrated(resourceId));
 }

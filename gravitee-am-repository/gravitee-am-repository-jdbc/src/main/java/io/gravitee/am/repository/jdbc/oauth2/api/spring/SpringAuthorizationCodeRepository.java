@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.oauth2.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAuthorizationCode;
 import io.reactivex.Maybe;
 import java.time.LocalDateTime;
@@ -30,7 +31,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringAuthorizationCodeRepository extends RxJava2CrudRepository<JdbcAuthorizationCode, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCode_migrated(code, now))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAuthorizationCode> findByCode(@org.springframework.data.repository.query.Param(value = "code")
 java.lang.String code, @org.springframework.data.repository.query.Param(value = "now")
 java.time.LocalDateTime now) {

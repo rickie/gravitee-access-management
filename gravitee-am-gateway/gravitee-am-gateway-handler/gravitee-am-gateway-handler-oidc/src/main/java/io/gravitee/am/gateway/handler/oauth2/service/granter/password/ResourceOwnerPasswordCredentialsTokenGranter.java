@@ -18,6 +18,7 @@ package io.gravitee.am.gateway.handler.oauth2.service.granter.password;
 import static io.gravitee.am.common.oauth2.Parameters.PASSWORD;
 import static io.gravitee.am.common.oauth2.Parameters.USERNAME;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.gateway.handler.common.auth.user.EndUserAuthentication;
@@ -59,7 +60,8 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         setUserAuthenticationManager(userAuthenticationManager);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.parseRequest_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
  return RxJava2Adapter.monoToSingle(parseRequest_migrated(tokenRequest, client));
@@ -85,7 +87,8 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         return RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.resolveResourceOwner_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
  return RxJava2Adapter.monoToMaybe(resolveResourceOwner_migrated(tokenRequest, client));

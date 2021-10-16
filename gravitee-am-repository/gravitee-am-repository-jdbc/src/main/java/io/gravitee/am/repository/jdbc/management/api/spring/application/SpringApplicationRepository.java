@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.application;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -31,7 +32,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringApplicationRepository extends RxJava2CrudRepository<JdbcApplication, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countByDomain(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain) {
     return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
@@ -41,7 +43,8 @@ String domain) {
     return RxJava2Adapter.singleToMono(countByDomain(domain));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findByDomain(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain) {
     return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
@@ -51,7 +54,8 @@ String domain) {
     return RxJava2Adapter.flowableToFlux(findByDomain(domain));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCertificate_migrated(certificate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findByCertificate(@org.springframework.data.repository.query.Param(value = "cert")
 java.lang.String certificate) {
     return RxJava2Adapter.fluxToFlowable(findByCertificate_migrated(certificate));
@@ -61,7 +65,8 @@ String certificate) {
     return RxJava2Adapter.flowableToFlux(findByCertificate(certificate));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByFactor_migrated(factor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findAllByFactor(@org.springframework.data.repository.query.Param(value = "factor")
 java.lang.String factor) {
     return RxJava2Adapter.fluxToFlowable(findAllByFactor_migrated(factor));
@@ -71,7 +76,8 @@ String factor) {
     return RxJava2Adapter.flowableToFlux(findAllByFactor(factor));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByDomainAndGrant_migrated(domain, grant))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findAllByDomainAndGrant(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain, @org.springframework.data.repository.query.Param(value = "grant")
 java.lang.String grant) {
@@ -83,7 +89,8 @@ String grant) {
     return RxJava2Adapter.flowableToFlux(findAllByDomainAndGrant(domain, grant));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findByIdIn(@org.springframework.data.repository.query.Param(value = "ids")
 java.util.List<java.lang.String> ids) {
     return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));

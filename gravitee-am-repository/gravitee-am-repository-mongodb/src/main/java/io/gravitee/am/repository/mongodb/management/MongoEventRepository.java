@@ -17,6 +17,7 @@ package io.gravitee.am.repository.mongodb.management;
 
 import static com.mongodb.client.model.Filters.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
@@ -56,17 +57,23 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
         super.createIndex(eventsCollection, new Document(FIELD_UPDATED_AT, 1));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Event> findByTimeFrame(long from, long to) {
+ return RxJava2Adapter.fluxToFlowable(findByTimeFrame_migrated(from, to));
+}
+@Override
+    public Flux<Event> findByTimeFrame_migrated(long from, long to) {
         List<Bson> filters = new ArrayList<>();
         filters.add(gte(FIELD_UPDATED_AT, new Date(from)));
         if (to > from) {
             filters.add(lte(FIELD_UPDATED_AT, new Date(to)));
         }
-        return RxJava2Adapter.fluxToFlowable(Flux.from(eventsCollection.find(and(filters))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(eventsCollection.find(and(filters))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Event> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -76,7 +83,8 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(eventsCollection.find(eq(FIELD_ID, id)).first()).map(this::convert), BackpressureStrategy.BUFFER).next()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Event> create(Event item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -88,7 +96,8 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(eventsCollection.insertOne(event))).flatMap(success->RxJava2Adapter.maybeToMono(findById(event.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Event> update(Event item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -99,7 +108,8 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(eventsCollection.replaceOne(eq(FIELD_ID, event.getId()), event))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(event.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

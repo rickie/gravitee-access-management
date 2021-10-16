@@ -44,32 +44,42 @@ public class EventServiceImpl implements EventService {
     @Autowired
     private EventRepository eventRepository;
 
-    @Override
+    @Deprecated
+@Override
     public Single<Event> create(Event event) {
+ return RxJava2Adapter.monoToSingle(create_migrated(event));
+}
+@Override
+    public Mono<Event> create_migrated(Event event) {
         LOGGER.debug("Create a new event {}", event);
 
         event.setCreatedAt(new Date());
         event.setUpdatedAt(event.getCreatedAt());
-        return eventRepository.create(event)
+        return RxJava2Adapter.singleToMono(eventRepository.create(event)
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to create an event", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create an event", ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<Event>> findByTimeFrame(long from, long to) {
+ return RxJava2Adapter.monoToSingle(findByTimeFrame_migrated(from, to));
+}
+@Override
+    public Mono<List<Event>> findByTimeFrame_migrated(long from, long to) {
         LOGGER.debug("Find events with time frame {} and {}", from, to);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(eventRepository.findByTimeFrame(from, to)).collectList())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(eventRepository.findByTimeFrame(from, to)).collectList())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to find events by time frame", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to find events by time frame", ex)));
-                });
+                }));
     }
 }

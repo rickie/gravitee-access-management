@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.Environment;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -64,27 +66,47 @@ public class EnvironmentServiceImpl implements EnvironmentService {
         this.auditService = auditService;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Environment> findById(String id, String organizationId) {
+ return RxJava2Adapter.monoToSingle(findById_migrated(id, organizationId));
+}
+@Override
+    public Mono<Environment> findById_migrated(String id, String organizationId) {
         LOGGER.debug("Find environment by id: {}", id);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(environmentRepository.findById(id, organizationId)).switchIfEmpty(Mono.error(new EnvironmentNotFoundException(id))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(environmentRepository.findById(id, organizationId)).switchIfEmpty(Mono.error(new EnvironmentNotFoundException(id)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Environment> findById(String id) {
+ return RxJava2Adapter.monoToSingle(findById_migrated(id));
+}
+@Override
+    public Mono<Environment> findById_migrated(String id) {
         LOGGER.debug("Find environment by id: {}", id);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(environmentRepository.findById(id)).switchIfEmpty(Mono.error(new EnvironmentNotFoundException(id))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(environmentRepository.findById(id)).switchIfEmpty(Mono.error(new EnvironmentNotFoundException(id)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Environment> findAll(String organizationId) {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
+}
+@Override
+    public Flux<Environment> findAll_migrated(String organizationId) {
 
         LOGGER.debug("Find environments by organizationId: {}", organizationId);
-        return environmentRepository.findAll(organizationId);
+        return RxJava2Adapter.flowableToFlux(environmentRepository.findAll(organizationId));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Environment> createDefault() {
+ return RxJava2Adapter.monoToMaybe(createDefault_migrated());
+}
+@Override
+    public Mono<Environment> createDefault_migrated() {
 
         Environment environment = new Environment();
         environment.setId(Environment.DEFAULT);
@@ -95,13 +117,18 @@ public class EnvironmentServiceImpl implements EnvironmentService {
         environment.setDomainRestrictions(Collections.emptyList());
 
         // No need to create default organization of one or more organizations already exist.
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(environmentRepository.count()).filter(RxJavaReactorMigrationUtil.toJdkPredicate(aLong -> aLong == 0)).flatMap(z->RxJava2Adapter.singleToMono(createInternal(environment, null))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(environmentRepository.count()).filter(RxJavaReactorMigrationUtil.toJdkPredicate(aLong -> aLong == 0)).flatMap(z->RxJava2Adapter.singleToMono(createInternal(environment, null)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Environment> createOrUpdate(String organizationId, String environmentId, NewEnvironment newEnvironment, User byUser) {
+ return RxJava2Adapter.monoToSingle(createOrUpdate_migrated(organizationId, environmentId, newEnvironment, byUser));
+}
+@Override
+    public Mono<Environment> createOrUpdate_migrated(String organizationId, String environmentId, NewEnvironment newEnvironment, User byUser) {
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(environmentRepository.findById(environmentId, organizationId)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Environment, MaybeSource<Environment>>toJdkFunction(environment -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(environmentRepository.findById(environmentId, organizationId)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Environment, MaybeSource<Environment>>toJdkFunction(environment -> {
                     environment.setName(newEnvironment.getName());
                     environment.setDescription(newEnvironment.getDescription());
                     environment.setDomainRestrictions(newEnvironment.getDomainRestrictions());
@@ -117,10 +144,11 @@ toCreate.setDescription(newEnvironment.getDescription());
 toCreate.setOrganizationId(organization.getId());
 toCreate.setDomainRestrictions(newEnvironment.getDomainRestrictions());
 return toCreate;
-})).flatMap(toCreate->RxJava2Adapter.singleToMono(createInternal(toCreate, byUser))))));
+})).flatMap(toCreate->RxJava2Adapter.singleToMono(createInternal(toCreate, byUser)))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated(toCreate, createdBy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Environment> createInternal(Environment toCreate, User createdBy) {
  return RxJava2Adapter.monoToSingle(createInternal_migrated(toCreate, createdBy));
 }
@@ -134,7 +162,8 @@ private Mono<Environment> createInternal_migrated(Environment toCreate, User cre
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentRepository.create(toCreate)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_CREATED).environment(environment).principal(createdBy)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_CREATED).environment(toCreate).principal(createdBy).throwable(throwable))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateInternal_migrated(toUpdate, updatedBy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Environment> updateInternal(Environment toUpdate, User updatedBy) {
  return RxJava2Adapter.monoToSingle(updateInternal_migrated(toUpdate, updatedBy));
 }

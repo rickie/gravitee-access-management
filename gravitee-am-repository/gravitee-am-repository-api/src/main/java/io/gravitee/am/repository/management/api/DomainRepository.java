@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.common.CrudRepository;
@@ -32,7 +33,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface DomainRepository extends CrudRepository<Domain, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Domain> findAll() {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated());
 }
@@ -40,7 +42,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Domain> findAll_migrate
     return RxJava2Adapter.flowableToFlux(findAll());
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByReferenceId_migrated(environmentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Domain> findAllByReferenceId(java.lang.String environmentId) {
     return RxJava2Adapter.fluxToFlowable(findAllByReferenceId_migrated(environmentId));
 }
@@ -48,7 +51,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Domain> findAllByRefere
     return RxJava2Adapter.flowableToFlux(findAllByReferenceId(environmentId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.search_migrated(environmentId, query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Domain> search(java.lang.String environmentId, java.lang.String query) {
     return RxJava2Adapter.fluxToFlowable(search_migrated(environmentId, query));
 }
@@ -56,7 +60,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Domain> search_migrated
     return RxJava2Adapter.flowableToFlux(search(environmentId, query));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByHrid_migrated(referenceType, referenceId, hrid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Domain> findByHrid(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String hrid) {
     return RxJava2Adapter.monoToMaybe(findByHrid_migrated(referenceType, referenceId, hrid));
 }
@@ -64,7 +69,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Domain> findByHrid_migr
     return RxJava2Adapter.maybeToMono(findByHrid(referenceType, referenceId, hrid));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Domain> findByIdIn(java.util.Collection<java.lang.String> ids) {
     return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
 }
@@ -72,7 +78,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Domain> findByIdIn_migr
     return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Domain> findAllByCriteria(io.gravitee.am.repository.management.api.search.DomainCriteria criteria) {
     return RxJava2Adapter.fluxToFlowable(findAllByCriteria_migrated(criteria));
 }

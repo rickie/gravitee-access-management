@@ -19,6 +19,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
 import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Installation;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -59,13 +60,19 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         return mapped;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Installation> find() {
+ return RxJava2Adapter.monoToMaybe(find_migrated());
+}
+@Override
+    public Mono<Installation> find_migrated() {
         LOGGER.debug("find()");
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(this.installationRepository.findAll()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(this.installationRepository.findAll()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Installation> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -76,7 +83,8 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.installationRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(installation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Installation> create(Installation installation) {
  return RxJava2Adapter.monoToSingle(create_migrated(installation));
@@ -97,7 +105,8 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertSpec.then().then(Mono.defer(()->RxJava2Adapter.maybeToMono(this.findById(installation.getId())).single()))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(installation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Installation> update(Installation installation) {
  return RxJava2Adapter.monoToSingle(update_migrated(installation));
@@ -118,7 +127,8 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(installation.getId()))).then().then(Mono.defer(()->RxJava2Adapter.maybeToMono(this.findById(installation.getId())).single()))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

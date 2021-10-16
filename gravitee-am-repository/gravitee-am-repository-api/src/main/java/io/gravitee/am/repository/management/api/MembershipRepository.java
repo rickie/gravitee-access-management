@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Membership;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.membership.MemberType;
@@ -32,7 +33,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface MembershipRepository extends CrudRepository<Membership, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceId, referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Membership> findByReference(java.lang.String referenceId, io.gravitee.am.model.ReferenceType referenceType) {
     return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceId, referenceType));
 }
@@ -40,7 +42,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Membership> findByRefer
     return RxJava2Adapter.flowableToFlux(findByReference(referenceId, referenceType));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Membership> findByMember(java.lang.String memberId, io.gravitee.am.model.membership.MemberType memberType) {
     return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId, memberType));
 }
@@ -48,7 +51,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Membership> findByMembe
     return RxJava2Adapter.flowableToFlux(findByMember(memberId, memberType));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Membership> findByCriteria(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.repository.management.api.search.MembershipCriteria criteria) {
     return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
 }
@@ -56,7 +60,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Membership> findByCrite
     return RxJava2Adapter.flowableToFlux(findByCriteria(referenceType, referenceId, criteria));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByReferenceAndMember_migrated(referenceType, referenceId, memberType, memberId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Membership> findByReferenceAndMember(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.model.membership.MemberType memberType, java.lang.String memberId) {
     return RxJava2Adapter.monoToMaybe(findByReferenceAndMember_migrated(referenceType, referenceId, memberType, memberId));
 }

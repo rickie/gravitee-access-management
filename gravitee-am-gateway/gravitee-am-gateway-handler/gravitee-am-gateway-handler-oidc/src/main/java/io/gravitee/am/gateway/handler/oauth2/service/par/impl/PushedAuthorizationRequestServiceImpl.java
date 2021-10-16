@@ -19,6 +19,7 @@ import static io.gravitee.am.common.oidc.ClientAuthenticationMethod.JWT_BEARER;
 import static io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization.ParamUtils.redirectMatches;
 import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.isSignAlgCompliantWithFapi;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.nimbusds.jwt.*;
 import com.nimbusds.jwt.JWT;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
@@ -85,13 +86,18 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
     @Autowired
     private JWKService jwkService;
 
-    @Override
+    @Deprecated
+@Override
     public Single<JWT> readFromURI(String requestUri, Client client, OpenIDProviderMetadata oidcMetadata) {
+ return RxJava2Adapter.monoToSingle(readFromURI_migrated(requestUri, client, oidcMetadata));
+}
+@Override
+    public Mono<JWT> readFromURI_migrated(String requestUri, Client client, OpenIDProviderMetadata oidcMetadata) {
         if (requestUri.startsWith(PAR_URN_PREFIX)) {
             // Extract the identifier
             String identifier = requestUri.substring(PAR_URN_PREFIX.length());
 
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(parRepository.findById(identifier)).switchIfEmpty(Mono.error(new InvalidRequestUriException())).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PushedAuthorizationRequest, Single<JWT>>)(Function<PushedAuthorizationRequest, Single<JWT>>)req -> {
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(parRepository.findById(identifier)).switchIfEmpty(Mono.error(new InvalidRequestUriException())).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PushedAuthorizationRequest, Single<JWT>>)(Function<PushedAuthorizationRequest, Single<JWT>>)req -> {
                         if (req.getParameters() != null &&
                                 req.getExpireAt() != null &&
                                 req.getExpireAt().after(new Date())) {
@@ -112,14 +118,19 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
                             }
                         }
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestUriException()));
-                    }).apply(v))));
+                    }).apply(v)))));
         } else {
-            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Invalid request_uri")));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Invalid request_uri"))));
         }
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<PushedAuthorizationRequestResponse> registerParameters(PushedAuthorizationRequest par, Client client) {
+ return RxJava2Adapter.monoToSingle(registerParameters_migrated(par, client));
+}
+@Override
+    public Mono<PushedAuthorizationRequestResponse> registerParameters_migrated(PushedAuthorizationRequest par, Client client) {
         par.setClient(client.getId()); // link parameters to the internal client identifier
         par.setExpireAt(new Date(Instant.now().plusMillis(requestUriValidity).toEpochMilli()));
 
@@ -142,14 +153,14 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
             RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(registrationValidation).then(Mono.fromRunnable(RxJavaReactorMigrationUtil.toRunnable(() -> checkRedirectUriParameter(par, client)))));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(registrationValidation).then(Mono.defer(()->RxJava2Adapter.singleToMono(parRepository.create(par)))).map(RxJavaReactorMigrationUtil.toJdkFunction(parPersisted -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(registrationValidation).then(Mono.defer(()->RxJava2Adapter.singleToMono(parRepository.create(par)))).map(RxJavaReactorMigrationUtil.toJdkFunction(parPersisted -> {
             final PushedAuthorizationRequestResponse response = new PushedAuthorizationRequestResponse();
             response.setRequestUri(PAR_URN_PREFIX + parPersisted.getId());
             // the lifetime of the request URI in seconds as a positive integer
             final long exp = (parPersisted.getExpireAt().getTime() - Instant.now().toEpochMilli()) / 1000;
             response.setExp(exp);
             return response;
-        })));
+        }))));
     }
 
     private boolean jwtClientAssertion(PushedAuthorizationRequest par) {
@@ -165,7 +176,8 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.readRequestObject_migrated(client, request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<JWT> readRequestObject(Client client, String request) {
  return RxJava2Adapter.monoToSingle(readRequestObject_migrated(client, request));
 }
@@ -208,7 +220,8 @@ private Mono<JWT> readRequestObject_migrated(Client client, String request) {
         return jwt;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateSignature_migrated(jwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<JWT> validateSignature(SignedJWT jwt, Client client) {
  return RxJava2Adapter.monoToSingle(validateSignature_migrated(jwt, client));
 }
@@ -284,13 +297,18 @@ private Mono<JWT> validateSignature_migrated(SignedJWT jwt, Client client) {
         }
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable deleteRequestUri(String uriIdentifier) {
+ return RxJava2Adapter.monoToCompletable(deleteRequestUri_migrated(uriIdentifier));
+}
+@Override
+    public Mono<Void> deleteRequestUri_migrated(String uriIdentifier) {
         LOGGER.debug("Delete Pushed Authorization Request with id '{}'", uriIdentifier);
         if (StringUtils.isEmpty(uriIdentifier)) {
             // if the identifier is null or empty, return successful operation.
-            return RxJava2Adapter.monoToCompletable(Mono.empty());
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
         }
-        return parRepository.delete(uriIdentifier);
+        return RxJava2Adapter.completableToMono(parRepository.delete(uriIdentifier));
     }
 }

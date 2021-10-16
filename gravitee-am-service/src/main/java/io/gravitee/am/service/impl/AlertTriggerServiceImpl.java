@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -74,11 +76,16 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
      * @param id the alert trigger identifier.
      * @return the alert trigger found or an {@link AlertTriggerNotFoundException} if no alert trigger has been found.
      */
-    @Override
+    @Deprecated
+@Override
     public Single<AlertTrigger> getById(String id) {
+ return RxJava2Adapter.monoToSingle(getById_migrated(id));
+}
+@Override
+    public Mono<AlertTrigger> getById_migrated(String id) {
         LOGGER.debug("Find alert trigger by id: {}", id);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(alertTriggerRepository.findById(id)).switchIfEmpty(Mono.error(new AlertTriggerNotFoundException(id))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(alertTriggerRepository.findById(id)).switchIfEmpty(Mono.error(new AlertTriggerNotFoundException(id)))));
     }
 
 
@@ -90,11 +97,16 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
      * @param id the alert trigger identifier.
      * @return the alert trigger found or an {@link AlertTriggerNotFoundException} if no alert trigger has been found.
      */
-    @Override
+    @Deprecated
+@Override
     public Single<AlertTrigger> getById(ReferenceType referenceType, String referenceId, String id) {
+ return RxJava2Adapter.monoToSingle(getById_migrated(referenceType, referenceId, id));
+}
+@Override
+    public Mono<AlertTrigger> getById_migrated(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("Find alert trigger by id: {}", id);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(alertTriggerRepository.findById(id)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(alertTrigger -> alertTrigger.getReferenceType() == referenceType && alertTrigger.getReferenceId().equals(referenceId))).switchIfEmpty(Mono.error(new AlertTriggerNotFoundException(id))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(alertTriggerRepository.findById(id)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(alertTrigger -> alertTrigger.getReferenceType() == referenceType && alertTrigger.getReferenceId().equals(referenceId))).switchIfEmpty(Mono.error(new AlertTriggerNotFoundException(id)))));
     }
 
     /**
@@ -104,11 +116,16 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
      * @param criteria the criteria to match.
      * @return the alert triggers found or empty if none has been found.
      */
-    @Override
+    @Deprecated
+@Override
     public Flowable<AlertTrigger> findByDomainAndCriteria(String domainId, AlertTriggerCriteria criteria) {
+ return RxJava2Adapter.fluxToFlowable(findByDomainAndCriteria_migrated(domainId, criteria));
+}
+@Override
+    public Flux<AlertTrigger> findByDomainAndCriteria_migrated(String domainId, AlertTriggerCriteria criteria) {
         LOGGER.debug("Find alert trigger by domain {} and criteria: {}", domainId, criteria);
 
-        return alertTriggerRepository.findByCriteria(ReferenceType.DOMAIN, domainId, criteria);
+        return RxJava2Adapter.flowableToFlux(alertTriggerRepository.findByCriteria(ReferenceType.DOMAIN, domainId, criteria));
     }
 
     /**
@@ -121,14 +138,19 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
      * @param byUser the user at the origin of the update.
      * @return the created or updated alert trigger.
      */
-    @Override
+    @Deprecated
+@Override
     public Single<AlertTrigger> createOrUpdate(ReferenceType referenceType, String referenceId, PatchAlertTrigger patchAlertTrigger, User byUser) {
+ return RxJava2Adapter.monoToSingle(createOrUpdate_migrated(referenceType, referenceId, patchAlertTrigger, byUser));
+}
+@Override
+    public Mono<AlertTrigger> createOrUpdate_migrated(ReferenceType referenceType, String referenceId, PatchAlertTrigger patchAlertTrigger, User byUser) {
         LOGGER.debug("Create or update alert trigger for {} {}: {}", referenceType, referenceId, patchAlertTrigger);
 
         final AlertTriggerCriteria criteria = new AlertTriggerCriteria();
         criteria.setType(patchAlertTrigger.getType());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(alertTriggerRepository.findByCriteria(referenceType, referenceId, criteria)).next().flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AlertTrigger, MaybeSource<AlertTrigger>>toJdkFunction(alertTrigger -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(alertTriggerRepository.findByCriteria(referenceType, referenceId, criteria)).next().flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AlertTrigger, MaybeSource<AlertTrigger>>toJdkFunction(alertTrigger -> {
                     AlertTrigger toUpdate = patchAlertTrigger.patch(alertTrigger);
 
                     if (toUpdate.equals(alertTrigger)) {
@@ -145,7 +167,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
                     alertTrigger = patchAlertTrigger.patch(alertTrigger);
 
                     return createInternal(alertTrigger, byUser);
-                }))));
+                })))));
     }
 
     /**
@@ -156,12 +178,18 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
      * @param alertTriggerId the alert trigger identifier.
      * @return nothing if the alert trigger has been successfully delete or an {@link AlertTriggerNotFoundException} exception if it has not been found.
      */
-    @Override
+    @Deprecated
+@Override
     public Completable delete(ReferenceType referenceType, String referenceId, String alertTriggerId, User byUser) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(this.getById(referenceType, referenceId, alertTriggerId)).flatMap(alertTrigger->RxJava2Adapter.completableToMono(deleteInternal(alertTrigger, byUser))).then());
+ return RxJava2Adapter.monoToCompletable(delete_migrated(referenceType, referenceId, alertTriggerId, byUser));
+}
+@Override
+    public Mono<Void> delete_migrated(ReferenceType referenceType, String referenceId, String alertTriggerId, User byUser) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(this.getById(referenceType, referenceId, alertTriggerId)).flatMap(alertTrigger->RxJava2Adapter.completableToMono(deleteInternal(alertTrigger, byUser))).then()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated(toCreate, byUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<AlertTrigger> createInternal(AlertTrigger toCreate, User byUser) {
  return RxJava2Adapter.monoToSingle(createInternal_migrated(toCreate, byUser));
 }
@@ -175,7 +203,8 @@ private Mono<AlertTrigger> createInternal_migrated(AlertTrigger toCreate, User b
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(alertTriggerRepository.create(toCreate)).flatMap(created->RxJava2Adapter.singleToMono(eventService.create(new Event(Type.ALERT_TRIGGER, new Payload(created.getId(), created.getReferenceType(), created.getReferenceId(), Action.CREATE)))).then().then(Mono.just(created))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(alertTrigger -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_CREATED).alertTrigger(alertTrigger).principal(byUser)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_CREATED).alertTrigger(toCreate).principal(byUser).throwable(throwable))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateInternal_migrated(alertTrigger, updatedBy, previous))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<AlertTrigger> updateInternal(AlertTrigger alertTrigger, User updatedBy, AlertTrigger previous) {
  return RxJava2Adapter.monoToSingle(updateInternal_migrated(alertTrigger, updatedBy, previous));
 }
@@ -187,7 +216,8 @@ private Mono<AlertTrigger> updateInternal_migrated(AlertTrigger alertTrigger, Us
     }
 
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteInternal_migrated(alertTrigger, deletedBy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Completable deleteInternal(AlertTrigger alertTrigger, User deletedBy) {
  return RxJava2Adapter.monoToCompletable(deleteInternal_migrated(alertTrigger, deletedBy));
 }

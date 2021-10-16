@@ -13,6 +13,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.code.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.common.utils.SecureRandomString;
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidGrantException;
@@ -51,8 +52,13 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
 
   @Lazy @Autowired private RefreshTokenRepository refreshTokenRepository;
 
-  @Override
+  @Deprecated
+@Override
   public Single<AuthorizationCode> create(AuthorizationRequest authorizationRequest, User user) {
+ return RxJava2Adapter.monoToSingle(create_migrated(authorizationRequest, user));
+}
+@Override
+  public Mono<AuthorizationCode> create_migrated(AuthorizationRequest authorizationRequest, User user) {
     AuthorizationCode authorizationCode = new AuthorizationCode();
     authorizationCode.setId(RandomString.generate());
     authorizationCode.setTransactionId(authorizationRequest.transactionId());
@@ -65,12 +71,17 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
     authorizationCode.setExpireAt(new Date(System.currentTimeMillis() + authorizationCodeValidity));
     authorizationCode.setCreatedAt(new Date());
 
-    return authorizationCodeRepository.create(authorizationCode);
+    return RxJava2Adapter.singleToMono(authorizationCodeRepository.create(authorizationCode));
   }
 
-  @Override
+  @Deprecated
+@Override
   public Maybe<AuthorizationCode> remove(String code, Client client) {
-    return RxJava2Adapter.monoToMaybe(
+ return RxJava2Adapter.monoToMaybe(remove_migrated(code, client));
+}
+@Override
+  public Mono<AuthorizationCode> remove_migrated(String code, Client client) {
+    return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(
         RxJava2Adapter.maybeToMono(authorizationCodeRepository
                     .findByCode(code)).switchIfEmpty(RxJava2Adapter.maybeToMono(handleInvalidCode(code))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthorizationCode, MaybeSource<AuthorizationCode>>toJdkFunction(authorizationCode -> {
                           if (!authorizationCode.getClientId().equals(client.getClientId())) {
@@ -85,10 +96,11 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
                         }).apply(v))))
             .flatMap(
                 z ->
-                    authorizationCodeRepository.delete(z.getId()).as(RxJava2Adapter::maybeToMono)));
+                    authorizationCodeRepository.delete(z.getId()).as(RxJava2Adapter::maybeToMono))));
   }
 
-  @Deprecated
+  @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.handleInvalidCode_migrated(code))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<AuthorizationCode> handleInvalidCode(String code) {
  return RxJava2Adapter.monoToMaybe(handleInvalidCode_migrated(code));
 }

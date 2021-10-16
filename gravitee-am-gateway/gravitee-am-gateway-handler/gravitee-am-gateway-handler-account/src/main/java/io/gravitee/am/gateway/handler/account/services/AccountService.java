@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.account.services;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Credential;
 import io.gravitee.am.model.Factor;
 import io.gravitee.am.model.User;
@@ -34,7 +35,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface AccountService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.get_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.User> get(java.lang.String userId) {
     return RxJava2Adapter.monoToMaybe(get_migrated(userId));
 }
@@ -42,7 +44,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> get_migrated(Stri
     return RxJava2Adapter.maybeToMono(get(userId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getActivity_migrated(user, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.reporter.api.audit.model.Audit>> getActivity(io.gravitee.am.model.User user, io.gravitee.am.reporter.api.audit.AuditReportableCriteria criteria, int page, int size) {
     return RxJava2Adapter.monoToSingle(getActivity_migrated(user, criteria, page, size));
 }
@@ -50,7 +53,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee
     return RxJava2Adapter.singleToMono(getActivity(user, criteria, page, size));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.User> update(io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToSingle(update_migrated(user));
 }
@@ -58,7 +62,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> update_migrated(U
     return RxJava2Adapter.singleToMono(update(user));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.upsertFactor_migrated(userId, enrolledFactor, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.User> upsertFactor(java.lang.String userId, io.gravitee.am.model.factor.EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(upsertFactor_migrated(userId, enrolledFactor, principal));
 }
@@ -66,7 +71,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> upsertFactor_migr
     return RxJava2Adapter.singleToMono(upsertFactor(userId, enrolledFactor, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.removeFactor_migrated(userId, factorId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable removeFactor(java.lang.String userId, java.lang.String factorId, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(removeFactor_migrated(userId, factorId, principal));
 }
@@ -74,7 +80,8 @@ default reactor.core.publisher.Mono<java.lang.Void> removeFactor_migrated(String
     return RxJava2Adapter.completableToMono(removeFactor(userId, factorId, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getFactors_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.model.Factor>> getFactors(java.lang.String domain) {
     return RxJava2Adapter.monoToSingle(getFactors_migrated(domain));
 }
@@ -82,7 +89,8 @@ default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.model.Factor>>
     return RxJava2Adapter.singleToMono(getFactors(domain));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getFactor_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Factor> getFactor(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(getFactor_migrated(id));
 }
@@ -90,7 +98,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Factor> getFactor_migra
     return RxJava2Adapter.maybeToMono(getFactor(id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getWebAuthnCredentials_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.model.Credential>> getWebAuthnCredentials(io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToSingle(getWebAuthnCredentials_migrated(user));
 }
@@ -98,7 +107,8 @@ default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.model.Credenti
     return RxJava2Adapter.singleToMono(getWebAuthnCredentials(user));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getWebAuthnCredential_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Credential> getWebAuthnCredential(java.lang.String id) {
     return RxJava2Adapter.monoToSingle(getWebAuthnCredential_migrated(id));
 }

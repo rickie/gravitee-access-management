@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.resources.endpoint;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
 import io.gravitee.am.gateway.handler.oauth2.exception.ResourceNotFoundException;
@@ -152,7 +153,8 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
                 );
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<Client> getClient(RoutingContext context) {
  return RxJava2Adapter.monoToMaybe(getClient_migrated(context));
 }

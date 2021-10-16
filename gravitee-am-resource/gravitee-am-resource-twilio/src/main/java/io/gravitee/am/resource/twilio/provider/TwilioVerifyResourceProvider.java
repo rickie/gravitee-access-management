@@ -171,8 +171,13 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
         return this;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable send(MFALink target) {
+ return RxJava2Adapter.monoToCompletable(send_migrated(target));
+}
+@Override
+    public Mono<Void> send_migrated(MFALink target) {
         String channel;
         switch (target.getChannel()) {
             case SMS:
@@ -182,10 +187,10 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
                 channel = "email";
                 break;
             default:
-                return RxJava2Adapter.monoToCompletable(Mono.error(new IllegalArgumentException("Unsupported verification channel '" + target.getChannel() + "'")));
+                return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new IllegalArgumentException("Unsupported verification channel '" + target.getChannel() + "'"))));
         }
 
-        return Completable.create((emitter) -> {
+        return RxJava2Adapter.completableToMono(Completable.create((emitter) -> {
             try {
                 Verification verification = Verification.creator(
                         configuration.getSid(),
@@ -199,12 +204,17 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
                 LOGGER.error("Challenge emission fails", e);
                 emitter.onError(new SendChallengeException("Unable to send challenge"));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable verify(MFAChallenge challenge) {
-        return Completable.create((emitter) -> {
+ return RxJava2Adapter.monoToCompletable(verify_migrated(challenge));
+}
+@Override
+    public Mono<Void> verify_migrated(MFAChallenge challenge) {
+        return RxJava2Adapter.completableToMono(Completable.create((emitter) -> {
             try {
                 VerificationCheck verification = VerificationCheck.creator(configuration.getSid(), challenge.getCode())
                         .setTo(challenge.getTarget())
@@ -219,7 +229,7 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
                 LOGGER.error("Challenge verification fails", e);
                 emitter.onError(new InvalidCodeException("Invalid 2FA Code"));
             }
-        });
+        }));
     }
 
     private static class SSLProxySocksConnectionSocketFactory extends SSLConnectionSocketFactory {

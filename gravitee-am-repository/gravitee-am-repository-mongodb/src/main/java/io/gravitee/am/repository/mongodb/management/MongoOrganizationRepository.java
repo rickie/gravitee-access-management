@@ -18,6 +18,7 @@ package io.gravitee.am.repository.mongodb.management;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.in;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Organization;
@@ -50,12 +51,18 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
         super.init(collection);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Organization> findByHrids(List<String> hrids) {
-        return RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(in(HRID_KEY, hrids))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.fluxToFlowable(findByHrids_migrated(hrids));
+}
+@Override
+    public Flux<Organization> findByHrids_migrated(List<String> hrids) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(in(HRID_KEY, hrids))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Organization> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -66,7 +73,8 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(organization))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Organization> create(Organization organization) {
  return RxJava2Adapter.monoToSingle(create_migrated(organization));
@@ -79,7 +87,8 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(organization)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(organization.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(organization))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Organization> update(Organization organization) {
  return RxJava2Adapter.monoToSingle(update_migrated(organization));
@@ -90,7 +99,8 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, organization.getId()), convert(organization)))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(organization.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));
@@ -100,10 +110,15 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Long> count() {
+ return RxJava2Adapter.monoToSingle(count_migrated());
+}
+@Override
+    public Mono<Long> count_migrated() {
 
-        return Single.fromPublisher(collection.countDocuments());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.countDocuments()));
     }
 
     private Organization convert(OrganizationMongo organizationMongo) {

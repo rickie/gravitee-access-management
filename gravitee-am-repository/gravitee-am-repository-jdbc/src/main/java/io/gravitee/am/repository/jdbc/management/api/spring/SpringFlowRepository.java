@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcFlow;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -31,7 +32,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 @Repository
 public interface SpringFlowRepository extends RxJava2CrudRepository<JdbcFlow, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcFlow> findById(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "id")
@@ -45,7 +47,8 @@ String id) {
     return RxJava2Adapter.maybeToMono(findById(referenceType, referenceId, id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcFlow> findAll(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String referenceId) {
@@ -57,7 +60,8 @@ String referenceId) {
     return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByApplication_migrated(referenceType, referenceId, appId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcFlow> findByApplication(@org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "appId")

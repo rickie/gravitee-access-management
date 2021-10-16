@@ -23,12 +23,13 @@ import io.gravitee.plugin.core.api.Plugin;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -42,18 +43,28 @@ public class BotDetectionPluginServiceImpl implements BotDetectionPluginService 
     @Autowired
     private BotDetectionPluginManager pluginManager;
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<BotDetectionPlugin>> findAll() {
+ return RxJava2Adapter.monoToSingle(findAll_migrated());
+}
+@Override
+    public Mono<List<BotDetectionPlugin>> findAll_migrated() {
         LOGGER.debug("List all bot detection plugins");
-        return Observable.fromIterable(pluginManager.getAll())
+        return RxJava2Adapter.singleToMono(Observable.fromIterable(pluginManager.getAll())
                 .map(this::convert)
-                .toList();
+                .toList());
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<BotDetectionPlugin> findById(String pluginId) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(pluginId));
+}
+@Override
+    public Mono<BotDetectionPlugin> findById_migrated(String pluginId) {
         LOGGER.debug("Find bot detection plugin by ID: {}", pluginId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 Plugin resource = pluginManager.findById(pluginId);
                 if (resource != null) {
@@ -65,13 +76,18 @@ public class BotDetectionPluginServiceImpl implements BotDetectionPluginService 
                 LOGGER.error("An error occurs while trying to get bot detection plugin : {}", pluginId, ex);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get bot detection plugin : " + pluginId, ex));
             }
-        });
+        }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<String> getSchema(String pluginId) {
+ return RxJava2Adapter.monoToMaybe(getSchema_migrated(pluginId));
+}
+@Override
+    public Mono<String> getSchema_migrated(String pluginId) {
         LOGGER.debug("Find bot detection plugin schema by ID: {}", pluginId);
-        return Maybe.create(emitter -> {
+        return RxJava2Adapter.maybeToMono(Maybe.create(emitter -> {
             try {
                 String schema = pluginManager.getSchema(pluginId);
                 if (schema != null) {
@@ -83,7 +99,7 @@ public class BotDetectionPluginServiceImpl implements BotDetectionPluginService 
                 LOGGER.error("An error occurs while trying to get schema for bot detection plugin {}", pluginId, e);
                 emitter.onError(new TechnicalManagementException("An error occurs while trying to get schema for bot detection plugin " + pluginId, e));
             }
-        });
+        }));
     }
 
     private BotDetectionPlugin convert(Plugin botDetectionPlugin) {

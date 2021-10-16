@@ -21,6 +21,7 @@ import static org.springframework.data.relational.core.query.CriteriaDefinition.
 import static reactor.adapter.rxjava.RxJava2Adapter.monoToCompletable;
 import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.uma.PermissionTicket;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -61,7 +62,8 @@ public class JdbcPermissionTicketRepository extends AbstractJdbcRepository imple
         return mapper.map(entity, JdbcPermissionTicket.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<PermissionTicket> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -73,7 +75,8 @@ public class JdbcPermissionTicketRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(permissionTicketRepository.findById(id)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<PermissionTicket> create(PermissionTicket item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -99,7 +102,8 @@ public class JdbcPermissionTicketRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(permissionTicketRepository.findById(item.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<PermissionTicket> update(PermissionTicket item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -124,7 +128,8 @@ public class JdbcPermissionTicketRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));
@@ -135,9 +140,13 @@ public class JdbcPermissionTicketRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.completableToMono(permissionTicketRepository.deleteById(id));
     }
 
-    public Completable purgeExpiredData() {
+    @Deprecated
+public Completable purgeExpiredData() {
+ return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
+}
+public Mono<Void> purgeExpiredData_migrated() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);
-        return monoToCompletable(dbClient.delete().from(JdbcPermissionTicket.class).matching(where("expire_at").lessThan(now)).then());
+        return RxJava2Adapter.completableToMono(monoToCompletable(dbClient.delete().from(JdbcPermissionTicket.class).matching(where("expire_at").lessThan(now)).then()));
     }
 }

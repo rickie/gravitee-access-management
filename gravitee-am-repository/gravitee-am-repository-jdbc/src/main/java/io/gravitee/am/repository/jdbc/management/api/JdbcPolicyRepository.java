@@ -35,18 +35,33 @@ import reactor.core.publisher.Mono;
 @Repository
 public class JdbcPolicyRepository extends AbstractJdbcRepository implements PolicyRepository {
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Policy> findAll() {
-        return RxJava2Adapter.fluxToFlowable(Flux.empty());
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+@Override
+    public Flux<Policy> findAll_migrated() {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Boolean> collectionExists() {
-        return RxJava2Adapter.monoToSingle(Mono.just(false));
+ return RxJava2Adapter.monoToSingle(collectionExists_migrated());
+}
+@Override
+    public Mono<Boolean> collectionExists_migrated() {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(false)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable deleteCollection() {
-        return RxJava2Adapter.monoToCompletable(Mono.empty());
+ return RxJava2Adapter.monoToCompletable(deleteCollection_migrated());
+}
+@Override
+    public Mono<Void> deleteCollection_migrated() {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 }

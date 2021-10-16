@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.handler;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.authentication.AccountDisabledException;
 import io.gravitee.am.common.exception.authentication.AccountIllegalStateException;
 import io.gravitee.am.common.exception.authentication.AccountStatusException;
@@ -181,7 +182,8 @@ public class SSOSessionHandler implements Handler<RoutingContext> {
 
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getClient_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Optional<Client>> getClient(String clientId) {
  return RxJava2Adapter.monoToSingle(getClient_migrated(clientId));
 }

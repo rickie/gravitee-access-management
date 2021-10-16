@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcMembership;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -31,7 +32,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 @Repository
 public interface SpringMembershipRepository extends RxJava2CrudRepository<JdbcMembership, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceId, referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcMembership> findByReference(@org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String referenceType) {
@@ -43,7 +45,8 @@ String referenceType) {
     return RxJava2Adapter.flowableToFlux(findByReference(referenceId, referenceType));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcMembership> findByMember(@org.springframework.data.repository.query.Param(value = "mid")
 java.lang.String memberId, @org.springframework.data.repository.query.Param(value = "mtype")
 java.lang.String memberType) {
@@ -55,7 +58,8 @@ String memberType) {
     return RxJava2Adapter.flowableToFlux(findByMember(memberId, memberType));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByReferenceAndMember_migrated(referenceId, referenceType, memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcMembership> findByReferenceAndMember(@org.springframework.data.repository.query.Param(value = "refId")
 java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "refType")
 java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "mid")

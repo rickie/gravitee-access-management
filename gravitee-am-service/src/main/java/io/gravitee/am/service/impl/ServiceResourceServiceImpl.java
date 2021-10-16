@@ -82,28 +82,43 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
     @Autowired
     private AuditService auditService;
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<ServiceResource> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<ServiceResource> findById_migrated(String id) {
         LOGGER.debug("Find resource by ID: {}", id);
-        return serviceResourceRepository.findById(id)
+        return RxJava2Adapter.maybeToMono(serviceResourceRepository.findById(id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a resource using its ID: {}", id, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a resource using its ID: %s", id), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<ServiceResource> findByDomain(String domain) {
+ return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+@Override
+    public Flux<ServiceResource> findByDomain_migrated(String domain) {
         LOGGER.debug("Find resources by domain: {}", domain);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(serviceResourceRepository.findByReference(ReferenceType.DOMAIN, domain)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(serviceResourceRepository.findByReference(ReferenceType.DOMAIN, domain)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find resources by domain", ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find resources by domain", ex)));
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<ServiceResource> create(String domain, NewServiceResource newServiceResource, User principal) {
+ return RxJava2Adapter.monoToSingle(create_migrated(domain, newServiceResource, principal));
+}
+@Override
+    public Mono<ServiceResource> create_migrated(String domain, NewServiceResource newServiceResource, User principal) {
         LOGGER.debug("Create a new resource {} for domain {}", newServiceResource, domain);
         ServiceResource resource = new ServiceResource();
         resource.setId(newServiceResource.getId() == null ? RandomString.generate() : newServiceResource.getId());
@@ -115,7 +130,7 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
         resource.setCreatedAt(new Date());
         resource.setUpdatedAt(resource.getCreatedAt());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(serviceResourceRepository.create(resource)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ServiceResource, SingleSource<ServiceResource>>toJdkFunction(resource1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(serviceResourceRepository.create(resource)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ServiceResource, SingleSource<ServiceResource>>toJdkFunction(resource1 -> {
                     // send sync event to refresh plugins that are using this resource
                     Event event = new Event(Type.RESOURCE, new Payload(resource1.getId(), resource1.getReferenceType(), resource1.getReferenceId(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(resource1)));
@@ -127,14 +142,19 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
 
                     LOGGER.error("An error occurs while trying to create a resource", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a resource", ex)));
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).resource(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).throwable(throwable)))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).resource(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).throwable(throwable))))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<ServiceResource> update(String domain, String id, UpdateServiceResource updateResource, User principal) {
+ return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateResource, principal));
+}
+@Override
+    public Mono<ServiceResource> update_migrated(String domain, String id, UpdateServiceResource updateResource, User principal) {
         LOGGER.debug("Update a resource {} for domain {}", id, domain);
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(serviceResourceRepository.findById(id)).switchIfEmpty(Mono.error(new ServiceResourceNotFoundException(id))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(serviceResourceRepository.findById(id)).switchIfEmpty(Mono.error(new ServiceResourceNotFoundException(id))))
                 .flatMapSingle(oldServiceResource -> {
                     ServiceResource factorToUpdate = new ServiceResource(oldServiceResource);
                     factorToUpdate.setName(updateResource.getName());
@@ -154,13 +174,18 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
 
                     LOGGER.error("An error occurs while trying to update a resource", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a resource", ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String domain, String resourceId, User principal) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(domain, resourceId, principal));
+}
+@Override
+    public Mono<Void> delete_migrated(String domain, String resourceId, User principal) {
         LOGGER.debug("Delete resource {}", resourceId);
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(serviceResourceRepository.findById(resourceId)).switchIfEmpty(Mono.error(new ServiceResourceNotFoundException(resourceId))))
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(serviceResourceRepository.findById(resourceId)).switchIfEmpty(Mono.error(new ServiceResourceNotFoundException(resourceId))))
                 .flatMapSingle(resource ->
                     RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(factorService.findByDomain(domain)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(factor -> factor.getConfiguration() != null && factor.getConfiguration().contains("\""+resourceId+"\""))).collectList().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<List<Factor>, SingleSource<ServiceResource>>toJdkFunction(factors -> {
                                         if (factors.isEmpty()) {
@@ -182,6 +207,6 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
                     LOGGER.error("An error occurs while trying to delete resource: {}", resourceId, ex);
                     return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to delete resource: %s", resourceId), ex)));
-                });
+                }));
     }
 }

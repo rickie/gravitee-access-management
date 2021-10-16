@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.Membership;
 import io.gravitee.am.model.ReferenceType;
@@ -36,7 +37,8 @@ import reactor.core.publisher.Mono;
  */
 public interface MembershipService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.Membership> findById(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
@@ -44,7 +46,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Membership> findById_mi
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Membership> findByCriteria(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.repository.management.api.search.MembershipCriteria criteria) {
     return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
 }
@@ -52,7 +55,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Membership> findByCrite
     return RxJava2Adapter.flowableToFlux(findByCriteria(referenceType, referenceId, criteria));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceId, referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Membership> findByReference(java.lang.String referenceId, io.gravitee.am.model.ReferenceType referenceType) {
     return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceId, referenceType));
 }
@@ -60,7 +64,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Membership> findByRefer
     return RxJava2Adapter.flowableToFlux(findByReference(referenceId, referenceType));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.Membership> findByMember(java.lang.String memberId, io.gravitee.am.model.membership.MemberType memberType) {
     return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId, memberType));
 }
@@ -68,7 +73,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.Membership> findByMembe
     return RxJava2Adapter.flowableToFlux(findByMember(memberId, memberType));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addOrUpdate_migrated(organizationId, membership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Membership> addOrUpdate(java.lang.String organizationId, io.gravitee.am.model.Membership membership, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(addOrUpdate_migrated(organizationId, membership, principal));
 }
@@ -76,7 +82,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Membership> addOrUpdate
     return RxJava2Adapter.singleToMono(addOrUpdate(organizationId, membership, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setPlatformAdmin_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Membership> setPlatformAdmin(java.lang.String userId) {
     return RxJava2Adapter.monoToSingle(setPlatformAdmin_migrated(userId));
 }
@@ -84,7 +91,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Membership> setPlatform
     return RxJava2Adapter.singleToMono(setPlatformAdmin(userId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getMetadata_migrated(memberships))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.Object>>> getMetadata(java.util.List<io.gravitee.am.model.Membership> memberships) {
     return RxJava2Adapter.monoToSingle(getMetadata_migrated(memberships));
 }
@@ -92,7 +100,8 @@ default reactor.core.publisher.Mono<java.util.Map<java.lang.String, java.util.Ma
     return RxJava2Adapter.singleToMono(getMetadata(memberships));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(membershipId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(java.lang.String membershipId, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(membershipId, principal));
 }
@@ -100,14 +109,16 @@ default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String membe
     return RxJava2Adapter.completableToMono(delete(membershipId, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addOrUpdate_migrated(organizationId, membership))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.Membership> addOrUpdate(java.lang.String organizationId, io.gravitee.am.model.Membership membership) {
     return RxJava2Adapter.monoToSingle(addOrUpdate_migrated(organizationId, membership));
 }default Mono<Membership> addOrUpdate_migrated(String organizationId, Membership membership) {
         return RxJava2Adapter.singleToMono(addOrUpdate(organizationId, membership, null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(membershipId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(java.lang.String membershipId) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(membershipId));
 }default Mono<Void> delete_migrated(String membershipId) {
@@ -123,7 +134,8 @@ default io.reactivex.Completable delete(java.lang.String membershipId) {
      *
      * @see #addDomainUserRoleIfNecessary(String, String, String, NewMembership, User)
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.addDomainUserRoleIfNecessary_migrated(organizationId, environmentId, domainId, newMembership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable addDomainUserRoleIfNecessary(java.lang.String organizationId, java.lang.String environmentId, java.lang.String domainId, io.gravitee.am.service.model.NewMembership newMembership, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(addDomainUserRoleIfNecessary_migrated(organizationId, environmentId, domainId, newMembership, principal));
 }
@@ -138,7 +150,8 @@ default reactor.core.publisher.Mono<java.lang.Void> addDomainUserRoleIfNecessary
      *
      * If the group or user already has a role on the environment, nothing is done.
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable addEnvironmentUserRoleIfNecessary(java.lang.String organizationId, java.lang.String environmentId, io.gravitee.am.service.model.NewMembership newMembership, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal));
 }

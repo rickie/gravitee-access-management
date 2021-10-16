@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.flow.authorizationcode;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.oauth2.ResponseType;
 import io.gravitee.am.gateway.handler.oauth2.service.code.AuthorizationCodeService;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
@@ -67,7 +68,8 @@ public class AuthorizationCodeFlow extends AbstractFlow {
         this.authorizationCodeService = authorizationCodeService;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.prepareResponse_migrated(authorizationRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Single<AuthorizationResponse> prepareResponse(AuthorizationRequest authorizationRequest, Client client, User endUser) {
  return RxJava2Adapter.monoToSingle(prepareResponse_migrated(authorizationRequest, client, endUser));

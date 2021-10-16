@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.service.model.plugin.PolicyPlugin;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -27,7 +28,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface PolicyPluginService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.PolicyPlugin>> findAll() {
     return RxJava2Adapter.monoToSingle(findAll_migrated());
 }
@@ -35,7 +37,8 @@ default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.
     return RxJava2Adapter.singleToMono(findAll());
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.PolicyPlugin>> findAll(java.util.List<java.lang.String> expand) {
     return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
 }
@@ -43,7 +46,8 @@ default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.
     return RxJava2Adapter.singleToMono(findAll(expand));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.service.model.plugin.PolicyPlugin> findById(java.lang.String policyId) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(policyId));
 }
@@ -51,7 +55,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.service.model.plugin.PolicyPl
     return RxJava2Adapter.maybeToMono(findById(policyId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<java.lang.String> getSchema(java.lang.String policyId) {
     return RxJava2Adapter.monoToMaybe(getSchema_migrated(policyId));
 }
@@ -59,7 +64,8 @@ default reactor.core.publisher.Mono<java.lang.String> getSchema_migrated(String 
     return RxJava2Adapter.maybeToMono(getSchema(policyId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<java.lang.String> getIcon(java.lang.String policyId) {
     return RxJava2Adapter.monoToMaybe(getIcon_migrated(policyId));
 }
@@ -67,7 +73,8 @@ default reactor.core.publisher.Mono<java.lang.String> getIcon_migrated(String po
     return RxJava2Adapter.maybeToMono(getIcon(policyId));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getDocumentation_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<java.lang.String> getDocumentation(java.lang.String policyId) {
     return RxJava2Adapter.monoToMaybe(getDocumentation_migrated(policyId));
 }

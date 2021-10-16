@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.consent;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.oauth2.Scope;
 import io.gravitee.am.model.oauth2.ScopeApproval;
@@ -30,7 +31,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface UserConsentService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkConsent_migrated(client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.Set<java.lang.String>> checkConsent(io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToSingle(checkConsent_migrated(client, user));
 }
@@ -38,7 +40,8 @@ default reactor.core.publisher.Mono<java.util.Set<java.lang.String>> checkConsen
     return RxJava2Adapter.singleToMono(checkConsent(client, user));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.saveConsent_migrated(client, approvals, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.model.oauth2.ScopeApproval>> saveConsent(io.gravitee.am.model.oidc.Client client, java.util.List<io.gravitee.am.model.oauth2.ScopeApproval> approvals, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(saveConsent_migrated(client, approvals, principal));
 }
@@ -46,7 +49,8 @@ default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.model.oauth2.S
     return RxJava2Adapter.singleToMono(saveConsent(client, approvals, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getConsentInformation_migrated(consent))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.model.oauth2.Scope>> getConsentInformation(java.util.Set<java.lang.String> consent) {
     return RxJava2Adapter.monoToSingle(getConsentInformation_migrated(consent));
 }

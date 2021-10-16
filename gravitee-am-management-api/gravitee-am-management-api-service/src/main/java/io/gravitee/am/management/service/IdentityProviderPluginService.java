@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.service.model.plugin.IdentityProviderPlugin;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
@@ -32,7 +33,8 @@ public interface IdentityProviderPluginService {
     String EXPAND_ICON = "icon";
     String EXPAND_LABELS = "labels";
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.IdentityProviderPlugin>> findAll(java.util.List<java.lang.String> expand) {
     return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
 }
@@ -40,7 +42,8 @@ default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.
     return RxJava2Adapter.singleToMono(findAll(expand));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(external))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.IdentityProviderPlugin>> findAll(java.lang.Boolean external) {
     return RxJava2Adapter.monoToSingle(findAll_migrated(external));
 }
@@ -48,7 +51,8 @@ default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.
     return RxJava2Adapter.singleToMono(findAll(external));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(external, expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.IdentityProviderPlugin>> findAll(java.lang.Boolean external, java.util.List<java.lang.String> expand) {
     return RxJava2Adapter.monoToSingle(findAll_migrated(external, expand));
 }
@@ -56,7 +60,8 @@ default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.
     return RxJava2Adapter.singleToMono(findAll(external, expand));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(identityProviderPlugin))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.service.model.plugin.IdentityProviderPlugin> findById(java.lang.String identityProviderPlugin) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(identityProviderPlugin));
 }
@@ -64,7 +69,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.service.model.plugin.Identity
     return RxJava2Adapter.maybeToMono(findById(identityProviderPlugin));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(identityProviderPlugin))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<java.lang.String> getSchema(java.lang.String identityProviderPlugin) {
     return RxJava2Adapter.monoToMaybe(getSchema_migrated(identityProviderPlugin));
 }
@@ -72,7 +78,8 @@ default reactor.core.publisher.Mono<java.lang.String> getSchema_migrated(String 
     return RxJava2Adapter.maybeToMono(getSchema(identityProviderPlugin));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(identityProviderPlugin))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<java.lang.String> getIcon(java.lang.String identityProviderPlugin) {
     return RxJava2Adapter.monoToMaybe(getIcon_migrated(identityProviderPlugin));
 }

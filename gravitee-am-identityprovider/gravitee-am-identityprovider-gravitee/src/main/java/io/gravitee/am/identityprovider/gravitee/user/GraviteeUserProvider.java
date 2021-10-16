@@ -29,26 +29,46 @@ import reactor.core.publisher.Mono;
  */
 public class GraviteeUserProvider implements UserProvider {
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> findByUsername(String username) {
-        return RxJava2Adapter.monoToMaybe(Mono.empty());
+ return RxJava2Adapter.monoToMaybe(findByUsername_migrated(username));
+}
+@Override
+    public Mono<User> findByUsername_migrated(String username) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> create(User user) {
+ return RxJava2Adapter.monoToSingle(create_migrated(user));
+}
+@Override
+    public Mono<User> create_migrated(User user) {
         // create will be performed by the repository layer called by the OrganizationUserService
-        return RxJava2Adapter.monoToSingle(Mono.just(user));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> update(String id, User updateUser) {
+ return RxJava2Adapter.monoToSingle(update_migrated(id, updateUser));
+}
+@Override
+    public Mono<User> update_migrated(String id, User updateUser) {
         // update will be performed by the repository layer called by the OrganizationUserService
-        return RxJava2Adapter.monoToSingle(Mono.just(updateUser));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updateUser)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         // delete will be performed by the repository layer called by the OrganizationUserService
-        return RxJava2Adapter.monoToCompletable(Mono.empty());
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 }

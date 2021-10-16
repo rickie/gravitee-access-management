@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service.impl.upgrades;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Reporter;
 import io.gravitee.am.service.DomainService;
@@ -60,7 +61,8 @@ public class DomainReporterUpgrader implements Upgrader, Ordered {
         return true;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.updateDefaultReporter_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Completable updateDefaultReporter(Domain domain) {
  return RxJava2Adapter.monoToCompletable(updateDefaultReporter_migrated(domain));
 }

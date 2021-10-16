@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ExtensionGrant;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Flowable;
@@ -29,7 +30,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface ExtensionGrantRepository extends CrudRepository<ExtensionGrant, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.ExtensionGrant> findByDomain(java.lang.String domain) {
     return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
 }
@@ -37,7 +39,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.ExtensionGrant> findByD
     return RxJava2Adapter.flowableToFlux(findByDomain(domain));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndName_migrated(domain, name))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.ExtensionGrant> findByDomainAndName(java.lang.String domain, java.lang.String name) {
     return RxJava2Adapter.monoToMaybe(findByDomainAndName_migrated(domain, name));
 }

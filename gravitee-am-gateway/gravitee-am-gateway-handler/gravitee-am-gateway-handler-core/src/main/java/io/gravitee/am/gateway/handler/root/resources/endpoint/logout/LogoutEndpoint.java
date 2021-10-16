@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.root.resources.endpoint.logout;
 
 import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.jwt.ExpiredJWTException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.oidc.Parameters;
@@ -167,7 +168,8 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.generateLogoutCallback_migrated(routingContext, endUser, endpoint))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Maybe<Optional<String>> generateLogoutCallback(RoutingContext routingContext, User endUser, Request endpoint) {
  return RxJava2Adapter.monoToMaybe(generateLogoutCallback_migrated(routingContext, endUser, endpoint));
 }

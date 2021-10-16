@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.vertx.auth.webauthn.store;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.oidc.StandardClaims;
@@ -150,7 +151,8 @@ public class RepositoryCredentialStore {
         return promise.future();
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.create_migrated(authenticator))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Completable create(Authenticator authenticator) {
  return RxJava2Adapter.monoToCompletable(create_migrated(authenticator));
 }
@@ -185,7 +187,8 @@ private Mono<Void> create_migrated(Authenticator authenticator) {
         return authenticator;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.generateCredID_migrated(username, claim))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<String> generateCredID(String username, String claim) {
  return RxJava2Adapter.monoToSingle(generateCredID_migrated(username, claim));
 }

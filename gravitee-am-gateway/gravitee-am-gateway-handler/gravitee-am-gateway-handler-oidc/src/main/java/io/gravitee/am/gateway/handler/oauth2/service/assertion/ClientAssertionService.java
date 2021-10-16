@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.assertion;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Maybe;
 import io.vertx.reactivex.ext.web.RoutingContext;
@@ -29,7 +30,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface ClientAssertionService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.assertClient_migrated(assertionType, assertion, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.oidc.Client> assertClient(java.lang.String assertionType, java.lang.String assertion, java.lang.String basePath) {
     return RxJava2Adapter.monoToMaybe(assertClient_migrated(assertionType, assertion, basePath));
 }

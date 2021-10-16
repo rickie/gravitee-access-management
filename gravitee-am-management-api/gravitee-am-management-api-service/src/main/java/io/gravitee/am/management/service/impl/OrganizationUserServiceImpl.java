@@ -18,6 +18,7 @@ package io.gravitee.am.management.service.impl;
 import static io.gravitee.am.management.service.impl.IdentityProviderManagerImpl.IDP_GRAVITEE;
 
 import com.google.common.base.Strings;
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.management.service.OrganizationUserService;
@@ -72,7 +73,8 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
         return (x, y) -> RxJava2Adapter.monoToMaybe(Mono.error(new NotImplementedException()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<User>> search(ReferenceType referenceType, String referenceId, String query, int page, int size) {
  return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, query, page, size));
@@ -82,7 +84,8 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
         return RxJava2Adapter.singleToMono(userService.search(referenceType, referenceId, query, page, size));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, filterCriteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<User>> search(ReferenceType referenceType, String referenceId, FilterCriteria filterCriteria, int page, int size) {
  return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, filterCriteria, page, size));
@@ -92,7 +95,8 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
         return RxJava2Adapter.singleToMono(userService.search(referenceType, referenceId, filterCriteria, page, size));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<User>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
  return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
@@ -102,28 +106,37 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
         return RxJava2Adapter.singleToMono(userService.findAll(referenceType, referenceId, page, size));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> createOrUpdate(ReferenceType referenceType, String referenceId, NewUser newUser) {
+ return RxJava2Adapter.monoToSingle(createOrUpdate_migrated(referenceType, referenceId, newUser));
+}
+@Override
+    public Mono<User> createOrUpdate_migrated(ReferenceType referenceType, String referenceId, NewUser newUser) {
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findByExternalIdAndSource(referenceType, referenceId, newUser.getExternalId(), newUser.getSource())).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(userService.findByUsernameAndSource(referenceType, referenceId, newUser.getUsername(), newUser.getSource())))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, MaybeSource<io.gravitee.am.model.User>>toJdkFunction(existingUser -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findByExternalIdAndSource(referenceType, referenceId, newUser.getExternalId(), newUser.getSource())).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(userService.findByUsernameAndSource(referenceType, referenceId, newUser.getUsername(), newUser.getSource())))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, MaybeSource<io.gravitee.am.model.User>>toJdkFunction(existingUser -> {
                     updateInfos(existingUser, newUser);
                     return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(userService.update(existingUser)));
                 }).apply(v)))).switchIfEmpty(RxJava2Adapter.singleToMono(Single.defer(() -> {
                     User user = transform(newUser, referenceType, referenceId);
                     return userService.create(user);
-                }))));
+                })))));
     }
 
-    public Single<User> createGraviteeUser(Organization organization, NewUser newUser, io.gravitee.am.identityprovider.api.User principal) {
+    @Deprecated
+public Single<User> createGraviteeUser(Organization organization, NewUser newUser, io.gravitee.am.identityprovider.api.User principal) {
+ return RxJava2Adapter.monoToSingle(createGraviteeUser_migrated(organization, newUser, principal));
+}
+public Mono<User> createGraviteeUser_migrated(Organization organization, NewUser newUser, io.gravitee.am.identityprovider.api.User principal) {
         // Organization user are linked to the Gravitee Idp only
         if (!Strings.isNullOrEmpty(newUser.getSource()) && !IDP_GRAVITEE.equals(newUser.getSource())) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new UserInvalidException("Invalid identity provider for ['"+newUser.getUsername()+"']")));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new UserInvalidException("Invalid identity provider for ['"+newUser.getUsername()+"']"))));
         }
         // force the value to avoid null reference
         newUser.setSource(IDP_GRAVITEE);
 
         // check user
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, organization.getId(), newUser.getUsername(), newUser.getSource())).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, organization.getId(), newUser.getUsername(), newUser.getSource())).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
                     if (!isEmpty) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new UserAlreadyExistsException(newUser.getUsername())));
                     } else {
@@ -163,22 +176,26 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
                                 });
 
                     }
-                }).apply(v))));
+                }).apply(v)))));
     }
 
-    public Completable resetPassword(String organizationId, User user, String password, io.gravitee.am.identityprovider.api.User principal) {
+    @Deprecated
+public Completable resetPassword(String organizationId, User user, String password, io.gravitee.am.identityprovider.api.User principal) {
+ return RxJava2Adapter.monoToCompletable(resetPassword_migrated(organizationId, user, password, principal));
+}
+public Mono<Void> resetPassword_migrated(String organizationId, User user, String password, io.gravitee.am.identityprovider.api.User principal) {
         if (password == null || !passwordValidator.isValid(password)) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(InvalidPasswordException.of("Field [password] is invalid", "invalid_password_value")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(InvalidPasswordException.of("Field [password] is invalid", "invalid_password_value"))));
         }
 
         if (!IDP_GRAVITEE.equals(user.getSource())) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException("Unsupported source for this action")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException("Unsupported source for this action"))));
         }
 
         // update 'users' collection for management and audit purpose
         user.setLastPasswordReset(new Date());
         user.setUpdatedAt(new Date());
         user.setPassword(PWD_ENCODER.encode(password));
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(userService.update(user)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_PASSWORD_RESET).user(user)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_PASSWORD_RESET).throwable(throwable)))).then());
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(userService.update(user)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_PASSWORD_RESET).user(user)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_PASSWORD_RESET).throwable(throwable)))).then()));
     }
 }

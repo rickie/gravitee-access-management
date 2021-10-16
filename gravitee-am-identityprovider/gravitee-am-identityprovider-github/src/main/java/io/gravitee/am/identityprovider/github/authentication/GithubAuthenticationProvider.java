@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.identityprovider.github.authentication;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
 import io.gravitee.am.common.oidc.StandardClaims;
@@ -90,7 +91,8 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
         return this.client;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.authenticate_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Maybe<Token> authenticate(Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(authenticate_migrated(authentication));
@@ -123,7 +125,8 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.profile_migrated(accessToken, authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Maybe<User> profile(Token accessToken, Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(profile_migrated(accessToken, authentication));

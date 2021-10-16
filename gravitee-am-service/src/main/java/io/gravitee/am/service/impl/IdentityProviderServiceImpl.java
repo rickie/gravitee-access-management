@@ -83,59 +83,94 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
     @Autowired
     private AuditService auditService;
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<IdentityProvider> findAll() {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+@Override
+    public Flux<IdentityProvider> findAll_migrated() {
         LOGGER.debug("Find all identity providers");
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(identityProviderRepository.findAll()).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(identityProviderRepository.findAll()).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find all identity providers", ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find all identity providers", ex)));
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<IdentityProvider> findById(ReferenceType referenceType, String referenceId, String id) {
+ return RxJava2Adapter.monoToSingle(findById_migrated(referenceType, referenceId, id));
+}
+@Override
+    public Mono<IdentityProvider> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("Find identity provider by ID: {}", id);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderRepository.findById(referenceType, referenceId, id)
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderRepository.findById(referenceType, referenceId, id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find an identity provider using its ID: {}", id, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find an identity provider using its ID: %s", id), ex)));
-                })).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(id))));
+                })).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(id)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<IdentityProvider> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<IdentityProvider> findById_migrated(String id) {
         LOGGER.debug("Find identity provider by ID: {}", id);
-        return identityProviderRepository.findById(id)
+        return RxJava2Adapter.maybeToMono(identityProviderRepository.findById(id)
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find an identity provider using its ID: {}", id, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find an identity provider using its ID: %s", id), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<IdentityProvider> findAll(ReferenceType referenceType, String referenceId) {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+@Override
+    public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("Find identity providers by {}: {}", referenceType, referenceId);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(identityProviderRepository.findAll(referenceType, referenceId)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(identityProviderRepository.findAll(referenceType, referenceId)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find identity providers by domain", ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find identity providers by " + referenceType.name(), ex)));
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<IdentityProvider> findAll(ReferenceType referenceType) {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType));
+}
+@Override
+    public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType) {
         LOGGER.debug("Find identity providers by type {}", referenceType);
-        return identityProviderRepository.findAll(referenceType);
+        return RxJava2Adapter.flowableToFlux(identityProviderRepository.findAll(referenceType));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<IdentityProvider> findByDomain(String domain) {
-        return findAll(ReferenceType.DOMAIN, domain);
+ return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+@Override
+    public Flux<IdentityProvider> findByDomain_migrated(String domain) {
+        return RxJava2Adapter.flowableToFlux(findAll(ReferenceType.DOMAIN, domain));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<IdentityProvider> create(ReferenceType referenceType, String referenceId, NewIdentityProvider newIdentityProvider, User principal) {
+ return RxJava2Adapter.monoToSingle(create_migrated(referenceType, referenceId, newIdentityProvider, principal));
+}
+@Override
+    public Mono<IdentityProvider> create_migrated(ReferenceType referenceType, String referenceId, NewIdentityProvider newIdentityProvider, User principal) {
         LOGGER.debug("Create a new identity provider {} for {} {}", newIdentityProvider, referenceType, referenceId);
 
         var identityProvider = new IdentityProvider();
@@ -150,7 +185,7 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
         identityProvider.setCreatedAt(new Date());
         identityProvider.setUpdatedAt(identityProvider.getCreatedAt());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(identityProviderRepository.create(identityProvider)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<IdentityProvider, SingleSource<IdentityProvider>>toJdkFunction(identityProvider1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(identityProviderRepository.create(identityProvider)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<IdentityProvider, SingleSource<IdentityProvider>>toJdkFunction(identityProvider1 -> {
                     // create event for sync process
                     Event event = new Event(Type.IDENTITY_PROVIDER, new Payload(identityProvider1.getId(), identityProvider1.getReferenceType(), identityProvider1.getReferenceId(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(identityProvider1)));
@@ -158,20 +193,30 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to create an identity provider", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create an identity provider", ex)));
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(identityProvider1 -> auditService.report(AuditBuilder.builder(IdentityProviderAuditBuilder.class).principal(principal).type(EventType.IDENTITY_PROVIDER_CREATED).identityProvider(identityProvider1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(IdentityProviderAuditBuilder.class).principal(principal).type(EventType.IDENTITY_PROVIDER_CREATED).throwable(throwable)))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(identityProvider1 -> auditService.report(AuditBuilder.builder(IdentityProviderAuditBuilder.class).principal(principal).type(EventType.IDENTITY_PROVIDER_CREATED).identityProvider(identityProvider1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(IdentityProviderAuditBuilder.class).principal(principal).type(EventType.IDENTITY_PROVIDER_CREATED).throwable(throwable))))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<IdentityProvider> create(String domain, NewIdentityProvider newIdentityProvider, User principal) {
+ return RxJava2Adapter.monoToSingle(create_migrated(domain, newIdentityProvider, principal));
+}
+@Override
+    public Mono<IdentityProvider> create_migrated(String domain, NewIdentityProvider newIdentityProvider, User principal) {
 
-        return create(ReferenceType.DOMAIN, domain, newIdentityProvider, principal);
+        return RxJava2Adapter.singleToMono(create(ReferenceType.DOMAIN, domain, newIdentityProvider, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<IdentityProvider> update(ReferenceType referenceType, String referenceId, String id, UpdateIdentityProvider updateIdentityProvider, User principal) {
+ return RxJava2Adapter.monoToSingle(update_migrated(referenceType, referenceId, id, updateIdentityProvider, principal));
+}
+@Override
+    public Mono<IdentityProvider> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateIdentityProvider updateIdentityProvider, User principal) {
         LOGGER.debug("Update an identity provider {} for {} {}", id, referenceType, referenceId);
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderRepository.findById(referenceType, referenceId, id)).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(id))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderRepository.findById(referenceType, referenceId, id)).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(id))))
                 .flatMapSingle(oldIdentity -> {
                     IdentityProvider identityToUpdate = new IdentityProvider(oldIdentity);
                     identityToUpdate.setName(updateIdentityProvider.getName());
@@ -194,20 +239,30 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
 
                     LOGGER.error("An error occurs while trying to update an identity provider", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update an identity provider", ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<IdentityProvider> update(String domain, String id, UpdateIdentityProvider updateIdentityProvider, User principal) {
+ return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateIdentityProvider, principal));
+}
+@Override
+    public Mono<IdentityProvider> update_migrated(String domain, String id, UpdateIdentityProvider updateIdentityProvider, User principal) {
 
-        return update(ReferenceType.DOMAIN, domain, id, updateIdentityProvider, principal);
+        return RxJava2Adapter.singleToMono(update(ReferenceType.DOMAIN, domain, id, updateIdentityProvider, principal));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(ReferenceType referenceType, String referenceId, String identityProviderId, User principal) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(referenceType, referenceId, identityProviderId, principal));
+}
+@Override
+    public Mono<Void> delete_migrated(ReferenceType referenceType, String referenceId, String identityProviderId, User principal) {
         LOGGER.debug("Delete identity provider {}", identityProviderId);
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderRepository.findById(referenceType, referenceId, identityProviderId)).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(identityProviderId))))
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderRepository.findById(referenceType, referenceId, identityProviderId)).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(identityProviderId))))
                 .flatMapSingle(identityProvider -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.findByIdentityProvider(identityProviderId).count()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Long, SingleSource<IdentityProvider>>toJdkFunction(applications -> {
                             if (applications > 0) {
                                 throw new IdentityProviderWithApplicationsException();
@@ -229,12 +284,17 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
                     LOGGER.error("An error occurs while trying to delete identity provider: {}", identityProviderId, ex);
                     return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to delete identity provider: %s", identityProviderId), ex)));
-                });
+                }));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String domain, String identityProviderId, User principal) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(domain, identityProviderId, principal));
+}
+@Override
+    public Mono<Void> delete_migrated(String domain, String identityProviderId, User principal) {
 
-        return delete(ReferenceType.DOMAIN, domain, identityProviderId, principal);
+        return RxJava2Adapter.completableToMono(delete(ReferenceType.DOMAIN, domain, identityProviderId, principal));
     }
 }

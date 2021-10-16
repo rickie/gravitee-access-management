@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.ExtensionGrant;
 import io.gravitee.am.service.model.NewExtensionGrant;
@@ -32,7 +33,8 @@ import reactor.core.publisher.Mono;
  */
 public interface ExtensionGrantService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.ExtensionGrant> findById(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
@@ -40,7 +42,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.ExtensionGrant> findByI
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(tokenGranter))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.model.ExtensionGrant> findByDomain(java.lang.String tokenGranter) {
     return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(tokenGranter));
 }
@@ -48,7 +51,8 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.ExtensionGrant> findByD
     return RxJava2Adapter.flowableToFlux(findByDomain(tokenGranter));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, newExtensionGrant, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.ExtensionGrant> create(java.lang.String domain, io.gravitee.am.service.model.NewExtensionGrant newExtensionGrant, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(create_migrated(domain, newExtensionGrant, principal));
 }
@@ -56,7 +60,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.ExtensionGrant> create_
     return RxJava2Adapter.singleToMono(create(domain, newExtensionGrant, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateExtensionGrant, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.ExtensionGrant> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateExtensionGrant updateExtensionGrant, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateExtensionGrant, principal));
 }
@@ -64,7 +69,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.ExtensionGrant> update_
     return RxJava2Adapter.singleToMono(update(domain, id, updateExtensionGrant, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(domain, certificateId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(java.lang.String domain, java.lang.String certificateId, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(domain, certificateId, principal));
 }
@@ -72,21 +78,24 @@ default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String domai
     return RxJava2Adapter.completableToMono(delete(domain, certificateId, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, newExtensionGrant))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.ExtensionGrant> create(java.lang.String domain, io.gravitee.am.service.model.NewExtensionGrant newExtensionGrant) {
     return RxJava2Adapter.monoToSingle(create_migrated(domain, newExtensionGrant));
 }default Mono<ExtensionGrant> create_migrated(String domain, NewExtensionGrant newExtensionGrant) {
         return RxJava2Adapter.singleToMono(create(domain, newExtensionGrant, null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateExtensionGrant))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.ExtensionGrant> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateExtensionGrant updateExtensionGrant) {
     return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateExtensionGrant));
 }default Mono<ExtensionGrant> update_migrated(String domain, String id, UpdateExtensionGrant updateExtensionGrant) {
         return RxJava2Adapter.singleToMono(update(domain, id, updateExtensionGrant, null));
     }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(domain, certificateId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable delete(java.lang.String domain, java.lang.String certificateId) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(domain, certificateId));
 }default Mono<Void> delete_migrated(String domain, String certificateId) {

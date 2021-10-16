@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter.refresh;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.common.oauth2.Parameters;
@@ -58,7 +59,8 @@ public class RefreshTokenGranter extends AbstractTokenGranter {
         this.userAuthenticationManager = userAuthenticationManager;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.parseRequest_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
  return RxJava2Adapter.monoToSingle(parseRequest_migrated(tokenRequest, client));
@@ -88,7 +90,8 @@ return tokenRequest1;
 })))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.resolveResourceOwner_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
  return RxJava2Adapter.monoToMaybe(resolveResourceOwner_migrated(tokenRequest, client));
@@ -105,7 +108,8 @@ return tokenRequest1;
                 .onErrorResumeNext(ex -> { return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException())); }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveRequest_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     protected Single<TokenRequest> resolveRequest(TokenRequest tokenRequest, Client client, User endUser) {
  return RxJava2Adapter.monoToSingle(resolveRequest_migrated(tokenRequest, client, endUser));

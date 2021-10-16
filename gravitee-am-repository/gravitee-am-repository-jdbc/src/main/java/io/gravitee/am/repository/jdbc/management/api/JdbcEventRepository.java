@@ -20,6 +20,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
 import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
@@ -40,6 +41,7 @@ import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -61,15 +63,21 @@ public class JdbcEventRepository extends AbstractJdbcRepository implements Event
         return mapper.map(entity, JdbcEvent.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Event> findByTimeFrame(long from, long to) {
+ return RxJava2Adapter.fluxToFlowable(findByTimeFrame_migrated(from, to));
+}
+@Override
+    public Flux<Event> findByTimeFrame_migrated(long from, long to) {
         LOGGER.debug("findByTimeFrame({}, {})", from, to);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(eventRepository.findByTimeFrame(
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(eventRepository.findByTimeFrame(
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(from), UTC),
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(to), UTC))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+                LocalDateTime.ofInstant(Instant.ofEpochMilli(to), UTC))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Event> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -80,7 +88,8 @@ public class JdbcEventRepository extends AbstractJdbcRepository implements Event
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(eventRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Event> create(Event item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -104,7 +113,8 @@ public class JdbcEventRepository extends AbstractJdbcRepository implements Event
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Event> update(Event item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -125,7 +135,8 @@ public class JdbcEventRepository extends AbstractJdbcRepository implements Event
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

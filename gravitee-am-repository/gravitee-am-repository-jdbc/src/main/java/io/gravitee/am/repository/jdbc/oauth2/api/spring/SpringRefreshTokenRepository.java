@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.oauth2.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcRefreshToken;
 import io.reactivex.Maybe;
 import java.time.LocalDateTime;
@@ -30,7 +31,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringRefreshTokenRepository extends RxJava2CrudRepository<JdbcRefreshToken, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token, now))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcRefreshToken> findByToken(@org.springframework.data.repository.query.Param(value = "token")
 java.lang.String token, @org.springframework.data.repository.query.Param(value = "now")
 java.time.LocalDateTime now) {

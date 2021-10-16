@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.plugin.alert.AlertTriggerProviderManager;
 import io.reactivex.Single;
 import org.slf4j.Logger;
@@ -44,7 +45,8 @@ public class AlertService {
      *
      * @return <code>true</code> if the alerting feature is available, <code>false</code> else.
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isAlertingAvailable_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Single<Boolean> isAlertingAvailable() {
  return RxJava2Adapter.monoToSingle(isAlertingAvailable_migrated());
 }

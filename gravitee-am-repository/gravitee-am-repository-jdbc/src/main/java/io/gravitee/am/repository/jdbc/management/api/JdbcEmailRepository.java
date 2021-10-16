@@ -19,6 +19,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
 import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Email;
 import io.gravitee.am.model.ReferenceType;
@@ -40,6 +41,7 @@ import org.springframework.data.relational.core.query.Update;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -62,61 +64,107 @@ public class JdbcEmailRepository extends AbstractJdbcRepository implements Email
         return mapper.map(entity, JdbcEmail.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<Email> findAll() {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+@Override
+    public Flux<Email> findAll_migrated() {
         LOGGER.debug("findAll()");
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Flowable<Email> findAll(ReferenceType referenceType, String referenceId) {
-        LOGGER.debug("findAll({},{})", referenceType, referenceId);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAllByReference(referenceId, referenceType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Flowable<Email> findByClient(ReferenceType referenceType, String referenceId, String client) {
-        LOGGER.debug("findByClient({}, {}, {})", referenceType, referenceId, client);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAllByReferenceAndClient(referenceId, referenceType.name(), client)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Maybe<Email> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
-        LOGGER.debug("findByTemplate({}, {}, {})", referenceType, referenceId, template);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findByTemplate(referenceId, referenceType.name(), template)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Maybe<Email> findByDomainAndTemplate(String domain, String template) {
-        LOGGER.debug("findByDomainAndTemplate({}, {})", domain, template);
-        return findByTemplate(ReferenceType.DOMAIN, domain, template);
-    }
-
-    @Override
-    public Maybe<Email> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
-        LOGGER.debug("findByClientAndTemplate({}, {}, {}, {})", referenceType, referenceId, client, template);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findByClientAndTemplate(referenceId, referenceType.name(), client, template)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Maybe<Email> findByDomainAndClientAndTemplate(String domain, String client, String template) {
-        LOGGER.debug("findByClientAndTemplate({}, {}, {})", domain, client, template);
-        return findByClientAndTemplate(ReferenceType.DOMAIN, domain, client, template);
-    }
-
-    @Override
-    public Maybe<Email> findById(ReferenceType referenceType, String referenceId, String id) {
-        LOGGER.debug("findById({}, {}, {})", referenceType, referenceId, id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findById(referenceId, referenceType.name(), id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
-    }
-
-    @Override
-    public Maybe<Email> findById(String id) {
-        LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
     @Deprecated
+@Override
+    public Flowable<Email> findAll(ReferenceType referenceType, String referenceId) {
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+@Override
+    public Flux<Email> findAll_migrated(ReferenceType referenceType, String referenceId) {
+        LOGGER.debug("findAll({},{})", referenceType, referenceId);
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAllByReference(referenceId, referenceType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @Deprecated
+@Override
+    public Flowable<Email> findByClient(ReferenceType referenceType, String referenceId, String client) {
+ return RxJava2Adapter.fluxToFlowable(findByClient_migrated(referenceType, referenceId, client));
+}
+@Override
+    public Flux<Email> findByClient_migrated(ReferenceType referenceType, String referenceId, String client) {
+        LOGGER.debug("findByClient({}, {}, {})", referenceType, referenceId, client);
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(emailRepository.findAllByReferenceAndClient(referenceId, referenceType.name(), client)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<Email> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
+ return RxJava2Adapter.monoToMaybe(findByTemplate_migrated(referenceType, referenceId, template));
+}
+@Override
+    public Mono<Email> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template) {
+        LOGGER.debug("findByTemplate({}, {}, {})", referenceType, referenceId, template);
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findByTemplate(referenceId, referenceType.name(), template)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<Email> findByDomainAndTemplate(String domain, String template) {
+ return RxJava2Adapter.monoToMaybe(findByDomainAndTemplate_migrated(domain, template));
+}
+@Override
+    public Mono<Email> findByDomainAndTemplate_migrated(String domain, String template) {
+        LOGGER.debug("findByDomainAndTemplate({}, {})", domain, template);
+        return RxJava2Adapter.maybeToMono(findByTemplate(ReferenceType.DOMAIN, domain, template));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<Email> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
+ return RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(referenceType, referenceId, client, template));
+}
+@Override
+    public Mono<Email> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template) {
+        LOGGER.debug("findByClientAndTemplate({}, {}, {}, {})", referenceType, referenceId, client, template);
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findByClientAndTemplate(referenceId, referenceType.name(), client, template)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<Email> findByDomainAndClientAndTemplate(String domain, String client, String template) {
+ return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndTemplate_migrated(domain, client, template));
+}
+@Override
+    public Mono<Email> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template) {
+        LOGGER.debug("findByClientAndTemplate({}, {}, {})", domain, client, template);
+        return RxJava2Adapter.maybeToMono(findByClientAndTemplate(ReferenceType.DOMAIN, domain, client, template));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<Email> findById(ReferenceType referenceType, String referenceId, String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
+}
+@Override
+    public Mono<Email> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
+        LOGGER.debug("findById({}, {}, {})", referenceType, referenceId, id);
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findById(referenceId, referenceType.name(), id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @Deprecated
+@Override
+    public Maybe<Email> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Email> findById_migrated(String id) {
+        LOGGER.debug("findById({})", id);
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(emailRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+    }
+
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Email> create(Email item) {
  return RxJava2Adapter.monoToSingle(create_migrated(item));
@@ -146,7 +194,8 @@ public class JdbcEmailRepository extends AbstractJdbcRepository implements Email
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Email> update(Email item) {
  return RxJava2Adapter.monoToSingle(update_migrated(item));
@@ -179,7 +228,8 @@ public class JdbcEmailRepository extends AbstractJdbcRepository implements Email
 
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

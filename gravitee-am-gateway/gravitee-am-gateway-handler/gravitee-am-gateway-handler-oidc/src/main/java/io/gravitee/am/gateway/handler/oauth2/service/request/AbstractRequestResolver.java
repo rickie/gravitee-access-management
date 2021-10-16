@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.oauth2.service.request;
 
 import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidScopeException;
 import io.gravitee.am.gateway.handler.oauth2.service.scope.ScopeManager;
 import io.gravitee.am.gateway.handler.oauth2.service.utils.ParameterizedScopeUtils;
@@ -51,7 +52,8 @@ public abstract class AbstractRequestResolver<R extends OAuth2Request> {
      * @param client the client which trigger the request
      * @return the oauth 2.0 request
      */
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveAuthorizedScopes_migrated(request, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 protected Single<R> resolveAuthorizedScopes(R request, Client client, User endUser) {
  return RxJava2Adapter.monoToSingle(resolveAuthorizedScopes_migrated(request, client, endUser));
 }

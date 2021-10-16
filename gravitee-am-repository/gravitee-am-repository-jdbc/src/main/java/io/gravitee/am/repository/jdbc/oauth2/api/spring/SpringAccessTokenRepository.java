@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.oauth2.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -32,7 +33,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 @Repository
 public interface SpringAccessTokenRepository extends RxJava2CrudRepository<JdbcAccessToken, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token, now))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken> findByToken(@org.springframework.data.repository.query.Param(value = "token")
 java.lang.String token, @org.springframework.data.repository.query.Param(value = "now")
 java.time.LocalDateTime now) {
@@ -44,7 +46,8 @@ LocalDateTime now) {
     return RxJava2Adapter.maybeToMono(findByToken(token, now));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByClientIdAndSubject_migrated(clientId, subject, now))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken> findByClientIdAndSubject(@org.springframework.data.repository.query.Param(value = "cli")
 java.lang.String clientId, @org.springframework.data.repository.query.Param(value = "sub")
 java.lang.String subject, @org.springframework.data.repository.query.Param(value = "now")
@@ -58,7 +61,8 @@ LocalDateTime now) {
     return RxJava2Adapter.flowableToFlux(findByClientIdAndSubject(clientId, subject, now));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByClientId_migrated(clientId, now))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken> findByClientId(@org.springframework.data.repository.query.Param(value = "cli")
 java.lang.String clientId, @org.springframework.data.repository.query.Param(value = "now")
 java.time.LocalDateTime now) {
@@ -70,7 +74,8 @@ LocalDateTime now) {
     return RxJava2Adapter.flowableToFlux(findByClientId(clientId, now));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByAuthorizationCode_migrated(code, now))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken> findByAuthorizationCode(@org.springframework.data.repository.query.Param(value = "auth")
 java.lang.String code, @org.springframework.data.repository.query.Param(value = "now")
 java.time.LocalDateTime now) {
@@ -82,7 +87,8 @@ LocalDateTime now) {
     return RxJava2Adapter.flowableToFlux(findByAuthorizationCode(code, now));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByClientId_migrated(clientId, now))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countByClientId(@org.springframework.data.repository.query.Param(value = "cli")
 java.lang.String clientId, @org.springframework.data.repository.query.Param(value = "now")
 java.time.LocalDateTime now) {

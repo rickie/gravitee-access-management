@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.manager.botdetection;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.botdetection.api.BotDetectionContext;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.oidc.Client;
@@ -31,7 +32,8 @@ public interface BotDetectionManager extends Service {
 
     Map<String, Object> getTemplateVariables(Domain domain, Client client);
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validate_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Boolean> validate(io.gravitee.am.botdetection.api.BotDetectionContext context) {
     return RxJava2Adapter.monoToSingle(validate_migrated(context));
 }

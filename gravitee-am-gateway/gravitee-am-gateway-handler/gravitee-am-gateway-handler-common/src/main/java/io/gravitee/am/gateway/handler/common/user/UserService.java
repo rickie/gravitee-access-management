@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.user;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.factor.EnrolledFactor;
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
@@ -34,7 +35,8 @@ public interface UserService {
      * @param id user technical id
      * @return end user
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.User> findById(java.lang.String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
@@ -49,7 +51,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> findById_migrated
      * @param source user identity provider
      * @return end user
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndExternalIdAndSource_migrated(domain, externalId, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.User> findByDomainAndExternalIdAndSource(java.lang.String domain, java.lang.String externalId, java.lang.String source) {
     return RxJava2Adapter.monoToMaybe(findByDomainAndExternalIdAndSource_migrated(domain, externalId, source));
 }
@@ -64,7 +67,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> findByDomainAndEx
      * @param source user identity provider
      * @return end user
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndUsernameAndSource_migrated(domain, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.model.User> findByDomainAndUsernameAndSource(java.lang.String domain, java.lang.String username, java.lang.String source) {
     return RxJava2Adapter.monoToMaybe(findByDomainAndUsernameAndSource_migrated(domain, username, source));
 }
@@ -78,7 +82,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> findByDomainAndUs
      * @param criteria search criteria
      * @return
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomainAndCriteria_migrated(domain, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.util.List<io.gravitee.am.model.User>> findByDomainAndCriteria(java.lang.String domain, io.gravitee.am.repository.management.api.search.FilterCriteria criteria) {
     return RxJava2Adapter.monoToSingle(findByDomainAndCriteria_migrated(domain, criteria));
 }
@@ -91,7 +96,8 @@ default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.model.User>> f
      * @param user user to create
      * @return created user
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.User> create(io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToSingle(create_migrated(user));
 }
@@ -104,7 +110,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> create_migrated(U
      * @param user user to update
      * @return updated user
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.User> update(io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToSingle(update_migrated(user));
 }
@@ -117,7 +124,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> update_migrated(U
      * @param user end user
      * @return Enhanced user
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enhance_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.User> enhance(io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToSingle(enhance_migrated(user));
 }
@@ -132,7 +140,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> enhance_migrated(
      * @param principal the user who has performed this action
      * @return
      */
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addFactor_migrated(userId, enrolledFactor, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.User> addFactor(java.lang.String userId, io.gravitee.am.model.factor.EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(addFactor_migrated(userId, enrolledFactor, principal));
 }

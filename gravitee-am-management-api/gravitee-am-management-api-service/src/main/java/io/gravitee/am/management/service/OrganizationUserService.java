@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
@@ -29,7 +30,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface OrganizationUserService extends CommonUserService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOrUpdate_migrated(referenceType, referenceId, newUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.User> createOrUpdate(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.service.model.NewUser newUser) {
     return RxJava2Adapter.monoToSingle(createOrUpdate_migrated(referenceType, referenceId, newUser));
 }
@@ -37,7 +39,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> createOrUpdate_mi
     return RxJava2Adapter.singleToMono(createOrUpdate(referenceType, referenceId, newUser));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createGraviteeUser_migrated(organization, newUser, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.User> createGraviteeUser(io.gravitee.am.model.Organization organization, io.gravitee.am.service.model.NewUser newUser, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(createGraviteeUser_migrated(organization, newUser, principal));
 }
@@ -45,7 +48,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.User> createGraviteeUse
     return RxJava2Adapter.singleToMono(createGraviteeUser(organization, newUser, principal));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.resetPassword_migrated(organizationId, user, password, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Completable resetPassword(java.lang.String organizationId, io.gravitee.am.model.User user, java.lang.String password, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(resetPassword_migrated(organizationId, user, password, principal));
 }

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.code;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
@@ -29,7 +30,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface AuthorizationCodeService {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(authorizationRequest, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.repository.oauth2.model.AuthorizationCode> create(io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest authorizationRequest, io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToSingle(create_migrated(authorizationRequest, user));
 }
@@ -37,7 +39,8 @@ default reactor.core.publisher.Mono<io.gravitee.am.repository.oauth2.model.Autho
     return RxJava2Adapter.singleToMono(create(authorizationRequest, user));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.remove_migrated(code, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.oauth2.model.AuthorizationCode> remove(java.lang.String code, io.gravitee.am.model.oidc.Client client) {
     return RxJava2Adapter.monoToMaybe(remove_migrated(code, client));
 }

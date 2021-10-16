@@ -19,6 +19,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
 import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertTrigger;
@@ -73,7 +74,8 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
         return mapper.map(entity, JdbcAlertTrigger.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<AlertTrigger> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -91,7 +93,8 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(alertTrigger))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<AlertTrigger> create(AlertTrigger alertTrigger) {
  return RxJava2Adapter.monoToSingle(create_migrated(alertTrigger));
@@ -115,7 +118,8 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
                 .then(maybeToMono(findById(alertTrigger.getId())))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(alertTrigger))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<AlertTrigger> update(AlertTrigger alertTrigger) {
  return RxJava2Adapter.monoToSingle(update_migrated(alertTrigger));
@@ -138,7 +142,8 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
                 .then(maybeToMono(findById(alertTrigger.getId())))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));
@@ -149,13 +154,23 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.completableToMono(this.alertTriggerRepository.deleteById(id));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<AlertTrigger> findAll(ReferenceType referenceType, String referenceId) {
-        return findByCriteria(referenceType, referenceId, new AlertTriggerCriteria());
+ return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+@Override
+    public Flux<AlertTrigger> findAll_migrated(ReferenceType referenceType, String referenceId) {
+        return RxJava2Adapter.flowableToFlux(findByCriteria(referenceType, referenceId, new AlertTriggerCriteria()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Flowable<AlertTrigger> findByCriteria(ReferenceType referenceType, String referenceId, AlertTriggerCriteria criteria) {
+ return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
+}
+@Override
+    public Flux<AlertTrigger> findByCriteria_migrated(ReferenceType referenceType, String referenceId, AlertTriggerCriteria criteria) {
 
         Map<String, Object> params = new HashMap<>();
 
@@ -199,11 +214,11 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
             execute = execute.bind(entry.getKey(), entry.getValue());
         }
 
-        return RxJava2Adapter.fluxToFlowable(execute
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(execute
                 .as(String.class)
                 .fetch().all().flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<String, MaybeSource<AlertTrigger>>toJdkFunction(this::findById).apply(e)))))
                 .doOnError(error -> LOGGER.error("Unable to retrieve AlertTrigger with referenceId {}, referenceType {} and criteria {}",
-                        referenceId, referenceType, criteria, error));
+                        referenceId, referenceType, criteria, error)));
     }
 
     private Mono<Void> storeAlertNotifiers(AlertTrigger alertTrigger, boolean deleteFirst) {

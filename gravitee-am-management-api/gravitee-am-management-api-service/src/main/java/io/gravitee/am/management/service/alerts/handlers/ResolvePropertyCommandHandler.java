@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service.alerts.handlers;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.alert.api.trigger.TriggerProvider;
 import io.gravitee.alert.api.trigger.command.Command;
 import io.gravitee.alert.api.trigger.command.Handler;
@@ -65,7 +66,8 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
     }
 
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveProperties_migrated(command))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Map<String, Map<String, Object>>> resolveProperties(ResolvePropertyCommand command) {
  return RxJava2Adapter.monoToSingle(resolveProperties_migrated(command));
 }
@@ -89,7 +91,8 @@ private Mono<Map<String,Map<String,Object>>> resolveProperties_migrated(ResolveP
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Single.merge(obs)).ignoreElements().then().then(Mono.just(values))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveDomainProperties_migrated(domainId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Map<String, Object>> resolveDomainProperties(String domainId) {
  return RxJava2Adapter.monoToSingle(resolveDomainProperties_migrated(domainId));
 }
@@ -109,7 +112,8 @@ private Mono<Map<String,Object>> resolveDomainProperties_migrated(String domainI
                 .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(properties))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveApplicationProperties_migrated(applicationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Map<String, Object>> resolveApplicationProperties(String applicationId) {
  return RxJava2Adapter.monoToSingle(resolveApplicationProperties_migrated(applicationId));
 }

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.validators;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.service.exception.InvalidPathException;
 import io.reactivex.Completable;
 import java.util.regex.Matcher;
@@ -30,7 +31,8 @@ public class PathValidator {
 
     private static final Pattern PATH_PATTERN = Pattern.compile("/?[a-z0-9-._]+(?:/[a-z0-9-._]+)*/?|/", Pattern.CASE_INSENSITIVE);
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(PathValidator.validate_migrated(path))", imports = {"io.gravitee.am.service.validators.PathValidator", "reactor.adapter.rxjava.RxJava2Adapter"})
+@Deprecated
 public static Completable validate(String path) {
  return RxJava2Adapter.monoToCompletable(validate_migrated(path));
 }

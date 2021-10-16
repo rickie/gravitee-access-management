@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.resources;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcResource;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
@@ -33,7 +34,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 @Repository
 public interface SpringResourceRepository extends RxJava2CrudRepository<JdbcResource, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<java.lang.Long> countByDomain(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain) {
     return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
@@ -43,7 +45,8 @@ String domain) {
     return RxJava2Adapter.singleToMono(countByDomain(domain));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcResource> findByIdIn(@org.springframework.data.repository.query.Param(value = "ids")
 java.util.List<java.lang.String> resources) {
     return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(resources));
@@ -53,7 +56,8 @@ List<String> resources) {
     return RxJava2Adapter.flowableToFlux(findByIdIn(resources));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndClientAndUser_migrated(domain, client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcResource> findByDomainAndClientAndUser(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain, @org.springframework.data.repository.query.Param(value = "client")
 java.lang.String client, @org.springframework.data.repository.query.Param(value = "uid")
@@ -67,7 +71,8 @@ String user) {
     return RxJava2Adapter.flowableToFlux(findByDomainAndClientAndUser(domain, client, user));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndClientAndResources_migrated(domain, client, resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcResource> findByDomainAndClientAndResources(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain, @org.springframework.data.repository.query.Param(value = "client")
 java.lang.String client, @org.springframework.data.repository.query.Param(value = "ids")
@@ -81,7 +86,8 @@ List<String> resources) {
     return RxJava2Adapter.flowableToFlux(findByDomainAndClientAndResources(domain, client, resources));
 }
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientAndUserIdAndResource_migrated(domain, client, user, resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcResource> findByDomainAndClientAndUserIdAndResource(@org.springframework.data.repository.query.Param(value = "domain")
 java.lang.String domain, @org.springframework.data.repository.query.Param(value = "client")
 java.lang.String client, @org.springframework.data.repository.query.Param(value = "uid")

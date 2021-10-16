@@ -17,6 +17,7 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.OPENID_SCOPE_UPGRADER;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.oauth2.Scope;
 import io.gravitee.am.service.DomainService;
@@ -63,7 +64,8 @@ public class OpenIDScopeUpgrader implements Upgrader, Ordered {
         return true;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOrUpdateSystemScopes_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Domain> createOrUpdateSystemScopes(Domain domain) {
  return RxJava2Adapter.monoToSingle(createOrUpdateSystemScopes_migrated(domain));
 }
@@ -73,7 +75,8 @@ private Mono<Domain> createOrUpdateSystemScopes_migrated(Domain domain) {
                 .lastOrError()).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> domain))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createSystemScope_migrated(domain, systemScope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 private Single<Scope> createSystemScope(String domain, io.gravitee.am.common.oidc.Scope systemScope) {
  return RxJava2Adapter.monoToSingle(createSystemScope_migrated(domain, systemScope));
 }

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.SystemTask;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Single;
@@ -26,7 +27,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  */
 public interface SystemTaskRepository extends CrudRepository<SystemTask, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateIf_migrated(item, operationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Single<io.gravitee.am.model.SystemTask> updateIf(io.gravitee.am.model.SystemTask item, java.lang.String operationId) {
     return RxJava2Adapter.monoToSingle(updateIf_migrated(item, operationId));
 }

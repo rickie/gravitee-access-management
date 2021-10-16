@@ -16,6 +16,7 @@
 package io.gravitee.am.service.validators;
 
 import com.google.common.net.InternetDomainName;
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.PathUtils;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.VirtualHost;
@@ -35,7 +36,8 @@ import reactor.core.publisher.Mono;
  */
 public class VirtualHostValidator {
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(VirtualHostValidator.validate_migrated(vhost, domainRestrictions))", imports = {"io.gravitee.am.service.validators.VirtualHostValidator", "reactor.adapter.rxjava.RxJava2Adapter"})
+@Deprecated
 public static Completable validate(VirtualHost vhost, List<String> domainRestrictions) {
  return RxJava2Adapter.monoToCompletable(validate_migrated(vhost, domainRestrictions));
 }
@@ -76,7 +78,8 @@ public static Mono<Void> validate_migrated(VirtualHost vhost, List<String> domai
         return RxJava2Adapter.completableToMono(PathValidator.validate(vhost.getPath()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(VirtualHostValidator.validateDomainVhosts_migrated(domain, domains))", imports = {"io.gravitee.am.service.validators.VirtualHostValidator", "reactor.adapter.rxjava.RxJava2Adapter"})
+@Deprecated
 public static Completable validateDomainVhosts(Domain domain, List<Domain> domains) {
  return RxJava2Adapter.monoToCompletable(validateDomainVhosts_migrated(domain, domains));
 }

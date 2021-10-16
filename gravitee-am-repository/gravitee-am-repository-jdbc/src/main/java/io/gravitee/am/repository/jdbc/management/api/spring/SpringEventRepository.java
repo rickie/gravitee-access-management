@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcEvent;
 import io.reactivex.Flowable;
 import java.time.LocalDateTime;
@@ -28,7 +29,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
  * @author GraviteeSource Team
  */
 public interface SpringEventRepository extends RxJava2CrudRepository<JdbcEvent, String> {
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTimeFrame_migrated(from, to))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEvent> findByTimeFrame(@org.springframework.data.repository.query.Param(value = "from")
 java.time.LocalDateTime from, @org.springframework.data.repository.query.Param(value = "to")
 java.time.LocalDateTime to) {

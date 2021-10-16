@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring.scope;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcScope;
 import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
@@ -30,7 +31,8 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 @Repository
 public interface SpringScopeClaimRepository extends RxJava2CrudRepository<JdbcScope.Claims, String> {
 
-      @Deprecated  
+      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByScopeId_migrated(scope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated  
 default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcScope.Claims> findByScopeId(@org.springframework.data.repository.query.Param(value = "scope")
 java.lang.String scope) {
     return RxJava2Adapter.fluxToFlowable(findByScopeId_migrated(scope));
