@@ -17,9 +17,9 @@ package io.gravitee.am.service;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.uma.PermissionRequest;
-import io.gravitee.am.model.uma.PermissionTicket;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;
 

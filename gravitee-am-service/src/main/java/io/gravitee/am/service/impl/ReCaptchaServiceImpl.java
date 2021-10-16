@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
+
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
@@ -86,7 +86,7 @@ public class ReCaptchaServiceImpl implements ReCaptchaService {
             return Mono.just(false);
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.post(URI.create(serviceUrl).toString())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.post(URI.create(serviceUrl).toString())
                 .rxSendForm(MultiMap.caseInsensitiveMultiMap().set("secret", secretKey).set("response", token))).map(RxJavaReactorMigrationUtil.toJdkFunction(buffer -> {
                     Map res = objectMapper.readValue(buffer.bodyAsString(), Map.class);
 
@@ -100,7 +100,7 @@ public class ReCaptchaServiceImpl implements ReCaptchaService {
                 })))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Boolean>>toJdkFunction(throwable -> {
                     logger.error("An error occurred when trying to validate ReCaptcha token.", throwable);
                     return RxJava2Adapter.monoToSingle(Mono.just(false));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     public boolean isEnabled() {

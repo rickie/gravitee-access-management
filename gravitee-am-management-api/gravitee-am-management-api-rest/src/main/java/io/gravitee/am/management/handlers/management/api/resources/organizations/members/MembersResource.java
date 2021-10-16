@@ -28,7 +28,7 @@ import io.gravitee.am.service.MembershipService;
 import io.gravitee.am.service.OrganizationService;
 import io.gravitee.am.service.model.NewMembership;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Single;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -42,7 +42,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

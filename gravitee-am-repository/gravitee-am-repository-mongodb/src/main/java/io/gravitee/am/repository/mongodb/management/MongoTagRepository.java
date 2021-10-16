@@ -26,8 +26,8 @@ import io.gravitee.am.repository.management.api.TagRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.TagMongo;
 import io.reactivex.*;
 import io.reactivex.BackpressureStrategy;
-import java.util.HashSet;
-import java.util.Set;
+
+
 import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;

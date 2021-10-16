@@ -15,18 +15,18 @@
  */
 package io.gravitee.am.service;
 
-import io.gravitee.am.model.Application;
-import io.gravitee.am.model.Domain;
-import io.gravitee.am.model.application.ApplicationOAuthSettings;
-import io.gravitee.am.model.application.ApplicationSettings;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import io.reactivex.observers.TestObserver;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
-import java.util.Arrays;
+
+
+
+
+
+
+
+
+
+
+
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;

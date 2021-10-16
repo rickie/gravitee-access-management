@@ -24,7 +24,7 @@ import io.gravitee.am.identityprovider.api.AuthenticationProvider;
 import io.gravitee.am.identityprovider.api.Metadata;
 import io.gravitee.am.service.exception.IdentityProviderMetadataNotFoundException;
 import io.gravitee.am.service.exception.IdentityProviderNotFoundException;
-import io.reactivex.Maybe;
+
 import io.reactivex.observers.TestObserver;
 import org.junit.Test;
 import org.junit.runner.RunWith;

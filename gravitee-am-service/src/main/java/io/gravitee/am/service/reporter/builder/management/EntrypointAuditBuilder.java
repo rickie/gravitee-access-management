@@ -19,7 +19,7 @@ import io.gravitee.am.common.audit.EntityType;
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.model.Entrypoint;
 import io.gravitee.am.model.ReferenceType;
-import io.gravitee.am.model.Tag;
+
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)

@@ -16,8 +16,8 @@
 package io.gravitee.am.gateway.handler.scim.service;
 
 import com.google.errorprone.annotations.InlineMe;
-import io.gravitee.am.gateway.handler.scim.model.ServiceProviderConfiguration;
-import io.reactivex.Single;
+
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

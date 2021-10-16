@@ -15,15 +15,15 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.model;
 
-import io.gravitee.am.model.ReferenceType;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+
+
+
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)

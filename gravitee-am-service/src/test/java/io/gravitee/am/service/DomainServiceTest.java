@@ -44,10 +44,10 @@ import io.gravitee.am.service.impl.DomainServiceImpl;
 import io.gravitee.am.service.model.NewDomain;
 import io.gravitee.am.service.model.NewSystemScope;
 import io.gravitee.am.service.model.PatchDomain;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
+
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
 import java.util.*;

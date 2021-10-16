@@ -28,7 +28,7 @@ import io.gravitee.am.service.ResourceService;
 import io.gravitee.am.service.exception.ApplicationNotFoundException;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Maybe;
+
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
@@ -40,7 +40,7 @@ import java.util.List;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ResourceContext;
-import javax.ws.rs.container.ResourceInfo;
+
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import org.springframework.beans.factory.annotation.Autowired;

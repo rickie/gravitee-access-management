@@ -25,13 +25,13 @@ import io.gravitee.am.service.exception.CredentialNotFoundException;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.reactivex.*;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Function;
+
+
 import java.util.Date;
-import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,13 +129,13 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Mono<Credential> create_migrated(Credential credential) {
         LOGGER.debug("Create a new credential {}", credential);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.create_migrated(credential))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Credential>>toJdkFunction(ex -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.create_migrated(credential))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Credential>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to create a credential", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a credential", ex)));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(credential))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -147,13 +147,13 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Mono<Credential> update_migrated(Credential credential) {
         LOGGER.debug("Update a credential {}", credential);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.findById_migrated(credential.getId()).switchIfEmpty(Mono.error(new CredentialNotFoundException(credential.getId()))).flatMap(y->credentialRepository.update_migrated(credential)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Credential>>toJdkFunction(ex -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.findById_migrated(credential.getId()).switchIfEmpty(Mono.error(new CredentialNotFoundException(credential.getId()))).flatMap(y->credentialRepository.update_migrated(credential)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Credential>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to update a credential", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a credential", ex)));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.update_migrated(referenceType, referenceId, credentialId, credential))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

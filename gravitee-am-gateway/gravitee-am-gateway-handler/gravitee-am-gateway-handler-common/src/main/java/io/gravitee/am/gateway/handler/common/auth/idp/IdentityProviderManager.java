@@ -16,11 +16,11 @@
 package io.gravitee.am.gateway.handler.common.auth.idp;
 
 import com.google.errorprone.annotations.InlineMe;
-import io.gravitee.am.identityprovider.api.AuthenticationProvider;
-import io.gravitee.am.identityprovider.api.UserProvider;
+
+
 import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.common.service.Service;
-import io.reactivex.Maybe;
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

@@ -19,7 +19,7 @@ import com.nimbusds.jwt.proc.JWTProcessor;
 import io.gravitee.am.common.jwt.SignatureAlgorithm;
 import io.gravitee.am.common.oauth2.ResponseType;
 import io.gravitee.am.common.oidc.Scope;
-import io.gravitee.am.identityprovider.api.DefaultIdentityProviderMapper;
+
 import io.gravitee.am.identityprovider.api.IdentityProviderMapper;
 import io.gravitee.am.identityprovider.api.IdentityProviderRoleMapper;
 import io.gravitee.am.identityprovider.api.oidc.OpenIDConnectIdentityProviderConfiguration;
@@ -28,7 +28,7 @@ import io.gravitee.am.identityprovider.azure.authentication.spring.AzureADAuthen
 import io.gravitee.am.identityprovider.common.oauth2.authentication.AbstractOpenIDConnectAuthenticationProvider;
 import io.gravitee.am.identityprovider.common.oauth2.jwt.jwks.remote.RemoteJWKSourceResolver;
 import io.gravitee.am.identityprovider.common.oauth2.jwt.processor.JWKSKeyProcessor;
-import io.reactivex.Maybe;
+
 import io.vertx.reactivex.ext.web.client.WebClient;
 import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Autowired;

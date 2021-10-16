@@ -26,7 +26,7 @@ import io.gravitee.cockpit.api.command.CommandStatus;
 import io.gravitee.cockpit.api.command.installation.InstallationCommand;
 import io.gravitee.cockpit.api.command.installation.InstallationPayload;
 import io.gravitee.cockpit.api.command.installation.InstallationReply;
-import io.reactivex.Single;
+
 import io.reactivex.observers.TestObserver;
 import java.util.HashMap;
 import junit.framework.TestCase;
@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

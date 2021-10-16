@@ -17,7 +17,7 @@ package io.gravitee.am.repository.oauth2.api;
 
 import io.gravitee.am.repository.oauth2.AbstractOAuthTest;
 import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
-import io.reactivex.Maybe;
+
 import io.reactivex.observers.TestObserver;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

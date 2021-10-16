@@ -125,7 +125,7 @@ public class AccountServiceImpl implements AccountService {
     public Mono<User> update_migrated(User user) {
         LOGGER.debug("Update a user {} for domain {}", user.getUsername(), domain.getName());
 
-        return userValidator.validate_migrated(user).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
+        return userValidator.validate_migrated(user).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
                 .flatMapSingle(userProvider -> {
                     if (user.getExternalId() == null) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("User does not exist in upstream IDP")));
@@ -142,7 +142,7 @@ public class AccountServiceImpl implements AccountService {
                         return RxJava2Adapter.monoToSingle(userRepository.update_migrated(user));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));
-                }).apply(err))))));
+                }).apply(err))));
 
     }
 

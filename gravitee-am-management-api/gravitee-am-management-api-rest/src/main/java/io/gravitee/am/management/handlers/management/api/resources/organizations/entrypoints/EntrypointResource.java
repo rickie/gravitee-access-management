@@ -22,12 +22,12 @@ import io.gravitee.am.model.Entrypoint;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.EntrypointService;
-import io.gravitee.am.service.exception.EntrypointNotFoundException;
+
 import io.gravitee.am.service.model.UpdateEntrypoint;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;

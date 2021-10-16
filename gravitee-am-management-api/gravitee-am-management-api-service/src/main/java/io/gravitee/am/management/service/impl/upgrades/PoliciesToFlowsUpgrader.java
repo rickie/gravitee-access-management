@@ -17,7 +17,7 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.POLICY_FLOW_UPGRADER;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.policy.ExtensionPoint;
 import io.gravitee.am.management.service.PolicyPluginService;
 import io.gravitee.am.model.Policy;

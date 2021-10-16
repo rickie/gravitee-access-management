@@ -20,7 +20,7 @@ import io.gravitee.node.api.healthcheck.Probe;
 import io.gravitee.node.api.healthcheck.Result;
 import java.util.concurrent.CompletableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

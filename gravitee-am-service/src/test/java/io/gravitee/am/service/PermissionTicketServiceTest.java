@@ -25,11 +25,11 @@ import io.gravitee.am.repository.management.api.PermissionTicketRepository;
 import io.gravitee.am.service.exception.InvalidPermissionRequestException;
 import io.gravitee.am.service.exception.InvalidPermissionTicketException;
 import io.gravitee.am.service.impl.PermissionTicketServiceImpl;
-import io.reactivex.Completable;
+
 import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import io.reactivex.internal.operators.flowable.FlowableRange;
+
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.ArrayList;
 import java.util.Arrays;

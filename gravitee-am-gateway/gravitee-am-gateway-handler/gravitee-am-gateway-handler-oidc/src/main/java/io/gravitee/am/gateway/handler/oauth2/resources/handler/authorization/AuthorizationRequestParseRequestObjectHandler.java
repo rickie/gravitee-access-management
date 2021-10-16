@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization;
 
 import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.*;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
@@ -32,7 +32,7 @@ import io.gravitee.am.gateway.handler.oidc.service.discovery.OpenIDProviderMetad
 import io.gravitee.am.gateway.handler.oidc.service.request.RequestObjectService;
 import io.gravitee.am.model.Domain;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import java.net.URI;

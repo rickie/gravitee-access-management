@@ -28,7 +28,7 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.SSLSession;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

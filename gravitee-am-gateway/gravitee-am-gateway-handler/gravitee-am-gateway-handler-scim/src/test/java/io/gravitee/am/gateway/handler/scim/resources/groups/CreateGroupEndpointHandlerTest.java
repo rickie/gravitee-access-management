@@ -24,11 +24,11 @@ import io.gravitee.am.gateway.handler.common.vertx.RxWebTestBase;
 import io.gravitee.am.gateway.handler.scim.exception.UniquenessException;
 import io.gravitee.am.gateway.handler.scim.model.Group;
 import io.gravitee.am.gateway.handler.scim.model.Meta;
-import io.gravitee.am.gateway.handler.scim.model.User;
+
 import io.gravitee.am.gateway.handler.scim.resources.ErrorHandler;
 import io.gravitee.am.gateway.handler.scim.service.GroupService;
 import io.gravitee.am.service.exception.InvalidGroupException;
-import io.reactivex.Single;
+
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.handler.BodyHandler;
@@ -37,7 +37,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

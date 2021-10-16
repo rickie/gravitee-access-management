@@ -27,7 +27,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.common.template.TemplateEngine;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

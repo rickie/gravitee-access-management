@@ -42,7 +42,7 @@ import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.jose.RSAKey;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
-import io.reactivex.Maybe;
+
 import io.reactivex.observers.TestObserver;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;

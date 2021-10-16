@@ -21,13 +21,13 @@ import io.gravitee.am.model.Domain;
 import io.gravitee.am.repository.management.api.search.DomainCriteria;
 import io.gravitee.am.service.model.NewDomain;
 import io.gravitee.am.service.model.PatchDomain;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
+
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
 

@@ -58,13 +58,13 @@ public class EventServiceImpl implements EventService {
 
         event.setCreatedAt(new Date());
         event.setUpdatedAt(event.getCreatedAt());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventRepository.create_migrated(event))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Event>>toJdkFunction(ex -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventRepository.create_migrated(event))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Event>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to create an event", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create an event", ex)));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByTimeFrame_migrated(from, to))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -76,12 +76,12 @@ public class EventServiceImpl implements EventService {
 @Override
     public Mono<List<Event>> findByTimeFrame_migrated(long from, long to) {
         LOGGER.debug("Find events with time frame {} and {}", from, to);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventRepository.findByTimeFrame_migrated(from, to).collectList())).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<List<Event>>>toJdkFunction(ex -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventRepository.findByTimeFrame_migrated(from, to).collectList())).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<List<Event>>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error occurs while trying to find events by time frame", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to find events by time frame", ex)));
-                }).apply(err)))));
+                }).apply(err)));
     }
 }

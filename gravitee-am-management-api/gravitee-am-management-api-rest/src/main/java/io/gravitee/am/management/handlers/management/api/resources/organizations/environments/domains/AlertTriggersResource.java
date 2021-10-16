@@ -25,7 +25,7 @@ import io.gravitee.am.repository.management.api.search.AlertTriggerCriteria;
 import io.gravitee.am.service.AlertTriggerService;
 import io.gravitee.am.service.model.PatchAlertTrigger;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Flowable;
+
 import io.swagger.annotations.*;
 import java.util.Comparator;
 import java.util.List;

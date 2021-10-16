@@ -33,14 +33,14 @@ import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.TagAuditBuilder;
 import io.reactivex.*;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
-import io.reactivex.functions.Function;
+
 import java.text.Normalizer;
 import java.util.Date;
-import java.util.Set;
+
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +114,7 @@ public class TagServiceImpl implements TagService {
         LOGGER.debug("Create a new tag: {}", newTag);
         String id = humanReadableId(newTag.getName());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.findById_migrated(id, organizationId).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Tag>>toJdkFunction(empty -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.findById_migrated(id, organizationId).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Tag>>toJdkFunction(empty -> {
                     if (!empty) {
                         throw new TagAlreadyExistsException(newTag.getName());
                     } else {
@@ -134,7 +134,7 @@ public class TagServiceImpl implements TagService {
 
                     LOGGER.error("An error occurs while trying to create a tag", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a tag", ex)));
-                }).apply(err))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(tag -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).tag(tag).principal(principal).type(EventType.TAG_CREATED)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).referenceId(organizationId).principal(principal).type(EventType.TAG_CREATED).throwable(throwable))));
+                }).apply(err))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(tag -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).tag(tag).principal(principal).type(EventType.TAG_CREATED)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).referenceId(organizationId).principal(principal).type(EventType.TAG_CREATED).throwable(throwable))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(tagId, organizationId, updateTag, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -146,7 +146,7 @@ public class TagServiceImpl implements TagService {
 @Override
     public Mono<Tag> update_migrated(String tagId, String organizationId, UpdateTag updateTag, User principal) {
         LOGGER.debug("Update an existing tag: {}", updateTag);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.findById_migrated(tagId, organizationId).switchIfEmpty(Mono.error(new TagNotFoundException(tagId))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Tag, SingleSource<Tag>>toJdkFunction(oldTag -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.findById_migrated(tagId, organizationId).switchIfEmpty(Mono.error(new TagNotFoundException(tagId))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Tag, SingleSource<Tag>>toJdkFunction(oldTag -> {
                     Tag tag = new Tag();
                     tag.setId(tagId);
                     tag.setName(updateTag.getName());
@@ -162,7 +162,7 @@ public class TagServiceImpl implements TagService {
 
                     LOGGER.error("An error occurs while trying to update a tag", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a tag", ex)));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(tagId, orgaizationId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

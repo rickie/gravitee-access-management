@@ -17,8 +17,8 @@ package io.gravitee.am.repository.jdbc.management.api;
 
 import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
+
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
@@ -34,7 +34,7 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.stereotype.Repository;

@@ -31,9 +31,9 @@ import io.gravitee.am.service.exception.AlertTriggerNotFoundException;
 import io.gravitee.am.service.impl.AlertTriggerServiceImpl;
 import io.gravitee.am.service.model.PatchAlertTrigger;
 import io.gravitee.am.service.reporter.builder.management.AlertTriggerAuditBuilder;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
 import java.util.Collections;

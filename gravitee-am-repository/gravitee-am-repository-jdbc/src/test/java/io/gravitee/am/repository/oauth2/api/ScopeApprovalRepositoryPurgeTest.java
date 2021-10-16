@@ -22,7 +22,7 @@ import io.reactivex.observers.TestObserver;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.HashMap;
+
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;

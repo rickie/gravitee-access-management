@@ -22,8 +22,8 @@ import io.gravitee.am.model.AuthenticationFlowContext;
 import io.gravitee.am.repository.management.api.AuthenticationFlowContextRepository;
 import io.gravitee.am.service.exception.AuthenticationFlowConsistencyException;
 import io.gravitee.am.service.impl.AuthenticationFlowContextServiceImpl;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
+
+
 import io.reactivex.observers.TestObserver;
 import org.junit.Test;
 import org.junit.runner.RunWith;

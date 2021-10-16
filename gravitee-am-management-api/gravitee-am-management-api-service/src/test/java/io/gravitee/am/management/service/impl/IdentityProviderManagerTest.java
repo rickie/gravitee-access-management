@@ -26,7 +26,7 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.Role;
 import io.gravitee.am.plugins.idp.core.IdentityProviderPluginManager;
 import io.gravitee.am.service.RoleService;
-import io.reactivex.Flowable;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +36,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 
 /**

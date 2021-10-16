@@ -17,7 +17,7 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.APPLICATION_SCOPE_SETTINGS_UPGRADER;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.SystemTask;
 import io.gravitee.am.model.SystemTaskStatus;
 import io.gravitee.am.model.SystemTaskTypes;
@@ -116,11 +116,11 @@ private Mono<SystemTask> createSystemTask_migrated(String operationId) {
         systemTask.setCreatedAt(new Date());
         systemTask.setUpdatedAt(systemTask.getCreatedAt());
         systemTask.setOperationId(operationId);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(systemTaskRepository.create_migrated(systemTask))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<SystemTask>>toJdkFunction(err2 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(systemTaskRepository.create_migrated(systemTask))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<SystemTask>>toJdkFunction(err2 -> {
             logger.warn("SystemTask {} can't be created due to '{}'", TASK_ID, err2.getMessage());
             // if the creation fails, try to find the task, this will allow to manage the retry properly
             return RxJava2Adapter.monoToSingle(systemTaskRepository.findById_migrated(systemTask.getId()).single());
-        }).apply(err)))));
+        }).apply(err)));
     }
 
     
@@ -132,7 +132,7 @@ private Mono<SystemTask>  updateSystemTask_migrated(SystemTask task, SystemTaskS
 
     
 private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findAll_migrated()).flatMapSingle(app -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findAll_migrated()).flatMapSingle(app -> {
                     logger.debug("Process application '{}'", app.getId());
                     if (app.getSettings() != null && app.getSettings().getOauth() != null) {
                         final ApplicationOAuthSettings oauthSettings = app.getSettings().getOauth();
@@ -172,7 +172,7 @@ private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
                         }))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Boolean>>toJdkFunction((err2) -> {
                     logger.error("Unable to migrate scope options for applications: {}", err2.getMessage());
                     return RxJava2Adapter.monoToSingle(Mono.just(false));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     @Override

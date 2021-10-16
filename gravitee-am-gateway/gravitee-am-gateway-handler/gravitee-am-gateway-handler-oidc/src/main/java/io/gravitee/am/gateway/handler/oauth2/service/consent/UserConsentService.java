@@ -17,10 +17,10 @@ package io.gravitee.am.gateway.handler.oauth2.service.consent;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
-import io.gravitee.am.model.oauth2.Scope;
+
 import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Single;
+
 import java.util.List;
 import java.util.Set;
 import reactor.adapter.rxjava.RxJava2Adapter;

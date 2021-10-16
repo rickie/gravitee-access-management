@@ -24,7 +24,7 @@ import io.gravitee.am.identityprovider.api.Authentication;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.identityprovider.inline.authentication.provisioning.InlineInMemoryUserDetailsManager;
 import io.gravitee.am.service.authentication.crypto.password.PasswordEncoder;
-import io.reactivex.Maybe;
+
 import io.reactivex.observers.TestObserver;
 import org.junit.Test;
 import org.junit.runner.RunWith;

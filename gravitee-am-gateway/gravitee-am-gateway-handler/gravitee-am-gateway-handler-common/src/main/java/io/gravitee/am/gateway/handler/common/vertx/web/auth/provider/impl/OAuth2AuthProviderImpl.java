@@ -15,19 +15,19 @@
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.auth.provider.impl;
 
-import io.gravitee.am.common.jwt.JWT;
+
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.oauth2.IntrospectionTokenService;
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.handler.OAuth2AuthResponse;
 import io.gravitee.am.gateway.handler.common.vertx.web.auth.provider.OAuth2AuthProvider;
-import io.reactivex.Maybe;
-import io.reactivex.MaybeSource;
-import io.reactivex.functions.Function;
+
+
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import org.springframework.beans.factory.annotation.Autowired;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

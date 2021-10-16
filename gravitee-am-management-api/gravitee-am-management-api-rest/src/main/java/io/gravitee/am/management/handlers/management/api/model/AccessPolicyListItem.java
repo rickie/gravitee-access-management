@@ -18,8 +18,8 @@ package io.gravitee.am.management.handlers.management.api.model;
 import io.gravitee.am.model.uma.policy.AccessPolicy;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
+
+
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)

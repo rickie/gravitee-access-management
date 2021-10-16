@@ -51,7 +51,7 @@ import io.gravitee.am.service.utils.GrantTypeUtils;
 import io.gravitee.am.service.utils.ResponseTypeUtils;
 import io.reactivex.*;
 import io.reactivex.BackpressureStrategy;
-import io.reactivex.Maybe;
+
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
@@ -207,7 +207,7 @@ private Mono<Client> applyAccessTokenValidity_migrated(Client client) {
 
     
 private Mono<Client> createClientFromTemplate_migrated(DynamicClientRegistrationRequest request, String basePath) {
-        return clientService.findById_migrated(request.getSoftwareId().get()).switchIfEmpty(Mono.error(new InvalidClientMetadataException("No template found for software_id "+request.getSoftwareId().get()))).flatMap(y->sanitizeTemplate_migrated(y)).map(RxJavaReactorMigrationUtil.toJdkFunction(request::patch)).flatMap(app->this.applyRegistrationAccessToken_migrated(basePath, app)).flatMap(clientService::create_migrated).flatMap(client->copyForms_migrated(request.getSoftwareId().get(), client)).flatMap(client->copyEmails_migrated(request.getSoftwareId().get(), client));
+        return clientService.findById_migrated(request.getSoftwareId().get()).switchIfEmpty(Mono.error(new InvalidClientMetadataException("No template found for software_id "+request.getSoftwareId().get()))).flatMap(this::sanitizeTemplate_migrated).map(RxJavaReactorMigrationUtil.toJdkFunction(request::patch)).flatMap(app->this.applyRegistrationAccessToken_migrated(basePath, app)).flatMap(clientService::create_migrated).flatMap(client->copyForms_migrated(request.getSoftwareId().get(), client)).flatMap(client->copyEmails_migrated(request.getSoftwareId().get(), client));
     }
 
     

@@ -23,7 +23,7 @@ import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.VirtualHost;
 import io.gravitee.am.service.exception.InvalidDomainException;
 import java.util.ArrayList;
-import java.util.Collections;
+
 import org.junit.Test;
 import reactor.adapter.rxjava.RxJava2Adapter;
 

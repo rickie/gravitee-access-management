@@ -16,18 +16,18 @@
 package io.gravitee.am.gateway.handler.common.vertx.web.handler.impl.internal;
 
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
-import io.gravitee.am.gateway.handler.common.vertx.core.http.VertxHttpServerRequest;
-import io.gravitee.am.gateway.handler.context.EvaluableExecutionContext;
-import io.gravitee.am.gateway.handler.context.EvaluableRequest;
+
+
+
 import io.gravitee.am.model.oidc.Client;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.Session;
-import org.springframework.expression.EvaluationException;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ParseException;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+
+
+
+
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)

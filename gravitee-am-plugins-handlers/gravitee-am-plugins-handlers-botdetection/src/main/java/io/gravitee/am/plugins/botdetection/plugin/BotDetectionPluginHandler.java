@@ -21,7 +21,7 @@ import io.gravitee.am.plugins.botdetection.core.BotDetectionPluginManager;
 import io.gravitee.plugin.core.api.Plugin;
 import io.gravitee.plugin.core.api.PluginClassLoaderFactory;
 import io.gravitee.plugin.core.api.PluginHandler;
-import io.gravitee.plugin.core.api.PluginType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

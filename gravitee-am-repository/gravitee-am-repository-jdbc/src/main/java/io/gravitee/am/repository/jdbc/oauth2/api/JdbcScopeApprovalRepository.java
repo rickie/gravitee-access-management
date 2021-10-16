@@ -18,8 +18,8 @@ package io.gravitee.am.repository.jdbc.oauth2.api;
 import static java.time.ZoneOffset.UTC;
 import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToCompletable;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
+
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
@@ -35,8 +35,8 @@ import io.reactivex.Single;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;

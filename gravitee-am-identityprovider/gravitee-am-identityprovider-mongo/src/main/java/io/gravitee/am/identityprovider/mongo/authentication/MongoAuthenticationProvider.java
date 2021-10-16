@@ -27,7 +27,7 @@ import io.gravitee.am.identityprovider.mongo.MongoIdentityProviderConfiguration;
 import io.gravitee.am.identityprovider.mongo.authentication.spring.MongoAuthenticationProviderConfiguration;
 import io.gravitee.am.service.authentication.crypto.password.PasswordEncoder;
 import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Observable;

@@ -33,9 +33,9 @@ import io.gravitee.am.service.exception.InvalidEntrypointException;
 import io.gravitee.am.service.impl.EntrypointServiceImpl;
 import io.gravitee.am.service.model.NewEntrypoint;
 import io.gravitee.am.service.model.UpdateEntrypoint;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
 import java.util.Arrays;

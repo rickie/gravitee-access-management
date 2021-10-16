@@ -30,7 +30,7 @@ import io.gravitee.am.identityprovider.api.Authentication;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.util.LinkedMultiValueMap;
-import io.reactivex.Single;
+
 import io.reactivex.observers.TestObserver;
 import java.util.Arrays;
 import org.junit.Before;

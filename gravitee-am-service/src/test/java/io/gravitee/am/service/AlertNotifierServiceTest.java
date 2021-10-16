@@ -31,9 +31,9 @@ import io.gravitee.am.service.impl.AlertNotifierServiceImpl;
 import io.gravitee.am.service.model.NewAlertNotifier;
 import io.gravitee.am.service.model.PatchAlertNotifier;
 import io.gravitee.am.service.reporter.builder.management.AlertNotifierAuditBuilder;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
 import java.util.Date;

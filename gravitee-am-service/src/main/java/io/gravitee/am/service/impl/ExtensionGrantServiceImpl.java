@@ -21,7 +21,7 @@ import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.identityprovider.api.User;
-import io.gravitee.am.model.Application;
+
 import io.gravitee.am.model.ExtensionGrant;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.event.Event;
@@ -46,7 +46,7 @@ import io.reactivex.functions.Function;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
-import java.util.Set;
+
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +125,7 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
     public Mono<ExtensionGrant> create_migrated(String domain, NewExtensionGrant newExtensionGrant, User principal) {
         LOGGER.debug("Create a new extension grant {} for domain {}", newExtensionGrant, domain);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(extensionGrantRepository.findByDomainAndName_migrated(domain, newExtensionGrant.getName()).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<ExtensionGrant>>toJdkFunction(empty -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(extensionGrantRepository.findByDomainAndName_migrated(domain, newExtensionGrant.getName()).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<ExtensionGrant>>toJdkFunction(empty -> {
                     if (!empty) {
                         throw new ExtensionGrantAlreadyExistsException(newExtensionGrant.getName());
                     } else {
@@ -157,7 +157,7 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
 
                     LOGGER.error("An error occurs while trying to create a extension grant", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a extension grant", ex)));
-                }).apply(err))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(extensionGrant -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_CREATED).extensionGrant(extensionGrant)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_CREATED).throwable(throwable))));
+                }).apply(err))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(extensionGrant -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_CREATED).extensionGrant(extensionGrant)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ExtensionGrantAuditBuilder.class).principal(principal).type(EventType.EXTENSION_GRANT_CREATED).throwable(throwable))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateExtensionGrant, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -170,7 +170,7 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
     public Mono<ExtensionGrant> update_migrated(String domain, String id, UpdateExtensionGrant updateExtensionGrant, User principal) {
         LOGGER.debug("Update a extension grant {} for domain {}", id, domain);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(extensionGrantRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(id))).flatMap(y->extensionGrantRepository.findByDomainAndName_migrated(domain, updateExtensionGrant.getName()).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).single().flatMap((java.util.Optional<io.gravitee.am.model.ExtensionGrant> v)->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Optional<io.gravitee.am.model.ExtensionGrant> existingTokenGranter)->{
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(extensionGrantRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(id))).flatMap(y->extensionGrantRepository.findByDomainAndName_migrated(domain, updateExtensionGrant.getName()).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).single().flatMap((java.util.Optional<io.gravitee.am.model.ExtensionGrant> v)->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Optional<io.gravitee.am.model.ExtensionGrant> existingTokenGranter)->{
 if (existingTokenGranter.isPresent() && !existingTokenGranter.get().getId().equals(id)) {
 throw new ExtensionGrantAlreadyExistsException("Extension grant with the same name already exists");
 }
@@ -197,7 +197,7 @@ return RxJava2Adapter.monoToSingle(Mono.just(y));
 
                     LOGGER.error("An error occurs while trying to update a extension grant", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a extension grant", ex)));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(domain, extensionGrantId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -26,7 +26,7 @@ import io.gravitee.am.gateway.handler.oauth2.service.token.TokenService;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Maybe;
-import io.reactivex.MaybeSource;
+
 import io.reactivex.Single;
 import java.util.Objects;
 import java.util.Optional;

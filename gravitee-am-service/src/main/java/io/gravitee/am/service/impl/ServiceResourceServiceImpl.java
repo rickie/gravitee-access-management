@@ -21,7 +21,7 @@ import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.identityprovider.api.User;
-import io.gravitee.am.model.Factor;
+
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.model.common.event.Payload;
@@ -47,7 +47,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.util.Date;
-import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,7 +134,7 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
         resource.setCreatedAt(new Date());
         resource.setUpdatedAt(resource.getCreatedAt());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceResourceRepository.create_migrated(resource).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ServiceResource, SingleSource<ServiceResource>>toJdkFunction(resource1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceResourceRepository.create_migrated(resource).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ServiceResource, SingleSource<ServiceResource>>toJdkFunction(resource1 -> {
                     // send sync event to refresh plugins that are using this resource
                     Event event = new Event(Type.RESOURCE, new Payload(resource1.getId(), resource1.getReferenceType(), resource1.getReferenceId(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(resource1)));
@@ -145,7 +145,7 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
 
                     LOGGER.error("An error occurs while trying to create a resource", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a resource", ex)));
-                }).apply(err))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).resource(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).throwable(throwable))));
+                }).apply(err))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).resource(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).throwable(throwable))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateResource, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -158,7 +158,7 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
     public Mono<ServiceResource> update_migrated(String domain, String id, UpdateServiceResource updateResource, User principal) {
         LOGGER.debug("Update a resource {} for domain {}", id, domain);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceResourceRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ServiceResourceNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ServiceResource, SingleSource<ServiceResource>>toJdkFunction(oldServiceResource -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceResourceRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ServiceResourceNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ServiceResource, SingleSource<ServiceResource>>toJdkFunction(oldServiceResource -> {
                     ServiceResource factorToUpdate = new ServiceResource(oldServiceResource);
                     factorToUpdate.setName(updateResource.getName());
                     factorToUpdate.setConfiguration(updateResource.getConfiguration());
@@ -176,7 +176,7 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
 
                     LOGGER.error("An error occurs while trying to update a resource", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a resource", ex)));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(domain, resourceId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

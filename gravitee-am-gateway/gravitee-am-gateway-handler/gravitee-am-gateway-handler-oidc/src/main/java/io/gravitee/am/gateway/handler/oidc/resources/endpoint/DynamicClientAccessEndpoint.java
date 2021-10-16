@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.resources.endpoint;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
 import io.gravitee.am.gateway.handler.oauth2.exception.ResourceNotFoundException;
@@ -25,7 +25,7 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.HttpStatusCode;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Maybe;
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.vertx.core.json.Json;
@@ -82,7 +82,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void patch(RoutingContext context) {
         LOGGER.debug("Dynamic client registration PATCH endpoint");
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction(Single::just).apply(y)))))).flatMap(client->this.extractRequest_migrated(context).flatMap(request->dcrService.patch_migrated(client, request, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response()
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction(Single::just).apply(y)))).flatMap(client->this.extractRequest_migrated(context).flatMap(request->dcrService.patch_migrated(client, request, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -97,7 +97,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void update(RoutingContext context) {
         LOGGER.debug("Dynamic client registration UPDATE endpoint");
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction(Single::just).apply(y)))))).flatMap(client->this.extractRequest_migrated(context).flatMap(request->dcrService.update_migrated(client, request, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response()
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction(Single::just).apply(y)))).flatMap(client->this.extractRequest_migrated(context).flatMap(request->dcrService.update_migrated(client, request, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -112,7 +112,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void delete(RoutingContext context) {
         LOGGER.debug("Dynamic client registration DELETE endpoint");
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(dcrService.delete_migrated(ident))).apply(y)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this.clientSyncService::removeDynamicClientRegistred)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response().setStatusCode(HttpStatusCode.NO_CONTENT_204).end()), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(dcrService.delete_migrated(ident))).apply(y)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this.clientSyncService::removeDynamicClientRegistred)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response().setStatusCode(HttpStatusCode.NO_CONTENT_204).end()), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
     }
 
     /**
@@ -122,7 +122,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void renewClientSecret(RoutingContext context) {
         LOGGER.debug("Dynamic client registration RENEW SECRET endpoint");
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction(Single::just).apply(y)))))).flatMap(toRenew->dcrService.renewSecret_migrated(toRenew, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response()
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction(Single::just).apply(y)))).flatMap(toRenew->dcrService.renewSecret_migrated(toRenew, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)

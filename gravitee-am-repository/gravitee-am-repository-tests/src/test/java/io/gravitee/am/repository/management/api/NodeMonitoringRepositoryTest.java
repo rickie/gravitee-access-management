@@ -26,7 +26,7 @@ import io.reactivex.subscribers.TestSubscriber;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
-import org.junit.Assert;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;

@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.users;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.management.handlers.management.api.resources.AbstractUsersResource;
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.ReferenceType;
@@ -27,7 +27,7 @@ import io.gravitee.am.service.OrganizationService;
 import io.gravitee.am.service.model.NewUser;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Observable;
-import io.reactivex.Single;
+
 import io.swagger.annotations.*;
 import java.net.URI;
 import java.util.Comparator;

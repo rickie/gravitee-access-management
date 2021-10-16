@@ -15,17 +15,17 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
-import static io.gravitee.am.management.service.permissions.Permissions.of;
-import static io.gravitee.am.management.service.permissions.Permissions.or;
 
-import com.google.errorprone.annotations.InlineMe;
+
+
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.model.ApplicationEntity;
 import io.gravitee.am.management.handlers.management.api.model.ScopeApprovalEntity;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.model.Acl;
-import io.gravitee.am.model.Domain;
-import io.gravitee.am.model.ReferenceType;
+
+
 import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.ApplicationService;
@@ -34,12 +34,12 @@ import io.gravitee.am.service.ScopeApprovalService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.exception.ScopeApprovalNotFoundException;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
-import io.reactivex.Maybe;
+
+
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
-import io.reactivex.functions.Function;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -87,11 +87,11 @@ public class UserConsentResource extends AbstractResource {
             @PathParam("consent") String consent,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->scopeApprovalService.findById_migrated(consent)).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consent))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ScopeApproval, SingleSource<ScopeApprovalEntity>>toJdkFunction(scopeApproval -> RxJava2Adapter.monoToSingle(getClient_migrated(scopeApproval.getDomain(), scopeApproval.getClientId()).map(RxJavaReactorMigrationUtil.toJdkFunction(clientEntity -> {
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->scopeApprovalService.findById_migrated(consent)).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consent))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ScopeApproval, SingleSource<ScopeApprovalEntity>>toJdkFunction(scopeApproval -> RxJava2Adapter.monoToSingle(getClient_migrated(scopeApproval.getDomain(), scopeApproval.getClientId()).map(RxJavaReactorMigrationUtil.toJdkFunction(clientEntity -> {
                                     ScopeApprovalEntity scopeApprovalEntity = new ScopeApprovalEntity(scopeApproval);
                                     scopeApprovalEntity.setClientEntity(clientEntity);
                                     return scopeApprovalEntity;
-                                })))).apply(y))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                                })))).apply(y))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE

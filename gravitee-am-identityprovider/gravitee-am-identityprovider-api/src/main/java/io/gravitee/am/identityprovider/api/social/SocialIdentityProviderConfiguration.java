@@ -18,7 +18,7 @@ package io.gravitee.am.identityprovider.api.social;
 import io.gravitee.am.identityprovider.api.IdentityProviderConfiguration;
 
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
+
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)

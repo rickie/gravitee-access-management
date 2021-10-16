@@ -24,7 +24,7 @@ import io.gravitee.am.service.exception.InvalidVirtualHostException;
 import io.reactivex.Completable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+
 import java.util.stream.Collectors;
 import org.springframework.util.CollectionUtils;
 import reactor.adapter.rxjava.RxJava2Adapter;

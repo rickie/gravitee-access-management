@@ -31,9 +31,9 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.repository.management.api.search.MembershipCriteria;
 import io.gravitee.am.service.*;
 import io.gravitee.am.service.exception.EnvironmentNotFoundException;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.*;
 import org.junit.Before;

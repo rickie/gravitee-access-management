@@ -25,11 +25,11 @@ import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.NewBotDetection;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import io.swagger.annotations.*;
 import java.net.URI;
-import java.util.stream.Collectors;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;

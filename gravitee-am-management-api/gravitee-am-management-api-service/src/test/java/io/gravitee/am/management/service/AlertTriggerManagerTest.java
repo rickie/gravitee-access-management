@@ -40,9 +40,9 @@ import io.gravitee.am.service.AlertTriggerService;
 import io.gravitee.am.service.DomainService;
 import io.gravitee.common.event.EventManager;
 import io.gravitee.common.event.impl.SimpleEvent;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +50,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.env.MockEnvironment;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

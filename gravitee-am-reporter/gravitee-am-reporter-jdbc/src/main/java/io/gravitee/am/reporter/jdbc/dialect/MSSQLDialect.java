@@ -17,8 +17,8 @@ package io.gravitee.am.reporter.jdbc.dialect;
 
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
-import io.reactivex.Single;
-import org.springframework.data.r2dbc.core.DatabaseClient;
+
+
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
+
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)

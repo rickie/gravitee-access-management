@@ -18,7 +18,7 @@ package io.gravitee.am.management.handlers.management.api.resources.organization
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.model.Acl;
-import io.gravitee.am.model.ReferenceType;
+
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.oauth2.Scope;
 import io.gravitee.am.model.permissions.Permission;
@@ -27,13 +27,13 @@ import io.gravitee.am.service.ScopeService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.NewScope;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
+
 import io.reactivex.Single;
 import io.swagger.annotations.*;
 import java.net.URI;
 import java.util.Comparator;
-import java.util.List;
+
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;

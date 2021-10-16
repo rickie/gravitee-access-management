@@ -19,7 +19,7 @@ import io.gravitee.am.management.service.FactorPluginService;
 import io.gravitee.am.management.service.exception.AuthenticatorPluginNotFoundException;
 import io.gravitee.am.management.service.exception.AuthenticatorPluginSchemaNotFoundException;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Maybe;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import javax.inject.Inject;
@@ -32,7 +32,7 @@ import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

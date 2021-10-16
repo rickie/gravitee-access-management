@@ -21,7 +21,7 @@ import io.gravitee.am.common.email.Email;
 import io.gravitee.am.common.email.EmailBuilder;
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.jwt.JWT;
-import io.gravitee.am.common.oidc.StandardClaims;
+
 import io.gravitee.am.jwt.JWTBuilder;
 import io.gravitee.am.management.service.EmailManager;
 import io.gravitee.am.management.service.EmailService;

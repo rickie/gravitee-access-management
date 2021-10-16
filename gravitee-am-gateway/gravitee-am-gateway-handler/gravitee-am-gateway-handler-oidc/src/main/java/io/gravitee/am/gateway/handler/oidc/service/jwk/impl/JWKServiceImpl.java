@@ -24,7 +24,7 @@ import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Single;

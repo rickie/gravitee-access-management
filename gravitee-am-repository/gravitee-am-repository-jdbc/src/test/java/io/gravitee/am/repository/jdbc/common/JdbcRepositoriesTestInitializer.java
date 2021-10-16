@@ -19,7 +19,7 @@ import io.gravitee.am.repository.RepositoriesTestInitializer;
 import io.gravitee.am.repository.jdbc.common.dialect.DatabaseDialectHelper;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.ConnectionFactory;
-import io.reactivex.Flowable;
+
 import io.reactivex.schedulers.Schedulers;
 import java.util.HashSet;
 import java.util.Set;

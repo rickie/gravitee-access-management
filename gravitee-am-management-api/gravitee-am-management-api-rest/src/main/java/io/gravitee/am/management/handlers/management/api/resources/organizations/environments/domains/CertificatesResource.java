@@ -15,21 +15,21 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
-import com.nimbusds.jose.jwk.KeyUse;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.management.service.CertificateManager;
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.Certificate;
-import io.gravitee.am.model.Template;
+
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.CertificateService;
 import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.NewCertificate;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import io.swagger.annotations.*;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;

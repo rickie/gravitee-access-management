@@ -33,7 +33,7 @@ import io.gravitee.am.service.RoleService;
 import io.gravitee.am.service.exception.AbstractManagementException;
 import io.gravitee.am.service.exception.RoleNotFoundException;
 import io.gravitee.am.service.exception.TechnicalManagementException;
-import io.gravitee.am.service.exception.UserNotFoundException;
+
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
@@ -41,8 +41,8 @@ import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.util.Date;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -133,7 +133,7 @@ public Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User pri
         LOGGER.debug("Update a user {}", user);
         // updated date
         user.setUpdatedAt(new Date());
-        return userValidator.validate_migrated(user).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getUserRepository().findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, user.getReferenceId(), user.getUsername(), user.getSource()).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
+        return userValidator.validate_migrated(user).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getUserRepository().findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, user.getReferenceId(), user.getUsername(), user.getSource()).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
 
                         user.setId(oldUser.getId());
                         user.setReferenceType(oldUser.getReferenceType());
@@ -161,6 +161,6 @@ public Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User pri
                     }
                     LOGGER.error("An error occurs while trying to update a user", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a user", ex)));
-                }).apply(err))))));
+                }).apply(err))));
     }
 }

@@ -17,7 +17,7 @@ package io.gravitee.am.service;
 
 import io.gravitee.am.common.email.Email;
 
-import javax.mail.internet.MimeMessage;
+
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)

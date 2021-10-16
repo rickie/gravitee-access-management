@@ -40,10 +40,10 @@ import io.gravitee.am.service.model.NewApplication;
 import io.gravitee.am.service.model.PatchApplication;
 import io.gravitee.am.service.model.PatchApplicationOAuthSettings;
 import io.gravitee.am.service.model.PatchApplicationSettings;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
+
 import io.reactivex.observers.TestObserver;
 import io.reactivex.subscribers.TestSubscriber;
 import java.util.*;

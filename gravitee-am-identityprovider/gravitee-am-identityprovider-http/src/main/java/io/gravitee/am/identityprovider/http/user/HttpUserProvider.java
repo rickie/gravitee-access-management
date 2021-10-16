@@ -140,7 +140,7 @@ public class HttpUserProvider implements UserProvider {
             // process request
             final Single<HttpResponse<Buffer>> requestHandler = RxJava2Adapter.monoToSingle(processRequest_migrated(templateEngine, createUserURI, createUserHttpMethod, createUserHttpHeaders, createUserBody));
 
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = createResourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return convert(user.getUsername(), userAttributes);
@@ -150,7 +150,7 @@ public class HttpUserProvider implements UserProvider {
                         }
                         LOGGER.error("An error has occurred while creating user {} from the remote HTTP identity provider", user.getUsername(), ex);
                         return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error has occurred while creating user from the remote HTTP identity provider", ex)));
-                    }).apply(err)))));
+                    }).apply(err)));
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while creating the user {}", user.getUsername(), ex);
             return Mono.error(new TechnicalManagementException("An error has occurred while creating the user", ex));
@@ -187,7 +187,7 @@ public class HttpUserProvider implements UserProvider {
             // process request
             final Single<HttpResponse<Buffer>> requestHandler = RxJava2Adapter.monoToSingle(processRequest_migrated(templateEngine, updateUserURI, updateUserHttpMethod, updateUserHttpHeaders, updateUserBody));
 
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = updateResourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return convert(updateUser.getUsername(), userAttributes);
@@ -197,7 +197,7 @@ public class HttpUserProvider implements UserProvider {
                         }
                         LOGGER.error("An error has occurred while updating user {} from the remote HTTP identity provider", updateUser.getUsername(), ex);
                         return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error has occurred while updating user from the remote HTTP identity provider", ex)));
-                    }).apply(err)))));
+                    }).apply(err)));
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while updating the user {}", updateUser.getUsername(), ex);
             return Mono.error(new TechnicalManagementException("An error has occurred while updating the user", ex));

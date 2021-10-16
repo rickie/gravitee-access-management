@@ -15,18 +15,18 @@
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.endpoint;
 
-import io.gravitee.am.common.jwt.JWT;
+
 import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
-import io.gravitee.am.gateway.handler.common.jwt.impl.JWTServiceImpl;
+
 import io.gravitee.am.model.Template;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.exception.ClientNotFoundException;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Single;
-import io.reactivex.functions.Consumer;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;

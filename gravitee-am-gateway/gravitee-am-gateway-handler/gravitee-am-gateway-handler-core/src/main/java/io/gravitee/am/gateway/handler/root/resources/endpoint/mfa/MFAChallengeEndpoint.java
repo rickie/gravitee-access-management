@@ -28,7 +28,7 @@ import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.core.http.VertxHttpServerRequest;
 import io.gravitee.am.gateway.handler.common.vertx.utils.RequestUtils;
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
-import io.gravitee.am.gateway.handler.manager.form.FormManager;
+
 import io.gravitee.am.gateway.handler.root.resources.endpoint.AbstractEndpoint;
 import io.gravitee.am.gateway.handler.root.service.user.UserService;
 import io.gravitee.am.identityprovider.api.DefaultUser;
@@ -42,7 +42,7 @@ import io.gravitee.am.model.factor.FactorStatus;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.exception.FactorNotFoundException;
 import io.gravitee.common.http.HttpHeaders;
-import io.gravitee.common.http.MediaType;
+
 import io.gravitee.common.util.Maps;
 import io.gravitee.gateway.api.el.EvaluableRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
@@ -56,7 +56,7 @@ import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.core.http.HttpServerResponse;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.common.template.TemplateEngine;
-import io.vertx.reactivex.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
+
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;

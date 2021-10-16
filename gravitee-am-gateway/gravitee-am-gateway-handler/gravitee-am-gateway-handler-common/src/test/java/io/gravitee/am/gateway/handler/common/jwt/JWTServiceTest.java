@@ -24,7 +24,7 @@ import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.common.jwt.impl.JWTServiceImpl;
 import io.gravitee.am.jwt.JWTBuilder;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Maybe;
+
 import io.reactivex.observers.TestObserver;
 import org.junit.Before;
 import org.junit.Test;

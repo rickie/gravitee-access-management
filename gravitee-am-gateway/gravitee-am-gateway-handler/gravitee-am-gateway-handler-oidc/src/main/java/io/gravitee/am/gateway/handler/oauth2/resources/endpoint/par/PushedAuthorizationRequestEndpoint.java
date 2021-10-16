@@ -16,15 +16,15 @@
 package io.gravitee.am.gateway.handler.oauth2.resources.endpoint.par;
 
 import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
-import static io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization.ParamUtils.getOAuthParameter;
+
+
 
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.exception.oauth2.MethodNotAllowedException;
-import io.gravitee.am.common.oauth2.GrantType;
-import io.gravitee.am.common.web.UriBuilder;
+
+
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidClientException;
-import io.gravitee.am.gateway.handler.oauth2.exception.RedirectMismatchException;
+
 import io.gravitee.am.gateway.handler.oauth2.service.par.PushedAuthorizationRequestService;
 import io.gravitee.am.identityprovider.common.oauth2.utils.URLEncodedUtils;
 import io.gravitee.am.model.oidc.Client;
@@ -38,13 +38,13 @@ import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.List;
+
+
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

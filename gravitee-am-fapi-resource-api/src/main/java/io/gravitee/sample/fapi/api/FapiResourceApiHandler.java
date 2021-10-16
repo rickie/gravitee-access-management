@@ -18,7 +18,7 @@ package io.gravitee.sample.fapi.api;
 import com.nimbusds.jose.util.Base64URL;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpHeaders;
-import io.vertx.core.json.JsonArray;
+
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.impl.jose.JWT;
 import io.vertx.ext.web.RoutingContext;
@@ -29,7 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.time.LocalDateTime;
+
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;

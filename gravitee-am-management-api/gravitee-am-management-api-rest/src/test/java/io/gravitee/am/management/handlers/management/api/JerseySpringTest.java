@@ -31,7 +31,7 @@ import io.gravitee.am.service.*;
 import io.gravitee.am.service.AuditService;
 import io.gravitee.am.service.validators.PasswordValidator;
 import io.gravitee.am.service.validators.UserValidator;
-import io.reactivex.Single;
+
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
@@ -59,7 +59,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

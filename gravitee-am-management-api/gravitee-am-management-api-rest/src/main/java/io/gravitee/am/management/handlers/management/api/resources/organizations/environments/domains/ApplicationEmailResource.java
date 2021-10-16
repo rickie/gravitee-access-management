@@ -26,9 +26,9 @@ import io.gravitee.am.service.exception.ApplicationNotFoundException;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.UpdateEmail;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.swagger.annotations.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;

@@ -25,8 +25,8 @@ import io.gravitee.am.management.handlers.management.api.authentication.manager.
 import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.service.OrganizationService;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,7 +37,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

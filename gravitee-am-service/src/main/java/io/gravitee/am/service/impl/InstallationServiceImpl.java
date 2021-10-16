@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
-import static io.gravitee.am.model.Installation.COCKPIT_INSTALLATION_STATUS;
+
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
@@ -24,7 +24,7 @@ import io.gravitee.am.repository.management.api.InstallationRepository;
 import io.gravitee.am.service.*;
 import io.gravitee.am.service.exception.InstallationNotFoundException;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
+
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import java.time.Instant;

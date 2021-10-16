@@ -32,8 +32,8 @@ import io.gravitee.am.model.factor.EnrolledFactorChannel;
 import io.gravitee.am.model.factor.EnrolledFactorSecurity;
 import io.gravitee.am.resource.api.email.EmailSenderProvider;
 import io.gravitee.common.util.Maps;
-import io.reactivex.Completable;
-import io.reactivex.Single;
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.Date;
 import java.util.HashMap;

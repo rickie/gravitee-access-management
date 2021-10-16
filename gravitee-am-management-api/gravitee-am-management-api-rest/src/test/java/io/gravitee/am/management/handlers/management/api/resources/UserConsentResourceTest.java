@@ -28,11 +28,11 @@ import io.gravitee.am.model.oauth2.Scope;
 import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
+
+
 import javax.ws.rs.core.Response;
 import org.junit.Test;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

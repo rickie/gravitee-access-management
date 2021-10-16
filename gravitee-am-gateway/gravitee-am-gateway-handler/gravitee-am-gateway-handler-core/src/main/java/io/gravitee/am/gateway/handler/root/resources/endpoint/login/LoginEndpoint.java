@@ -25,7 +25,7 @@ import static io.gravitee.am.gateway.handler.root.resources.handler.login.LoginS
 import static io.gravitee.am.gateway.handler.root.resources.handler.login.LoginSocialAuthenticationHandler.SOCIAL_PROVIDER_CONTEXT_KEY;
 import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toMap;
+
 
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.core.http.VertxHttpServerRequest;

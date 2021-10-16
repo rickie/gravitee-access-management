@@ -22,12 +22,12 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.membership.MemberType;
 import io.gravitee.am.repository.management.api.search.MembershipCriteria;
 import io.gravitee.am.service.model.NewMembership;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
+
 import java.util.List;
-import java.util.Map;
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
 

@@ -26,7 +26,7 @@ import io.gravitee.am.service.exception.InvalidPermissionRequestException;
 import io.gravitee.am.service.exception.InvalidPermissionTicketException;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import io.reactivex.SingleSource;
+
 import io.reactivex.functions.Function;
 import java.util.ArrayList;
 import java.util.Date;

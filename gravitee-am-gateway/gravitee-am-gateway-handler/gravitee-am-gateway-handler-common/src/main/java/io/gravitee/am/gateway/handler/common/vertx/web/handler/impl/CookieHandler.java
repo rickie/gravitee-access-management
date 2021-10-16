@@ -21,7 +21,7 @@ import io.vertx.core.http.impl.ServerCookie;
 import io.vertx.reactivex.ext.web.RoutingContext;
 
 import java.util.Map;
-import java.util.Set;
+
 
 import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
 

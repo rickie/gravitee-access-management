@@ -18,12 +18,12 @@ package io.gravitee.am.gateway.handler.oauth2.service.token;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.oauth2.service.request.OAuth2Request;
 import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest;
-import io.gravitee.am.model.AuthenticationFlowContext;
+
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

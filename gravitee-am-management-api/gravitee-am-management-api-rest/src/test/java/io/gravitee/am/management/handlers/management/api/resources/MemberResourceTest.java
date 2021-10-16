@@ -25,11 +25,11 @@ import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.service.exception.OrganizationNotFoundException;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Completable;
-import io.reactivex.Single;
+
+
 import javax.ws.rs.core.Response;
 import org.junit.Test;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

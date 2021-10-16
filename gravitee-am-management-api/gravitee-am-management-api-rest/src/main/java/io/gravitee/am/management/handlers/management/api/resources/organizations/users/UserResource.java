@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.users;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.management.handlers.management.api.model.PasswordValue;
 import io.gravitee.am.management.handlers.management.api.model.StatusEntity;
 import io.gravitee.am.management.handlers.management.api.model.UserEntity;
@@ -27,16 +27,16 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.IdentityProviderService;
-import io.gravitee.am.service.exception.DomainNotFoundException;
+
 import io.gravitee.am.service.exception.UserInvalidException;
 import io.gravitee.am.service.model.UpdateUser;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import io.reactivex.SingleSource;
-import io.reactivex.functions.Function;
+
+
+
+
+
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;

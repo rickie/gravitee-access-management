@@ -45,8 +45,8 @@ import io.gravitee.am.model.application.ApplicationScopeSettings;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
+
+
 import io.reactivex.Single;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;

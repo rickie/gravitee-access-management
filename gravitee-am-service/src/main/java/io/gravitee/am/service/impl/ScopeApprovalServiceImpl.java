@@ -34,10 +34,10 @@ import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.UserConsentAuditBuilder;
 import io.reactivex.*;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-import io.reactivex.functions.Function;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -137,13 +137,13 @@ public class ScopeApprovalServiceImpl implements ScopeApprovalService {
 @Override
     public Mono<List<ScopeApproval>> saveConsent_migrated(String domain, Client client, List<ScopeApproval> approvals, User principal) {
         LOGGER.debug("Save approvals for user: {}", approvals.get(0).getUserId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(approvals)
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(approvals)
                 .flatMapSingle((io.gravitee.am.model.oauth2.ScopeApproval ident) -> RxJava2Adapter.monoToSingle(scopeApprovalRepository.upsert_migrated(ident)))
                 .toList()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).domain(domain).client(client).principal(principal).type(EventType.USER_CONSENT_CONSENTED).approvals(approvals)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserConsentAuditBuilder.class).domain(domain).client(client).principal(principal).type(EventType.USER_CONSENT_CONSENTED).throwable(throwable)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<List<ScopeApproval>>>toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to save consent for domain: {}, client: {} and user: {} ", domain, client.getId(), approvals.get(0).getUserId());
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to save consent for domain: %s, client: %s and user: %s", domain, client.getId(), approvals.get(0).getUserId()), ex)));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeByConsent_migrated(domain, userId, consentId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

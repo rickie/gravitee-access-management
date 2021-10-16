@@ -23,7 +23,7 @@ import io.gravitee.am.management.service.NewsletterService;
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.service.OrganizationUserService;
-import io.gravitee.am.service.UserService;
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.swagger.annotations.*;

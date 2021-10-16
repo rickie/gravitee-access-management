@@ -33,7 +33,7 @@ import io.gravitee.am.service.exception.UserAlreadyExistsException;
 import io.gravitee.am.service.exception.UserNotFoundException;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
+
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;

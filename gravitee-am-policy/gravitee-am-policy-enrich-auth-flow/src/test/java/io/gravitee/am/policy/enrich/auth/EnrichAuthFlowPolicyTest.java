@@ -35,7 +35,7 @@ import io.gravitee.gateway.api.RequestWrapper;
 import io.gravitee.gateway.api.Response;
 import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.PolicyResult;
-import io.reactivex.Single;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -46,7 +46,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

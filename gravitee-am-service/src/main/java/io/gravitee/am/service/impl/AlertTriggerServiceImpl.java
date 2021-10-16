@@ -35,12 +35,12 @@ import io.gravitee.am.service.model.PatchAlertTrigger;
 import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.AlertTriggerAuditBuilder;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
+
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Single;
-import io.reactivex.functions.Function;
+
 import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

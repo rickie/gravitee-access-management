@@ -22,7 +22,7 @@ import static io.gravitee.am.model.permissions.SystemRole.ORGANIZATION_PRIMARY_O
 import io.gravitee.am.model.*;
 import io.gravitee.am.model.permissions.SystemRole;
 import io.gravitee.am.service.RoleService;
-import io.reactivex.Flowable;
+
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import java.util.*;

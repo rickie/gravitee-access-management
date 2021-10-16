@@ -17,14 +17,14 @@ package io.gravitee.am.service;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
-import io.gravitee.am.model.Organization;
+
 import io.gravitee.am.service.model.NewOrganization;
 import io.gravitee.am.service.model.PatchOrganization;
-import io.gravitee.am.service.model.UpdateOrganization;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.List;
+
+
+
+
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

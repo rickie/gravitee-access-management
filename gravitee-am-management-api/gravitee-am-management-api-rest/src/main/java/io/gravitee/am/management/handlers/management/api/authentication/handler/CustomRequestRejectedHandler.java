@@ -20,7 +20,7 @@ import io.gravitee.am.management.handlers.management.api.model.ErrorEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.log.LogMessage;
+
 import org.springframework.http.MediaType;
 import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
 import org.springframework.security.web.firewall.RequestRejectedException;

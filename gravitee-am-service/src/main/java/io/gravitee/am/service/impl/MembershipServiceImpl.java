@@ -39,13 +39,13 @@ import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.DomainAuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.MembershipAuditBuilder;
 import io.reactivex.Completable;
-import io.reactivex.CompletableSource;
+
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
-import io.reactivex.functions.Function;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -179,7 +179,7 @@ public class MembershipServiceImpl implements MembershipService {
                                 Membership updateMembership = new Membership(oldMembership);
                                 updateMembership.setRoleId(membership.getRoleId());
                                 updateMembership.setUpdatedAt(new Date());
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.update_migrated(updateMembership).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
+                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.update_migrated(updateMembership).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
                                             Event event = new Event(Type.MEMBERSHIP, new Payload(membership1.getId(), membership1.getReferenceType(), membership1.getReferenceId(), Action.UPDATE));
                                             return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(membership1)));
                                         }).apply(v)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Membership>>toJdkFunction(ex -> {
@@ -188,7 +188,7 @@ public class MembershipServiceImpl implements MembershipService {
                                             }
                                             LOGGER.error("An error occurs while trying to update membership {}", oldMembership, ex);
                                             return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to update membership %s", oldMembership), ex)));
-                                        }).apply(err))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(membership1 -> auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_UPDATED).oldValue(oldMembership).membership(membership1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_UPDATED).throwable(throwable)))));
+                                        }).apply(err))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(membership1 -> auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_UPDATED).oldValue(oldMembership).membership(membership1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_UPDATED).throwable(throwable)))));
                             }
                         })));
     }
@@ -316,7 +316,7 @@ return RxJava2Adapter.monoToSingle(createInternal_migrated(membership, null));
 
     
 private Mono<Membership> createInternal_migrated(Membership membership, User principal) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
                     Event event = new Event(Type.MEMBERSHIP, new Payload(membership1.getId(), membership1.getReferenceType(), membership1.getReferenceId(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(membership1)));
                 }).apply(v)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Membership>>toJdkFunction(ex -> {
@@ -325,7 +325,7 @@ private Mono<Membership> createInternal_migrated(Membership membership, User pri
                     }
                     LOGGER.error("An error occurs while trying to create membership {}", membership, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to create membership %s", membership), ex)));
-                }).apply(err))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(membership1 -> auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_CREATED).membership(membership1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_CREATED).throwable(throwable))));
+                }).apply(err))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(membership1 -> auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_CREATED).membership(membership1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_CREATED).throwable(throwable))));
     }
 
     private Member convert(io.gravitee.am.model.User user) {

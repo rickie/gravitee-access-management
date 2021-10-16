@@ -24,7 +24,7 @@ import io.gravitee.am.gateway.handler.common.factor.FactorManager;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.utils.RequestUtils;
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
-import io.gravitee.am.gateway.handler.manager.form.FormManager;
+
 import io.gravitee.am.gateway.handler.root.resources.endpoint.AbstractEndpoint;
 import io.gravitee.am.model.Template;
 import io.gravitee.am.model.User;
@@ -33,7 +33,7 @@ import io.gravitee.am.model.factor.EnrolledFactorChannel;
 import io.gravitee.am.model.factor.EnrolledFactorSecurity;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.http.HttpHeaders;
-import io.gravitee.common.http.MediaType;
+
 import io.reactivex.Observable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -43,7 +43,7 @@ import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.core.http.HttpServerResponse;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.common.template.TemplateEngine;
-import io.vertx.reactivex.ext.web.templ.thymeleaf.ThymeleafTemplateEngine;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

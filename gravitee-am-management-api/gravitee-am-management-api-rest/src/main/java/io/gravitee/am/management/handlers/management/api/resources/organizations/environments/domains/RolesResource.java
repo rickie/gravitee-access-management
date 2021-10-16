@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.model.Acl;
@@ -27,8 +27,8 @@ import io.gravitee.am.service.RoleService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.NewRole;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import io.swagger.annotations.*;
 import java.net.URI;
 import java.util.Comparator;

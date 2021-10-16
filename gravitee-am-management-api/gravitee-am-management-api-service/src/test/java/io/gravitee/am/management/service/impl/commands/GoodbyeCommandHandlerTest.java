@@ -25,7 +25,7 @@ import io.gravitee.cockpit.api.command.Command;
 import io.gravitee.cockpit.api.command.CommandStatus;
 import io.gravitee.cockpit.api.command.goodbye.GoodbyeCommand;
 import io.gravitee.cockpit.api.command.goodbye.GoodbyeReply;
-import io.reactivex.Single;
+
 import io.reactivex.observers.TestObserver;
 import java.util.Map;
 import junit.framework.TestCase;
@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

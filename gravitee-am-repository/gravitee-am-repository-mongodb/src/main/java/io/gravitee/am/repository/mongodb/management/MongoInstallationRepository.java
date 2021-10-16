@@ -21,7 +21,7 @@ import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Installation;
-import io.gravitee.am.model.Organization;
+
 import io.gravitee.am.repository.management.api.InstallationRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.InstallationMongo;
 import io.reactivex.BackpressureStrategy;
@@ -30,7 +30,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import javax.annotation.PostConstruct;
-import org.bson.Document;
+
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;

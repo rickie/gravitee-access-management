@@ -22,7 +22,7 @@ import io.gravitee.am.model.scim.SCIMSettings;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Set;
+
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)

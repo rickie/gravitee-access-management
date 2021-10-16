@@ -31,10 +31,10 @@ import io.gravitee.am.service.exception.*;
 import io.gravitee.am.service.impl.RoleServiceImpl;
 import io.gravitee.am.service.model.NewRole;
 import io.gravitee.am.service.model.UpdateRole;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.Arrays;
 import java.util.Collections;

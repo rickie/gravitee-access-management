@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.nimbusds.jose.JWEAlgorithm.RSA_OAEP;
-import static com.nimbusds.jose.JWEAlgorithm.RSA_OAEP_256;
+
 import static io.gravitee.am.common.oidc.ClientAuthenticationMethod.*;
 
 /**

@@ -18,14 +18,14 @@ package io.gravitee.am.repository.jdbc.management.api;
 import static java.time.ZoneOffset.UTC;
 import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToCompletable;
-import static reactor.adapter.rxjava.RxJava2Adapter.monoToSingle;
+
+
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.uma.PermissionTicket;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
-import io.gravitee.am.repository.jdbc.management.api.model.JdbcLoginAttempt;
+
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcPermissionTicket;
 import io.gravitee.am.repository.jdbc.management.api.spring.SpringPermissionTicketRepository;
 import io.gravitee.am.repository.management.api.PermissionTicketRepository;

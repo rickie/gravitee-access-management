@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.reporter.jdbc.dialect;
 
-import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
+
 
 import com.google.common.base.CaseFormat;
 import com.google.errorprone.annotations.InlineMe;

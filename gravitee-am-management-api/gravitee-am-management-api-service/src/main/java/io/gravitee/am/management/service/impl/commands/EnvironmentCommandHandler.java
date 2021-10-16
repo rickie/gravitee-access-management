@@ -24,11 +24,11 @@ import io.gravitee.cockpit.api.command.environment.EnvironmentCommand;
 import io.gravitee.cockpit.api.command.environment.EnvironmentPayload;
 import io.gravitee.cockpit.api.command.environment.EnvironmentReply;
 import io.reactivex.Single;
-import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

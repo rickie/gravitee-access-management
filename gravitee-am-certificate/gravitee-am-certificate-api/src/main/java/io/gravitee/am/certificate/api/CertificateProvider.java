@@ -16,9 +16,9 @@
 package io.gravitee.am.certificate.api;
 
 import com.google.errorprone.annotations.InlineMe;
-import io.gravitee.am.model.jose.JWK;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
+
+
+
 import java.security.cert.Certificate;
 import java.util.Collections;
 import java.util.List;

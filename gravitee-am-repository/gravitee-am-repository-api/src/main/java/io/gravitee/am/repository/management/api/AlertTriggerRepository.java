@@ -20,7 +20,7 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertTrigger;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.gravitee.am.repository.management.api.search.AlertTriggerCriteria;
-import io.reactivex.Flowable;
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

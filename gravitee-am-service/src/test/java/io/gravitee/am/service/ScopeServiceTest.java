@@ -33,10 +33,10 @@ import io.gravitee.am.repository.oauth2.api.ScopeApprovalRepository;
 import io.gravitee.am.service.exception.*;
 import io.gravitee.am.service.impl.ScopeServiceImpl;
 import io.gravitee.am.service.model.*;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.*;
 import org.junit.Test;

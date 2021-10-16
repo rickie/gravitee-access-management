@@ -20,13 +20,13 @@ import io.gravitee.am.management.handlers.management.api.resources.AbstractResou
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.Group;
 import io.gravitee.am.model.ReferenceType;
-import io.gravitee.am.model.Role;
+
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.GroupService;
 import io.gravitee.am.service.model.NewGroup;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Single;
+
 import io.swagger.annotations.*;
 import java.net.URI;
 import java.util.stream.Collectors;
@@ -39,7 +39,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

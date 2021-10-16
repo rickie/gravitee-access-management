@@ -39,17 +39,17 @@ import io.gravitee.am.service.AuditService;
 import io.gravitee.am.service.AuthenticationFlowContextService;
 import io.gravitee.am.service.TokenService;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import io.vertx.core.http.HttpMethod;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Optional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

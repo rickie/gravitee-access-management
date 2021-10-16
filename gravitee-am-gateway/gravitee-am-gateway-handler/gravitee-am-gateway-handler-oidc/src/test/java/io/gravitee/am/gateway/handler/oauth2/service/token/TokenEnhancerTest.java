@@ -22,7 +22,7 @@ import io.gravitee.am.gateway.handler.oauth2.service.token.impl.AccessToken;
 import io.gravitee.am.gateway.handler.oauth2.service.token.impl.TokenEnhancerImpl;
 import io.gravitee.am.gateway.handler.oidc.service.idtoken.IDTokenService;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Single;
+
 import io.reactivex.observers.TestObserver;
 import java.util.Collections;
 import org.junit.Test;

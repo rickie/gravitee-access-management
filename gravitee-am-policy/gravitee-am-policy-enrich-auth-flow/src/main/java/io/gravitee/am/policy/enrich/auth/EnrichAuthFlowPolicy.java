@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.policy.enrich.auth;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.model.AuthenticationFlowContext;
 import io.gravitee.am.policy.enrich.auth.configuration.EnrichAuthFlowPolicyConfiguration;
@@ -28,7 +28,7 @@ import io.gravitee.gateway.api.Response;
 import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.PolicyResult;
 import io.gravitee.policy.api.annotations.OnRequest;
-import io.reactivex.Single;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -37,7 +37,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

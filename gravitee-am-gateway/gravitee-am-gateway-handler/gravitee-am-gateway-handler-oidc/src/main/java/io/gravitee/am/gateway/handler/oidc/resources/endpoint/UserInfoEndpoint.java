@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.resources.endpoint;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.exception.oauth2.InvalidTokenException;
 import io.gravitee.am.common.jwt.JWT;
@@ -31,12 +31,12 @@ import io.gravitee.am.gateway.handler.oidc.service.request.ClaimsRequest;
 import io.gravitee.am.model.Role;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
-import io.gravitee.am.service.GroupService;
-import io.gravitee.am.service.RoleService;
+
+
 import io.gravitee.am.service.UserService;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Maybe;
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
@@ -89,7 +89,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String subject = accessToken.getSub();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(subject).switchIfEmpty(Mono.error(new InvalidTokenException("No user found for this token"))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(user -> RxJava2Adapter.monoToSingle(enhance_migrated(user, accessToken))).apply(y)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> processClaims(user, accessToken))).flatMap(v->RxJava2Adapter.singleToMono((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Map<String, Object>, Single<String>>)claims -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(subject).switchIfEmpty(Mono.error(new InvalidTokenException("No user found for this token"))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(user -> RxJava2Adapter.monoToSingle(enhance_migrated(user, accessToken))).apply(y)))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> processClaims(user, accessToken))).flatMap(v->RxJava2Adapter.singleToMono((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Map<String, Object>, Single<String>>)claims -> {
                         if (!expectSignedOrEncryptedUserInfo(client)) {
                             context.response().putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
                             return RxJava2Adapter.monoToSingle(Mono.just(Json.encodePrettily(claims)));

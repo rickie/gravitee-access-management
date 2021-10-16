@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.oidc.service.clientregistration;
 
 import io.gravitee.am.model.application.ApplicationScopeSettings;
 import io.gravitee.am.model.oidc.Client;
-import org.checkerframework.checker.units.qual.A;
+
 import org.junit.Before;
 import org.junit.Test;
 

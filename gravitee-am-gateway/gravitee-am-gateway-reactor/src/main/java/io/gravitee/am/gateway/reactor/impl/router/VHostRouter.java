@@ -24,12 +24,12 @@ import io.vertx.ext.web.AllowForwardHeaders;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.reactivex.core.MultiMap;
+
 
 import java.util.List;
-import java.util.Map;
+
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+
 
 import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
 

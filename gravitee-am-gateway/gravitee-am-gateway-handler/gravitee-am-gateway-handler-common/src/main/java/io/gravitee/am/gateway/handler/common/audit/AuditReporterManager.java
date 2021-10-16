@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.audit;
 
-import io.gravitee.am.model.ReferenceType;
+
 import io.gravitee.am.reporter.api.provider.Reporter;
 import io.gravitee.common.service.Service;
 

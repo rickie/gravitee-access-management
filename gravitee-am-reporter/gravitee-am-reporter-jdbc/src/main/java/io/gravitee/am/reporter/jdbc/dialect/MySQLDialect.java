@@ -15,10 +15,10 @@
  */
 package io.gravitee.am.reporter.jdbc.dialect;
 
-import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
+
 
 import com.google.errorprone.annotations.InlineMe;
-import io.gravitee.am.common.audit.Status;
+
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
 import io.reactivex.Single;
@@ -26,11 +26,11 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+
 import java.util.stream.Collectors;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import reactor.adapter.rxjava.RxJava2Adapter;

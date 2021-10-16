@@ -17,13 +17,13 @@ package io.gravitee.am.service;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
-import io.gravitee.am.model.Entrypoint;
+
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.service.model.NewEntrypoint;
 import io.gravitee.am.service.model.UpdateEntrypoint;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
+
+
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

@@ -21,26 +21,26 @@ import io.gravitee.am.management.handlers.management.api.resources.AbstractResou
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.Membership;
 import io.gravitee.am.model.ReferenceType;
-import io.gravitee.am.model.membership.MemberType;
-import io.gravitee.am.model.permissions.DefaultRole;
+
+
 import io.gravitee.am.model.permissions.Permission;
-import io.gravitee.am.repository.management.api.search.MembershipCriteria;
+
 import io.gravitee.am.service.ApplicationService;
 import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.MembershipService;
-import io.gravitee.am.service.RoleService;
+
 import io.gravitee.am.service.exception.ApplicationNotFoundException;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.NewMembership;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.net.URI;
-import java.util.Arrays;
+
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;

@@ -25,7 +25,7 @@ import io.gravitee.am.repository.management.api.search.AlertNotifierCriteria;
 import io.gravitee.am.service.AlertNotifierService;
 import io.gravitee.am.service.model.NewAlertNotifier;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Single;
+
 import io.swagger.annotations.*;
 import java.util.Comparator;
 import javax.inject.Inject;
@@ -36,7 +36,7 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

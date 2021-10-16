@@ -18,10 +18,10 @@ package io.gravitee.am.repository.management.api;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ExtensionGrant;
 import io.gravitee.am.repository.common.CrudRepository;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.Set;
+
+
+
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

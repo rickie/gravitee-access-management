@@ -29,7 +29,7 @@ import io.gravitee.am.gateway.handler.oauth2.service.token.impl.AccessToken;
 import io.gravitee.am.gateway.handler.oauth2.service.token.impl.RefreshToken;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.util.LinkedMultiValueMap;
-import io.reactivex.Single;
+
 import io.reactivex.observers.TestObserver;
 import java.util.Arrays;
 import org.junit.Test;

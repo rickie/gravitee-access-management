@@ -16,7 +16,7 @@
 package io.gravitee.am.gateway.handler.oauth2.resources.auth.provider;
 
 import io.gravitee.am.model.oidc.Client;
-import io.vertx.reactivex.core.http.HttpServerRequest;
+
 import io.vertx.reactivex.ext.web.RoutingContext;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+
 import static org.mockito.MockitoAnnotations.initMocks;
 
 /**

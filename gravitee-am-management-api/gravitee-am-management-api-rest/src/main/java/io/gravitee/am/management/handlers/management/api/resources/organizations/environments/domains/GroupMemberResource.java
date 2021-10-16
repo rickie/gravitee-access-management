@@ -15,22 +15,22 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
-import static io.gravitee.am.management.service.permissions.Permissions.of;
-import static io.gravitee.am.management.service.permissions.Permissions.or;
+
+
 
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.management.service.UserService;
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.Group;
-import io.gravitee.am.model.ReferenceType;
+
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.GroupService;
 import io.gravitee.am.service.exception.*;
 import io.gravitee.am.service.model.UpdateGroup;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Maybe;
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.swagger.annotations.ApiOperation;
@@ -44,7 +44,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
-import javax.ws.rs.core.Response;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
@@ -85,7 +85,7 @@ public class GroupMemberResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->groupService.findById_migrated(group)).switchIfEmpty(Mono.error(new GroupNotFoundException(group))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Group, SingleSource<Group>>toJdkFunction(group1 -> RxJava2Adapter.monoToMaybe(userService.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->groupService.findById_migrated(group)).switchIfEmpty(Mono.error(new GroupNotFoundException(group))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Group, SingleSource<Group>>toJdkFunction(group1 -> RxJava2Adapter.monoToMaybe(userService.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))
                                 .flatMapSingle(user -> {
                                     if (group1.getMembers() != null && group1.getMembers().contains(userId)) {
                                         return RxJava2Adapter.monoToSingle(Mono.error(new MemberAlreadyExistsException(userId)));
@@ -100,7 +100,7 @@ public class GroupMemberResource extends AbstractResource {
                                     updateGroup.setRoles(group1.getRoles());
                                     updateGroup.setMembers(groupMembers);
                                     return groupService.update(domain, group, updateGroup, authenticatedUser);
-                                })).apply(y))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                                })).apply(y))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE
@@ -122,7 +122,7 @@ public class GroupMemberResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->groupService.findById_migrated(group)).switchIfEmpty(Mono.error(new GroupNotFoundException(group))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Group, SingleSource<Group>>toJdkFunction(group1 -> RxJava2Adapter.monoToMaybe(userService.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_GROUP, Acl.UPDATE).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->groupService.findById_migrated(group)).switchIfEmpty(Mono.error(new GroupNotFoundException(group))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Group, SingleSource<Group>>toJdkFunction(group1 -> RxJava2Adapter.monoToMaybe(userService.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))
                                 .flatMapSingle(user -> {
                                     if (group1.getMembers() == null || !group1.getMembers().contains(userId)) {
                                         return RxJava2Adapter.monoToSingle(Mono.error(new MemberNotFoundException(userId)));
@@ -137,6 +137,6 @@ public class GroupMemberResource extends AbstractResource {
                                     updateGroup.setRoles(group1.getRoles());
                                     updateGroup.setMembers(groupMembers);
                                     return groupService.update(domain, group, updateGroup, authenticatedUser);
-                                })).apply(y))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                                })).apply(y))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

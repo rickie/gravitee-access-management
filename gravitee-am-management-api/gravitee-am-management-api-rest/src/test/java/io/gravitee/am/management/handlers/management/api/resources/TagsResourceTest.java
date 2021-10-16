@@ -18,7 +18,7 @@ package io.gravitee.am.management.handlers.management.api.resources;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+
 import static org.mockito.Mockito.doReturn;
 
 import io.gravitee.am.management.handlers.management.api.JerseySpringTest;
@@ -26,16 +26,16 @@ import io.gravitee.am.model.Tag;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.NewTag;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
-import java.util.Arrays;
-import java.util.HashSet;
+
+
+
+
 import java.util.List;
-import java.util.Set;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

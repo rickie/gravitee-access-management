@@ -18,10 +18,10 @@ package io.gravitee.am.factor.api;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.factor.EnrolledFactor;
-import io.gravitee.am.model.factor.EnrolledFactorSecurity;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
 

@@ -17,12 +17,12 @@ package io.gravitee.am.repository.management.api;
 
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Installation;
-import io.gravitee.am.model.ReferenceType;
-import io.gravitee.am.repository.exceptions.TechnicalException;
+
+
 import io.gravitee.am.repository.management.AbstractManagementTest;
 import io.reactivex.observers.TestObserver;
 import java.util.*;
-import java.util.stream.Collectors;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;

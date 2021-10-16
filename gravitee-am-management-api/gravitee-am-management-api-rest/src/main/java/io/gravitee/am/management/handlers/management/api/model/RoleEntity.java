@@ -20,7 +20,7 @@ import io.gravitee.am.model.Role;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)

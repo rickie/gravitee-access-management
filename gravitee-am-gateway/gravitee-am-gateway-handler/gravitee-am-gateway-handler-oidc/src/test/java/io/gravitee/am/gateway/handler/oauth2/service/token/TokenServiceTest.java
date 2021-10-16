@@ -33,7 +33,7 @@ import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.token.impl.AccessToken;
 import io.gravitee.am.gateway.handler.oauth2.service.token.impl.TokenServiceImpl;
 import io.gravitee.am.gateway.handler.oidc.service.discovery.OpenIDDiscoveryService;
-import io.gravitee.am.model.AuthenticationFlowContext;
+
 import io.gravitee.am.model.TokenClaim;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.uma.PermissionRequest;
@@ -42,9 +42,9 @@ import io.gravitee.am.repository.oauth2.api.RefreshTokenRepository;
 import io.gravitee.am.repository.oauth2.model.RefreshToken;
 import io.gravitee.el.TemplateEngine;
 import io.gravitee.gateway.api.ExecutionContext;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.Arrays;
 import java.util.Date;

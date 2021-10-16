@@ -23,7 +23,7 @@ import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import io.gravitee.am.repository.mongodb.common.AbstractMongoRepository;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;

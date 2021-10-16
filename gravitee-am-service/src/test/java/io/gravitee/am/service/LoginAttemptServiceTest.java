@@ -22,8 +22,8 @@ import io.gravitee.am.model.account.AccountSettings;
 import io.gravitee.am.repository.management.api.LoginAttemptRepository;
 import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
 import io.gravitee.am.service.impl.LoginAttemptServiceImpl;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import io.reactivex.observers.TestObserver;
 import org.junit.Test;
 import org.junit.runner.RunWith;

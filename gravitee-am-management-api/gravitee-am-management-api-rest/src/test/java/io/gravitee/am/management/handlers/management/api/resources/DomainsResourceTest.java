@@ -26,14 +26,14 @@ import io.gravitee.am.model.*;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.NewDomain;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
+
+
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

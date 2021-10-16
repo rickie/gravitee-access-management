@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.oidc.service.clientregistration;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Single;
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

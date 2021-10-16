@@ -34,10 +34,10 @@ import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.impl.OrganizationServiceImpl;
 import io.gravitee.am.service.model.NewOrganization;
 import io.gravitee.am.service.model.PatchOrganization;
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
+
 import io.reactivex.observers.TestObserver;
 import java.util.Collections;
 import java.util.List;

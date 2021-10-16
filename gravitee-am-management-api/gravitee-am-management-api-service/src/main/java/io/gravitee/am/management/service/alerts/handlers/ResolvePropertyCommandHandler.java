@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.service.alerts.handlers;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.alert.api.trigger.TriggerProvider;
 import io.gravitee.alert.api.trigger.command.Command;
 import io.gravitee.alert.api.trigger.command.Handler;

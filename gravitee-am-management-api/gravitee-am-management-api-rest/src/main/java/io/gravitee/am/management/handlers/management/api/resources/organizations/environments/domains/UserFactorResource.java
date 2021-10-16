@@ -15,20 +15,20 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
-import static io.gravitee.am.management.service.permissions.Permissions.of;
-import static io.gravitee.am.management.service.permissions.Permissions.or;
+
+
 
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.management.service.UserService;
 import io.gravitee.am.model.Acl;
-import io.gravitee.am.model.ReferenceType;
+
 import io.gravitee.am.model.factor.EnrolledFactor;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.exception.UserNotFoundException;
-import io.reactivex.Maybe;
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.swagger.annotations.ApiOperation;
@@ -80,7 +80,7 @@ public class UserFactorResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->userService.findById_migrated(user)).switchIfEmpty(Mono.error(new UserNotFoundException(user))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user1 -> {
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->userService.findById_migrated(user)).switchIfEmpty(Mono.error(new UserNotFoundException(user))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user1 -> {
                             if (user1.getFactors() != null) {
                                 List<EnrolledFactor> enrolledFactors = user1.getFactors()
                                         .stream()
@@ -89,6 +89,6 @@ public class UserFactorResource extends AbstractResource {
                                 return RxJava2Adapter.monoToSingle(userService.enrollFactors_migrated(user, enrolledFactors, authenticatedUser));
                             }
                             return RxJava2Adapter.monoToSingle(Mono.just(user1));
-                        }).apply(y))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> response.resume(Response.noContent().build())), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        }).apply(y))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> response.resume(Response.noContent().build())), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

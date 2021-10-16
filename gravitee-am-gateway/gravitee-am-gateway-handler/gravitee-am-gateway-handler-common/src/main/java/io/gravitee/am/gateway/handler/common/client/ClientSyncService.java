@@ -17,9 +17,9 @@ package io.gravitee.am.gateway.handler.common.client;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import java.util.List;
+
+
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

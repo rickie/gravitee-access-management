@@ -16,7 +16,7 @@
 package io.gravitee.am.management.service.impl.plugins;
 
 import com.google.errorprone.annotations.InlineMe;
-import io.gravitee.am.management.service.IdentityProviderPluginService;
+
 import io.gravitee.am.management.service.ResourcePluginService;
 import io.gravitee.am.plugins.resource.core.ResourcePluginManager;
 import io.gravitee.am.service.exception.TechnicalManagementException;

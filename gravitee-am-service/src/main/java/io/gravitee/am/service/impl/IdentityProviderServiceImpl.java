@@ -45,9 +45,9 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
-import java.util.ArrayList;
+
 import java.util.Date;
-import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -193,14 +193,14 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
         identityProvider.setCreatedAt(new Date());
         identityProvider.setUpdatedAt(identityProvider.getCreatedAt());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderRepository.create_migrated(identityProvider).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<IdentityProvider, SingleSource<IdentityProvider>>toJdkFunction(identityProvider1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderRepository.create_migrated(identityProvider).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<IdentityProvider, SingleSource<IdentityProvider>>toJdkFunction(identityProvider1 -> {
                     // create event for sync process
                     Event event = new Event(Type.IDENTITY_PROVIDER, new Payload(identityProvider1.getId(), identityProvider1.getReferenceType(), identityProvider1.getReferenceId(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(identityProvider1)));
                 }).apply(v)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<IdentityProvider>>toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to create an identity provider", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create an identity provider", ex)));
-                }).apply(err))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(identityProvider1 -> auditService.report(AuditBuilder.builder(IdentityProviderAuditBuilder.class).principal(principal).type(EventType.IDENTITY_PROVIDER_CREATED).identityProvider(identityProvider1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(IdentityProviderAuditBuilder.class).principal(principal).type(EventType.IDENTITY_PROVIDER_CREATED).throwable(throwable))));
+                }).apply(err))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(identityProvider1 -> auditService.report(AuditBuilder.builder(IdentityProviderAuditBuilder.class).principal(principal).type(EventType.IDENTITY_PROVIDER_CREATED).identityProvider(identityProvider1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(IdentityProviderAuditBuilder.class).principal(principal).type(EventType.IDENTITY_PROVIDER_CREATED).throwable(throwable))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, newIdentityProvider, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -225,7 +225,7 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
     public Mono<IdentityProvider> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateIdentityProvider updateIdentityProvider, User principal) {
         LOGGER.debug("Update an identity provider {} for {} {}", id, referenceType, referenceId);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderRepository.findById_migrated(referenceType, referenceId, id).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<IdentityProvider, SingleSource<IdentityProvider>>toJdkFunction(oldIdentity -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderRepository.findById_migrated(referenceType, referenceId, id).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<IdentityProvider, SingleSource<IdentityProvider>>toJdkFunction(oldIdentity -> {
                     IdentityProvider identityToUpdate = new IdentityProvider(oldIdentity);
                     identityToUpdate.setName(updateIdentityProvider.getName());
                     identityToUpdate.setConfiguration(updateIdentityProvider.getConfiguration());
@@ -246,7 +246,7 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
 
                     LOGGER.error("An error occurs while trying to update an identity provider", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update an identity provider", ex)));
-                }).apply(err)))));
+                }).apply(err)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateIdentityProvider, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

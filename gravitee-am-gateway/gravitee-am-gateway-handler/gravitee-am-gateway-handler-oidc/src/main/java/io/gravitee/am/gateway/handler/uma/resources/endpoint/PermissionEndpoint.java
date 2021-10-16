@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.uma.resources.endpoint;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
@@ -28,8 +28,8 @@ import io.gravitee.am.service.PermissionTicketService;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.HttpStatusCode;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Single;
-import io.reactivex.SingleSource;
+
+
 import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
@@ -40,7 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

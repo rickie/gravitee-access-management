@@ -16,10 +16,10 @@
 package io.gravitee.am.repository.jdbc.common.dialect;
 
 import io.gravitee.am.model.ReferenceType;
-import io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication;
-import io.gravitee.am.repository.jdbc.management.api.model.JdbcUser;
+
+
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
-import io.reactivex.Flowable;
+
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 

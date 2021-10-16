@@ -17,10 +17,10 @@ package io.gravitee.am.repository.jdbc.management.api.spring.application;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
+
+
 import java.util.List;
-import org.springframework.data.r2dbc.repository.Query;
+
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;

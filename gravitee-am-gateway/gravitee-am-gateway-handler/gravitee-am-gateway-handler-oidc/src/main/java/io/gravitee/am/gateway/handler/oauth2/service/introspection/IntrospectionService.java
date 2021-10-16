@@ -16,7 +16,7 @@
 package io.gravitee.am.gateway.handler.oauth2.service.introspection;
 
 import com.google.errorprone.annotations.InlineMe;
-import io.reactivex.Single;
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**

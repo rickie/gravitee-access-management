@@ -29,10 +29,10 @@ import io.gravitee.am.repository.oauth2.api.RefreshTokenRepository;
 import io.gravitee.am.repository.oauth2.model.AccessToken;
 import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
 import io.reactivex.BackpressureStrategy;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
+
+
 import io.reactivex.Observable;
-import io.reactivex.Single;
+
 import io.reactivex.observers.TestObserver;
 import java.util.Arrays;
 import java.util.List;

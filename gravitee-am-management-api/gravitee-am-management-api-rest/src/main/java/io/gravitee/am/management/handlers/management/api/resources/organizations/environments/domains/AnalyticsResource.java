@@ -15,18 +15,18 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
 
-import static io.gravitee.am.management.service.permissions.Permissions.of;
-import static io.gravitee.am.management.service.permissions.Permissions.or;
+
+
 
 import io.gravitee.am.management.handlers.management.api.model.AnalyticsParam;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.management.service.AnalyticsService;
 import io.gravitee.am.model.Acl;
-import io.gravitee.am.model.ReferenceType;
+
 import io.gravitee.am.model.analytics.AnalyticsQuery;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Single;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -36,9 +36,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
-import javax.ws.rs.core.Response;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**

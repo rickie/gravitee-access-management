@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.handler;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.authentication.AccountDisabledException;
 import io.gravitee.am.common.exception.authentication.AccountIllegalStateException;
 import io.gravitee.am.common.exception.authentication.AccountStatusException;
@@ -26,8 +26,8 @@ import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.web.handler.impl.CookieSession;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.AuthenticationFlowContextService;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
+
+
 import io.reactivex.Single;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;

@@ -16,8 +16,8 @@
 package io.gravitee.am.management.handlers.management.api.resources;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+
+
 import static org.mockito.Mockito.doReturn;
 
 import io.gravitee.am.common.factor.FactorType;
@@ -28,12 +28,12 @@ import io.gravitee.am.model.User;
 import io.gravitee.am.model.factor.EnrolledFactor;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.common.http.HttpStatusCode;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
+
+
 import java.util.Collections;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

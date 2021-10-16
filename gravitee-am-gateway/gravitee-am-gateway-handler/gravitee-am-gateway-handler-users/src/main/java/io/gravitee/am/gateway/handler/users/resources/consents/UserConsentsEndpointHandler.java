@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.users.resources.consents;
 
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.gateway.handler.users.service.UserService;
-import io.gravitee.am.identityprovider.api.User;
+
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.common.http.HttpHeaders;

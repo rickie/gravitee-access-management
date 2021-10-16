@@ -29,7 +29,7 @@ import io.gravitee.am.model.jose.RSAKey;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.oidc.JWKSet;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
-import io.reactivex.Maybe;
+
 import io.reactivex.observers.TestObserver;
 import org.junit.Test;
 import org.junit.runner.RunWith;

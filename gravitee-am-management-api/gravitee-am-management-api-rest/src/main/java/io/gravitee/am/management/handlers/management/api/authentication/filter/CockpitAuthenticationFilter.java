@@ -49,7 +49,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 
 public class CockpitAuthenticationFilter extends GenericFilterBean {
 
