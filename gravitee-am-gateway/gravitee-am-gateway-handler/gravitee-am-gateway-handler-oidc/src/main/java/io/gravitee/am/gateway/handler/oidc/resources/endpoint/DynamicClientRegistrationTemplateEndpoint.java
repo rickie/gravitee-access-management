@@ -26,6 +26,7 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -45,15 +46,11 @@ public class DynamicClientRegistrationTemplateEndpoint implements Handler<Routin
     public void handle(RoutingContext context) {
         LOGGER.debug("Dynamic client registration TEMPLATE endpoint");
 
-        RxJava2Adapter.monoToSingle(this.clientSyncService.findTemplates_migrated())
-                .subscribe(
-                        templates -> context.response()
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.clientSyncService.findTemplates_migrated())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(templates -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(DynamicClientRegistrationTemplate.from(templates)))
-                        , context::fail
-                );
+                                .end(Json.encodePrettily(DynamicClientRegistrationTemplate.from(templates)))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
     }
 }

@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -149,7 +150,7 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
         }
         if (expand != null) {
             if (expand.contains(ResourcePluginService.EXPAND_ICON)) {
-                RxJava2Adapter.monoToMaybe(this.getIcon_migrated(plugin.getId())).subscribe(plugin::setIcon);
+                RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getIcon_migrated(plugin.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(plugin::setIcon));
             }
         }
         return plugin;

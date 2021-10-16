@@ -85,7 +85,7 @@ public class CertificatesResource extends AbstractResource {
             @QueryParam("use") String use,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.LIST).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.LIST).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapPublisher(__ -> certificateService.findByDomain_migrated(domain))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(c -> {
                             if (!StringUtils.isEmpty(use)) {
                                 final JsonObject config = JsonObject.mapFrom(Json.decodeValue(c.getConfiguration(), HashMap.class));
@@ -95,8 +95,7 @@ public class CertificatesResource extends AbstractResource {
                             }
                             // no value, return true as sig should be the default
                             return true;
-                        })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterCertificateInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(sortedCertificates -> Response.ok(sortedCertificates).build()))))
-                .subscribe(response::resume, response::resume);
+                        })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterCertificateInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(sortedCertificates -> Response.ok(sortedCertificates).build()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST
@@ -118,14 +117,13 @@ public class CertificatesResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapSingle(schema -> RxJava2Adapter.monoToSingle(certificateService.create_migrated(domain, newCertificate, authenticatedUser)))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificate -> {
                             return Response
                                     .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/certificates/" + certificate.getId()))
                                     .entity(certificate)
                                     .build();
-                        }))))
-                .subscribe(response::resume, response::resume);
+                        }))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{certificate}")

@@ -26,6 +26,7 @@ import io.gravitee.am.service.exception.InvalidPermissionRequestException;
 import io.gravitee.am.service.exception.InvalidPermissionTicketException;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.util.ArrayList;
 import java.util.Date;
@@ -94,8 +95,7 @@ return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setCl
 }
 @Override
     public Mono<PermissionTicket> remove_migrated(String id) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(id).switchIfEmpty(Mono.error(new InvalidPermissionTicketException())))
-                .flatMapSingle(permissionTicket -> RxJava2Adapter.monoToSingle(repository.delete_migrated(permissionTicket.getId()).then(Mono.just(permissionTicket)))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(id).switchIfEmpty(Mono.error(new InvalidPermissionTicketException())))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<PermissionTicket, SingleSource<PermissionTicket>>toJdkFunction(permissionTicket -> RxJava2Adapter.monoToSingle(repository.delete_migrated(permissionTicket.getId()).then(Mono.just(permissionTicket)))).apply(y))));
     }
 
     

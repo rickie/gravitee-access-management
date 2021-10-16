@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -57,13 +58,10 @@ public class EnrichProfilePolicy {
         LOGGER.debug("Start EnrichProfilePolicy.onRequest");
         try {
             if (prepareUserProfile(context)) {
-                RxJava2Adapter.monoToSingle(enrichProfile_migrated(context))
-                        .subscribe(
-                                (user) -> {
+                enrichProfile_migrated(context).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer((user) -> {
                                     LOGGER.debug("User profile updated", user.getId());
                                     policyChain.doNext(request, response);
-                                },
-                                (error) -> {
+                                }), RxJavaReactorMigrationUtil.toJdkConsumer((error) -> {
                                     if (configuration.isExitOnError()) {
                                         LOGGER.warn("Update of user profile failed!", error.getMessage());
                                         policyChain.failWith(PolicyResult.failure(errorMessage));
@@ -71,7 +69,7 @@ public class EnrichProfilePolicy {
                                         LOGGER.info("Update of user profile failed!", error.getMessage());
                                         policyChain.doNext(request, response);
                                     }
-                                });
+                                }));
             } else {
                 policyChain.doNext(request, response);
             }

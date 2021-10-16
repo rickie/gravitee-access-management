@@ -28,6 +28,7 @@ import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -41,16 +42,12 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
 
     public void get(RoutingContext context) {
         final String groupId = context.request().getParam("id");
-        RxJava2Adapter.monoToMaybe(groupService.get_migrated(groupId, location(context.request())))
-                .subscribe(
-                        group -> context.response()
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(groupService.get_migrated(groupId, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(group -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .putHeader(HttpHeaders.LOCATION, group.getMeta().getLocation())
-                                .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group)),
-                        context::fail,
-                        () -> context.fail(new GroupNotFoundException(groupId)));
+                                .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail), RxJavaReactorMigrationUtil.toRunnable(() -> context.fail(new GroupNotFoundException(groupId))));
     }
 
     /**
@@ -110,15 +107,12 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
                 return;
             }
 
-            RxJava2Adapter.monoToSingle(groupService.update_migrated(groupId, group, location(context.request())))
-                    .subscribe(
-                            group1 -> context.response()
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(groupService.update_migrated(groupId, group, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(group1 -> context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(HttpHeaders.LOCATION, group1.getMeta().getLocation())
-                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group1)),
-                            context::fail);
+                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group1))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
         } catch (DecodeException ex) {
             context.fail(new InvalidSyntaxException("Unable to parse body message", ex));
         }
@@ -172,15 +166,12 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
                 return;
             }
 
-            RxJava2Adapter.monoToSingle(groupService.patch_migrated(groupId, patchOp, location(context.request())))
-                    .subscribe(
-                            group1 -> context.response()
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(groupService.patch_migrated(groupId, patchOp, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(group1 -> context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(HttpHeaders.LOCATION, group1.getMeta().getLocation())
-                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group1)),
-                            context::fail);
+                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group1))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
         } catch (DecodeException ex) {
             context.fail(new InvalidSyntaxException("Unable to parse body message", ex));
         }

@@ -90,7 +90,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
 
                 LOGGER.debug("Found {} statements to execute", sqlStatements.size());
 
-                RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(tableExists(configuration.getProtocol(), configuration.getUsersTable())))
+                RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(tableExists(configuration.getProtocol(), configuration.getUsersTable())))
                         .flatMapSingle(statement -> RxJava2Adapter.fluxToFlowable(query_migrated(statement, new Object[0]).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(Result::getRowsUpdated)))
                                 .first(0))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(total -> {
                                     if (total == 0) {
@@ -101,8 +101,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
                                         return RxJava2Adapter.fluxToFlowable(Flux.empty());
                                     }
                                 })))
-                        .doOnError(error -> LOGGER.error("Unable to initialize Database", error))
-                        .subscribe();
+                        .doOnError(error -> LOGGER.error("Unable to initialize Database", error))).subscribe();
 
             } catch (Exception e) {
                 LOGGER.error("Unable to initialize the identity provider schema", e);

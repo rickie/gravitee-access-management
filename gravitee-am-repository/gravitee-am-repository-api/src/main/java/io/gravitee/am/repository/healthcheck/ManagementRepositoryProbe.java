@@ -21,6 +21,7 @@ import io.gravitee.node.api.healthcheck.Result;
 import java.util.concurrent.CompletableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -43,11 +44,7 @@ public class ManagementRepositoryProbe implements Probe {
         // Search for an domain to check repository connection
         final CompletableFuture<Result> future = new CompletableFuture<>();
 
-        RxJava2Adapter.monoToMaybe(domainRepository.findById_migrated(DOMAIN))
-                .subscribe(
-                        domain -> future.complete(Result.healthy()),
-                        error -> future.complete(Result.unhealthy(error)),
-                        () -> future.complete(Result.healthy())); // repository is up but returned no result
+        domainRepository.findById_migrated(DOMAIN).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(domain -> future.complete(Result.healthy())), RxJavaReactorMigrationUtil.toJdkConsumer(error -> future.complete(Result.unhealthy(error))), RxJavaReactorMigrationUtil.toRunnable(() -> future.complete(Result.healthy()))); // repository is up but returned no result
 
         return future;
     }

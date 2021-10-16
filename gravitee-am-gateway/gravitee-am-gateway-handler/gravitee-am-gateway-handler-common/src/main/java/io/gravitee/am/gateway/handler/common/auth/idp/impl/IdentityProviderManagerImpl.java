@@ -40,6 +40,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -145,14 +146,10 @@ public class IdentityProviderManagerImpl extends AbstractService implements Iden
     private void updateIdentityProvider(String identityProviderId, IdentityProviderEvent identityProviderEvent) {
         final String eventType = identityProviderEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} identity provider event for {}", domain.getName(), eventType, identityProviderId);
-        RxJava2Adapter.monoToMaybe(identityProviderRepository.findById_migrated(identityProviderId))
-                .subscribe(
-                        identityProvider -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderRepository.findById_migrated(identityProviderId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(identityProvider -> {
                             updateAuthenticationProvider(identityProvider);
                             logger.info("Identity provider {} {}d for domain {}", identityProviderId, eventType, domain.getName());
-                        },
-                        error -> logger.error("Unable to {} identity provider for domain {}", eventType, domain.getName(), error),
-                        () -> logger.error("No identity provider found with id {}", identityProviderId));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} identity provider for domain {}", eventType, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No identity provider found with id {}", identityProviderId)));
     }
 
     private void removeIdentityProvider(String identityProviderId) {

@@ -81,7 +81,7 @@ public class AuditReporterManagerImpl extends AbstractService implements AuditRe
         logger.info("\t Starting reporter verticle for domain {}", domain.getName());
 
         Single<String> deployment = RxHelper.deployVerticle(vertx, applicationContext.getBean(AuditReporterVerticle.class));
-        deployment.subscribe(id -> {
+        RxJava2Adapter.singleToMono(deployment).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(id -> {
             // Deployed
             deploymentId = id;
 
@@ -100,10 +100,10 @@ public class AuditReporterManagerImpl extends AbstractService implements AuditRe
                             err -> {
                                 logger.error("Reporter service can not be started", err);
                             });
-        }, err -> {
+        }), RxJavaReactorMigrationUtil.toJdkConsumer(err -> {
             // Could not deploy
             logger.error("Reporter service can not be started", err);
-        });
+        }));
     }
 
     @Override
@@ -155,33 +155,27 @@ public class AuditReporterManagerImpl extends AbstractService implements AuditRe
     private void updateReporter(String reporterId, ReporterEvent reporterEvent) {
         final String eventType = reporterEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} reporter event for {}", domain.getName(), eventType, reporterId);
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(reporterRepository.findById_migrated(reporterId))
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(reporterRepository.findById_migrated(reporterId))
                 .flatMapSingle(reporter ->
-                        RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(ctx -> Tuples.of(reporter, ctx)))))).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))
-                .subscribe(
-                        tupleReporterContext -> {
+                        RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(ctx -> Tuples.of(reporter, ctx)))))).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(tupleReporterContext -> {
                             updateReporterProvider(tupleReporterContext.getT1(), tupleReporterContext.getT2());
                             logger.info("Reporter {} {}d for domain {}", reporterId, eventType, domain.getName());
-                        },
-                        error -> logger.error("Unable to {} reporter for domain {}", eventType, domain.getName(), error));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} reporter for domain {}", eventType, domain.getName(), error)));
     }
 
     private void deployReporter(String reporterId, ReporterEvent reporterEvent) {
         final String eventType = reporterEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} reporter event for {}", domain.getName(), eventType, reporterId);
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(reporterRepository.findById_migrated(reporterId))
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(reporterRepository.findById_migrated(reporterId))
                 .flatMapSingle(reporter ->
-                        RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(ctx -> Tuples.of(reporter, ctx)))))).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))
-                .subscribe(
-                        tupleReporterContext -> {
+                        RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(ctx -> Tuples.of(reporter, ctx)))))).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(tupleReporterContext -> {
                             if (reporters.containsKey(reporterId)) {
                                 updateReporterProvider(tupleReporterContext.getT1(), tupleReporterContext.getT2());
                             } else {
                                 startReporterProvider(tupleReporterContext.getT1(), tupleReporterContext.getT2());
                             }
                             logger.info("Reporter {} {}d for domain {}", reporterId, eventType, domain.getName());
-                        },
-                        error -> logger.error("Unable to {} reporter for domain {}", eventType, domain.getName(), error));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} reporter for domain {}", eventType, domain.getName(), error)));
     }
 
     private void removeReporter(String reporterId) {

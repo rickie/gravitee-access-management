@@ -36,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -124,11 +125,7 @@ private Mono<CertificateProvider> doGetCertificateProvider_migrated(String certi
 
     private void deployCertificate(String certificateId) {
         logger.info("Management API has received a deploy certificate event for {}", certificateId);
-        RxJava2Adapter.monoToMaybe(certificateService.findById_migrated(certificateId))
-                .subscribe(
-                        this::loadCertificate,
-                        error -> logger.error("Unable to deploy certificate {}", certificateId, error),
-                        () -> logger.error("No certificate found with id {}", certificateId));
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateService.findById_migrated(certificateId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::loadCertificate), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to deploy certificate {}", certificateId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No certificate found with id {}", certificateId)));
     }
 
     private void removeCertificate(String certificateId) {

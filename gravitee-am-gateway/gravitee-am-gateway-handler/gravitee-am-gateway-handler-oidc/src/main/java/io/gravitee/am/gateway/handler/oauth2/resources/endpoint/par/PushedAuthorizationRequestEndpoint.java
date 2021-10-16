@@ -45,6 +45,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -79,18 +80,14 @@ public class PushedAuthorizationRequestEndpoint implements Handler<RoutingContex
         request.setParameters(extractRequestParameters(context.request()));
         request.setClient(client.getClientId());
 
-        RxJava2Adapter.monoToSingle(parService.registerParameters_migrated(request, client))
-                .subscribe(
-                        response -> {
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(parService.registerParameters_migrated(request, client))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response -> {
                             context.response()
                                     .setStatusCode(HttpStatusCode.CREATED_201)
                                     .putHeader(io.gravitee.common.http.HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(io.gravitee.common.http.HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(io.gravitee.common.http.HttpHeaders.PRAGMA, "no-cache")
                                     .end(Json.encodePrettily(response));
-                        },
-                        context::fail
-                );
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
     }
 
     private MultiValueMap<String, String> extractRequestParameters(HttpServerRequest request) {

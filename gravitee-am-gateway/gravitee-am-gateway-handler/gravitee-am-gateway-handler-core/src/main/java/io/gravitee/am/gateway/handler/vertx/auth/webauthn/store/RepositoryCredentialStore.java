@@ -67,7 +67,7 @@ public class RepositoryCredentialStore {
                 RxJava2Adapter.monoToSingle(credentialService.findByUsername_migrated(ReferenceType.DOMAIN, domain.getId(), query.getUserName()).collectList()) :
                 RxJava2Adapter.monoToSingle(credentialService.findByCredentialId_migrated(ReferenceType.DOMAIN, domain.getId(), query.getCredID()).collectList());
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fetchCredentials).flatMap(v->RxJava2Adapter.singleToMono((Single<List<Authenticator>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Credential>, Single<List<Authenticator>>>)credentials -> {
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(fetchCredentials).flatMap(v->RxJava2Adapter.singleToMono((Single<List<Authenticator>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Credential>, Single<List<Authenticator>>>)credentials -> {
                     if (credentials.isEmpty() && query.getUserName() != null) {
                         // If, when initiating an authentication ceremony, there is no account matching the provided username,
                         // continue the ceremony by invoking navigator.credentials.get() using a syntactically valid
@@ -118,11 +118,7 @@ public class RepositoryCredentialStore {
                                 .map(this::convert)
                                 .collect(Collectors.toList())));
                     }
-                }).apply(v))))
-                .subscribe(
-                        promise::complete,
-                        promise::fail
-                );
+                }).apply(v))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(promise::complete), RxJavaReactorMigrationUtil.toJdkConsumer(promise::fail));
 
         return promise.future();
     }

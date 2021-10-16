@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -45,11 +46,7 @@ public class OAuth2RepositoryProbe implements Probe {
         // Search for an oauth 2.0 token to check repository connection
         final CompletableFuture<Result> future = new CompletableFuture<>();
 
-        RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated(TOKEN))
-                .subscribe(
-                        domain -> future.complete(Result.healthy()),
-                        error -> future.complete(Result.unhealthy(error)),
-                        () -> future.complete(Result.healthy())); // repository is up but returned no result
+        accessTokenRepository.findByToken_migrated(TOKEN).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(domain -> future.complete(Result.healthy())), RxJavaReactorMigrationUtil.toJdkConsumer(error -> future.complete(Result.unhealthy(error))), RxJavaReactorMigrationUtil.toRunnable(() -> future.complete(Result.healthy()))); // repository is up but returned no result
 
         return future;
     }

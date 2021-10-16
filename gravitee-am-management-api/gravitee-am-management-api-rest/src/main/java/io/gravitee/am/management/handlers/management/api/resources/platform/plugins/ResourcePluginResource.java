@@ -55,8 +55,7 @@ public class ResourcePluginResource {
     public void get(@PathParam("resource") String resourceId,
                     @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(resourcePluginService.findById_migrated(resourceId).switchIfEmpty(Mono.error(new ResourcePluginNotFoundException(resourceId))).map(RxJavaReactorMigrationUtil.toJdkFunction(resourcePlugin -> Response.ok(resourcePlugin).build())))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(resourcePluginService.findById_migrated(resourceId).switchIfEmpty(Mono.error(new ResourcePluginNotFoundException(resourceId))).map(RxJavaReactorMigrationUtil.toJdkFunction(resourcePlugin -> Response.ok(resourcePlugin).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @GET
@@ -67,7 +66,6 @@ public class ResourcePluginResource {
     public void getSchema(@PathParam("resource") String resourceId,
                           @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(resourcePluginService.findById_migrated(resourceId).switchIfEmpty(Mono.error(new ResourcePluginNotFoundException(resourceId))).flatMap(z->resourcePluginService.getSchema_migrated(resourceId)).switchIfEmpty(Mono.error(new ResourcePluginNotFoundException(resourceId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(resourcePluginService.findById_migrated(resourceId).switchIfEmpty(Mono.error(new ResourcePluginNotFoundException(resourceId))).flatMap(z->resourcePluginService.getSchema_migrated(resourceId)).switchIfEmpty(Mono.error(new ResourcePluginNotFoundException(resourceId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

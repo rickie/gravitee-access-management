@@ -35,6 +35,7 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * See <a href="https://openid.net/specs/openid-financial-api-part-2.html#request-object-endpoint">7.  Request object endpoint</a>
@@ -68,8 +69,7 @@ public class RequestObjectRegistrationEndpoint implements Handler<RoutingContext
         request.setRequest(context.getBodyAsString());
         request.setOrigin(extractOrigin(context));
 
-        RxJava2Adapter.monoToSingle(requestObjectService.registerRequestObject_migrated(request, client))
-                .subscribe(new Consumer<RequestObjectRegistrationResponse>() {
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(requestObjectService.registerRequestObject_migrated(request, client))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(new Consumer<RequestObjectRegistrationResponse>() {
                     @Override
                     public void accept(RequestObjectRegistrationResponse response) throws Exception {
                         context.response()
@@ -78,12 +78,12 @@ public class RequestObjectRegistrationEndpoint implements Handler<RoutingContext
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .end(Json.encodePrettily(response));
                     }
-                }, new Consumer<Throwable>() {
+                }), RxJavaReactorMigrationUtil.toJdkConsumer(new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
                         context.fail(throwable);
                     }
-                });
+                }));
     }
 
     private String extractOrigin(RoutingContext context) {

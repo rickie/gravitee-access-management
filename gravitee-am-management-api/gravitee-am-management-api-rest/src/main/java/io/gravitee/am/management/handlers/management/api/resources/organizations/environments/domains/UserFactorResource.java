@@ -45,6 +45,7 @@ import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -78,7 +79,7 @@ public class UserFactorResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->userService.findById_migrated(user)).switchIfEmpty(Mono.error(new UserNotFoundException(user))))
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->userService.findById_migrated(user)).switchIfEmpty(Mono.error(new UserNotFoundException(user))))
                         .flatMapSingle(user1 -> {
                             if (user1.getFactors() != null) {
                                 List<EnrolledFactor> enrolledFactors = user1.getFactors()
@@ -88,7 +89,6 @@ public class UserFactorResource extends AbstractResource {
                                 return RxJava2Adapter.monoToSingle(userService.enrollFactors_migrated(user, enrolledFactors, authenticatedUser));
                             }
                             return RxJava2Adapter.monoToSingle(Mono.just(user1));
-                        }))))
-                .subscribe(__ -> response.resume(Response.noContent().build()), response::resume);
+                        }))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> response.resume(Response.noContent().build())), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

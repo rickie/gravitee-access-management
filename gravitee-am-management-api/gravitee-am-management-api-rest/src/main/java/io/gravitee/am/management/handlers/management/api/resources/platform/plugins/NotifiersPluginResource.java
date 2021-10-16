@@ -36,6 +36,7 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -59,8 +60,7 @@ public class NotifiersPluginResource {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void list(@QueryParam("expand") List<String> expand, @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(notifierPluginService.findAll_migrated(expand.toArray(new String[0])).sort(Comparator.comparing(AbstractPlugin::getName)).collectList())
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(notifierPluginService.findAll_migrated(expand.toArray(new String[0])).sort(Comparator.comparing(AbstractPlugin::getName)).collectList())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{notifierId}")

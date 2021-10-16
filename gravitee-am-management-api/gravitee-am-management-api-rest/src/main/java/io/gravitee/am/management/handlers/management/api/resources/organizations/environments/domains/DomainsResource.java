@@ -84,10 +84,9 @@ public class DomainsResource extends AbstractDomainResource {
             @Suspended final AsyncResponse response) {
 
         User authenticatedUser = getAuthenticatedUser();
-        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN, Acl.LIST).thenMany(query != null ? domainService.search_migrated(organizationId, environmentId, query) : domainService.findAllByEnvironment_migrated(organizationId, environmentId)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Domain, MaybeSource<Domain>>toJdkFunction(domain -> RxJava2Adapter.monoToMaybe(hasPermission_migrated(authenticatedUser, or(of(ReferenceType.DOMAIN, domain.getId(), Permission.DOMAIN, Acl.READ),
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN, Acl.LIST).thenMany(query != null ? domainService.search_migrated(organizationId, environmentId, query) : domainService.findAllByEnvironment_migrated(organizationId, environmentId)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Domain, MaybeSource<Domain>>toJdkFunction(domain -> RxJava2Adapter.monoToMaybe(hasPermission_migrated(authenticatedUser, or(of(ReferenceType.DOMAIN, domain.getId(), Permission.DOMAIN, Acl.READ),
                                 of(ReferenceType.ENVIRONMENT, environmentId, Permission.DOMAIN, Acl.READ),
-                                of(ReferenceType.ORGANIZATION, organizationId, Permission.DOMAIN, Acl.READ))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(Boolean::booleanValue)).map(RxJavaReactorMigrationUtil.toJdkFunction(permit -> domain)))).apply(e)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterDomainInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(domains -> new Page<Domain>(domains.stream().skip((long) page * size).limit(size).collect(Collectors.toList()), page, domains.size()))))
-                .subscribe(response::resume, response::resume);
+                                of(ReferenceType.ORGANIZATION, organizationId, Permission.DOMAIN, Acl.READ))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(Boolean::booleanValue)).map(RxJavaReactorMigrationUtil.toJdkFunction(permit -> domain)))).apply(e)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterDomainInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(domains -> new Page<Domain>(domains.stream().skip((long) page * size).limit(size).collect(Collectors.toList()), page, domains.size()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST
@@ -108,9 +107,8 @@ public class DomainsResource extends AbstractDomainResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN, Acl.CREATE).then(domainService.create_migrated(organizationId, environmentId, newDomain, authenticatedUser).flatMap(domain->identityProviderManager.create_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.IdentityProvider __)->domain))).flatMap(domain->reporterService.createDefault_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Reporter __)->domain)))))
-                .subscribe(domain -> response.resume(Response.created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain.getId()))
-                        .entity(domain).build()), response::resume);
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN, Acl.CREATE).then(domainService.create_migrated(organizationId, environmentId, newDomain, authenticatedUser).flatMap(domain->identityProviderManager.create_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.IdentityProvider __)->domain))).flatMap(domain->reporterService.createDefault_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Reporter __)->domain)))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(domain -> response.resume(Response.created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain.getId()))
+                        .entity(domain).build())), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @GET
@@ -129,7 +127,7 @@ public class DomainsResource extends AbstractDomainResource {
                     @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(domainService.findByHrid_migrated(environmentId, hrid).flatMap(domain->checkAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain.getId(), Permission.DOMAIN, Acl.READ).then(Mono.defer(()->findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<io.gravitee.am.model.ReferenceType, java.util.Map<io.gravitee.am.model.permissions.Permission, java.util.Set<io.gravitee.am.model.Acl>>> userPermissions)->filterDomainInfos(domain, userPermissions))))))).subscribe(response::resume, response::resume);
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainService.findByHrid_migrated(environmentId, hrid).flatMap(domain->checkAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain.getId(), Permission.DOMAIN, Acl.READ).then(Mono.defer(()->findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<io.gravitee.am.model.ReferenceType, java.util.Map<io.gravitee.am.model.permissions.Permission, java.util.Set<io.gravitee.am.model.Acl>>> userPermissions)->filterDomainInfos(domain, userPermissions)))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
 

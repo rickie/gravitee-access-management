@@ -80,8 +80,7 @@ public class FormsResource extends AbstractResource {
             @NotNull @QueryParam("template") Template formTemplate,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FORM, Acl.READ).then(formService.findByDomainAndTemplate_migrated(domain, formTemplate.template())).map(RxJavaReactorMigrationUtil.toJdkFunction(form -> Response.ok(form).build())).defaultIfEmpty(Response.ok(new Form(false, formTemplate.template())).build()))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FORM, Acl.READ).then(formService.findByDomainAndTemplate_migrated(domain, formTemplate.template())).map(RxJavaReactorMigrationUtil.toJdkFunction(form -> Response.ok(form).build())).defaultIfEmpty(Response.ok(new Form(false, formTemplate.template())).build()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST
@@ -104,12 +103,11 @@ public class FormsResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FORM, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_FORM, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(formService.create_migrated(domain, newForm, authenticatedUser).map(RxJavaReactorMigrationUtil.toJdkFunction(form -> Response
                                         .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/forms/" + form.getId()))
                                         .entity(form)
-                                        .build())))))))
-                .subscribe(response::resume, response::resume);
+                                        .build())))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{form}")

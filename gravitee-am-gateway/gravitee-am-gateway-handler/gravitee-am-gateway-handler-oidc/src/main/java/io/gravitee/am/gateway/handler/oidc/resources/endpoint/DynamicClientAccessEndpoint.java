@@ -61,21 +61,17 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void read(RoutingContext context) {
         LOGGER.debug("Dynamic client registration GET endpoint");
 
-        RxJava2Adapter.monoToMaybe(this.getClient_migrated(context).map(RxJavaReactorMigrationUtil.toJdkFunction(DynamicClientRegistrationResponse::fromClient)).map(RxJavaReactorMigrationUtil.toJdkFunction(response -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context).map(RxJavaReactorMigrationUtil.toJdkFunction(DynamicClientRegistrationResponse::fromClient)).map(RxJavaReactorMigrationUtil.toJdkFunction(response -> {
                     //The Authorization Server need not include the registration access_token or client_uri unless they have been updated.
                     response.setRegistrationAccessToken(null);
                     response.setRegistrationClientUri(null);
                     return response;
-                })))
-                .subscribe(
-                        result -> context.response()
+                })))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(result -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(result))
-                        , context::fail
-                );
+                                .end(Json.encodePrettily(result))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
     }
 
     /**
@@ -85,17 +81,13 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void patch(RoutingContext context) {
         LOGGER.debug("Dynamic client registration PATCH endpoint");
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))
-                .flatMapSingle(Single::just)).flatMap(client->this.extractRequest_migrated(context).flatMap(request->dcrService.patch_migrated(client, request, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))))
-                .subscribe(
-                        client -> context.response()
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))
+                .flatMapSingle(Single::just)).flatMap(client->this.extractRequest_migrated(context).flatMap(request->dcrService.patch_migrated(client, request, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(DynamicClientRegistrationResponse.fromClient(client)))
-                        , context::fail
-                );
+                                .end(Json.encodePrettily(DynamicClientRegistrationResponse.fromClient(client)))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
     }
 
     /**
@@ -105,17 +97,13 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void update(RoutingContext context) {
         LOGGER.debug("Dynamic client registration UPDATE endpoint");
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))
-                .flatMapSingle(Single::just)).flatMap(client->this.extractRequest_migrated(context).flatMap(request->dcrService.update_migrated(client, request, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))))
-                .subscribe(
-                        client -> context.response()
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))
+                .flatMapSingle(Single::just)).flatMap(client->this.extractRequest_migrated(context).flatMap(request->dcrService.update_migrated(client, request, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(DynamicClientRegistrationResponse.fromClient(client)))
-                        , context::fail
-                );
+                                .end(Json.encodePrettily(DynamicClientRegistrationResponse.fromClient(client)))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
     }
 
     /**
@@ -125,12 +113,8 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void delete(RoutingContext context) {
         LOGGER.debug("Dynamic client registration DELETE endpoint");
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))
-                .flatMapSingle((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(dcrService.delete_migrated(ident)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this.clientSyncService::removeDynamicClientRegistred)))
-                .subscribe(
-                        client -> context.response().setStatusCode(HttpStatusCode.NO_CONTENT_204).end()
-                        , context::fail
-                );
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))
+                .flatMapSingle((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(dcrService.delete_migrated(ident)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this.clientSyncService::removeDynamicClientRegistred)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response().setStatusCode(HttpStatusCode.NO_CONTENT_204).end()), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
     }
 
     /**
@@ -140,17 +124,13 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void renewClientSecret(RoutingContext context) {
         LOGGER.debug("Dynamic client registration RENEW SECRET endpoint");
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))
-                .flatMapSingle(Single::just)).flatMap(toRenew->dcrService.renewSecret_migrated(toRenew, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred)))
-                .subscribe(
-                        client -> context.response()
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))
+                .flatMapSingle(Single::just)).flatMap(toRenew->dcrService.renewSecret_migrated(toRenew, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(DynamicClientRegistrationResponse.fromClient(client)))
-                        , context::fail
-                );
+                                .end(Json.encodePrettily(DynamicClientRegistrationResponse.fromClient(client)))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
     }
 
     

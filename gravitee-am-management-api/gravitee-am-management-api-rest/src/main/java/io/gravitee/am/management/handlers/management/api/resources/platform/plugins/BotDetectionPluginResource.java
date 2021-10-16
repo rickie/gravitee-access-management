@@ -56,8 +56,7 @@ public class BotDetectionPluginResource {
     public void get(@PathParam("botDetection") String botDetectionId,
                     @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(pluginService.findById_migrated(botDetectionId).switchIfEmpty(Mono.error(new BotDetectionPluginNotFoundException(botDetectionId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(pluginService.findById_migrated(botDetectionId).switchIfEmpty(Mono.error(new BotDetectionPluginNotFoundException(botDetectionId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @GET
@@ -69,7 +68,6 @@ public class BotDetectionPluginResource {
                           @Suspended final AsyncResponse response) {
 
         // Check that the authenticator exists
-        RxJava2Adapter.monoToMaybe(pluginService.findById_migrated(botDetection).switchIfEmpty(Mono.error(new BotDetectionPluginNotFoundException(botDetection))).flatMap(z->pluginService.getSchema_migrated(botDetection)).switchIfEmpty(Mono.error(new BotDetectionPluginSchemaNotFoundException(botDetection))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(pluginService.findById_migrated(botDetection).switchIfEmpty(Mono.error(new BotDetectionPluginNotFoundException(botDetection))).flatMap(z->pluginService.getSchema_migrated(botDetection)).switchIfEmpty(Mono.error(new BotDetectionPluginSchemaNotFoundException(botDetection))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

@@ -49,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * If the request fails due to a missing, invalid, or mismatching redirection URI, or if the client identifier is missing or invalid,
@@ -182,15 +183,12 @@ public class AuthorizationRequestFailureHandler implements Handler<RoutingContex
             jwtException.setExp(Instant.now().plusSeconds(this.codeValidityInSec).getEpochSecond());
 
             // Sign if needed, else return unsigned JWT
-            RxJava2Adapter.monoToSingle(jwtService.encodeAuthorization_migrated(jwtException.build(), client).flatMap(authorization->jweService.encryptAuthorization_migrated(authorization, client)))
-                    .subscribe(
-                            jwt -> handler.handle(Future.succeededFuture(
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.encodeAuthorization_migrated(jwtException.build(), client).flatMap(authorization->jweService.encryptAuthorization_migrated(authorization, client)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(jwt -> handler.handle(Future.succeededFuture(
                                     jwtException.buildRedirectUri(
                                             authorizationRequest.getRedirectUri(),
                                             authorizationRequest.getResponseType(),
                                             authorizationRequest.getResponseMode(),
-                                            jwt))),
-                            ex -> handler.handle(Future.failedFuture(ex)));
+                                            jwt)))), RxJavaReactorMigrationUtil.toJdkConsumer(ex -> handler.handle(Future.failedFuture(ex))));
         } catch (Exception e) {
             handler.handle(Future.failedFuture(e));
         }

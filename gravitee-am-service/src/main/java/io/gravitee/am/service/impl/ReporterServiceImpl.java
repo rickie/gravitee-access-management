@@ -220,8 +220,7 @@ public class ReporterServiceImpl implements ReporterService {
     public Mono<Reporter> update_migrated(String domain, String id, UpdateReporter updateReporter, User principal) {
         LOGGER.debug("Update a reporter {} for domain {}", id, domain);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(reporterRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ReporterNotFoundException(id))))
-                .flatMapSingle(oldReporter -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(reporterRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ReporterNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Reporter, SingleSource<Reporter>>toJdkFunction(oldReporter -> {
                     Reporter reporterToUpdate = new Reporter(oldReporter);
                     reporterToUpdate.setEnabled(updateReporter.isEnabled());
                     reporterToUpdate.setName(updateReporter.getName());
@@ -236,7 +235,7 @@ return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(_
 return RxJava2Adapter.monoToSingle(Mono.just(reporter1));
 }
 }).apply(v))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(reporter1 -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_UPDATED).oldValue(oldReporter).reporter(reporter1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ReporterAuditBuilder.class).principal(principal).type(EventType.REPORTER_UPDATED).throwable(throwable)))));
-                })
+                }).apply(y)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));

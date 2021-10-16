@@ -94,16 +94,13 @@ public class ClientAssertionAuthProvider implements ClientAuthProvider {
         String clientId = request.getParam(Parameters.CLIENT_ID);
         String basePath = UriBuilderRequest.resolveProxyRequest(context);
 
-        RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(clientAssertionType, clientAssertion, basePath).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client1 -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(clientAssertionType, clientAssertion, basePath).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client1 -> {
                     // clientId is optional, but if provided we must ensure it is the same than the logged client.
                     if(clientId != null && !clientId.equals(client1.getClientId())) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientException("client_id parameter does not match with assertion")));
                     }
                     return RxJava2Adapter.monoToMaybe(Mono.just(client1));
-                }).apply(v)))))
-                .subscribe(
-                        client1 -> handler.handle(Future.succeededFuture(client1)),
-                        throwable -> {
+                }).apply(v)))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client1 -> handler.handle(Future.succeededFuture(client1))), RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> {
                             if (throwable instanceof InvalidClientException) {
                                 logger.debug("Failed to authenticate client with assertion method", throwable);
                                 handler.handle(Future.failedFuture(throwable));
@@ -111,9 +108,7 @@ public class ClientAssertionAuthProvider implements ClientAuthProvider {
                                 logger.error("Failed to authenticate client with assertion method", throwable);
                                 handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: Failed to authenticate client with assertion method", throwable)));
                             }
-                        },
-                        () -> handler.handle(Future.failedFuture(new InvalidClientException(ClientAuthHandler.GENERIC_ERROR_MESSAGE)))
-                );
+                        }), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new InvalidClientException(ClientAuthHandler.GENERIC_ERROR_MESSAGE)))));
     }
 
     public void setClientAssertionService(ClientAssertionService clientAssertionService) {

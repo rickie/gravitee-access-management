@@ -66,6 +66,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -220,11 +221,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
     }
 
     private void saveFactor(User user, Single<EnrolledFactor> enrolledFactor, Handler<AsyncResult<User>> handler) {
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(enrolledFactor).flatMap(factor->userService.addFactor_migrated(user.getId(), factor, new DefaultUser(user))))
-                .subscribe(
-                        user1 -> handler.handle(Future.succeededFuture(user1)),
-                        error -> handler.handle(Future.failedFuture(error))
-                );
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(enrolledFactor).flatMap(factor->userService.addFactor_migrated(user.getId(), factor, new DefaultUser(user))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> handler.handle(Future.succeededFuture(user1))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 
     private void sendChallenge(FactorProvider factorProvider, RoutingContext routingContext, Factor factor, User endUser, Handler<AsyncResult<Void>> handler) {

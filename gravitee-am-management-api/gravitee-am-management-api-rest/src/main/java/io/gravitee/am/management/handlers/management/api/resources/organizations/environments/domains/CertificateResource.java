@@ -83,7 +83,7 @@ public class CertificateResource extends AbstractResource {
       @PathParam("certificate") String certificate,
       @Suspended final AsyncResponse response) {
 
-    checkAnyPermission_migrated(
+    RxJava2Adapter.maybeToMono(checkAnyPermission_migrated(
                 organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.READ)
         .then(
             domainService.findById_migrated(domain)
@@ -100,8 +100,7 @@ public class CertificateResource extends AbstractResource {
                           }
                           return Response.ok(certificate1).build();
                         })))
-        .as(RxJava2Adapter::monoToMaybe)
-        .subscribe(response::resume, response::resume);
+        .as(RxJava2Adapter::monoToMaybe)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
   }
 
   @GET
@@ -127,7 +126,7 @@ public class CertificateResource extends AbstractResource {
       @Suspended final AsyncResponse response) {
 
     // FIXME: should we create a DOMAIN_CERTIFICATE_KEY permission instead ?
-    RxJava2Adapter.monoToSingle(
+    RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(
             checkAnyPermission_migrated(
                             organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)
                 .then(
@@ -137,8 +136,7 @@ public class CertificateResource extends AbstractResource {
                                 new BadRequestException(
                                     "No certificate provider found for the certificate "
                                         + certificate))))
-                .flatMap(CertificateProvider::publicKey_migrated))
-        .subscribe(response::resume, response::resume);
+                .flatMap(CertificateProvider::publicKey_migrated))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
   }
 
   @GET
@@ -166,7 +164,7 @@ public class CertificateResource extends AbstractResource {
       @Suspended final AsyncResponse response) {
 
     // FIXME: should we create a DOMAIN_CERTIFICATE_KEY permission instead ?
-    RxJava2Adapter.monoToSingle(
+    RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(
             checkAnyPermission_migrated(
                             organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)
                 .then(
@@ -176,8 +174,7 @@ public class CertificateResource extends AbstractResource {
                                 new BadRequestException(
                                     "No certificate provider found for the certificate "
                                         + certificate)))
-                        .flatMap(CertificateProvider::publicKeys_migrated)))
-        .subscribe(response::resume, response::resume);
+                        .flatMap(CertificateProvider::publicKeys_migrated)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
   }
 
   @PUT
@@ -207,7 +204,7 @@ public class CertificateResource extends AbstractResource {
 
     final User authenticatedUser = getAuthenticatedUser();
 
-    RxJava2Adapter.monoToSingle(
+    RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(
             checkAnyPermission_migrated(
                             organizationId,
                             environmentId,
@@ -230,8 +227,7 @@ public class CertificateResource extends AbstractResource {
                                                 authenticatedUser))))
                         .map(
                             RxJavaReactorMigrationUtil.toJdkFunction(
-                                certificate1 -> Response.ok(certificate1).build()))))
-        .subscribe(response::resume, response::resume);
+                                certificate1 -> Response.ok(certificate1).build()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
   }
 
   @DELETE

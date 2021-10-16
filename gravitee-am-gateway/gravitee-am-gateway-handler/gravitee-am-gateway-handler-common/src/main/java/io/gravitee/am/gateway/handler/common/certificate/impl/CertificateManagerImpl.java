@@ -54,6 +54,7 @@ import org.springframework.beans.factory.annotation.Value;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -98,16 +99,12 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
         logger.info("None algorithm certificate loaded for domain {}", domain.getName());
 
         logger.info("Initializing certificates for domain {}", domain.getName());
-        RxJava2Adapter.fluxToFlowable(certificateRepository.findByDomain_migrated(domain.getId()))
-                .subscribeOn(Schedulers.io())
-                .subscribe(
-                        certificate -> {
+        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(certificateRepository.findByDomain_migrated(domain.getId()))
+                .subscribeOn(Schedulers.io())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(certificate -> {
                             certificateProviderManager.create(certificate);
                             certificates.put(certificate.getId(), certificate);
                             logger.info("Certificate {} loaded for domain {}", certificate.getName(), domain.getName());
-                        },
-                        error -> logger.error("An error has occurred when loading certificates for domain {}", domain.getName(), error)
-                );
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("An error has occurred when loading certificates for domain {}", domain.getName(), error)));
     }
 
     @Override
@@ -212,10 +209,8 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
 
     private void deployCertificate(String certificateId) {
         logger.info("Deploying certificate {} for domain {}", certificateId, domain.getName());
-        RxJava2Adapter.monoToMaybe(certificateRepository.findById_migrated(certificateId))
-                .subscribeOn(Schedulers.io())
-                .subscribe(
-                        certificate -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateRepository.findById_migrated(certificateId))
+                .subscribeOn(Schedulers.io())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(certificate -> {
                             try {
                                 certificateProviderManager.create(certificate);
                                 certificates.put(certificateId, certificate);
@@ -224,9 +219,7 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
                                 logger.error("Unable to load certificate {} for domain {}", certificate.getName(), certificate.getDomain(), ex);
                                 certificates.remove(certificateId, certificate);
                             }
-                        },
-                        error -> logger.error("An error has occurred when loading certificate {} for domain {}", certificateId, domain.getName(), error),
-                        () -> logger.error("No certificate found with id {}", certificateId));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("An error has occurred when loading certificate {} for domain {}", certificateId, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No certificate found with id {}", certificateId)));
     }
 
     private void removeCertificate(String certificateId) {

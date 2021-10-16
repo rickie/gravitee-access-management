@@ -57,8 +57,7 @@ public class CertificatePluginResource {
             @PathParam("certificate") String certificateId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(certificatePluginService.findById_migrated(certificateId).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPlugin -> Response.ok(certificateId).build())).switchIfEmpty(Mono.error(new CertificatePluginNotFoundException(certificateId))))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificatePluginService.findById_migrated(certificateId).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPlugin -> Response.ok(certificateId).build())).switchIfEmpty(Mono.error(new CertificatePluginNotFoundException(certificateId))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @GET
@@ -71,7 +70,6 @@ public class CertificatePluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the certificate exists
-        RxJava2Adapter.monoToMaybe(certificatePluginService.findById_migrated(certificateId).switchIfEmpty(Mono.error(new CertificatePluginNotFoundException(certificateId))).flatMap(z->certificatePluginService.getSchema_migrated(certificateId)).switchIfEmpty(Mono.error(new CertificatePluginSchemaNotFoundException(certificateId))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificatePluginSchema -> Response.ok(certificatePluginSchema).build())))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificatePluginService.findById_migrated(certificateId).switchIfEmpty(Mono.error(new CertificatePluginNotFoundException(certificateId))).flatMap(z->certificatePluginService.getSchema_migrated(certificateId)).switchIfEmpty(Mono.error(new CertificatePluginSchemaNotFoundException(certificateId))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificatePluginSchema -> Response.ok(certificatePluginSchema).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

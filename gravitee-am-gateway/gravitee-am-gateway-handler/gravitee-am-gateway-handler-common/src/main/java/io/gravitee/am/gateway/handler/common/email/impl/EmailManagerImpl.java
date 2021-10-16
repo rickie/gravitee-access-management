@@ -39,6 +39,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -75,10 +76,7 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing emails for domain {}", domain.getName());
-        RxJava2Adapter.fluxToFlowable(emailRepository.findAll_migrated(ReferenceType.DOMAIN, domain.getId()))
-                .subscribe(
-                        this::updateEmail,
-                        error -> logger.error("Unable to initialize emails for domain {}", domain.getName(), error));
+        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(emailRepository.findAll_migrated(ReferenceType.DOMAIN, domain.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::updateEmail), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize emails for domain {}", domain.getName(), error)));
     }
 
     @Override
@@ -144,9 +142,7 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
     private void updateEmail(String emailId, EmailEvent emailEvent) {
         final String eventType = emailEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} email event for {}", domain.getName(), eventType, emailId);
-        RxJava2Adapter.monoToMaybe(emailRepository.findById_migrated(emailId))
-                .subscribe(
-                        email -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(emailRepository.findById_migrated(emailId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(email -> {
                             // check if email has been disabled
                             if (emails.containsKey(emailId) && !email.isEnabled()) {
                                 removeEmail(emailId);
@@ -154,9 +150,7 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
                                 updateEmail(email);
                             }
                             logger.info("Email {} {}d for domain {}", emailId, eventType, domain.getName());
-                        },
-                        error -> logger.error("Unable to {} email for domain {}", eventType, domain.getName(), error),
-                        () -> logger.error("No email found with id {}", emailId));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} email for domain {}", eventType, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No email found with id {}", emailId)));
     }
 
     private void removeEmail(String emailId) {

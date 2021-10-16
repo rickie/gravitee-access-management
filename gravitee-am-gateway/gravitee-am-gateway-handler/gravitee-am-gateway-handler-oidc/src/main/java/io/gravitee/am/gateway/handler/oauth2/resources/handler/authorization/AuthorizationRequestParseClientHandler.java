@@ -27,6 +27,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 
 /**
@@ -62,11 +63,6 @@ public class AuthorizationRequestParseClientHandler implements Handler<RoutingCo
     }
 
     private void fetchClient(String clientId, Handler<AsyncResult<Client>> authHandler) {
-        RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated(clientId))
-                .subscribe(
-                        client -> authHandler.handle(Future.succeededFuture(client)),
-                        error -> authHandler.handle(Future.failedFuture(new ServerErrorException("Server error: unable to find client with client_id " + clientId))),
-                        () -> authHandler.handle(Future.failedFuture(new InvalidRequestException("No client found for client_id " + clientId)))
-                );
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated(clientId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> authHandler.handle(Future.succeededFuture(client))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> authHandler.handle(Future.failedFuture(new ServerErrorException("Server error: unable to find client with client_id " + clientId)))), RxJavaReactorMigrationUtil.toRunnable(() -> authHandler.handle(Future.failedFuture(new InvalidRequestException("No client found for client_id " + clientId)))));
     }
 }

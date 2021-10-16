@@ -29,6 +29,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -70,10 +71,7 @@ public class AuthorizationRequestResolveHandler implements Handler<RoutingContex
     }
 
     private void computeAuthorizationRequest(AuthorizationRequest authorizationRequest, Client client, User endUser, Handler<AsyncResult> handler) {
-        RxJava2Adapter.monoToSingle(authorizationRequestResolver.resolve_migrated(authorizationRequest, client, endUser))
-                .subscribe(
-                        __ -> handler.handle(Future.succeededFuture()),
-                        error -> handler.handle(Future.failedFuture(error)));
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authorizationRequestResolver.resolve_migrated(authorizationRequest, client, endUser))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> handler.handle(Future.succeededFuture())), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 
     private AuthorizationRequest resolveInitialAuthorizeRequest(RoutingContext routingContext) {

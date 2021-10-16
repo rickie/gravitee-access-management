@@ -76,7 +76,7 @@ public class NewsletterResource extends AbstractResource {
         // Get the organization the current user is logged on.
         String organizationId = (String) authenticatedUser.getAdditionalInformation().getOrDefault(Claims.organization, Organization.DEFAULT);
 
-        RxJava2Adapter.monoToSingle(userService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, authenticatedUser.getId()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, authenticatedUser.getId()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
                     user.setEmail(emailValue.getEmail());
                     user.setNewsletter(true);
                     return RxJava2Adapter.monoToSingle(userService.update_migrated(user));
@@ -84,8 +84,7 @@ public class NewsletterResource extends AbstractResource {
                     Map<String, Object> object = new HashMap<>();
                     object.put("email", endUser.getEmail());
                     newsletterService.subscribe(object);
-                })))
-                .subscribe(response::resume, response::resume);
+                })))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @GET
@@ -96,12 +95,9 @@ public class NewsletterResource extends AbstractResource {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void getTaglines(@Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(newsletterService.getTaglines_migrated())
-            .subscribe(
-                    response::resume,
-                    error -> {
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(newsletterService.getTaglines_migrated())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(error -> {
                         LOGGER.error("An error has occurred when reading the newsletter taglines response", error);
                         response.resume(Collections.emptyList());
-                    });
+                    }));
     }
 }

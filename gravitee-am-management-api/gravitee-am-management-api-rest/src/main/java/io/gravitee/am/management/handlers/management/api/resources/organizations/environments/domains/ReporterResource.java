@@ -75,13 +75,12 @@ public class ReporterResource extends AbstractResource {
             @PathParam("reporter") String reporter,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->reporterService.findById_migrated(reporter)).switchIfEmpty(Mono.error(new ReporterNotFoundException(reporter))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporter1 -> {
+        RxJava2Adapter.maybeToMono(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->reporterService.findById_migrated(reporter)).switchIfEmpty(Mono.error(new ReporterNotFoundException(reporter))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporter1 -> {
                             if (!reporter1.getDomain().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Reporter does not belong to domain");
                             }
                             return Response.ok(reporter1).build();
-                        }))).as(RxJava2Adapter::monoToMaybe)
-                .subscribe(response::resume, response::resume);
+                        }))).as(RxJava2Adapter::monoToMaybe)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PUT
@@ -103,9 +102,8 @@ public class ReporterResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(reporterService.update_migrated(domain, reporter, updateReporter, authenticatedUser))))))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(reporterService.update_migrated(domain, reporter, updateReporter, authenticatedUser))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE

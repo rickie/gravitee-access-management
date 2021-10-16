@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david at graviteesource.com)
@@ -54,16 +56,16 @@ public class VertxEmbeddedContainer extends AbstractLifecycleComponent<VertxEmbe
 
         Single<String> deployment = vertx.rxDeployVerticle(SpringVerticleFactory.VERTICLE_PREFIX + ':' + GraviteeVerticle.class.getName(), options);
 
-        deployment.subscribe(id -> {
+        RxJava2Adapter.singleToMono(deployment).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(id -> {
             // Deployed
             deploymentId = id;
-        }, err -> {
+        }), RxJavaReactorMigrationUtil.toJdkConsumer(err -> {
             // Could not deploy
             logger.error("Unable to start HTTP server", err.getCause());
 
             // HTTP Server is a required component. Shutdown if not available
             Runtime.getRuntime().exit(1);
-        });
+        }));
     }
 
     @Override

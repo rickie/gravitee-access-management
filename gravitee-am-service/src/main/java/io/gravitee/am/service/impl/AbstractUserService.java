@@ -39,6 +39,7 @@ import io.reactivex.CompletableSource;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.util.*;
 import java.util.List;
@@ -280,8 +281,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
     public Mono<User> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser) {
         LOGGER.debug("Update a user {} for {} {}", id, referenceType, referenceId);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(getUserRepository().findById_migrated(referenceType, referenceId, id).switchIfEmpty(Mono.error(new UserNotFoundException(id))))
-                .flatMapSingle(oldUser -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getUserRepository().findById_migrated(referenceType, referenceId, id).switchIfEmpty(Mono.error(new UserNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
                     User tmpUser = new User();
                     tmpUser.setEmail(updateUser.getEmail());
                     tmpUser.setAdditionalInformation(updateUser.getAdditionalInformation());
@@ -300,7 +300,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                     oldUser.setAdditionalInformation(updateUser.getAdditionalInformation());
 
                     return RxJava2Adapter.monoToSingle(update_migrated(oldUser));
-                })
+                }).apply(y)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));

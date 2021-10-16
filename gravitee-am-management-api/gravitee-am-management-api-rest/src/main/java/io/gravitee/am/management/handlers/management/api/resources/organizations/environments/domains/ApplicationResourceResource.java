@@ -86,7 +86,7 @@ public class ApplicationResourceResource extends AbstractResource {
             @PathParam("resource") String resource,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Application, MaybeSource<ResourceEntity>>toJdkFunction(application1 -> {
+        RxJava2Adapter.maybeToMono(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Application, MaybeSource<ResourceEntity>>toJdkFunction(application1 -> {
                             return RxJava2Adapter.monoToMaybe(resourceService.findByDomainAndClientResource_migrated(domain, application1.getId(), resource).flatMap(n->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Resource, MaybeSource<ResourceEntity>>toJdkFunction(r -> {
                                         return RxJava2Adapter.monoToMaybe(userService.findById_migrated(r.getUserId()).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()).map(RxJavaReactorMigrationUtil.toJdkFunction(optUser -> {
                                                     ResourceEntity resourceEntity = new ResourceEntity(r);
@@ -94,8 +94,7 @@ public class ApplicationResourceResource extends AbstractResource {
                                                     return resourceEntity;
                                                 })));
                                     }).apply(n)))));
-                        }).apply(v))))).as(RxJava2Adapter::monoToMaybe)
-                .subscribe(response::resume, response::resume);
+                        }).apply(v))))).as(RxJava2Adapter::monoToMaybe)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("policies")

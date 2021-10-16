@@ -29,6 +29,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * The token endpoint is used by the client to obtain an access token by presenting its authorization grant or refresh token.
@@ -81,12 +82,10 @@ public class TokenEndpoint implements Handler<RoutingContext> {
             tokenRequest.setConfirmationMethodX5S256(context.get(ConstantKeys.PEER_CERTIFICATE_THUMBPRINT));
         }
 
-        RxJava2Adapter.monoToSingle(tokenGranter.grant_migrated(tokenRequest, client))
-                .subscribe(accessToken -> context.response()
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tokenGranter.grant_migrated(tokenRequest, client))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(accessToken -> context.response()
                         .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                         .putHeader(HttpHeaders.PRAGMA, "no-cache")
                         .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                        .end(Json.encodePrettily(accessToken))
-                        , context::fail);
+                        .end(Json.encodePrettily(accessToken))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
     }
 }

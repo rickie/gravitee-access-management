@@ -48,6 +48,7 @@ import io.vertx.reactivex.ext.web.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * The callback route to verify attestations and assertions. Usually this route is <pre>/webauthn/response</pre>
@@ -182,11 +183,7 @@ public class WebAuthnResponseEndpoint extends WebAuthnEndpoint {
 
     private void authenticateUser(AuthenticationContext authenticationContext, Client client, String username, Handler<AsyncResult<User>> handler) {
         final Authentication authentication = new EndUserAuthentication(username, null, authenticationContext);
-        RxJava2Adapter.monoToSingle(userAuthenticationManager.authenticate_migrated(client, authentication, true))
-                .subscribe(
-                        user -> handler.handle(Future.succeededFuture(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user))),
-                        error -> handler.handle(Future.failedFuture(error))
-                );
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userAuthenticationManager.authenticate_migrated(client, authentication, true))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user -> handler.handle(Future.succeededFuture(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user)))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 
     private void updateCredential(AuthenticationContext authenticationContext, String credentialId, String userId, Handler<AsyncResult<Void>> handler) {

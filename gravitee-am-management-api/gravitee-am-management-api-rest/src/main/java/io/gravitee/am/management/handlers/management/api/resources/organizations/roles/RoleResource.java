@@ -68,8 +68,7 @@ public class RoleResource extends AbstractResource {
             @PathParam("role") String role,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.READ).then(roleService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, role).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.READ).then(roleService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, role).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PUT
@@ -87,8 +86,7 @@ public class RoleResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.UPDATE).then(roleService.update_migrated(ReferenceType.ORGANIZATION, organizationId, role, updateRole, authenticatedUser).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ROLE, Acl.UPDATE).then(roleService.update_migrated(ReferenceType.ORGANIZATION, organizationId, role, updateRole, authenticatedUser).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE

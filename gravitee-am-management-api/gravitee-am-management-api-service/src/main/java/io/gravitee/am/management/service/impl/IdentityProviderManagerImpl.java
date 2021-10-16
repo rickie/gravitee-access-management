@@ -56,6 +56,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -360,11 +361,7 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
 
     private void deployUserProvider(String identityProviderId) {
         logger.info("Management API has received a deploy identity provider event for {}", identityProviderId);
-        RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(identityProviderId))
-                .subscribe(
-                        this::loadUserProvider,
-                        error -> logger.error("Unable to deploy user provider  {}", identityProviderId, error),
-                        () -> logger.error("No identity provider found with id {}", identityProviderId));
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(identityProviderId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::loadUserProvider), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to deploy user provider  {}", identityProviderId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No identity provider found with id {}", identityProviderId)));
     }
 
     private void removeUserProvider(String identityProviderId) {

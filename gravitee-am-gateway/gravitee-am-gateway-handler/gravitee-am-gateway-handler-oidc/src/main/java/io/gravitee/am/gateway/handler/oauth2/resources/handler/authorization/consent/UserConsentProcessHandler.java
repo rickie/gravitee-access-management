@@ -38,6 +38,7 @@ import io.vertx.reactivex.ext.web.Session;
 import java.util.*;
 import java.util.stream.Collectors;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -105,11 +106,7 @@ public class UserConsentProcessHandler implements Handler<RoutingContext> {
     }
 
     private void saveConsent(HttpServerRequest request, io.gravitee.am.model.User endUser, Client client, List<ScopeApproval> approvals, Handler<AsyncResult<List<ScopeApproval>>> handler) {
-        RxJava2Adapter.monoToSingle(userConsentService.saveConsent_migrated(client, approvals, getAuthenticatedUser(request, endUser)))
-                .subscribe(
-                        approvals1 -> handler.handle(Future.succeededFuture(approvals1)),
-                        error -> handler.handle(Future.failedFuture(error))
-                );
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userConsentService.saveConsent_migrated(client, approvals, getAuthenticatedUser(request, endUser)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(approvals1 -> handler.handle(Future.succeededFuture(approvals1))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 
     private io.gravitee.am.identityprovider.api.User getAuthenticatedUser(HttpServerRequest request, io.gravitee.am.model.User user) {

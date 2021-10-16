@@ -122,11 +122,7 @@ public class EmailManagerImpl extends AbstractService<EmailManager> implements E
 
     private void deployEmail(String emailId) {
         logger.info("Management API has received a deploy email event for {}", emailId);
-        RxJava2Adapter.monoToMaybe(emailTemplateService.findById_migrated(emailId))
-                .subscribe(
-                        this::loadEmail,
-                        error -> logger.error("Unable to deploy email {}", emailId, error),
-                        () -> logger.error("No email found with id {}", emailId));
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(emailTemplateService.findById_migrated(emailId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::loadEmail), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to deploy email {}", emailId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No email found with id {}", emailId)));
     }
 
     private void removeEmail(String email) {

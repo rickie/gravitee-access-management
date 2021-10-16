@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -71,9 +72,7 @@ public class BotDetectionHandler implements Handler<RoutingContext> {
         final MultiMap params = routingContext.request().params();
         BotDetectionContext context = new BotDetectionContext(accountSettings.getBotDetectionPlugin(), headers, params);
 
-        RxJava2Adapter.monoToSingle(botDetectionManager.validate_migrated(context))
-                .subscribe(
-                        (isValid) -> {
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(botDetectionManager.validate_migrated(context))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer((isValid) -> {
                             if (isValid) {
                                 LOGGER.debug("No bot detected for domain '{}' and client '{}'", domain.getId(), client.getId());
                                 routingContext.next();
@@ -81,10 +80,9 @@ public class BotDetectionHandler implements Handler<RoutingContext> {
                                 LOGGER.warn("Bot detected for domain '{}' and client '{}'", domain.getId(), client.getId());
                                 routingContext.fail(BAD_REQUEST_400, new BotDetectedException(DEFAULT_ERROR_MSG));
                             }
-                        },
-                        (error) -> {
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer((error) -> {
                             LOGGER.error("BotDetection failed for domain '{}' and client '{}'", domain.getId(), client.getId(), error);
                             routingContext.fail(INTERNAL_SERVER_ERROR_500, new TechnicalManagementException(DEFAULT_ERROR_MSG));
-                        });
+                        }));
     }
 }

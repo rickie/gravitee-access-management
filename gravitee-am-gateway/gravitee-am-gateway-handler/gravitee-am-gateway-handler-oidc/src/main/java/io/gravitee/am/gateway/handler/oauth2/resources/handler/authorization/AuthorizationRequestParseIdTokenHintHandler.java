@@ -33,6 +33,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Silent Re-authentication of subject with ID Token.
@@ -121,10 +122,6 @@ public class AuthorizationRequestParseIdTokenHintHandler implements Handler<Rout
     }
 
     private void extractUser(String idToken, Client client, Handler<AsyncResult<io.gravitee.am.model.User>> handler) {
-        RxJava2Adapter.monoToSingle(idTokenService.extractUser_migrated(idToken, client))
-                .subscribe(
-                        user -> handler.handle(Future.succeededFuture(user)),
-                        error -> handler.handle(Future.failedFuture(error))
-                );
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(idTokenService.extractUser_migrated(idToken, client))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user -> handler.handle(Future.succeededFuture(user))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 }

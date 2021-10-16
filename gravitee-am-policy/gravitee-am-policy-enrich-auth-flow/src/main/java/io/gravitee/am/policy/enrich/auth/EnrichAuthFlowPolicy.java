@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -70,11 +71,7 @@ public class EnrichAuthFlowPolicy {
 
             } else {
 
-                RxJava2Adapter.monoToSingle(enrichAuthFlowContext_migrated(context))
-                        .subscribe(
-                                success -> policyChain.doNext(request, response),
-                                error -> policyChain.failWith(PolicyResult.failure(GATEWAY_POLICY_ENRICH_AUTH_FLOW_ERROR_KEY, error.getMessage()))
-                        );
+                RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(enrichAuthFlowContext_migrated(context))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(success -> policyChain.doNext(request, response)), RxJavaReactorMigrationUtil.toJdkConsumer(error -> policyChain.failWith(PolicyResult.failure(GATEWAY_POLICY_ENRICH_AUTH_FLOW_ERROR_KEY, error.getMessage()))));
             }
         } else {
 

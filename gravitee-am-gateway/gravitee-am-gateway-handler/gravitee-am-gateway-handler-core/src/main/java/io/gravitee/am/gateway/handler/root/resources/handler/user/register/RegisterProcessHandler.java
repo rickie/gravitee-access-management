@@ -33,6 +33,7 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import java.util.HashMap;
 import java.util.Map;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -78,10 +79,7 @@ public class RegisterProcessHandler extends UserRequestHandler {
     }
 
     private void register(Client client, User user, io.gravitee.am.identityprovider.api.User principal, Handler<AsyncResult<RegistrationResponse>> handler) {
-        RxJava2Adapter.monoToSingle(userService.register_migrated(client, user, principal))
-                .subscribe(
-                        response -> handler.handle(Future.succeededFuture(response)),
-                        error -> handler.handle(Future.failedFuture(error)));
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.register_migrated(client, user, principal))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response -> handler.handle(Future.succeededFuture(response))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 
     @Override

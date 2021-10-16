@@ -120,10 +120,7 @@ public class ErrorEndpoint implements Handler<RoutingContext> {
             })));
         }
 
-        singlePageRendering.subscribe(
-                params -> render(routingContext, client, params),
-                // single contains an error due to JWT decoding, return the default error page without error details
-                (exception) ->render(routingContext, client, errorParams));
+        RxJava2Adapter.singleToMono(singlePageRendering).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(params -> render(routingContext, client, params)), RxJavaReactorMigrationUtil.toJdkConsumer((exception) ->render(routingContext, client, errorParams)));
 
     }
 
@@ -147,11 +144,6 @@ public class ErrorEndpoint implements Handler<RoutingContext> {
     }
 
     private void resolveClient(String clientId, Handler<AsyncResult<Client>> handler) {
-        RxJava2Adapter.monoToMaybe(clientSyncService.findByDomainAndClientId_migrated(domain, clientId))
-                .subscribe(
-                        client -> handler.handle(Future.succeededFuture(client)),
-                        error -> handler.handle(Future.failedFuture(error)),
-                        () -> handler.handle(Future.failedFuture(new ClientNotFoundException(clientId)))
-                );
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientSyncService.findByDomainAndClientId_migrated(domain, clientId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> handler.handle(Future.succeededFuture(client))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new ClientNotFoundException(clientId)))));
     }
 }
