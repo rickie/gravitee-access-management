@@ -159,11 +159,7 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.handleRequestObjectValue_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<JWT> handleRequestObjectValue(RoutingContext context) {
- return RxJava2Adapter.monoToMaybe(handleRequestObjectValue_migrated(context));
-}
+    
 private Mono<JWT> handleRequestObjectValue_migrated(RoutingContext context) {
         final String request = context.request().getParam(Parameters.REQUEST);
 
@@ -191,11 +187,7 @@ private Mono<JWT> handleRequestObjectValue_migrated(RoutingContext context) {
         return jwt;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateRequestObjectClaims_migrated(context, jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<JWT> validateRequestObjectClaims(RoutingContext context, JWT jwt) {
- return RxJava2Adapter.monoToSingle(validateRequestObjectClaims_migrated(context, jwt));
-}
+    
 private Mono<JWT> validateRequestObjectClaims_migrated(RoutingContext context, JWT jwt) {
         if (this.domain.usePlainFapiProfile()) {
             try {
@@ -272,11 +264,7 @@ private Mono<JWT> validateRequestObjectClaims_migrated(RoutingContext context, J
         return throwUriException ? new InvalidRequestUriException(msg) : new InvalidRequestObjectException(msg);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.handleRequestObjectURI_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<JWT> handleRequestObjectURI(RoutingContext context) {
- return RxJava2Adapter.monoToMaybe(handleRequestObjectURI_migrated(context));
-}
+    
 private Mono<JWT> handleRequestObjectURI_migrated(RoutingContext context) {
         final String requestUri = context.request().getParam(Parameters.REQUEST_URI);
 

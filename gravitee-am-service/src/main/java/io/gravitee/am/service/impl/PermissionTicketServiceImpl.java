@@ -98,19 +98,7 @@ return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setCl
                 .flatMapSingle(permissionTicket -> RxJava2Adapter.monoToSingle(repository.delete_migrated(permissionTicket.getId()).then(Mono.just(permissionTicket)))));
     }
 
-    /**
-     * Validate if all requested resources are known and contains the requested scopes.
-     * Resources must belong to the same resource owner.
-     * @param requestedPermissions Requested resources and associated scopes.
-     * @param registeredResources Current registered resource sets.
-     * @param requestedResourcesIds List of current requested resource set ids.
-     * @return Permission requests input parameter if ok, else an error.
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validatePermissionRequest_migrated(requestedPermissions, registeredResources, requestedResourcesIds))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<List<PermissionRequest>> validatePermissionRequest(List<PermissionRequest> requestedPermissions, List<Resource> registeredResources, List<String> requestedResourcesIds) {
- return RxJava2Adapter.monoToSingle(validatePermissionRequest_migrated(requestedPermissions, registeredResources, requestedResourcesIds));
-}
+    
 private Mono<List<PermissionRequest>> validatePermissionRequest_migrated(List<PermissionRequest> requestedPermissions, List<Resource> registeredResources, List<String> requestedResourcesIds) {
         //Check fetched resources is not empty
         if(registeredResources==null || registeredResources.isEmpty()) {

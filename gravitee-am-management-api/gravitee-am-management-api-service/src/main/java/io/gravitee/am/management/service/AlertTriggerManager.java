@@ -111,7 +111,7 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
 
         final Payload payload = (Payload) event.content();
         RxJava2Adapter.monoToMaybe(domainService.findById_migrated(payload.getReferenceId()))
-                .flatMapPublisher((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.fluxToFlowable(prepareAETriggers_migrated(ident)))
+                .flatMapPublisher((io.gravitee.am.model.Domain ident) -> prepareAETriggers_migrated(ident))
                 .flatMapSingle((io.gravitee.alert.api.trigger.Trigger ident) -> RxJava2Adapter.monoToSingle(registerAETrigger_migrated(ident)))
                 .count()
                 .subscribe(count -> LOGGER.info("{} alert triggers synchronized with the alerting system for domain [{}].", count, payload.getReferenceId()),
@@ -147,11 +147,7 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
                         throwable -> LOGGER.error("An error occurred when trying to synchronize alert triggers with alerting system for domain [{}] after the alert notifier {} event [{}].", payload.getReferenceId(), event.type().name().toLowerCase(), payload.getId(), throwable));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.registerAETrigger_migrated(trigger))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Trigger> registerAETrigger(Trigger trigger) {
- return RxJava2Adapter.monoToSingle(registerAETrigger_migrated(trigger));
-}
+    
 private Mono<Trigger> registerAETrigger_migrated(Trigger trigger) {
         return RxJava2Adapter.singleToMono(Single.defer(() -> {
             triggerProvider.register(trigger);
@@ -160,21 +156,13 @@ private Mono<Trigger> registerAETrigger_migrated(Trigger trigger) {
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.prepareAETriggers_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Flowable<Trigger> prepareAETriggers(Domain domain) {
- return RxJava2Adapter.fluxToFlowable(prepareAETriggers_migrated(domain));
-}
+    
 private Flux<Trigger> prepareAETriggers_migrated(Domain domain) {
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(alertTriggerService.findByDomainAndCriteria_migrated(domain.getId(), new AlertTriggerCriteria()))
                 .flatMapSingle(alertTrigger -> RxJava2Adapter.monoToSingle(this.prepareAETrigger_migrated(domain, alertTrigger))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.prepareAETrigger_migrated(domain, alertTrigger))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Trigger> prepareAETrigger(Domain domain, AlertTrigger alertTrigger) {
- return RxJava2Adapter.monoToSingle(prepareAETrigger_migrated(domain, alertTrigger));
-}
+    
 private Mono<Trigger> prepareAETrigger_migrated(Domain domain, AlertTrigger alertTrigger) {
         final AlertNotifierCriteria alertNotifierCriteria = new AlertNotifierCriteria();
         alertNotifierCriteria.setEnabled(true);

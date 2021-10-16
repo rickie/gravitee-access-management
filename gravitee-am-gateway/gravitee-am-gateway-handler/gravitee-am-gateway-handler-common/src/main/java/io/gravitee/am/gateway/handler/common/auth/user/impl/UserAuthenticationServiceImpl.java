@@ -154,11 +154,7 @@ return RxJava2Adapter.monoToMaybe(update_migrated(z, idpUser, false).flatMap(a->
                 }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).type(EventType.USER_LOCKED).domain(criteria.domain()).client(criteria.client()).principal(null).user(user1)))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.saveOrUpdate_migrated(principal, afterAuthentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<User> saveOrUpdate(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
- return RxJava2Adapter.monoToSingle(saveOrUpdate_migrated(principal, afterAuthentication));
-}
+    
 private Mono<User> saveOrUpdate_migrated(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         String source = (String) principal.getAdditionalInformation().get(SOURCE_FIELD);
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(userService.findByDomainAndExternalIdAndSource_migrated(domain.getId(), principal.getId(), source).switchIfEmpty(Mono.defer(()->userService.findByDomainAndUsernameAndSource_migrated(domain.getId(), principal.getUsername(), source))).switchIfEmpty(Mono.error(new UserNotFoundException(principal.getUsername()))))
@@ -171,16 +167,7 @@ private Mono<User> saveOrUpdate_migrated(io.gravitee.am.identityprovider.api.Use
                 }));
     }
 
-    /**
-     * Check the user account status
-     * @param user Authenticated user
-     * @return Completable.complete() or Completable.error(error) if account status is not ok
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.checkAccountStatus_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable checkAccountStatus(User user) {
- return RxJava2Adapter.monoToCompletable(checkAccountStatus_migrated(user));
-}
+    
 private Mono<Void> checkAccountStatus_migrated(User user) {
         if (!user.isEnabled()) {
             return Mono.error(new AccountDisabledException("Account is disabled for user " + user.getUsername()));
@@ -188,18 +175,7 @@ private Mono<Void> checkAccountStatus_migrated(User user) {
         return Mono.empty();
     }
 
-    /**
-     * Update user information with data from the identity provider user
-     * @param existingUser existing user in the repository
-     * @param principal user from the identity provider
-     * @param afterAuthentication if update operation is called after a sign in operation
-     * @return updated user
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(existingUser, principal, afterAuthentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<User> update(User existingUser, io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
- return RxJava2Adapter.monoToSingle(update_migrated(existingUser, principal, afterAuthentication));
-}
+    
 private Mono<User> update_migrated(User existingUser, io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         LOGGER.debug("Updating user: username[%s]", principal.getUsername());
         // set external id
@@ -226,17 +202,7 @@ private Mono<User> update_migrated(User existingUser, io.gravitee.am.identitypro
         return userService.update_migrated(existingUser);
     }
 
-    /**
-     * Create user with data from the identity provider user
-     * @param principal user from the identity provider
-     * @param afterAuthentication if create operation is called after a sign in operation
-     * @return created user
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(principal, afterAuthentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<User> create(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
- return RxJava2Adapter.monoToSingle(create_migrated(principal, afterAuthentication));
-}
+    
 private Mono<User> create_migrated(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         LOGGER.debug("Creating a new user: username[%s]", principal.getUsername());
         final User newUser = new User();

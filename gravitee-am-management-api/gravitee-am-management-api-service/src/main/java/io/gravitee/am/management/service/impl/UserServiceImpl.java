@@ -423,11 +423,7 @@ return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(checkClientFu
         this.expireAfter = expireAfter;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.assignRoles0_migrated(referenceType, referenceId, userId, roles, principal, revoke))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<User> assignRoles0(ReferenceType referenceType, String referenceId, String userId, List<String> roles, io.gravitee.am.identityprovider.api.User principal, boolean revoke) {
- return RxJava2Adapter.monoToSingle(assignRoles0_migrated(referenceType, referenceId, userId, roles, principal, revoke));
-}
+    
 private Mono<User> assignRoles0_migrated(ReferenceType referenceType, String referenceId, String userId, List<String> roles, io.gravitee.am.identityprovider.api.User principal, boolean revoke) {
         return findById_migrated(referenceType, referenceId, userId).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)oldUser -> {
                     User userToUpdate = new User(oldUser);
@@ -458,11 +454,7 @@ private Mono<User> assignRoles0_migrated(ReferenceType referenceType, String ref
         };
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.checkRoles_migrated(roles))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable checkRoles(List<String> roles) {
- return RxJava2Adapter.monoToCompletable(checkRoles_migrated(roles));
-}
+    
 private Mono<Void> checkRoles_migrated(List<String> roles) {
         return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(roleService.findByIdIn_migrated(roles).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
                     if (roles1.size() != roles.size()) {

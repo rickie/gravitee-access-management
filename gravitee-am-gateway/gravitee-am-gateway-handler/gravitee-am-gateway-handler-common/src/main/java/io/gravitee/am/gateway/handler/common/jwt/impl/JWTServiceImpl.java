@@ -156,11 +156,7 @@ public class JWTServiceImpl implements JWTService {
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.sign_migrated(certificateProvider, jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<String> sign(CertificateProvider certificateProvider, JWT jwt) {
- return RxJava2Adapter.monoToSingle(sign_migrated(certificateProvider, jwt));
-}
+    
 private Mono<String> sign_migrated(CertificateProvider certificateProvider, JWT jwt) {
         return RxJava2Adapter.singleToMono(Single.create(emitter -> {
             try {
@@ -173,11 +169,7 @@ private Mono<String> sign_migrated(CertificateProvider certificateProvider, JWT 
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decode_migrated(certificateProvider, payload))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<String, Object>> decode(CertificateProvider certificateProvider, String payload) {
- return RxJava2Adapter.monoToSingle(decode_migrated(certificateProvider, payload));
-}
+    
 private Mono<Map<String,Object>> decode_migrated(CertificateProvider certificateProvider, String payload) {
         return RxJava2Adapter.singleToMono(Single.create(emitter -> {
             try {

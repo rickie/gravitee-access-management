@@ -217,17 +217,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
         return false;
     }
 
-    /**
-     * Enhance user information with roles and groups if the access token contains those scopes
-     * @param user The end user
-     * @param accessToken The access token with required scopes
-     * @return enhanced user
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enhance_migrated(user, accessToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<User> enhance(User user, JWT accessToken) {
- return RxJava2Adapter.monoToSingle(enhance_migrated(user, accessToken));
-}
+    
 private Mono<User> enhance_migrated(User user, JWT accessToken) {
         if (!loadRoles(user, accessToken) && !loadGroups(accessToken)) {
             return Mono.just(user);

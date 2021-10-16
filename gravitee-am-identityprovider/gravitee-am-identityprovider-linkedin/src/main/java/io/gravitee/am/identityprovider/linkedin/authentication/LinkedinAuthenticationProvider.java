@@ -160,11 +160,7 @@ return z;
 })));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.requestEmailAddress_migrated(accessToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<Optional<String>> requestEmailAddress(Token accessToken) {
- return RxJava2Adapter.monoToMaybe(requestEmailAddress_migrated(accessToken));
-}
+    
 private Mono<Optional<String>> requestEmailAddress_migrated(Token accessToken) {
         if (configuration.getScopes().contains(SCOPE_EMAIL)) {
             return RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserEmailAddressUri())

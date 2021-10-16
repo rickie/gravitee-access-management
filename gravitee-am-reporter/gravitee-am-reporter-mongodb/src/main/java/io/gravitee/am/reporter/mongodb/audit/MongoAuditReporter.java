@@ -196,11 +196,7 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeHistogram_migrated(criteria, query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<Object, Object>> executeHistogram(AuditReportableCriteria criteria, Bson query) {
- return RxJava2Adapter.monoToSingle(executeHistogram_migrated(criteria, query));
-}
+    
 private Mono<Map<Object,Object>> executeHistogram_migrated(AuditReportableCriteria criteria, Bson query) {
         // NOTE : MongoDB does not return count : 0 if there is no matching document in the given time range, we need to add it by hand
         Map<Long, Long> intervals = intervals(criteria);
@@ -241,11 +237,7 @@ private Mono<Map<Object,Object>> executeHistogram_migrated(AuditReportableCriter
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeGroupBy_migrated(criteria, query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<Object, Object>> executeGroupBy(AuditReportableCriteria criteria, Bson query) {
- return RxJava2Adapter.monoToSingle(executeGroupBy_migrated(criteria, query));
-}
+    
 private Mono<Map<Object,Object>> executeGroupBy_migrated(AuditReportableCriteria criteria, Bson query) {
         return RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.aggregate(
                 Arrays.asList(
@@ -256,20 +248,12 @@ private Mono<Map<Object,Object>> executeGroupBy_migrated(AuditReportableCriteria
                 .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(docs -> docs.stream().collect(Collectors.toMap(d -> ((Document) d.get("_id")).get("_id"), d -> d.get("count")))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeCount_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<Object, Object>> executeCount(Bson query) {
- return RxJava2Adapter.monoToSingle(executeCount_migrated(query));
-}
+    
 private Mono<Map<Object,Object>> executeCount_migrated(Bson query) {
         return RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.countDocuments(query)).first(0l)).map(RxJavaReactorMigrationUtil.toJdkFunction(data -> Collections.singletonMap("data", data)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.bulk_migrated(audits))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Flowable<BulkWriteResult> bulk(List<Audit> audits) {
- return RxJava2Adapter.fluxToFlowable(bulk_migrated(audits));
-}
+    
 private Flux<BulkWriteResult> bulk_migrated(List<Audit> audits) {
         if (audits == null || audits.isEmpty()) {
             return Flux.empty();

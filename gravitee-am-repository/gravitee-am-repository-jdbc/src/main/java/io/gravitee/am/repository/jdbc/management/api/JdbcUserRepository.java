@@ -126,7 +126,7 @@ public class JdbcUserRepository extends AbstractJdbcRepository implements UserRe
                 .orderBy(Sort.Order.asc("id"))
                 .page(PageRequest.of(page, size))
                 .as(JdbcUser.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
-                .flatMap(user -> RxJava2Adapter.fluxToFlowable(completeUser_migrated(user).flux()), CONCURRENT_FLATMAP)).collectList().flatMap(content->userRepository.countByReference_migrated(referenceType.name(), referenceId).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<User>(content, page, count))));
+                .flatMap(user -> completeUser_migrated(user).flux(), CONCURRENT_FLATMAP)).collectList().flatMap(content->userRepository.countByReference_migrated(referenceType.name(), referenceId).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<User>(content, page, count))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -151,7 +151,7 @@ public class JdbcUserRepository extends AbstractJdbcRepository implements UserRe
                 .bind("refType", referenceType.name())
                 .as(JdbcUser.class)
                 .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
-                .flatMap(app -> RxJava2Adapter.fluxToFlowable(completeUser_migrated(app).flux()), CONCURRENT_FLATMAP)).collectList().flatMap(data->dbClient.execute(count).bind("value", wildcardSearch ? wildcardValue : query).bind("refId", referenceId).bind("refType", referenceType.name()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<User>(data, page, total))));
+                .flatMap(app -> completeUser_migrated(app).flux(), CONCURRENT_FLATMAP)).collectList().flatMap(data->dbClient.execute(count).bind("value", wildcardSearch ? wildcardValue : query).bind("refId", referenceId).bind("refType", referenceType.name()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<User>(data, page, total))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -254,7 +254,7 @@ public class JdbcUserRepository extends AbstractJdbcRepository implements UserRe
             return Flux.empty();
         }
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(userRepository.findByIdIn_migrated(ids).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
-                .flatMap(user -> RxJava2Adapter.fluxToFlowable(completeUser_migrated(user).flux()), CONCURRENT_FLATMAP));
+                .flatMap(user -> completeUser_migrated(user).flux(), CONCURRENT_FLATMAP));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -309,11 +309,7 @@ public class JdbcUserRepository extends AbstractJdbcRepository implements UserRe
         return Mono.just(Collections.emptyMap());
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.usersStatusRepartition_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<Object, Object>> usersStatusRepartition(AnalyticsQuery query) {
- return RxJava2Adapter.monoToSingle(usersStatusRepartition_migrated(query));
-}
+    
 private Mono<Map<Object,Object>> usersStatusRepartition_migrated(AnalyticsQuery query) {
         boolean filteringByApplication = query.getApplication() != null && !query.getApplication().isEmpty();
 
@@ -350,11 +346,7 @@ return stats;
                 })))).apply(v)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.registrationsStatusRepartition_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<Object, Object>> registrationsStatusRepartition(AnalyticsQuery query) {
- return RxJava2Adapter.monoToSingle(registrationsStatusRepartition_migrated(query));
-}
+    
 private Mono<Map<Object,Object>> registrationsStatusRepartition_migrated(AnalyticsQuery query) {
         LOGGER.debug("process statistic registrationsStatusRepartition({})", query);
         Single<Long> total = RxJava2Adapter.monoToSingle(userRepository.countPreRegisteredUser_migrated(DOMAIN.name(), query.getDomain(), true));
@@ -574,11 +566,7 @@ return stats;
         return deleteRoles.then(deleteAddresses).then(deleteAttributes).then(deleteEntitlements);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.completeUser_migrated(userToComplete))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<User> completeUser(User userToComplete) {
- return RxJava2Adapter.monoToSingle(completeUser_migrated(userToComplete));
-}
+    
 private Mono<User> completeUser_migrated(User userToComplete) {
         return Mono.just(userToComplete).flatMap(user->roleRepository.findByUserId_migrated(user.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcUser.Role::getRole)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> roles)->{
 user.setRoles(roles);

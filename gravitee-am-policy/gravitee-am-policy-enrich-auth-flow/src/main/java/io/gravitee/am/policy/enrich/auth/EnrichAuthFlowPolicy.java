@@ -83,11 +83,7 @@ public class EnrichAuthFlowPolicy {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enrichAuthFlowContext_migrated(executionContext))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<AuthenticationFlowContext> enrichAuthFlowContext(ExecutionContext executionContext) {
- return RxJava2Adapter.monoToSingle(enrichAuthFlowContext_migrated(executionContext));
-}
+    
 private Mono<AuthenticationFlowContext> enrichAuthFlowContext_migrated(ExecutionContext executionContext) {
         Map<String, Object> data = new HashMap<>();
         TemplateEngine tplEngine = executionContext.getTemplateEngine();

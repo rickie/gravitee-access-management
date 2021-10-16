@@ -151,11 +151,7 @@ public class RepositoryCredentialStore {
         return promise.future();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.create_migrated(authenticator))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable create(Authenticator authenticator) {
- return RxJava2Adapter.monoToCompletable(create_migrated(authenticator));
-}
+    
 private Mono<Void> create_migrated(Authenticator authenticator) {
         Credential credential = new Credential();
         credential.setReferenceType(ReferenceType.DOMAIN);
@@ -187,11 +183,7 @@ private Mono<Void> create_migrated(Authenticator authenticator) {
         return authenticator;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.generateCredID_migrated(username, claim))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<String> generateCredID(String username, String claim) {
- return RxJava2Adapter.monoToSingle(generateCredID_migrated(username, claim));
-}
+    
 private Mono<String> generateCredID_migrated(String username, String claim) {
         return RxJava2Adapter.singleToMono(Single.create(emitter -> {
             String credID = jwtBuilder.sign(new JWT(Collections.singletonMap(claim, username))).split("\\.")[2];

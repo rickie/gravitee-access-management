@@ -90,7 +90,7 @@ public class FlowServiceImpl implements FlowService {
 @Override
     public Flux<Flow> findAll_migrated(ReferenceType referenceType, String referenceId, boolean excludeApps) {
         LOGGER.debug("Find all flows for {} {}", referenceType, referenceId);
-        return flowRepository.findAll_migrated(referenceType, referenceId).filter(RxJavaReactorMigrationUtil.toJdkPredicate(f -> (!excludeApps) ? true : f.getApplication() == null)).sort(getFlowComparator()).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(defaultFlows(referenceType, referenceId)))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return flowRepository.findAll_migrated(referenceType, referenceId).filter(RxJavaReactorMigrationUtil.toJdkPredicate(f -> (!excludeApps) ? true : f.getApplication() == null)).sort(getFlowComparator()).switchIfEmpty(Flux.fromIterable(defaultFlows(referenceType, referenceId))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                 LOGGER.error("An error has occurred while trying to find all flows for {} {}", referenceType, referenceId, ex);
                 return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error has occurred while trying to find a all flows for %s %s", referenceType, referenceId), ex)));
             }));
@@ -105,10 +105,10 @@ public class FlowServiceImpl implements FlowService {
 @Override
     public Flux<Flow> findByApplication_migrated(ReferenceType referenceType, String referenceId, String application) {
         LOGGER.debug("Find all flows for {} {} and application {}", referenceType, referenceId, application);
-        return flowRepository.findByApplication_migrated(referenceType, referenceId, application).sort(getFlowComparator()).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(defaultFlows(referenceType, referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(flow -> {
+        return flowRepository.findByApplication_migrated(referenceType, referenceId, application).sort(getFlowComparator()).switchIfEmpty(Flux.fromIterable(defaultFlows(referenceType, referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(flow -> {
                             flow.setApplication(application);
                             return flow;
-                        })))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+                        }))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error has occurred while trying to find all flows for {} {} and application {}", referenceType, referenceId, application, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error has occurred while trying to find a all flows for %s %s and application %s", referenceType, referenceId, application), ex)));
                 }));
@@ -317,11 +317,7 @@ public class FlowServiceImpl implements FlowService {
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOrUpdate0_migrated(referenceType, referenceId, application, flows, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<List<Flow>> createOrUpdate0(ReferenceType referenceType, String referenceId, String application, List<Flow> flows, User principal) {
- return RxJava2Adapter.monoToSingle(createOrUpdate0_migrated(referenceType, referenceId, application, flows, principal));
-}
+    
 private Mono<List<Flow>> createOrUpdate0_migrated(ReferenceType referenceType, String referenceId, String application, List<Flow> flows, User principal) {
 
         computeFlowOrders(flows);
@@ -399,11 +395,7 @@ private Mono<List<Flow>> createOrUpdate0_migrated(ReferenceType referenceType, S
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create0_migrated(referenceType, referenceId, application, flow, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Flow> create0(ReferenceType referenceType, String referenceId, String application, Flow flow, User principal) {
- return RxJava2Adapter.monoToSingle(create0_migrated(referenceType, referenceId, application, flow, principal));
-}
+    
 private Mono<Flow> create0_migrated(ReferenceType referenceType, String referenceId, String application, Flow flow, User principal) {
         if (flow.getOrder() == null) {
             flow.setOrder(Integer.MAX_VALUE); // if order is null put at the end

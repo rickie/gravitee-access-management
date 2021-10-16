@@ -150,11 +150,7 @@ public class FactorServiceImpl implements FactorService {
                 })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_CREATED).factor(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_CREATED).throwable(throwable))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkFactorConfiguration_migrated(factor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Factor> checkFactorConfiguration(Factor factor) {
- return RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factor));
-}
+    
 private Mono<Factor> checkFactorConfiguration_migrated(Factor factor) {
         if (SMS_AM_FACTOR.equalsIgnoreCase(factor.getType())) {
             // for SMS Factor, check that countries code provided into the configuration are valid

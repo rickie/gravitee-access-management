@@ -159,11 +159,7 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
                         error -> resultHandler.handle(Future.failedFuture(error)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getAuthorizeUrl_migrated(identityProviderId, context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<String> getAuthorizeUrl(String identityProviderId, RoutingContext context) {
- return RxJava2Adapter.monoToMaybe(getAuthorizeUrl_migrated(identityProviderId, context));
-}
+    
 private Mono<String> getAuthorizeUrl_migrated(String identityProviderId, RoutingContext context) {
         return identityProviderManager.get_migrated(identityProviderId).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<String>>toJdkFunction(authenticationProvider -> {
                     // Generate a state containing provider id and current query parameter string. This state will be sent back to AM after social authentication.

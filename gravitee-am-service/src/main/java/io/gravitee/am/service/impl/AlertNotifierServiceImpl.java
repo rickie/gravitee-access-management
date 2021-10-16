@@ -204,11 +204,7 @@ public class AlertNotifierServiceImpl implements AlertNotifierService {
         return this.getById_migrated(referenceType, referenceId, notifierId).flatMap(alertNotifier->deleteInternal_migrated(alertNotifier, byUser)).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated(toCreate, byUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<AlertNotifier> createInternal(AlertNotifier toCreate, User byUser) {
- return RxJava2Adapter.monoToSingle(createInternal_migrated(toCreate, byUser));
-}
+    
 private Mono<AlertNotifier> createInternal_migrated(AlertNotifier toCreate, User byUser) {
 
         Date now = new Date();
@@ -220,11 +216,7 @@ private Mono<AlertNotifier> createInternal_migrated(AlertNotifier toCreate, User
         return alertNotifierRepository.create_migrated(toCreate).flatMap(updated->eventService.create_migrated(new Event(Type.ALERT_NOTIFIER, new Payload(updated.getId(), updated.getReferenceType(), updated.getReferenceId(), Action.CREATE))).then().then(Mono.just(updated))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(alertTrigger -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_CREATED).alertNotifier(alertTrigger).principal(byUser)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_CREATED).alertNotifier(toCreate).principal(byUser).throwable(throwable))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateInternal_migrated(alertNotifier, updatedBy, previous))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<AlertNotifier> updateInternal(AlertNotifier alertNotifier, User updatedBy, AlertNotifier previous) {
- return RxJava2Adapter.monoToSingle(updateInternal_migrated(alertNotifier, updatedBy, previous));
-}
+    
 private Mono<AlertNotifier> updateInternal_migrated(AlertNotifier alertNotifier, User updatedBy, AlertNotifier previous) {
 
         alertNotifier.setUpdatedAt(new Date());
@@ -232,11 +224,7 @@ private Mono<AlertNotifier> updateInternal_migrated(AlertNotifier alertNotifier,
         return alertNotifierRepository.update_migrated(alertNotifier).flatMap(updated->eventService.create_migrated(new Event(Type.ALERT_NOTIFIER, new Payload(updated.getId(), updated.getReferenceType(), updated.getReferenceId(), Action.UPDATE))).then().then(Mono.just(updated))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(updated -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_UPDATED).alertNotifier(updated).principal(updatedBy).oldValue(previous)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_UPDATED).alertNotifier(previous).principal(updatedBy).throwable(throwable))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteInternal_migrated(alertNotifier, deletedBy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable deleteInternal(AlertNotifier alertNotifier, User deletedBy) {
- return RxJava2Adapter.monoToCompletable(deleteInternal_migrated(alertNotifier, deletedBy));
-}
+    
 private Mono<Void> deleteInternal_migrated(AlertNotifier alertNotifier, User deletedBy) {
         return RxJava2Adapter.monoToCompletable(alertNotifierRepository.delete_migrated(alertNotifier.getId()).then(eventService.create_migrated(new Event(Type.ALERT_NOTIFIER, new Payload(alertNotifier.getId(), alertNotifier.getReferenceType(), alertNotifier.getReferenceId(), Action.DELETE))).then()))
                 .doOnComplete(() -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_DELETED).alertNotifier(alertNotifier).principal(deletedBy))).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_DELETED).alertNotifier(alertNotifier).principal(deletedBy).throwable(throwable))));

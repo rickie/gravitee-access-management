@@ -276,17 +276,7 @@ return RxJava2Adapter.monoToSingle(Mono.just(reporter1));
                 }));
     }
 
-    /**
-     * This method check if the configuration attribute of a Reporter is valid
-     *
-     * @param reporter to check
-     * @return
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkReporterConfiguration_migrated(reporter))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Reporter> checkReporterConfiguration(Reporter reporter) {
- return RxJava2Adapter.monoToSingle(checkReporterConfiguration_migrated(reporter));
-}
+    
 private Mono<Reporter> checkReporterConfiguration_migrated(Reporter reporter) {
         Single<Reporter> result = RxJava2Adapter.monoToSingle(Mono.just(reporter));
 

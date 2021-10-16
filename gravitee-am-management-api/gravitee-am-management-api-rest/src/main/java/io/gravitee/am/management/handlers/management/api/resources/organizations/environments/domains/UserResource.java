@@ -267,11 +267,7 @@ public class UserResource extends AbstractResource {
         return resourceContext.getResource(UserCredentialsResource.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.enhanceIdentityProvider_migrated(userEntity))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<UserEntity> enhanceIdentityProvider(UserEntity userEntity) {
- return RxJava2Adapter.monoToMaybe(enhanceIdentityProvider_migrated(userEntity));
-}
+    
 private Mono<UserEntity> enhanceIdentityProvider_migrated(UserEntity userEntity) {
         if (userEntity.getSource() != null) {
             return identityProviderService.findById_migrated(userEntity.getSource()).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
@@ -282,11 +278,7 @@ private Mono<UserEntity> enhanceIdentityProvider_migrated(UserEntity userEntity)
         return Mono.just(userEntity);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.enhanceClient_migrated(userEntity))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<UserEntity> enhanceClient(UserEntity userEntity) {
- return RxJava2Adapter.monoToMaybe(enhanceClient_migrated(userEntity));
-}
+    
 private Mono<UserEntity> enhanceClient_migrated(UserEntity userEntity) {
         if (userEntity.getClient() != null) {
             return applicationService.findById_migrated(userEntity.getClient()).switchIfEmpty(Mono.defer(()->applicationService.findByDomainAndClientId_migrated(userEntity.getReferenceId(), userEntity.getClient()))).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> {

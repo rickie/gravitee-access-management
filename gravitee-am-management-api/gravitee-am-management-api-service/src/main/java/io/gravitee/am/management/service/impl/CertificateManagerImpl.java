@@ -95,11 +95,7 @@ public class CertificateManagerImpl extends AbstractService<CertificateManager> 
         return doGetCertificateProvider_migrated(certificateId, System.currentTimeMillis());
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.doGetCertificateProvider_migrated(certificateId, startTime))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<CertificateProvider> doGetCertificateProvider(String certificateId, long startTime) {
- return RxJava2Adapter.monoToMaybe(doGetCertificateProvider_migrated(certificateId, startTime));
-}
+    
 private Mono<CertificateProvider> doGetCertificateProvider_migrated(String certificateId, long startTime) {
         CertificateProvider certificateProvider = certificateProviders.get(certificateId);
 

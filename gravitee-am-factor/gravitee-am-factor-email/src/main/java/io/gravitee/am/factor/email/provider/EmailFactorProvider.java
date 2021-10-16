@@ -159,11 +159,7 @@ public class EmailFactorProvider implements FactorProvider {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.generateCodeAndSendEmail_migrated(context, provider, enrolledFactor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable generateCodeAndSendEmail(FactorContext context, EmailSenderProvider provider, EnrolledFactor enrolledFactor) {
- return RxJava2Adapter.monoToCompletable(generateCodeAndSendEmail_migrated(context, provider, enrolledFactor));
-}
+    
 private Mono<Void> generateCodeAndSendEmail_migrated(FactorContext context, EmailSenderProvider provider, EnrolledFactor enrolledFactor) {
         logger.debug("Generating factor code of {} digits", configuration.getReturnDigits());
 

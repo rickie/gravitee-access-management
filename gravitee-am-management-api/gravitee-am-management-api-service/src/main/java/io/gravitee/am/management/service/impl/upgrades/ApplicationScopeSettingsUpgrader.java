@@ -96,11 +96,7 @@ public class ApplicationScopeSettingsUpgrader implements Upgrader, Ordered {
         return upgraded;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.processUpgrade_migrated(instanceOperationId, task, conditionalOperationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Boolean> processUpgrade(String instanceOperationId, SystemTask task, String conditionalOperationId) {
- return RxJava2Adapter.monoToSingle(processUpgrade_migrated(instanceOperationId, task, conditionalOperationId));
-}
+    
 private Mono<Boolean> processUpgrade_migrated(String instanceOperationId, SystemTask task, String conditionalOperationId) {
         return updateSystemTask_migrated(task, (SystemTaskStatus.ONGOING), conditionalOperationId).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<SystemTask, SingleSource<Boolean>>toJdkFunction(updatedTask -> {
                     if (updatedTask.getOperationId().equals(instanceOperationId)) {
@@ -111,11 +107,7 @@ private Mono<Boolean> processUpgrade_migrated(String instanceOperationId, System
                 }).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> true));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createSystemTask_migrated(operationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<SystemTask> createSystemTask(String operationId) {
- return RxJava2Adapter.monoToSingle(createSystemTask_migrated(operationId));
-}
+    
 private Mono<SystemTask> createSystemTask_migrated(String operationId) {
         SystemTask  systemTask = new SystemTask();
         systemTask.setId(TASK_ID);
@@ -131,22 +123,14 @@ private Mono<SystemTask> createSystemTask_migrated(String operationId) {
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateSystemTask_migrated(task, status, operationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<SystemTask>  updateSystemTask(SystemTask task, SystemTaskStatus status, String operationId) {
- return RxJava2Adapter.monoToSingle(updateSystemTask_migrated(task, status, operationId));
-}
+    
 private Mono<SystemTask>  updateSystemTask_migrated(SystemTask task, SystemTaskStatus status, String operationId) {
         task.setUpdatedAt(new Date());
         task.setStatus(status.name());
         return systemTaskRepository.updateIf_migrated(task, operationId);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.migrateScopeSettings_migrated(task))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Boolean> migrateScopeSettings(SystemTask task) {
- return RxJava2Adapter.monoToSingle(migrateScopeSettings_migrated(task));
-}
+    
 private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findAll_migrated()).flatMapSingle(app -> {
                     logger.debug("Process application '{}'", app.getId());
@@ -210,7 +194,7 @@ private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
 
         @Override
         public Publisher<?> apply(@NonNull Flowable<Throwable> attempts) throws Exception {
-            return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(attempts).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((throwable) -> {
+            return RxJava2Adapter.flowableToFlux(attempts).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((throwable) -> {
                         if (++retryCount < maxRetries) {
                             // When this Observable calls onNext, the original
                             // Observable will be retried (i.e. re-subscribed).
@@ -219,7 +203,7 @@ private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
                         }
                         // Max retries hit. Just pass the error along.
                         return RxJava2Adapter.fluxToFlowable(Flux.error(throwable));
-                    })));
+                    }));
         }
     }
 }

@@ -174,11 +174,7 @@ public class RequestObjectServiceImpl implements RequestObjectService {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateSignature_migrated(jwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<JWT> validateSignature(SignedJWT jwt, Client client) {
- return RxJava2Adapter.monoToSingle(validateSignature_migrated(jwt, client));
-}
+    
 private Mono<JWT> validateSignature_migrated(SignedJWT jwt, Client client) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client).switchIfEmpty(Mono.error(new InvalidRequestObjectException())).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWKSet, MaybeSource<JWK>>toJdkFunction(new Function<JWKSet, MaybeSource<JWK>>() {
                     @Override
@@ -204,11 +200,7 @@ private Mono<JWT> validateSignature_migrated(SignedJWT jwt, Client client) {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.checkRequestObjectAlgorithm_migrated(jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable checkRequestObjectAlgorithm(JWT jwt) {
- return RxJava2Adapter.monoToCompletable(checkRequestObjectAlgorithm_migrated(jwt));
-}
+    
 private Mono<Void> checkRequestObjectAlgorithm_migrated(JWT jwt) {
         // The authorization server shall verify that the request object is valid, the signature algorithm is not
         // none, and the signature is correct as in clause 6.3 of [OIDC].

@@ -130,20 +130,12 @@ protected Mono<TokenRequest> resolveRequest_migrated(TokenRequest tokenRequest, 
         this.supportRefreshToken = supportRefreshToken;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.handleRequest_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Token> handleRequest(TokenRequest tokenRequest, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(handleRequest_migrated(tokenRequest, client, endUser));
-}
+    
 private Mono<Token> handleRequest_migrated(TokenRequest tokenRequest, Client client, User endUser) {
         return resolveRequest_migrated(tokenRequest, client, endUser).flatMap(tokenRequest1->createOAuth2Request_migrated(tokenRequest1, client, endUser)).flatMap(oAuth2Request->createAccessToken_migrated(oAuth2Request, client, endUser));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOAuth2Request_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<OAuth2Request> createOAuth2Request(TokenRequest tokenRequest, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(createOAuth2Request_migrated(tokenRequest, client, endUser));
-}
+    
 private Mono<OAuth2Request> createOAuth2Request_migrated(TokenRequest tokenRequest, Client client, User endUser) {
         return Mono.just(tokenRequest.createOAuth2Request()).map(RxJavaReactorMigrationUtil.toJdkFunction(oAuth2Request -> {
                     if (endUser != null) {
@@ -154,11 +146,7 @@ private Mono<OAuth2Request> createOAuth2Request_migrated(TokenRequest tokenReque
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createAccessToken_migrated(oAuth2Request, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Token> createAccessToken(OAuth2Request oAuth2Request, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(createAccessToken_migrated(oAuth2Request, client, endUser));
-}
+    
 private Mono<Token> createAccessToken_migrated(OAuth2Request oAuth2Request, Client client, User endUser) {
         return tokenService.create_migrated(oAuth2Request, client, endUser);
     }

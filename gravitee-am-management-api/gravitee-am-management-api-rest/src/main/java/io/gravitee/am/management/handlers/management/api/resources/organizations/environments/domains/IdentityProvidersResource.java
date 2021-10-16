@@ -81,7 +81,7 @@ public class IdentityProvidersResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
 
         RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_IDENTITY_PROVIDER, Acl.LIST).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapPublisher(__ -> RxJava2Adapter.fluxToFlowable(identityProviderService.findByDomain_migrated(domain)))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(identityProvider -> {
+                        .flatMapPublisher(__ -> identityProviderService.findByDomain_migrated(domain))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(identityProvider -> {
                             if (userProvider) {
                                 return identityProviderManager.userProviderExists(identityProvider.getId());
                             }

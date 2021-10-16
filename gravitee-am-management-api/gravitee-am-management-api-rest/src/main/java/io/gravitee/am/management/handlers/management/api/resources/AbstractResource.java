@@ -124,11 +124,7 @@ protected Mono<Void> checkAnyPermission_migrated(String organizationId, String e
                 of(ReferenceType.ORGANIZATION, organizationId, permission, acls)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.checkPermissions_migrated(authenticatedUser, permissionAcls))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable checkPermissions(User authenticatedUser, PermissionAcls permissionAcls) {
- return RxJava2Adapter.monoToCompletable(checkPermissions_migrated(authenticatedUser, permissionAcls));
-}
+    
 private Mono<Void> checkPermissions_migrated(User authenticatedUser, PermissionAcls permissionAcls) {
 
         return hasPermission_migrated(authenticatedUser, permissionAcls).flatMap(ident->checkPermission_migrated(ident)).then();
@@ -237,11 +233,7 @@ protected Mono<Map<ReferenceType,Map<Permission,Set<Acl>>>> findAllPermissions_m
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.checkPermission_migrated(hasPermission))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable checkPermission(Boolean hasPermission) {
- return RxJava2Adapter.monoToCompletable(checkPermission_migrated(hasPermission));
-}
+    
 private Mono<Void> checkPermission_migrated(Boolean hasPermission) {
 
         if (!hasPermission) {

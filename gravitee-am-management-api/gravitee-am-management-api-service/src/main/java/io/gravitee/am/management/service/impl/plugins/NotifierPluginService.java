@@ -139,11 +139,7 @@ public Mono<String> getDocumentation_migrated(String notifierId) {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.convert_migrated(plugin, expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<NotifierPlugin> convert(Plugin plugin, String... expand) {
- return RxJava2Adapter.monoToSingle(convert_migrated(plugin, expand));
-}
+    
 private Mono<NotifierPlugin> convert_migrated(Plugin plugin, String... expand) {
         NotifierPlugin notifierPlugin = new NotifierPlugin();
         notifierPlugin.setId(plugin.manifest().id());

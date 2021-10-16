@@ -123,11 +123,7 @@ public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
                 }).apply(e))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findUserByMultipleField_migrated(value))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Flowable<Document> findUserByMultipleField(String value) {
- return RxJava2Adapter.fluxToFlowable(findUserByMultipleField_migrated(value));
-}
+    
 private Flux<Document> findUserByMultipleField_migrated(String value) {
         MongoCollection<Document> usersCol = this.mongoClient.getDatabase(this.configuration.getDatabase()).getCollection(this.configuration.getUsersCollection());
         String findQuery = this.configuration.getFindUserByMultipleFieldsQuery() != null ? this.configuration.getFindUserByMultipleFieldsQuery() : this.configuration.getFindUserByUsernameQuery();
@@ -147,11 +143,7 @@ public Mono<User> loadUserByUsername_migrated(String username) {
         return findUserByUsername_migrated(encodedUsername).map(RxJavaReactorMigrationUtil.toJdkFunction(document -> createUser(new SimpleAuthenticationContext(), document)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<Document> findUserByUsername(String username) {
- return RxJava2Adapter.monoToMaybe(findUserByUsername_migrated(username));
-}
+    
 private Mono<Document> findUserByUsername_migrated(String username) {
         MongoCollection<Document> usersCol = this.mongoClient.getDatabase(this.configuration.getDatabase()).getCollection(this.configuration.getUsersCollection());
         String rawQuery = this.configuration.getFindUserByUsernameQuery().replaceAll("\\?", username);

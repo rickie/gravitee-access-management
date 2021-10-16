@@ -82,22 +82,7 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
                 );
     }
 
-    /**
-     * Specification state :
-     * Requesting multiple permissions might be appropriate, for example, in cases where the resource server expects the requesting party
-     * to need access to several related resources if they need access to any one of the resources
-     *
-     * Means : Body can either be a JsonArray or a JsonObject, we need to handle both case.
-     *
-     * See <a href="https://docs.kantarainitiative.org/uma/wg/rec-oauth-uma-federated-authz-2.0.html#permission-endpoint">here</a>
-     * @param context RoutingContext
-     * @return List of PermissionRequest
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<List<PermissionTicketRequest>> extractRequest(RoutingContext context) {
- return RxJava2Adapter.monoToSingle(extractRequest_migrated(context));
-}
+    
 private Mono<List<PermissionTicketRequest>> extractRequest_migrated(RoutingContext context) {
         List<PermissionTicketRequest> result;
         Object json;
@@ -129,14 +114,7 @@ private Mono<List<PermissionTicketRequest>> extractRequest_migrated(RoutingConte
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Both resource_id & resource_scopes are mandatory fields.
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.bodyValidation_migrated(toValidate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<List<PermissionTicketRequest>> bodyValidation(List<PermissionTicketRequest> toValidate) {
- return RxJava2Adapter.monoToSingle(bodyValidation_migrated(toValidate));
-}
+    
 private Mono<List<PermissionTicketRequest>> bodyValidation_migrated(List<PermissionTicketRequest> toValidate) {
         if(toValidate.stream().filter(invalidPermissionRequest()).count() > 0) {
             return Mono.error(new InvalidRequestException("resource_id and resource_scopes are mandatory."));

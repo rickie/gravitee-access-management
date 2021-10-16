@@ -61,11 +61,7 @@ public class DomainUpgrader implements Upgrader, Ordered {
 
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.upgradeDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Domain> upgradeDomain(Domain domain) {
- return RxJava2Adapter.monoToSingle(upgradeDomain_migrated(domain));
-}
+    
 private Mono<Domain> upgradeDomain_migrated(Domain domain) {
         if(domain.getOidc()!=null) {
             return Mono.just(domain);

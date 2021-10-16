@@ -280,7 +280,7 @@ return RxJava2Adapter.monoToSingle(createInternal_migrated(membership, null));
 
         MembershipCriteria criteria = convert(newMembership);
 
-        return this.findByCriteria_migrated(ReferenceType.DOMAIN, domainId, criteria).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.defer(RxJavaReactorMigrationUtil.callableAsSupplier(() -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(roleService.findDefaultRole_migrated(organizationId, DefaultRole.DOMAIN_USER, ReferenceType.DOMAIN))
+        return this.findByCriteria_migrated(ReferenceType.DOMAIN, domainId, criteria).switchIfEmpty(Flux.defer(RxJavaReactorMigrationUtil.callableAsSupplier(() -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(roleService.findDefaultRole_migrated(organizationId, DefaultRole.DOMAIN_USER, ReferenceType.DOMAIN))
                         .flatMapSingle(role -> {
                             final Membership domainMembership = new Membership();
                             domainMembership.setMemberId(newMembership.getMemberId());
@@ -289,7 +289,7 @@ return RxJava2Adapter.monoToSingle(createInternal_migrated(membership, null));
                             domainMembership.setReferenceId(domainId);
                             domainMembership.setReferenceType(ReferenceType.DOMAIN);
                             return RxJava2Adapter.monoToSingle(this.createInternal_migrated(domainMembership, principal));
-                        })).flux()))))).ignoreElements().then().then(addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal));
+                        })).flux())))).ignoreElements().then().then(addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -303,7 +303,7 @@ return RxJava2Adapter.monoToSingle(createInternal_migrated(membership, null));
 
         MembershipCriteria criteria = convert(newMembership);
 
-        return this.findByCriteria_migrated(ReferenceType.ENVIRONMENT, environmentId, criteria).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.defer(RxJavaReactorMigrationUtil.callableAsSupplier(() -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(roleService.findDefaultRole_migrated(organizationId, DefaultRole.ENVIRONMENT_USER, ReferenceType.ENVIRONMENT))
+        return this.findByCriteria_migrated(ReferenceType.ENVIRONMENT, environmentId, criteria).switchIfEmpty(Flux.defer(RxJavaReactorMigrationUtil.callableAsSupplier(() -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(roleService.findDefaultRole_migrated(organizationId, DefaultRole.ENVIRONMENT_USER, ReferenceType.ENVIRONMENT))
                         .flatMapSingle(role -> {
                             final Membership environmentMembership = new Membership();
                             environmentMembership.setMemberId(newMembership.getMemberId());
@@ -312,14 +312,10 @@ return RxJava2Adapter.monoToSingle(createInternal_migrated(membership, null));
                             environmentMembership.setReferenceId(environmentId);
                             environmentMembership.setReferenceType(ReferenceType.ENVIRONMENT);
                             return RxJava2Adapter.monoToSingle(this.createInternal_migrated(environmentMembership, principal));
-                        })).flux()))))).ignoreElements().then();
+                        })).flux())))).ignoreElements().then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated(membership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Membership> createInternal(Membership membership, User principal) {
- return RxJava2Adapter.monoToSingle(createInternal_migrated(membership, principal));
-}
+    
 private Mono<Membership> createInternal_migrated(Membership membership, User principal) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
                     Event event = new Event(Type.MEMBERSHIP, new Payload(membership1.getId(), membership1.getReferenceType(), membership1.getReferenceId(), Action.CREATE));
@@ -367,16 +363,7 @@ private Mono<Membership> createInternal_migrated(Membership membership, User pri
         return filteredRole;
     }
 
-    /**
-     * Member must exist and be part of the organization users/groups
-     * @param membership
-     * @return
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.checkMember_migrated(organizationId, membership))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable checkMember(String organizationId, Membership membership) {
- return RxJava2Adapter.monoToCompletable(checkMember_migrated(organizationId, membership));
-}
+    
 private Mono<Void> checkMember_migrated(String organizationId, Membership membership) {
 
         if (MemberType.USER == membership.getMemberType()) {
@@ -386,16 +373,7 @@ private Mono<Void> checkMember_migrated(String organizationId, Membership member
         }
     }
 
-    /**
-     * Role must exists and be of the platform roles (i.e master domain)
-     * @param membership the membership to check role on.
-     * @return
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.checkRole_migrated(organizationId, membership))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable checkRole(String organizationId, Membership membership) {
- return RxJava2Adapter.monoToCompletable(checkRole_migrated(organizationId, membership));
-}
+    
 private Mono<Void> checkRole_migrated(String organizationId, Membership membership) {
         return roleService.findById_migrated(membership.getRoleId()).switchIfEmpty(Mono.error(new RoleNotFoundException(membership.getRoleId()))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Role, MaybeSource<Role>>toJdkFunction(role -> {
                     // If role is a 'PRIMARY_OWNER' role, need to check if it is already assigned or not.

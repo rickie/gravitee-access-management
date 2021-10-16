@@ -161,20 +161,12 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
                 );
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<NewResource> extractRequest(RoutingContext context) {
- return RxJava2Adapter.monoToSingle(extractRequest_migrated(context));
-}
+    
 private Mono<NewResource> extractRequest_migrated(RoutingContext context) {
         return Mono.just(context.getBodyAsJson()).flatMap(v->bodyValidation_migrated(v)).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.bodyValidation_migrated(body))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<JsonObject> bodyValidation(JsonObject body) {
- return RxJava2Adapter.monoToSingle(bodyValidation_migrated(body));
-}
+    
 private Mono<JsonObject> bodyValidation_migrated(JsonObject body) {
         //Only one field is required from the spec, others are tag as optional
         if (body == null || !body.containsKey("resource_scopes")) {

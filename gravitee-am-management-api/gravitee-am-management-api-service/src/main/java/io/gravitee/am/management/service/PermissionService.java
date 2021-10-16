@@ -146,11 +146,7 @@ protected Mono<Boolean> haveConsistentReferenceIds_migrated(PermissionAcls permi
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isApplicationIdConsistent_migrated(applicationId, domainId, environmentId, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Boolean> isApplicationIdConsistent(String applicationId, String domainId, String environmentId, String organizationId) {
- return RxJava2Adapter.monoToSingle(isApplicationIdConsistent_migrated(applicationId, domainId, environmentId, organizationId));
-}
+    
 private Mono<Boolean> isApplicationIdConsistent_migrated(String applicationId, String domainId, String environmentId, String organizationId) {
 
         if(domainId == null && environmentId == null && organizationId == null) {
@@ -168,11 +164,7 @@ private Mono<Boolean> isApplicationIdConsistent_migrated(String applicationId, S
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isDomainIdConsistent_migrated(domainId, environmentId, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Boolean> isDomainIdConsistent(String domainId, String environmentId, String organizationId) {
- return RxJava2Adapter.monoToSingle(isDomainIdConsistent_migrated(domainId, environmentId, organizationId));
-}
+    
 private Mono<Boolean> isDomainIdConsistent_migrated(String domainId, String environmentId, String organizationId) {
 
         if(environmentId == null && organizationId == null) {
@@ -190,11 +182,7 @@ private Mono<Boolean> isDomainIdConsistent_migrated(String domainId, String envi
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isEnvironmentIdConsistent_migrated(environmentId, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Boolean> isEnvironmentIdConsistent(String environmentId, String organizationId) {
- return RxJava2Adapter.monoToSingle(isEnvironmentIdConsistent_migrated(environmentId, organizationId));
-}
+    
 private Mono<Boolean> isEnvironmentIdConsistent_migrated(String environmentId, String organizationId) {
 
         if (organizationId == null) {
@@ -205,11 +193,7 @@ private Mono<Boolean> isEnvironmentIdConsistent_migrated(String environmentId, S
                 .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(false))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findMembershipPermissions_migrated(user, referenceStream))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<Membership, Map<Permission, Set<Acl>>>> findMembershipPermissions(User user, Stream<Map.Entry<ReferenceType, String>> referenceStream) {
- return RxJava2Adapter.monoToSingle(findMembershipPermissions_migrated(user, referenceStream));
-}
+    
 private Mono<Map<Membership,Map<Permission,Set<Acl>>>> findMembershipPermissions_migrated(User user, Stream<Map.Entry<ReferenceType, String>> referenceStream) {
 
         if (user.getId() == null) {

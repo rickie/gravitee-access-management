@@ -152,11 +152,7 @@ return toCreate;
 })).flatMap(toCreate->createInternal_migrated(toCreate, byUser))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated(toCreate, createdBy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Environment> createInternal(Environment toCreate, User createdBy) {
- return RxJava2Adapter.monoToSingle(createInternal_migrated(toCreate, createdBy));
-}
+    
 private Mono<Environment> createInternal_migrated(Environment toCreate, User createdBy) {
 
         Date now = new Date();
@@ -167,11 +163,7 @@ private Mono<Environment> createInternal_migrated(Environment toCreate, User cre
         return environmentRepository.create_migrated(toCreate).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_CREATED).environment(environment).principal(createdBy)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_CREATED).environment(toCreate).principal(createdBy).throwable(throwable))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateInternal_migrated(toUpdate, updatedBy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Environment> updateInternal(Environment toUpdate, User updatedBy) {
- return RxJava2Adapter.monoToSingle(updateInternal_migrated(toUpdate, updatedBy));
-}
+    
 private Mono<Environment> updateInternal_migrated(Environment toUpdate, User updatedBy) {
 
         toUpdate.setUpdatedAt(new Date());

@@ -256,11 +256,7 @@ public class GroupServiceImpl implements GroupService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setMembers_migrated(group, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Group> setMembers(Group group, String baseUrl) {
- return RxJava2Adapter.monoToSingle(setMembers_migrated(group, baseUrl));
-}
+    
 private Mono<Group> setMembers_migrated(Group group, String baseUrl) {
         Set<Member> members = group.getMembers() != null ? new HashSet<>(group.getMembers()) : null;
         if (members != null && !members.isEmpty()) {

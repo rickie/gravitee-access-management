@@ -178,11 +178,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.readRequestObject_migrated(client, request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<JWT> readRequestObject(Client client, String request) {
- return RxJava2Adapter.monoToSingle(readRequestObject_migrated(client, request));
-}
+    
 private Mono<JWT> readRequestObject_migrated(Client client, String request) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jweService.decrypt_migrated(request, false))
                 .onErrorResumeNext((ex) -> {
@@ -222,11 +218,7 @@ private Mono<JWT> readRequestObject_migrated(Client client, String request) {
         return jwt;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateSignature_migrated(jwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<JWT> validateSignature(SignedJWT jwt, Client client) {
- return RxJava2Adapter.monoToSingle(validateSignature_migrated(jwt, client));
-}
+    
 private Mono<JWT> validateSignature_migrated(SignedJWT jwt, Client client) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client).switchIfEmpty(Mono.error(new InvalidRequestObjectException())).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWKSet, MaybeSource<JWK>>toJdkFunction(new Function<JWKSet, MaybeSource<JWK>>() {
                     @Override

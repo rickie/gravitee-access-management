@@ -105,11 +105,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
                 }).apply(e))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.selectUserByMultipleField_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Flowable<Map<String, Object>> selectUserByMultipleField(String username) {
- return RxJava2Adapter.fluxToFlowable(selectUserByMultipleField_migrated(username));
-}
+    
 private Flux<Map<String,Object>> selectUserByMultipleField_migrated(String username) {
         String rawQuery = configuration.getSelectUserByMultipleFieldsQuery() != null ? configuration.getSelectUserByMultipleFieldsQuery() : configuration.getSelectUserByUsernameQuery();
         String[] args = prepareIndexParameters(rawQuery);
@@ -144,11 +140,7 @@ private Flux<Map<String,Object>> selectUserByMultipleField_migrated(String usern
         return selectUserByUsername_migrated(username).map(RxJavaReactorMigrationUtil.toJdkFunction(attributes -> createUser(new SimpleAuthenticationContext(), attributes)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.selectUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<Map<String, Object>> selectUserByUsername(String username) {
- return RxJava2Adapter.monoToMaybe(selectUserByUsername_migrated(username));
-}
+    
 private Mono<Map<String,Object>> selectUserByUsername_migrated(String username) {
         final String sql = String.format(configuration.getSelectUserByUsernameQuery(), getIndexParameter(configuration.getUsernameAttribute()));
         return Flux.from(connectionPool.create()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(connection -> RxJava2Adapter.fluxToFlowable(Flux.from(connection.createStatement(sql).bind(0, username).execute()))

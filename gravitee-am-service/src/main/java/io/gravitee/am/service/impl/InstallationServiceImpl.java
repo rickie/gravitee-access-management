@@ -114,11 +114,7 @@ public class InstallationServiceImpl implements InstallationService {
         return this.installationRepository.find_migrated().flatMap(installation->installationRepository.delete_migrated(installation.getId())).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Installation> createInternal() {
- return RxJava2Adapter.monoToSingle(createInternal_migrated());
-}
+    
 private Mono<Installation> createInternal_migrated() {
 
         final Date now = Date.from(Instant.now());
@@ -131,11 +127,7 @@ private Mono<Installation> createInternal_migrated() {
         return installationRepository.create_migrated(installation);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateInternal_migrated(toUpdate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Installation> updateInternal(Installation toUpdate) {
- return RxJava2Adapter.monoToSingle(updateInternal_migrated(toUpdate));
-}
+    
 private Mono<Installation> updateInternal_migrated(Installation toUpdate) {
 
         final Date now = Date.from(Instant.now());

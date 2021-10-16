@@ -115,17 +115,7 @@ public class ClientAssertionServiceImpl implements ClientAssertionService {
         return Mono.error(unsupportedAssertionType);
     }
 
-    /**
-     * This method will parse the JWT bearer then ensure that all requested claims are set as required
-     * <a href="https://tools.ietf.org/html/rfc7523#section-3">here</a>
-     * @param assertion jwt as string value.
-     * @return
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.validateJWT_migrated(assertion, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<JWT> validateJWT(String assertion, String basePath) {
- return RxJava2Adapter.monoToMaybe(validateJWT_migrated(assertion, basePath));
-}
+    
 private Mono<JWT> validateJWT_migrated(String assertion, String basePath) {
         try {
             JWT jwt = JWTParser.parse(assertion);
@@ -169,11 +159,7 @@ private Mono<JWT> validateJWT_migrated(String assertion, String basePath) {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.validateSignatureWithPublicKey_migrated(jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<Client> validateSignatureWithPublicKey(JWT jwt) {
- return RxJava2Adapter.monoToMaybe(validateSignatureWithPublicKey_migrated(jwt));
-}
+    
 private Mono<Client> validateSignatureWithPublicKey_migrated(JWT jwt) {
         try {
             String clientId = jwt.getJWTClaimsSet().getSubject();
@@ -201,11 +187,7 @@ private Mono<Client> validateSignatureWithPublicKey_migrated(JWT jwt) {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.validateSignatureWithHMAC_migrated(jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<Client> validateSignatureWithHMAC(JWT jwt) {
- return RxJava2Adapter.monoToMaybe(validateSignatureWithHMAC_migrated(jwt));
-}
+    
 private Mono<Client> validateSignatureWithHMAC_migrated(JWT jwt) {
         try {
             Algorithm algorithm = jwt.getHeader().getAlgorithm();
@@ -250,11 +232,7 @@ private Mono<Client> validateSignatureWithHMAC_migrated(JWT jwt) {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getClientJwkSet_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<JWKSet> getClientJwkSet(Client client) {
- return RxJava2Adapter.monoToMaybe(getClientJwkSet_migrated(client));
-}
+    
 private Mono<JWKSet> getClientJwkSet_migrated(Client client) {
         if(client.getJwksUri()!=null && !client.getJwksUri().trim().isEmpty()) {
             return jwkService.getKeys_migrated(client.getJwksUri());

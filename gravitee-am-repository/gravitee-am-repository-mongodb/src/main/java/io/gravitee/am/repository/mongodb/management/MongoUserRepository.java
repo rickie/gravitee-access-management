@@ -145,11 +145,7 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
         return Mono.just(Collections.emptyMap());
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.usersStatusRepartition_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<Object, Object>> usersStatusRepartition(AnalyticsQuery query) {
- return RxJava2Adapter.monoToSingle(usersStatusRepartition_migrated(query));
-}
+    
 private Mono<Map<Object,Object>> usersStatusRepartition_migrated(AnalyticsQuery query) {
         List<Bson> filters = new ArrayList<>(Arrays.asList(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, query.getDomain())));
         if (query.getApplication() != null && !query.getApplication().isEmpty()) {
@@ -181,11 +177,7 @@ private Mono<Map<Object,Object>> usersStatusRepartition_migrated(AnalyticsQuery 
                 .first(Collections.emptyMap()));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.registrationsStatusRepartition_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Map<Object, Object>> registrationsStatusRepartition(AnalyticsQuery query) {
- return RxJava2Adapter.monoToSingle(registrationsStatusRepartition_migrated(query));
-}
+    
 private Mono<Map<Object,Object>> registrationsStatusRepartition_migrated(AnalyticsQuery query) {
         return RxJava2Adapter.singleToMono(Observable.fromPublisher(usersCollection.aggregate(
                 Arrays.asList(

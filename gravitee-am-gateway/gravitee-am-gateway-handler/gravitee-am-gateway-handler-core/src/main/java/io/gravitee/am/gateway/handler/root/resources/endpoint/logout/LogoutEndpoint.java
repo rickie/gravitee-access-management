@@ -168,11 +168,7 @@ public class LogoutEndpoint extends AbstractLogoutEndpoint {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.generateLogoutCallback_migrated(routingContext, endUser, endpoint))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<Optional<String>> generateLogoutCallback(RoutingContext routingContext, User endUser, Request endpoint) {
- return RxJava2Adapter.monoToMaybe(generateLogoutCallback_migrated(routingContext, endUser, endpoint));
-}
+    
 private Mono<Optional<String>> generateLogoutCallback_migrated(RoutingContext routingContext, User endUser, Request endpoint) {
         // Case of OIDC provider
         // Single Logout can be done only if the endUser profile contains an IdToken.

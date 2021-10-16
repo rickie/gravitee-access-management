@@ -127,11 +127,7 @@ public class RolesResource extends AbstractResource {
         return resourceContext.getResource(RoleResource.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.searchRoles_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Page<Role>> searchRoles(String domain, String query, int page, int size) {
- return RxJava2Adapter.monoToSingle(searchRoles_migrated(domain, query, page, size));
-}
+    
 private Mono<Page<Role>> searchRoles_migrated(String domain, String query, int page, int size) {
         if (query == null) {
             return roleService.findByDomain_migrated(domain, page, Math.min(MAX_ROLES_SIZE_PER_PAGE, size));

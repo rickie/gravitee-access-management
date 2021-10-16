@@ -71,11 +71,7 @@ protected Mono<Page<User>> searchUsers_migrated(ReferenceType referenceType,
         return executeSearchUsers_migrated(service, referenceType, referenceId, query, filter, page, size);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeSearchUsers_migrated(service, referenceType, referenceId, query, filter, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Page<User>> executeSearchUsers(CommonUserService service, ReferenceType referenceType, String referenceId, String query, String filter, int page, int size) {
- return RxJava2Adapter.monoToSingle(executeSearchUsers_migrated(service, referenceType, referenceId, query, filter, page, size));
-}
+    
 private Mono<Page<User>> executeSearchUsers_migrated(CommonUserService service, ReferenceType referenceType, String referenceId, String query, String filter, int page, int size) {
         if (query != null) {
             return service.search_migrated(referenceType, referenceId, query, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE));

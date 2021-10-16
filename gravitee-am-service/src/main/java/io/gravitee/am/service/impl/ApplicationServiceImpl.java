@@ -582,11 +582,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create0_migrated(domain, application, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Application> create0(String domain, Application application, User principal) {
- return RxJava2Adapter.monoToSingle(create0_migrated(domain, application, principal));
-}
+    
 private Mono<Application> create0_migrated(String domain, Application application, User principal) {
         // created and updated date
         application.setCreatedAt(new Date());
@@ -615,12 +611,7 @@ private Mono<Application> create0_migrated(String domain, Application applicatio
                 }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(application1 -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CREATED).application(application1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CREATED).throwable(throwable))));
     }
 
-    //TODO Boualem : domain never used
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update0_migrated(domain, currentApplication, applicationToUpdate, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Application> update0(String domain, Application currentApplication, Application applicationToUpdate, User principal) {
- return RxJava2Adapter.monoToSingle(update0_migrated(domain, currentApplication, applicationToUpdate, principal));
-}
+    
 private Mono<Application> update0_migrated(String domain, Application currentApplication, Application applicationToUpdate, User principal) {
         // updated date
         applicationToUpdate.setUpdatedAt(new Date());
@@ -632,16 +623,7 @@ private Mono<Application> update0_migrated(String domain, Application currentApp
                 }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(application -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_UPDATED).oldValue(currentApplication).application(application)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_UPDATED).throwable(throwable))));
     }
 
-    /**
-     * Set default domain certificate for the application
-     * @param application the application to create
-     * @return the application with the certificate
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setDefaultCertificate_migrated(application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Application> setDefaultCertificate(Application application) {
- return RxJava2Adapter.monoToSingle(setDefaultCertificate_migrated(application));
-}
+    
 private Mono<Application> setDefaultCertificate_migrated(Application application) {
         // certificate might have been set via DCR, continue
         if (application.getCertificate() != null) {
@@ -662,11 +644,7 @@ private Mono<Application> setDefaultCertificate_migrated(Application application
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.checkApplicationUniqueness_migrated(domain, application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable checkApplicationUniqueness(String domain, Application application) {
- return RxJava2Adapter.monoToCompletable(checkApplicationUniqueness_migrated(domain, application));
-}
+    
 private Mono<Void> checkApplicationUniqueness_migrated(String domain, Application application) {
         final String clientId = application.getSettings() != null && application.getSettings().getOauth() != null ? application.getSettings().getOauth().getClientId() : null;
         return findByDomainAndClientId_migrated(domain, clientId).hasElement().flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)isEmpty -> {
@@ -677,11 +655,7 @@ private Mono<Void> checkApplicationUniqueness_migrated(String domain, Applicatio
                 }).apply(y)))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateApplicationIdentityProviders_migrated(application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Application> validateApplicationIdentityProviders(Application application) {
- return RxJava2Adapter.monoToSingle(validateApplicationIdentityProviders_migrated(application));
-}
+    
 private Mono<Application> validateApplicationIdentityProviders_migrated(Application application) {
         if (application.getIdentities() == null || application.getIdentities().isEmpty()) {
             return Mono.just(application);
@@ -704,21 +678,7 @@ private Mono<Application> validateApplicationIdentityProviders_migrated(Applicat
                 }));
     }
 
-    /**
-     * <pre>
-     * This function will return an error if :
-     * We try to enable Dynamic Client Registration on client side while it is not enabled on domain.
-     * The redirect_uris do not respect domain conditions (localhost, scheme and wildcard)
-     * </pre>
-     *
-     * @param application application to check
-     * @return a client only if every conditions are respected.
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateApplicationMetadata_migrated(application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Application> validateApplicationMetadata(Application application) {
- return RxJava2Adapter.monoToSingle(validateApplicationMetadata_migrated(application));
-}
+    
 private Mono<Application> validateApplicationMetadata_migrated(Application application) {
         // do nothing if application has no settings
         if (application.getSettings() == null) {
@@ -730,11 +690,7 @@ private Mono<Application> validateApplicationMetadata_migrated(Application appli
         return GrantTypeUtils.validateGrantTypes_migrated(application).flatMap(v->validateRedirectUris_migrated(v)).flatMap(v->validateScopes_migrated(v)).flatMap(v->validateTokenEndpointAuthMethod_migrated(v)).flatMap(v->RxJava2Adapter.singleToMono((Single<Application>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Application, Single<Application>>)(io.gravitee.am.model.Application ident) -> RxJava2Adapter.monoToSingle(validateTlsClientAuth_migrated(ident))).apply(v)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateRedirectUris_migrated(application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Application> validateRedirectUris(Application application) {
- return RxJava2Adapter.monoToSingle(validateRedirectUris_migrated(application));
-}
+    
 private Mono<Application> validateRedirectUris_migrated(Application application) {
         ApplicationOAuthSettings oAuthSettings = application.getSettings().getOauth();
 
@@ -786,11 +742,7 @@ private Mono<Application> validateRedirectUris_migrated(Application application)
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateScopes_migrated(application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Application> validateScopes(Application application) {
- return RxJava2Adapter.monoToSingle(validateScopes_migrated(application));
-}
+    
 private Mono<Application> validateScopes_migrated(Application application) {
         ApplicationOAuthSettings oAuthSettings = application.getSettings().getOauth();
         // check scope approvals and default scopes coherency
@@ -812,11 +764,7 @@ private Mono<Application> validateScopes_migrated(Application application) {
                 }).apply(v)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateTokenEndpointAuthMethod_migrated(application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Application> validateTokenEndpointAuthMethod(Application application) {
- return RxJava2Adapter.monoToSingle(validateTokenEndpointAuthMethod_migrated(application));
-}
+    
 private Mono<Application> validateTokenEndpointAuthMethod_migrated(Application application) {
         ApplicationOAuthSettings oauthSettings = application.getSettings().getOauth();
         String tokenEndpointAuthMethod = oauthSettings.getTokenEndpointAuthMethod();
@@ -827,16 +775,7 @@ private Mono<Application> validateTokenEndpointAuthMethod_migrated(Application a
         return Mono.just(application);
     }
 
-    /**
-     * A client using the "tls_client_auth" authentication method MUST use exactly one of the
-     * below metadata parameters to indicate the certificate subject value that the authorization server is
-     * to expect when authenticating the respective client.
-     */
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateTlsClientAuth_migrated(application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Application> validateTlsClientAuth(Application application) {
- return RxJava2Adapter.monoToSingle(validateTlsClientAuth_migrated(application));
-}
+    
 private Mono<Application> validateTlsClientAuth_migrated(Application application) {
         ApplicationOAuthSettings settings = application.getSettings().getOauth();
         if (settings.getTokenEndpointAuthMethod() != null &&

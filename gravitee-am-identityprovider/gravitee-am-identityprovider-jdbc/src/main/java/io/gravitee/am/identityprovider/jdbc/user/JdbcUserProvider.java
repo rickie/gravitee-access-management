@@ -129,11 +129,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
         return selectUserByEmail_migrated(email).map(RxJavaReactorMigrationUtil.toJdkFunction(this::createUser));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.selectUserByEmail_migrated(email))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<Map<String, Object>> selectUserByEmail(String email) {
- return RxJava2Adapter.monoToMaybe(selectUserByEmail_migrated(email));
-}
+    
 private Mono<Map<String,Object>> selectUserByEmail_migrated(String email) {
         final String sql = String.format(configuration.getSelectUserByEmailQuery(), getIndexParameter(1, configuration.getEmailAttribute()));
         return query_migrated(sql, email).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(result -> result.map(ColumnMapRowMapper::mapRow))).next();
@@ -221,11 +217,7 @@ private Mono<Map<String,Object>> selectUserByEmail_migrated(String email) {
                 }).apply(v)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.selectUserByUsername_migrated(cnx, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<Map<String, Object>> selectUserByUsername(Connection cnx, String username) {
- return RxJava2Adapter.monoToMaybe(selectUserByUsername_migrated(cnx, username));
-}
+    
 private Mono<Map<String,Object>> selectUserByUsername_migrated(Connection cnx, String username) {
         final String sql = String.format(configuration.getSelectUserByUsernameQuery(), getIndexParameter(1, configuration.getUsernameAttribute()));
         return query_migrated(cnx, sql, username).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(result -> result.map(ColumnMapRowMapper::mapRow))).next();
@@ -318,21 +310,13 @@ private Mono<Map<String,Object>> selectUserByUsername_migrated(Connection cnx, S
                 }).apply(y))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.selectUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Maybe<Map<String, Object>> selectUserByUsername(String username) {
- return RxJava2Adapter.monoToMaybe(selectUserByUsername_migrated(username));
-}
+    
 private Mono<Map<String,Object>> selectUserByUsername_migrated(String username) {
         final String sql = String.format(configuration.getSelectUserByUsernameQuery(), getIndexParameter(1, configuration.getUsernameAttribute()));
         return query_migrated(sql, username).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(result -> result.map(ColumnMapRowMapper::mapRow))).next();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.query_migrated(connection, sql, args))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Flowable<Result> query(Connection connection, String sql, Object... args) {
- return RxJava2Adapter.fluxToFlowable(query_migrated(connection, sql, args));
-}
+    
 private Flux<Result> query_migrated(Connection connection, String sql, Object... args) {
         Statement statement = connection.createStatement(sql);
         for (int i = 0; i < args.length; i++) {
@@ -342,11 +326,7 @@ private Flux<Result> query_migrated(Connection connection, String sql, Object...
         return Flux.from(statement.execute());
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.query_migrated(sql, args))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Flowable<Result> query(String sql, Object... args) {
- return RxJava2Adapter.fluxToFlowable(query_migrated(sql, args));
-}
+    
 private Flux<Result> query_migrated(String sql, Object... args) {
         return RxJava2Adapter.singleToMono(Single.fromPublisher(connectionPool.create())).flux().flatMap(RxJavaReactorMigrationUtil.toJdkFunction(connection ->
                         RxJava2Adapter.fluxToFlowable(query_migrated(connection, sql, args))

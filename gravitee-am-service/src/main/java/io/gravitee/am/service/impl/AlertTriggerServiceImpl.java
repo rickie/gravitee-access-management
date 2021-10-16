@@ -193,11 +193,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
         return this.getById_migrated(referenceType, referenceId, alertTriggerId).flatMap(alertTrigger->deleteInternal_migrated(alertTrigger, byUser)).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated(toCreate, byUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<AlertTrigger> createInternal(AlertTrigger toCreate, User byUser) {
- return RxJava2Adapter.monoToSingle(createInternal_migrated(toCreate, byUser));
-}
+    
 private Mono<AlertTrigger> createInternal_migrated(AlertTrigger toCreate, User byUser) {
 
         Date now = new Date();
@@ -208,11 +204,7 @@ private Mono<AlertTrigger> createInternal_migrated(AlertTrigger toCreate, User b
         return alertTriggerRepository.create_migrated(toCreate).flatMap(created->eventService.create_migrated(new Event(Type.ALERT_TRIGGER, new Payload(created.getId(), created.getReferenceType(), created.getReferenceId(), Action.CREATE))).then().then(Mono.just(created))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(alertTrigger -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_CREATED).alertTrigger(alertTrigger).principal(byUser)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_CREATED).alertTrigger(toCreate).principal(byUser).throwable(throwable))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateInternal_migrated(alertTrigger, updatedBy, previous))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<AlertTrigger> updateInternal(AlertTrigger alertTrigger, User updatedBy, AlertTrigger previous) {
- return RxJava2Adapter.monoToSingle(updateInternal_migrated(alertTrigger, updatedBy, previous));
-}
+    
 private Mono<AlertTrigger> updateInternal_migrated(AlertTrigger alertTrigger, User updatedBy, AlertTrigger previous) {
 
         alertTrigger.setUpdatedAt(new Date());
@@ -221,11 +213,7 @@ private Mono<AlertTrigger> updateInternal_migrated(AlertTrigger alertTrigger, Us
     }
 
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteInternal_migrated(alertTrigger, deletedBy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Completable deleteInternal(AlertTrigger alertTrigger, User deletedBy) {
- return RxJava2Adapter.monoToCompletable(deleteInternal_migrated(alertTrigger, deletedBy));
-}
+    
 private Mono<Void> deleteInternal_migrated(AlertTrigger alertTrigger, User deletedBy) {
         return RxJava2Adapter.monoToCompletable(alertTriggerRepository.delete_migrated(alertTrigger.getId()).then(eventService.create_migrated(new Event(Type.ALERT_TRIGGER, new Payload(alertTrigger.getId(), alertTrigger.getReferenceType(), alertTrigger.getReferenceId(), Action.DELETE))).then()))
                 .doOnComplete(() -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_DELETED).alertTrigger(alertTrigger).principal(deletedBy))).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertTriggerAuditBuilder.class).type(EventType.ALERT_TRIGGER_DELETED).alertTrigger(alertTrigger).principal(deletedBy).throwable(throwable))));

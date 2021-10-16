@@ -66,7 +66,7 @@ public class EntrypointsResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ENTRYPOINT, Acl.LIST).thenMany(RxJava2Adapter.fluxToFlowable(entrypointService.findAll_migrated(organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterEntrypointInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList())
+        RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_ENTRYPOINT, Acl.LIST).thenMany(entrypointService.findAll_migrated(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterEntrypointInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList())
                 .subscribe(response::resume, response::resume);
     }
 

@@ -59,11 +59,7 @@ public class TokenEnhancerImpl implements TokenEnhancer {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enhanceIDToken_migrated(accessToken, client, user, oAuth2Request, executionContext))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<Token> enhanceIDToken(Token accessToken, Client client, User user, OAuth2Request oAuth2Request, ExecutionContext executionContext) {
- return RxJava2Adapter.monoToSingle(enhanceIDToken_migrated(accessToken, client, user, oAuth2Request, executionContext));
-}
+    
 private Mono<Token> enhanceIDToken_migrated(Token accessToken, Client client, User user, OAuth2Request oAuth2Request, ExecutionContext executionContext) {
         if (oAuth2Request.isSupportAtHashValue()) {
             oAuth2Request.getContext().put(Claims.at_hash, accessToken.getValue());

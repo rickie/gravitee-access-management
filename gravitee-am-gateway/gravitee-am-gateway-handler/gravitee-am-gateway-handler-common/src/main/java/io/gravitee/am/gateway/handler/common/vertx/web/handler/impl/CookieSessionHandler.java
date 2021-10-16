@@ -115,11 +115,7 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
                 .subscribe();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.cleanupSession_migrated(currentSession))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-private Single<CookieSession> cleanupSession(CookieSession currentSession) {
- return RxJava2Adapter.monoToSingle(cleanupSession_migrated(currentSession));
-}
+    
 private Mono<CookieSession> cleanupSession_migrated(CookieSession currentSession) {
         return RxJava2Adapter.singleToMono(Single.defer(() -> {
             // Empty the session to avoid using data of another user (mainly used if user has not been found or in case of error).
