@@ -138,7 +138,7 @@ private Mono<Entrypoint> completeTags_migrated(Entrypoint entrypoint) {
             }).reduce(Integer::sum));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create entrypoint with id {}", item.getId(), error)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create entrypoint with id {}", item.getId(), error)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -167,7 +167,7 @@ private Mono<Entrypoint> completeTags_migrated(Entrypoint entrypoint) {
             }).reduce(Integer::sum));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(deleteTags(item.getId()).then(action).as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create entrypoint with id {}", item.getId(), error)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(deleteTags(item.getId()).then(action).as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create entrypoint with id {}", item.getId(), error)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

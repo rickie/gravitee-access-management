@@ -96,7 +96,7 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
 @Override
     public Mono<Void> delete_migrated(String token) {
         LOGGER.debug("delete({})", token);
-        return RxJava2Adapter.completableToMono(Completable.fromMaybe(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findByToken(token)).flatMap(z->dbClient.delete().from(JdbcAccessToken.class).matching(from(where("token").is(token))).fetch().rowsUpdated().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Integer i)->z))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete AccessToken", error))))));
+        return RxJava2Adapter.completableToMono(Completable.fromMaybe(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByToken_migrated(token))).flatMap(z->dbClient.delete().from(JdbcAccessToken.class).matching(from(where("token").is(token))).fetch().rowsUpdated().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Integer i)->z))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete AccessToken", error))))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(accessTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -107,7 +107,7 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
 }
 @Override
     public Mono<Void> bulkWrite_migrated(List<AccessToken> accessTokens) {
-        return RxJava2Adapter.completableToMono(Flux.fromIterable(accessTokens).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(create(accessToken)).flux()))).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to bulk load access tokens", error))).as(RxJava2Adapter::monoToCompletable));
+        return RxJava2Adapter.completableToMono(Flux.fromIterable(accessTokens).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(create_migrated(accessToken))).flux()))).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to bulk load access tokens", error))).as(RxJava2Adapter::monoToCompletable));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToObservable(this.findByClientIdAndSubject_migrated(clientId, subject))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

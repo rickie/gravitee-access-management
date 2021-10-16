@@ -50,18 +50,18 @@ public class RequestObjectRepositoryPurgeTest extends AbstractOAuthTest {
         object2.setClient("client");
         object2.setExpireAt(new Date(now.minus(1, ChronoUnit.MINUTES).toEpochMilli()));
 
-        requestObjectRepository.create(object1).test().awaitTerminalEvent();
-        requestObjectRepository.create(object2).test().awaitTerminalEvent();
+        RxJava2Adapter.monoToSingle(requestObjectRepository.create_migrated(object1)).test().awaitTerminalEvent();
+        RxJava2Adapter.monoToSingle(requestObjectRepository.create_migrated(object2)).test().awaitTerminalEvent();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(requestObjectRepository.findById(object1.getId())).block());
-        assertNull(RxJava2Adapter.maybeToMono(requestObjectRepository.findById(object2.getId())).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(requestObjectRepository.findById_migrated(object1.getId()))).block());
+        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(requestObjectRepository.findById_migrated(object2.getId()))).block());
 
-        TestObserver<Void> testPurge = requestObjectRepository.purgeExpiredData().test();
+        TestObserver<Void> testPurge = RxJava2Adapter.monoToCompletable(requestObjectRepository.purgeExpiredData_migrated()).test();
         testPurge.awaitTerminalEvent();
         testPurge.assertNoErrors();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(requestObjectRepository.findById(object1.getId())).block());
-        assertNull(RxJava2Adapter.maybeToMono(requestObjectRepository.findById(object2.getId())).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(requestObjectRepository.findById_migrated(object1.getId()))).block());
+        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(requestObjectRepository.findById_migrated(object2.getId()))).block());
 
     }
 

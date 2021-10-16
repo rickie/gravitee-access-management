@@ -81,7 +81,7 @@ public Completable setRoles(io.gravitee.am.model.User user) {
  return RxJava2Adapter.monoToCompletable(setRoles_migrated(user));
 }
 public Mono<Void> setRoles_migrated(io.gravitee.am.model.User user) {
-        return RxJava2Adapter.completableToMono(setRoles(null, user));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(setRoles_migrated(null, user)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.setRoles_migrated(principal, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

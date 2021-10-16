@@ -221,7 +221,7 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
                             // backward compatibility, check for old clients configuration
                             return Single.zip(
                                     RxJava2Adapter.monoToSingle(applicationService.findByDomainAndExtensionGrant_migrated(domain, extensionGrant.getGrantType())),
-                                    RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(findByDomain(domain)).collectList()),
+                                    RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain))).collectList()),
                                     (clients1, extensionGrants) -> {
                                         if (clients1.size() == 0) {
                                             return extensionGrant;

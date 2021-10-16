@@ -350,7 +350,7 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
 }
 @Override
     public Mono<IdentityProvider> create_migrated(String domain) {
-        return RxJava2Adapter.singleToMono(create(ReferenceType.DOMAIN, domain));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(create_migrated(ReferenceType.DOMAIN, domain)));
     }
 
     @Override

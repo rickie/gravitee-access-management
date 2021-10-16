@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.botdetection.google.recaptcha.provider;
 
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.botdetection.api.BotDetectionContext;
 import io.gravitee.am.botdetection.google.recaptcha.GoogleReCaptchaV3Configuration;
 import io.gravitee.common.http.HttpStatusCode;
@@ -33,8 +35,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -76,7 +77,7 @@ public class GoogleReCaptchaV3ProviderTest {
 
     @Test
     public void shouldNoValidate_MissingToken() {
-        final TestObserver<Boolean> testCall = cut.validate(new BotDetectionContext("plugin_id", null, null)).test();
+        final TestObserver<Boolean> testCall = RxJava2Adapter.monoToSingle(cut.validate_migrated(new BotDetectionContext("plugin_id", null, null))).test();
 
         testCall.awaitTerminalEvent();
         testCall.assertNoErrors();
@@ -98,7 +99,7 @@ public class GoogleReCaptchaV3ProviderTest {
                         .put("score", 0.5f)
                 );
 
-        final TestObserver<Boolean> testCall = cut.validate(new BotDetectionContext("plugin_id", multiMap, null)).test();
+        final TestObserver<Boolean> testCall = RxJava2Adapter.monoToSingle(cut.validate_migrated(new BotDetectionContext("plugin_id", multiMap, null))).test();
 
         testCall.awaitTerminalEvent();
         testCall.assertNoErrors();
@@ -120,7 +121,7 @@ public class GoogleReCaptchaV3ProviderTest {
                         .put("score", 0.4f)
                 );
 
-        final TestObserver<Boolean> testCall = cut.validate(new BotDetectionContext("plugin_id", multiMap, null)).test();
+        final TestObserver<Boolean> testCall = RxJava2Adapter.monoToSingle(cut.validate_migrated(new BotDetectionContext("plugin_id", multiMap, null))).test();
 
         testCall.awaitTerminalEvent();
         testCall.assertNoErrors();
@@ -140,7 +141,7 @@ public class GoogleReCaptchaV3ProviderTest {
                         .put("score", 0.8f)
                 );
 
-        final TestObserver<Boolean> testCall = cut.validate(new BotDetectionContext("plugin_id", multiMap, null)).test();
+        final TestObserver<Boolean> testCall = RxJava2Adapter.monoToSingle(cut.validate_migrated(new BotDetectionContext("plugin_id", multiMap, null))).test();
 
         testCall.awaitTerminalEvent();
         testCall.assertNoErrors();
@@ -155,7 +156,7 @@ public class GoogleReCaptchaV3ProviderTest {
         when(httpResponse.statusCode())
                 .thenReturn(HttpStatusCode.BAD_REQUEST_400);
 
-        final TestObserver<Boolean> testCall = cut.validate(new BotDetectionContext("plugin_id", multiMap, null)).test();
+        final TestObserver<Boolean> testCall = RxJava2Adapter.monoToSingle(cut.validate_migrated(new BotDetectionContext("plugin_id", multiMap, null))).test();
 
         testCall.awaitTerminalEvent();
         testCall.assertNoErrors();

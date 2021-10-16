@@ -59,17 +59,17 @@ public class ScopeApprovalRepositoryPurgeTest extends AbstractOAuthTest {
         RxJava2Adapter.monoToSingle(scopeApprovalRepository.create_migrated(scope1)).test().awaitTerminalEvent();
         RxJava2Adapter.monoToSingle(scopeApprovalRepository.create_migrated(scope2)).test().awaitTerminalEvent();
 
-        TestObserver<HashSet<ScopeApproval>> testObserver = scopeApprovalRepository.findByDomainAndUser("domain", "user").collect(HashSet<ScopeApproval>::new, Set::add).test();
+        TestObserver<HashSet<ScopeApproval>> testObserver = RxJava2Adapter.fluxToFlowable(scopeApprovalRepository.findByDomainAndUser_migrated("domain", "user")).collect(HashSet<ScopeApproval>::new, Set::add).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(s -> s.size() == 1);
         testObserver.assertValue(s -> s.iterator().next().getScope().equals("scope1"));
 
-        TestObserver<Void> testPurge = scopeApprovalRepository.purgeExpiredData().test();
+        TestObserver<Void> testPurge = RxJava2Adapter.monoToCompletable(scopeApprovalRepository.purgeExpiredData_migrated()).test();
         testPurge.awaitTerminalEvent();
         testPurge.assertNoErrors();
 
-        testObserver = scopeApprovalRepository.findByDomainAndUser("domain", "user").collect(HashSet<ScopeApproval>::new, Set::add).test();
+        testObserver = RxJava2Adapter.fluxToFlowable(scopeApprovalRepository.findByDomainAndUser_migrated("domain", "user")).collect(HashSet<ScopeApproval>::new, Set::add).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(s -> s.size() == 1);

@@ -63,7 +63,7 @@ public class InlineAuthenticationProviderTest {
         when(userDetailsService.loadUserByUsername_migrated("username")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
         when(passwordEncoder.matches((String) authentication.getCredentials(), user.getPassword())).thenReturn(true);
 
-        TestObserver<User> testObserver = inlineAuthenticationProvider.loadUserByUsername(authentication).test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(inlineAuthenticationProvider.loadUserByUsername_migrated(authentication)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -81,7 +81,7 @@ public class InlineAuthenticationProviderTest {
 
         when(userDetailsService.loadUserByUsername_migrated("username")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
 
-        TestObserver<User> testObserver = inlineAuthenticationProvider.loadUserByUsername(authentication).test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(inlineAuthenticationProvider.loadUserByUsername_migrated(authentication)).test();
         testObserver.assertError(BadCredentialsException.class);
     }
 
@@ -92,7 +92,7 @@ public class InlineAuthenticationProviderTest {
 
         when(userDetailsService.loadUserByUsername_migrated("username")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new UsernameNotFoundException("username")))));
 
-        TestObserver<User> testObserver = inlineAuthenticationProvider.loadUserByUsername(authentication).test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(inlineAuthenticationProvider.loadUserByUsername_migrated(authentication)).test();
         testObserver.assertError(UsernameNotFoundException.class);
     }
 

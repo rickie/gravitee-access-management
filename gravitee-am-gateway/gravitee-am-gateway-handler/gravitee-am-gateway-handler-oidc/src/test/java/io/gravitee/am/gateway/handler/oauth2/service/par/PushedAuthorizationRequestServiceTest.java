@@ -92,7 +92,7 @@ public class PushedAuthorizationRequestServiceTest {
         parameters.add("client_id", "otherid");
         par.setParameters(parameters);
 
-        final TestObserver<PushedAuthorizationRequestResponse> observer = cut.registerParameters(par, client).test();
+        final TestObserver<PushedAuthorizationRequestResponse> observer = RxJava2Adapter.monoToSingle(cut.registerParameters_migrated(par, client)).test();
 
         observer.awaitTerminalEvent();
         observer.assertError(InvalidRequestException.class);
@@ -115,7 +115,7 @@ public class PushedAuthorizationRequestServiceTest {
 
         when(repository.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(par))));
 
-        final TestObserver<PushedAuthorizationRequestResponse> observer = cut.registerParameters(par, client).test();
+        final TestObserver<PushedAuthorizationRequestResponse> observer = RxJava2Adapter.monoToSingle(cut.registerParameters_migrated(par, client)).test();
 
         observer.awaitTerminalEvent();
         observer.assertNoErrors();
@@ -137,7 +137,7 @@ public class PushedAuthorizationRequestServiceTest {
         par.setId("parid");
         par.setClient(client.getId());
 
-        final TestObserver<PushedAuthorizationRequestResponse> observer = cut.registerParameters(par, client).test();
+        final TestObserver<PushedAuthorizationRequestResponse> observer = RxJava2Adapter.monoToSingle(cut.registerParameters_migrated(par, client)).test();
 
         observer.awaitTerminalEvent();
         observer.assertFailure(InvalidRequestException.class);
@@ -160,7 +160,7 @@ public class PushedAuthorizationRequestServiceTest {
 
         when(jweService.decrypt_migrated(any(), anyBoolean())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new ParseException("parse error",1)))));
 
-        final TestObserver<PushedAuthorizationRequestResponse> observer = cut.registerParameters(par, client).test();
+        final TestObserver<PushedAuthorizationRequestResponse> observer = RxJava2Adapter.monoToSingle(cut.registerParameters_migrated(par, client)).test();
 
         observer.awaitTerminalEvent();
         observer.assertFailure(InvalidRequestObjectException.class);
@@ -186,7 +186,7 @@ public class PushedAuthorizationRequestServiceTest {
 
         when(jweService.decrypt_migrated(any(), anyBoolean())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(parse))));
 
-        final TestObserver<PushedAuthorizationRequestResponse> observer = cut.registerParameters(par, client).test();
+        final TestObserver<PushedAuthorizationRequestResponse> observer = RxJava2Adapter.monoToSingle(cut.registerParameters_migrated(par, client)).test();
 
         observer.awaitTerminalEvent();
         observer.assertError(e -> e instanceof InvalidRequestObjectException && e.getMessage().equals("Claims request and request_uri are forbidden"));
@@ -203,7 +203,7 @@ public class PushedAuthorizationRequestServiceTest {
 
     @Test
     public void shouldNot_ReadFromURI_InvalidURI() {
-        final TestObserver<JWT> testObserver = cut.readFromURI("invalideuri", createClient(), new OpenIDProviderMetadata()).test();
+        final TestObserver<JWT> testObserver = RxJava2Adapter.monoToSingle(cut.readFromURI_migrated("invalideuri", createClient(), new OpenIDProviderMetadata())).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidRequestException.class);
@@ -218,7 +218,7 @@ public class PushedAuthorizationRequestServiceTest {
 
         when(repository.findById_migrated(ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        final TestObserver<JWT> testObserver = cut.readFromURI(requestUri, createClient(), new OpenIDProviderMetadata()).test();
+        final TestObserver<JWT> testObserver = RxJava2Adapter.monoToSingle(cut.readFromURI_migrated(requestUri, createClient(), new OpenIDProviderMetadata())).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidRequestUriException.class);
@@ -236,7 +236,7 @@ public class PushedAuthorizationRequestServiceTest {
 
         when(repository.findById_migrated(ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(par))));
 
-        final TestObserver<JWT> testObserver = cut.readFromURI(requestUri, createClient(), new OpenIDProviderMetadata()).test();
+        final TestObserver<JWT> testObserver = RxJava2Adapter.monoToSingle(cut.readFromURI_migrated(requestUri, createClient(), new OpenIDProviderMetadata())).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidRequestUriException.class);
@@ -257,7 +257,7 @@ public class PushedAuthorizationRequestServiceTest {
         when(domain.usePlainFapiProfile()).thenReturn(true);
         when(repository.findById_migrated(ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(par))));
 
-        final TestObserver<JWT> testObserver = cut.readFromURI(requestUri, createClient(), new OpenIDProviderMetadata()).test();
+        final TestObserver<JWT> testObserver = RxJava2Adapter.monoToSingle(cut.readFromURI_migrated(requestUri, createClient(), new OpenIDProviderMetadata())).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidRequestException.class);
@@ -281,7 +281,7 @@ public class PushedAuthorizationRequestServiceTest {
 
         when(repository.findById_migrated(ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(par))));
 
-        final TestObserver<JWT> testObserver = cut.readFromURI(requestUri, createClient(), new OpenIDProviderMetadata()).test();
+        final TestObserver<JWT> testObserver = RxJava2Adapter.monoToSingle(cut.readFromURI_migrated(requestUri, createClient(), new OpenIDProviderMetadata())).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
@@ -327,7 +327,7 @@ public class PushedAuthorizationRequestServiceTest {
         final Client client = createClient();
         client.setRequestObjectSigningAlg(JWSAlgorithm.RS256.getName());
 
-        final TestObserver<JWT> testObserver = cut.readFromURI(requestUri, client, new OpenIDProviderMetadata()).test();
+        final TestObserver<JWT> testObserver = RxJava2Adapter.monoToSingle(cut.readFromURI_migrated(requestUri, client, new OpenIDProviderMetadata())).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();

@@ -537,7 +537,7 @@ private Completable validateDomain(Domain domain, Environment environment) {
 private Mono<Void> validateDomain_migrated(Domain domain, Environment environment) {
 
         // Get environment domain restrictions and validate all data are correctly defined.
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, environment.getDomainRestrictions()))).then(RxJava2Adapter.singleToMono(findAll()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<List<Domain>, CompletableSource>toJdkFunction(domains -> RxJava2Adapter.monoToCompletable(VirtualHostValidator.validateDomainVhosts_migrated(domain, domains))).apply(y)))).then())));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, environment.getDomainRestrictions()))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findAll_migrated())).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<List<Domain>, CompletableSource>toJdkFunction(domains -> RxJava2Adapter.monoToCompletable(VirtualHostValidator.validateDomainVhosts_migrated(domain, domains))).apply(y)))).then())));
     }
 
     private void setDeployMode(Domain domain, Environment environment) {

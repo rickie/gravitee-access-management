@@ -74,7 +74,7 @@ public class FlowManagerTest {
         when(domain.getId()).thenReturn("domain-id");
         when(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
         flowManager.afterPropertiesSet();
-        TestObserver<List<Policy>> obs = flowManager.findByExtensionPoint(ExtensionPoint.PRE_CONSENT, null, null).test();
+        TestObserver<List<Policy>> obs = RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(ExtensionPoint.PRE_CONSENT, null, null)).test();
         obs.awaitTerminalEvent();
         obs.assertValue(policies -> {
             Assert.assertTrue(policies.isEmpty());
@@ -92,7 +92,7 @@ public class FlowManagerTest {
         when(domain.getId()).thenReturn("domain-id");
         when(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(flow))));
         flowManager.afterPropertiesSet();
-        TestObserver<List<Policy>> obs = flowManager.findByExtensionPoint(ExtensionPoint.PRE_CONSENT, null, null).test();
+        TestObserver<List<Policy>> obs = RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(ExtensionPoint.PRE_CONSENT, null, null)).test();
         obs.awaitTerminalEvent();
         obs.assertValue(policies -> {
             Assert.assertTrue(policies.isEmpty());
@@ -110,7 +110,7 @@ public class FlowManagerTest {
         when(domain.getId()).thenReturn("domain-id");
         when(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(flow))));
         flowManager.afterPropertiesSet();
-        TestObserver<List<Policy>> obs = flowManager.findByExtensionPoint(ExtensionPoint.PRE_CONSENT, null, null).test();
+        TestObserver<List<Policy>> obs = RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(ExtensionPoint.PRE_CONSENT, null, null)).test();
         obs.awaitTerminalEvent();
         obs.assertValue(policies -> {
             Assert.assertTrue(policies.isEmpty());
@@ -132,7 +132,7 @@ public class FlowManagerTest {
         when(domain.getId()).thenReturn("domain-id");
         when(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(flow))));
         flowManager.afterPropertiesSet();
-        TestObserver<List<Policy>> obs = flowManager.findByExtensionPoint(ExtensionPoint.PRE_CONSENT, null, null).test();
+        TestObserver<List<Policy>> obs = RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(ExtensionPoint.PRE_CONSENT, null, null)).test();
         obs.awaitTerminalEvent();
         obs.assertValue(policies -> {
             Assert.assertTrue(policies.isEmpty());
@@ -160,7 +160,7 @@ public class FlowManagerTest {
         when(policyPluginManager.create(step.getPolicy(), step.getConfiguration())).thenReturn(policy);
         when(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(flow))));
         flowManager.afterPropertiesSet();
-        TestObserver<List<Policy>> obs = flowManager.findByExtensionPoint(ExtensionPoint.PRE_CONSENT, null, null).test();
+        TestObserver<List<Policy>> obs = RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(ExtensionPoint.PRE_CONSENT, null, null)).test();
         obs.awaitTerminalEvent();
         obs.assertValue(policies -> {
             Assert.assertTrue(policies.isEmpty());
@@ -188,7 +188,7 @@ public class FlowManagerTest {
         when(policyPluginManager.create(step.getPolicy(), step.getConfiguration())).thenReturn(policy);
         when(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(flow))));
         flowManager.afterPropertiesSet();
-        TestObserver<List<Policy>> obs = flowManager.findByExtensionPoint(ExtensionPoint.PRE_CONSENT, null, null).test();
+        TestObserver<List<Policy>> obs = RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(ExtensionPoint.PRE_CONSENT, null, null)).test();
         obs.awaitTerminalEvent();
         obs.assertValue(policies -> {
             Assert.assertTrue(policies.size() == 1);
@@ -217,7 +217,7 @@ public class FlowManagerTest {
         when(policyPluginManager.create(step.getPolicy(), step.getConfiguration())).thenReturn(policy);
         when(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(flow))));
         flowManager.afterPropertiesSet();
-        TestObserver<List<Policy>> obs = flowManager.findByExtensionPoint(ExtensionPoint.PRE_CONSENT, null, null).test();
+        TestObserver<List<Policy>> obs = RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(ExtensionPoint.PRE_CONSENT, null, null)).test();
         obs.awaitTerminalEvent();
         obs.assertValue(policies -> {
             Assert.assertTrue(policies.isEmpty());
@@ -248,7 +248,7 @@ public class FlowManagerTest {
         when(policyPluginManager.create(step.getPolicy(), step.getConfiguration())).thenReturn(policy);
         when(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(flow))));
         flowManager.afterPropertiesSet();
-        TestObserver<List<Policy>> obs = flowManager.findByExtensionPoint(ExtensionPoint.PRE_CONSENT, client, null).test();
+        TestObserver<List<Policy>> obs = RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(ExtensionPoint.PRE_CONSENT, client, null)).test();
         obs.awaitTerminalEvent();
         obs.assertValue(policies -> {
             Assert.assertTrue(policies.isEmpty());
@@ -279,7 +279,7 @@ public class FlowManagerTest {
         when(policyPluginManager.create(step.getPolicy(), step.getConfiguration())).thenReturn(policy);
         when(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(flow))));
         flowManager.afterPropertiesSet();
-        TestObserver<List<Policy>> obs = flowManager.findByExtensionPoint(ExtensionPoint.PRE_CONSENT, client, null).test();
+        TestObserver<List<Policy>> obs = RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(ExtensionPoint.PRE_CONSENT, client, null)).test();
         obs.awaitTerminalEvent();
         obs.assertValue(policies -> {
             Assert.assertTrue(policies.size() == 1);
@@ -324,7 +324,7 @@ public class FlowManagerTest {
         when(policyPluginManager.create(appStep.getPolicy(), appStep.getConfiguration())).thenReturn(appPolicy);
         when(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domainFlow, appFlow))));
         flowManager.afterPropertiesSet();
-        TestObserver<List<Policy>> obs = flowManager.findByExtensionPoint(ExtensionPoint.PRE_CONSENT, client, null).test();
+        TestObserver<List<Policy>> obs = RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(ExtensionPoint.PRE_CONSENT, client, null)).test();
         obs.awaitTerminalEvent();
         obs.assertValue(policies -> {
             Assert.assertTrue(policies.size() == 1);
@@ -372,7 +372,7 @@ public class FlowManagerTest {
         when(policyPluginManager.create(appStep.getPolicy(), appStep.getConfiguration())).thenReturn(appPolicy);
         when(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domainFlow, appFlow))));
         flowManager.afterPropertiesSet();
-        TestObserver<List<Policy>> obs = flowManager.findByExtensionPoint(ExtensionPoint.PRE_CONSENT, client, FlowPredicate.alwaysTrue()).test();
+        TestObserver<List<Policy>> obs = RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(ExtensionPoint.PRE_CONSENT, client, FlowPredicate.alwaysTrue())).test();
         obs.awaitTerminalEvent();
         obs.assertValue(policies -> {
             Assert.assertTrue(policies.size() == 2);
@@ -425,7 +425,7 @@ public class FlowManagerTest {
         ExecutionContext executionContext = mock(ExecutionContext.class);
         when(executionContext.getTemplateEngine()).thenReturn(TemplateEngine.templateEngine());
 
-        TestObserver<List<Policy>> obs = flowManager.findByExtensionPoint(ExtensionPoint.PRE_CONSENT, client, FlowPredicate.from(executionContext)).test();
+        TestObserver<List<Policy>> obs = RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(ExtensionPoint.PRE_CONSENT, client, FlowPredicate.from(executionContext))).test();
         obs.awaitTerminalEvent();
         obs.assertValue(policies -> {
             Assert.assertTrue(policies.size() == 1);

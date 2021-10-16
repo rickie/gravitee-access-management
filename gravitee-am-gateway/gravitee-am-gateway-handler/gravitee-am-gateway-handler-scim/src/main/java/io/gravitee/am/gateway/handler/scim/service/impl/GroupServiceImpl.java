@@ -219,10 +219,10 @@ public class GroupServiceImpl implements GroupService {
 @Override
     public Mono<Group> patch_migrated(String groupId, PatchOp patchOp, String baseUrl) {
         LOGGER.debug("Patch a group {} for domain {}", groupId, domain.getName());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(get(groupId, baseUrl)).switchIfEmpty(Mono.error(new GroupNotFoundException(groupId))).flatMap(v->RxJava2Adapter.singleToMono((Single<Group>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Group, Single<Group>>)group -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(get_migrated(groupId, baseUrl))).switchIfEmpty(Mono.error(new GroupNotFoundException(groupId))).flatMap(v->RxJava2Adapter.singleToMono((Single<Group>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Group, Single<Group>>)group -> {
                     ObjectNode node = objectMapper.convertValue(group, ObjectNode.class);
                     patchOp.getOperations().forEach(operation -> operation.apply(node));
-                    return update(groupId, objectMapper.treeToValue(node, Group.class), baseUrl);
+                    return RxJava2Adapter.monoToSingle(update_migrated(groupId, objectMapper.treeToValue(node, Group.class), baseUrl));
                 }).apply(v))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {

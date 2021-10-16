@@ -74,15 +74,15 @@ public class ReCaptchaServiceImplTest {
 
         ReflectionTestUtils.setField(reCaptchaService, "enabled", false);
 
-        TestObserver<Boolean> obs = reCaptchaService.isValid(null).test();
+        TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(reCaptchaService.isValid_migrated(null)).test();
         obs.awaitTerminalEvent();
         obs.assertValue(true);
 
-        obs = reCaptchaService.isValid("").test();
+        obs = RxJava2Adapter.monoToSingle(reCaptchaService.isValid_migrated("")).test();
         obs.awaitTerminalEvent();
         obs.assertValue(true);
 
-        obs = reCaptchaService.isValid("any").test();
+        obs = RxJava2Adapter.monoToSingle(reCaptchaService.isValid_migrated("any")).test();
         obs.awaitTerminalEvent();
         obs.assertValue(true);
     }
@@ -92,11 +92,11 @@ public class ReCaptchaServiceImplTest {
 
         ReflectionTestUtils.setField(reCaptchaService, "enabled", true);
 
-        TestObserver<Boolean> obs = reCaptchaService.isValid(null).test();
+        TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(reCaptchaService.isValid_migrated(null)).test();
         obs.awaitTerminalEvent();
         obs.assertValue(false);
 
-        obs = reCaptchaService.isValid("").test();
+        obs = RxJava2Adapter.monoToSingle(reCaptchaService.isValid_migrated("")).test();
         obs.awaitTerminalEvent();
         obs.assertValue(false);
     }
@@ -112,7 +112,7 @@ public class ReCaptchaServiceImplTest {
 
         RxJava2Adapter.monoToSingle(spyHttpRequest_migrated(client.post(eq("https://verif"))));
 
-        TestObserver<Boolean> obs = reCaptchaService.isValid("any").test();
+        TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(reCaptchaService.isValid_migrated("any")).test();
         obs.awaitTerminalEvent();
         obs.assertValue(true);
     }
@@ -128,7 +128,7 @@ public class ReCaptchaServiceImplTest {
 
         RxJava2Adapter.monoToSingle(spyHttpRequest_migrated(client.post(eq("https://verif"))));
 
-        TestObserver<Boolean> obs = reCaptchaService.isValid("any").test();
+        TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(reCaptchaService.isValid_migrated("any")).test();
         obs.awaitTerminalEvent();
         obs.assertValue(true);
     }
@@ -144,7 +144,7 @@ public class ReCaptchaServiceImplTest {
 
         RxJava2Adapter.monoToSingle(spyHttpRequest_migrated(client.post(eq("https://verif"))));
 
-        TestObserver<Boolean> obs = reCaptchaService.isValid("any").test();
+        TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(reCaptchaService.isValid_migrated("any")).test();
         obs.awaitTerminalEvent();
         obs.assertValue(false);
     }
@@ -160,7 +160,7 @@ public class ReCaptchaServiceImplTest {
 
         RxJava2Adapter.monoToSingle(spyHttpRequest_migrated(client.post(eq("https://verif"))));
 
-        TestObserver<Boolean> obs = reCaptchaService.isValid("any").test();
+        TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(reCaptchaService.isValid_migrated("any")).test();
         obs.awaitTerminalEvent();
         obs.assertValue(false);
     }

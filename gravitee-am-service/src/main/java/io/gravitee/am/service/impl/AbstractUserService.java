@@ -230,7 +230,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                         user.setAdditionalInformation(newUser.getAdditionalInformation());
                         user.setCreatedAt(new Date());
                         user.setUpdatedAt(user.getCreatedAt());
-                        return create(user);
+                        return RxJava2Adapter.monoToSingle(create_migrated(user));
                     }
                 }).apply(v))))
                 .onErrorResumeNext(ex -> {

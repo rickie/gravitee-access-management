@@ -62,7 +62,7 @@ public class LoginAttemptRepositoryPurgeTest extends AbstractManagementTest {
         assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(attemptExpired2.getId()))).block());
         assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(attemptNotExpired.getId()))).block());
 
-        TestObserver<Void> test = repository.purgeExpiredData().test();
+        TestObserver<Void> test = RxJava2Adapter.monoToCompletable(repository.purgeExpiredData_migrated()).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
 

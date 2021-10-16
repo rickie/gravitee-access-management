@@ -221,7 +221,7 @@ public class ScopeServiceImpl implements ScopeService {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(scopeRepository.findById_migrated(id))).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))))
                 .flatMapSingle(oldScope -> {
                     Scope scopeToUpdate = patchScope.patch(oldScope);
-                    return update(domain, scopeToUpdate, oldScope, principal);
+                    return RxJava2Adapter.monoToSingle(update_migrated(domain, scopeToUpdate, oldScope, principal));
                 })
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -255,7 +255,7 @@ public class ScopeServiceImpl implements ScopeService {
                     }
                     scopeToUpdate.setIconUri(updateScope.getIconUri());
 
-                    return update(domain, scopeToUpdate, oldScope, principal);
+                    return RxJava2Adapter.monoToSingle(update_migrated(domain, scopeToUpdate, oldScope, principal));
                 })
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -432,7 +432,7 @@ return RxJava2Adapter.monoToSingle(applicationService.update_migrated(applicatio
             return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true)));//nothing to do...
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findByDomain(domain, 0, Integer.MAX_VALUE)).map(RxJavaReactorMigrationUtil.toJdkFunction(domainSet -> domainSet.getData().stream().map(Scope::getKey).collect(Collectors.toSet()))).flatMap(domainScopes->RxJava2Adapter.singleToMono(this.validateScope(domainScopes, scopes)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findByDomain_migrated(domain, 0, Integer.MAX_VALUE))).map(RxJavaReactorMigrationUtil.toJdkFunction(domainSet -> domainSet.getData().stream().map(Scope::getKey).collect(Collectors.toSet()))).flatMap(domainScopes->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.validateScope_migrated(domainScopes, scopes))))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateScope_migrated(domainScopes, scopes))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

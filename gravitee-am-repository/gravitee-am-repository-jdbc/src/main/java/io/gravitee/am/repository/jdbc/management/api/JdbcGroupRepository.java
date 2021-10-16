@@ -278,7 +278,7 @@ private Mono<Group> completeWithMembersAndRole_migrated(Maybe<Group> maybeGroup,
 
         action = persistChildEntities(action, item);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, Group item) {
@@ -334,7 +334,7 @@ private Mono<Group> completeWithMembersAndRole_migrated(Maybe<Group> maybeGroup,
         action = deleteChildEntities(item.getId()).then(action);
         action = persistChildEntities(action, item);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
     }
 
     private Mono<Integer> deleteChildEntities(String groupId) {

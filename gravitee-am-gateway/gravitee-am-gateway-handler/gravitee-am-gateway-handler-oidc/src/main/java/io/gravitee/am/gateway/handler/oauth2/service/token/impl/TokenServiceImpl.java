@@ -174,7 +174,7 @@ public class TokenServiceImpl implements TokenService {
     public Mono<Token> refresh_migrated(String refreshToken, TokenRequest tokenRequest, Client client) {
         // invalid_grant : The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is
         // invalid, expired, revoked or was issued to another client.
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(getRefreshToken(refreshToken, client)).switchIfEmpty(Mono.error(new InvalidGrantException("Refresh token is invalid"))).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<Token>>)refreshToken1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getRefreshToken_migrated(refreshToken, client))).switchIfEmpty(Mono.error(new InvalidGrantException("Refresh token is invalid"))).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<Token>>)refreshToken1 -> {
                     if (refreshToken1.getExpireAt().before(new Date())) {
                         throw new InvalidGrantException("Refresh token is expired");
                     }

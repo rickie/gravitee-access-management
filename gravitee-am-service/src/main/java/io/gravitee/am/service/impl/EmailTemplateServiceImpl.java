@@ -148,7 +148,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 @Override
     public Mono<Email> findByDomainAndTemplate_migrated(String domain, String template) {
 
-        return RxJava2Adapter.maybeToMono(findByTemplate(ReferenceType.DOMAIN, domain, template));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByTemplate_migrated(ReferenceType.DOMAIN, domain, template)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientAndTemplate_migrated(referenceType, referenceId, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -176,7 +176,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 }
 @Override
     public Mono<Email> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template) {
-        return RxJava2Adapter.maybeToMono(findByClientAndTemplate(ReferenceType.DOMAIN, domain, client, template));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(ReferenceType.DOMAIN, domain, client, template)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -204,7 +204,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 }
 @Override
     public Flux<Email> copyFromClient_migrated(String domain, String clientSource, String clientTarget) {
-        return RxJava2Adapter.flowableToFlux(findByClient(ReferenceType.DOMAIN, domain, clientSource)
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(findByClient_migrated(ReferenceType.DOMAIN, domain, clientSource))
                 .flatMapSingle(source -> {
                     NewEmail email = new NewEmail();
                     email.setEnabled(source.isEnabled());
@@ -238,7 +238,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 }
 @Override
     public Mono<Email> create_migrated(String domain, NewEmail newEmail, User principal) {
-        return RxJava2Adapter.singleToMono(create(ReferenceType.DOMAIN, domain, newEmail, principal));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(create_migrated(ReferenceType.DOMAIN, domain, newEmail, principal)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId, client, newEmail, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -261,7 +261,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 }
 @Override
     public Mono<Email> create_migrated(String domain, String client, NewEmail newEmail, User principal) {
-        return RxJava2Adapter.singleToMono(create(ReferenceType.DOMAIN, domain, client, newEmail, principal));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(create_migrated(ReferenceType.DOMAIN, domain, client, newEmail, principal)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateEmail, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -396,8 +396,8 @@ private Single<Boolean> checkEmailUniqueness(ReferenceType referenceType, String
 }
 private Mono<Boolean> checkEmailUniqueness_migrated(ReferenceType referenceType, String referenceId, String client, String emailTemplate) {
         Maybe<Email> maybeSource = client == null ?
-                findByTemplate(referenceType, referenceId, emailTemplate) :
-                findByClientAndTemplate(referenceType, referenceId, client, emailTemplate);
+                RxJava2Adapter.monoToMaybe(findByTemplate_migrated(referenceType, referenceId, emailTemplate)) :
+                RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(referenceType, referenceId, client, emailTemplate));
 
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(maybeSource).hasElement().map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
                     if (!isEmpty) {

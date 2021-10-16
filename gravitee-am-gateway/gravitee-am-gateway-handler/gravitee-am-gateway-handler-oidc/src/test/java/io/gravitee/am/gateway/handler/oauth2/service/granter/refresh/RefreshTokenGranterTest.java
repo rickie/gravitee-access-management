@@ -78,7 +78,7 @@ public class RefreshTokenGranterTest {
         when(tokenService.create_migrated(any(), any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(accessToken))));
         when(tokenService.refresh_migrated(refreshToken, tokenRequest, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new RefreshToken(refreshToken)))));
 
-        TestObserver<Token> testObserver = granter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(granter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(token -> token.getValue().equals("test-token"));
@@ -93,7 +93,7 @@ public class RefreshTokenGranterTest {
 
         when(tokenRequest.parameters()).thenReturn(parameters);
 
-        granter.grant(tokenRequest, client).test().assertError(InvalidRequestException.class);
+        RxJava2Adapter.monoToSingle(granter.grant_migrated(tokenRequest, client)).test().assertError(InvalidRequestException.class);
     }
 
     @Test
@@ -110,6 +110,6 @@ public class RefreshTokenGranterTest {
 
         when(tokenService.refresh_migrated(refreshToken, tokenRequest, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException()))));
 
-        granter.grant(tokenRequest, client).test().assertError(InvalidGrantException.class);
+        RxJava2Adapter.monoToSingle(granter.grant_migrated(tokenRequest, client)).test().assertError(InvalidGrantException.class);
     }
 }

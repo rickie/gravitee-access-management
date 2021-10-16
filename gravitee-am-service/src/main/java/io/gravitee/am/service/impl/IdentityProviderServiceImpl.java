@@ -168,7 +168,7 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
 }
 @Override
     public Flux<IdentityProvider> findByDomain_migrated(String domain) {
-        return RxJava2Adapter.flowableToFlux(findAll(ReferenceType.DOMAIN, domain));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(findAll_migrated(ReferenceType.DOMAIN, domain)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId, newIdentityProvider, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -213,7 +213,7 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
 @Override
     public Mono<IdentityProvider> create_migrated(String domain, NewIdentityProvider newIdentityProvider, User principal) {
 
-        return RxJava2Adapter.singleToMono(create(ReferenceType.DOMAIN, domain, newIdentityProvider, principal));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(create_migrated(ReferenceType.DOMAIN, domain, newIdentityProvider, principal)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(referenceType, referenceId, id, updateIdentityProvider, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -261,7 +261,7 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
 @Override
     public Mono<IdentityProvider> update_migrated(String domain, String id, UpdateIdentityProvider updateIdentityProvider, User principal) {
 
-        return RxJava2Adapter.singleToMono(update(ReferenceType.DOMAIN, domain, id, updateIdentityProvider, principal));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(update_migrated(ReferenceType.DOMAIN, domain, id, updateIdentityProvider, principal)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(referenceType, referenceId, identityProviderId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -308,6 +308,6 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
 @Override
     public Mono<Void> delete_migrated(String domain, String identityProviderId, User principal) {
 
-        return RxJava2Adapter.completableToMono(delete(ReferenceType.DOMAIN, domain, identityProviderId, principal));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(delete_migrated(ReferenceType.DOMAIN, domain, identityProviderId, principal)));
     }
 }

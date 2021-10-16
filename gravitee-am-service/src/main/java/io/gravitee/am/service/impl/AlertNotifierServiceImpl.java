@@ -105,7 +105,7 @@ public class AlertNotifierServiceImpl implements AlertNotifierService {
 }
 @Override
     public Flux<AlertNotifier> findByDomainAndCriteria_migrated(String domainId, AlertNotifierCriteria criteria) {
-        return RxJava2Adapter.flowableToFlux(findByReferenceAndCriteria(ReferenceType.DOMAIN, domainId, criteria));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(findByReferenceAndCriteria_migrated(ReferenceType.DOMAIN, domainId, criteria)));
     }
 
     /**
@@ -174,7 +174,7 @@ public class AlertNotifierServiceImpl implements AlertNotifierService {
     public Mono<AlertNotifier> update_migrated(ReferenceType referenceType, String referenceId, String alertNotifierId, PatchAlertNotifier patchAlertNotifier, User byUser) {
         LOGGER.debug("Update alert notifier for {}: {}", alertNotifierId, patchAlertNotifier);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.getById(referenceType, referenceId, alertNotifierId)).flatMap(v->RxJava2Adapter.singleToMono((Single<AlertNotifier>)RxJavaReactorMigrationUtil.toJdkFunction((Function<AlertNotifier, Single<AlertNotifier>>)alertNotifier -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.getById_migrated(referenceType, referenceId, alertNotifierId))).flatMap(v->RxJava2Adapter.singleToMono((Single<AlertNotifier>)RxJavaReactorMigrationUtil.toJdkFunction((Function<AlertNotifier, Single<AlertNotifier>>)alertNotifier -> {
                     AlertNotifier toUpdate = patchAlertNotifier.patch(alertNotifier);
 
                     if (toUpdate.equals(alertNotifier)) {
@@ -201,7 +201,7 @@ public class AlertNotifierServiceImpl implements AlertNotifierService {
 }
 @Override
     public Mono<Void> delete_migrated(ReferenceType referenceType, String referenceId, String notifierId, User byUser) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(this.getById(referenceType, referenceId, notifierId)).flatMap(alertNotifier->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(deleteInternal_migrated(alertNotifier, byUser)))).then()));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.getById_migrated(referenceType, referenceId, notifierId))).flatMap(alertNotifier->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(deleteInternal_migrated(alertNotifier, byUser)))).then()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated(toCreate, byUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
