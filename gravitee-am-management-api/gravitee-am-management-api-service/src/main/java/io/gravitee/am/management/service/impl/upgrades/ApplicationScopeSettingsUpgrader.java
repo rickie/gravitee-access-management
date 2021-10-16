@@ -116,8 +116,8 @@ private Mono<SystemTask> createSystemTask_migrated(String operationId) {
         systemTask.setCreatedAt(new Date());
         systemTask.setUpdatedAt(systemTask.getCreatedAt());
         systemTask.setOperationId(operationId);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(systemTaskRepository.create_migrated(systemTask))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<SystemTask>>toJdkFunction(err -> {
-            logger.warn("SystemTask {} can't be created due to '{}'", TASK_ID, err.getMessage());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(systemTaskRepository.create_migrated(systemTask))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<SystemTask>>toJdkFunction(err2 -> {
+            logger.warn("SystemTask {} can't be created due to '{}'", TASK_ID, err2.getMessage());
             // if the creation fails, try to find the task, this will allow to manage the retry properly
             return RxJava2Adapter.monoToSingle(systemTaskRepository.findById_migrated(systemTask.getId()).single());
         }).apply(err)))));
@@ -169,8 +169,8 @@ private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
                         .onErrorResumeNext((err) -> {
                             logger.error("Unable to update status for migrate scope options task: {}", err.getMessage());
                             return RxJava2Adapter.monoToSingle(Mono.just(false));
-                        }))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Boolean>>toJdkFunction((err) -> {
-                    logger.error("Unable to migrate scope options for applications: {}", err.getMessage());
+                        }))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Boolean>>toJdkFunction((err2) -> {
+                    logger.error("Unable to migrate scope options for applications: {}", err2.getMessage());
                     return RxJava2Adapter.monoToSingle(Mono.just(false));
                 }).apply(err)))));
     }
