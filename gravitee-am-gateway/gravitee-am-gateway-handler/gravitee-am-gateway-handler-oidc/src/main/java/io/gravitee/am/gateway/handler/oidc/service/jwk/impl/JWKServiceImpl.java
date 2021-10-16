@@ -82,7 +82,7 @@ public class JWKServiceImpl implements JWKService {
             return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client.getJwks())));
         }
         else if(client.getJwksUri()!=null) {
-            return RxJava2Adapter.maybeToMono(getKeys(client.getJwksUri()));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getKeys_migrated(client.getJwksUri())));
         }
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
     }

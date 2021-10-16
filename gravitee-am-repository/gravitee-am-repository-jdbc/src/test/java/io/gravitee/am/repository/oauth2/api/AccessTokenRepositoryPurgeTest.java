@@ -58,21 +58,20 @@ public class AccessTokenRepositoryPurgeTest extends AbstractOAuthTest {
         token2.setSubject("user-id2");
         token2.setExpireAt(new Date(now.minus(1, ChronoUnit.MINUTES).toEpochMilli()));
 
-        TestObserver<Void> test = accessTokenRepository
-                .bulkWrite(Arrays.asList(token1, token2))
+        TestObserver<Void> test = RxJava2Adapter.monoToCompletable(accessTokenRepository.bulkWrite_migrated(Arrays.asList(token1, token2)))
                 .test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken("my-token")).block());
-        assertNull(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken("my-token2")).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated("my-token"))).block());
+        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated("my-token2"))).block());
 
-        TestObserver<Void> testPurge = accessTokenRepository.purgeExpiredData().test();
+        TestObserver<Void> testPurge = RxJava2Adapter.monoToCompletable(accessTokenRepository.purgeExpiredData_migrated()).test();
         testPurge.awaitTerminalEvent();
         testPurge.assertNoErrors();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken("my-token")).block());
-        assertNull(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken("my-token2")).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated("my-token"))).block());
+        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated("my-token2"))).block());
 
     }
 

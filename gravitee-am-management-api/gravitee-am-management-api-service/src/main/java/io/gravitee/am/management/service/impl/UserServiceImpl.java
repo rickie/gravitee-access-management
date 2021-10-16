@@ -248,7 +248,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
                                                             // end pre-registration user if required
                                                             AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
                                                             if (newUser.isPreRegistration() && (accountSettings == null || !accountSettings.isDynamicUserRegistration())) {
-                                                                return sendRegistrationConfirmation(user.getReferenceId(), user.getId(), principal).toSingleDefault(user);
+                                                                return RxJava2Adapter.monoToCompletable(sendRegistrationConfirmation_migrated(user.getReferenceId(), user.getId(), principal)).toSingleDefault(user);
                                                             } else {
                                                                 return RxJava2Adapter.monoToSingle(Mono.just(user));
                                                             }
@@ -268,7 +268,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
 }
 @Override
     public Mono<User> update_migrated(String domain, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.singleToMono(update(ReferenceType.DOMAIN, domain, id, updateUser, principal));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(update_migrated(ReferenceType.DOMAIN, domain, id, updateUser, principal)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateStatus_migrated(domain, id, status, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -279,7 +279,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
 }
 @Override
     public Mono<User> updateStatus_migrated(String domain, String id, boolean status, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.singleToMono(updateStatus(ReferenceType.DOMAIN, domain, id, status, principal));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateStatus_migrated(ReferenceType.DOMAIN, domain, id, status, principal)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.resetPassword_migrated(domain, userId, password, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -348,7 +348,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
 }
 @Override
     public Mono<Void> sendRegistrationConfirmation_migrated(String domainId, String userId, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domainId))).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))).flatMap(domain1->RxJava2Adapter.singleToMono(findById(ReferenceType.DOMAIN, domainId, userId)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<User, CompletableSource>toJdkFunction((io.gravitee.am.model.User user)->{
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domainId))).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))).flatMap(domain1->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findById_migrated(ReferenceType.DOMAIN, domainId, userId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<User, CompletableSource>toJdkFunction((io.gravitee.am.model.User user)->{
 if (!user.isPreRegistration()) {
 return RxJava2Adapter.monoToCompletable(Mono.error(new UserInvalidException("Pre-registration is disabled for the user " + userId)));
 }
@@ -367,7 +367,7 @@ return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(checkClientFu
 }
 @Override
     public Mono<Void> unlock_migrated(ReferenceType referenceType, String referenceId, String userId, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(findById(referenceType, referenceId, userId)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findById_migrated(referenceType, referenceId, userId))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
                     user.setAccountNonLocked(true);
                     user.setAccountLockedAt(null);
                     user.setAccountLockedUntil(null);
@@ -429,7 +429,7 @@ private Single<User> assignRoles0(ReferenceType referenceType, String referenceI
  return RxJava2Adapter.monoToSingle(assignRoles0_migrated(referenceType, referenceId, userId, roles, principal, revoke));
 }
 private Mono<User> assignRoles0_migrated(ReferenceType referenceType, String referenceId, String userId, List<String> roles, io.gravitee.am.identityprovider.api.User principal, boolean revoke) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findById(referenceType, referenceId, userId)).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)oldUser -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findById_migrated(referenceType, referenceId, userId))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)oldUser -> {
                     User userToUpdate = new User(oldUser);
                     // remove existing roles from the user
                     if (revoke) {

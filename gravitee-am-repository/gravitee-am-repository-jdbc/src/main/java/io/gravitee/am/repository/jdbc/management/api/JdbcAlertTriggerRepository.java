@@ -162,7 +162,7 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
 }
 @Override
     public Flux<AlertTrigger> findAll_migrated(ReferenceType referenceType, String referenceId) {
-        return RxJava2Adapter.flowableToFlux(findByCriteria(referenceType, referenceId, new AlertTriggerCriteria()));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, new AlertTriggerCriteria())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

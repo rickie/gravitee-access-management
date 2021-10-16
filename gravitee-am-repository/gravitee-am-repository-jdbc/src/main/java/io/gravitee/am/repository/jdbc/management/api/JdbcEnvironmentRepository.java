@@ -162,7 +162,7 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository implements
                 .then(storeDomainRestrictions)
                 .then(storeHrids)
                 .as(trx::transactional)
-                .then(maybeToMono(findById(environment.getId())))));
+                .then(maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(environment.getId()))))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(environment))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -186,7 +186,7 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository implements
                 .then(storeDomainRestrictions(environment, true))
                 .then(storeHrids(environment, true))
                 .as(trx::transactional)
-                .then(maybeToMono(findById(environment.getId())))));
+                .then(maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(environment.getId()))))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(environmentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

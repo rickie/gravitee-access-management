@@ -300,7 +300,7 @@ public class UserServiceImpl implements UserService {
 @Override
     public Mono<User> patch_migrated(String userId, PatchOp patchOp, String baseUrl) {
         LOGGER.debug("Patch user {}", userId);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(get(userId, baseUrl)).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)user -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(get_migrated(userId, baseUrl))).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)user -> {
                     ObjectNode node = objectMapper.convertValue(user, ObjectNode.class);
                     patchOp.getOperations().forEach(operation -> operation.apply(node));
                     User userToPatch = objectMapper.treeToValue(node, User.class);
@@ -310,7 +310,7 @@ public class UserServiceImpl implements UserService {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("Field [password] is invalid")));
                     }
 
-                    return update(userId, userToPatch, baseUrl);
+                    return RxJava2Adapter.monoToSingle(update_migrated(userId, userToPatch, baseUrl));
                 }).apply(v))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {

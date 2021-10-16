@@ -66,7 +66,7 @@ public class PermissionTicketRepositoryPurgeTest extends AbstractManagementTest 
         testObserver.assertComplete();
         testObserver.assertValue(this::isValid);
 
-        TestObserver<Void> testPurge = repository.purgeExpiredData().test();
+        TestObserver<Void> testPurge = RxJava2Adapter.monoToCompletable(repository.purgeExpiredData_migrated()).test();
         testPurge.awaitTerminalEvent();
         testPurge.assertNoErrors();
 

@@ -140,7 +140,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 @Override
     public Mono<Organization> update_migrated(String organizationId, PatchOrganization patchOrganization, User updatedBy) {
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findById(organizationId)).flatMap(organization->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateInternal_migrated(patchOrganization.patch(organization), updatedBy, organization))))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findById_migrated(organizationId))).flatMap(organization->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateInternal_migrated(patchOrganization.patch(organization), updatedBy, organization))))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated(toCreate, owner))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -82,7 +82,7 @@ public class MongoPushedAuthorizationRequestRepository extends AbstractOAuth2Mon
     public Mono<PushedAuthorizationRequest> create_migrated(PushedAuthorizationRequest par) {
         par.setId(par.getId() == null ? RandomString.generate() : par.getId());
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
-                .fromPublisher(parCollection.insertOne(convert(par)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(par.getId())).single())));
+                .fromPublisher(parCollection.insertOne(convert(par)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(par.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

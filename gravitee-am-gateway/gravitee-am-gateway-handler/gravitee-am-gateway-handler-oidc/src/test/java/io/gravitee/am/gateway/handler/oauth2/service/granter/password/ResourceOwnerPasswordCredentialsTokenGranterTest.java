@@ -88,7 +88,7 @@ public class ResourceOwnerPasswordCredentialsTokenGranterTest {
         when(tokenService.create_migrated(any(), any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(accessToken))));
         when(userAuthenticationManager.authenticate_migrated(any(Client.class), any(Authentication.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new User()))));
 
-        TestObserver<Token> testObserver = granter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(granter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(token -> token.getValue().equals("test-token"));

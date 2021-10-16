@@ -98,7 +98,7 @@ public class JdbcRefreshTokenRepository extends AbstractJdbcRepository implement
 }
 @Override
     public Mono<Void> bulkWrite_migrated(List<RefreshToken> refreshTokens) {
-        return RxJava2Adapter.completableToMono(Flux.fromIterable(refreshTokens).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(refreshToken -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(create(refreshToken)).flux()))).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to bulk load refresh tokens", error))).as(RxJava2Adapter::monoToCompletable));
+        return RxJava2Adapter.completableToMono(Flux.fromIterable(refreshTokens).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(refreshToken -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(create_migrated(refreshToken))).flux()))).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to bulk load refresh tokens", error))).as(RxJava2Adapter::monoToCompletable));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -133,7 +133,7 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
 
         Mono<Integer> insertAction = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(id)).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(id))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

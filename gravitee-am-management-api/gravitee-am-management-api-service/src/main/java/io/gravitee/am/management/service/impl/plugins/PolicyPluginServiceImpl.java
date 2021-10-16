@@ -58,7 +58,7 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
 }
 @Override
     public Mono<List<PolicyPlugin>> findAll_migrated() {
-        return RxJava2Adapter.singleToMono(findAll(null));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findAll_migrated(null)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -193,9 +193,9 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
             for (String s : expand) {
                 switch (s) {
                     case "schema":
-                        getSchema(plugin.getId()).subscribe(plugin::setSchema);
+                        RxJava2Adapter.monoToMaybe(getSchema_migrated(plugin.getId())).subscribe(plugin::setSchema);
                     case "icon":
-                        getIcon(plugin.getId()).subscribe(plugin::setIcon);
+                        RxJava2Adapter.monoToMaybe(getIcon_migrated(plugin.getId())).subscribe(plugin::setIcon);
                     default:
                         break;
                 }

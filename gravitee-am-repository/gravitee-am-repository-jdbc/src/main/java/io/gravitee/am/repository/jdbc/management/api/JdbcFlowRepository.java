@@ -111,7 +111,7 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
 
         insertAction = persistChildEntities(insertAction, item);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, Flow item) {
@@ -198,7 +198,7 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
         updateAction = updateAction.then(deleteChildEntities(item.getId()));
         updateAction = persistChildEntities(updateAction, item);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
     }
 
     private Mono<Integer> deleteChildEntities(String flowId) {

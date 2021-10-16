@@ -149,7 +149,7 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
         }
         if (expand != null) {
             if (expand.contains(ResourcePluginService.EXPAND_ICON)) {
-                this.getIcon(plugin.getId()).subscribe(plugin::setIcon);
+                RxJava2Adapter.monoToMaybe(this.getIcon_migrated(plugin.getId())).subscribe(plugin::setIcon);
             }
         }
         return plugin;

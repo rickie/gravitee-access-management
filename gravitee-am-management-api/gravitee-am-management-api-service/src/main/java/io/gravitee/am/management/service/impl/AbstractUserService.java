@@ -97,7 +97,7 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
 }
 @Override
     public Mono<User> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.singleToMono(this.update(referenceType, referenceId, id, updateUser, principal, checkClientFunction()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.update_migrated(referenceType, referenceId, id, updateUser, principal, checkClientFunction())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(referenceType, referenceId, id, updateUser, principal, checkClient))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

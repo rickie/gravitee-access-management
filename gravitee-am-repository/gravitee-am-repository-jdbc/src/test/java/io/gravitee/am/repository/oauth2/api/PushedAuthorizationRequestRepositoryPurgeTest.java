@@ -55,18 +55,18 @@ public class PushedAuthorizationRequestRepositoryPurgeTest extends AbstractOAuth
         object2.setParameters(new LinkedMultiValueMap<>());
         object2.setExpireAt(new Date(now.minus(1, ChronoUnit.MINUTES).toEpochMilli()));
 
-        parRepository.create(object1).test().awaitTerminalEvent();
-        parRepository.create(object2).test().awaitTerminalEvent();
+        RxJava2Adapter.monoToSingle(parRepository.create_migrated(object1)).test().awaitTerminalEvent();
+        RxJava2Adapter.monoToSingle(parRepository.create_migrated(object2)).test().awaitTerminalEvent();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(parRepository.findById(object1.getId())).block());
-        assertNull(RxJava2Adapter.maybeToMono(parRepository.findById(object2.getId())).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(parRepository.findById_migrated(object1.getId()))).block());
+        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(parRepository.findById_migrated(object2.getId()))).block());
 
-        TestObserver<Void> testPurge = parRepository.purgeExpiredData().test();
+        TestObserver<Void> testPurge = RxJava2Adapter.monoToCompletable(parRepository.purgeExpiredData_migrated()).test();
         testPurge.awaitTerminalEvent();
         testPurge.assertNoErrors();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(parRepository.findById(object1.getId())).block());
-        assertNull(RxJava2Adapter.maybeToMono(parRepository.findById(object2.getId())).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(parRepository.findById_migrated(object1.getId()))).block());
+        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(parRepository.findById_migrated(object2.getId()))).block());
 
     }
 

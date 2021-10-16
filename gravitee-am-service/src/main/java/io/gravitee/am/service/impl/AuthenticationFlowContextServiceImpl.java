@@ -102,11 +102,11 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
 }
 @Override
     public Mono<AuthenticationFlowContext> removeContext_migrated(String transactionId, int expectedVersion) {
-        return RxJava2Adapter.maybeToMono(this.loadContext(transactionId, expectedVersion)
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.loadContext_migrated(transactionId, expectedVersion))
                 .doFinally(() -> {
                     // fire and forget the deletion, in case of error the AuthenticationFLowContext TTL will finally delete the entry
                     // we doesn't want to stop the request processing due to deletion error if context is successfully loaded
-                    clearContext(transactionId)
+                    RxJava2Adapter.monoToCompletable(clearContext_migrated(transactionId))
                             .subscribe(
                                     () -> LOGGER.info("Deletion of Authentication Flow context '{}' succeeded after loading it", transactionId),
                                     (error) -> LOGGER.warn("Deletion of Authentication Flow context '{}' failed after loading it", transactionId, error));

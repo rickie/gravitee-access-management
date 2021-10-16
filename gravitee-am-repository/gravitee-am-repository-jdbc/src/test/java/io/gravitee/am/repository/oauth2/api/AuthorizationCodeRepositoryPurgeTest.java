@@ -52,22 +52,22 @@ public class AuthorizationCodeRepositoryPurgeTest extends AbstractOAuthTest {
         authorizationCodeExpired.setCode(codeExpired);
         authorizationCodeExpired.setExpireAt(new Date(now.minus(1, ChronoUnit.MINUTES).toEpochMilli()));
 
-        TestObserver<AuthorizationCode> testObserver = authorizationCodeRepository.create(authorizationCode).test();
+        TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToSingle(authorizationCodeRepository.create_migrated(authorizationCode)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
-        testObserver = authorizationCodeRepository.create(authorizationCodeExpired).test();
+        testObserver = RxJava2Adapter.monoToSingle(authorizationCodeRepository.create_migrated(authorizationCodeExpired)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(authorizationCodeRepository.findByCode(code)).block());
-        assertNull(RxJava2Adapter.maybeToMono(authorizationCodeRepository.findByCode(codeExpired)).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(code))).block());
+        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(codeExpired))).block());
 
-        TestObserver<Void> testPurge = authorizationCodeRepository.purgeExpiredData().test();
+        TestObserver<Void> testPurge = RxJava2Adapter.monoToCompletable(authorizationCodeRepository.purgeExpiredData_migrated()).test();
         testPurge.awaitTerminalEvent();
         testPurge.assertNoErrors();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(authorizationCodeRepository.findByCode(code)).block());
-        assertNull(RxJava2Adapter.maybeToMono(authorizationCodeRepository.findByCode(codeExpired)).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(code))).block());
+        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(codeExpired))).block());
 
     }
 

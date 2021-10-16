@@ -129,7 +129,7 @@ public class MongoFlowRepository extends AbstractManagementMongoRepository imple
     public Mono<Flow> create_migrated(Flow item) {
         FlowMongo flow = convert(item);
         flow.setId(flow.getId() == null ? RandomString.generate() : flow.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(flowsCollection.insertOne(flow))).flatMap(success->RxJava2Adapter.maybeToMono(findById(flow.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(flowsCollection.insertOne(flow))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(flow.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -141,7 +141,7 @@ public class MongoFlowRepository extends AbstractManagementMongoRepository imple
 @Override
     public Mono<Flow> update_migrated(Flow item) {
         FlowMongo flow = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(flowsCollection.replaceOne(eq(FIELD_ID, flow.getId()), flow))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(flow.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(flowsCollection.replaceOne(eq(FIELD_ID, flow.getId()), flow))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(flow.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -150,7 +150,7 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
 @Override
     public Mono<Role> findById_migrated(ReferenceType referenceType, String referenceId, String role) {
         LOGGER.debug("findById({},{},{})", referenceType, referenceId, role);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(roleRepository.findById(referenceType.name(), referenceId, role)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), role)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleRepository.findById_migrated(referenceType.name(), referenceId, role))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), role)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByNameAndAssignableType_migrated(referenceType, referenceId, name, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -228,7 +228,7 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
             }).reduce(Integer::sum));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -272,7 +272,7 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
             }).reduce(Integer::sum));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(deleteScopes.then(action).as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(deleteScopes.then(action).as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

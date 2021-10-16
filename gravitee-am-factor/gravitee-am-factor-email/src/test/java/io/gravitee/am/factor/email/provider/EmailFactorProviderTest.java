@@ -114,7 +114,7 @@ public class EmailFactorProviderTest {
         when(userService.addFactor_migrated(any(), any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
         when(smtpProvider.sendMessage_migrated(any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver<Void> test = cut.sendChallenge(factorContext).test();
+        TestObserver<Void> test = RxJava2Adapter.monoToCompletable(cut.sendChallenge_migrated(factorContext)).test();
         test.awaitTerminalEvent();
         test.assertNoValues();
         test.assertNoErrors();
@@ -138,7 +138,7 @@ public class EmailFactorProviderTest {
         when(factorContext.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class)).thenReturn(enrolled);
         when(factorContext.getData(FactorContext.KEY_CODE, String.class)).thenReturn(CODE);
 
-        TestObserver<Void> test = cut.verify(factorContext).test();
+        TestObserver<Void> test = RxJava2Adapter.monoToCompletable(cut.verify_migrated(factorContext)).test();
         test.awaitTerminalEvent();
         test.assertNoValues();
         test.assertNoErrors();
@@ -158,7 +158,7 @@ public class EmailFactorProviderTest {
         when(factorContext.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class)).thenReturn(enrolled);
         when(factorContext.getData(FactorContext.KEY_CODE, String.class)).thenReturn(CODE);
 
-        TestObserver<Void> test = cut.verify(factorContext).test();
+        TestObserver<Void> test = RxJava2Adapter.monoToCompletable(cut.verify_migrated(factorContext)).test();
         test.awaitTerminalEvent();
         test.assertNoValues();
         test.assertError(InvalidCodeException.class);
@@ -177,7 +177,7 @@ public class EmailFactorProviderTest {
         when(factorContext.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class)).thenReturn(enrolled);
         when(factorContext.getData(FactorContext.KEY_CODE, String.class)).thenReturn(CODE);
 
-        TestObserver<Void> test = cut.verify(factorContext).test();
+        TestObserver<Void> test = RxJava2Adapter.monoToCompletable(cut.verify_migrated(factorContext)).test();
         test.awaitTerminalEvent();
         test.assertNoValues();
         test.assertError(InvalidCodeException.class);

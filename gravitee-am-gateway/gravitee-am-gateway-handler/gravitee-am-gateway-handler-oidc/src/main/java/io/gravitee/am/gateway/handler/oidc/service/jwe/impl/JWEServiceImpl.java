@@ -155,7 +155,7 @@ public class JWEServiceImpl implements JWEService {
 }
 @Override
     public Mono<JWT> decrypt_migrated(String jwt, boolean encRequired) {
-        return RxJava2Adapter.singleToMono(decrypt(jwt, null, encRequired));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(decrypt_migrated(jwt, null, encRequired)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decrypt_migrated(jwt, client, encRequired))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -184,37 +184,34 @@ public class JWEServiceImpl implements JWEService {
 
                 //RSA decryption
                 if (RSACryptoProvider.SUPPORTED_ALGORITHMS.contains(algorithm)) {
-                    return RxJava2Adapter.singleToMono(decrypt(jweObject, client, JWKFilter.RSA_KEY_ENCRYPTION(), jwk ->
-                            new RSADecrypter(JWKConverter.convert((RSAKey) jwk))
-                    ));
+                    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(decrypt_migrated(jweObject, client, JWKFilter.RSA_KEY_ENCRYPTION(), jwk ->
+                            new RSADecrypter(JWKConverter.convert((RSAKey) jwk)))));
                 }
                 //Curve decryption (Elliptic "EC" & Edward "OKP")
                 else if (ECDHCryptoProvider.SUPPORTED_ALGORITHMS.contains(algorithm)) {
-                    return RxJava2Adapter.singleToMono(decrypt(jweObject, client, JWKFilter.CURVE_KEY_ENCRYPTION(), jwk -> {
+                    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(decrypt_migrated(jweObject, client, JWKFilter.CURVE_KEY_ENCRYPTION(), jwk -> {
                         if (KeyType.EC.getValue().equals(jwk.getKty())) {
                             return new ECDHDecrypter(JWKConverter.convert((ECKey) jwk));
                         }
                         return new X25519Decrypter(JWKConverter.convert((OKPKey) jwk));
-                    }));
+                    })));
                 }
                 //AES decryption ("OCT" keys)
                 else if (AESCryptoProvider.SUPPORTED_ALGORITHMS.contains(algorithm)) {
-                    return RxJava2Adapter.singleToMono(decrypt(jweObject, client, JWKFilter.OCT_KEY_ENCRYPTION(algorithm), jwk ->
-                            new AESDecrypter(JWKConverter.convert((OCTKey) jwk))
-                    ));
+                    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(decrypt_migrated(jweObject, client, JWKFilter.OCT_KEY_ENCRYPTION(algorithm), jwk ->
+                            new AESDecrypter(JWKConverter.convert((OCTKey) jwk)))));
                 }
                 //Direct decryption ("OCT" keys)
                 else if (DirectCryptoProvider.SUPPORTED_ALGORITHMS.contains(algorithm)) {
-                    return RxJava2Adapter.singleToMono(decrypt(jweObject, client, JWKFilter.OCT_KEY_ENCRYPTION(jweObject.getHeader().getEncryptionMethod()), jwk ->
-                            new DirectDecrypter(JWKConverter.convert((OCTKey) jwk))
-                    ));
+                    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(decrypt_migrated(jweObject, client, JWKFilter.OCT_KEY_ENCRYPTION(jweObject.getHeader().getEncryptionMethod()), jwk ->
+                            new DirectDecrypter(JWKConverter.convert((OCTKey) jwk)))));
                 }
                 //Password Base decryption ("OCT" keys)
                 else if (PasswordBasedCryptoProvider.SUPPORTED_ALGORITHMS.contains(algorithm)) {
-                    return RxJava2Adapter.singleToMono(decrypt(jweObject, client, JWKFilter.OCT_KEY_ENCRYPTION(), jwk -> {
+                    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(decrypt_migrated(jweObject, client, JWKFilter.OCT_KEY_ENCRYPTION(), jwk -> {
                         OctetSequenceKey octKey = JWKConverter.convert((OCTKey) jwk);
                         return new PasswordBasedDecrypter(octKey.getKeyValue().decode());
-                    }));
+                    })));
                 }
 
                 return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new ServerErrorException("Unable to perform Json Web Decryption, unsupported algorithm: " + algorithm.getName()))));

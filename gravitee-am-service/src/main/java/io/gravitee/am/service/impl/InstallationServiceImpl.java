@@ -84,7 +84,7 @@ public class InstallationServiceImpl implements InstallationService {
 }
 @Override
     public Mono<Installation> setAdditionalInformation_migrated(Map<String, String> additionalInformation) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(get()).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)installation -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(get_migrated())).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)installation -> {
                     Installation toUpdate = new Installation(installation);
                     toUpdate.setAdditionalInformation(additionalInformation);
 
@@ -100,7 +100,7 @@ public class InstallationServiceImpl implements InstallationService {
 }
 @Override
     public Mono<Installation> addAdditionalInformation_migrated(Map<String, String> additionalInformation) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getOrInitialize()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installation -> installation.getAdditionalInformation().putAll(additionalInformation))).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)(io.gravitee.am.model.Installation ident) -> RxJava2Adapter.monoToSingle(updateInternal_migrated(ident))).apply(v)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getOrInitialize_migrated())).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installation -> installation.getAdditionalInformation().putAll(additionalInformation))).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)(io.gravitee.am.model.Installation ident) -> RxJava2Adapter.monoToSingle(updateInternal_migrated(ident))).apply(v)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")

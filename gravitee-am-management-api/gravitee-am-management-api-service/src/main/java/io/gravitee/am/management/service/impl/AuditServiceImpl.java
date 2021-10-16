@@ -72,7 +72,7 @@ public class AuditServiceImpl implements AuditService {
 @Override
     public Mono<Page<Audit>> search_migrated(String domain, AuditReportableCriteria criteria, int page, int size) {
 
-        return RxJava2Adapter.singleToMono(search(ReferenceType.DOMAIN, domain, criteria, page, size));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(search_migrated(ReferenceType.DOMAIN, domain, criteria, page, size)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(domain, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -115,7 +115,7 @@ public class AuditServiceImpl implements AuditService {
 }
 @Override
     public Mono<Audit> findById_migrated(String domain, String auditId) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(findById(ReferenceType.DOMAIN, domain, auditId))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findById_migrated(ReferenceType.DOMAIN, domain, auditId)))));
     }
 
     private Reporter getReporter(String domain) {

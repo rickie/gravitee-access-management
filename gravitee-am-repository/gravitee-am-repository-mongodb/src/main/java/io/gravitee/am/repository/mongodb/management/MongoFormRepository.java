@@ -153,7 +153,7 @@ public class MongoFormRepository extends AbstractManagementMongoRepository imple
     public Mono<Form> create_migrated(Form item) {
         FormMongo page = convert(item);
         page.setId(page.getId() == null ? RandomString.generate() : page.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(formsCollection.insertOne(page))).flatMap(success->RxJava2Adapter.maybeToMono(findById(page.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(formsCollection.insertOne(page))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(page.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -165,7 +165,7 @@ public class MongoFormRepository extends AbstractManagementMongoRepository imple
 @Override
     public Mono<Form> update_migrated(Form item) {
         FormMongo page = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(formsCollection.replaceOne(eq(FIELD_ID, page.getId()), page))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(page.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(formsCollection.replaceOne(eq(FIELD_ID, page.getId()), page))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(page.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

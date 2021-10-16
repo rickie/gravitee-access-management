@@ -253,7 +253,7 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
     public Mono<User> create_migrated(User item) {
         UserMongo user = convert(item);
         user.setId(user.getId() == null ? RandomString.generate() : user.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne((T)user))).flatMap(success->RxJava2Adapter.maybeToMono(findById(user.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne((T)user))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(user.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -265,7 +265,7 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
 @Override
     public Mono<User> update_migrated(User item) {
         UserMongo user = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, user.getId()), (T)user))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(user.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, user.getId()), (T)user))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(user.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

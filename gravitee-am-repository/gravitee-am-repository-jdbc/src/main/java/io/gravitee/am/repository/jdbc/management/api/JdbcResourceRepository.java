@@ -170,7 +170,7 @@ private Mono<Resource> completeWithScopes_migrated(Maybe<Resource> maybeResource
 @Override
     public Mono<Resource> findByDomainAndClientAndUserAndResource_migrated(String domain, String client, String userId, String resource) {
         LOGGER.debug("findByDomainAndClientAndUserAndResource({},{},{},{})", domain, client, userId, resource);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(resourceRepository.findByDomainAndClientAndUserIdAndResource(domain, client, userId, resource)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), resource)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(resourceRepository.findByDomainAndClientAndUserIdAndResource_migrated(domain, client, userId, resource))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), resource)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

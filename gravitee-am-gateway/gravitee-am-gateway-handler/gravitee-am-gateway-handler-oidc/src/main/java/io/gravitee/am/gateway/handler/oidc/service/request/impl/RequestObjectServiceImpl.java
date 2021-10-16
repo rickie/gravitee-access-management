@@ -116,14 +116,14 @@ public class RequestObjectServiceImpl implements RequestObjectService {
 
                 return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(requestObjectRepository.findById_migrated(identifier))).switchIfEmpty(Mono.error(new InvalidRequestObjectException())).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<RequestObject, Single<JWT>>)(Function<RequestObject, Single<JWT>>)req -> {
                             if (req.getExpireAt().after(new Date())) {
-                                return readRequestObject(req.getPayload(), client, false);
+                                return RxJava2Adapter.monoToSingle(readRequestObject_migrated(req.getPayload(), client, false));
                             }
 
                             return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException()));
                         }).apply(v)))));
             } else {
                 return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(webClient.getAbs(UriBuilder.fromHttpUrl(requestUri).build().toString())
-                        .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(HttpResponse::bodyAsString)).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<JWT>>)(Function<String, Single<JWT>>)s -> readRequestObject(s, client, false)).apply(v)))));
+                        .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(HttpResponse::bodyAsString)).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<JWT>>)(Function<String, Single<JWT>>)s -> RxJava2Adapter.monoToSingle(readRequestObject_migrated(s, client, false))).apply(v)))));
             }
         }
         catch (IllegalArgumentException | URISyntaxException ex) {

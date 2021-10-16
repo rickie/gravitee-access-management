@@ -190,7 +190,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
 }
 @Override
     public Mono<Void> delete_migrated(ReferenceType referenceType, String referenceId, String alertTriggerId, User byUser) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(this.getById(referenceType, referenceId, alertTriggerId)).flatMap(alertTrigger->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(deleteInternal_migrated(alertTrigger, byUser)))).then()));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.getById_migrated(referenceType, referenceId, alertTriggerId))).flatMap(alertTrigger->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(deleteInternal_migrated(alertTrigger, byUser)))).then()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated(toCreate, byUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

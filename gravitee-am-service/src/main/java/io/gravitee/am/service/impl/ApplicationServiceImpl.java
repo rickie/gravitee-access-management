@@ -669,7 +669,7 @@ private Completable checkApplicationUniqueness(String domain, Application applic
 }
 private Mono<Void> checkApplicationUniqueness_migrated(String domain, Application application) {
         final String clientId = application.getSettings() != null && application.getSettings().getOauth() != null ? application.getSettings().getOauth().getClientId() : null;
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(findByDomainAndClientId(domain, clientId)).hasElement().flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)isEmpty -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByDomainAndClientId_migrated(domain, clientId))).hasElement().flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)isEmpty -> {
                     if (!isEmpty) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(new ApplicationAlreadyExistsException(clientId, domain)));
                     }

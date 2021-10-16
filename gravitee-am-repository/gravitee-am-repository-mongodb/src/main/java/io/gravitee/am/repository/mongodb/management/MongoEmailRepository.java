@@ -117,7 +117,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Email> findByDomainAndTemplate_migrated(String domain, String template) {
-        return RxJava2Adapter.maybeToMono(findByTemplate(ReferenceType.DOMAIN, domain, template));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByTemplate_migrated(ReferenceType.DOMAIN, domain, template)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientAndTemplate_migrated(referenceType, referenceId, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -146,7 +146,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Email> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template) {
-        return RxJava2Adapter.maybeToMono(findByClientAndTemplate(ReferenceType.DOMAIN, domain, client, template));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(ReferenceType.DOMAIN, domain, client, template)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -181,7 +181,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
     public Mono<Email> create_migrated(Email item) {
         EmailMongo email = convert(item);
         email.setId(email.getId() == null ? RandomString.generate() : email.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(emailsCollection.insertOne(email))).flatMap(success->RxJava2Adapter.maybeToMono(findById(email.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(emailsCollection.insertOne(email))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(email.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -193,7 +193,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
 @Override
     public Mono<Email> update_migrated(Email item) {
         EmailMongo email = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(emailsCollection.replaceOne(eq(FIELD_ID, email.getId()), email))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(email.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(emailsCollection.replaceOne(eq(FIELD_ID, email.getId()), email))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(email.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

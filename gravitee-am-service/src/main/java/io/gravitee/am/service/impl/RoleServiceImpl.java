@@ -285,7 +285,7 @@ public class RoleServiceImpl implements RoleService {
 @Override
     public Mono<Role> create_migrated(String domain, NewRole newRole, User principal) {
 
-        return RxJava2Adapter.singleToMono(create(ReferenceType.DOMAIN, domain, newRole, principal));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(create_migrated(ReferenceType.DOMAIN, domain, newRole, principal)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(referenceType, referenceId, id, updateRole, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -298,7 +298,7 @@ public class RoleServiceImpl implements RoleService {
     public Mono<Role> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateRole updateRole, User principal) {
         LOGGER.debug("Update a role {} for {} {}", id, referenceType, referenceId);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findById(referenceType, referenceId, id)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Role, SingleSource<Role>>toJdkFunction(role -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findById_migrated(referenceType, referenceId, id))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Role, SingleSource<Role>>toJdkFunction(role -> {
                     if (role.isSystem()) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new SystemRoleUpdateException(role.getName())));
                     }
@@ -342,7 +342,7 @@ public class RoleServiceImpl implements RoleService {
 @Override
     public Mono<Role> update_migrated(String domain, String id, UpdateRole updateRole, User principal) {
 
-        return RxJava2Adapter.singleToMono(update(ReferenceType.DOMAIN, domain, id, updateRole, principal));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(update_migrated(ReferenceType.DOMAIN, domain, id, updateRole, principal)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(referenceType, referenceId, roleId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -126,7 +126,7 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
 }
 @Override
     public Mono<Void> reset_migrated(LoginAttemptCriteria criteria) {
-        return RxJava2Adapter.completableToMono(loginSucceeded(criteria));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(loginSucceeded_migrated(criteria)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.checkAccount_migrated(criteria, accountSettings))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

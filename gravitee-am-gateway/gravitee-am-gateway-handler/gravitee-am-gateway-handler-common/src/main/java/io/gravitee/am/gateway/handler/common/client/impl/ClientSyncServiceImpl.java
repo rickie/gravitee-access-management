@@ -63,7 +63,7 @@ public class ClientSyncServiceImpl implements ClientSyncService {
 }
 @Override
     public Mono<Client> findByClientId_migrated(String clientId) {
-        return RxJava2Adapter.maybeToMono(findByDomainAndClientId(domain.getId(), clientId));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByDomainAndClientId_migrated(domain.getId(), clientId)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientId_migrated(domain, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -121,7 +121,7 @@ public class JdbcEmailRepository extends AbstractJdbcRepository implements Email
 @Override
     public Mono<Email> findByDomainAndTemplate_migrated(String domain, String template) {
         LOGGER.debug("findByDomainAndTemplate({}, {})", domain, template);
-        return RxJava2Adapter.maybeToMono(findByTemplate(ReferenceType.DOMAIN, domain, template));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByTemplate_migrated(ReferenceType.DOMAIN, domain, template)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientAndTemplate_migrated(referenceType, referenceId, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -145,7 +145,7 @@ public class JdbcEmailRepository extends AbstractJdbcRepository implements Email
 @Override
     public Mono<Email> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template) {
         LOGGER.debug("findByClientAndTemplate({}, {}, {})", domain, client, template);
-        return RxJava2Adapter.maybeToMono(findByClientAndTemplate(ReferenceType.DOMAIN, domain, client, template));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(ReferenceType.DOMAIN, domain, client, template)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -200,7 +200,7 @@ public class JdbcEmailRepository extends AbstractJdbcRepository implements Email
         insertSpec = addQuotedField(insertSpec,"updated_at", dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -233,7 +233,7 @@ public class JdbcEmailRepository extends AbstractJdbcRepository implements Email
 
         Mono<Integer> action = updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
 
     }
 
