@@ -15,7 +15,12 @@
  */
 package io.gravitee.am.reporter.mongodb.audit;
 
-import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.gte;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.lte;
+import static com.mongodb.client.model.Filters.or;
 
 import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.BasicDBObject;
@@ -44,15 +49,20 @@ import io.gravitee.am.reporter.mongodb.audit.model.AuditOutcomeMongo;
 import io.gravitee.common.service.AbstractService;
 import io.gravitee.reporter.api.Reportable;
 import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.processors.PublishProcessor;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -64,6 +74,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
@@ -195,7 +206,7 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         }
     }
 
-    
+
 private Mono<Map<Object,Object>> executeHistogram_migrated(AuditReportableCriteria criteria, Bson query) {
         // NOTE : MongoDB does not return count : 0 if there is no matching document in the given time range, we need to add it by hand
         Map<Long, Long> intervals = intervals(criteria);
@@ -236,7 +247,7 @@ private Mono<Map<Object,Object>> executeHistogram_migrated(AuditReportableCriter
                 }));
     }
 
-    
+
 private Mono<Map<Object,Object>> executeGroupBy_migrated(AuditReportableCriteria criteria, Bson query) {
         return RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.aggregate(
                 Arrays.asList(
@@ -247,12 +258,12 @@ private Mono<Map<Object,Object>> executeGroupBy_migrated(AuditReportableCriteria
                 .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(docs -> docs.stream().collect(Collectors.toMap(d -> ((Document) d.get("_id")).get("_id"), d -> d.get("count")))));
     }
 
-    
+
 private Mono<Map<Object,Object>> executeCount_migrated(Bson query) {
         return RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.countDocuments(query)).first(0l)).map(RxJavaReactorMigrationUtil.toJdkFunction(data -> Collections.singletonMap("data", data)));
     }
 
-    
+
 private Flux<BulkWriteResult> bulk_migrated(List<Audit> audits) {
         if (audits == null || audits.isEmpty()) {
             return Flux.empty();
