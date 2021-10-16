@@ -481,10 +481,10 @@
                             -Xep:UnnecessarilyFullyQualified:OFF
 
                             <!-- Don't start migration just yet -->
-                            -Xep:InlineMeInliner:OFF
+                            -Xep:InlineMeInliner:ERROR
                             -Xep:InlineMeSuggester:ERROR
-                            <!-- -Xep:InlineMockitoStatements:OFF-->
-                            <!-- -Xep:AddDefaultMethod:OFF-->
+                            -Xep:InlineMockitoStatements:ERROR
+                            -Xep:AddDefaultMethod:ERROR
 
                             <!-- Turn these on once. -->
                             -Xep:MethodReferenceUsage:ERROR
@@ -492,7 +492,7 @@
                             -Xep:UnwrapExpressions:OFF
 
                             -Xep:Refaster:ERROR
-                            -XepOpt:Refaster:NamePattern=(?!TestNG)(?!Optional)(?!AssertJ)(?!Assorted)(?!Stream)(?!RxJava2Adapter)(?!Reactor)(?!Web)(?!String)(?!Stream)(?!Immutable)(?!Int)(?!Mockito)(?!Collection)(?!Comparator)(?!Time).*
+                            -XepOpt:Refaster:NamePattern=(?!TestNG)(?!Optional)(?!AssertJ)(?!Assorted)(?!Stream)(?!RxJava2Adapter)(?!Reactor)(?!Web)(?!String)(?!Stream)(?!Immutable)(?!Int)(?!Mockito)(?!Collection)(?!Comparator)(?!Time)(?!RxJava).*
                             <!-- (?!RxJava) -->
 
                             -Xep:CountMethods:OFF
@@ -528,6 +528,10 @@
                             -Xep:WildcardImport:OFF
                             -Xep:MissingOverride:OFF
                             -Xep:ReturnMissingNullable:OFF
+
+                            -XepDisableAllChecks
+                            -Xep:CountMethods:ERROR
+                            -XepOpt:Directory=after_part_1
 
                             <!-- Error Prone args for patch checks -->
                             ${error-prone.args}
