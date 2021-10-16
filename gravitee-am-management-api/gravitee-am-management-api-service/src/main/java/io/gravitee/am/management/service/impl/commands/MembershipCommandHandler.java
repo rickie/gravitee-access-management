@@ -101,22 +101,26 @@ public class MembershipCommandHandler implements CommandHandler<MembershipComman
     }
 
 
-    private Single<Role> findRole(String roleName, String organizationId, ReferenceType assignableType) {
+    @Deprecated
+private Single<Role> findRole(String roleName, String organizationId, ReferenceType assignableType) {
+ return RxJava2Adapter.monoToSingle(findRole_migrated(roleName, organizationId, assignableType));
+}
+private Mono<Role> findRole_migrated(String roleName, String organizationId, ReferenceType assignableType) {
 
         SystemRole systemRole = SystemRole.fromName(roleName);
 
         // First try to map to a system role.
         if (systemRole != null) {
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(roleService.findSystemRole(systemRole, assignableType)).single());
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(roleService.findSystemRole(systemRole, assignableType)).single()));
         } else {
             // Then try to find a default role.
             DefaultRole defaultRole = DefaultRole.fromName(roleName);
 
             if (defaultRole != null) {
-                return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(roleService.findDefaultRole(organizationId, defaultRole, assignableType)).single());
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(roleService.findDefaultRole(organizationId, defaultRole, assignableType)).single()));
             }
         }
 
-        return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRoleException(String.format("Unable to find role [%s] for organization [%s].", roleName, organizationId))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRoleException(String.format("Unable to find role [%s] for organization [%s].", roleName, organizationId)))));
     }
 }

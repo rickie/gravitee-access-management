@@ -18,6 +18,7 @@ package io.gravitee.am.gateway.handler.oauth2.service.assertion;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Maybe;
 import io.vertx.reactivex.ext.web.RoutingContext;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * Client assertion as described for <a href="https://tools.ietf.org/html/rfc7521#section-4.2">oauth2 assertion framework</a>
@@ -28,5 +29,11 @@ import io.vertx.reactivex.ext.web.RoutingContext;
  */
 public interface ClientAssertionService {
 
-    Maybe<Client> assertClient(String assertionType, String assertion, String basePath);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.oidc.Client> assertClient(java.lang.String assertionType, java.lang.String assertion, java.lang.String basePath) {
+    return RxJava2Adapter.monoToMaybe(assertClient_migrated(assertionType, assertion, basePath));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> assertClient_migrated(String assertionType, String assertion, String basePath) {
+    return RxJava2Adapter.maybeToMono(assertClient(assertionType, assertion, basePath));
+}
 }

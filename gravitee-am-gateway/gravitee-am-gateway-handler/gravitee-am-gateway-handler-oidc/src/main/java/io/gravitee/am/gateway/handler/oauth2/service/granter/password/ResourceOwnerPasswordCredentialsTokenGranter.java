@@ -59,34 +59,44 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         setUserAuthenticationManager(userAuthenticationManager);
     }
 
-    @Override
+    @Deprecated
+@Override
     protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
+ return RxJava2Adapter.monoToSingle(parseRequest_migrated(tokenRequest, client));
+}
+@Override
+    protected Mono<TokenRequest> parseRequest_migrated(TokenRequest tokenRequest, Client client) {
         MultiValueMap<String, String> parameters = tokenRequest.parameters();
         String username = parameters.getFirst(USERNAME);
         String password = parameters.getFirst(PASSWORD);
 
         if (username == null) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Missing parameter: username")));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Missing parameter: username"))));
         }
 
         if (password == null) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Missing parameter: password")));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Missing parameter: password"))));
         }
 
         // set required parameters
         tokenRequest.setUsername(username);
         tokenRequest.setPassword(password);
 
-        return super.parseRequest(tokenRequest, client);
+        return RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client));
     }
 
-    @Override
+    @Deprecated
+@Override
     protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
+ return RxJava2Adapter.monoToMaybe(resolveResourceOwner_migrated(tokenRequest, client));
+}
+@Override
+    protected Mono<User> resolveResourceOwner_migrated(TokenRequest tokenRequest, Client client) {
         String username = tokenRequest.getUsername();
         String password = tokenRequest.getPassword();
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(userAuthenticationManager.authenticate(client, new EndUserAuthentication(username, password, new SimpleAuthenticationContext(tokenRequest)))
-                .onErrorResumeNext(ex -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException(ex.getMessage()))))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(userAuthenticationManager.authenticate(client, new EndUserAuthentication(username, password, new SimpleAuthenticationContext(tokenRequest)))
+                .onErrorResumeNext(ex -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException(ex.getMessage())))))));
     }
 
     public void setUserAuthenticationManager(UserAuthenticationManager userAuthenticationManager) {

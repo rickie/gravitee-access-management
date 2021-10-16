@@ -95,14 +95,24 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
         return accessPolicyRepository.countByResource(resource);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<AccessPolicy> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<AccessPolicy> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(accessPolicyRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(accessPolicyRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AccessPolicy> create(AccessPolicy item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<AccessPolicy> create_migrated(AccessPolicy item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("create AccessPolicy with id {}", item.getId());
 
@@ -122,11 +132,16 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AccessPolicy> update(AccessPolicy item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<AccessPolicy> update_migrated(AccessPolicy item) {
         LOGGER.debug("update AccessPolicy with id {}", item.getId());
 
         final DatabaseClient.GenericUpdateSpec updateSpec = dbClient.update().table("uma_access_policies");
@@ -145,12 +160,17 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
         updateFields = addQuotedField(updateFields,"updated_at", dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
         Mono<Integer> action = updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete AccessPolicy with id {}", id);
-        return accessPolicyRepository.deleteById(id);
+        return RxJava2Adapter.completableToMono(accessPolicyRepository.deleteById(id));
     }
 }

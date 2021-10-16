@@ -18,6 +18,7 @@ package io.gravitee.am.repository.management.api;
 import io.gravitee.am.model.SystemTask;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -25,5 +26,11 @@ import io.reactivex.Single;
  */
 public interface SystemTaskRepository extends CrudRepository<SystemTask, String> {
 
-    Single<SystemTask> updateIf(SystemTask item, String operationId);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.SystemTask> updateIf(io.gravitee.am.model.SystemTask item, java.lang.String operationId) {
+    return RxJava2Adapter.monoToSingle(updateIf_migrated(item, operationId));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.SystemTask> updateIf_migrated(SystemTask item, String operationId) {
+    return RxJava2Adapter.singleToMono(updateIf(item, operationId));
+}
 }

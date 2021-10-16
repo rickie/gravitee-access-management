@@ -56,19 +56,29 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
         return mapper.map(entity, JdbcSystemTask.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<SystemTask> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<SystemTask> findById_migrated(String id) {
         LOGGER.debug("findById({}, {}, {})", id);
-        return RxJava2Adapter.monoToMaybe(dbClient.select()
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(dbClient.select()
                 .from(JdbcSystemTask.class)
                 .project("*")
                 .matching(from(where("id").is(id)))
-                .as(JdbcSystemTask.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+                .as(JdbcSystemTask.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
 
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<SystemTask> create(SystemTask item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<SystemTask> create_migrated(SystemTask item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("Create SystemTask with id {}", item.getId());
 
@@ -81,12 +91,17 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
         insertSpec = addQuotedField(insertSpec, "updated_at", dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<SystemTask> update(SystemTask item) {
-        return RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("SystemTask can't be updated without control on the operationId")));
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<SystemTask> update_migrated(SystemTask item) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("SystemTask can't be updated without control on the operationId"))));
     }
 
     @Override
@@ -110,11 +125,16 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
         return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("Delete SystemTask with id {}", id);
         Mono<Integer> delete = dbClient.delete().from(JdbcSystemTask.class)
                 .matching(from(where("id").is(id))).fetch().rowsUpdated();
-        return monoToCompletable(delete);
+        return RxJava2Adapter.completableToMono(monoToCompletable(delete));
     }
 }

@@ -84,18 +84,28 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
         return super.handle(grantType, client) && canHandle(client);
     }
 
-    @Override
+    @Deprecated
+@Override
     protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
+ return RxJava2Adapter.monoToSingle(parseRequest_migrated(tokenRequest, client));
+}
+@Override
+    protected Mono<TokenRequest> parseRequest_migrated(TokenRequest tokenRequest, Client client) {
         // Is client allowed to use such grant type ?
         if (!canHandle(client)) {
             throw new UnauthorizedClientException("Unauthorized grant type: " + extensionGrant.getGrantType());
         }
-        return RxJava2Adapter.monoToSingle(Mono.just(tokenRequest));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(tokenRequest)));
     }
 
-    @Override
+    @Deprecated
+@Override
     protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantProvider.grant(convert(tokenRequest)))
+ return RxJava2Adapter.monoToMaybe(resolveResourceOwner_migrated(tokenRequest, client));
+}
+@Override
+    protected Mono<User> resolveResourceOwner_migrated(TokenRequest tokenRequest, Client client) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantProvider.grant(convert(tokenRequest)))
                         .flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, MaybeSource<User>>toJdkFunction(endUser -> {
                     if (extensionGrant.isCreateUser()) {
                         Map<String, Object> additionalInformation = endUser.getAdditionalInformation() == null ? new HashMap<>() : new HashMap<>(endUser.getAdditionalInformation());
@@ -144,7 +154,7 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
                 }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException(ex.getMessage())));
-                });
+                }));
     }
 
     private User convert(io.gravitee.am.identityprovider.api.User idpUser) {

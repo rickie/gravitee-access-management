@@ -72,18 +72,28 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<BotDetection> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<BotDetection> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(dbClient.select()
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(dbClient.select()
                 .from(JdbcBotDetection.class)
                 .matching(from(where(ID_FIELD).is(id)))
                 .fetch()
-                .first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+                .first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<BotDetection> create(BotDetection item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<BotDetection> create_migrated(BotDetection item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("create bot detection with id {}", item.getId());
 
@@ -92,25 +102,35 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<BotDetection> update(BotDetection item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<BotDetection> update_migrated(BotDetection item) {
         LOGGER.debug("update bot detection with id {}", item.getId());
         Mono<Integer> action = dbClient.update()
                 .table(JdbcBotDetection.class)
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return monoToCompletable(dbClient.delete()
+        return RxJava2Adapter.completableToMono(monoToCompletable(dbClient.delete()
                 .from(JdbcBotDetection.class)
                 .matching(from(where(ID_FIELD).is(id)))
-                .fetch().rowsUpdated());
+                .fetch().rowsUpdated()));
     }
 }

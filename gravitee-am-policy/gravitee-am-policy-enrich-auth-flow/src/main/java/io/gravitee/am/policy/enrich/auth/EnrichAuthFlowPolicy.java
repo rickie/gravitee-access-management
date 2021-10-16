@@ -28,15 +28,16 @@ import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.PolicyResult;
 import io.gravitee.policy.api.annotations.OnRequest;
 import io.reactivex.Single;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -81,7 +82,11 @@ public class EnrichAuthFlowPolicy {
         }
     }
 
-    private Single<AuthenticationFlowContext> enrichAuthFlowContext(ExecutionContext executionContext) {
+    @Deprecated
+private Single<AuthenticationFlowContext> enrichAuthFlowContext(ExecutionContext executionContext) {
+ return RxJava2Adapter.monoToSingle(enrichAuthFlowContext_migrated(executionContext));
+}
+private Mono<AuthenticationFlowContext> enrichAuthFlowContext_migrated(ExecutionContext executionContext) {
         Map<String, Object> data = new HashMap<>();
         TemplateEngine tplEngine = executionContext.getTemplateEngine();
         for (Property property : configuration.getProperties()) {
@@ -105,6 +110,6 @@ public class EnrichAuthFlowPolicy {
         authContext.setCreatedAt(new Date(now.toEpochMilli()));
         authContext.setExpireAt(new Date(now.plus(expiration, ChronoUnit.SECONDS).toEpochMilli()));
 
-        return authContextRepository.create(authContext);
+        return RxJava2Adapter.singleToMono(authContextRepository.create(authContext));
     }
 }

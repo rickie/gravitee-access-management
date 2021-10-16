@@ -21,6 +21,7 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.common.service.Service;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -28,11 +29,29 @@ import io.reactivex.Single;
  */
 public interface IdentityProviderManager extends Service<IdentityProviderManager> {
 
-    Maybe<UserProvider> getUserProvider(String userProvider);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.UserProvider> getUserProvider(java.lang.String userProvider) {
+    return RxJava2Adapter.monoToMaybe(getUserProvider_migrated(userProvider));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.UserProvider> getUserProvider_migrated(String userProvider) {
+    return RxJava2Adapter.maybeToMono(getUserProvider(userProvider));
+}
 
-    Single<IdentityProvider> create(ReferenceType referenceType, String referenceId);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.IdentityProvider> create(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+    return RxJava2Adapter.monoToSingle(create_migrated(referenceType, referenceId));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.IdentityProvider> create_migrated(ReferenceType referenceType, String referenceId) {
+    return RxJava2Adapter.singleToMono(create(referenceType, referenceId));
+}
 
-    Single<IdentityProvider> create(String domain);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.IdentityProvider> create(java.lang.String domain) {
+    return RxJava2Adapter.monoToSingle(create_migrated(domain));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.IdentityProvider> create_migrated(String domain) {
+    return RxJava2Adapter.singleToMono(create(domain));
+}
 
     boolean userProviderExists(String identityProviderId);
 

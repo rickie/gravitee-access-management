@@ -24,8 +24,9 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -34,62 +35,191 @@ import java.util.List;
  */
 public interface FormService {
 
-    Maybe<Form> findById(String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.Form> findById(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Form> findById_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(findById(id));
+}
 
-    Flowable<Form> findAll(ReferenceType referenceType, String referenceId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.Form> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.Form> findAll_migrated(ReferenceType referenceType, String referenceId) {
+    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
+}
 
-    Flowable<Form> findAll(ReferenceType referenceType);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.Form> findAll(io.gravitee.am.model.ReferenceType referenceType) {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.Form> findAll_migrated(ReferenceType referenceType) {
+    return RxJava2Adapter.flowableToFlux(findAll(referenceType));
+}
 
-    Flowable<Form> findByDomain(String domain);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.Form> findByDomain(java.lang.String domain) {
+    return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.Form> findByDomain_migrated(String domain) {
+    return RxJava2Adapter.flowableToFlux(findByDomain(domain));
+}
 
-    Flowable<Form> findByClient(ReferenceType referenceType, String referenceId, String client);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.Form> findByClient(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String client) {
+    return RxJava2Adapter.fluxToFlowable(findByClient_migrated(referenceType, referenceId, client));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.Form> findByClient_migrated(ReferenceType referenceType, String referenceId, String client) {
+    return RxJava2Adapter.flowableToFlux(findByClient(referenceType, referenceId, client));
+}
 
-    Flowable<Form> findByDomainAndClient(String domain, String client);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.Form> findByDomainAndClient(java.lang.String domain, java.lang.String client) {
+    return RxJava2Adapter.fluxToFlowable(findByDomainAndClient_migrated(domain, client));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.Form> findByDomainAndClient_migrated(String domain, String client) {
+    return RxJava2Adapter.flowableToFlux(findByDomainAndClient(domain, client));
+}
 
-    Maybe<Form> findByTemplate(ReferenceType referenceType, String referenceId, String template);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.Form> findByTemplate(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String template) {
+    return RxJava2Adapter.monoToMaybe(findByTemplate_migrated(referenceType, referenceId, template));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Form> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template) {
+    return RxJava2Adapter.maybeToMono(findByTemplate(referenceType, referenceId, template));
+}
 
-    Maybe<Form> findByDomainAndTemplate(String domain, String template);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.Form> findByDomainAndTemplate(java.lang.String domain, java.lang.String template) {
+    return RxJava2Adapter.monoToMaybe(findByDomainAndTemplate_migrated(domain, template));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Form> findByDomainAndTemplate_migrated(String domain, String template) {
+    return RxJava2Adapter.maybeToMono(findByDomainAndTemplate(domain, template));
+}
 
-    Maybe<Form> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.Form> findByClientAndTemplate(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String client, java.lang.String template) {
+    return RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(referenceType, referenceId, client, template));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Form> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template) {
+    return RxJava2Adapter.maybeToMono(findByClientAndTemplate(referenceType, referenceId, client, template));
+}
 
-    Maybe<Form> findByDomainAndClientAndTemplate(String domain, String client, String template);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.Form> findByDomainAndClientAndTemplate(java.lang.String domain, java.lang.String client, java.lang.String template) {
+    return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndTemplate_migrated(domain, client, template));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Form> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template) {
+    return RxJava2Adapter.maybeToMono(findByDomainAndClientAndTemplate(domain, client, template));
+}
 
-    Single<List<Form>> copyFromClient(String domain, String clientSource, String clientTarget);
+      @Deprecated  
+default io.reactivex.Single<java.util.List<io.gravitee.am.model.Form>> copyFromClient(java.lang.String domain, java.lang.String clientSource, java.lang.String clientTarget) {
+    return RxJava2Adapter.monoToSingle(copyFromClient_migrated(domain, clientSource, clientTarget));
+}
+default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.model.Form>> copyFromClient_migrated(String domain, String clientSource, String clientTarget) {
+    return RxJava2Adapter.singleToMono(copyFromClient(domain, clientSource, clientTarget));
+}
 
-    Single<Form> create(ReferenceType referenceType, String referenceId, NewForm newForm, User principal);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Form> create(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.service.model.NewForm newForm, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToSingle(create_migrated(referenceType, referenceId, newForm, principal));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Form> create_migrated(ReferenceType referenceType, String referenceId, NewForm newForm, User principal) {
+    return RxJava2Adapter.singleToMono(create(referenceType, referenceId, newForm, principal));
+}
 
-    Single<Form> create(String domain, NewForm form, User principal);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Form> create(java.lang.String domain, io.gravitee.am.service.model.NewForm form, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToSingle(create_migrated(domain, form, principal));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Form> create_migrated(String domain, NewForm form, User principal) {
+    return RxJava2Adapter.singleToMono(create(domain, form, principal));
+}
 
-    Single<Form> create(String domain, String client, NewForm form, User principal);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Form> create(java.lang.String domain, java.lang.String client, io.gravitee.am.service.model.NewForm form, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToSingle(create_migrated(domain, client, form, principal));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Form> create_migrated(String domain, String client, NewForm form, User principal) {
+    return RxJava2Adapter.singleToMono(create(domain, client, form, principal));
+}
 
-    Single<Form> update(ReferenceType referenceType, String referenceId, String id, UpdateForm updateForm, User principal);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Form> update(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String id, io.gravitee.am.service.model.UpdateForm updateForm, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToSingle(update_migrated(referenceType, referenceId, id, updateForm, principal));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Form> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateForm updateForm, User principal) {
+    return RxJava2Adapter.singleToMono(update(referenceType, referenceId, id, updateForm, principal));
+}
 
-    Single<Form> update(String domain, String id, UpdateForm form, User principal);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Form> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateForm form, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToSingle(update_migrated(domain, id, form, principal));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Form> update_migrated(String domain, String id, UpdateForm form, User principal) {
+    return RxJava2Adapter.singleToMono(update(domain, id, form, principal));
+}
 
-    Single<Form> update(String domain, String client, String id, UpdateForm form, User principal);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Form> update(java.lang.String domain, java.lang.String client, java.lang.String id, io.gravitee.am.service.model.UpdateForm form, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToSingle(update_migrated(domain, client, id, form, principal));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Form> update_migrated(String domain, String client, String id, UpdateForm form, User principal) {
+    return RxJava2Adapter.singleToMono(update(domain, client, id, form, principal));
+}
 
-    Completable delete(ReferenceType referenceType, String referenceId, String formId, User principal);
+      @Deprecated  
+default io.reactivex.Completable delete(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String formId, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToCompletable(delete_migrated(referenceType, referenceId, formId, principal));
+}
+default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(ReferenceType referenceType, String referenceId, String formId, User principal) {
+    return RxJava2Adapter.completableToMono(delete(referenceType, referenceId, formId, principal));
+}
 
-    Completable delete(String domain, String pageId, User principal);
+      @Deprecated  
+default io.reactivex.Completable delete(java.lang.String domain, java.lang.String pageId, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToCompletable(delete_migrated(domain, pageId, principal));
+}
+default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String domain, String pageId, User principal) {
+    return RxJava2Adapter.completableToMono(delete(domain, pageId, principal));
+}
 
-    default Single<Form> create(String domain, NewForm form) {
-        return create(domain, form, null);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Form> create(java.lang.String domain, io.gravitee.am.service.model.NewForm form) {
+    return RxJava2Adapter.monoToSingle(create_migrated(domain, form));
+}default Mono<Form> create_migrated(String domain, NewForm form) {
+        return RxJava2Adapter.singleToMono(create(domain, form, null));
     }
 
-    default Single<Form> create(String domain, String client, NewForm form) {
-        return create(domain, client, form, null);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Form> create(java.lang.String domain, java.lang.String client, io.gravitee.am.service.model.NewForm form) {
+    return RxJava2Adapter.monoToSingle(create_migrated(domain, client, form));
+}default Mono<Form> create_migrated(String domain, String client, NewForm form) {
+        return RxJava2Adapter.singleToMono(create(domain, client, form, null));
     }
 
-    default Single<Form> update(String domain, String id, UpdateForm form) {
-        return update(domain, id, form, null);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Form> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateForm form) {
+    return RxJava2Adapter.monoToSingle(update_migrated(domain, id, form));
+}default Mono<Form> update_migrated(String domain, String id, UpdateForm form) {
+        return RxJava2Adapter.singleToMono(update(domain, id, form, null));
     }
 
-    default Single<Form> update(String domain, String client, String id, UpdateForm form) {
-        return update(domain, client, id, form, null);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Form> update(java.lang.String domain, java.lang.String client, java.lang.String id, io.gravitee.am.service.model.UpdateForm form) {
+    return RxJava2Adapter.monoToSingle(update_migrated(domain, client, id, form));
+}default Mono<Form> update_migrated(String domain, String client, String id, UpdateForm form) {
+        return RxJava2Adapter.singleToMono(update(domain, client, id, form, null));
     }
 
-    default Completable delete(String domain, String pageId) {
-        return delete(domain, pageId, null);
+      @Deprecated  
+default io.reactivex.Completable delete(java.lang.String domain, java.lang.String pageId) {
+    return RxJava2Adapter.monoToCompletable(delete_migrated(domain, pageId));
+}default Mono<Void> delete_migrated(String domain, String pageId) {
+        return RxJava2Adapter.completableToMono(delete(domain, pageId, null));
     }
 
 }

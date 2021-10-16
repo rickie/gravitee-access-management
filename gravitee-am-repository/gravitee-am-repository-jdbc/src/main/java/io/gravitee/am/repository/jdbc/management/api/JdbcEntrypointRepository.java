@@ -75,11 +75,15 @@ public class JdbcEntrypointRepository extends AbstractJdbcRepository implements 
                 .doOnError(error -> LOGGER.error("Unable to list all entrypoints with organization {}", organizationId, error));
     }
 
-    private Single<Entrypoint> completeTags(Entrypoint entrypoint) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(tagRepository.findAllByEntrypoint(entrypoint.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcEntrypoint.Tag::getTag)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(tags -> {
+    @Deprecated
+private Single<Entrypoint> completeTags(Entrypoint entrypoint) {
+ return RxJava2Adapter.monoToSingle(completeTags_migrated(entrypoint));
+}
+private Mono<Entrypoint> completeTags_migrated(Entrypoint entrypoint) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(tagRepository.findAllByEntrypoint(entrypoint.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcEntrypoint.Tag::getTag)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(tags -> {
                     entrypoint.setTags(tags);
                     return entrypoint;
-                })));
+                }))));
     }
 
     @Override
@@ -88,8 +92,13 @@ public class JdbcEntrypointRepository extends AbstractJdbcRepository implements 
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(entrypointRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.singleToMono(completeTags(z))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve entrypoint with id={} ", id, error))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Entrypoint> create(Entrypoint item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Entrypoint> create_migrated(Entrypoint item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("create Entrypoint with id {}", item.getId());
         TransactionalOperator trx = TransactionalOperator.create(tm);
@@ -108,11 +117,16 @@ public class JdbcEntrypointRepository extends AbstractJdbcRepository implements 
             }).reduce(Integer::sum));
         }
 
-        return RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create entrypoint with id {}", item.getId(), error))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create entrypoint with id {}", item.getId(), error)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Entrypoint> update(Entrypoint item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Entrypoint> update_migrated(Entrypoint item) {
         LOGGER.debug("update Entrypoint with id {}", item.getId());
 
         TransactionalOperator trx = TransactionalOperator.create(tm);
@@ -131,18 +145,23 @@ public class JdbcEntrypointRepository extends AbstractJdbcRepository implements 
             }).reduce(Integer::sum));
         }
 
-        return RxJava2Adapter.monoToSingle(deleteTags(item.getId()).then(action).as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create entrypoint with id {}", item.getId(), error))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(deleteTags(item.getId()).then(action).as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create entrypoint with id {}", item.getId(), error)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Integer> delete = dbClient.delete().from(JdbcEntrypoint.class)
                 .matching(from(where("id").is(id)))
                 .fetch().rowsUpdated();
 
-        return deleteTags(id).then(delete).as(trx::transactional).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete entrypoint with id {}", id, error))).as(RxJava2Adapter::monoToCompletable);
+        return RxJava2Adapter.completableToMono(deleteTags(id).then(delete).as(trx::transactional).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete entrypoint with id {}", id, error))).as(RxJava2Adapter::monoToCompletable));
     }
 
     private Mono<Integer> deleteTags(String id) {

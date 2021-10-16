@@ -140,7 +140,11 @@ public class EmailFactorProvider implements FactorProvider {
         }
     }
 
-    private Completable generateCodeAndSendEmail(FactorContext context, EmailSenderProvider provider, EnrolledFactor enrolledFactor) {
+    @Deprecated
+private Completable generateCodeAndSendEmail(FactorContext context, EmailSenderProvider provider, EnrolledFactor enrolledFactor) {
+ return RxJava2Adapter.monoToCompletable(generateCodeAndSendEmail_migrated(context, provider, enrolledFactor));
+}
+private Mono<Void> generateCodeAndSendEmail_migrated(FactorContext context, EmailSenderProvider provider, EnrolledFactor enrolledFactor) {
         logger.debug("Generating factor code of {} digits", configuration.getReturnDigits());
 
         try {
@@ -154,19 +158,19 @@ public class EmailFactorProvider implements FactorProvider {
             final String recipient = enrolledFactor.getChannel().getTarget();
             EmailService.EmailWrapper emailWrapper = emailService.createEmail(Template.MFA_CHALLENGE, context.getClient(), asList(recipient), params);
 
-            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(provider.sendMessage(emailWrapper.getEmail())).then(Mono.just(enrolledFactor).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<EnrolledFactor, SingleSource<io.gravitee.am.model.User>>toJdkFunction(ef ->  {
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(provider.sendMessage(emailWrapper.getEmail())).then(Mono.just(enrolledFactor).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<EnrolledFactor, SingleSource<io.gravitee.am.model.User>>toJdkFunction(ef ->  {
                                 ef.setPrimary(true);
                                 ef.setStatus(FactorStatus.ACTIVATED);
                                 ef.getSecurity().putData(FactorDataKeys.KEY_EXPIRE_AT, emailWrapper.getExpireAt());
                                 return userService.addFactor(context.getUser().getId(), ef, new DefaultUser(context.getUser()));
-                            }).apply(v)))).then()));
+                            }).apply(v)))).then())));
 
         } catch (NoSuchAlgorithmException| InvalidKeyException e) {
             logger.error("Code generation fails", e);
-            return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Code can't be sent")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Code can't be sent"))));
         } catch (Exception e) {
             logger.error("Email templating fails", e);
-            return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Email can't be sent")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Email can't be sent"))));
         }
     }
 

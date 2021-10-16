@@ -86,7 +86,11 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
         return true;
     }
 
-    private Completable migrateToFlows(List<Policy> policies, String domain) {
+    @Deprecated
+private Completable migrateToFlows(List<Policy> policies, String domain) {
+ return RxJava2Adapter.monoToCompletable(migrateToFlows_migrated(policies, domain));
+}
+private Mono<Void> migrateToFlows_migrated(List<Policy> policies, String domain) {
         LOGGER.info("Migrate {} policies to flows for domain {}", policies.size(), domain);
 
         // Only ROOT, PreConsent & PostConsent are available before 3.5
@@ -111,9 +115,9 @@ public class PoliciesToFlowsUpgrader implements Upgrader, Ordered {
             }
         }
 
-        return Observable.fromIterable(flows.values())
+        return RxJava2Adapter.completableToMono(Observable.fromIterable(flows.values())
                 .flatMapCompletable(flow -> flowService.create(ReferenceType.DOMAIN, domain, flow).toCompletable())
-                .doOnComplete(() -> LOGGER.info("Policies migrated to flows for domain {}", domain)).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.info("Error during policies migration for domain {}", domain, error))).as(RxJava2Adapter::monoToCompletable);
+                .doOnComplete(() -> LOGGER.info("Policies migrated to flows for domain {}", domain)).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.info("Error during policies migration for domain {}", domain, error))).as(RxJava2Adapter::monoToCompletable));
     }
 
     private Step createStep(Policy policy) {

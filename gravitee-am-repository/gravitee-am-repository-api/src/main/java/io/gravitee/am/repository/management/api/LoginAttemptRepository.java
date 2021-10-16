@@ -29,11 +29,26 @@ import reactor.core.publisher.Mono;
  */
 public interface LoginAttemptRepository extends CrudRepository<LoginAttempt, String> {
 
-    Maybe<LoginAttempt> findByCriteria(LoginAttemptCriteria criteria);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.LoginAttempt> findByCriteria(io.gravitee.am.repository.management.api.search.LoginAttemptCriteria criteria) {
+    return RxJava2Adapter.monoToMaybe(findByCriteria_migrated(criteria));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.LoginAttempt> findByCriteria_migrated(LoginAttemptCriteria criteria) {
+    return RxJava2Adapter.maybeToMono(findByCriteria(criteria));
+}
 
-    Completable delete(LoginAttemptCriteria criteria);
+      @Deprecated  
+default io.reactivex.Completable delete(io.gravitee.am.repository.management.api.search.LoginAttemptCriteria criteria) {
+    return RxJava2Adapter.monoToCompletable(delete_migrated(criteria));
+}
+default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(LoginAttemptCriteria criteria) {
+    return RxJava2Adapter.completableToMono(delete(criteria));
+}
 
-    default Completable purgeExpiredData() {
-        return RxJava2Adapter.monoToCompletable(Mono.empty());
+      @Deprecated  
+default io.reactivex.Completable purgeExpiredData() {
+    return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
+}default Mono<Void> purgeExpiredData_migrated() {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 }

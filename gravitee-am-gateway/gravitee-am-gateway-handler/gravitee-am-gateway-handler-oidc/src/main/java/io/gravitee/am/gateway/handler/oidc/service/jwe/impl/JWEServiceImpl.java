@@ -234,57 +234,65 @@ public class JWEServiceImpl implements JWEService {
                 });
     }
 
-    private Single<String> encrypt(JWEObject jwe, Client client) {
+    @Deprecated
+private Single<String> encrypt(JWEObject jwe, Client client) {
+ return RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client));
+}
+private Mono<String> encrypt_migrated(JWEObject jwe, Client client) {
 
         JWEAlgorithm algorithm = jwe.getHeader().getAlgorithm();
 
         //RSA encryption
         if(RSACryptoProvider.SUPPORTED_ALGORITHMS.contains(algorithm)) {
-            return encrypt(jwe, client, JWKFilter.RSA_KEY_ENCRYPTION(), jwk ->
+            return RxJava2Adapter.singleToMono(encrypt(jwe, client, JWKFilter.RSA_KEY_ENCRYPTION(), jwk ->
                     new RSAEncrypter(JWKConverter.convert((RSAKey) jwk))
-            );
+            ));
         }
         //Curve encryption (Elliptic "EC" & Edward "OKP")
         else if(ECDHCryptoProvider.SUPPORTED_ALGORITHMS.contains(algorithm)) {
-            return encrypt(jwe, client, JWKFilter.CURVE_KEY_ENCRYPTION(), jwk -> {
+            return RxJava2Adapter.singleToMono(encrypt(jwe, client, JWKFilter.CURVE_KEY_ENCRYPTION(), jwk -> {
                 if(KeyType.EC.getValue().equals(jwk.getKty())) {
                     return new ECDHEncrypter(JWKConverter.convert((ECKey) jwk));
                 }
                 return new X25519Encrypter(JWKConverter.convert((OKPKey) jwk));
-            });
+            }));
         }
         //AES encryption ("OCT" keys)
         else if(AESCryptoProvider.SUPPORTED_ALGORITHMS.contains(algorithm)) {
-            return encrypt(jwe, client, JWKFilter.OCT_KEY_ENCRYPTION(algorithm), jwk ->
+            return RxJava2Adapter.singleToMono(encrypt(jwe, client, JWKFilter.OCT_KEY_ENCRYPTION(algorithm), jwk ->
                     new AESEncrypter(JWKConverter.convert((OCTKey) jwk))
-            );
+            ));
         }
         //Direct encryption ("OCT" keys)
         else if(DirectCryptoProvider.SUPPORTED_ALGORITHMS.contains(algorithm)) {
-            return encrypt(jwe, client, JWKFilter.OCT_KEY_ENCRYPTION(jwe.getHeader().getEncryptionMethod()), jwk ->
+            return RxJava2Adapter.singleToMono(encrypt(jwe, client, JWKFilter.OCT_KEY_ENCRYPTION(jwe.getHeader().getEncryptionMethod()), jwk ->
                     new DirectEncrypter(JWKConverter.convert((OCTKey) jwk))
-            );
+            ));
         }
         //Password Base Encryption ("OCT" keys)
         else if(PasswordBasedCryptoProvider.SUPPORTED_ALGORITHMS.contains(algorithm)) {
-            return encrypt(jwe, client, JWKFilter.OCT_KEY_ENCRYPTION(), jwk -> {
+            return RxJava2Adapter.singleToMono(encrypt(jwe, client, JWKFilter.OCT_KEY_ENCRYPTION(), jwk -> {
                 OctetSequenceKey octKey = JWKConverter.convert((OCTKey) jwk);
                 return new PasswordBasedEncrypter(
                         octKey.getKeyValue().decode(),
                         PasswordBasedEncrypter.MIN_SALT_LENGTH,
                         PasswordBasedEncrypter.MIN_RECOMMENDED_ITERATION_COUNT
                 );
-            });
+            }));
         }
-        return RxJava2Adapter.monoToSingle(Mono.error(new ServerErrorException("Unable to perform Json Web Encryption, unsupported algorithm: "+algorithm.getName())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new ServerErrorException("Unable to perform Json Web Encryption, unsupported algorithm: "+algorithm.getName()))));
     }
 
-    private Single<String> encrypt(JWEObject jwe, Client client, Predicate<JWK> filter, JWEEncrypterFunction<JWK, JWEEncrypter> function) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwkService.getKeys(client)).flatMap(z->jwkService.filter(z, filter).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new InvalidClientMetadataException("no matching key found to encrypt"))))
+    @Deprecated
+private Single<String> encrypt(JWEObject jwe, Client client, Predicate<JWK> filter, JWEEncrypterFunction<JWK, JWEEncrypter> function) {
+ return RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client, filter, function));
+}
+private Mono<String> encrypt_migrated(JWEObject jwe, Client client, Predicate<JWK> filter, JWEEncrypterFunction<JWK, JWEEncrypter> function) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwkService.getKeys(client)).flatMap(z->jwkService.filter(z, filter).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new InvalidClientMetadataException("no matching key found to encrypt"))))
                 .flatMapSingle(jwk -> RxJava2Adapter.monoToSingle(Mono.just(function.apply(jwk))))).map(RxJavaReactorMigrationUtil.toJdkFunction(encrypter -> {
                     jwe.encrypt(encrypter);
                     return jwe.serialize();
-                })));
+                }))));
     }
 
     @FunctionalInterface

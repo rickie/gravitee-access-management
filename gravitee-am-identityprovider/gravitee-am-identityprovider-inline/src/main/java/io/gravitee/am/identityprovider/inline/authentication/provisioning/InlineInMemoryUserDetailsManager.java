@@ -35,8 +35,12 @@ public class InlineInMemoryUserDetailsManager {
         users.putIfAbsent(user.getUsername().toLowerCase(), user);
     }
 
-    public Maybe<User> loadUserByUsername(String username) {
+    @Deprecated
+public Maybe<User> loadUserByUsername(String username) {
+ return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
+}
+public Mono<User> loadUserByUsername_migrated(String username) {
         User user = users.get(username.toLowerCase());
-        return (user != null) ? RxJava2Adapter.monoToMaybe(Mono.just(user)) : RxJava2Adapter.monoToMaybe(Mono.empty());
+        return RxJava2Adapter.maybeToMono((user != null) ? RxJava2Adapter.monoToMaybe(Mono.just(user)) : RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 }

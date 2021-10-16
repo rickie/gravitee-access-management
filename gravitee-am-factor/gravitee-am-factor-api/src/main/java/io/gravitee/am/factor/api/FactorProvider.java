@@ -30,25 +30,49 @@ import reactor.core.publisher.Mono;
  */
 public interface FactorProvider {
 
-    Completable verify(FactorContext context);
+      @Deprecated  
+default io.reactivex.Completable verify(io.gravitee.am.factor.api.FactorContext context) {
+    return RxJava2Adapter.monoToCompletable(verify_migrated(context));
+}
+default reactor.core.publisher.Mono<java.lang.Void> verify_migrated(FactorContext context) {
+    return RxJava2Adapter.completableToMono(verify(context));
+}
 
-    Single<Enrollment> enroll(String account);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.factor.api.Enrollment> enroll(java.lang.String account) {
+    return RxJava2Adapter.monoToSingle(enroll_migrated(account));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.factor.api.Enrollment> enroll_migrated(String account) {
+    return RxJava2Adapter.singleToMono(enroll(account));
+}
 
     boolean checkSecurityFactor(EnrolledFactor securityFactor);
 
     boolean needChallengeSending();
 
-    Completable sendChallenge(FactorContext context);
+      @Deprecated  
+default io.reactivex.Completable sendChallenge(io.gravitee.am.factor.api.FactorContext context) {
+    return RxJava2Adapter.monoToCompletable(sendChallenge_migrated(context));
+}
+default reactor.core.publisher.Mono<java.lang.Void> sendChallenge_migrated(FactorContext context) {
+    return RxJava2Adapter.completableToMono(sendChallenge(context));
+}
 
     default boolean useVariableFactorSecurity() {
         return false;
     }
 
-    default Single<EnrolledFactor> changeVariableFactorSecurity(EnrolledFactor factor) {
-        return RxJava2Adapter.monoToSingle(Mono.just(factor));
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.factor.EnrolledFactor> changeVariableFactorSecurity(io.gravitee.am.model.factor.EnrolledFactor factor) {
+    return RxJava2Adapter.monoToSingle(changeVariableFactorSecurity_migrated(factor));
+}default Mono<EnrolledFactor> changeVariableFactorSecurity_migrated(EnrolledFactor factor) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(factor)));
     }
 
-    default Maybe<String> generateQrCode(User user, EnrolledFactor enrolledFactor) {
-        return RxJava2Adapter.monoToMaybe(Mono.empty());
+      @Deprecated  
+default io.reactivex.Maybe<java.lang.String> generateQrCode(io.gravitee.am.model.User user, io.gravitee.am.model.factor.EnrolledFactor enrolledFactor) {
+    return RxJava2Adapter.monoToMaybe(generateQrCode_migrated(user, enrolledFactor));
+}default Mono<String> generateQrCode_migrated(User user, EnrolledFactor enrolledFactor) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 }

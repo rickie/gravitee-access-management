@@ -65,14 +65,24 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(this.installationRepository.findAll()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Installation> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Installation> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.installationRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.installationRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Installation> create(Installation installation) {
+ return RxJava2Adapter.monoToSingle(create_migrated(installation));
+}
+@Override
+    public Mono<Installation> create_migrated(Installation installation) {
         installation.setId(installation.getId() == null ? RandomString.generate() : installation.getId());
         LOGGER.debug("create installation with id {}", installation.getId());
 
@@ -84,11 +94,16 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         insertSpec = addQuotedField(insertSpec, "updated_at", dateConverter.convertTo(installation.getUpdatedAt(), null), LocalDateTime.class);
         insertSpec = databaseDialectHelper.addJsonField(insertSpec, "additional_information", installation.getAdditionalInformation());
 
-        return RxJava2Adapter.monoToSingle(insertSpec.then().then(Mono.defer(()->RxJava2Adapter.maybeToMono(this.findById(installation.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertSpec.then().then(Mono.defer(()->RxJava2Adapter.maybeToMono(this.findById(installation.getId())).single()))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Installation> update(Installation installation) {
+ return RxJava2Adapter.monoToSingle(update_migrated(installation));
+}
+@Override
+    public Mono<Installation> update_migrated(Installation installation) {
         LOGGER.debug("update installation with id {}", installation.getId());
 
         DatabaseClient.GenericUpdateSpec updateSpec = dbClient.update().table("installations");
@@ -100,12 +115,17 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         updateFields = addQuotedField(updateFields, "updated_at", dateConverter.convertTo(installation.getUpdatedAt(), null), LocalDateTime.class);
         updateFields = databaseDialectHelper.addJsonField(updateFields, "additional_information", installation.getAdditionalInformation());
 
-        return RxJava2Adapter.monoToSingle(updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(installation.getId()))).then().then(Mono.defer(()->RxJava2Adapter.maybeToMono(this.findById(installation.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(installation.getId()))).then().then(Mono.defer(()->RxJava2Adapter.maybeToMono(this.findById(installation.getId())).single()))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return this.installationRepository.deleteById(id);
+        return RxJava2Adapter.completableToMono(this.installationRepository.deleteById(id));
     }
 }

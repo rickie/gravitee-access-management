@@ -64,68 +64,108 @@ public abstract class AbstractResource {
         return securityContext.getUserPrincipal() != null;
     }
 
-    protected Completable checkPermission(ReferenceType referenceType, String referenceId, Permission permission, Acl... acls) {
+    @Deprecated
+protected Completable checkPermission(ReferenceType referenceType, String referenceId, Permission permission, Acl... acls) {
+ return RxJava2Adapter.monoToCompletable(checkPermission_migrated(referenceType, referenceId, permission, acls));
+}
+protected Mono<Void> checkPermission_migrated(ReferenceType referenceType, String referenceId, Permission permission, Acl... acls) {
 
-        return checkPermissions(getAuthenticatedUser(), Permissions.of(referenceType, referenceId, permission, acls));
+        return RxJava2Adapter.completableToMono(checkPermissions(getAuthenticatedUser(), Permissions.of(referenceType, referenceId, permission, acls)));
     }
 
-    protected Completable checkAnyPermission(String organizationId, String environmentId, String domainId, String applicationId, Permission permission, Acl... acls) {
+    @Deprecated
+protected Completable checkAnyPermission(String organizationId, String environmentId, String domainId, String applicationId, Permission permission, Acl... acls) {
+ return RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domainId, applicationId, permission, acls));
+}
+protected Mono<Void> checkAnyPermission_migrated(String organizationId, String environmentId, String domainId, String applicationId, Permission permission, Acl... acls) {
 
-        return checkPermissions(getAuthenticatedUser(), or(of(ReferenceType.APPLICATION, applicationId, permission, acls),
+        return RxJava2Adapter.completableToMono(checkPermissions(getAuthenticatedUser(), or(of(ReferenceType.APPLICATION, applicationId, permission, acls),
                 of(ReferenceType.DOMAIN, domainId, permission, acls),
                 of(ReferenceType.ENVIRONMENT, environmentId, permission, acls),
-                of(ReferenceType.ORGANIZATION, organizationId, permission, acls)));
+                of(ReferenceType.ORGANIZATION, organizationId, permission, acls))));
     }
 
 
-    protected Completable checkAnyPermission(User authenticatedUser, String organizationId, String environmentId, String domainId, Permission permission, Acl... acls) {
+    @Deprecated
+protected Completable checkAnyPermission(User authenticatedUser, String organizationId, String environmentId, String domainId, Permission permission, Acl... acls) {
+ return RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domainId, permission, acls));
+}
+protected Mono<Void> checkAnyPermission_migrated(User authenticatedUser, String organizationId, String environmentId, String domainId, Permission permission, Acl... acls) {
 
-        return checkPermissions(authenticatedUser, or(of(ReferenceType.DOMAIN, domainId, permission, acls),
+        return RxJava2Adapter.completableToMono(checkPermissions(authenticatedUser, or(of(ReferenceType.DOMAIN, domainId, permission, acls),
                 of(ReferenceType.ENVIRONMENT, environmentId, permission, acls),
-                of(ReferenceType.ORGANIZATION, organizationId, permission, acls)));
+                of(ReferenceType.ORGANIZATION, organizationId, permission, acls))));
     }
 
-    protected Completable checkAnyPermission(String organizationId, String environmentId, String domainId, Permission permission, Acl... acls) {
+    @Deprecated
+protected Completable checkAnyPermission(String organizationId, String environmentId, String domainId, Permission permission, Acl... acls) {
+ return RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domainId, permission, acls));
+}
+protected Mono<Void> checkAnyPermission_migrated(String organizationId, String environmentId, String domainId, Permission permission, Acl... acls) {
 
-        return checkPermissions(getAuthenticatedUser(), or(of(ReferenceType.DOMAIN, domainId, permission, acls),
+        return RxJava2Adapter.completableToMono(checkPermissions(getAuthenticatedUser(), or(of(ReferenceType.DOMAIN, domainId, permission, acls),
                 of(ReferenceType.ENVIRONMENT, environmentId, permission, acls),
-                of(ReferenceType.ORGANIZATION, organizationId, permission, acls)));
+                of(ReferenceType.ORGANIZATION, organizationId, permission, acls))));
     }
 
-    protected Completable checkAnyPermission(String organizationId, String environmentId, Permission permission, Acl... acls) {
+    @Deprecated
+protected Completable checkAnyPermission(String organizationId, String environmentId, Permission permission, Acl... acls) {
+ return RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, permission, acls));
+}
+protected Mono<Void> checkAnyPermission_migrated(String organizationId, String environmentId, Permission permission, Acl... acls) {
 
-        return checkPermissions(getAuthenticatedUser(), or(of(ReferenceType.ENVIRONMENT, environmentId, permission, acls),
-                of(ReferenceType.ORGANIZATION, organizationId, permission, acls)));
+        return RxJava2Adapter.completableToMono(checkPermissions(getAuthenticatedUser(), or(of(ReferenceType.ENVIRONMENT, environmentId, permission, acls),
+                of(ReferenceType.ORGANIZATION, organizationId, permission, acls))));
     }
 
-    private Completable checkPermissions(User authenticatedUser, PermissionAcls permissionAcls) {
+    @Deprecated
+private Completable checkPermissions(User authenticatedUser, PermissionAcls permissionAcls) {
+ return RxJava2Adapter.monoToCompletable(checkPermissions_migrated(authenticatedUser, permissionAcls));
+}
+private Mono<Void> checkPermissions_migrated(User authenticatedUser, PermissionAcls permissionAcls) {
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(hasPermission(authenticatedUser, permissionAcls)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)this::checkPermission).apply(y)))).then());
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(hasPermission(authenticatedUser, permissionAcls)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)this::checkPermission).apply(y)))).then()));
     }
 
-    protected Single<Boolean> hasPermission(User user, ReferenceType referenceType, String referenceId, Permission permission, Acl... acls) {
+    @Deprecated
+protected Single<Boolean> hasPermission(User user, ReferenceType referenceType, String referenceId, Permission permission, Acl... acls) {
+ return RxJava2Adapter.monoToSingle(hasPermission_migrated(user, referenceType, referenceId, permission, acls));
+}
+protected Mono<Boolean> hasPermission_migrated(User user, ReferenceType referenceType, String referenceId, Permission permission, Acl... acls) {
 
-        return hasPermission(user, Permissions.of(referenceType, referenceId, permission, acls));
+        return RxJava2Adapter.singleToMono(hasPermission(user, Permissions.of(referenceType, referenceId, permission, acls)));
     }
 
-    protected Single<Boolean> hasAnyPermission(User user, String organizationId, String environmentId, String domainId, String applicationId, Permission permission, Acl... acls) {
+    @Deprecated
+protected Single<Boolean> hasAnyPermission(User user, String organizationId, String environmentId, String domainId, String applicationId, Permission permission, Acl... acls) {
+ return RxJava2Adapter.monoToSingle(hasAnyPermission_migrated(user, organizationId, environmentId, domainId, applicationId, permission, acls));
+}
+protected Mono<Boolean> hasAnyPermission_migrated(User user, String organizationId, String environmentId, String domainId, String applicationId, Permission permission, Acl... acls) {
 
-        return hasPermission(user, or(of(ReferenceType.APPLICATION, applicationId, permission, acls),
+        return RxJava2Adapter.singleToMono(hasPermission(user, or(of(ReferenceType.APPLICATION, applicationId, permission, acls),
                 of(ReferenceType.DOMAIN, domainId, permission, acls),
                 of(ReferenceType.ENVIRONMENT, environmentId, permission, acls),
-                of(ReferenceType.ORGANIZATION, organizationId, permission, acls)));
+                of(ReferenceType.ORGANIZATION, organizationId, permission, acls))));
     }
 
-    protected Single<Boolean> hasAnyPermission(User user, String organizationId, String environmentId, String domainId, Permission permission, Acl... acls) {
+    @Deprecated
+protected Single<Boolean> hasAnyPermission(User user, String organizationId, String environmentId, String domainId, Permission permission, Acl... acls) {
+ return RxJava2Adapter.monoToSingle(hasAnyPermission_migrated(user, organizationId, environmentId, domainId, permission, acls));
+}
+protected Mono<Boolean> hasAnyPermission_migrated(User user, String organizationId, String environmentId, String domainId, Permission permission, Acl... acls) {
 
-        return hasPermission(user, or(of(ReferenceType.DOMAIN, domainId, permission, acls),
+        return RxJava2Adapter.singleToMono(hasPermission(user, or(of(ReferenceType.DOMAIN, domainId, permission, acls),
                 of(ReferenceType.ENVIRONMENT, environmentId, permission, acls),
-                of(ReferenceType.ORGANIZATION, organizationId, permission, acls)));
+                of(ReferenceType.ORGANIZATION, organizationId, permission, acls))));
     }
 
-    protected Single<Boolean> hasPermission(User user, PermissionAcls permissionAcls) {
+    @Deprecated
+protected Single<Boolean> hasPermission(User user, PermissionAcls permissionAcls) {
+ return RxJava2Adapter.monoToSingle(hasPermission_migrated(user, permissionAcls));
+}
+protected Mono<Boolean> hasPermission_migrated(User user, PermissionAcls permissionAcls) {
 
-        return permissionService.hasPermission(user, permissionAcls);
+        return RxJava2Adapter.singleToMono(permissionService.hasPermission(user, permissionAcls));
     }
 
     protected Boolean hasPermission(Map<Permission, Set<Acl>> permissions, Permission permission, Acl acl) {
@@ -141,17 +181,29 @@ public abstract class AbstractResource {
                 || hasPermission(permissions.getOrDefault(ReferenceType.ORGANIZATION, emptyMap()), permission, acl);
     }
 
-    protected Completable checkPermission(Map<Permission, Set<Acl>> permissions, Permission permission, Acl acl) {
+    @Deprecated
+protected Completable checkPermission(Map<Permission, Set<Acl>> permissions, Permission permission, Acl acl) {
+ return RxJava2Adapter.monoToCompletable(checkPermission_migrated(permissions, permission, acl));
+}
+protected Mono<Void> checkPermission_migrated(Map<Permission, Set<Acl>> permissions, Permission permission, Acl acl) {
 
-        return checkPermission(permissions.getOrDefault(permission, emptySet()).contains(acl));
+        return RxJava2Adapter.completableToMono(checkPermission(permissions.getOrDefault(permission, emptySet()).contains(acl)));
     }
 
-    protected Single<Map<ReferenceType, Map<Permission, Set<Acl>>>> findAllPermissions(User user, String organizationId, String environmentId, String domainId) {
+    @Deprecated
+protected Single<Map<ReferenceType, Map<Permission, Set<Acl>>>> findAllPermissions(User user, String organizationId, String environmentId, String domainId) {
+ return RxJava2Adapter.monoToSingle(findAllPermissions_migrated(user, organizationId, environmentId, domainId));
+}
+protected Mono<Map<ReferenceType,Map<Permission,Set<Acl>>>> findAllPermissions_migrated(User user, String organizationId, String environmentId, String domainId) {
 
-        return findAllPermissions(user, organizationId, environmentId, domainId, null);
+        return RxJava2Adapter.singleToMono(findAllPermissions(user, organizationId, environmentId, domainId, null));
     }
 
-    protected Single<Map<ReferenceType, Map<Permission, Set<Acl>>>> findAllPermissions(User user, String organizationId, String environmentId, String domainId, String applicationId) {
+    @Deprecated
+protected Single<Map<ReferenceType, Map<Permission, Set<Acl>>>> findAllPermissions(User user, String organizationId, String environmentId, String domainId, String applicationId) {
+ return RxJava2Adapter.monoToSingle(findAllPermissions_migrated(user, organizationId, environmentId, domainId, applicationId));
+}
+protected Mono<Map<ReferenceType,Map<Permission,Set<Acl>>>> findAllPermissions_migrated(User user, String organizationId, String environmentId, String domainId, String applicationId) {
 
         List<Single<Map<Permission, Set<Acl>>>> permissionObs = new ArrayList<>();
 
@@ -160,7 +212,7 @@ public abstract class AbstractResource {
         permissionObs.add(environmentId != null ? permissionService.findAllPermissions(user, ReferenceType.ENVIRONMENT, environmentId) : RxJava2Adapter.monoToSingle(Mono.just(emptyMap())));
         permissionObs.add(organizationId != null ? permissionService.findAllPermissions(user, ReferenceType.ORGANIZATION, organizationId) : RxJava2Adapter.monoToSingle(Mono.just(emptyMap())));
 
-        return Single.zip(permissionObs, objects -> {
+        return RxJava2Adapter.singleToMono(Single.zip(permissionObs, objects -> {
             Map<ReferenceType, Map<Permission, Set<Acl>>> permissionsPerType = new HashMap<>();
             permissionsPerType.put(ReferenceType.APPLICATION, (Map<Permission, Set<Acl>>) objects[0]);
             permissionsPerType.put(ReferenceType.DOMAIN, (Map<Permission, Set<Acl>>) objects[1]);
@@ -168,15 +220,19 @@ public abstract class AbstractResource {
             permissionsPerType.put(ReferenceType.ORGANIZATION, (Map<Permission, Set<Acl>>) objects[3]);
 
             return permissionsPerType;
-        });
+        }));
     }
 
-    private Completable checkPermission(Boolean hasPermission) {
+    @Deprecated
+private Completable checkPermission(Boolean hasPermission) {
+ return RxJava2Adapter.monoToCompletable(checkPermission_migrated(hasPermission));
+}
+private Mono<Void> checkPermission_migrated(Boolean hasPermission) {
 
         if (!hasPermission) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new ForbiddenException("Permission denied")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new ForbiddenException("Permission denied"))));
         }
 
-        return RxJava2Adapter.monoToCompletable(Mono.empty());
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 }

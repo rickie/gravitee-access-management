@@ -222,12 +222,16 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
      * @param accessToken The access token with required scopes
      * @return enhanced user
      */
-    private Single<User> enhance(User user, JWT accessToken) {
+    @Deprecated
+private Single<User> enhance(User user, JWT accessToken) {
+ return RxJava2Adapter.monoToSingle(enhance_migrated(user, accessToken));
+}
+private Mono<User> enhance_migrated(User user, JWT accessToken) {
         if (!loadRoles(user, accessToken) && !loadGroups(accessToken)) {
-            return RxJava2Adapter.monoToSingle(Mono.just(user));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user)));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.enhance(user)).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.enhance(user)).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> {
                     Map<String, Object> userClaims = user.getAdditionalInformation() == null ?
                             new HashMap<>() :
                             new HashMap<>(user.getAdditionalInformation());
@@ -240,7 +244,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
                     }
                     user1.setAdditionalInformation(userClaims);
                     return user1;
-                })));
+                }))));
     }
 
     /**

@@ -181,7 +181,11 @@ public class SSOSessionHandler implements Handler<RoutingContext> {
 
     }
 
-    private Single<Optional<Client>> getClient(String clientId) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(clientSyncService.findById(clientId)).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(clientSyncService.findByClientId(clientId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()).single());
+    @Deprecated
+private Single<Optional<Client>> getClient(String clientId) {
+ return RxJava2Adapter.monoToSingle(getClient_migrated(clientId));
+}
+private Mono<Optional<Client>> getClient_migrated(String clientId) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(clientSyncService.findById(clientId)).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(clientSyncService.findByClientId(clientId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()).single()));
     }
 }

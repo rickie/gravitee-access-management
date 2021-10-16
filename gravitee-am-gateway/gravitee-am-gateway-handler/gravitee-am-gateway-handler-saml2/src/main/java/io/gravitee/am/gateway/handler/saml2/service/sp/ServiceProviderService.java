@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.saml2.service.sp;
 
 import io.gravitee.am.identityprovider.api.Metadata;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -24,5 +25,11 @@ import io.reactivex.Single;
  */
 public interface ServiceProviderService {
 
-    Single<Metadata> metadata(String providerId, String idpUrl);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.identityprovider.api.Metadata> metadata(java.lang.String providerId, java.lang.String idpUrl) {
+    return RxJava2Adapter.monoToSingle(metadata_migrated(providerId, idpUrl));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.Metadata> metadata_migrated(String providerId, String idpUrl) {
+    return RxJava2Adapter.singleToMono(metadata(providerId, idpUrl));
+}
 }

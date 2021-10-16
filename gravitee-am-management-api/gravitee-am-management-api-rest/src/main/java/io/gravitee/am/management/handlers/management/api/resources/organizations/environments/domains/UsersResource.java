@@ -133,16 +133,20 @@ public class UsersResource extends AbstractUsersResource {
         return resourceContext.getResource(UserResource.class);
     }
 
-    private Single<User> filterUserInfos(Boolean hasPermission, User user) {
+    @Deprecated
+private Single<User> filterUserInfos(Boolean hasPermission, User user) {
+ return RxJava2Adapter.monoToSingle(filterUserInfos_migrated(hasPermission, user));
+}
+private Mono<User> filterUserInfos_migrated(Boolean hasPermission, User user) {
         User filteredUser;
         if (hasPermission) {
             // Current user has read permission, copy all information.
             filteredUser = new User(user);
             if (user.getSource() != null) {
-                return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(user.getSource())).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(user.getSource())).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
                             filteredUser.setSource(idP.getName());
                             return filteredUser;
-                        })).defaultIfEmpty(filteredUser).single());
+                        })).defaultIfEmpty(filteredUser).single()));
             }
         } else {
             // Current user doesn't have read permission, select only few information and remove default values that could be inexact.
@@ -154,6 +158,6 @@ public class UsersResource extends AbstractUsersResource {
             filteredUser.setPicture(user.getPicture());
         }
 
-        return RxJava2Adapter.monoToSingle(Mono.just(filteredUser));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(filteredUser)));
     }
 }

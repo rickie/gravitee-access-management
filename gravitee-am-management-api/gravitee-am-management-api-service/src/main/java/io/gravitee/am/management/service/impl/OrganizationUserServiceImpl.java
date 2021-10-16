@@ -72,19 +72,34 @@ public class OrganizationUserServiceImpl extends AbstractUserService<io.gravitee
         return (x, y) -> RxJava2Adapter.monoToMaybe(Mono.error(new NotImplementedException()));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<User>> search(ReferenceType referenceType, String referenceId, String query, int page, int size) {
-        return userService.search(referenceType, referenceId, query, page, size);
+ return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, query, page, size));
+}
+@Override
+    public Mono<Page<User>> search_migrated(ReferenceType referenceType, String referenceId, String query, int page, int size) {
+        return RxJava2Adapter.singleToMono(userService.search(referenceType, referenceId, query, page, size));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<User>> search(ReferenceType referenceType, String referenceId, FilterCriteria filterCriteria, int page, int size) {
-        return userService.search(referenceType, referenceId, filterCriteria, page, size);
+ return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, filterCriteria, page, size));
+}
+@Override
+    public Mono<Page<User>> search_migrated(ReferenceType referenceType, String referenceId, FilterCriteria filterCriteria, int page, int size) {
+        return RxJava2Adapter.singleToMono(userService.search(referenceType, referenceId, filterCriteria, page, size));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<User>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
-        return userService.findAll(referenceType, referenceId, page, size);
+ return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
+}
+@Override
+    public Mono<Page<User>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
+        return RxJava2Adapter.singleToMono(userService.findAll(referenceType, referenceId, page, size));
     }
 
     @Override

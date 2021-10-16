@@ -213,11 +213,15 @@ public class GroupServiceImpl implements GroupService {
                 });
     }
 
-    private Single<Group> setMembers(Group group, String baseUrl) {
+    @Deprecated
+private Single<Group> setMembers(Group group, String baseUrl) {
+ return RxJava2Adapter.monoToSingle(setMembers_migrated(group, baseUrl));
+}
+private Mono<Group> setMembers_migrated(Group group, String baseUrl) {
         Set<Member> members = group.getMembers() != null ? new HashSet<>(group.getMembers()) : null;
         if (members != null && !members.isEmpty()) {
             List<String> memberIds = group.getMembers().stream().map(Member::getValue).collect(Collectors.toList());
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(userRepository.findByIdIn(memberIds)).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(userRepository.findByIdIn(memberIds)).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                         String display = (user.getDisplayName() != null) ? user.getDisplayName()
                                 : (user.getFirstName() != null) ? user.getFirstName() + " " + (user.getLastName() != null ? user.getLastName() : "")
                                 : user.getUsername();
@@ -230,9 +234,9 @@ public class GroupServiceImpl implements GroupService {
                     })).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(existingMembers -> {
                         group.setMembers(existingMembers);
                         return group;
-                    })));
+                    }))));
         } else {
-            return RxJava2Adapter.monoToSingle(Mono.just(group));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(group)));
         }
     }
 

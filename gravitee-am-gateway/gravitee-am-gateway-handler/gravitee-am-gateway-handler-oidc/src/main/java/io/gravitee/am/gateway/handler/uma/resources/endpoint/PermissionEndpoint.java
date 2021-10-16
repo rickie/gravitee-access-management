@@ -92,7 +92,11 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
      * @param context RoutingContext
      * @return List of PermissionRequest
      */
-    private Single<List<PermissionTicketRequest>> extractRequest(RoutingContext context) {
+    @Deprecated
+private Single<List<PermissionTicketRequest>> extractRequest(RoutingContext context) {
+ return RxJava2Adapter.monoToSingle(extractRequest_migrated(context));
+}
+private Mono<List<PermissionTicketRequest>> extractRequest_migrated(RoutingContext context) {
         List<PermissionTicketRequest> result;
         Object json;
 
@@ -100,7 +104,7 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
             json = context.getBody().toJson();
         }
         catch (RuntimeException err) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Unable to parse body permission request")));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Unable to parse body permission request"))));
         }
 
         if(json instanceof JsonArray) {
@@ -108,7 +112,7 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
         } else {
             result = Arrays.asList(((JsonObject)json).mapTo(PermissionTicketRequest.class));
         }
-        return RxJava2Adapter.monoToSingle(Mono.just(result));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(result)));
     }
 
     private List<PermissionTicketRequest> convert(List<LinkedHashMap> list) {
@@ -126,11 +130,15 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
     /**
      * Both resource_id & resource_scopes are mandatory fields.
      */
-    private Single<List<PermissionTicketRequest>> bodyValidation(List<PermissionTicketRequest> toValidate) {
+    @Deprecated
+private Single<List<PermissionTicketRequest>> bodyValidation(List<PermissionTicketRequest> toValidate) {
+ return RxJava2Adapter.monoToSingle(bodyValidation_migrated(toValidate));
+}
+private Mono<List<PermissionTicketRequest>> bodyValidation_migrated(List<PermissionTicketRequest> toValidate) {
         if(toValidate.stream().filter(invalidPermissionRequest()).count() > 0) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("resource_id and resource_scopes are mandatory.")));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("resource_id and resource_scopes are mandatory."))));
         }
-        return RxJava2Adapter.monoToSingle(Mono.just(toValidate));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(toValidate)));
     }
 
     /**

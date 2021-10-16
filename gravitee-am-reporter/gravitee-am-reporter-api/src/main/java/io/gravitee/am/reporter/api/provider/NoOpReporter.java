@@ -42,14 +42,24 @@ import reactor.core.publisher.Mono;
 public class NoOpReporter implements AuditReporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(NoOpReporter.class);
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<Audit>> search(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
+ return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
+}
+@Override
+    public Mono<Page<Audit>> search_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
         LOGGER.debug("NoOp Reporter call, real reporter not yet bootstrapped");
-        return RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptyList(), page, size)));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptyList(), page, size))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
+ return RxJava2Adapter.monoToSingle(aggregate_migrated(referenceType, referenceId, criteria, analyticsType));
+}
+@Override
+    public Mono<Map<Object,Object>> aggregate_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
         LOGGER.debug("NoOp Reporter call, real reporter not yet bootstrapped");
         switch (analyticsType) {
             case DATE_HISTO:
@@ -59,20 +69,25 @@ public class NoOpReporter implements AuditReporter {
                 Map<Object, Object> result = new HashMap<>();
                 result.put(fieldSuccess, new ArrayList<>(Collections.nCopies(25, 0l)));
                 result.put(fieldFailure, new ArrayList<>(Collections.nCopies(25, 0l)));
-                return RxJava2Adapter.monoToSingle(Mono.just(result));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(result)));
             case GROUP_BY:
-                return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap()));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap())));
             case COUNT:
-                return RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonMap("data", 0l)));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonMap("data", 0l))));
             default:
-                return RxJava2Adapter.monoToSingle(Mono.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated")));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated"))));
         }
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Audit> findById(ReferenceType referenceType, String referenceId, String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
+}
+@Override
+    public Mono<Audit> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("NoOp Reporter call, real reporter not yet bootstrapped");
-        return RxJava2Adapter.monoToMaybe(Mono.empty());
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
     @Override

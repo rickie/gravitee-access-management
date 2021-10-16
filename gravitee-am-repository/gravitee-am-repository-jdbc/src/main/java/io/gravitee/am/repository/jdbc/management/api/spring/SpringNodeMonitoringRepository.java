@@ -18,11 +18,11 @@ package io.gravitee.am.repository.jdbc.management.api.spring;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcMonitoring;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
+import java.time.LocalDateTime;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
-
-import java.time.LocalDateTime;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -30,9 +30,29 @@ import java.time.LocalDateTime;
  */
 public interface SpringNodeMonitoringRepository extends RxJava2CrudRepository<JdbcMonitoring, String> {
 
-    @Query("select * from node_monitoring m where m.node_id = :nodeId and m.type = :type")
-    Maybe<JdbcMonitoring> findByNodeIdAndType(@Param("nodeId") String nodeId, @Param("type") String type);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcMonitoring> findByNodeIdAndType(@org.springframework.data.repository.query.Param(value = "nodeId")
+java.lang.String nodeId, @org.springframework.data.repository.query.Param(value = "type")
+java.lang.String type) {
+    return RxJava2Adapter.monoToMaybe(findByNodeIdAndType_migrated(nodeId, type));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcMonitoring> findByNodeIdAndType_migrated(@Param(value = "nodeId")
+String nodeId, @Param(value = "type")
+String type) {
+    return RxJava2Adapter.maybeToMono(findByNodeIdAndType(nodeId, type));
+}
 
-    @Query("select * from node_monitoring m where m.type = :type and m.updated_at >= :from and m.updated_at <= :to")
-    Flowable<JdbcMonitoring> findByTypeAndTimeFrame(@Param("type") String type, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcMonitoring> findByTypeAndTimeFrame(@org.springframework.data.repository.query.Param(value = "type")
+java.lang.String type, @org.springframework.data.repository.query.Param(value = "from")
+java.time.LocalDateTime from, @org.springframework.data.repository.query.Param(value = "to")
+java.time.LocalDateTime to) {
+    return RxJava2Adapter.fluxToFlowable(findByTypeAndTimeFrame_migrated(type, from, to));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcMonitoring> findByTypeAndTimeFrame_migrated(@Param(value = "type")
+String type, @Param(value = "from")
+LocalDateTime from, @Param(value = "to")
+LocalDateTime to) {
+    return RxJava2Adapter.flowableToFlux(findByTypeAndTimeFrame(type, from, to));
+}
 }

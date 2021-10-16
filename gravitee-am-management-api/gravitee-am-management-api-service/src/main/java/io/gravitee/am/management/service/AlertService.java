@@ -44,9 +44,13 @@ public class AlertService {
      *
      * @return <code>true</code> if the alerting feature is available, <code>false</code> else.
      */
-    public Single<Boolean> isAlertingAvailable() {
+    @Deprecated
+public Single<Boolean> isAlertingAvailable() {
+ return RxJava2Adapter.monoToSingle(isAlertingAvailable_migrated());
+}
+public Mono<Boolean> isAlertingAvailable_migrated() {
         LOGGER.debug("Get alert available status");
 
-        return RxJava2Adapter.monoToSingle(Mono.just(!this.triggerProviderManager.findAll().isEmpty()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(!this.triggerProviderManager.findAll().isEmpty())));
     }
 }

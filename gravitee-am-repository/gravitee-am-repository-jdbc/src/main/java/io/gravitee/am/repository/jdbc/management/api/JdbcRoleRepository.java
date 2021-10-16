@@ -140,8 +140,13 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
         return completeWithScopes(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(roleRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), id);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Role> create(Role item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Role> create_migrated(Role item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("Create Role with id {}", item.getId());
 
@@ -173,11 +178,16 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
             }).reduce(Integer::sum));
         }
 
-        return RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Role> update(Role item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Role> update_migrated(Role item) {
         LOGGER.debug("Update Role with id {}", item.getId());
 
         TransactionalOperator trx = TransactionalOperator.create(tm);
@@ -211,11 +221,16 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
             }).reduce(Integer::sum));
         }
 
-        return RxJava2Adapter.monoToSingle(deleteScopes.then(action).as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(deleteScopes.then(action).as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("Delete Role with id {}", id);
 
         TransactionalOperator trx = TransactionalOperator.create(tm);
@@ -225,16 +240,20 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
         Mono<Integer> delete = dbClient.delete().from(JdbcRole.class)
                 .matching(from(where("id").is(id))).fetch().rowsUpdated();
 
-        return monoToCompletable(delete.then(deleteScopes.as(trx::transactional)));
+        return RxJava2Adapter.completableToMono(monoToCompletable(delete.then(deleteScopes.as(trx::transactional))));
     }
 
-    private Maybe<Role> completeWithScopes(Maybe<Role> maybeRole, String id) {
+    @Deprecated
+private Maybe<Role> completeWithScopes(Maybe<Role> maybeRole, String id) {
+ return RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(maybeRole, id));
+}
+private Mono<Role> completeWithScopes_migrated(Maybe<Role> maybeRole, String id) {
         Maybe<List<String>> scopes = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(oauthScopeRepository.findAllByRole(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcRole.OAuthScope::getScope)).collectList());
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeRole).zipWith(RxJava2Adapter.maybeToMono(scopes), RxJavaReactorMigrationUtil.toJdkBiFunction((role, scope) -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeRole).zipWith(RxJava2Adapter.maybeToMono(scopes), RxJavaReactorMigrationUtil.toJdkBiFunction((role, scope) -> {
             LOGGER.debug("findById({}) fetch {} oauth scopes", id, scope == null ? 0 : scope.size());
             role.setOauthScopes(scope);
             return role;
-        })));
+        }))));
     }
 }

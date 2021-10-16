@@ -101,36 +101,51 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
     public boolean canSearch() {
         return true;
     }
-    @Override
+    @Deprecated
+@Override
     public Single<Page<Audit>> search(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
+ return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
+}
+@Override
+    public Mono<Page<Audit>> search_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
         // build query
         Bson query = query(referenceType, referenceId, criteria);
 
         // run search query
         Single<Long> countOperation = Observable.fromPublisher(reportableCollection.countDocuments(query)).first(0l);
         Single<List<Audit>> auditsOperation = Observable.fromPublisher(reportableCollection.find(query).sort(new BasicDBObject(FIELD_TIMESTAMP, -1)).skip(size * page).limit(size)).map(this::convert).collect(LinkedList::new, List::add);
-        return Single.zip(countOperation, auditsOperation, (count, audits) -> new Page<>(audits, page, count));
+        return RxJava2Adapter.singleToMono(Single.zip(countOperation, auditsOperation, (count, audits) -> new Page<>(audits, page, count)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
+ return RxJava2Adapter.monoToSingle(aggregate_migrated(referenceType, referenceId, criteria, analyticsType));
+}
+@Override
+    public Mono<Map<Object,Object>> aggregate_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
         // build query
         Bson query = query(referenceType, referenceId, criteria);
         switch (analyticsType) {
             case DATE_HISTO:
-                return executeHistogram(criteria, query);
+                return RxJava2Adapter.singleToMono(executeHistogram(criteria, query));
             case GROUP_BY:
-                return executeGroupBy(criteria, query);
+                return RxJava2Adapter.singleToMono(executeGroupBy(criteria, query));
             case COUNT:
-                return executeCount(query);
+                return RxJava2Adapter.singleToMono(executeCount(query));
             default:
-                return RxJava2Adapter.monoToSingle(Mono.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated")));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated"))));
         }
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Audit> findById(ReferenceType referenceType, String referenceId, String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(reportableCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
+}
+@Override
+    public Mono<Audit> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(reportableCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
     @Override
@@ -177,12 +192,16 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         }
     }
 
-    private Single<Map<Object, Object>> executeHistogram(AuditReportableCriteria criteria, Bson query) {
+    @Deprecated
+private Single<Map<Object, Object>> executeHistogram(AuditReportableCriteria criteria, Bson query) {
+ return RxJava2Adapter.monoToSingle(executeHistogram_migrated(criteria, query));
+}
+private Mono<Map<Object,Object>> executeHistogram_migrated(AuditReportableCriteria criteria, Bson query) {
         // NOTE : MongoDB does not return count : 0 if there is no matching document in the given time range, we need to add it by hand
         Map<Long, Long> intervals = intervals(criteria);
         String fieldSuccess = (criteria.types().get(0) + "_" + Status.SUCCESS).toLowerCase();
         String fieldFailure = (criteria.types().get(0) + "_" + Status.FAILURE).toLowerCase();
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.aggregate(Arrays.asList(
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.aggregate(Arrays.asList(
                 Aggregates.match(query),
                 Aggregates.group(
                         new BasicDBObject("_id",
@@ -214,29 +233,41 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
                     result.put(fieldSuccess, successData);
                     result.put(fieldFailure, failureData);
                     return result;
-                })));
+                }))));
     }
 
-    private Single<Map<Object, Object>> executeGroupBy(AuditReportableCriteria criteria, Bson query) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.aggregate(
+    @Deprecated
+private Single<Map<Object, Object>> executeGroupBy(AuditReportableCriteria criteria, Bson query) {
+ return RxJava2Adapter.monoToSingle(executeGroupBy_migrated(criteria, query));
+}
+private Mono<Map<Object,Object>> executeGroupBy_migrated(AuditReportableCriteria criteria, Bson query) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.aggregate(
                 Arrays.asList(
                         Aggregates.match(query),
                         Aggregates.group(new BasicDBObject("_id", "$" + criteria.field()), Accumulators.sum("count", 1)),
                         Aggregates.limit(criteria.size() != null ? criteria.size() : 50)), Document.class
         ))
-                .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(docs -> docs.stream().collect(Collectors.toMap(d -> ((Document) d.get("_id")).get("_id"), d -> d.get("count"))))));
+                .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(docs -> docs.stream().collect(Collectors.toMap(d -> ((Document) d.get("_id")).get("_id"), d -> d.get("count")))))));
     }
 
-    private Single<Map<Object, Object>> executeCount(Bson query) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.countDocuments(query)).first(0l)).map(RxJavaReactorMigrationUtil.toJdkFunction(data -> Collections.singletonMap("data", data))));
+    @Deprecated
+private Single<Map<Object, Object>> executeCount(Bson query) {
+ return RxJava2Adapter.monoToSingle(executeCount_migrated(query));
+}
+private Mono<Map<Object,Object>> executeCount_migrated(Bson query) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.countDocuments(query)).first(0l)).map(RxJavaReactorMigrationUtil.toJdkFunction(data -> Collections.singletonMap("data", data)))));
     }
 
-    private Flowable<BulkWriteResult> bulk(List<Audit> audits) {
+    @Deprecated
+private Flowable<BulkWriteResult> bulk(List<Audit> audits) {
+ return RxJava2Adapter.fluxToFlowable(bulk_migrated(audits));
+}
+private Flux<BulkWriteResult> bulk_migrated(List<Audit> audits) {
         if (audits == null || audits.isEmpty()) {
-            return RxJava2Adapter.fluxToFlowable(Flux.empty());
+            return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty()));
         }
 
-        return RxJava2Adapter.fluxToFlowable(Flux.from(reportableCollection.bulkWrite(this.convert(audits))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(reportableCollection.bulkWrite(this.convert(audits)))));
     }
 
     private Bson query(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {

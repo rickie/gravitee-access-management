@@ -18,6 +18,7 @@ package io.gravitee.am.gateway.handler.oidc.service.jwe;
 import com.nimbusds.jwt.JWT;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -31,7 +32,13 @@ public interface JWEService {
      * @param client client which want to encrypt the token
      * @return JWT encrypted string representation
      */
-    Single<String> encryptIdToken(String signedJwt, Client client);
+      @Deprecated  
+default io.reactivex.Single<java.lang.String> encryptIdToken(java.lang.String signedJwt, io.gravitee.am.model.oidc.Client client) {
+    return RxJava2Adapter.monoToSingle(encryptIdToken_migrated(signedJwt, client));
+}
+default reactor.core.publisher.Mono<java.lang.String> encryptIdToken_migrated(String signedJwt, Client client) {
+    return RxJava2Adapter.singleToMono(encryptIdToken(signedJwt, client));
+}
 
     /**
      * Encode raw JWT to JWT signed representation using userinfo_encrypted_response_alg Client preferences.
@@ -39,7 +46,13 @@ public interface JWEService {
      * @param client client which want to encrypt the token
      * @return JWT encrypted string representation
      */
-    Single<String> encryptUserinfo(String signedJwt, Client client);
+      @Deprecated  
+default io.reactivex.Single<java.lang.String> encryptUserinfo(java.lang.String signedJwt, io.gravitee.am.model.oidc.Client client) {
+    return RxJava2Adapter.monoToSingle(encryptUserinfo_migrated(signedJwt, client));
+}
+default reactor.core.publisher.Mono<java.lang.String> encryptUserinfo_migrated(String signedJwt, Client client) {
+    return RxJava2Adapter.singleToMono(encryptUserinfo(signedJwt, client));
+}
 
     /**
      *
@@ -48,7 +61,13 @@ public interface JWEService {
      * @param encRequired true if the jwt has to be encrypted
      * @return the decoded JWT or an error if encRequired is true and the JWT isn't encoded
      */
-    Single<JWT> decrypt(String jwt, Client client, boolean encRequired);
+      @Deprecated  
+default io.reactivex.Single<com.nimbusds.jwt.JWT> decrypt(java.lang.String jwt, io.gravitee.am.model.oidc.Client client, boolean encRequired) {
+    return RxJava2Adapter.monoToSingle(decrypt_migrated(jwt, client, encRequired));
+}
+default reactor.core.publisher.Mono<com.nimbusds.jwt.JWT> decrypt_migrated(String jwt, Client client, boolean encRequired) {
+    return RxJava2Adapter.singleToMono(decrypt(jwt, client, encRequired));
+}
 
     /**
      * Decrypt JWT send by RP.
@@ -58,9 +77,21 @@ public interface JWEService {
      * @param encRequired true if the jwt has to be encrypted
      * @return the decoded JWT or an error if encRequired is true and the JWT isn't encoded
      */
-    Single<JWT> decrypt(String jwt, boolean encRequired);
+      @Deprecated  
+default io.reactivex.Single<com.nimbusds.jwt.JWT> decrypt(java.lang.String jwt, boolean encRequired) {
+    return RxJava2Adapter.monoToSingle(decrypt_migrated(jwt, encRequired));
+}
+default reactor.core.publisher.Mono<com.nimbusds.jwt.JWT> decrypt_migrated(String jwt, boolean encRequired) {
+    return RxJava2Adapter.singleToMono(decrypt(jwt, encRequired));
+}
 
-    Single<Boolean> isEncrypted(String jwt);
+      @Deprecated  
+default io.reactivex.Single<java.lang.Boolean> isEncrypted(java.lang.String jwt) {
+    return RxJava2Adapter.monoToSingle(isEncrypted_migrated(jwt));
+}
+default reactor.core.publisher.Mono<java.lang.Boolean> isEncrypted_migrated(String jwt) {
+    return RxJava2Adapter.singleToMono(isEncrypted(jwt));
+}
 
     /**
      * Encode raw JWT to JWT signed representation using authorization_encrypted_response_alg Client preferences.
@@ -68,5 +99,11 @@ public interface JWEService {
      * @param client client which want to encrypt the token
      * @return JWT encrypted string representation
      */
-    Single<String> encryptAuthorization(String signedJwt, Client client);
+      @Deprecated  
+default io.reactivex.Single<java.lang.String> encryptAuthorization(java.lang.String signedJwt, io.gravitee.am.model.oidc.Client client) {
+    return RxJava2Adapter.monoToSingle(encryptAuthorization_migrated(signedJwt, client));
+}
+default reactor.core.publisher.Mono<java.lang.String> encryptAuthorization_migrated(String signedJwt, Client client) {
+    return RxJava2Adapter.singleToMono(encryptAuthorization(signedJwt, client));
+}
 }

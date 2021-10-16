@@ -24,21 +24,58 @@ import io.gravitee.am.service.model.PatchAlertNotifier;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
  * @author GraviteeSource Team
  */
 public interface AlertNotifierService {
-    Single<AlertNotifier> getById(ReferenceType referenceType, String referenceId, String notifierId);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.alert.AlertNotifier> getById(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String notifierId) {
+    return RxJava2Adapter.monoToSingle(getById_migrated(referenceType, referenceId, notifierId));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.alert.AlertNotifier> getById_migrated(ReferenceType referenceType, String referenceId, String notifierId) {
+    return RxJava2Adapter.singleToMono(getById(referenceType, referenceId, notifierId));
+}
 
-    Flowable<AlertNotifier> findByDomainAndCriteria(String domainId, AlertNotifierCriteria criteria);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.alert.AlertNotifier> findByDomainAndCriteria(java.lang.String domainId, io.gravitee.am.repository.management.api.search.AlertNotifierCriteria criteria) {
+    return RxJava2Adapter.fluxToFlowable(findByDomainAndCriteria_migrated(domainId, criteria));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.alert.AlertNotifier> findByDomainAndCriteria_migrated(String domainId, AlertNotifierCriteria criteria) {
+    return RxJava2Adapter.flowableToFlux(findByDomainAndCriteria(domainId, criteria));
+}
 
-    Flowable<AlertNotifier> findByReferenceAndCriteria(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.alert.AlertNotifier> findByReferenceAndCriteria(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.repository.management.api.search.AlertNotifierCriteria criteria) {
+    return RxJava2Adapter.fluxToFlowable(findByReferenceAndCriteria_migrated(referenceType, referenceId, criteria));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.alert.AlertNotifier> findByReferenceAndCriteria_migrated(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
+    return RxJava2Adapter.flowableToFlux(findByReferenceAndCriteria(referenceType, referenceId, criteria));
+}
 
-    Single<AlertNotifier> create(ReferenceType referenceType, String referenceId, NewAlertNotifier newAlertNotifier, User byUser);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.alert.AlertNotifier> create(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.service.model.NewAlertNotifier newAlertNotifier, io.gravitee.am.identityprovider.api.User byUser) {
+    return RxJava2Adapter.monoToSingle(create_migrated(referenceType, referenceId, newAlertNotifier, byUser));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.alert.AlertNotifier> create_migrated(ReferenceType referenceType, String referenceId, NewAlertNotifier newAlertNotifier, User byUser) {
+    return RxJava2Adapter.singleToMono(create(referenceType, referenceId, newAlertNotifier, byUser));
+}
 
-    Single<AlertNotifier> update(ReferenceType referenceType, String referenceId, String alertNotifierId, PatchAlertNotifier patchAlertNotifier, User byUser);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.alert.AlertNotifier> update(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String alertNotifierId, io.gravitee.am.service.model.PatchAlertNotifier patchAlertNotifier, io.gravitee.am.identityprovider.api.User byUser) {
+    return RxJava2Adapter.monoToSingle(update_migrated(referenceType, referenceId, alertNotifierId, patchAlertNotifier, byUser));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.alert.AlertNotifier> update_migrated(ReferenceType referenceType, String referenceId, String alertNotifierId, PatchAlertNotifier patchAlertNotifier, User byUser) {
+    return RxJava2Adapter.singleToMono(update(referenceType, referenceId, alertNotifierId, patchAlertNotifier, byUser));
+}
 
-    Completable delete(ReferenceType referenceType, String referenceId, String notifierId, User byUser);
+      @Deprecated  
+default io.reactivex.Completable delete(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String notifierId, io.gravitee.am.identityprovider.api.User byUser) {
+    return RxJava2Adapter.monoToCompletable(delete_migrated(referenceType, referenceId, notifierId, byUser));
+}
+default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(ReferenceType referenceType, String referenceId, String notifierId, User byUser) {
+    return RxJava2Adapter.completableToMono(delete(referenceType, referenceId, notifierId, byUser));
+}
 }

@@ -18,8 +18,8 @@ package io.gravitee.am.service;
 import io.gravitee.am.model.Installation;
 import io.reactivex.Completable;
 import io.reactivex.Single;
-
 import java.util.Map;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -32,7 +32,13 @@ public interface InstallationService {
      *
      * @return the current installation or an {@link io.gravitee.am.service.exception.InstallationNotFoundException} exception.
      */
-    Single<Installation> get();
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Installation> get() {
+    return RxJava2Adapter.monoToSingle(get_migrated());
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> get_migrated() {
+    return RxJava2Adapter.singleToMono(get());
+}
 
 
     /**
@@ -40,7 +46,13 @@ public interface InstallationService {
      *
      * @return the created or already existing installation.
      */
-    Single<Installation> getOrInitialize();
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Installation> getOrInitialize() {
+    return RxJava2Adapter.monoToSingle(getOrInitialize_migrated());
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> getOrInitialize_migrated() {
+    return RxJava2Adapter.singleToMono(getOrInitialize());
+}
 
     /**
      * Set additional information of the current installation.
@@ -49,7 +61,13 @@ public interface InstallationService {
      *
      * @return the updated installation
      */
-    Single<Installation> setAdditionalInformation(Map<String, String> additionalInformation);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Installation> setAdditionalInformation(java.util.Map<java.lang.String, java.lang.String> additionalInformation) {
+    return RxJava2Adapter.monoToSingle(setAdditionalInformation_migrated(additionalInformation));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> setAdditionalInformation_migrated(Map<String, String> additionalInformation) {
+    return RxJava2Adapter.singleToMono(setAdditionalInformation(additionalInformation));
+}
 
     /**
      * Add or update the additional information of the current installation.
@@ -58,12 +76,24 @@ public interface InstallationService {
      *
      * @return the updated installation.
      */
-    Single<Installation> addAdditionalInformation(Map<String, String> additionalInformation);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Installation> addAdditionalInformation(java.util.Map<java.lang.String, java.lang.String> additionalInformation) {
+    return RxJava2Adapter.monoToSingle(addAdditionalInformation_migrated(additionalInformation));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> addAdditionalInformation_migrated(Map<String, String> additionalInformation) {
+    return RxJava2Adapter.singleToMono(addAdditionalInformation(additionalInformation));
+}
 
     /**
      * Delete the current installation.
      *
      * @return the operation status
      */
-    Completable delete();
+      @Deprecated  
+default io.reactivex.Completable delete() {
+    return RxJava2Adapter.monoToCompletable(delete_migrated());
+}
+default reactor.core.publisher.Mono<java.lang.Void> delete_migrated() {
+    return RxJava2Adapter.completableToMono(delete());
+}
 }

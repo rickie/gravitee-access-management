@@ -60,9 +60,13 @@ public class DomainUpgrader implements Upgrader, Ordered {
 
     }
 
-    private Single<Domain> upgradeDomain(Domain domain) {
+    @Deprecated
+private Single<Domain> upgradeDomain(Domain domain) {
+ return RxJava2Adapter.monoToSingle(upgradeDomain_migrated(domain));
+}
+private Mono<Domain> upgradeDomain_migrated(Domain domain) {
         if(domain.getOidc()!=null) {
-            return RxJava2Adapter.monoToSingle(Mono.just(domain));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(domain)));
         }
 
         PatchClientRegistrationSettings clientRegistrationPatch = new PatchClientRegistrationSettings();
@@ -78,7 +82,7 @@ public class DomainUpgrader implements Upgrader, Ordered {
         PatchDomain patchDomain = new PatchDomain();
         patchDomain.setOidc(Optional.of(oidcPatch));
 
-        return domainService.patch(domain.getId(),patchDomain);
+        return RxJava2Adapter.singleToMono(domainService.patch(domain.getId(),patchDomain));
     }
 
     @Override

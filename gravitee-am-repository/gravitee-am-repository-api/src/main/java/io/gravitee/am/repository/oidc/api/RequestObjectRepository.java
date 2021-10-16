@@ -28,13 +28,34 @@ import reactor.core.publisher.Mono;
  */
 public interface RequestObjectRepository {
 
-    Maybe<RequestObject> findById(String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.oidc.model.RequestObject> findById(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.oidc.model.RequestObject> findById_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(findById(id));
+}
 
-    Single<RequestObject> create(RequestObject requestObject);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.repository.oidc.model.RequestObject> create(io.gravitee.am.repository.oidc.model.RequestObject requestObject) {
+    return RxJava2Adapter.monoToSingle(create_migrated(requestObject));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.oidc.model.RequestObject> create_migrated(RequestObject requestObject) {
+    return RxJava2Adapter.singleToMono(create(requestObject));
+}
 
-    Completable delete(String id);
+      @Deprecated  
+default io.reactivex.Completable delete(java.lang.String id) {
+    return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String id) {
+    return RxJava2Adapter.completableToMono(delete(id));
+}
 
-    default Completable purgeExpiredData() {
-        return RxJava2Adapter.monoToCompletable(Mono.empty());
+      @Deprecated  
+default io.reactivex.Completable purgeExpiredData() {
+    return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
+}default Mono<Void> purgeExpiredData_migrated() {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 }

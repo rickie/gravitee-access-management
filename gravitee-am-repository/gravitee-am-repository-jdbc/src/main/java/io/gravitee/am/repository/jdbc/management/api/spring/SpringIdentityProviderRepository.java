@@ -22,6 +22,7 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -29,12 +30,39 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SpringIdentityProviderRepository extends RxJava2CrudRepository<JdbcIdentityProvider, String> {
-    @Query("select * from identities i where i.reference_type = :refType and i.reference_id = :refId")
-    Flowable<JdbcIdentityProvider> findAll(@Param("refType") String referenceType, @Param("refId") String referenceId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcIdentityProvider> findAll(@org.springframework.data.repository.query.Param(value = "refType")
+java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
+java.lang.String referenceId) {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcIdentityProvider> findAll_migrated(@Param(value = "refType")
+String referenceType, @Param(value = "refId")
+String referenceId) {
+    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
+}
 
-    @Query("select * from identities i where i.reference_type = :refType")
-    Flowable<JdbcIdentityProvider> findAll(@Param("refType") String referenceType);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcIdentityProvider> findAll(@org.springframework.data.repository.query.Param(value = "refType")
+java.lang.String referenceType) {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcIdentityProvider> findAll_migrated(@Param(value = "refType")
+String referenceType) {
+    return RxJava2Adapter.flowableToFlux(findAll(referenceType));
+}
 
-    @Query("select * from identities i where i.reference_type = :refType and i.reference_id = :refId and i.id = :id")
-    Maybe<JdbcIdentityProvider> findById(@Param("refType") String referenceType, @Param("refId") String referenceId, @Param("id") String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcIdentityProvider> findById(@org.springframework.data.repository.query.Param(value = "refType")
+java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "refId")
+java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "id")
+java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcIdentityProvider> findById_migrated(@Param(value = "refType")
+String referenceType, @Param(value = "refId")
+String referenceId, @Param(value = "id")
+String id) {
+    return RxJava2Adapter.maybeToMono(findById(referenceType, referenceId, id));
+}
 }

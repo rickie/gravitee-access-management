@@ -18,6 +18,7 @@ package io.gravitee.am.service;
 import io.gravitee.am.model.AuthenticationFlowContext;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -25,9 +26,27 @@ import io.reactivex.Maybe;
  */
 public interface AuthenticationFlowContextService {
 
-    Maybe<AuthenticationFlowContext> loadContext(final String transactionId, final int expectedVersion);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.AuthenticationFlowContext> loadContext(final java.lang.String transactionId, final int expectedVersion) {
+    return RxJava2Adapter.monoToMaybe(loadContext_migrated(transactionId, expectedVersion));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.AuthenticationFlowContext> loadContext_migrated(final String transactionId, final int expectedVersion) {
+    return RxJava2Adapter.maybeToMono(loadContext(transactionId, expectedVersion));
+}
 
-    Maybe<AuthenticationFlowContext> removeContext(final String transactionId, final int expectedVersion);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.AuthenticationFlowContext> removeContext(final java.lang.String transactionId, final int expectedVersion) {
+    return RxJava2Adapter.monoToMaybe(removeContext_migrated(transactionId, expectedVersion));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.AuthenticationFlowContext> removeContext_migrated(final String transactionId, final int expectedVersion) {
+    return RxJava2Adapter.maybeToMono(removeContext(transactionId, expectedVersion));
+}
 
-    Completable clearContext(final String transactionId);
+      @Deprecated  
+default io.reactivex.Completable clearContext(final java.lang.String transactionId) {
+    return RxJava2Adapter.monoToCompletable(clearContext_migrated(transactionId));
+}
+default reactor.core.publisher.Mono<java.lang.Void> clearContext_migrated(final String transactionId) {
+    return RxJava2Adapter.completableToMono(clearContext(transactionId));
+}
 }

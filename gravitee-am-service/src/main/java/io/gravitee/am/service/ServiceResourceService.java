@@ -23,6 +23,7 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -30,14 +31,44 @@ import io.reactivex.Single;
  */
 public interface ServiceResourceService {
 
-    Maybe<ServiceResource> findById(String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.resource.ServiceResource> findById(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.resource.ServiceResource> findById_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(findById(id));
+}
 
-    Flowable<ServiceResource> findByDomain(String domain);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.resource.ServiceResource> findByDomain(java.lang.String domain) {
+    return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.resource.ServiceResource> findByDomain_migrated(String domain) {
+    return RxJava2Adapter.flowableToFlux(findByDomain(domain));
+}
 
-    Single<ServiceResource> create(String domain, NewServiceResource res, User principal);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.resource.ServiceResource> create(java.lang.String domain, io.gravitee.am.service.model.NewServiceResource res, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToSingle(create_migrated(domain, res, principal));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.resource.ServiceResource> create_migrated(String domain, NewServiceResource res, User principal) {
+    return RxJava2Adapter.singleToMono(create(domain, res, principal));
+}
 
-    Single<ServiceResource> update(String domain, String id, UpdateServiceResource updateServiceResource, User principal);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.resource.ServiceResource> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateServiceResource updateServiceResource, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateServiceResource, principal));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.resource.ServiceResource> update_migrated(String domain, String id, UpdateServiceResource updateServiceResource, User principal) {
+    return RxJava2Adapter.singleToMono(update(domain, id, updateServiceResource, principal));
+}
 
-    Completable delete(String domain, String resId, User principal);
+      @Deprecated  
+default io.reactivex.Completable delete(java.lang.String domain, java.lang.String resId, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToCompletable(delete_migrated(domain, resId, principal));
+}
+default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String domain, String resId, User principal) {
+    return RxJava2Adapter.completableToMono(delete(domain, resId, principal));
+}
 
 }

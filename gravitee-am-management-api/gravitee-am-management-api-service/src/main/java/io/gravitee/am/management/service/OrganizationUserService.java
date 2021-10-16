@@ -21,6 +21,7 @@ import io.gravitee.am.model.User;
 import io.gravitee.am.service.model.NewUser;
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -28,9 +29,27 @@ import io.reactivex.Single;
  */
 public interface OrganizationUserService extends CommonUserService {
 
-    Single<User> createOrUpdate(ReferenceType referenceType, String referenceId, NewUser newUser);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.User> createOrUpdate(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.service.model.NewUser newUser) {
+    return RxJava2Adapter.monoToSingle(createOrUpdate_migrated(referenceType, referenceId, newUser));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.User> createOrUpdate_migrated(ReferenceType referenceType, String referenceId, NewUser newUser) {
+    return RxJava2Adapter.singleToMono(createOrUpdate(referenceType, referenceId, newUser));
+}
 
-    Single<User> createGraviteeUser(Organization organization, NewUser newUser, io.gravitee.am.identityprovider.api.User principal);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.User> createGraviteeUser(io.gravitee.am.model.Organization organization, io.gravitee.am.service.model.NewUser newUser, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToSingle(createGraviteeUser_migrated(organization, newUser, principal));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.User> createGraviteeUser_migrated(Organization organization, NewUser newUser, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.singleToMono(createGraviteeUser(organization, newUser, principal));
+}
 
-    Completable resetPassword(String organizationId, User user, String password, io.gravitee.am.identityprovider.api.User principal);
+      @Deprecated  
+default io.reactivex.Completable resetPassword(java.lang.String organizationId, io.gravitee.am.model.User user, java.lang.String password, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToCompletable(resetPassword_migrated(organizationId, user, password, principal));
+}
+default reactor.core.publisher.Mono<java.lang.Void> resetPassword_migrated(String organizationId, User user, String password, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.completableToMono(resetPassword(organizationId, user, password, principal));
+}
 }

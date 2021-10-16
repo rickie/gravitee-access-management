@@ -18,8 +18,15 @@ package io.gravitee.am.management.service;
 import io.gravitee.am.model.analytics.AnalyticsQuery;
 import io.gravitee.am.model.analytics.AnalyticsResponse;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 public interface ApplicationAnalyticsService {
 
-    Single<AnalyticsResponse> execute(AnalyticsQuery query);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.analytics.AnalyticsResponse> execute(io.gravitee.am.model.analytics.AnalyticsQuery query) {
+    return RxJava2Adapter.monoToSingle(execute_migrated(query));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.analytics.AnalyticsResponse> execute_migrated(AnalyticsQuery query) {
+    return RxJava2Adapter.singleToMono(execute(query));
+}
 }

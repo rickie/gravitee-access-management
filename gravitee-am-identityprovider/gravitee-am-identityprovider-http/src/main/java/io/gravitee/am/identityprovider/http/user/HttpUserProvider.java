@@ -221,7 +221,13 @@ public class HttpUserProvider implements UserProvider {
         }
     }
 
-    private Maybe<User> findByUser(HttpUsersResourceConfiguration usersResourceConfiguration,
+    @Deprecated
+private Maybe<User> findByUser(HttpUsersResourceConfiguration usersResourceConfiguration,
+                                   HttpResourceConfiguration readResourceConfiguration,
+                                   User user) {
+ return RxJava2Adapter.monoToMaybe(findByUser_migrated(usersResourceConfiguration, readResourceConfiguration, user));
+}
+private Mono<User> findByUser_migrated(HttpUsersResourceConfiguration usersResourceConfiguration,
                                    HttpResourceConfiguration readResourceConfiguration,
                                    User user) {
         try {
@@ -237,7 +243,7 @@ public class HttpUserProvider implements UserProvider {
             final String readUserBody = readResourceConfiguration.getHttpBody();
             final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, readUserURI, readUserHttpMethod, readUserHttpHeaders, readUserBody);
 
-            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = readResourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return convert(user.getUsername(), userAttributes);
@@ -248,10 +254,10 @@ public class HttpUserProvider implements UserProvider {
                         }
                         LOGGER.error("An error has occurred while searching user {} from the remote HTTP identity provider", user.getUsername() != null ? user.getUsername() : user.getEmail(), ex);
                         return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error has occurred while searching user from the remote HTTP identity provider", ex)));
-                    });
+                    }));
         } catch (Exception ex) {
             LOGGER.error("An error has occurred while searching the user {}", user.getUsername() != null ? user.getUsername() : user.getEmail(), ex);
-            return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error has occurred while searching the user", ex)));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error has occurred while searching the user", ex))));
         }
     }
 
@@ -274,7 +280,15 @@ public class HttpUserProvider implements UserProvider {
         return user;
     }
 
-    private Single<HttpResponse<Buffer>> processRequest(TemplateEngine templateEngine,
+    @Deprecated
+private Single<HttpResponse<Buffer>> processRequest(TemplateEngine templateEngine,
+                                                        String httpURI,
+                                                        HttpMethod httpMethod,
+                                                        List<HttpHeader> httpHeaders,
+                                                        String httpBody) {
+ return RxJava2Adapter.monoToSingle(processRequest_migrated(templateEngine, httpURI, httpMethod, httpHeaders, httpBody));
+}
+private Mono<HttpResponse<Buffer>> processRequest_migrated(TemplateEngine templateEngine,
                                                         String httpURI,
                                                         HttpMethod httpMethod,
                                                         List<HttpHeader> httpHeaders,
@@ -318,7 +332,7 @@ public class HttpUserProvider implements UserProvider {
         } else {
             responseHandler = httpRequest.rxSend();
         }
-        return responseHandler;
+        return RxJava2Adapter.singleToMono(responseHandler);
     }
 
     private Map<String, Object> processResponse(TemplateEngine templateEngine, List<HttpResponseErrorCondition> errorConditions, HttpResponse<Buffer> httpResponse) throws Exception {

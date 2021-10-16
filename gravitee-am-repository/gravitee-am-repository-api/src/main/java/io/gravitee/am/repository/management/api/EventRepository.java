@@ -19,8 +19,8 @@ import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -28,6 +28,12 @@ import java.util.List;
  */
 public interface EventRepository extends CrudRepository<Event, String> {
 
-    Flowable<Event> findByTimeFrame(long from, long to);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.common.event.Event> findByTimeFrame(long from, long to) {
+    return RxJava2Adapter.fluxToFlowable(findByTimeFrame_migrated(from, to));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.common.event.Event> findByTimeFrame_migrated(long from, long to) {
+    return RxJava2Adapter.flowableToFlux(findByTimeFrame(from, to));
+}
 
 }

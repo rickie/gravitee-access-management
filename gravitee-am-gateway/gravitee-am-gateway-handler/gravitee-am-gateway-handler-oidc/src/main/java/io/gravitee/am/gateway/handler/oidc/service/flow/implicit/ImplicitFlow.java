@@ -32,6 +32,7 @@ import io.reactivex.Single;
 import java.util.Arrays;
 import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -70,29 +71,34 @@ public class ImplicitFlow extends AbstractFlow {
         this.idTokenService = idTokenService;
     }
 
-    @Override
+    @Deprecated
+@Override
     protected Single<AuthorizationResponse> prepareResponse(AuthorizationRequest authorizationRequest, Client client, User endUser) {
+ return RxJava2Adapter.monoToSingle(prepareResponse_migrated(authorizationRequest, client, endUser));
+}
+@Override
+    protected Mono<AuthorizationResponse> prepareResponse_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
         OAuth2Request oAuth2Request = authorizationRequest.createOAuth2Request();
         oAuth2Request.setGrantType(GrantType.IMPLICIT);
         oAuth2Request.setSupportRefreshToken(false);
         oAuth2Request.setSubject(endUser.getId());
         oAuth2Request.getContext().put(Claims.s_hash, authorizationRequest.getState());
         if (io.gravitee.am.common.oidc.ResponseType.ID_TOKEN.equals(authorizationRequest.getResponseType())) {
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(idTokenService.create(oAuth2Request, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(idToken -> {
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(idTokenService.create(oAuth2Request, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(idToken -> {
                         IDTokenResponse response = new IDTokenResponse();
                         response.setRedirectUri(authorizationRequest.getRedirectUri());
                         response.setIdToken(idToken);
                         response.setState(authorizationRequest.getState());
                         return response;
-                    })));
+                    }))));
         } else {
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tokenService.create(oAuth2Request, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> {
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tokenService.create(oAuth2Request, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> {
                         ImplicitResponse response = new ImplicitResponse();
                         response.setRedirectUri(authorizationRequest.getRedirectUri());
                         response.setAccessToken(accessToken);
                         response.setState(authorizationRequest.getState());
                         return response;
-                    })));
+                    }))));
         }
     }
 }

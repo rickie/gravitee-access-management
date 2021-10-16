@@ -79,22 +79,26 @@ public class DynamicClientRegistrationEndpoint implements Handler<RoutingContext
                 );
     }
 
-    protected Single<DynamicClientRegistrationRequest> extractRequest(RoutingContext context) {
+    @Deprecated
+protected Single<DynamicClientRegistrationRequest> extractRequest(RoutingContext context) {
+ return RxJava2Adapter.monoToSingle(extractRequest_migrated(context));
+}
+protected Mono<DynamicClientRegistrationRequest> extractRequest_migrated(RoutingContext context) {
         try{
             if(context.getBodyAsJson()==null) {
                 throw new InvalidClientMetadataException("no content");
             }
-            return RxJava2Adapter.monoToSingle(Mono.just(context.getBodyAsJson().mapTo(DynamicClientRegistrationRequest.class)));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(context.getBodyAsJson().mapTo(DynamicClientRegistrationRequest.class))));
         }catch (Exception ex) {
             if(ex instanceof DecodeException) {
-                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException(ex.getMessage())));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException(ex.getMessage()))));
             }
             //Jackson mapper Replace Customs exception by an IllegalArgumentException
             if(ex instanceof IllegalArgumentException && ex.getMessage().startsWith(JWKSetDeserializer.PARSE_ERROR_MESSAGE)) {
                 String sanitizedMessage = ex.getMessage().substring(0,ex.getMessage().indexOf(" (through reference chain:"));
-                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException(sanitizedMessage)));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException(sanitizedMessage))));
             }
-            return RxJava2Adapter.monoToSingle(Mono.error(ex));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(ex)));
         }
     }
 }

@@ -73,21 +73,31 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
         return mapper.map(entity, JdbcAlertTrigger.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<AlertTrigger> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<AlertTrigger> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
 
         Maybe<List<String>> alertNotifierIds = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(alertTriggerAlertNotifierRepository.findByAlertTriggerId(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcAlertTrigger.AlertNotifier::getAlertNotifierId)).collectList());
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.alertTriggerRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).zipWith(RxJava2Adapter.maybeToMono(alertNotifierIds), RxJavaReactorMigrationUtil.toJdkBiFunction((alertTrigger, ids) -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.alertTriggerRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).zipWith(RxJava2Adapter.maybeToMono(alertNotifierIds), RxJavaReactorMigrationUtil.toJdkBiFunction((alertTrigger, ids) -> {
                     LOGGER.debug("findById({}) fetch {} alert triggers", alertTrigger.getId(), ids.size());
                     alertTrigger.setAlertNotifiers(ids);
                     return alertTrigger;
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AlertTrigger> create(AlertTrigger alertTrigger) {
+ return RxJava2Adapter.monoToSingle(create_migrated(alertTrigger));
+}
+@Override
+    public Mono<AlertTrigger> create_migrated(AlertTrigger alertTrigger) {
         alertTrigger.setId(alertTrigger.getId() == null ? RandomString.generate() : alertTrigger.getId());
         LOGGER.debug("create alert trigger with id {}", alertTrigger.getId());
 
@@ -99,14 +109,19 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
 
         final Mono<Void> storeAlertNotifiers = storeAlertNotifiers(alertTrigger, false);
 
-        return monoToSingle(insert
+        return RxJava2Adapter.singleToMono(monoToSingle(insert
                 .then(storeAlertNotifiers)
                 .as(trx::transactional)
-                .then(maybeToMono(findById(alertTrigger.getId()))));
+                .then(maybeToMono(findById(alertTrigger.getId())))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AlertTrigger> update(AlertTrigger alertTrigger) {
+ return RxJava2Adapter.monoToSingle(update_migrated(alertTrigger));
+}
+@Override
+    public Mono<AlertTrigger> update_migrated(AlertTrigger alertTrigger) {
         LOGGER.debug("update alert trigger with id {}", alertTrigger.getId());
         TransactionalOperator trx = TransactionalOperator.create(tm);
 
@@ -117,16 +132,21 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
 
         final Mono<Void> storeAlertNotifiers = storeAlertNotifiers(alertTrigger, true);
 
-        return monoToSingle(update
+        return RxJava2Adapter.singleToMono(monoToSingle(update
                 .then(storeAlertNotifiers)
                 .as(trx::transactional)
-                .then(maybeToMono(findById(alertTrigger.getId()))));
+                .then(maybeToMono(findById(alertTrigger.getId())))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return this.alertTriggerRepository.deleteById(id);
+        return RxJava2Adapter.completableToMono(this.alertTriggerRepository.deleteById(id));
     }
 
     @Override

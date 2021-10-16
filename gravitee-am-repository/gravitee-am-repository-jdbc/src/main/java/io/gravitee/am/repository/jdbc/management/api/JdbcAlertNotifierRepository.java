@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -62,33 +63,48 @@ public class JdbcAlertNotifierRepository extends AbstractJdbcRepository implemen
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.alertNotifierRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AlertNotifier> create(AlertNotifier alertNotifier) {
+ return RxJava2Adapter.monoToSingle(create_migrated(alertNotifier));
+}
+@Override
+    public Mono<AlertNotifier> create_migrated(AlertNotifier alertNotifier) {
         alertNotifier.setId(alertNotifier.getId() == null ? RandomString.generate() : alertNotifier.getId());
         LOGGER.debug("create alert notifier with id {}", alertNotifier.getId());
 
-        return monoToSingle(dbClient.insert()
+        return RxJava2Adapter.singleToMono(monoToSingle(dbClient.insert()
                 .into(JdbcAlertNotifier.class)
                 .using(toJdbcAlertNotifier(alertNotifier))
                 .then()
-                .then(maybeToMono(findById(alertNotifier.getId()))));
+                .then(maybeToMono(findById(alertNotifier.getId())))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AlertNotifier> update(AlertNotifier alertNotifier) {
+ return RxJava2Adapter.monoToSingle(update_migrated(alertNotifier));
+}
+@Override
+    public Mono<AlertNotifier> update_migrated(AlertNotifier alertNotifier) {
         LOGGER.debug("update alert notifier with id {}", alertNotifier.getId());
 
-        return monoToSingle(dbClient.update()
+        return RxJava2Adapter.singleToMono(monoToSingle(dbClient.update()
                 .table(JdbcAlertNotifier.class)
                 .using(toJdbcAlertNotifier(alertNotifier))
                 .matching(from(where("id").is(alertNotifier.getId()))).then()
-                .then(maybeToMono(findById(alertNotifier.getId()))));
+                .then(maybeToMono(findById(alertNotifier.getId())))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return this.alertNotifierRepository.deleteById(id);
+        return RxJava2Adapter.completableToMono(this.alertNotifierRepository.deleteById(id));
     }
 
     @Override

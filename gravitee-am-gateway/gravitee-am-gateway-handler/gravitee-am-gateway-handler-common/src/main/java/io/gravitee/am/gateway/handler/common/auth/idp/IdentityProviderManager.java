@@ -20,6 +20,7 @@ import io.gravitee.am.identityprovider.api.UserProvider;
 import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.common.service.Service;
 import io.reactivex.Maybe;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -28,9 +29,21 @@ import io.reactivex.Maybe;
  */
 public interface IdentityProviderManager extends Service {
 
-    Maybe<AuthenticationProvider> get(String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.AuthenticationProvider> get(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(get_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.AuthenticationProvider> get_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(get(id));
+}
 
     IdentityProvider getIdentityProvider(String id);
 
-    Maybe<UserProvider> getUserProvider(String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.UserProvider> getUserProvider(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(getUserProvider_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.UserProvider> getUserProvider_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(getUserProvider(id));
+}
 }

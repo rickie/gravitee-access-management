@@ -74,8 +74,13 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(flowRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(e->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Flow, SingleSource<Flow>>)this::completeFlow).apply(e)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Flow> create(Flow item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Flow> create_migrated(Flow item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("Create Flow with id {}", item.getId());
 
@@ -98,7 +103,7 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
 
         insertAction = persistChildEntities(insertAction, item);
 
-        return RxJava2Adapter.monoToSingle(insertAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, Flow item) {
@@ -154,8 +159,13 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
         return bean;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Flow> update(Flow item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Flow> update_migrated(Flow item) {
         LOGGER.debug("Update Flow with id {}", item.getId());
 
         TransactionalOperator trx = TransactionalOperator.create(tm);
@@ -179,23 +189,28 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
         updateAction = updateAction.then(deleteChildEntities(item.getId()));
         updateAction = persistChildEntities(updateAction, item);
 
-        return RxJava2Adapter.monoToSingle(updateAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
     private Mono<Integer> deleteChildEntities(String flowId) {
         return dbClient.delete().from(JdbcFlow.JdbcStep.class).matching(from(where("flow_id").is(flowId))).fetch().rowsUpdated();
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete Flow with id {}", id);
         TransactionalOperator trx = TransactionalOperator.create(tm);
-        return monoToCompletable(dbClient.delete()
+        return RxJava2Adapter.completableToMono(monoToCompletable(dbClient.delete()
                 .from(JdbcFlow.class)
                 .matching(from(where("id").is(id)))
                 .fetch().rowsUpdated()
                 .then(deleteChildEntities(id))
-                .as(trx::transactional));
+                .as(trx::transactional)));
     }
 
     @Override
@@ -216,8 +231,12 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(flowRepository.findByApplication(referenceType.name(), referenceId, application)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(flow -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeFlow(flow)).flux()))));
     }
 
-    protected Single<Flow> completeFlow(Flow flow) {
-        return RxJava2Adapter.monoToSingle(dbClient.select()
+    @Deprecated
+protected Single<Flow> completeFlow(Flow flow) {
+ return RxJava2Adapter.monoToSingle(completeFlow_migrated(flow));
+}
+protected Mono<Flow> completeFlow_migrated(Flow flow) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(dbClient.select()
                 .from(JdbcFlow.JdbcStep.class)
                 .matching(from(where("flow_id").is(flow.getId())))
                 .orderBy(Sort.Order.asc("stage_order"))
@@ -242,6 +261,6 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
                 }
             }
             return flow;
-        })));
+        }))));
     }
 }

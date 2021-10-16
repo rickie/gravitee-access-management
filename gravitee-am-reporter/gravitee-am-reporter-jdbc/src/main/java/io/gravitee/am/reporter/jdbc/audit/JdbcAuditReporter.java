@@ -123,12 +123,17 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
         return true;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<Audit>> search(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
+ return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
+}
+@Override
+    public Mono<Page<Audit>> search_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
         LOGGER.debug("search on ({}, {})", referenceType, referenceType);
         if (!ready) {
             LOGGER.debug("Reporter not yet bootstrapped");
-            return RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptyList(), page, size)));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptyList(), page, size))));
         }
 
         SearchQuery searchQuery = dialectHelper.buildSearchQuery(referenceType, referenceId, criteria);
@@ -142,34 +147,43 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
 
         Mono<Long> total = count.as(Long.class).fetch().first();
 
-        return RxJava2Adapter.monoToSingle(query.as(AuditJdbc.class).fetch().all()
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(query.as(AuditJdbc.class).fetch().all()
                 .map(this::convert)
                 .concatMap(this::fillWithActor)
                 .concatMap(this::fillWithTarget)
                 .concatMap(this::fillWithAccessPoint)
                 .concatMap(this::fillWithOutcomes).collectList().flatMap(content->total.map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long value)->new Page<Audit>(content, page, value)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve reports for referenceType {} and referenceId {}",
-                        referenceType, referenceId, error))));
+                        referenceType, referenceId, error)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
+ return RxJava2Adapter.monoToSingle(aggregate_migrated(referenceType, referenceId, criteria, analyticsType));
+}
+@Override
+    public Mono<Map<Object,Object>> aggregate_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
         LOGGER.debug("aggregate on ({}, {}) with type {}", referenceType, referenceType, analyticsType);
 
         switch (analyticsType) {
             case DATE_HISTO:
-                return executeHistogramAggregation(referenceType, referenceId, criteria);
+                return RxJava2Adapter.singleToMono(executeHistogramAggregation(referenceType, referenceId, criteria));
             case GROUP_BY:
                 SearchQuery groupByQuery = dialectHelper.buildGroupByQuery(referenceType, referenceId, criteria);
-                return executeGroupBy(groupByQuery, criteria);
+                return RxJava2Adapter.singleToMono(executeGroupBy(groupByQuery, criteria));
             case COUNT:
                 SearchQuery searchQuery = dialectHelper.buildSearchQuery(referenceType, referenceId, criteria);
-                return executeCount(searchQuery);
+                return RxJava2Adapter.singleToMono(executeCount(searchQuery));
             default:
-                return RxJava2Adapter.monoToSingle(Mono.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated")));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated"))));
         }
     }
 
-    protected Single<Map<Object, Object>> executeHistogramAggregation(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
+    @Deprecated
+protected Single<Map<Object, Object>> executeHistogramAggregation(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
+ return RxJava2Adapter.monoToSingle(executeHistogramAggregation_migrated(referenceType, referenceId, criteria));
+}
+protected Mono<Map<Object,Object>> executeHistogramAggregation_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
         Map<Long, Long> intervals = intervals(criteria);
         String fieldSuccess = (criteria.types().get(0) + "_" + Status.SUCCESS).toLowerCase();
         String fieldFailure = (criteria.types().get(0) + "_" + Status.FAILURE).toLowerCase();
@@ -179,10 +193,10 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
             Map<Object, Object> result = new HashMap<>();
             result.put(fieldSuccess, intervals.values().stream().collect(Collectors.toList()));
             result.put(fieldFailure, intervals.values().stream().collect(Collectors.toList()));
-            return RxJava2Adapter.monoToSingle(Mono.just(result));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(result)));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(dialectHelper.buildAndProcessHistogram(dbClient, referenceType, referenceId, criteria)).map(RxJavaReactorMigrationUtil.toJdkFunction(stats -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(dialectHelper.buildAndProcessHistogram(dbClient, referenceType, referenceId, criteria)).map(RxJavaReactorMigrationUtil.toJdkFunction(stats -> {
             Map<Long, Long> successResult = new TreeMap<>();
             Map<Long, Long> failureResult = new TreeMap<>();
             stats.forEach(slotValue -> {
@@ -205,7 +219,7 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
             result.put(fieldSuccess, successData);
             result.put(fieldFailure, failureData);
             return result;
-        })));
+        }))));
     }
 
     /**
@@ -214,17 +228,21 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
      * @param searchQuery
      * @return
      */
-    private Single<Map<Object, Object>> executeCount(SearchQuery searchQuery) {
+    @Deprecated
+private Single<Map<Object, Object>> executeCount(SearchQuery searchQuery) {
+ return RxJava2Adapter.monoToSingle(executeCount_migrated(searchQuery));
+}
+private Mono<Map<Object,Object>> executeCount_migrated(SearchQuery searchQuery) {
         if (!ready) {
             LOGGER.debug("Reporter not yet bootstrapped");
-            return RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonMap("data", 0l)));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonMap("data", 0l))));
         }
 
         DatabaseClient.GenericExecuteSpec count = dbClient.execute(searchQuery.getCount());
         for (Map.Entry<String, Object> bind : searchQuery.getBindings().entrySet()) {
             count = count.bind(bind.getKey(), bind.getValue());
         }
-        return RxJava2Adapter.monoToSingle(count.as(Long.class).fetch().first().switchIfEmpty(Mono.just(0l)).map(RxJavaReactorMigrationUtil.toJdkFunction(data -> Collections.singletonMap("data", data))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(count.as(Long.class).fetch().first().switchIfEmpty(Mono.just(0l)).map(RxJavaReactorMigrationUtil.toJdkFunction(data -> Collections.singletonMap("data", data)))));
     }
 
     /**
@@ -234,16 +252,20 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
      * @param criteria
      * @return
      */
-    private Single<Map<Object, Object>> executeGroupBy(SearchQuery searchQuery, AuditReportableCriteria criteria) {
+    @Deprecated
+private Single<Map<Object, Object>> executeGroupBy(SearchQuery searchQuery, AuditReportableCriteria criteria) {
+ return RxJava2Adapter.monoToSingle(executeGroupBy_migrated(searchQuery, criteria));
+}
+private Mono<Map<Object,Object>> executeGroupBy_migrated(SearchQuery searchQuery, AuditReportableCriteria criteria) {
         if (!ready) {
             LOGGER.debug("Reporter not yet bootstrapped");
-            return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap()));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap())));
         }
         DatabaseClient.GenericExecuteSpec groupBy = dbClient.execute(searchQuery.getQuery());
         for (Map.Entry<String, Object> bind : searchQuery.getBindings().entrySet()) {
             groupBy = groupBy.bind(bind.getKey(), bind.getValue());
         }
-        return monoToSingle(groupBy.fetch().all().collectMap((f) -> f.get(convertFieldName(criteria)), (f) -> f.get("counter")));
+        return RxJava2Adapter.singleToMono(monoToSingle(groupBy.fetch().all().collectMap((f) -> f.get(convertFieldName(criteria)), (f) -> f.get("counter"))));
     }
 
     private String convertFieldName(AuditReportableCriteria criteria) {
@@ -254,12 +276,17 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
         }
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Audit> findById(ReferenceType referenceType, String referenceId, String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
+}
+@Override
+    public Mono<Audit> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("findById({},{},{})", referenceType, referenceId, id);
         if (!ready) {
             LOGGER.debug("Reporter not yet bootstrapped");
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
 
         Mono<Audit> auditMono = dbClient.select().from(auditsTable).matching(
@@ -275,8 +302,8 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
                 .flatMap(this::fillWithAccessPoint)
                 .flatMap(this::fillWithOutcomes);
 
-        return RxJava2Adapter.monoToMaybe(auditMono.doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve the Report with referenceType {}, referenceId {} and id {}",
-                        referenceType, referenceId, id, error))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(auditMono.doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve the Report with referenceType {}, referenceId {} and id {}",
+                        referenceType, referenceId, id, error)))));
     }
 
     private Mono<Audit> fillWithActor(Audit audit) {
@@ -377,13 +404,17 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
         bulkProcessor.onNext((Audit) reportable);
     }
 
-    private Flowable<Audit> bulk(List<Audit> audits) {
+    @Deprecated
+private Flowable<Audit> bulk(List<Audit> audits) {
+ return RxJava2Adapter.fluxToFlowable(bulk_migrated(audits));
+}
+private Flux<Audit> bulk_migrated(List<Audit> audits) {
         if (audits == null || audits.isEmpty()) {
-            return RxJava2Adapter.fluxToFlowable(Flux.empty());
+            return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty()));
         }
 
-        return RxJava2Adapter.fluxToFlowable(Flux.from(Flux.fromIterable(audits).flatMap(this::insertReport, 2)))
-                .doOnError(error -> LOGGER.error("Error during bulk loading", error));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(Flux.fromIterable(audits).flatMap(this::insertReport, 2)))
+                .doOnError(error -> LOGGER.error("Error during bulk loading", error)));
     }
 
     private Mono insertReport(Audit audit) {

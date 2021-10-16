@@ -19,8 +19,8 @@ import io.gravitee.am.model.uma.PermissionRequest;
 import io.gravitee.am.model.uma.PermissionTicket;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -28,7 +28,25 @@ import java.util.List;
  */
 public interface PermissionTicketService {
 
-    Single<PermissionTicket> create(List<PermissionRequest> requestedPermission, String domain, String client);
-    Maybe<PermissionTicket> findById(String id);
-    Single<PermissionTicket> remove(String id);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.uma.PermissionTicket> create(java.util.List<io.gravitee.am.model.uma.PermissionRequest> requestedPermission, java.lang.String domain, java.lang.String client) {
+    return RxJava2Adapter.monoToSingle(create_migrated(requestedPermission, domain, client));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.uma.PermissionTicket> create_migrated(List<PermissionRequest> requestedPermission, String domain, String client) {
+    return RxJava2Adapter.singleToMono(create(requestedPermission, domain, client));
+}
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.uma.PermissionTicket> findById(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.uma.PermissionTicket> findById_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(findById(id));
+}
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.uma.PermissionTicket> remove(java.lang.String id) {
+    return RxJava2Adapter.monoToSingle(remove_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.uma.PermissionTicket> remove_migrated(String id) {
+    return RxJava2Adapter.singleToMono(remove(id));
+}
 }

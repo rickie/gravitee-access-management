@@ -18,8 +18,8 @@ package io.gravitee.am.management.service;
 import io.gravitee.am.service.model.plugin.BotDetectionPlugin;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -27,9 +27,27 @@ import java.util.List;
  */
 public interface BotDetectionPluginService {
 
-    Single<List<BotDetectionPlugin>> findAll();
+      @Deprecated  
+default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.BotDetectionPlugin>> findAll() {
+    return RxJava2Adapter.monoToSingle(findAll_migrated());
+}
+default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.plugin.BotDetectionPlugin>> findAll_migrated() {
+    return RxJava2Adapter.singleToMono(findAll());
+}
 
-    Maybe<BotDetectionPlugin> findById(String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.service.model.plugin.BotDetectionPlugin> findById(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.service.model.plugin.BotDetectionPlugin> findById_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(findById(id));
+}
 
-    Maybe<String> getSchema(String id);
+      @Deprecated  
+default io.reactivex.Maybe<java.lang.String> getSchema(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(getSchema_migrated(id));
+}
+default reactor.core.publisher.Mono<java.lang.String> getSchema_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(getSchema(id));
+}
 }

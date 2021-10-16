@@ -229,11 +229,15 @@ public class FormServiceImpl implements FormService {
         return update(ReferenceType.DOMAIN, domain, id, updateForm, principal);
     }
 
-    private Single<Form> create0(ReferenceType referenceType, String referenceId, String client, NewForm newForm, User principal) {
+    @Deprecated
+private Single<Form> create0(ReferenceType referenceType, String referenceId, String client, NewForm newForm, User principal) {
+ return RxJava2Adapter.monoToSingle(create0_migrated(referenceType, referenceId, client, newForm, principal));
+}
+private Mono<Form> create0_migrated(ReferenceType referenceType, String referenceId, String client, NewForm newForm, User principal) {
         String formId = RandomString.generate();
 
         // check if form is unique
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkFormUniqueness(referenceType, referenceId, client, newForm.getTemplate().template())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Form>>toJdkFunction(irrelevant -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(checkFormUniqueness(referenceType, referenceId, client, newForm.getTemplate().template())).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Form>>toJdkFunction(irrelevant -> {
                     Form form = new Form();
                     form.setId(formId);
                     form.setReferenceType(referenceType);
@@ -258,7 +262,7 @@ public class FormServiceImpl implements FormService {
 
                     LOGGER.error("An error occurs while trying to create a form", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a form", ex)));
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(form -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_CREATED).form(form)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_CREATED).throwable(throwable)))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(form -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_CREATED).form(form)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FormTemplateAuditBuilder.class).principal(principal).type(EventType.FORM_TEMPLATE_CREATED).throwable(throwable))))));
     }
 
     @Override
@@ -288,16 +292,20 @@ public class FormServiceImpl implements FormService {
         return delete(ReferenceType.DOMAIN, domain, formId, principal);
     }
 
-    private Single<Boolean> checkFormUniqueness(ReferenceType referenceType, String referenceId, String client, String formTemplate) {
+    @Deprecated
+private Single<Boolean> checkFormUniqueness(ReferenceType referenceType, String referenceId, String client, String formTemplate) {
+ return RxJava2Adapter.monoToSingle(checkFormUniqueness_migrated(referenceType, referenceId, client, formTemplate));
+}
+private Mono<Boolean> checkFormUniqueness_migrated(ReferenceType referenceType, String referenceId, String client, String formTemplate) {
         Maybe<Form> maybeSource = client == null ?
                 findByTemplate(referenceType, referenceId, formTemplate) :
                 findByClientAndTemplate(referenceType, referenceId, client, formTemplate);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(maybeSource).hasElement().map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(maybeSource).hasElement().map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> {
                     if (!isEmpty) {
                         throw new FormAlreadyExistsException(formTemplate);
                     }
                     return true;
-                })));
+                }))));
     }
 }

@@ -19,12 +19,12 @@ import io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.time.LocalDateTime;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDateTime;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -32,19 +32,66 @@ import java.time.LocalDateTime;
  */
 @Repository
 public interface SpringAccessTokenRepository extends RxJava2CrudRepository<JdbcAccessToken, String> {
-    @Query("select * from access_tokens a where a.token = :token and (a.expire_at > :now or a.expire_at is null)")
-    Maybe<JdbcAccessToken> findByToken(@Param("token") String token, @Param("now")LocalDateTime now);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken> findByToken(@org.springframework.data.repository.query.Param(value = "token")
+java.lang.String token, @org.springframework.data.repository.query.Param(value = "now")
+java.time.LocalDateTime now) {
+    return RxJava2Adapter.monoToMaybe(findByToken_migrated(token, now));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken> findByToken_migrated(@Param(value = "token")
+String token, @Param(value = "now")
+LocalDateTime now) {
+    return RxJava2Adapter.maybeToMono(findByToken(token, now));
+}
 
-    @Query("select * from access_tokens a where a.client = :cli and a.subject = :sub and (a.expire_at > :now or a.expire_at is null)")
-    Flowable<JdbcAccessToken> findByClientIdAndSubject(@Param("cli") String clientId, @Param("sub") String subject, @Param("now")LocalDateTime now);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken> findByClientIdAndSubject(@org.springframework.data.repository.query.Param(value = "cli")
+java.lang.String clientId, @org.springframework.data.repository.query.Param(value = "sub")
+java.lang.String subject, @org.springframework.data.repository.query.Param(value = "now")
+java.time.LocalDateTime now) {
+    return RxJava2Adapter.fluxToFlowable(findByClientIdAndSubject_migrated(clientId, subject, now));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken> findByClientIdAndSubject_migrated(@Param(value = "cli")
+String clientId, @Param(value = "sub")
+String subject, @Param(value = "now")
+LocalDateTime now) {
+    return RxJava2Adapter.flowableToFlux(findByClientIdAndSubject(clientId, subject, now));
+}
 
-    @Query("select * from access_tokens a where a.client = :cli and (a.expire_at > :now or a.expire_at is null)")
-    Flowable<JdbcAccessToken> findByClientId(@Param("cli") String clientId, @Param("now")LocalDateTime now);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken> findByClientId(@org.springframework.data.repository.query.Param(value = "cli")
+java.lang.String clientId, @org.springframework.data.repository.query.Param(value = "now")
+java.time.LocalDateTime now) {
+    return RxJava2Adapter.fluxToFlowable(findByClientId_migrated(clientId, now));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken> findByClientId_migrated(@Param(value = "cli")
+String clientId, @Param(value = "now")
+LocalDateTime now) {
+    return RxJava2Adapter.flowableToFlux(findByClientId(clientId, now));
+}
 
-    @Query("select * from access_tokens a where a.authorization_code = :auth and (a.expire_at > :now or a.expire_at is null)")
-    Flowable<JdbcAccessToken> findByAuthorizationCode(@Param("auth") String code, @Param("now")LocalDateTime now);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken> findByAuthorizationCode(@org.springframework.data.repository.query.Param(value = "auth")
+java.lang.String code, @org.springframework.data.repository.query.Param(value = "now")
+java.time.LocalDateTime now) {
+    return RxJava2Adapter.fluxToFlowable(findByAuthorizationCode_migrated(code, now));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAccessToken> findByAuthorizationCode_migrated(@Param(value = "auth")
+String code, @Param(value = "now")
+LocalDateTime now) {
+    return RxJava2Adapter.flowableToFlux(findByAuthorizationCode(code, now));
+}
 
-    @Query("select count(*) from access_tokens a where a.client = :cli and (a.expire_at > :now or a.expire_at is null)")
-    Single<Long> countByClientId(@Param("cli") String clientId, @Param("now")LocalDateTime now);
+      @Deprecated  
+default io.reactivex.Single<java.lang.Long> countByClientId(@org.springframework.data.repository.query.Param(value = "cli")
+java.lang.String clientId, @org.springframework.data.repository.query.Param(value = "now")
+java.time.LocalDateTime now) {
+    return RxJava2Adapter.monoToSingle(countByClientId_migrated(clientId, now));
+}
+default reactor.core.publisher.Mono<java.lang.Long> countByClientId_migrated(@Param(value = "cli")
+String clientId, @Param(value = "now")
+LocalDateTime now) {
+    return RxJava2Adapter.singleToMono(countByClientId(clientId, now));
+}
 
 }

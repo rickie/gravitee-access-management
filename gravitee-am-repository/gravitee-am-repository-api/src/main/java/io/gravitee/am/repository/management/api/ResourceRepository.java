@@ -21,8 +21,8 @@ import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -30,10 +30,46 @@ import java.util.List;
  */
 public interface ResourceRepository extends CrudRepository<Resource, String> {
 
-    Single<Page<Resource>> findByDomain(String domain, int page, int size);
-    Single<Page<Resource>> findByDomainAndClient(String domain, String client, int page, int size);
-    Flowable<Resource> findByResources(List<String> resources);
-    Flowable<Resource> findByDomainAndClientAndUser(String domain, String client, String userId);
-    Flowable<Resource> findByDomainAndClientAndResources(String domain, String client, List<String> resource);
-    Maybe<Resource> findByDomainAndClientAndUserAndResource(String domain, String client, String userId, String resource);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.uma.Resource>> findByDomain(java.lang.String domain, int page, int size) {
+    return RxJava2Adapter.monoToSingle(findByDomain_migrated(domain, page, size));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee.am.model.uma.Resource>> findByDomain_migrated(String domain, int page, int size) {
+    return RxJava2Adapter.singleToMono(findByDomain(domain, page, size));
+}
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.uma.Resource>> findByDomainAndClient(java.lang.String domain, java.lang.String client, int page, int size) {
+    return RxJava2Adapter.monoToSingle(findByDomainAndClient_migrated(domain, client, page, size));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee.am.model.uma.Resource>> findByDomainAndClient_migrated(String domain, String client, int page, int size) {
+    return RxJava2Adapter.singleToMono(findByDomainAndClient(domain, client, page, size));
+}
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.uma.Resource> findByResources(java.util.List<java.lang.String> resources) {
+    return RxJava2Adapter.fluxToFlowable(findByResources_migrated(resources));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.uma.Resource> findByResources_migrated(List<String> resources) {
+    return RxJava2Adapter.flowableToFlux(findByResources(resources));
+}
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.uma.Resource> findByDomainAndClientAndUser(java.lang.String domain, java.lang.String client, java.lang.String userId) {
+    return RxJava2Adapter.fluxToFlowable(findByDomainAndClientAndUser_migrated(domain, client, userId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.uma.Resource> findByDomainAndClientAndUser_migrated(String domain, String client, String userId) {
+    return RxJava2Adapter.flowableToFlux(findByDomainAndClientAndUser(domain, client, userId));
+}
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.uma.Resource> findByDomainAndClientAndResources(java.lang.String domain, java.lang.String client, java.util.List<java.lang.String> resource) {
+    return RxJava2Adapter.fluxToFlowable(findByDomainAndClientAndResources_migrated(domain, client, resource));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.uma.Resource> findByDomainAndClientAndResources_migrated(String domain, String client, List<String> resource) {
+    return RxJava2Adapter.flowableToFlux(findByDomainAndClientAndResources(domain, client, resource));
+}
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.uma.Resource> findByDomainAndClientAndUserAndResource(java.lang.String domain, java.lang.String client, java.lang.String userId, java.lang.String resource) {
+    return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndUserAndResource_migrated(domain, client, userId, resource));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.uma.Resource> findByDomainAndClientAndUserAndResource_migrated(String domain, String client, String userId, String resource) {
+    return RxJava2Adapter.maybeToMono(findByDomainAndClientAndUserAndResource(domain, client, userId, resource));
+}
 }

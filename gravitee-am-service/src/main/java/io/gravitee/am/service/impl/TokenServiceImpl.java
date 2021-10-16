@@ -117,13 +117,17 @@ public class TokenServiceImpl implements TokenService {
                 });
     }
 
-    private Single<Long> countByClientId(Application application) {
+    @Deprecated
+private Single<Long> countByClientId(Application application) {
+ return RxJava2Adapter.monoToSingle(countByClientId_migrated(application));
+}
+private Mono<Long> countByClientId_migrated(Application application) {
         if (application.getSettings() == null) {
-            return RxJava2Adapter.monoToSingle(Mono.just(0l));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(0l)));
         }
         if (application.getSettings().getOauth() == null) {
-            return RxJava2Adapter.monoToSingle(Mono.just(0l));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(0l)));
         }
-        return accessTokenRepository.countByClientId(application.getSettings().getOauth().getClientId());
+        return RxJava2Adapter.singleToMono(accessTokenRepository.countByClientId(application.getSettings().getOauth().getClientId()));
     }
 }

@@ -63,37 +63,41 @@ public class UserValidator {
         this.usernamePattern = Pattern.compile(usernamePattern);
     }
 
-    public Completable validate(IUser user) {
+    @Deprecated
+public Completable validate(IUser user) {
+ return RxJava2Adapter.monoToCompletable(validate_migrated(user));
+}
+public Mono<Void> validate_migrated(IUser user) {
 
         if (!isValid(user.getUsername(), usernamePattern)) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException(String.format("Username [%s] is not a valid value", user.getUsername()))));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException(String.format("Username [%s] is not a valid value", user.getUsername())))));
         }
 
         if (!EmailValidator.isValid(user.getEmail())) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new EmailFormatInvalidException(user.getEmail())));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new EmailFormatInvalidException(user.getEmail()))));
         }
 
         if (!isValid(user.getFirstName(), nameStrictPattern)) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException(String.format("First name [%s] is not a valid value", user.getFirstName()))));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException(String.format("First name [%s] is not a valid value", user.getFirstName())))));
         }
 
         if (!isValid(user.getLastName(), nameStrictPattern)) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException(String.format("Last name [%s] is not a valid value", user.getLastName()))));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException(String.format("Last name [%s] is not a valid value", user.getLastName())))));
         }
 
         if (!isValid(user.getDisplayName(), nameLaxPattern)) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException(String.format("Display name [%s] is not a valid value", user.getDisplayName()))));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException(String.format("Display name [%s] is not a valid value", user.getDisplayName())))));
         }
 
         if (!isValid(user.getNickName(), nameLaxPattern)) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException(String.format("Nick name [%s] is not a valid value", user.getNickName()))));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException(String.format("Nick name [%s] is not a valid value", user.getNickName())))));
         }
 
         if (user.getExternalId() != null && user.getExternalId().length() > DEFAULT_MAX_LENGTH) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException(String.format("External id [%s] is not a valid value", user.getExternalId()))));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidUserException(String.format("External id [%s] is not a valid value", user.getExternalId())))));
         }
 
-        return RxJava2Adapter.monoToCompletable(Mono.empty());
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 
     private boolean isValid(String userInfo, Pattern pattern) {

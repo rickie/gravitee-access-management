@@ -18,8 +18,8 @@ package io.gravitee.am.management.service;
 import io.gravitee.am.service.model.plugin.PolicyPlugin;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -27,15 +27,51 @@ import java.util.List;
  */
 public interface PolicyPluginService {
 
-    Single<List<PolicyPlugin>> findAll();
+      @Deprecated  
+default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.PolicyPlugin>> findAll() {
+    return RxJava2Adapter.monoToSingle(findAll_migrated());
+}
+default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.plugin.PolicyPlugin>> findAll_migrated() {
+    return RxJava2Adapter.singleToMono(findAll());
+}
 
-    Single<List<PolicyPlugin>> findAll(List<String> expand);
+      @Deprecated  
+default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.PolicyPlugin>> findAll(java.util.List<java.lang.String> expand) {
+    return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
+}
+default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.plugin.PolicyPlugin>> findAll_migrated(List<String> expand) {
+    return RxJava2Adapter.singleToMono(findAll(expand));
+}
 
-    Maybe<PolicyPlugin> findById(String policyId);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.service.model.plugin.PolicyPlugin> findById(java.lang.String policyId) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(policyId));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.service.model.plugin.PolicyPlugin> findById_migrated(String policyId) {
+    return RxJava2Adapter.maybeToMono(findById(policyId));
+}
 
-    Maybe<String> getSchema(String policyId);
+      @Deprecated  
+default io.reactivex.Maybe<java.lang.String> getSchema(java.lang.String policyId) {
+    return RxJava2Adapter.monoToMaybe(getSchema_migrated(policyId));
+}
+default reactor.core.publisher.Mono<java.lang.String> getSchema_migrated(String policyId) {
+    return RxJava2Adapter.maybeToMono(getSchema(policyId));
+}
 
-    Maybe<String> getIcon(String policyId);
+      @Deprecated  
+default io.reactivex.Maybe<java.lang.String> getIcon(java.lang.String policyId) {
+    return RxJava2Adapter.monoToMaybe(getIcon_migrated(policyId));
+}
+default reactor.core.publisher.Mono<java.lang.String> getIcon_migrated(String policyId) {
+    return RxJava2Adapter.maybeToMono(getIcon(policyId));
+}
 
-    Maybe<String> getDocumentation(String policyId);
+      @Deprecated  
+default io.reactivex.Maybe<java.lang.String> getDocumentation(java.lang.String policyId) {
+    return RxJava2Adapter.monoToMaybe(getDocumentation_migrated(policyId));
+}
+default reactor.core.publisher.Mono<java.lang.String> getDocumentation_migrated(String policyId) {
+    return RxJava2Adapter.maybeToMono(getDocumentation(policyId));
+}
 }

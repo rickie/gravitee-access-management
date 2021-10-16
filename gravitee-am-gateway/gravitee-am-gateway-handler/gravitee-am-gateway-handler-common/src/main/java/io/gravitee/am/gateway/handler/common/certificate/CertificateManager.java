@@ -18,8 +18,8 @@ package io.gravitee.am.gateway.handler.common.certificate;
 import io.gravitee.am.gateway.certificate.CertificateProvider;
 import io.gravitee.common.service.Service;
 import io.reactivex.Maybe;
-
 import java.util.Collection;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -27,9 +27,21 @@ import java.util.Collection;
  */
 public interface CertificateManager extends io.gravitee.am.certificate.api.CertificateManager, Service {
 
-    Maybe<CertificateProvider> get(String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.gateway.certificate.CertificateProvider> get(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(get_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.gateway.certificate.CertificateProvider> get_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(get(id));
+}
 
-    Maybe<CertificateProvider> findByAlgorithm(String algorithm);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.gateway.certificate.CertificateProvider> findByAlgorithm(java.lang.String algorithm) {
+    return RxJava2Adapter.monoToMaybe(findByAlgorithm_migrated(algorithm));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.gateway.certificate.CertificateProvider> findByAlgorithm_migrated(String algorithm) {
+    return RxJava2Adapter.maybeToMono(findByAlgorithm(algorithm));
+}
 
     Collection<CertificateProvider> providers();
 

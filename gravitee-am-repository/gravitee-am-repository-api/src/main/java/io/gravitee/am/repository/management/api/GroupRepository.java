@@ -22,8 +22,8 @@ import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -31,15 +31,51 @@ import java.util.List;
  */
 public interface GroupRepository extends CrudRepository<Group, String> {
 
-    Flowable<Group> findByMember(String memberId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.Group> findByMember(java.lang.String memberId) {
+    return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.Group> findByMember_migrated(String memberId) {
+    return RxJava2Adapter.flowableToFlux(findByMember(memberId));
+}
 
-    Flowable<Group> findAll(ReferenceType referenceType, String referenceId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.Group> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.Group> findAll_migrated(ReferenceType referenceType, String referenceId) {
+    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
+}
 
-    Single<Page<Group>> findAll(ReferenceType referenceType, String referenceId, int page, int size);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.Group>> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, int page, int size) {
+    return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee.am.model.Group>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
+    return RxJava2Adapter.singleToMono(findAll(referenceType, referenceId, page, size));
+}
 
-    Flowable<Group> findByIdIn(List<String> ids);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.Group> findByIdIn(java.util.List<java.lang.String> ids) {
+    return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.Group> findByIdIn_migrated(List<String> ids) {
+    return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
+}
 
-    Maybe<Group> findByName(ReferenceType referenceType, String referenceId, String groupName);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.Group> findByName(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String groupName) {
+    return RxJava2Adapter.monoToMaybe(findByName_migrated(referenceType, referenceId, groupName));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Group> findByName_migrated(ReferenceType referenceType, String referenceId, String groupName) {
+    return RxJava2Adapter.maybeToMono(findByName(referenceType, referenceId, groupName));
+}
 
-    Maybe<Group> findById(ReferenceType referenceType, String referenceId, String group);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.Group> findById(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String group) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, group));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Group> findById_migrated(ReferenceType referenceType, String referenceId, String group) {
+    return RxJava2Adapter.maybeToMono(findById(referenceType, referenceId, group));
+}
 }

@@ -52,15 +52,19 @@ public class TokenEnhancerImpl implements TokenEnhancer {
         }
     }
 
-    private Single<Token> enhanceIDToken(Token accessToken, Client client, User user, OAuth2Request oAuth2Request, ExecutionContext executionContext) {
+    @Deprecated
+private Single<Token> enhanceIDToken(Token accessToken, Client client, User user, OAuth2Request oAuth2Request, ExecutionContext executionContext) {
+ return RxJava2Adapter.monoToSingle(enhanceIDToken_migrated(accessToken, client, user, oAuth2Request, executionContext));
+}
+private Mono<Token> enhanceIDToken_migrated(Token accessToken, Client client, User user, OAuth2Request oAuth2Request, ExecutionContext executionContext) {
         if (oAuth2Request.isSupportAtHashValue()) {
             oAuth2Request.getContext().put(Claims.at_hash, accessToken.getValue());
         }
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(idTokenService.create(oAuth2Request, client, user, executionContext)).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<Token>>)idToken -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(idTokenService.create(oAuth2Request, client, user, executionContext)).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<Token>>)idToken -> {
                     Map<String, Object> additionalInformation = new HashMap<>(accessToken.getAdditionalInformation());
                     additionalInformation.put(ResponseType.ID_TOKEN, idToken);
                     accessToken.setAdditionalInformation(additionalInformation);
                     return RxJava2Adapter.monoToSingle(Mono.just(accessToken));
-                }).apply(v))));
+                }).apply(v)))));
     }
 }

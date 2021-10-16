@@ -21,6 +21,7 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -28,6 +29,13 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SpringReporterRepository extends RxJava2CrudRepository<JdbcReporter, String> {
-    @Query("select * from reporters r where r.domain = :domain")
-    Flowable<JdbcReporter> findByDomain(@Param("domain") String domain);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcReporter> findByDomain(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain) {
+    return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcReporter> findByDomain_migrated(@Param(value = "domain")
+String domain) {
+    return RxJava2Adapter.flowableToFlux(findByDomain(domain));
+}
 }

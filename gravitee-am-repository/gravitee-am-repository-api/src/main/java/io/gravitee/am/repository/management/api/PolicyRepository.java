@@ -20,8 +20,8 @@ import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * NOTE: only use for the PoliciesToFlowsUpgrader Upgrader
@@ -33,9 +33,27 @@ import java.util.List;
 @Deprecated
 public interface PolicyRepository {
 
-    Flowable<Policy> findAll();
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.Policy> findAll() {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.Policy> findAll_migrated() {
+    return RxJava2Adapter.flowableToFlux(findAll());
+}
 
-    Single<Boolean> collectionExists();
+      @Deprecated  
+default io.reactivex.Single<java.lang.Boolean> collectionExists() {
+    return RxJava2Adapter.monoToSingle(collectionExists_migrated());
+}
+default reactor.core.publisher.Mono<java.lang.Boolean> collectionExists_migrated() {
+    return RxJava2Adapter.singleToMono(collectionExists());
+}
 
-    Completable deleteCollection();
+      @Deprecated  
+default io.reactivex.Completable deleteCollection() {
+    return RxJava2Adapter.monoToCompletable(deleteCollection_migrated());
+}
+default reactor.core.publisher.Mono<java.lang.Void> deleteCollection_migrated() {
+    return RxJava2Adapter.completableToMono(deleteCollection());
+}
 }

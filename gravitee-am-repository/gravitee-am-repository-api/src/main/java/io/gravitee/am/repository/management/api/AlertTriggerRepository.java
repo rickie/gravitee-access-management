@@ -20,6 +20,7 @@ import io.gravitee.am.model.alert.AlertTrigger;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.gravitee.am.repository.management.api.search.AlertTriggerCriteria;
 import io.reactivex.Flowable;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -34,7 +35,13 @@ public interface AlertTriggerRepository extends CrudRepository<AlertTrigger, Str
      * @param referenceId the reference id.
      * @return the list of alert triggers.
      */
-    Flowable<AlertTrigger> findAll(ReferenceType referenceType, String referenceId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.alert.AlertTrigger> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.alert.AlertTrigger> findAll_migrated(ReferenceType referenceType, String referenceId) {
+    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
+}
 
     /**
      * Find all alert triggers for a given reference type and id and matching specified criteria.
@@ -43,5 +50,11 @@ public interface AlertTriggerRepository extends CrudRepository<AlertTrigger, Str
      * @param referenceId the reference id.
      * @return the list of alert triggers.
      */
-    Flowable<AlertTrigger> findByCriteria(ReferenceType referenceType, String referenceId, AlertTriggerCriteria criteria);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.alert.AlertTrigger> findByCriteria(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.repository.management.api.search.AlertTriggerCriteria criteria) {
+    return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.alert.AlertTrigger> findByCriteria_migrated(ReferenceType referenceType, String referenceId, AlertTriggerCriteria criteria) {
+    return RxJava2Adapter.flowableToFlux(findByCriteria(referenceType, referenceId, criteria));
+}
 }

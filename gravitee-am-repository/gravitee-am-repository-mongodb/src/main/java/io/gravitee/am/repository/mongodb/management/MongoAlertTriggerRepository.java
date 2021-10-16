@@ -52,9 +52,14 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
         super.init(collection);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<AlertTrigger> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<AlertTrigger> findById_migrated(String id) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
     @Override
@@ -88,21 +93,36 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(query)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AlertTrigger> create(AlertTrigger alertTrigger) {
+ return RxJava2Adapter.monoToSingle(create_migrated(alertTrigger));
+}
+@Override
+    public Mono<AlertTrigger> create_migrated(AlertTrigger alertTrigger) {
         alertTrigger.setId(alertTrigger.getId() == null ? RandomString.generate() : alertTrigger.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(alertTrigger)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(alertTrigger.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(alertTrigger)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(alertTrigger.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<AlertTrigger> update(AlertTrigger alertTrigger) {
+ return RxJava2Adapter.monoToSingle(update_migrated(alertTrigger));
+}
+@Override
+    public Mono<AlertTrigger> update_migrated(AlertTrigger alertTrigger) {
         AlertTriggerMongo alertTriggerMongo = convert(alertTrigger);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, alertTriggerMongo.getId()), alertTriggerMongo))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(alertTriggerMongo.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, alertTriggerMongo.getId()), alertTriggerMongo))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(alertTriggerMongo.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id)))));
     }
 
     private AlertTrigger convert(AlertTriggerMongo alertTriggerMongo) {

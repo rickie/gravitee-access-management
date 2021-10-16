@@ -18,6 +18,7 @@ package io.gravitee.am.management.service;
 import io.gravitee.am.certificate.api.CertificateProvider;
 import io.gravitee.common.service.Service;
 import io.reactivex.Maybe;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -25,5 +26,11 @@ import io.reactivex.Maybe;
  */
 public interface CertificateManager extends Service<CertificateManager> {
 
-    Maybe<CertificateProvider> getCertificateProvider(String certificateId);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.certificate.api.CertificateProvider> getCertificateProvider(java.lang.String certificateId) {
+    return RxJava2Adapter.monoToMaybe(getCertificateProvider_migrated(certificateId));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.certificate.api.CertificateProvider> getCertificateProvider_migrated(String certificateId) {
+    return RxJava2Adapter.maybeToMono(getCertificateProvider(certificateId));
+}
 }

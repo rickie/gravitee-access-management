@@ -18,6 +18,7 @@ package io.gravitee.am.extensiongrant.api;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.repository.oauth2.model.request.TokenRequest;
 import io.reactivex.Maybe;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -30,5 +31,11 @@ public interface ExtensionGrantProvider {
      * @param tokenRequest tokenRequest token endpoint request
      * @return User representation of the assertion or empty if no user is involved
      */
-    Maybe<User> grant(TokenRequest tokenRequest);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.User> grant(io.gravitee.am.repository.oauth2.model.request.TokenRequest tokenRequest) {
+    return RxJava2Adapter.monoToMaybe(grant_migrated(tokenRequest));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.User> grant_migrated(TokenRequest tokenRequest) {
+    return RxJava2Adapter.maybeToMono(grant(tokenRequest));
+}
 }

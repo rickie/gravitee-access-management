@@ -20,6 +20,7 @@ import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -27,6 +28,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SpringEnvironmentHridsRepository extends RxJava2CrudRepository<JdbcEnvironment.Hrid, String> {
-    @Query("select * from environment_hrids c where c.environment_id = :environmentId order by pos")
-    Flowable<JdbcEnvironment.Hrid> findAllByEnvironmentId(String environmentId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment.Hrid> findAllByEnvironmentId(java.lang.String environmentId) {
+    return RxJava2Adapter.fluxToFlowable(findAllByEnvironmentId_migrated(environmentId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment.Hrid> findAllByEnvironmentId_migrated(String environmentId) {
+    return RxJava2Adapter.flowableToFlux(findAllByEnvironmentId(environmentId));
+}
 }

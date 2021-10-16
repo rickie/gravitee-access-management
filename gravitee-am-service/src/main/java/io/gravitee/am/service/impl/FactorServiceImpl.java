@@ -131,18 +131,22 @@ public class FactorServiceImpl implements FactorService {
                 })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_CREATED).factor(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FactorAuditBuilder.class).principal(principal).type(EventType.FACTOR_CREATED).throwable(throwable)))));
     }
 
-    private Single<Factor> checkFactorConfiguration(Factor factor) {
+    @Deprecated
+private Single<Factor> checkFactorConfiguration(Factor factor) {
+ return RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factor));
+}
+private Mono<Factor> checkFactorConfiguration_migrated(Factor factor) {
         if (SMS_AM_FACTOR.equalsIgnoreCase(factor.getType())) {
             // for SMS Factor, check that countries code provided into the configuration are valid
             final JsonObject configuration = (JsonObject) Json.decodeValue(factor.getConfiguration());
             String countryCodes = configuration.getString(CONFIG_KEY_COUNTRY_CODES);
             for(String code : countryCodes.split(",")) {
                 if (!COUNTRY_CODES.contains(code.trim().toUpperCase(Locale.ROOT))) {
-                    return RxJava2Adapter.monoToSingle(Mono.error(new FactorConfigurationException(CONFIG_KEY_COUNTRY_CODES, code)));
+                    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new FactorConfigurationException(CONFIG_KEY_COUNTRY_CODES, code))));
                 }
             }
         }
-        return RxJava2Adapter.monoToSingle(Mono.just(factor));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(factor)));
     }
 
     @Override

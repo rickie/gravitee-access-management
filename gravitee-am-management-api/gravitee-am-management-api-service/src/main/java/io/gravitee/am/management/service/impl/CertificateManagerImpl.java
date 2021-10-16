@@ -88,11 +88,15 @@ public class CertificateManagerImpl extends AbstractService<CertificateManager> 
         return doGetCertificateProvider(certificateId, System.currentTimeMillis());
     }
 
-    private Maybe<CertificateProvider> doGetCertificateProvider(String certificateId, long startTime) {
+    @Deprecated
+private Maybe<CertificateProvider> doGetCertificateProvider(String certificateId, long startTime) {
+ return RxJava2Adapter.monoToMaybe(doGetCertificateProvider_migrated(certificateId, startTime));
+}
+private Mono<CertificateProvider> doGetCertificateProvider_migrated(String certificateId, long startTime) {
         CertificateProvider certificateProvider = certificateProviders.get(certificateId);
 
         if (certificateProvider != null) {
-            return RxJava2Adapter.monoToMaybe(Mono.just(certificateProvider));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(certificateProvider)));
         }
 
         // certificate can be missing as it can take sometime for the reporter events
@@ -101,13 +105,13 @@ public class CertificateManagerImpl extends AbstractService<CertificateManager> 
         try {
             Certificate certificate = RxJava2Adapter.maybeToMono(certificateService.findById(certificateId)).block();
             if (certificate == null) {
-                return RxJava2Adapter.monoToMaybe(Mono.empty());
+                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
             }
             // retry
             while (certificateProvider == null && System.currentTimeMillis() - startTime < retryTimeout) {
                 certificateProvider = certificateProviders.get(certificateId);
             }
-            return certificateProvider == null ? RxJava2Adapter.monoToMaybe(Mono.empty()) : RxJava2Adapter.monoToMaybe(Mono.just(certificateProvider));
+            return RxJava2Adapter.maybeToMono(certificateProvider == null ? RxJava2Adapter.monoToMaybe(Mono.empty()) : RxJava2Adapter.monoToMaybe(Mono.just(certificateProvider)));
         } catch (Exception ex) {
             logger.error("An error has occurred while fetching certificate with id {}", certificateId, ex);
             throw new IllegalStateException(ex);

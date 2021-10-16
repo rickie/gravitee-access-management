@@ -95,19 +95,34 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
         return this.userService;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<User>> search(ReferenceType referenceType, String referenceId, String query, int page, int size) {
-        return userService.search(referenceType, referenceId, query, page, size);
+ return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, query, page, size));
+}
+@Override
+    public Mono<Page<User>> search_migrated(ReferenceType referenceType, String referenceId, String query, int page, int size) {
+        return RxJava2Adapter.singleToMono(userService.search(referenceType, referenceId, query, page, size));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<User>> search(ReferenceType referenceType, String referenceId, FilterCriteria filterCriteria, int page, int size) {
-        return userService.search(referenceType, referenceId, filterCriteria, page, size);
+ return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, filterCriteria, page, size));
+}
+@Override
+    public Mono<Page<User>> search_migrated(ReferenceType referenceType, String referenceId, FilterCriteria filterCriteria, int page, int size) {
+        return RxJava2Adapter.singleToMono(userService.search(referenceType, referenceId, filterCriteria, page, size));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<User>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
-        return userService.findAll(referenceType, referenceId, page, size);
+ return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
+}
+@Override
+    public Mono<Page<User>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
+        return RxJava2Adapter.singleToMono(userService.findAll(referenceType, referenceId, page, size));
     }
 
     @Override
@@ -338,8 +353,12 @@ return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(checkClientFu
         this.expireAfter = expireAfter;
     }
 
-    private Single<User> assignRoles0(ReferenceType referenceType, String referenceId, String userId, List<String> roles, io.gravitee.am.identityprovider.api.User principal, boolean revoke) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findById(referenceType, referenceId, userId)).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)oldUser -> {
+    @Deprecated
+private Single<User> assignRoles0(ReferenceType referenceType, String referenceId, String userId, List<String> roles, io.gravitee.am.identityprovider.api.User principal, boolean revoke) {
+ return RxJava2Adapter.monoToSingle(assignRoles0_migrated(referenceType, referenceId, userId, roles, principal, revoke));
+}
+private Mono<User> assignRoles0_migrated(ReferenceType referenceType, String referenceId, String userId, List<String> roles, io.gravitee.am.identityprovider.api.User principal, boolean revoke) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findById(referenceType, referenceId, userId)).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)oldUser -> {
                     User userToUpdate = new User(oldUser);
                     // remove existing roles from the user
                     if (revoke) {
@@ -351,7 +370,7 @@ return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(checkClientFu
                     }
                     // check roles
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkRoles(roles)).then(Mono.defer(()->RxJava2Adapter.singleToMono(userService.update(userToUpdate)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_ROLES_ASSIGNED).oldValue(oldUser).user(user1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_ROLES_ASSIGNED).throwable(throwable)))));
-                }).apply(v))));
+                }).apply(v)))));
     }
 
     protected BiFunction<String, String, Maybe<Application>> checkClientFunction() {
@@ -368,15 +387,19 @@ return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(checkClientFu
         };
     }
 
-    private Completable checkRoles(List<String> roles) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(roleService.findByIdIn(roles)).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
+    @Deprecated
+private Completable checkRoles(List<String> roles) {
+ return RxJava2Adapter.monoToCompletable(checkRoles_migrated(roles));
+}
+private Mono<Void> checkRoles_migrated(List<String> roles) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(roleService.findByIdIn(roles)).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
                     if (roles1.size() != roles.size()) {
                         // find difference between the two list
                         roles.removeAll(roles1.stream().map(Role::getId).collect(Collectors.toList()));
                         throw new RoleNotFoundException(String.join(",", roles));
                     }
                     return roles1;
-                }))).toCompletable();
+                }))).toCompletable());
     }
 
     private boolean isInvalidUserPassword(String password, Application application, Domain domain) {

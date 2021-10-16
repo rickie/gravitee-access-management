@@ -20,6 +20,7 @@ import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -27,6 +28,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SpringOrganizationDomainRestrictionRepository extends RxJava2CrudRepository<JdbcOrganization.DomainRestriction, String> {
-    @Query("select * from organization_domain_restrictions c where c.organization_id = :organizationId")
-    Flowable<JdbcOrganization.DomainRestriction> findAllByOrganizationId(String organizationId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization.DomainRestriction> findAllByOrganizationId(java.lang.String organizationId) {
+    return RxJava2Adapter.fluxToFlowable(findAllByOrganizationId_migrated(organizationId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization.DomainRestriction> findAllByOrganizationId_migrated(String organizationId) {
+    return RxJava2Adapter.flowableToFlux(findAllByOrganizationId(organizationId));
+}
 }

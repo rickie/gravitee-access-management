@@ -254,8 +254,12 @@ return createInternal(membership, null);
                         })).flux()))))).ignoreElements().then());
     }
 
-    private Single<Membership> createInternal(Membership membership, User principal) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipRepository.create(membership)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
+    @Deprecated
+private Single<Membership> createInternal(Membership membership, User principal) {
+ return RxJava2Adapter.monoToSingle(createInternal_migrated(membership, principal));
+}
+private Mono<Membership> createInternal_migrated(Membership membership, User principal) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipRepository.create(membership)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
                     Event event = new Event(Type.MEMBERSHIP, new Payload(membership1.getId(), membership1.getReferenceType(), membership1.getReferenceId(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(membership1)));
                 }).apply(v)))))
@@ -265,7 +269,7 @@ return createInternal(membership, null);
                     }
                     LOGGER.error("An error occurs while trying to create membership {}", membership, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to create membership %s", membership), ex)));
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(membership1 -> auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_CREATED).membership(membership1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_CREATED).throwable(throwable)))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(membership1 -> auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_CREATED).membership(membership1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(DomainAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_CREATED).throwable(throwable))))));
     }
 
     private Member convert(io.gravitee.am.model.User user) {
@@ -306,12 +310,16 @@ return createInternal(membership, null);
      * @param membership
      * @return
      */
-    private Completable checkMember(String organizationId, Membership membership) {
+    @Deprecated
+private Completable checkMember(String organizationId, Membership membership) {
+ return RxJava2Adapter.monoToCompletable(checkMember_migrated(organizationId, membership));
+}
+private Mono<Void> checkMember_migrated(String organizationId, Membership membership) {
 
         if (MemberType.USER == membership.getMemberType()) {
-            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(orgUserService.findById(ReferenceType.ORGANIZATION, organizationId, membership.getMemberId())).then());
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(orgUserService.findById(ReferenceType.ORGANIZATION, organizationId, membership.getMemberId())).then()));
         } else {
-            return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(groupService.findById(ReferenceType.ORGANIZATION, organizationId, membership.getMemberId())).then());
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(groupService.findById(ReferenceType.ORGANIZATION, organizationId, membership.getMemberId())).then()));
         }
     }
 
@@ -320,8 +328,12 @@ return createInternal(membership, null);
      * @param membership the membership to check role on.
      * @return
      */
-    private Completable checkRole(String organizationId, Membership membership) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(roleService.findById(membership.getRoleId())).switchIfEmpty(Mono.error(new RoleNotFoundException(membership.getRoleId()))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Role, MaybeSource<Role>>toJdkFunction(role -> {
+    @Deprecated
+private Completable checkRole(String organizationId, Membership membership) {
+ return RxJava2Adapter.monoToCompletable(checkRole_migrated(organizationId, membership));
+}
+private Mono<Void> checkRole_migrated(String organizationId, Membership membership) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(roleService.findById(membership.getRoleId())).switchIfEmpty(Mono.error(new RoleNotFoundException(membership.getRoleId()))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Role, MaybeSource<Role>>toJdkFunction(role -> {
                     // If role is a 'PRIMARY_OWNER' role, need to check if it is already assigned or not.
                     if (role.isSystem() && role.getName().endsWith("_PRIMARY_OWNER")) {
 
@@ -340,6 +352,6 @@ return createInternal(membership, null);
                         // Role can be either a system role, either an organization role, either a domain role.
                         (role1.isSystem()
                                 || (role1.getReferenceType() == ReferenceType.ORGANIZATION && organizationId.equals(role1.getReferenceId()))
-                                || (role1.getReferenceType() == membership.getReferenceType() && membership.getReferenceId().equals(role1.getReferenceId()))))).switchIfEmpty(Mono.error(new InvalidRoleException("Invalid role"))).then());
+                                || (role1.getReferenceType() == membership.getReferenceType() && membership.getReferenceId().equals(role1.getReferenceId()))))).switchIfEmpty(Mono.error(new InvalidRoleException("Invalid role"))).then()));
     }
 }

@@ -123,11 +123,16 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(this::completeDomain)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Domain> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Domain> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
         Flowable<Domain> domains = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(domainRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flux());
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(this::completeDomain)).next());
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(this::completeDomain)).next()));
     }
 
     @Override
@@ -137,8 +142,13 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(this::completeDomain)).next());
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Domain> create(Domain item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Domain> create_migrated(Domain item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("create Domain with id {}", item.getId());
 
@@ -149,13 +159,18 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
                 .fetch().rowsUpdated();
         insertAction = persistChildEntities(insertAction, item);
 
-        return monoToSingle(insertAction
+        return RxJava2Adapter.singleToMono(monoToSingle(insertAction
                 .as(trx::transactional)
-                .then(maybeToMono(findById(item.getId()))));
+                .then(maybeToMono(findById(item.getId())))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Domain> update(Domain item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Domain> update_migrated(Domain item) {
         LOGGER.debug("update Domain with id {}", item.getId());
 
         TransactionalOperator trx = TransactionalOperator.create(tm);
@@ -167,21 +182,26 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
         updateAction = updateAction.then(deleteChildEntities(item.getId()));
         updateAction = persistChildEntities(updateAction, item);
 
-        return monoToSingle(updateAction
+        return RxJava2Adapter.singleToMono(monoToSingle(updateAction
                 .as(trx::transactional)
-                .then(maybeToMono(findById(item.getId()))));
+                .then(maybeToMono(findById(item.getId())))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String domainId) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(domainId));
+}
+@Override
+    public Mono<Void> delete_migrated(String domainId) {
         LOGGER.debug("delete Domain with id {}", domainId);
         TransactionalOperator trx = TransactionalOperator.create(tm);
-        return dbClient.delete()
+        return RxJava2Adapter.completableToMono(dbClient.delete()
                 .from(JdbcDomain.class)
                 .matching(from(where("id").is(domainId)))
                 .fetch().rowsUpdated()
                 .then(deleteChildEntities(domainId))
-                .as(trx::transactional).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to delete Domain with id {}", domainId, error))).as(RxJava2Adapter::monoToCompletable);
+                .as(trx::transactional).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to delete Domain with id {}", domainId, error))).as(RxJava2Adapter::monoToCompletable));
     }
 
     @Override
@@ -207,8 +227,12 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(this::completeDomain)));
     }
 
-    private Flowable<Domain> completeDomain(Domain entity) {
-        return RxJava2Adapter.fluxToFlowable(Flux.just(entity).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
+    @Deprecated
+private Flowable<Domain> completeDomain(Domain entity) {
+ return RxJava2Adapter.fluxToFlowable(completeDomain_migrated(entity));
+}
+private Flux<Domain> completeDomain_migrated(Domain entity) {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(entity).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(domain ->
                 RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(identitiesRepository.findAllByDomainId(domain.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcDomain.Identity::getIdentity)).collectList().flux().map(RxJavaReactorMigrationUtil.toJdkFunction(idps -> {
                     domain.setIdentities(new HashSet<>(idps));
                     return domain;
@@ -220,7 +244,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
                 RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(vHostsRepository.findAllByDomainId(domain.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toVirtualHost)).collectList().flux().map(RxJavaReactorMigrationUtil.toJdkFunction(vhosts -> {
                     domain.setVhosts(vhosts);
                     return domain;
-                }))))));
+                })))))));
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, Domain item) {

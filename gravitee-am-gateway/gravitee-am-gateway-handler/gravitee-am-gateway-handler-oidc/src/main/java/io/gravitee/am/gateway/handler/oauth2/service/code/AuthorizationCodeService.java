@@ -16,11 +16,12 @@
 package io.gravitee.am.gateway.handler.oauth2.service.code;
 
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.User;
+import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -28,7 +29,19 @@ import io.reactivex.Single;
  */
 public interface AuthorizationCodeService {
 
-    Single<AuthorizationCode> create(AuthorizationRequest authorizationRequest, User user);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.repository.oauth2.model.AuthorizationCode> create(io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest authorizationRequest, io.gravitee.am.model.User user) {
+    return RxJava2Adapter.monoToSingle(create_migrated(authorizationRequest, user));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.oauth2.model.AuthorizationCode> create_migrated(AuthorizationRequest authorizationRequest, User user) {
+    return RxJava2Adapter.singleToMono(create(authorizationRequest, user));
+}
 
-    Maybe<AuthorizationCode> remove(String code, Client client);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.oauth2.model.AuthorizationCode> remove(java.lang.String code, io.gravitee.am.model.oidc.Client client) {
+    return RxJava2Adapter.monoToMaybe(remove_migrated(code, client));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.oauth2.model.AuthorizationCode> remove_migrated(String code, Client client) {
+    return RxJava2Adapter.maybeToMono(remove(code, client));
+}
 }

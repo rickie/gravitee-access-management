@@ -126,11 +126,15 @@ public class RolesResource extends AbstractResource {
         return resourceContext.getResource(RoleResource.class);
     }
 
-    private Single<Page<Role>> searchRoles(String domain, String query, int page, int size) {
+    @Deprecated
+private Single<Page<Role>> searchRoles(String domain, String query, int page, int size) {
+ return RxJava2Adapter.monoToSingle(searchRoles_migrated(domain, query, page, size));
+}
+private Mono<Page<Role>> searchRoles_migrated(String domain, String query, int page, int size) {
         if (query == null) {
-            return roleService.findByDomain(domain, page, Math.min(MAX_ROLES_SIZE_PER_PAGE, size));
+            return RxJava2Adapter.singleToMono(roleService.findByDomain(domain, page, Math.min(MAX_ROLES_SIZE_PER_PAGE, size)));
         }
-        return roleService.searchByDomain(domain, query, page, Math.min(MAX_ROLES_SIZE_PER_PAGE, size));
+        return RxJava2Adapter.singleToMono(roleService.searchByDomain(domain, query, page, Math.min(MAX_ROLES_SIZE_PER_PAGE, size)));
     }
 
     private Role filterRoleInfos(Role role) {

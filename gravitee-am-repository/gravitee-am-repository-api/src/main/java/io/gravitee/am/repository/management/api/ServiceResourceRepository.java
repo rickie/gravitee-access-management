@@ -19,6 +19,7 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.resource.ServiceResource;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Flowable;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -26,6 +27,12 @@ import io.reactivex.Flowable;
  */
 public interface ServiceResourceRepository extends CrudRepository<ServiceResource, String> {
 
-    Flowable<ServiceResource> findByReference(ReferenceType referenceType, String referenceId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.resource.ServiceResource> findByReference(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+    return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.resource.ServiceResource> findByReference_migrated(ReferenceType referenceType, String referenceId) {
+    return RxJava2Adapter.flowableToFlux(findByReference(referenceType, referenceId));
+}
 
 }

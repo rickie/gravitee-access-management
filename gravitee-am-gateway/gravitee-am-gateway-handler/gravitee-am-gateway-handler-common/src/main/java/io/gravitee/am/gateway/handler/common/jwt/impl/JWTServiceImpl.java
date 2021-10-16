@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -112,8 +113,12 @@ public class JWTServiceImpl implements JWTService {
         });
     }
 
-    private Single<String> sign(CertificateProvider certificateProvider, JWT jwt) {
-        return Single.create(emitter -> {
+    @Deprecated
+private Single<String> sign(CertificateProvider certificateProvider, JWT jwt) {
+ return RxJava2Adapter.monoToSingle(sign_migrated(certificateProvider, jwt));
+}
+private Mono<String> sign_migrated(CertificateProvider certificateProvider, JWT jwt) {
+        return RxJava2Adapter.singleToMono(Single.create(emitter -> {
             try {
                 String encodedToken = certificateProvider.getJwtBuilder().sign(jwt);
                 emitter.onSuccess(encodedToken);
@@ -121,7 +126,7 @@ public class JWTServiceImpl implements JWTService {
                 logger.error("Failed to sign JWT", ex);
                 emitter.onError(new InvalidTokenException("The JWT token couldn't be signed", ex));
             }
-        });
+        }));
     }
 
     private Single<Map<String, Object>> decode(CertificateProvider certificateProvider, String payload) {

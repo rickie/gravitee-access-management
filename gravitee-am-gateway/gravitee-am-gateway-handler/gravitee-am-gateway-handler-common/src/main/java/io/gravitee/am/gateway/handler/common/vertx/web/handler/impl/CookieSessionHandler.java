@@ -114,12 +114,16 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
                 .subscribe();
     }
 
-    private Single<CookieSession> cleanupSession(CookieSession currentSession) {
-        return Single.defer(() -> {
+    @Deprecated
+private Single<CookieSession> cleanupSession(CookieSession currentSession) {
+ return RxJava2Adapter.monoToSingle(cleanupSession_migrated(currentSession));
+}
+private Mono<CookieSession> cleanupSession_migrated(CookieSession currentSession) {
+        return RxJava2Adapter.singleToMono(Single.defer(() -> {
             // Empty the session to avoid using data of another user (mainly used if user has not been found or in case of error).
             currentSession.setValue(null);
             return RxJava2Adapter.monoToSingle(Mono.just(currentSession));
-        });
+        }));
     }
 
     private void registerSession(RoutingContext context, CookieSession session) {

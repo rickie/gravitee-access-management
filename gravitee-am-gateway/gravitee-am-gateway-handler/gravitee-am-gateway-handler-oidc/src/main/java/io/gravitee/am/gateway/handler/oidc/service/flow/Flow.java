@@ -21,6 +21,7 @@ import io.gravitee.am.model.AuthenticationFlowContext;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * OpenID Connect performs authentication to log in the End-User or to determine that the End-User is already logged in.
@@ -43,5 +44,11 @@ public interface Flow {
 
     boolean handle(String responseType);
 
-    Single<AuthorizationResponse> run(AuthorizationRequest authorizationRequest, Client client, User endUser);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.gateway.handler.oauth2.service.response.AuthorizationResponse> run(io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest authorizationRequest, io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User endUser) {
+    return RxJava2Adapter.monoToSingle(run_migrated(authorizationRequest, client, endUser));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.oauth2.service.response.AuthorizationResponse> run_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
+    return RxJava2Adapter.singleToMono(run(authorizationRequest, client, endUser));
+}
 }

@@ -152,9 +152,13 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
                 );
     }
 
-    private Maybe<Client> getClient(RoutingContext context) {
+    @Deprecated
+private Maybe<Client> getClient(RoutingContext context) {
+ return RxJava2Adapter.monoToMaybe(getClient_migrated(context));
+}
+private Mono<Client> getClient_migrated(RoutingContext context) {
         String clientId = context.request().getParam("client_id");
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.clientSyncService.findByClientId(clientId)).switchIfEmpty(Mono.error(new ResourceNotFoundException("client not found"))).map(RxJavaReactorMigrationUtil.toJdkFunction(Client::clone)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.clientSyncService.findByClientId(clientId)).switchIfEmpty(Mono.error(new ResourceNotFoundException("client not found"))).map(RxJavaReactorMigrationUtil.toJdkFunction(Client::clone))));
     }
 }

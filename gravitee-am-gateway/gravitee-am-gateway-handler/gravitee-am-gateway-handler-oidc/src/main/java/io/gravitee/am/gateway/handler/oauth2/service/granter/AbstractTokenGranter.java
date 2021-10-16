@@ -70,13 +70,17 @@ public class AbstractTokenGranter implements TokenGranter {
      * @param client OAuth2 client
      * @return Access Token Request or invalid request exception
      */
-    protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
+    @Deprecated
+protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
+ return RxJava2Adapter.monoToSingle(parseRequest_migrated(tokenRequest, client));
+}
+protected Mono<TokenRequest> parseRequest_migrated(TokenRequest tokenRequest, Client client) {
         // Is client allowed to use such grant type ?
         if (client.getAuthorizedGrantTypes() != null && !client.getAuthorizedGrantTypes().isEmpty()
                 && !client.getAuthorizedGrantTypes().contains(grantType)) {
             throw new UnauthorizedClientException("Unauthorized grant type: " + grantType);
         }
-        return RxJava2Adapter.monoToSingle(Mono.just(tokenRequest));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(tokenRequest)));
     }
 
     /**
@@ -85,8 +89,12 @@ public class AbstractTokenGranter implements TokenGranter {
      * @param client OAuth2 client
      * @return Resource Owner or empty for protocol flow like client_credentials
      */
-    protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
-        return RxJava2Adapter.monoToMaybe(Mono.empty());
+    @Deprecated
+protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
+ return RxJava2Adapter.monoToMaybe(resolveResourceOwner_migrated(tokenRequest, client));
+}
+protected Mono<User> resolveResourceOwner_migrated(TokenRequest tokenRequest, Client client) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
     /**
@@ -96,8 +104,12 @@ public class AbstractTokenGranter implements TokenGranter {
      * @param endUser Resource Owner (if exists)
      * @return Access Token Request or OAuth 2.0 exception
      */
-    protected Single<TokenRequest> resolveRequest(TokenRequest tokenRequest, Client client, User endUser) {
-        return tokenRequestResolver.resolve(tokenRequest, client, endUser);
+    @Deprecated
+protected Single<TokenRequest> resolveRequest(TokenRequest tokenRequest, Client client, User endUser) {
+ return RxJava2Adapter.monoToSingle(resolveRequest_migrated(tokenRequest, client, endUser));
+}
+protected Mono<TokenRequest> resolveRequest_migrated(TokenRequest tokenRequest, Client client, User endUser) {
+        return RxJava2Adapter.singleToMono(tokenRequestResolver.resolve(tokenRequest, client, endUser));
     }
 
     /**
@@ -108,22 +120,34 @@ public class AbstractTokenGranter implements TokenGranter {
         this.supportRefreshToken = supportRefreshToken;
     }
 
-    private Single<Token> handleRequest(TokenRequest tokenRequest, Client client, User endUser) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resolveRequest(tokenRequest, client, endUser)).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(createOAuth2Request(tokenRequest1, client, endUser))).flatMap(oAuth2Request->RxJava2Adapter.singleToMono(createAccessToken(oAuth2Request, client, endUser))));
+    @Deprecated
+private Single<Token> handleRequest(TokenRequest tokenRequest, Client client, User endUser) {
+ return RxJava2Adapter.monoToSingle(handleRequest_migrated(tokenRequest, client, endUser));
+}
+private Mono<Token> handleRequest_migrated(TokenRequest tokenRequest, Client client, User endUser) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resolveRequest(tokenRequest, client, endUser)).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(createOAuth2Request(tokenRequest1, client, endUser))).flatMap(oAuth2Request->RxJava2Adapter.singleToMono(createAccessToken(oAuth2Request, client, endUser)))));
     }
 
-    private Single<OAuth2Request> createOAuth2Request(TokenRequest tokenRequest, Client client, User endUser) {
-        return RxJava2Adapter.monoToSingle(Mono.just(tokenRequest.createOAuth2Request()).map(RxJavaReactorMigrationUtil.toJdkFunction(oAuth2Request -> {
+    @Deprecated
+private Single<OAuth2Request> createOAuth2Request(TokenRequest tokenRequest, Client client, User endUser) {
+ return RxJava2Adapter.monoToSingle(createOAuth2Request_migrated(tokenRequest, client, endUser));
+}
+private Mono<OAuth2Request> createOAuth2Request_migrated(TokenRequest tokenRequest, Client client, User endUser) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(tokenRequest.createOAuth2Request()).map(RxJavaReactorMigrationUtil.toJdkFunction(oAuth2Request -> {
                     if (endUser != null) {
                         oAuth2Request.setSubject(endUser.getId());
                     }
                     oAuth2Request.setSupportRefreshToken(isSupportRefreshToken(client));
                     return oAuth2Request;
-                })));
+                }))));
     }
 
-    private Single<Token> createAccessToken(OAuth2Request oAuth2Request, Client client, User endUser) {
-        return tokenService.create(oAuth2Request, client, endUser);
+    @Deprecated
+private Single<Token> createAccessToken(OAuth2Request oAuth2Request, Client client, User endUser) {
+ return RxJava2Adapter.monoToSingle(createAccessToken_migrated(oAuth2Request, client, endUser));
+}
+private Mono<Token> createAccessToken_migrated(OAuth2Request oAuth2Request, Client client, User endUser) {
+        return RxJava2Adapter.singleToMono(tokenService.create(oAuth2Request, client, endUser));
     }
 
     protected boolean isSupportRefreshToken(Client client) {

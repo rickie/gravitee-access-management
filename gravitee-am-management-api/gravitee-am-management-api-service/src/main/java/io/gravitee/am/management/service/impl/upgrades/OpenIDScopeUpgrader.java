@@ -63,14 +63,22 @@ public class OpenIDScopeUpgrader implements Upgrader, Ordered {
         return true;
     }
 
-    private Single<Domain> createOrUpdateSystemScopes(Domain domain) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromArray(io.gravitee.am.common.oidc.Scope.values())
+    @Deprecated
+private Single<Domain> createOrUpdateSystemScopes(Domain domain) {
+ return RxJava2Adapter.monoToSingle(createOrUpdateSystemScopes_migrated(domain));
+}
+private Mono<Domain> createOrUpdateSystemScopes_migrated(Domain domain) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromArray(io.gravitee.am.common.oidc.Scope.values())
                 .flatMapSingle(scope -> createSystemScope(domain.getId(), scope))
-                .lastOrError()).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> domain)));
+                .lastOrError()).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> domain))));
     }
 
-    private Single<Scope> createSystemScope(String domain, io.gravitee.am.common.oidc.Scope systemScope) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, systemScope.getKey())).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
+    @Deprecated
+private Single<Scope> createSystemScope(String domain, io.gravitee.am.common.oidc.Scope systemScope) {
+ return RxJava2Adapter.monoToSingle(createSystemScope_migrated(domain, systemScope));
+}
+private Mono<Scope> createSystemScope_migrated(String domain, io.gravitee.am.common.oidc.Scope systemScope) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, systemScope.getKey())).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optScope -> {
                     if (!optScope.isPresent()) {
                         logger.info("Create a new system scope key[{}] for domain[{}]", systemScope.getKey(), domain);
@@ -93,7 +101,7 @@ public class OpenIDScopeUpgrader implements Upgrader, Ordered {
                         return scopeService.update(domain, optScope.get().getId(), scope);
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(optScope.get()));
-                });
+                }));
     }
 
     /**

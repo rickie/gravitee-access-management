@@ -67,13 +67,17 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         return RxJava2Adapter.monoToSingle(Mono.just(new AnalyticsResponse() {}));
     }
 
-    private Single<AnalyticsResponse> executeDateHistogram(AnalyticsQuery query) {
+    @Deprecated
+private Single<AnalyticsResponse> executeDateHistogram(AnalyticsQuery query) {
+ return RxJava2Adapter.monoToSingle(executeDateHistogram_migrated(query));
+}
+private Mono<AnalyticsResponse> executeDateHistogram_migrated(AnalyticsQuery query) {
         AuditReportableCriteria.Builder queryBuilder = new AuditReportableCriteria.Builder()
                 .types(Collections.singletonList(query.getField().toUpperCase()));
         queryBuilder.from(query.getFrom());
         queryBuilder.to(query.getTo());
         queryBuilder.interval(query.getInterval());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(auditService.aggregate(query.getDomain(), queryBuilder.build(), query.getType())).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(auditService.aggregate(query.getDomain(), queryBuilder.build(), query.getType())).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> {
                     Timestamp timestamp = new Timestamp(query.getFrom(), query.getTo(), query.getInterval());
                     List<Bucket> buckets = values
                             .entrySet()
@@ -90,10 +94,14 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                     analyticsHistogramResponse.setTimestamp(timestamp);
                     analyticsHistogramResponse.setValues(buckets);
                     return analyticsHistogramResponse;
-                })));
+                }))));
     }
 
-    private Single<AnalyticsResponse> executeGroupBy(AnalyticsQuery query) {
+    @Deprecated
+private Single<AnalyticsResponse> executeGroupBy(AnalyticsQuery query) {
+ return RxJava2Adapter.monoToSingle(executeGroupBy_migrated(query));
+}
+private Mono<AnalyticsResponse> executeGroupBy_migrated(AnalyticsQuery query) {
         AuditReportableCriteria.Builder queryBuilder = new AuditReportableCriteria.Builder()
                 .types(Collections.singletonList(query.getField().toUpperCase()));
         queryBuilder.from(query.getFrom());
@@ -106,21 +114,25 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 queryBuilder.types(Collections.singletonList(EventType.USER_LOGIN));
                 queryBuilder.status(Status.SUCCESS);
                 queryBuilder.field("accessPoint.id");
-                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(executeGroupBy(query.getDomain(), queryBuilder.build(), query.getType())).flatMap(analyticsResponse->RxJava2Adapter.singleToMono(fetchMetadata((AnalyticsGroupByResponse)analyticsResponse))));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(executeGroupBy(query.getDomain(), queryBuilder.build(), query.getType())).flatMap(analyticsResponse->RxJava2Adapter.singleToMono(fetchMetadata((AnalyticsGroupByResponse)analyticsResponse)))));
             case Field.USER_STATUS:
             case Field.USER_REGISTRATION:
-                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.statistics(query)).map(RxJavaReactorMigrationUtil.toJdkFunction(value -> new AnalyticsGroupByResponse(value))));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.statistics(query)).map(RxJavaReactorMigrationUtil.toJdkFunction(value -> new AnalyticsGroupByResponse(value)))));
             default :
-                return executeGroupBy(query.getDomain(), queryBuilder.build(), query.getType());
+                return RxJava2Adapter.singleToMono(executeGroupBy(query.getDomain(), queryBuilder.build(), query.getType()));
         }
     }
 
-    private Single<AnalyticsResponse> fetchMetadata(AnalyticsGroupByResponse analyticsGroupByResponse) {
+    @Deprecated
+private Single<AnalyticsResponse> fetchMetadata(AnalyticsGroupByResponse analyticsGroupByResponse) {
+ return RxJava2Adapter.monoToSingle(fetchMetadata_migrated(analyticsGroupByResponse));
+}
+private Mono<AnalyticsResponse> fetchMetadata_migrated(AnalyticsGroupByResponse analyticsGroupByResponse) {
         Map<Object, Object> values = analyticsGroupByResponse.getValues();
         if (values == null && values.isEmpty()) {
-            return RxJava2Adapter.monoToSingle(Mono.just(analyticsGroupByResponse));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(analyticsGroupByResponse)));
         }
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(values.keySet())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(values.keySet())
                 .flatMapMaybe(appId -> RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationService.findById((String) appId)).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> {
                             Map<String, Object> data = new HashMap<>();
                             data.put("name", application.getName());
@@ -133,11 +145,15 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
                     analyticsGroupByResponse.setMetadata(metadata);
                     return analyticsGroupByResponse;
-                })));
+                }))));
 
     }
 
-    private Single<AnalyticsResponse> executeCount(AnalyticsQuery query) {
+    @Deprecated
+private Single<AnalyticsResponse> executeCount(AnalyticsQuery query) {
+ return RxJava2Adapter.monoToSingle(executeCount_migrated(query));
+}
+private Mono<AnalyticsResponse> executeCount_migrated(AnalyticsQuery query) {
         AuditReportableCriteria.Builder queryBuilder = new AuditReportableCriteria.Builder()
                 .types(Collections.singletonList(query.getField().toUpperCase()));
         queryBuilder.from(query.getFrom());
@@ -146,16 +162,20 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
         switch (query.getField()) {
             case Field.APPLICATION:
-                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.countByDomain(query.getDomain())).map(RxJavaReactorMigrationUtil.toJdkFunction(value -> new AnalyticsCountResponse(value))));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.countByDomain(query.getDomain())).map(RxJavaReactorMigrationUtil.toJdkFunction(value -> new AnalyticsCountResponse(value)))));
             case Field.USER:
-                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.countByDomain(query.getDomain())).map(RxJavaReactorMigrationUtil.toJdkFunction(value -> new AnalyticsCountResponse(value))));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.countByDomain(query.getDomain())).map(RxJavaReactorMigrationUtil.toJdkFunction(value -> new AnalyticsCountResponse(value)))));
             default :
-                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(auditService.aggregate(query.getDomain(), queryBuilder.build(), query.getType())).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> values.values().isEmpty() ? new AnalyticsCountResponse(0l) : new AnalyticsCountResponse((Long) values.values().iterator().next()))));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(auditService.aggregate(query.getDomain(), queryBuilder.build(), query.getType())).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> values.values().isEmpty() ? new AnalyticsCountResponse(0l) : new AnalyticsCountResponse((Long) values.values().iterator().next())))));
         }
     }
 
-    private Single<AnalyticsResponse> executeGroupBy(String domain, AuditReportableCriteria criteria, Type type) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(auditService.aggregate(domain, criteria, type)).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> new AnalyticsGroupByResponse(values))));
+    @Deprecated
+private Single<AnalyticsResponse> executeGroupBy(String domain, AuditReportableCriteria criteria, Type type) {
+ return RxJava2Adapter.monoToSingle(executeGroupBy_migrated(domain, criteria, type));
+}
+private Mono<AnalyticsResponse> executeGroupBy_migrated(String domain, AuditReportableCriteria criteria, Type type) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(auditService.aggregate(domain, criteria, type)).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> new AnalyticsGroupByResponse(values)))));
     }
 
     private Map<String, Object> getGenericMetadata(String value, boolean deleted) {

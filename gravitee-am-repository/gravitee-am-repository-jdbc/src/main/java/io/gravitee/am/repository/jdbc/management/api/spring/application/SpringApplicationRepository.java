@@ -18,12 +18,12 @@ package io.gravitee.am.repository.jdbc.management.api.spring.application;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import java.util.List;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -31,23 +31,67 @@ import java.util.List;
  */
 @Repository
 public interface SpringApplicationRepository extends RxJava2CrudRepository<JdbcApplication, String> {
-    @Query("select count(a.id) from applications a where a.domain = :domain")
-    Single<Long> countByDomain(@Param("domain") String domain);
+      @Deprecated  
+default io.reactivex.Single<java.lang.Long> countByDomain(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain) {
+    return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
+}
+default reactor.core.publisher.Mono<java.lang.Long> countByDomain_migrated(@Param(value = "domain")
+String domain) {
+    return RxJava2Adapter.singleToMono(countByDomain(domain));
+}
 
-    @Query("select * from applications a where a.domain = :domain")
-    Flowable<JdbcApplication> findByDomain(@Param("domain") String domain);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findByDomain(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain) {
+    return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findByDomain_migrated(@Param(value = "domain")
+String domain) {
+    return RxJava2Adapter.flowableToFlux(findByDomain(domain));
+}
 
-    @Query("select * from applications a where a.certificate = :cert")
-    Flowable<JdbcApplication> findByCertificate(@Param("cert") String certificate);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findByCertificate(@org.springframework.data.repository.query.Param(value = "cert")
+java.lang.String certificate) {
+    return RxJava2Adapter.fluxToFlowable(findByCertificate_migrated(certificate));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findByCertificate_migrated(@Param(value = "cert")
+String certificate) {
+    return RxJava2Adapter.flowableToFlux(findByCertificate(certificate));
+}
 
-    @Query("SELECT a.* FROM applications a INNER JOIN application_factors f ON a.id = f.application_id where f.factor = :factor")
-    Flowable<JdbcApplication> findAllByFactor(@Param("factor")String factor);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findAllByFactor(@org.springframework.data.repository.query.Param(value = "factor")
+java.lang.String factor) {
+    return RxJava2Adapter.fluxToFlowable(findAllByFactor_migrated(factor));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findAllByFactor_migrated(@Param(value = "factor")
+String factor) {
+    return RxJava2Adapter.flowableToFlux(findAllByFactor(factor));
+}
 
-    @Query("SELECT a.* FROM applications a INNER JOIN application_grants g ON a.id = g.application_id where g.grant_type = :grant and a.domain = :domain")
-    Flowable<JdbcApplication> findAllByDomainAndGrant(@Param("domain")String domain, @Param("grant")String grant);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findAllByDomainAndGrant(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain, @org.springframework.data.repository.query.Param(value = "grant")
+java.lang.String grant) {
+    return RxJava2Adapter.fluxToFlowable(findAllByDomainAndGrant_migrated(domain, grant));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findAllByDomainAndGrant_migrated(@Param(value = "domain")
+String domain, @Param(value = "grant")
+String grant) {
+    return RxJava2Adapter.flowableToFlux(findAllByDomainAndGrant(domain, grant));
+}
 
-    @Query("select * from applications a where a.id in ( :ids )")
-    Flowable<JdbcApplication> findByIdIn(@Param("ids") List<String> ids);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findByIdIn(@org.springframework.data.repository.query.Param(value = "ids")
+java.util.List<java.lang.String> ids) {
+    return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication> findByIdIn_migrated(@Param(value = "ids")
+List<String> ids) {
+    return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
+}
 
 
 }

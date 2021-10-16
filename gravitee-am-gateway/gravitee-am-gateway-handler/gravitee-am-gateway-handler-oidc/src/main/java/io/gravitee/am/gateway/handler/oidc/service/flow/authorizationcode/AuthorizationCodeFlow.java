@@ -27,6 +27,7 @@ import io.reactivex.Single;
 import java.util.Collections;
 import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -66,14 +67,19 @@ public class AuthorizationCodeFlow extends AbstractFlow {
         this.authorizationCodeService = authorizationCodeService;
     }
 
-    @Override
+    @Deprecated
+@Override
     protected Single<AuthorizationResponse> prepareResponse(AuthorizationRequest authorizationRequest, Client client, User endUser) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(authorizationCodeService.create(authorizationRequest, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(code -> {
+ return RxJava2Adapter.monoToSingle(prepareResponse_migrated(authorizationRequest, client, endUser));
+}
+@Override
+    protected Mono<AuthorizationResponse> prepareResponse_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(authorizationCodeService.create(authorizationRequest, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(code -> {
                     AuthorizationCodeResponse response = new AuthorizationCodeResponse();
                     response.setRedirectUri(authorizationRequest.getRedirectUri());
                     response.setCode(code.getCode());
                     response.setState(authorizationRequest.getState());
                     return response;
-                })));
+                }))));
     }
 }
