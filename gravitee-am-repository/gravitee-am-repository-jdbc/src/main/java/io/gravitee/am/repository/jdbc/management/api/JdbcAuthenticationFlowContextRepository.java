@@ -147,7 +147,7 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
         LOGGER.debug("delete({})", transactionId);
         return dbClient.delete()
                 .from(JdbcAuthenticationFlowContext.class)
-                .matching(from(where("transaction_id").is(transactionId))).fetch().rowsUpdated();
+                .matching(from(where("transaction_id").is(transactionId))).fetch().rowsUpdated().then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(transactionId, version))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -161,7 +161,7 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
         LOGGER.debug("delete({}, {})", transactionId, version);
         return dbClient.delete()
                 .from(JdbcAuthenticationFlowContext.class)
-                .matching(from(where("transaction_id").is(transactionId).and(where("version").is(version)))).fetch().rowsUpdated();
+                .matching(from(where("transaction_id").is(transactionId).and(where("version").is(version)))).fetch().rowsUpdated().then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")

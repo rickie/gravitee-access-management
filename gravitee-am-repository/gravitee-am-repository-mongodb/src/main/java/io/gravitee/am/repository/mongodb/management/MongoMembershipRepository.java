@@ -166,7 +166,7 @@ public class MongoMembershipRepository extends AbstractManagementMongoRepository
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(membershipsCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(membershipsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private Membership convert(MembershipMongo membershipMongo) {

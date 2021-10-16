@@ -173,7 +173,7 @@ public class MongoGroupRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(groupsCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(groupsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private Group convert(GroupMongo groupMongo) {

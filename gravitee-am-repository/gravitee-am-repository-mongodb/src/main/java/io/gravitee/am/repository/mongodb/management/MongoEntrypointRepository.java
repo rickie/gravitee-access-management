@@ -116,7 +116,7 @@ public class MongoEntrypointRepository extends AbstractManagementMongoRepository
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(collection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(collection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private Entrypoint convert(EntrypointMongo entrypointMongo) {

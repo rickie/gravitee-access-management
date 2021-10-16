@@ -354,6 +354,6 @@ private Mono<Group> completeWithMembersAndRole_migrated(Maybe<Group> maybeGroup,
         LOGGER.debug("delete Group with id {}", id);
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Integer> delete = dbClient.delete().from(databaseDialectHelper.toSql(quoted("groups"))).matching(from(where("id").is(id))).fetch().rowsUpdated();
-        return delete.then(deleteChildEntities(id)).as(trx::transactional);
+        return delete.then(deleteChildEntities(id)).as(e -> trx.transactional(e).then());
     }
 }

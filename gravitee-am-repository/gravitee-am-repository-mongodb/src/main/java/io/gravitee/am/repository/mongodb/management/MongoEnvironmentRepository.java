@@ -133,7 +133,7 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(collection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(collection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")

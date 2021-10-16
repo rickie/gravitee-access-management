@@ -113,7 +113,7 @@ public class JdbcRefreshTokenRepository extends AbstractJdbcRepository implement
         return dbClient.delete()
                 .from(JdbcRefreshToken.class)
                 .matching(from(where("token").is(token)))
-                .fetch().rowsUpdated().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete RefreshToken", error)));
+                .fetch().rowsUpdated().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete RefreshToken", error))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

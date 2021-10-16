@@ -119,7 +119,7 @@ public class MongoTagRepository extends AbstractManagementMongoRepository implem
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(tagsCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(tagsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private Tag convert(TagMongo tagMongo) {

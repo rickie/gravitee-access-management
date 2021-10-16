@@ -118,7 +118,7 @@ public class MongoBotDetectionRepository extends AbstractManagementMongoReposito
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(botDetectionMongoCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(botDetectionMongoCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private BotDetection convert(BotDetectionMongo entity) {

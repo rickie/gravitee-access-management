@@ -220,7 +220,7 @@ public class JdbcFlowRepository extends AbstractJdbcRepository implements FlowRe
                 .matching(from(where("id").is(id)))
                 .fetch().rowsUpdated()
                 .then(deleteChildEntities(id))
-                .as(trx::transactional);
+                .as(e -> trx.transactional(e).then());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

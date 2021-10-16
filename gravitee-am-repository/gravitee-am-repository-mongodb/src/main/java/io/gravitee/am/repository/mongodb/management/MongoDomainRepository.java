@@ -213,7 +213,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(domainsCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(domainsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private static Domain convert(DomainMongo domainMongo) {

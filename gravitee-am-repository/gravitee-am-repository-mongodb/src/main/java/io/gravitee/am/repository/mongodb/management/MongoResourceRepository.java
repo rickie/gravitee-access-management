@@ -115,7 +115,7 @@ public class MongoResourceRepository extends AbstractManagementMongoRepository i
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(resourceCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(resourceCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndClientAndUser_migrated(domain, client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

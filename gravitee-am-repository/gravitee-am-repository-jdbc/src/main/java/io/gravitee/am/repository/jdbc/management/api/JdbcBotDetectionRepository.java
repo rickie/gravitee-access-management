@@ -149,6 +149,6 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
         return dbClient.delete()
                 .from(JdbcBotDetection.class)
                 .matching(from(where(ID_FIELD).is(id)))
-                .fetch().rowsUpdated();
+                .fetch().rowsUpdated().then();
     }
 }

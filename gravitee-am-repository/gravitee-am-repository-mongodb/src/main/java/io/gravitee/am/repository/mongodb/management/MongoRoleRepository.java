@@ -180,7 +180,7 @@ public class MongoRoleRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(rolesCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(rolesCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByNameAndAssignableType_migrated(referenceType, referenceId, name, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
