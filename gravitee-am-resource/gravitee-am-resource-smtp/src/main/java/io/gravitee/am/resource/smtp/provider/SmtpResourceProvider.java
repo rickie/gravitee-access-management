@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.resource.smtp.provider;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.email.Email;
 import io.gravitee.am.resource.api.ResourceProvider;
 import io.gravitee.am.resource.api.email.EmailSenderProvider;
@@ -95,7 +96,8 @@ public class SmtpResourceProvider implements EmailSenderProvider {
         return javaMailSender;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.sendMessage_migrated(message))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable sendMessage(Email message) {
  return RxJava2Adapter.monoToCompletable(sendMessage_migrated(message));

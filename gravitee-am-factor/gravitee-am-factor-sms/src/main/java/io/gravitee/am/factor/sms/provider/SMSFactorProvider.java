@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.factor.sms.provider;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
@@ -51,7 +52,8 @@ public class SMSFactorProvider implements FactorProvider {
     @Autowired
     private SMSFactorConfiguration configuration;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.verify_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable verify(FactorContext context) {
  return RxJava2Adapter.monoToCompletable(verify_migrated(context));
@@ -65,13 +67,14 @@ public class SMSFactorProvider implements FactorProvider {
         if (provider instanceof MFAResourceProvider) {
             MFAResourceProvider mfaProvider = (MFAResourceProvider)provider;
             MFAChallenge challenge = new MFAChallenge(enrolledFactor.getChannel().getTarget(), code);
-            return RxJava2Adapter.completableToMono(mfaProvider.verify(challenge));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(mfaProvider.verify_migrated(challenge)));
         } else {
             return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS"))));
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enroll_migrated(account))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Enrollment> enroll(String account) {
  return RxJava2Adapter.monoToSingle(enroll_migrated(account));
@@ -86,7 +89,8 @@ public class SMSFactorProvider implements FactorProvider {
         return true;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.sendChallenge_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable sendChallenge(FactorContext context) {
  return RxJava2Adapter.monoToCompletable(sendChallenge_migrated(context));
@@ -99,7 +103,7 @@ public class SMSFactorProvider implements FactorProvider {
         if (provider instanceof MFAResourceProvider) {
             MFAResourceProvider mfaProvider = (MFAResourceProvider)provider;
             MFALink link = new MFALink(MFAType.SMS, enrolledFactor.getChannel().getTarget());
-            return RxJava2Adapter.completableToMono(mfaProvider.send(link));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(mfaProvider.send_migrated(link)));
         } else {
             return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS"))));
         }

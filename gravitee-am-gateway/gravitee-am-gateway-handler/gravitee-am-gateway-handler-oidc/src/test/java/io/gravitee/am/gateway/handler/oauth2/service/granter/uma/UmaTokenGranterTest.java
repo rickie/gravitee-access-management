@@ -162,13 +162,13 @@ public class UmaTokenGranterTest {
         when(rpt.getSub()).thenReturn(USER_ID);
         when(rpt.getAud()).thenReturn(CLIENT_ID);
         when(rpt.get("permissions")).thenReturn(new LinkedList(Arrays.asList(permission)));
-        when(jwtService.decodeAndVerify(RQP_ID_TOKEN, client)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(jwtService.decodeAndVerify(RPT_OLD_TOKEN, client)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(rpt)));
-        when(userAuthenticationManager.loadPreAuthenticatedUser(USER_ID, tokenRequest)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
-        when(permissionTicketService.remove(TICKET_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new PermissionTicket().setId(TICKET_ID).setPermissionRequest(permissions))));
-        when(resourceService.findByResources(Arrays.asList(RS_ONE, RS_TWO))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Resource().setId(RS_ONE).setResourceScopes(Arrays.asList("scopeA", "scopeB", "scopeC")), new Resource().setId(RS_TWO).setResourceScopes(Arrays.asList("scopeA", "scopeB", "scopeD")))));
-        when(tokenService.create(oauth2RequestCaptor.capture(), eq(client), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new AccessToken("success"))));
-        when(resourceService.findAccessPoliciesByResources(anyList())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(jwtService.decodeAndVerify_migrated(RQP_ID_TOKEN, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(jwtService.decodeAndVerify_migrated(RPT_OLD_TOKEN, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(rpt))));
+        when(userAuthenticationManager.loadPreAuthenticatedUser_migrated(USER_ID, tokenRequest)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
+        when(permissionTicketService.remove_migrated(TICKET_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new PermissionTicket().setId(TICKET_ID).setPermissionRequest(permissions)))));
+        when(resourceService.findByResources_migrated(Arrays.asList(RS_ONE, RS_TWO))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Resource().setId(RS_ONE).setResourceScopes(Arrays.asList("scopeA", "scopeB", "scopeC")), new Resource().setId(RS_TWO).setResourceScopes(Arrays.asList("scopeA", "scopeB", "scopeD"))))));
+        when(tokenService.create_migrated(oauth2RequestCaptor.capture(), eq(client), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new AccessToken("success")))));
+        when(resourceService.findAccessPoliciesByResources_migrated(anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
     }
 
     @Test
@@ -190,7 +190,7 @@ public class UmaTokenGranterTest {
     @Test
     public void grant_missingTicket() {
         parameters.clear();//erase default setup
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver
                 .assertNotComplete()
                 .assertError(InvalidGrantException.class)
@@ -200,42 +200,42 @@ public class UmaTokenGranterTest {
     @Test
     public void grant_missingClaimTokenFormat() {
         parameters.remove(CLAIM_TOKEN_FORMAT);
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(UmaException.class).assertError(this::assertNeedInfoMissingClaim);
     }
 
     @Test
     public void grant_missingClaimToken() {
         parameters.remove(CLAIM_TOKEN);
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(UmaException.class).assertError(this::assertNeedInfoMissingClaim);
     }
 
     @Test
     public void grant_badClaimTokenFormat() {
         parameters.replace(CLAIM_TOKEN_FORMAT, Arrays.asList("claim_token_format"));
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(UmaException.class).assertError(this::assertNeedInfoBadClaimTokenFormat);
     }
 
     @Test
     public void grant_user_technicalException() {
-        when(userAuthenticationManager.loadPreAuthenticatedUser(USER_ID, tokenRequest)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        when(userAuthenticationManager.loadPreAuthenticatedUser_migrated(USER_ID, tokenRequest)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(UmaException.class).assertError(this::assertNeedInfo);
     }
 
     @Test
     public void grant_user_notFound() {
-        when(userAuthenticationManager.loadPreAuthenticatedUser(USER_ID, tokenRequest)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        when(userAuthenticationManager.loadPreAuthenticatedUser_migrated(USER_ID, tokenRequest)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(UmaException.class).assertError(this::assertNeedInfo);
     }
 
     @Test
     public void grant_ticketNotFound() {
-        when(permissionTicketService.remove(TICKET_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(InvalidPermissionTicketException::new))));
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        when(permissionTicketService.remove_migrated(TICKET_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(InvalidPermissionTicketException::new)))));
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(InvalidPermissionTicketException.class);
     }
 
@@ -244,7 +244,7 @@ public class UmaTokenGranterTest {
         //Here request scope has not been pre-registered on client.
         tokenRequest.setScopes(new HashSet<>(Arrays.asList("not-pre-registered-scope")));
         when(client.getScopeSettings()).thenReturn(Collections.emptyList());
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(InvalidScopeException.class);
     }
 
@@ -253,15 +253,15 @@ public class UmaTokenGranterTest {
         //Here request scope is well pre-registered on client, but does not match any resources
         when(client.getScopeSettings()).thenReturn(Arrays.asList(new ApplicationScopeSettings("not-resource-scope")));
         tokenRequest.setScopes(new HashSet<>(Arrays.asList("not-resource-scope")));
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(InvalidScopeException.class);
     }
 
     @Test
     public void grant_rptExpiredOrMalformed() {
         parameters.add(RPT, RPT_OLD_TOKEN);
-        when(jwtService.decodeAndVerify(RPT_OLD_TOKEN, client)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(InvalidTokenException::new))));
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        when(jwtService.decodeAndVerify_migrated(RPT_OLD_TOKEN, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(InvalidTokenException::new)))));
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(InvalidGrantException.class);
     }
 
@@ -269,7 +269,7 @@ public class UmaTokenGranterTest {
     public void grant_rptNotBelongToSameClient() {
         parameters.add(RPT, RPT_OLD_TOKEN);
         when(rpt.getAud()).thenReturn("notExpectedClientId");
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(InvalidGrantException.class);
     }
 
@@ -277,13 +277,13 @@ public class UmaTokenGranterTest {
     public void grant_rptNotBelongToSameUser() {
         parameters.add(RPT, RPT_OLD_TOKEN);
         when(rpt.getSub()).thenReturn("notExpectedUserId");
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(InvalidGrantException.class);
     }
 
     @Test
     public void grant_user_nominalCase() {
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertComplete().assertNoErrors().assertValue(token -> "success".equals(token.getValue()));
         OAuth2Request result = oauth2RequestCaptor.getValue();
         assertTrue(USER_ID.equals(result.getSubject()));
@@ -294,7 +294,7 @@ public class UmaTokenGranterTest {
     @Test
     public void grant_user_additionalScopeCase() {
         tokenRequest.setScopes(new HashSet<>(Arrays.asList("scopeB", "scopeC")));
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertComplete().assertNoErrors().assertValue(token -> "success".equals(token.getValue()));
         OAuth2Request result = oauth2RequestCaptor.getValue();
         assertTrue(USER_ID.equals(result.getSubject()));
@@ -306,7 +306,7 @@ public class UmaTokenGranterTest {
     public void grant_user_RptWithoutPermissionCase() {
         parameters.add(RPT, RPT_OLD_TOKEN);
         when(rpt.get("permissions")).thenReturn(null);
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertComplete().assertNoErrors().assertValue(token -> "success".equals(token.getValue()));
         OAuth2Request result = oauth2RequestCaptor.getValue();
         assertTrue(USER_ID.equals(result.getSubject()));
@@ -318,7 +318,7 @@ public class UmaTokenGranterTest {
     public void grant_user_extendRptCase() {
         parameters.add(RPT, RPT_OLD_TOKEN);
         tokenRequest.setScopes(new HashSet<>(Arrays.asList("scopeD")));
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertComplete().assertNoErrors().assertValue(token -> "success".equals(token.getValue()) && token.isUpgraded());
         OAuth2Request result = oauth2RequestCaptor.getValue();
         assertTrue(USER_ID.equals(result.getSubject()));
@@ -330,7 +330,7 @@ public class UmaTokenGranterTest {
     public void grant_client_nominalCase() {
         parameters.remove(CLAIM_TOKEN);
         parameters.remove(CLAIM_TOKEN_FORMAT);
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertComplete().assertNoErrors().assertValue(token -> "success".equals(token.getValue()));
         OAuth2Request result = oauth2RequestCaptor.getValue();
         assertNull(result.getSubject());
@@ -343,7 +343,7 @@ public class UmaTokenGranterTest {
         parameters.remove(CLAIM_TOKEN);
         parameters.remove(CLAIM_TOKEN_FORMAT);
         tokenRequest.setScopes(new HashSet<>(Arrays.asList("scopeB", "scopeC")));
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertComplete().assertNoErrors().assertValue(token -> "success".equals(token.getValue()));
         OAuth2Request result = oauth2RequestCaptor.getValue();
         assertNull(result.getSubject());
@@ -358,7 +358,7 @@ public class UmaTokenGranterTest {
         parameters.add(RPT, RPT_OLD_TOKEN);
         tokenRequest.setScopes(new HashSet<>(Arrays.asList("scopeD")));
         when(rpt.getSub()).thenReturn(CLIENT_ID);//Set RPT as Client bearer.
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertComplete().assertNoErrors().assertValue(token -> "success".equals(token.getValue()) && token.isUpgraded());
         OAuth2Request result = oauth2RequestCaptor.getValue();
         assertNull(result.getSubject());
@@ -371,10 +371,10 @@ public class UmaTokenGranterTest {
         AccessPolicy policy = mock(AccessPolicy.class);
         when(policy.getType()).thenReturn(AccessPolicyType.GROOVY);
         ExecutionContext executionContext = mock(ExecutionContext.class);
-        when(resourceService.findAccessPoliciesByResources(anyList())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(policy)));
+        when(resourceService.findAccessPoliciesByResources_migrated(anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(policy))));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
-        when(rulesEngine.fire(any(), any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(new PolicyChainException("Policy requirements have failed"))));
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        when(rulesEngine.fire_migrated(any(), any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new PolicyChainException("Policy requirements have failed")))));
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertNotComplete().assertError(InvalidGrantException.class);
     }
 
@@ -383,10 +383,10 @@ public class UmaTokenGranterTest {
         AccessPolicy policy = mock(AccessPolicy.class);
         when(policy.getType()).thenReturn(AccessPolicyType.GROOVY);
         ExecutionContext executionContext = mock(ExecutionContext.class);
-        when(resourceService.findAccessPoliciesByResources(anyList())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(policy)));
+        when(resourceService.findAccessPoliciesByResources_migrated(anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(policy))));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
-        when(rulesEngine.fire(any(), any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        TestObserver<Token> testObserver = umaTokenGranter.grant(tokenRequest, client).test();
+        when(rulesEngine.fire_migrated(any(), any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.grant_migrated(tokenRequest, client)).test();
         testObserver.assertComplete().assertNoErrors().assertValue(token -> "success".equals(token.getValue()));
         OAuth2Request result = oauth2RequestCaptor.getValue();
         assertTrue(USER_ID.equals(result.getSubject()));
@@ -397,7 +397,7 @@ public class UmaTokenGranterTest {
 
     @Test
     public void checkMethodWillNotBeUsed() {
-        TestObserver<TokenRequest> testObserver = umaTokenGranter.resolveRequest(tokenRequest, client, null).test();
+        TestObserver<TokenRequest> testObserver = RxJava2Adapter.monoToSingle(umaTokenGranter.resolveRequest_migrated(tokenRequest, client, null)).test();
         testObserver.assertNotComplete().assertError(TechnicalException.class);
     }
 

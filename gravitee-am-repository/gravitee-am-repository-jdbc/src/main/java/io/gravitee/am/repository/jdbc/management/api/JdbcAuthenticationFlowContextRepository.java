@@ -20,6 +20,7 @@ import static org.springframework.data.relational.core.query.Criteria.from;
 import static org.springframework.data.relational.core.query.Criteria.where;
 import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.AuthenticationFlowContext;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcAuthenticationFlowContext;
@@ -49,7 +50,8 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
         return mapper.map(entity, AuthenticationFlowContext.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<AuthenticationFlowContext> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -66,7 +68,8 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
                 .as(JdbcAuthenticationFlowContext.class).one().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findLastByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<AuthenticationFlowContext> findLastByTransactionId(String transactionId) {
  return RxJava2Adapter.monoToMaybe(findLastByTransactionId_migrated(transactionId));
@@ -86,7 +89,8 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
                 .as(JdbcAuthenticationFlowContext.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<AuthenticationFlowContext> findByTransactionId(String transactionId) {
  return RxJava2Adapter.fluxToFlowable(findByTransactionId_migrated(transactionId));
@@ -106,7 +110,8 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
                 .as(JdbcAuthenticationFlowContext.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<AuthenticationFlowContext> create(AuthenticationFlowContext context) {
  return RxJava2Adapter.monoToSingle(create_migrated(context));
@@ -131,7 +136,8 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(id)).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String transactionId) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(transactionId));
@@ -144,7 +150,8 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
                 .matching(from(where("transaction_id").is(transactionId))).fetch().rowsUpdated()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(transactionId, version))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String transactionId, int version) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(transactionId, version));
@@ -157,7 +164,8 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
                 .matching(from(where("transaction_id").is(transactionId).and(where("version").is(version)))).fetch().rowsUpdated()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable purgeExpiredData() {
  return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());

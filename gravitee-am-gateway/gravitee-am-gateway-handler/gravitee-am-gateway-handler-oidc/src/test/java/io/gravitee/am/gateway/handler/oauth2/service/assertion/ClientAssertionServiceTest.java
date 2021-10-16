@@ -98,7 +98,7 @@ public class ClientAssertionServiceTest {
     
     @Test
     public void testAssertionTypeNotValid() {
-        TestObserver testObserver = clientAssertionService.assertClient("",null,null).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated("", null, null)).test();
 
         testObserver.assertError(InvalidClientException.class);
         testObserver.assertNotComplete();
@@ -106,7 +106,7 @@ public class ClientAssertionServiceTest {
 
     @Test
     public void testUnsupportedAssertionType() {
-        TestObserver testObserver = clientAssertionService.assertClient("unsupported",null,null).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated("unsupported", null, null)).test();
 
         testObserver.assertError(InvalidClientException.class);
         testObserver.assertNotComplete();
@@ -114,7 +114,7 @@ public class ClientAssertionServiceTest {
 
     @Test
     public void testAssertionNotValid() {
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,"",null).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, "", null)).test();
 
         testObserver.assertError(InvalidClientException.class);
         testObserver.assertNotComplete();
@@ -123,7 +123,7 @@ public class ClientAssertionServiceTest {
     @Test
     public void testWithMissingClaims() {
         String assertion = new PlainJWT(new JWTClaimsSet.Builder().build()).serialize();
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,null).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, null)).test();
 
         testObserver.assertError(InvalidClientException.class);
         testObserver.assertNotComplete();
@@ -139,7 +139,7 @@ public class ClientAssertionServiceTest {
                         .expirationTime(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)))
                         .build()
         ).serialize();
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,null).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, null)).test();
 
         testObserver.assertError(InvalidClientException.class);
         testObserver.assertNotComplete();
@@ -161,7 +161,7 @@ public class ClientAssertionServiceTest {
 
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(null);
 
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
 
         testObserver.assertError(ServerErrorException.class);
         testObserver.assertNotComplete();
@@ -184,7 +184,7 @@ public class ClientAssertionServiceTest {
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
 
         testObserver.assertError(InvalidClientException.class);
         testObserver.assertNotComplete();
@@ -207,7 +207,7 @@ public class ClientAssertionServiceTest {
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
 
         testObserver.assertError(InvalidClientException.class);
         testObserver.assertNotComplete();
@@ -234,12 +234,12 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
-        when(jwkService.getKey(any(),any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(key)));
+        when(jwkService.getKey_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(key))));
 
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
 
         testObserver.assertError(InvalidClientException.class);
         testObserver.assertNotComplete();
@@ -275,13 +275,13 @@ public class ClientAssertionServiceTest {
         signedJWT.sign(new RSASSASigner(privateKey));
         String assertion = signedJWT.serialize();
 
-        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
-        when(jwkService.getKey(any(),any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(key)));
+        when(jwkService.getKey_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(key))));
         when(jwsService.isValidSignature(any(),any())).thenReturn(true);
 
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
 
         testObserver.assertNoErrors();
         testObserver.assertValue(client);
@@ -306,11 +306,11 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
 
         testObserver.assertError(InvalidClientException.class);
         testObserver.assertNotComplete();
@@ -335,13 +335,13 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
-        when(jwkService.getKey(any(),any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(key)));
+        when(jwkService.getKey_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(key))));
         when(jwsService.isValidSignature(any(),any())).thenReturn(true);
 
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
 
         testObserver.assertNoErrors();
         testObserver.assertValue(client);
@@ -361,7 +361,7 @@ public class ClientAssertionServiceTest {
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
         when(domain.usePlainFapiProfile()).thenReturn(true);
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidClientException.class);
     }
@@ -385,11 +385,11 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
 
         testObserver.assertError(InvalidClientException.class);
         testObserver.assertNotComplete();
@@ -418,14 +418,14 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
-        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(jwkSet)));
-        when(jwkService.getKey(any(),any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(key)));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(jwkSet))));
+        when(jwkService.getKey_migrated(any(),any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(key))));
         when(jwsService.isValidSignature(any(),any())).thenReturn(true);
 
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
 
         testObserver.assertNoErrors();
         testObserver.assertValue(client);
@@ -450,11 +450,11 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
 
         testObserver.assertNoErrors();
         testObserver.assertValue(client);
@@ -480,7 +480,7 @@ public class ClientAssertionServiceTest {
 
         when(domain.usePlainFapiProfile()).thenReturn(true);
 
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(InvalidClientException.class);
     }
@@ -504,11 +504,11 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
 
         testObserver.assertError(InvalidClientException.class);
         testObserver.assertNotComplete();
@@ -537,11 +537,11 @@ public class ClientAssertionServiceTest {
         OpenIDProviderMetadata openIDProviderMetadata = Mockito.mock(OpenIDProviderMetadata.class);
         String basePath="/";
 
-        when(clientSyncService.findByClientId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findByClientId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
         when(openIDProviderMetadata.getTokenEndpoint()).thenReturn(AUDIENCE);
         when(openIDDiscoveryService.getConfiguration(basePath)).thenReturn(openIDProviderMetadata);
 
-        TestObserver testObserver = clientAssertionService.assertClient(JWT_BEARER_TYPE,assertion,basePath).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(JWT_BEARER_TYPE, assertion, basePath)).test();
 
         testObserver.assertError(InvalidClientException.class);
         testObserver.assertNotComplete();

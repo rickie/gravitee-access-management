@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.saml2.resources.endpoint;
 
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
 import io.gravitee.am.gateway.handler.saml2.service.sp.ServiceProviderService;
 import io.gravitee.am.service.exception.AbstractManagementException;
@@ -23,8 +25,7 @@ import io.gravitee.common.http.HttpStatusCode;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.core.http.HttpServerResponse;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * Like the identity provider, a service provider publishes data about itself in an <md:EntityDescriptor> element:
@@ -51,7 +52,7 @@ public class ServiceProviderMetadataEndpoint implements Handler<RoutingContext> 
         final String providerId = routingContext.request().getParam("providerId");
         final String basePath = UriBuilderRequest.resolveProxyRequest(routingContext.request(), routingContext.get(CONTEXT_PATH));
 
-        serviceProviderService.metadata(providerId, basePath)
+        RxJava2Adapter.monoToSingle(serviceProviderService.metadata_migrated(providerId, basePath))
                 .subscribe(
                         result -> {
                             // prepare response

@@ -15,6 +15,11 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization;
 
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY;
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+import static io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization.ParamUtils.getOAuthParameter;
+
 import io.gravitee.am.common.oidc.Parameters;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.utils.RequestUtils;
@@ -33,18 +38,13 @@ import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY;
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
-import static io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization.ParamUtils.getOAuthParameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * Once the End-User is authenticated, the Authorization Server MUST obtain an authorization decision before releasing information to the Relying Party.
@@ -127,7 +127,7 @@ public class AuthorizationRequestEndUserConsentHandler implements Handler<Routin
     }
 
     private void checkUserConsent(Client client, io.gravitee.am.model.User user, Handler<AsyncResult<Set<String>>> handler) {
-        userConsentService.checkConsent(client, user)
+        RxJava2Adapter.monoToSingle(userConsentService.checkConsent_migrated(client, user))
                 .subscribe(
                         result -> handler.handle(Future.succeededFuture(result)),
                         error -> handler.handle(Future.failedFuture(error)));

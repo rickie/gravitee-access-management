@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.resource.mock.provider;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.mfa.InvalidCodeException;
 import io.gravitee.am.resource.api.mfa.MFAChallenge;
 import io.gravitee.am.resource.api.mfa.MFALink;
@@ -34,7 +35,8 @@ public class MFAMockProvider implements MFAResourceProvider {
     @Autowired
     private MFAResourceConfiguration configuration;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.send_migrated(target))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable send(MFALink target) {
  return RxJava2Adapter.monoToCompletable(send_migrated(target));
@@ -45,7 +47,8 @@ public class MFAMockProvider implements MFAResourceProvider {
         return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.verify_migrated(challenge))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable verify(MFAChallenge challenge) {
  return RxJava2Adapter.monoToCompletable(verify_migrated(challenge));

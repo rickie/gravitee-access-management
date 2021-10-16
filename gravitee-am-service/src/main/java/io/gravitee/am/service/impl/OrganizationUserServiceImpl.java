@@ -75,7 +75,8 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
         return this.userRepository;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.setRoles_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Completable setRoles(io.gravitee.am.model.User user) {
  return RxJava2Adapter.monoToCompletable(setRoles_migrated(user));
 }
@@ -83,23 +84,24 @@ public Mono<Void> setRoles_migrated(io.gravitee.am.model.User user) {
         return RxJava2Adapter.completableToMono(setRoles(null, user));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.setRoles_migrated(principal, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Completable setRoles(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
  return RxJava2Adapter.monoToCompletable(setRoles_migrated(principal, user));
 }
 public Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
 
-        final Maybe<Role> defaultRoleObs = roleService.findDefaultRole(user.getReferenceId(), DefaultRole.ORGANIZATION_USER, ReferenceType.ORGANIZATION);
+        final Maybe<Role> defaultRoleObs = RxJava2Adapter.monoToMaybe(roleService.findDefaultRole_migrated(user.getReferenceId(), DefaultRole.ORGANIZATION_USER, ReferenceType.ORGANIZATION));
         Maybe<Role> roleObs = defaultRoleObs;
 
         if (principal != null && principal.getRoles() != null && !principal.getRoles().isEmpty()) {
             // We allow only one role in AM portal. Get the first (should not append).
             String roleId = principal.getRoles().get(0);
 
-            roleObs = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(roleService.findById(user.getReferenceType(), user.getReferenceId(), roleId)))
+            roleObs = RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.findById_migrated(user.getReferenceType(), user.getReferenceId(), roleId))))
                     .onErrorResumeNext(throwable -> {
                         if (throwable instanceof RoleNotFoundException) {
-                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(roleService.findById(ReferenceType.PLATFORM, Platform.DEFAULT, roleId)).switchIfEmpty(RxJava2Adapter.maybeToMono(defaultRoleObs)))
+                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.findById_migrated(ReferenceType.PLATFORM, Platform.DEFAULT, roleId))).switchIfEmpty(RxJava2Adapter.maybeToMono(defaultRoleObs)))
                                     .onErrorResumeNext(defaultRoleObs);
                         } else {
                             return defaultRoleObs;
@@ -115,7 +117,7 @@ public Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User pri
 
         return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(roleObs).switchIfEmpty(Mono.error(new TechnicalManagementException(String.format("Cannot add user membership to organization %s. Unable to find ORGANIZATION_USER role", user.getReferenceId())))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Role, CompletableSource>)role -> {
                     membership.setRoleId(role.getId());
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(membershipService.addOrUpdate(user.getReferenceId(), membership)).then());
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipService.addOrUpdate_migrated(user.getReferenceId(), membership))).then());
                 }).apply(y)))).then()));
     }
 
@@ -130,8 +132,7 @@ public Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User pri
         LOGGER.debug("Update a user {}", user);
         // updated date
         user.setUpdatedAt(new Date());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserRepository()
-                .findByUsernameAndSource(ReferenceType.ORGANIZATION, user.getReferenceId(), user.getUsername(), user.getSource())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(getUserRepository().findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, user.getReferenceId(), user.getUsername(), user.getSource()))
                 .flatMapSingle(oldUser -> {
 
                         user.setId(oldUser.getId());
@@ -149,11 +150,11 @@ public Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User pri
                             user.setLoginsCount(oldUser.getLoginsCount());
                         }
 
-                        return getUserRepository().update(user);
+                        return RxJava2Adapter.monoToSingle(getUserRepository().update_migrated(user));
                 })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user1 -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user1.getId(), user1.getReferenceType(), user1.getReferenceId(), Action.UPDATE));
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(user1)));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(user1)));
                 }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {

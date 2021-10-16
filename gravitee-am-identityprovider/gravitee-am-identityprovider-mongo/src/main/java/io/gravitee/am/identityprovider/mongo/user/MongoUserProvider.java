@@ -76,7 +76,8 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
 
     private MongoCollection<Document> usersCollection;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByEmail_migrated(email))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findByEmail(String email) {
  return RxJava2Adapter.monoToMaybe(findByEmail_migrated(email));
@@ -89,7 +90,8 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(query).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findByUsername(String username) {
  return RxJava2Adapter.monoToMaybe(findByUsername_migrated(username));
@@ -105,7 +107,8 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(query).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> create(User user) {
  return RxJava2Adapter.monoToSingle(create_migrated(user));
@@ -141,19 +144,20 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
                         // set date fields
                         document.put(FIELD_CREATED_AT, new Date());
                         document.put(FIELD_UPDATED_AT, document.get(FIELD_CREATED_AT));
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne(document))).flatMap(success->RxJava2Adapter.maybeToMono(findById(document.getString(FIELD_ID))).single()));
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne(document))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(document.getString(FIELD_ID)))).single()));
                     }
                 }).apply(v)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(id, updateUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> update(String id, User updateUser) {
  return RxJava2Adapter.monoToSingle(update_migrated(id, updateUser));
 }
 @Override
     public Mono<User> update_migrated(String id, User updateUser) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findById(id)).switchIfEmpty(Mono.error(new UserNotFoundException(id))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(id))).switchIfEmpty(Mono.error(new UserNotFoundException(id))))
                 .flatMapSingle(oldUser -> {
                     Document document = new Document();
                     // set username (keep the original value)
@@ -177,18 +181,19 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
                     // set date fields
                     document.put(FIELD_CREATED_AT, oldUser.getCreatedAt());
                     document.put(FIELD_UPDATED_AT, new Date());
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, oldUser.getId()), document))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(oldUser.getId())).single()));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, oldUser.getId()), document))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(oldUser.getId()))).single()));
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(findById(id)).switchIfEmpty(Mono.error(new UserNotFoundException(id))).flatMap(idpUser->Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id)))).then()));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(id))).switchIfEmpty(Mono.error(new UserNotFoundException(id))).flatMap(idpUser->Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id)))).then()));
     }
 
     @Override

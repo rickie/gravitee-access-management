@@ -77,7 +77,7 @@ public class ResetPasswordSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.resetPassword(eq(client), eq(user), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new ResetPasswordResponse())));
+        when(userService.resetPassword_migrated(eq(client), eq(user), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new ResetPasswordResponse()))));
 
         testRequest(
                 HttpMethod.POST, "/resetPassword?client_id=client-id",
@@ -111,7 +111,7 @@ public class ResetPasswordSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.resetPassword(eq(client), eq(user), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(resetPasswordResponse)));
+        when(userService.resetPassword_migrated(eq(client), eq(user), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(resetPasswordResponse))));
 
         testRequest(
                 HttpMethod.POST, "/resetPassword?client_id=client-id",

@@ -25,6 +25,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.ext.web.RoutingContext;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -90,7 +91,7 @@ public class UserTokenRequestParseHandler extends UserRequestHandler {
     }
 
     private void parseToken(String token, Handler<AsyncResult<UserToken>> handler) {
-        userService.verifyToken(token)
+        RxJava2Adapter.monoToMaybe(userService.verifyToken_migrated(token))
                 .subscribe(
                         userToken -> handler.handle(Future.succeededFuture(userToken)),
                         error -> handler.handle(Future.failedFuture(error)),

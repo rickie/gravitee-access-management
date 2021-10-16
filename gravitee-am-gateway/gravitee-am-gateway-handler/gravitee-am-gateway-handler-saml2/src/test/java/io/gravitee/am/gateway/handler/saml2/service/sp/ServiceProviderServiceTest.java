@@ -49,8 +49,8 @@ public class ServiceProviderServiceTest {
 
     @Test
     public void shouldNotGetMetadata_idp_not_found() {
-        when(identityProviderManager.get("provider-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver testObserver = serviceProviderService.metadata("provider-id", "https://idp.example.com").test();
+        when(identityProviderManager.get_migrated("provider-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(serviceProviderService.metadata_migrated("provider-id", "https://idp.example.com")).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(IdentityProviderNotFoundException.class);
     }
@@ -59,8 +59,8 @@ public class ServiceProviderServiceTest {
     public void shouldNotGetMetadata_null_metadata() {
         AuthenticationProvider authenticationProvider = mock(AuthenticationProvider.class);
         when(authenticationProvider.metadata("https://idp.example.com")).thenReturn(null);
-        when(identityProviderManager.get("provider-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(authenticationProvider)));
-        TestObserver testObserver = serviceProviderService.metadata("provider-id", "https://idp.example.com").test();
+        when(identityProviderManager.get_migrated("provider-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(authenticationProvider))));
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(serviceProviderService.metadata_migrated("provider-id", "https://idp.example.com")).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(IdentityProviderMetadataNotFoundException.class);
     }
@@ -71,8 +71,8 @@ public class ServiceProviderServiceTest {
         when(metadata.getBody()).thenReturn("metadata-payload");
         AuthenticationProvider authenticationProvider = mock(AuthenticationProvider.class);
         when(authenticationProvider.metadata("https://idp.example.com")).thenReturn(metadata);
-        when(identityProviderManager.get("provider-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(authenticationProvider)));
-        TestObserver<Metadata> testObserver = serviceProviderService.metadata("provider-id", "https://idp.example.com").test();
+        when(identityProviderManager.get_migrated("provider-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(authenticationProvider))));
+        TestObserver<Metadata> testObserver = RxJava2Adapter.monoToSingle(serviceProviderService.metadata_migrated("provider-id", "https://idp.example.com")).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(m -> m.getBody().equals("metadata-payload"));

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.flow;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.oauth2.exception.UnsupportedResponseTypeException;
 import io.gravitee.am.gateway.handler.oauth2.service.code.AuthorizationCodeService;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
@@ -64,7 +65,8 @@ public class CompositeFlow implements Flow, InitializingBean  {
         return false;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.run_migrated(authorizationRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<AuthorizationResponse> run(AuthorizationRequest authorizationRequest, Client client, User endUser) {
  return RxJava2Adapter.monoToSingle(run_migrated(authorizationRequest, client, endUser));
@@ -74,7 +76,7 @@ public class CompositeFlow implements Flow, InitializingBean  {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable
                 .fromIterable(flows), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(flow -> flow.handle(authorizationRequest.getResponseType()))))
                 .switchIfEmpty(Observable.error(new UnsupportedResponseTypeException("Unsupported response type: " + authorizationRequest.getResponseType())))
-                .flatMapSingle(flow -> flow.run(authorizationRequest, client, endUser)).singleOrError());
+                .flatMapSingle(flow -> RxJava2Adapter.monoToSingle(flow.run_migrated(authorizationRequest, client, endUser))).singleOrError());
     }
 
     @Override

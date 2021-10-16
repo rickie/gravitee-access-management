@@ -62,8 +62,8 @@ public class ClientServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(applicationService.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Application())));
-        TestObserver testObserver = clientService.findById("my-client").test();
+        when(applicationService.findById_migrated("my-client")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Application()))));
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientService.findById_migrated("my-client")).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -73,8 +73,8 @@ public class ClientServiceTest {
 
     @Test
     public void shouldFindById_notExistingClient() {
-        when(applicationService.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver testObserver = clientService.findById("my-client").test();
+        when(applicationService.findById_migrated("my-client")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(clientService.findById_migrated("my-client")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertNoValues();
@@ -82,9 +82,9 @@ public class ClientServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(applicationService.findById("my-client")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalManagementException::new))));
+        when(applicationService.findById_migrated("my-client")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalManagementException::new)))));
         TestObserver testObserver = new TestObserver();
-        clientService.findById("my-client").subscribe(testObserver);
+        RxJava2Adapter.monoToMaybe(clientService.findById_migrated("my-client")).subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -92,7 +92,7 @@ public class ClientServiceTest {
 
     @Test
     public void create_failWithNoDomain() {
-        TestObserver testObserver = clientService.create(new Client()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(clientService.create_migrated(new Client())).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidClientMetadataException.class);
     }
@@ -103,8 +103,8 @@ public class ClientServiceTest {
         toCreate.setDomain(DOMAIN);
         toCreate.setAuthorizedGrantTypes(Collections.singletonList("implicit"));
         toCreate.setResponseTypes(Collections.singletonList("token"));
-        when(applicationService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRedirectUriException())));
-        TestObserver testObserver = clientService.create(toCreate).test();
+        when(applicationService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRedirectUriException()))));
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(clientService.create_migrated(toCreate)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertNotComplete();
@@ -113,39 +113,39 @@ public class ClientServiceTest {
 
     @Test
     public void create_generateUuidAsClientId() {
-        when(applicationService.create(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
+        when(applicationService.create_migrated(any(Application.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Application()))));
 
         Client toCreate = new Client();
         toCreate.setDomain(DOMAIN);
         toCreate.setRedirectUris(Collections.singletonList("https://callback"));
-        TestObserver testObserver = clientService.create(toCreate).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(clientService.create_migrated(toCreate)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         ArgumentCaptor<Application> captor = ArgumentCaptor.forClass(Application.class);
-        verify(applicationService, times(1)).create(captor.capture());
+        verify(applicationService, times(1)).create_migrated(captor.capture());
         Assert.assertNotNull("client_id must be generated", captor.getValue().getSettings().getOauth().getClientId());
         Assert.assertNotNull("client_secret must be generated", captor.getValue().getSettings().getOauth().getClientSecret());
     }
 
     @Test
     public void update_failWithNoDomain() {
-        TestObserver testObserver = clientService.update(new Client()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(clientService.update_migrated(new Client())).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidClientMetadataException.class);
     }
 
     @Test
     public void update_implicitGrant_invalidRedirectUri() {
-        when(applicationService.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRedirectUriException())));
+        when(applicationService.update_migrated(any(Application.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRedirectUriException()))));
 
         Client toUpdate = new Client();
         toUpdate.setAuthorizedGrantTypes(Collections.singletonList("implicit"));
         toUpdate.setResponseTypes(Collections.singletonList("token"));
         toUpdate.setDomain(DOMAIN);
-        TestObserver testObserver = clientService.update(toUpdate).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(clientService.update_migrated(toUpdate)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertNotComplete();
@@ -154,72 +154,72 @@ public class ClientServiceTest {
 
     @Test
     public void update_defaultGrant_ok() {
-        when(applicationService.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
+        when(applicationService.update_migrated(any(Application.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Application()))));
 
         Client toUpdate = new Client();
         toUpdate.setDomain(DOMAIN);
         toUpdate.setRedirectUris(Collections.singletonList("https://callback"));
-        TestObserver testObserver = clientService.update(toUpdate).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(clientService.update_migrated(toUpdate)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(applicationService, times(1)).update(any(Application.class));
+        verify(applicationService, times(1)).update_migrated(any(Application.class));
     }
 
     @Test
     public void update_clientCredentials_ok() {
-        when(applicationService.update(any(Application.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
+        when(applicationService.update_migrated(any(Application.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Application()))));
 
         Client toUpdate = new Client();
         toUpdate.setDomain(DOMAIN);
         toUpdate.setAuthorizedGrantTypes(Collections.singletonList("client_credentials"));
         toUpdate.setResponseTypes(Collections.emptyList());
-        TestObserver testObserver = clientService.update(toUpdate).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(clientService.update_migrated(toUpdate)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(applicationService, times(1)).update(any(Application.class));
+        verify(applicationService, times(1)).update_migrated(any(Application.class));
     }
 
     @Test
     public void shouldDelete() {
-        when(applicationService.delete("my-client", null)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(applicationService.delete_migrated("my-client", null)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
         Form form = new Form();
         form.setId("form-id");
         Email email = new Email();
         email.setId("email-id");
 
-        TestObserver testObserver = clientService.delete("my-client").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(clientService.delete_migrated("my-client")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(applicationService, times(1)).delete("my-client", null);
+        verify(applicationService, times(1)).delete_migrated("my-client", null);
     }
 
     @Test
     public void shouldDelete_withoutRelatedData() {
-        when(applicationService.delete("my-client", null)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(applicationService.delete_migrated("my-client", null)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver testObserver = clientService.delete("my-client").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(clientService.delete_migrated("my-client")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(applicationService, times(1)).delete("my-client", null);
+        verify(applicationService, times(1)).delete_migrated("my-client", null);
     }
 
     @Test
     public void shouldDelete_technicalException() {
-        when(applicationService.delete("my-client", null)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(TechnicalManagementException::new)));
+        when(applicationService.delete_migrated("my-client", null)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(TechnicalManagementException::new))));
 
-        TestObserver testObserver = clientService.delete("my-client").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(clientService.delete_migrated("my-client")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(TechnicalManagementException.class);
@@ -228,15 +228,15 @@ public class ClientServiceTest {
 
     @Test
     public void shouldDelete_clientNotFound() {
-        when(applicationService.delete("my-client", null)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(new ClientNotFoundException("my-client"))));
+        when(applicationService.delete_migrated("my-client", null)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new ClientNotFoundException("my-client")))));
 
-        TestObserver testObserver = clientService.delete("my-client").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(clientService.delete_migrated("my-client")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(ClientNotFoundException.class);
         testObserver.assertNotComplete();
 
-        verify(applicationService, times(1)).delete("my-client", null);
+        verify(applicationService, times(1)).delete_migrated("my-client", null);
     }
 
     @Test
@@ -244,40 +244,40 @@ public class ClientServiceTest {
         Application client = new Application();
         client.setDomain(DOMAIN);
 
-        when(applicationService.renewClientSecret(DOMAIN, "my-client", null)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
+        when(applicationService.renewClientSecret_migrated(DOMAIN, "my-client", null)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Application()))));
 
-        TestObserver testObserver = clientService.renewClientSecret(DOMAIN, "my-client").test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(clientService.renewClientSecret_migrated(DOMAIN, "my-client")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(applicationService, times(1)).renewClientSecret(DOMAIN, "my-client", null);
+        verify(applicationService, times(1)).renewClientSecret_migrated(DOMAIN, "my-client", null);
     }
 
     @Test
     public void shouldRenewSecret_clientNotFound() {
-        when(applicationService.renewClientSecret(DOMAIN, "my-client", null)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new ClientNotFoundException("my-client"))));
+        when(applicationService.renewClientSecret_migrated(DOMAIN, "my-client", null)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new ClientNotFoundException("my-client")))));
 
-        TestObserver testObserver = clientService.renewClientSecret(DOMAIN, "my-client").test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(clientService.renewClientSecret_migrated(DOMAIN, "my-client")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(ClientNotFoundException.class);
         testObserver.assertNotComplete();
 
-        verify(applicationService, never()).update(any());
+        verify(applicationService, never()).update_migrated(any());
     }
 
     @Test
     public void shouldRenewSecret_technicalException() {
-        when(applicationService.renewClientSecret(DOMAIN, "my-client", null)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalManagementException::new))));
+        when(applicationService.renewClientSecret_migrated(DOMAIN, "my-client", null)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalManagementException::new)))));
 
-        TestObserver testObserver = clientService.renewClientSecret(DOMAIN, "my-client").test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(clientService.renewClientSecret_migrated(DOMAIN, "my-client")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
 
-        verify(applicationService, never()).update(any());
+        verify(applicationService, never()).update_migrated(any());
     }
 }

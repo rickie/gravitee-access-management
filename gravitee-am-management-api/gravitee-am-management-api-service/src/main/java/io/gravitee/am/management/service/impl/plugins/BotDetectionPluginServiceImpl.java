@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service.impl.plugins;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.management.service.BotDetectionPluginService;
 import io.gravitee.am.plugins.botdetection.core.BotDetectionPluginManager;
 import io.gravitee.am.service.exception.TechnicalManagementException;
@@ -43,7 +44,8 @@ public class BotDetectionPluginServiceImpl implements BotDetectionPluginService 
     @Autowired
     private BotDetectionPluginManager pluginManager;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<BotDetectionPlugin>> findAll() {
  return RxJava2Adapter.monoToSingle(findAll_migrated());
@@ -56,7 +58,8 @@ public class BotDetectionPluginServiceImpl implements BotDetectionPluginService 
                 .toList());
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(pluginId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<BotDetectionPlugin> findById(String pluginId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(pluginId));
@@ -79,7 +82,8 @@ public class BotDetectionPluginServiceImpl implements BotDetectionPluginService 
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(pluginId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<String> getSchema(String pluginId) {
  return RxJava2Adapter.monoToMaybe(getSchema_migrated(pluginId));

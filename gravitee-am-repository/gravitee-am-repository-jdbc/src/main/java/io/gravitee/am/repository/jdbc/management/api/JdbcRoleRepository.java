@@ -72,7 +72,8 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
         return mapper.map(entity, JdbcRole.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Role> findAll(ReferenceType referenceType, String referenceId) {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
@@ -80,10 +81,11 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
 @Override
     public Flux<Role> findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findAll({}, {})", referenceType, referenceId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(roleRepository.findByReference(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithScopes(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId())).flux())))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(roleRepository.findByReference_migrated(referenceType.name(), referenceId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId()))).flux())))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<Role>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
  return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
@@ -97,10 +99,11 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
                         .and(where("reference_type").is(referenceType.name()))))
                 .orderBy(Sort.Order.asc("name"))
                 .page(PageRequest.of(page, size))
-                .as(JdbcRole.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithScopes(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId())).flux()))).collectList().flatMap(content->RxJava2Adapter.singleToMono(roleRepository.countByReference(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Role>(content, page, count))))));
+                .as(JdbcRole.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId()))).flux()))).collectList().flatMap(content->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleRepository.countByReference_migrated(referenceType.name(), referenceId))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Role>(content, page, count))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<Role>> search(ReferenceType referenceType, String referenceId, String query, int page, int size) {
  return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, query, page, size));
@@ -120,10 +123,11 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
                 .bind("refId", referenceId)
                 .bind("refType", referenceType.name())
                 .as(JdbcRole.class)
-                .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithScopes(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId())).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("value", wildcardSearch ? wildcardValue : query).bind("refId", referenceId).bind("refType", referenceType.name()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Role>(data, page, total))))));
+                .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId()))).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("value", wildcardSearch ? wildcardValue : query).bind("refId", referenceId).bind("refType", referenceType.name()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Role>(data, page, total))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Role> findByIdIn(List<String> ids) {
  return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
@@ -134,10 +138,11 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
         if (ids == null || ids.isEmpty()) {
             return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty()));
         }
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(roleRepository.findByIdIn(ids)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithScopes(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId())).flux())))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(roleRepository.findByIdIn_migrated(ids))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(role -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId()))).flux())))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, role))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Role> findById(ReferenceType referenceType, String referenceId, String role) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, role));
@@ -145,10 +150,11 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
 @Override
     public Mono<Role> findById_migrated(ReferenceType referenceType, String referenceId, String role) {
         LOGGER.debug("findById({},{},{})", referenceType, referenceId, role);
-        return RxJava2Adapter.maybeToMono(completeWithScopes(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(roleRepository.findById(referenceType.name(), referenceId, role)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), role));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(roleRepository.findById(referenceType.name(), referenceId, role)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), role)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByNameAndAssignableType_migrated(referenceType, referenceId, name, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Role> findByNameAndAssignableType(ReferenceType referenceType, String referenceId, String name, ReferenceType assignableType) {
  return RxJava2Adapter.monoToMaybe(findByNameAndAssignableType_migrated(referenceType, referenceId, name, assignableType));
@@ -156,10 +162,11 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
 @Override
     public Mono<Role> findByNameAndAssignableType_migrated(ReferenceType referenceType, String referenceId, String name, ReferenceType assignableType) {
         LOGGER.debug("findByNameAndAssignableType({},{},{},{})", referenceType, referenceId, name, assignableType);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(roleRepository.findByNameAndAssignableType(referenceType.name(), referenceId, name, assignableType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeWithScopes(RxJava2Adapter.monoToMaybe(Mono.just(z)), z.getId()).as(RxJava2Adapter::maybeToMono))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleRepository.findByNameAndAssignableType_migrated(referenceType.name(), referenceId, name, assignableType.name()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(z)), z.getId())).as(RxJava2Adapter::maybeToMono))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByNamesAndAssignableType_migrated(referenceType, referenceId, names, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Role> findByNamesAndAssignableType(ReferenceType referenceType, String referenceId, List<String> names, ReferenceType assignableType) {
  return RxJava2Adapter.fluxToFlowable(findByNamesAndAssignableType_migrated(referenceType, referenceId, names, assignableType));
@@ -167,10 +174,11 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
 @Override
     public Flux<Role> findByNamesAndAssignableType_migrated(ReferenceType referenceType, String referenceId, List<String> names, ReferenceType assignableType) {
         LOGGER.debug("findByNamesAndAssignableType({},{},{},{})", referenceType, referenceId, names, assignableType);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(roleRepository.findByNamesAndAssignableType(referenceType.name(), referenceId, names, assignableType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Role, MaybeSource<Role>>toJdkFunction(role -> completeWithScopes(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId())).apply(e))))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(roleRepository.findByNamesAndAssignableType_migrated(referenceType.name(), referenceId, names, assignableType.name()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Role, MaybeSource<Role>>toJdkFunction(role -> RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(role)), role.getId()))).apply(e))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Role> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -178,7 +186,7 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
 @Override
     public Mono<Role> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.maybeToMono(completeWithScopes(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(roleRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), id));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(roleRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), id)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -293,7 +301,7 @@ private Maybe<Role> completeWithScopes(Maybe<Role> maybeRole, String id) {
  return RxJava2Adapter.monoToMaybe(completeWithScopes_migrated(maybeRole, id));
 }
 private Mono<Role> completeWithScopes_migrated(Maybe<Role> maybeRole, String id) {
-        Maybe<List<String>> scopes = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(oauthScopeRepository.findAllByRole(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcRole.OAuthScope::getScope)).collectList());
+        Maybe<List<String>> scopes = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(oauthScopeRepository.findAllByRole_migrated(id))).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcRole.OAuthScope::getScope)).collectList());
 
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeRole).zipWith(RxJava2Adapter.maybeToMono(scopes), RxJavaReactorMigrationUtil.toJdkBiFunction((role, scope) -> {
             LOGGER.debug("findById({}) fetch {} oauth scopes", id, scope == null ? 0 : scope.size());

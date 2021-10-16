@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.introspection.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.gateway.handler.oauth2.service.introspection.IntrospectionRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.introspection.IntrospectionResponse;
@@ -45,18 +46,18 @@ public class IntrospectionServiceImpl implements IntrospectionService {
     @Autowired
     private UserService userService;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.introspect_migrated(introspectionRequest))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<IntrospectionResponse> introspect(IntrospectionRequest introspectionRequest) {
  return RxJava2Adapter.monoToSingle(introspect_migrated(introspectionRequest));
 }
 @Override
     public Mono<IntrospectionResponse> introspect_migrated(IntrospectionRequest introspectionRequest) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tokenService.introspect(introspectionRequest.getToken())).flatMap(v->RxJava2Adapter.singleToMono((Single<IntrospectionResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<IntrospectionResponse>>)token -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tokenService.introspect_migrated(introspectionRequest.getToken()))).flatMap(v->RxJava2Adapter.singleToMono((Single<IntrospectionResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<IntrospectionResponse>>)token -> {
                     AccessToken accessToken = (AccessToken) token;
                     if (accessToken.getSubject() != null && !accessToken.getSubject().equals(accessToken.getClientId())) {
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService
-                                .findById(accessToken.getSubject())).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> convert(accessToken, user))).defaultIfEmpty(convert(accessToken, null)).single());
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(accessToken.getSubject()))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> convert(accessToken, user))).defaultIfEmpty(convert(accessToken, null)).single());
 
                     } else {
                         return RxJava2Adapter.monoToSingle(Mono.just(convert(accessToken, null)));

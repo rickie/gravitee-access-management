@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.impl.plugins;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.plugins.certificate.core.CertificatePluginManager;
 import io.gravitee.am.service.CertificatePluginService;
 import io.gravitee.am.service.exception.TechnicalManagementException;
@@ -46,7 +47,8 @@ public class CertificatePluginServiceImpl implements CertificatePluginService {
     @Autowired
     private CertificatePluginManager certificatePluginManager;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Set<CertificatePlugin>> findAll() {
  return RxJava2Adapter.monoToSingle(findAll_migrated());
@@ -67,7 +69,8 @@ public class CertificatePluginServiceImpl implements CertificatePluginService {
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(certificatePluginId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<CertificatePlugin> findById(String certificatePluginId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(certificatePluginId));
@@ -90,7 +93,8 @@ public class CertificatePluginServiceImpl implements CertificatePluginService {
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(certificatePluginId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<String> getSchema(String certificatePluginId) {
  return RxJava2Adapter.monoToMaybe(getSchema_migrated(certificatePluginId));

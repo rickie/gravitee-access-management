@@ -17,6 +17,7 @@ package io.gravitee.am.repository.mongodb.oauth2;
 
 import static com.mongodb.client.model.Filters.eq;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.repository.mongodb.oauth2.internal.model.RequestObjectMongo;
@@ -55,7 +56,8 @@ public class MongoRequestObjectRepository extends AbstractOAuth2MongoRepository 
         super.createIndex(requestObjectCollection, new Document(FIELD_EXPIRE_AT, 1), new IndexOptions().expireAfter(0L, TimeUnit.SECONDS));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<RequestObject> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -66,7 +68,8 @@ public class MongoRequestObjectRepository extends AbstractOAuth2MongoRepository 
                 .fromPublisher(requestObjectCollection.find(eq(FIELD_ID, id)).limit(1).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(requestObject))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<RequestObject> create(RequestObject requestObject) {
  return RxJava2Adapter.monoToSingle(create_migrated(requestObject));
@@ -77,7 +80,8 @@ public class MongoRequestObjectRepository extends AbstractOAuth2MongoRepository 
                 .fromPublisher(requestObjectCollection.insertOne(convert(requestObject)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(requestObject.getId())).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

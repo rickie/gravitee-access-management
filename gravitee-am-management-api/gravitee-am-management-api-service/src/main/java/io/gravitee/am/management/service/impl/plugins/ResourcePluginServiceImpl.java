@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service.impl.plugins;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.management.service.IdentityProviderPluginService;
 import io.gravitee.am.management.service.ResourcePluginService;
 import io.gravitee.am.plugins.resource.core.ResourcePluginManager;
@@ -44,7 +45,8 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
     @Autowired
     private ResourcePluginManager resourcePluginManager;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<ResourcePlugin>> findAll(List<String> expand) {
  return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
@@ -57,7 +59,8 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
                 .toList());
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(resourceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<ResourcePlugin> findById(String resourceId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(resourceId));
@@ -80,7 +83,8 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(resourceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<String> getSchema(String resourceId) {
  return RxJava2Adapter.monoToMaybe(getSchema_migrated(resourceId));
@@ -103,7 +107,8 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(resourceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<String> getIcon(String resourceId) {
  return RxJava2Adapter.monoToMaybe(getIcon_migrated(resourceId));

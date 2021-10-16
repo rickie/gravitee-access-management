@@ -57,7 +57,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
         mockEntrypoint.setCreatedAt(new Date());
         mockEntrypoint.setUpdatedAt(new Date());
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(mockEntrypoint))).when(entrypointService).findById(ENTRYPOINT_ID, ORGANIZATION_ID);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(mockEntrypoint)))).when(entrypointService).findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID);
 
         final Response response = target("organizations")
                 .path(ORGANIZATION_ID)
@@ -78,7 +78,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
     @Test
     public void shouldNotGetEntrypoint_notFound() {
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new EntrypointNotFoundException(ENTRYPOINT_ID)))).when(entrypointService).findById(ENTRYPOINT_ID, ORGANIZATION_ID);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new EntrypointNotFoundException(ENTRYPOINT_ID))))).when(entrypointService).findById_migrated(ENTRYPOINT_ID, ORGANIZATION_ID);
 
         final Response response = target("organizations")
                 .path(ORGANIZATION_ID)
@@ -100,7 +100,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
         mockEntrypoint.setOrganizationId(ORGANIZATION_ID);
         mockEntrypoint.setName("name");
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(mockEntrypoint))).when(entrypointService).update(eq(ENTRYPOINT_ID), eq(ORGANIZATION_ID), any(UpdateEntrypoint.class), any(User.class));
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(mockEntrypoint)))).when(entrypointService).update_migrated(eq(ENTRYPOINT_ID), eq(ORGANIZATION_ID), any(UpdateEntrypoint.class), any(User.class));
 
         final Response response = put(target("organizations")
                 .path(ORGANIZATION_ID)
@@ -122,7 +122,7 @@ public class EntrypointResourceTest extends JerseySpringTest {
         updateEntrypoint.setUrl("https://auth.company.com");
         updateEntrypoint.setTags(Collections.emptyList());
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new EntrypointNotFoundException(ENTRYPOINT_ID)))).when(entrypointService).update(eq(ENTRYPOINT_ID), eq(ORGANIZATION_ID), any(UpdateEntrypoint.class), any(User.class));
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new EntrypointNotFoundException(ENTRYPOINT_ID))))).when(entrypointService).update_migrated(eq(ENTRYPOINT_ID), eq(ORGANIZATION_ID), any(UpdateEntrypoint.class), any(User.class));
 
         final Response response = put(target("organizations")
                 .path(ORGANIZATION_ID)

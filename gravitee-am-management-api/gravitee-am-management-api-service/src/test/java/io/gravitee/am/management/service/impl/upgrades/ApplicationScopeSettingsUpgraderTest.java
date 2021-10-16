@@ -60,20 +60,20 @@ public class ApplicationScopeSettingsUpgraderTest {
     public void shouldIgnore_IfTaskCompleted() {
         final SystemTask task = new SystemTask();
         task.setStatus(SystemTaskStatus.SUCCESS.name());
-        when(systemTaskRepository.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(task)));
+        when(systemTaskRepository.findById_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(task))));
 
         upgrader.upgrade();
 
-        verify(systemTaskRepository, times(1)).findById(any());
-        verify(applicationRepository, never()).findAll();
+        verify(systemTaskRepository, times(1)).findById_migrated(any());
+        verify(applicationRepository, never()).findAll_migrated();
     }
 
     @Test
     public void shouldUpgrade() {
-        when(systemTaskRepository.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(systemTaskRepository.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
         final SystemTask task = new SystemTask();
         task.setStatus(SystemTaskStatus.INITIALIZED.name());
-        when(systemTaskRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(task)));
+        when(systemTaskRepository.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(task))));
 
         final Application appNoSettings = new Application();
         appNoSettings.setSettings(null);
@@ -102,28 +102,28 @@ public class ApplicationScopeSettingsUpgraderTest {
         settingsWithScopes.setOauth(oauthWithOptions);
         appScopesWithOptions.setSettings(settingsWithScopesWithOptions);
 
-        when(applicationRepository.findAll()).thenReturn(Flowable.fromArray(appNoSettings, appNoOauthSetings, appNoScopes, appScopes, appScopesWithOptions));
-        when(applicationRepository.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Application())));
-        when(systemTaskRepository.updateIf(any(), anyString())).thenAnswer((args) -> {
+        when(applicationRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(Flowable.fromArray(appNoSettings, appNoOauthSetings, appNoScopes, appScopes, appScopesWithOptions)));
+        when(applicationRepository.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Application()))));
+        when(systemTaskRepository.updateIf_migrated(any(), anyString())).thenAnswer((args) -> {
             SystemTask sysTask = args.getArgument(0);
             sysTask.setOperationId(args.getArgument(1));
-            return RxJava2Adapter.monoToSingle(Mono.just(sysTask));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(sysTask)));
         });
 
         upgrader.upgrade();
 
-        verify(systemTaskRepository, times(1)).findById(anyString());
-        verify(applicationRepository).findAll();
+        verify(systemTaskRepository, times(1)).findById_migrated(anyString());
+        verify(applicationRepository).findAll_migrated();
 
-        verify(applicationRepository, atMost(2)).update(argThat(app -> {
+        verify(applicationRepository, atMost(2)).update_migrated(argThat(app -> {
             return app.getSettings() == null || app.getSettings().getOauth() == null;
         }));
 
-        verify(applicationRepository, atMost(1)).update(argThat(app -> {
+        verify(applicationRepository, atMost(1)).update_migrated(argThat(app -> {
             return app.getSettings() != null && app.getSettings().getOauth() != null && app.getSettings().getOauth().getScopeSettings() == null;
         }));
 
-        verify(applicationRepository, atMost(1)).update(argThat(app -> {
+        verify(applicationRepository, atMost(1)).update_migrated(argThat(app -> {
             final boolean withScopeSettings = app.getSettings() != null && app.getSettings().getOauth() != null && app.getSettings().getOauth().getScopeSettings() != null;
             return withScopeSettings && app.getSettings().getOauth().getScopeSettings().stream().allMatch(a -> {
                 return (a.getScope().equalsIgnoreCase(SCOPE_OPENID) || a.getScope().equalsIgnoreCase(SCOPE_PROFILE))
@@ -132,7 +132,7 @@ public class ApplicationScopeSettingsUpgraderTest {
             });
         }));
 
-        verify(applicationRepository, atMost(1)).update(argThat(app -> {
+        verify(applicationRepository, atMost(1)).update_migrated(argThat(app -> {
             final boolean withScopeSettings = app.getSettings() != null && app.getSettings().getOauth() != null && app.getSettings().getOauth().getScopeSettings() != null;
             return withScopeSettings && app.getSettings().getOauth().getScopeSettings().stream().allMatch(a -> {
                 return (a.getScope().equalsIgnoreCase(SCOPE_OPENID)
@@ -143,7 +143,7 @@ public class ApplicationScopeSettingsUpgraderTest {
             });
         }));
 
-        verify(systemTaskRepository, times(2)).updateIf(any(), any());
+        verify(systemTaskRepository, times(2)).updateIf_migrated(any(), any());
     }
 
     @Test
@@ -161,14 +161,14 @@ public class ApplicationScopeSettingsUpgraderTest {
         finalizedTask.setStatus(SystemTaskStatus.SUCCESS.name());
 
         // first call no task, then ongoing and finally the successful one
-        when(systemTaskRepository.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()), RxJava2Adapter.monoToMaybe(Mono.just(ongoingTask)), RxJava2Adapter.monoToMaybe(Mono.just(finalizedTask)));
-        when(systemTaskRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new Exception())));
+        when(systemTaskRepository.findById_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())), RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(ongoingTask))), RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(finalizedTask))));
+        when(systemTaskRepository.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new Exception()))));
 
         upgrader.upgrade();
 
-        verify(systemTaskRepository, times(3)).findById(anyString());
-        verify(applicationRepository, never()).findAll();
+        verify(systemTaskRepository, times(3)).findById_migrated(anyString());
+        verify(applicationRepository, never()).findAll_migrated();
 
-        verify(systemTaskRepository, never()).updateIf(argThat( t -> t.getStatus().equalsIgnoreCase(SystemTaskStatus.SUCCESS.name())), anyString());
+        verify(systemTaskRepository, never()).updateIf_migrated(argThat( t -> t.getStatus().equalsIgnoreCase(SystemTaskStatus.SUCCESS.name())), anyString());
     }
 }

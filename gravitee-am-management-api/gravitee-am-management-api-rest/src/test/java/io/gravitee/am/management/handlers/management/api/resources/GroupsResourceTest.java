@@ -62,8 +62,8 @@ public class GroupsResourceTest extends JerseySpringTest {
         final List<Group> groups = Arrays.asList(mockGroup, mockGroup2);
         final Page<User> pagedUsers = new Page(groups, 0, 2);
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(pagedUsers))).when(groupService).findByDomain(domainId, 0, 10);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(pagedUsers)))).when(groupService).findByDomain_migrated(domainId, 0, 10);
 
         final Response response = target("domains")
                 .path(domainId)
@@ -82,7 +82,7 @@ public class GroupsResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetGroups_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs")))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs"))))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("groups").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -100,8 +100,8 @@ public class GroupsResourceTest extends JerseySpringTest {
         Group group = new Group();
         group.setId("group-id");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(group))).when(groupService).create(any(), any(), any());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(group)))).when(groupService).create_migrated(any(), any(), any());
 
         final Response response = target("domains")
                 .path(domainId)

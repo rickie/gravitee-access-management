@@ -58,7 +58,7 @@ public class SettingsResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_SETTINGS, Acl.READ)).then(RxJava2Adapter.singleToMono(organizationService.findById(organizationId))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_SETTINGS, Acl.READ))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(organizationService.findById_migrated(organizationId)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -76,7 +76,7 @@ public class SettingsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_SETTINGS, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(organizationService.update(organizationId, patchOrganization, authenticatedUser))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_SETTINGS, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(organizationService.update_migrated(organizationId, patchOrganization, authenticatedUser)))))
                 .subscribe(organization -> response.resume(Response.ok(organization).build()), response::resume);
     }
 }

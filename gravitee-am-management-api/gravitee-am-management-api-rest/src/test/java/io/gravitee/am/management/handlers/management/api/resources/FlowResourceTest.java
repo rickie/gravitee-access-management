@@ -50,7 +50,7 @@ public class FlowResourceTest extends JerseySpringTest {
         mockFlow.setId(FLOW_ID);
         mockFlow.setName("name");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockFlow))).when(flowService).findById(ReferenceType.DOMAIN, DOMAIN_ID, FLOW_ID);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockFlow)))).when(flowService).findById_migrated(ReferenceType.DOMAIN, DOMAIN_ID, FLOW_ID);
 
         final Response response = target("domains")
                 .path(DOMAIN_ID)
@@ -67,7 +67,7 @@ public class FlowResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldNotGetFlow_notFound() {
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(flowService).findById(ReferenceType.DOMAIN, DOMAIN_ID, FLOW_ID);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(flowService).findById_migrated(ReferenceType.DOMAIN, DOMAIN_ID, FLOW_ID);
 
         final Response response = target("domains")
                 .path(DOMAIN_ID)
@@ -90,7 +90,7 @@ public class FlowResourceTest extends JerseySpringTest {
         updatedFlow.setName(flowToUpdate.getName());
         updatedFlow.setType(flowToUpdate.getType());
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(updatedFlow))).when(flowService).update(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(FLOW_ID), any(Flow.class), any(User.class));
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updatedFlow)))).when(flowService).update_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(FLOW_ID), any(Flow.class), any(User.class));
 
         final Response response = put(target("domains")
                 .path(DOMAIN_ID)
@@ -110,7 +110,7 @@ public class FlowResourceTest extends JerseySpringTest {
         flowToUpdate.setName("updatedName");
         flowToUpdate.setType(Type.LOGIN);
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new FlowNotFoundException(FLOW_ID)))).when(flowService).update(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(FLOW_ID), any(Flow.class), any(User.class));
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new FlowNotFoundException(FLOW_ID))))).when(flowService).update_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(FLOW_ID), any(Flow.class), any(User.class));
 
         final Response response = put(target("domains")
                 .path(DOMAIN_ID)

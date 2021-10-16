@@ -19,15 +19,15 @@ import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.am.repository.jdbc.oauth2.api.JdbcScopeApprovalRepository;
 import io.gravitee.am.repository.oauth2.AbstractOAuthTest;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -56,8 +56,8 @@ public class ScopeApprovalRepositoryPurgeTest extends AbstractOAuthTest {
         scope2.setStatus(ScopeApproval.ApprovalStatus.APPROVED);
         scope2.setExpiresAt(new Date(now.minus(1, ChronoUnit.MINUTES).toEpochMilli()));
 
-        scopeApprovalRepository.create(scope1).test().awaitTerminalEvent();
-        scopeApprovalRepository.create(scope2).test().awaitTerminalEvent();
+        RxJava2Adapter.monoToSingle(scopeApprovalRepository.create_migrated(scope1)).test().awaitTerminalEvent();
+        RxJava2Adapter.monoToSingle(scopeApprovalRepository.create_migrated(scope2)).test().awaitTerminalEvent();
 
         TestObserver<HashSet<ScopeApproval>> testObserver = scopeApprovalRepository.findByDomainAndUser("domain", "user").collect(HashSet<ScopeApproval>::new, Set::add).test();
         testObserver.awaitTerminalEvent();

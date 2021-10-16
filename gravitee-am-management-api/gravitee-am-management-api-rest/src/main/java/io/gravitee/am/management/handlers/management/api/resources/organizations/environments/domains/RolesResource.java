@@ -84,8 +84,8 @@ public class RolesResource extends AbstractResource {
             @QueryParam("q") String query,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.LIST)).then(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(Mono.error(new DomainNotFoundException(domain)))))
-                        .flatMapSingle(__ -> searchRoles(domain, query, page, size))).map(RxJavaReactorMigrationUtil.toJdkFunction(pagedRoles -> {
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.LIST))).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain)))))
+                        .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(searchRoles_migrated(domain, query, page, size)))).map(RxJavaReactorMigrationUtil.toJdkFunction(pagedRoles -> {
                             List<Role> roles = pagedRoles.getData().stream()
                                     .map(this::filterRoleInfos)
                                     .sorted(Comparator.comparing(Role::getName))
@@ -114,8 +114,8 @@ public class RolesResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.CREATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(roleService.create(domain, newRole, authenticatedUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(role -> Response
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.CREATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.create_migrated(domain, newRole, authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(role -> Response
                                         .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/roles/" + role.getId()))
                                         .entity(role)
                                         .build())))))))
@@ -134,9 +134,9 @@ private Single<Page<Role>> searchRoles(String domain, String query, int page, in
 }
 private Mono<Page<Role>> searchRoles_migrated(String domain, String query, int page, int size) {
         if (query == null) {
-            return RxJava2Adapter.singleToMono(roleService.findByDomain(domain, page, Math.min(MAX_ROLES_SIZE_PER_PAGE, size)));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.findByDomain_migrated(domain, page, Math.min(MAX_ROLES_SIZE_PER_PAGE, size))));
         }
-        return RxJava2Adapter.singleToMono(roleService.searchByDomain(domain, query, page, Math.min(MAX_ROLES_SIZE_PER_PAGE, size)));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.searchByDomain_migrated(domain, query, page, Math.min(MAX_ROLES_SIZE_PER_PAGE, size))));
     }
 
     private Role filterRoleInfos(Role role) {

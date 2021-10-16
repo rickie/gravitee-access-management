@@ -43,10 +43,10 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
         Certificate certificate = buildCertificate();
         certificate.setDomain("DomainTestFindByDomain");
 
-        RxJava2Adapter.singleToMono(certificateRepository.create(certificate)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(certificateRepository.create_migrated(certificate))).block();
 
         // fetch certificates
-        TestSubscriber<Certificate> testSubscriber = certificateRepository.findByDomain("DomainTestFindByDomain").test();
+        TestSubscriber<Certificate> testSubscriber = RxJava2Adapter.fluxToFlowable(certificateRepository.findByDomain_migrated("DomainTestFindByDomain")).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -79,10 +79,10 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
         // create certificate
         Certificate certificate = buildCertificate();
         certificate.setName("testFindById");
-        Certificate certificateCreated = RxJava2Adapter.singleToMono(certificateRepository.create(certificate)).block();
+        Certificate certificateCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(certificateRepository.create_migrated(certificate))).block();
 
         // fetch certificate
-        TestObserver<Certificate> testObserver = certificateRepository.findById(certificateCreated.getId()).test();
+        TestObserver<Certificate> testObserver = RxJava2Adapter.monoToMaybe(certificateRepository.findById_migrated(certificateCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -99,14 +99,14 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testNotFoundById() throws TechnicalException {
-        certificateRepository.findById("test").test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(certificateRepository.findById_migrated("test")).test().assertEmpty();
     }
 
     @Test
     public void testCreate() throws TechnicalException {
         Certificate certificate = buildCertificate();
 
-        TestObserver<Certificate> testObserver = certificateRepository.create(certificate).test();
+        TestObserver<Certificate> testObserver = RxJava2Adapter.monoToSingle(certificateRepository.create_migrated(certificate)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -118,14 +118,14 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create certificate
         Certificate certificate = buildCertificate();
-        Certificate certificateCreated = RxJava2Adapter.singleToMono(certificateRepository.create(certificate)).block();
+        Certificate certificateCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(certificateRepository.create_migrated(certificate))).block();
 
         // update certificate
         Certificate updatedCertificate = new Certificate(certificateCreated);
         updatedCertificate.setId(certificateCreated.getId());
         updatedCertificate.setName("testUpdatedName");
 
-        TestObserver<Certificate> testObserver = certificateRepository.update(updatedCertificate).test();
+        TestObserver<Certificate> testObserver = RxJava2Adapter.monoToSingle(certificateRepository.update_migrated(updatedCertificate)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -137,20 +137,20 @@ public class CertificateRepositoryTest extends AbstractManagementTest {
     public void testDelete() throws TechnicalException {
         // create certificate
         Certificate certificate = buildCertificate();
-        Certificate certificateCreated = RxJava2Adapter.singleToMono(certificateRepository.create(certificate)).block();
+        Certificate certificateCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(certificateRepository.create_migrated(certificate))).block();
 
         // fetch certificate
-        TestObserver<Certificate> testObserver = certificateRepository.findById(certificateCreated.getId()).test();
+        TestObserver<Certificate> testObserver = RxJava2Adapter.monoToMaybe(certificateRepository.findById_migrated(certificateCreated.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(d -> d.getName().equals(certificateCreated.getName()));
 
         // delete domain
-        TestObserver testObserver1 = certificateRepository.delete(certificateCreated.getId()).test();
+        TestObserver testObserver1 = RxJava2Adapter.monoToCompletable(certificateRepository.delete_migrated(certificateCreated.getId())).test();
         testObserver1.awaitTerminalEvent();
 
         // fetch domain
-        certificateRepository.findById(certificateCreated.getId()).test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(certificateRepository.findById_migrated(certificateCreated.getId())).test().assertEmpty();
     }
 }

@@ -26,6 +26,7 @@ import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * OAuth 2.0 Token Revocation
@@ -59,8 +60,7 @@ public class RevocationTokenEndpoint implements Handler<RoutingContext> {
             throw new InvalidClientException();
         }
 
-        revocationTokenService
-                .revoke(createRequest(context), client)
+        RxJava2Adapter.monoToCompletable(revocationTokenService.revoke_migrated(createRequest(context), client))
                 .subscribe(() -> context.response().setStatusCode(200).end(), context::fail);
     }
 

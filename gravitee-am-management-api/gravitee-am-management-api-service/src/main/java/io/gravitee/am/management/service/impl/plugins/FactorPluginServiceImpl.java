@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service.impl.plugins;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.management.service.FactorPluginService;
 import io.gravitee.am.plugins.factor.core.FactorPluginManager;
 import io.gravitee.am.service.exception.TechnicalManagementException;
@@ -43,7 +44,8 @@ public class FactorPluginServiceImpl implements FactorPluginService {
     @Autowired
     private FactorPluginManager factorPluginManager;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<FactorPlugin>> findAll() {
  return RxJava2Adapter.monoToSingle(findAll_migrated());
@@ -56,7 +58,8 @@ public class FactorPluginServiceImpl implements FactorPluginService {
                 .toList());
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(factorId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<FactorPlugin> findById(String factorId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(factorId));
@@ -79,7 +82,8 @@ public class FactorPluginServiceImpl implements FactorPluginService {
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(factorId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<String> getSchema(String factorId) {
  return RxJava2Adapter.monoToMaybe(getSchema_migrated(factorId));

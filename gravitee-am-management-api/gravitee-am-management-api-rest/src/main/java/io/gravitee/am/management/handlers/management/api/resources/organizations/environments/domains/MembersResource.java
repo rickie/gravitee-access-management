@@ -77,8 +77,8 @@ public class MembersResource extends AbstractResource {
             @PathParam("domain") String domain,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.LIST)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(domain1 -> RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(membershipService.findByReference(domain1.getId(), ReferenceType.DOMAIN)).collectList()))).flatMap(memberships->RxJava2Adapter.singleToMono(membershipService.getMetadata(memberships)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.Object>> metadata)->new MembershipListItem(memberships, metadata))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.LIST))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(domain1 -> RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(membershipService.findByReference_migrated(domain1.getId(), ReferenceType.DOMAIN))).collectList()))).flatMap(memberships->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipService.getMetadata_migrated(memberships))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.Object>> metadata)->new MembershipListItem(memberships, metadata))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -107,8 +107,8 @@ public class MembersResource extends AbstractResource {
         membership.setReferenceId(domain);
         membership.setReferenceType(ReferenceType.DOMAIN);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.CREATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(domain1 -> membershipService.addOrUpdate(organizationId, membership, authenticatedUser))).flatMap(membership1->RxJava2Adapter.completableToMono(membershipService.addEnvironmentUserRoleIfNecessary(organizationId, environmentId, newMembership, authenticatedUser)).then(Mono.just(Response.created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/members/" + membership1.getId())).entity(membership1).build())))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.CREATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(domain1 -> RxJava2Adapter.monoToSingle(membershipService.addOrUpdate_migrated(organizationId, membership, authenticatedUser)))).flatMap(membership1->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(membershipService.addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, authenticatedUser))).then(Mono.just(Response.created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/members/" + membership1.getId())).entity(membership1).build())))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -129,7 +129,7 @@ public class MembersResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)).then(RxJava2Adapter.singleToMono(permissionService.findAllPermissions(authenticatedUser, ReferenceType.DOMAIN, domain)).map(RxJavaReactorMigrationUtil.toJdkFunction(Permission::flatten))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(permissionService.findAllPermissions_migrated(authenticatedUser, ReferenceType.DOMAIN, domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(Permission::flatten))))
                 .subscribe(response::resume, response::resume);
     }
 

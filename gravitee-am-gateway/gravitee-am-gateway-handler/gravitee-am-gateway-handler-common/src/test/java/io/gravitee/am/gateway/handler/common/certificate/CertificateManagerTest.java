@@ -15,11 +15,14 @@
  */
 package io.gravitee.am.gateway.handler.common.certificate;
 
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.certificate.api.CertificateProvider;
 import io.gravitee.am.gateway.certificate.CertificateProviderManager;
 import io.gravitee.am.gateway.handler.common.certificate.impl.CertificateManagerImpl;
 import io.gravitee.am.model.Domain;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,10 +30,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -67,7 +67,7 @@ public class CertificateManagerTest {
 
     @Test
     public void findByAlgorithm_nullAlgorithm() {
-        TestObserver testObserver = certificateManager.findByAlgorithm(null).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(certificateManager.findByAlgorithm_migrated(null)).test();
         testObserver
                 .assertComplete()
                 .assertNoValues();
@@ -76,7 +76,7 @@ public class CertificateManagerTest {
 
     @Test
     public void findByAlgorithm_emptyAlgorithm() {
-        TestObserver testObserver = certificateManager.findByAlgorithm("").test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(certificateManager.findByAlgorithm_migrated("")).test();
         testObserver.assertComplete();
         testObserver
                 .assertComplete()
@@ -85,7 +85,7 @@ public class CertificateManagerTest {
 
     @Test
     public void findByAlgorithm_unknownAlgorithm() {
-        TestObserver testObserver = certificateManager.findByAlgorithm("unknown").test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(certificateManager.findByAlgorithm_migrated("unknown")).test();
         testObserver.assertComplete();
         testObserver
                 .assertComplete()
@@ -94,7 +94,7 @@ public class CertificateManagerTest {
 
     @Test
     public void findByAlgorithm_foundAlgorithm() {
-        TestObserver testObserver = certificateManager.findByAlgorithm("RS512").test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(certificateManager.findByAlgorithm_migrated("RS512")).test();
         testObserver.assertComplete();
         testObserver
                 .assertComplete()

@@ -21,9 +21,9 @@ import io.gravitee.am.model.User;
 import io.gravitee.am.model.application.ApplicationScopeSettings;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.observers.TestObserver;
-import org.junit.Test;
-
 import java.util.*;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -40,7 +40,7 @@ public class TokenRequestResolverTest {
         tokenRequest.setScopes(Collections.singleton(scope));
         Client client = new Client();
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, null).test();
+        TestObserver<TokenRequest> testObserver = RxJava2Adapter.monoToSingle(tokenRequestResolver.resolve_migrated(tokenRequest, client, null)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidScopeException.class);
     }
@@ -67,7 +67,7 @@ public class TokenRequestResolverTest {
         role.setOauthScopes(userScopes);
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, user).test();
+        TestObserver<TokenRequest> testObserver = RxJava2Adapter.monoToSingle(tokenRequestResolver.resolve_migrated(tokenRequest, client, user)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
@@ -99,7 +99,7 @@ public class TokenRequestResolverTest {
         role.setOauthScopes(userScopes);
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, user).test();
+        TestObserver<TokenRequest> testObserver = RxJava2Adapter.monoToSingle(tokenRequestResolver.resolve_migrated(tokenRequest, client, user)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
@@ -130,7 +130,7 @@ public class TokenRequestResolverTest {
         role.setOauthScopes(userScopes);
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, user).test();
+        TestObserver<TokenRequest> testObserver = RxJava2Adapter.monoToSingle(tokenRequestResolver.resolve_migrated(tokenRequest, client, user)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
@@ -145,7 +145,7 @@ public class TokenRequestResolverTest {
         TokenRequest tokenRequest = new TokenRequest();
         Client client = new Client();
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, null).test();
+        TestObserver<TokenRequest> testObserver = RxJava2Adapter.monoToSingle(tokenRequestResolver.resolve_migrated(tokenRequest, client, null)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
     }
@@ -160,7 +160,7 @@ public class TokenRequestResolverTest {
         setting.setScope("write");
         client.setScopeSettings(Collections.singletonList(setting));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, null).test();
+        TestObserver<TokenRequest> testObserver = RxJava2Adapter.monoToSingle(tokenRequestResolver.resolve_migrated(tokenRequest, client, null)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidScopeException.class);
     }
@@ -180,7 +180,7 @@ public class TokenRequestResolverTest {
         role.setOauthScopes(Collections.singletonList("user"));
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(tokenRequest, client, user).test();
+        TestObserver<TokenRequest> testObserver = RxJava2Adapter.monoToSingle(tokenRequestResolver.resolve_migrated(tokenRequest, client, user)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidScopeException.class);
     }
@@ -196,7 +196,7 @@ public class TokenRequestResolverTest {
         setting.setDefaultScope(true);
         client.setScopeSettings(Collections.singletonList(setting));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(authorizationRequest, client, null).test();
+        TestObserver<TokenRequest> testObserver = RxJava2Adapter.monoToSingle(tokenRequestResolver.resolve_migrated(authorizationRequest, client, null)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(request -> request.getScopes().iterator().next().equals(scope));
@@ -215,7 +215,7 @@ public class TokenRequestResolverTest {
         role.setOauthScopes(Collections.singletonList(scope));
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<TokenRequest> testObserver = tokenRequestResolver.resolve(authorizationRequest, client, user).test();
+        TestObserver<TokenRequest> testObserver = RxJava2Adapter.monoToSingle(tokenRequestResolver.resolve_migrated(authorizationRequest, client, user)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(request -> request.getScopes().iterator().next().equals(scope));

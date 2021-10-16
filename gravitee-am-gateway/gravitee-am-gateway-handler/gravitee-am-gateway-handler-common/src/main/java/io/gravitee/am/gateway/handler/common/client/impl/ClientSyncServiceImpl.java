@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.client.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.common.client.ClientManager;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.model.Domain;
@@ -42,7 +43,8 @@ public class ClientSyncServiceImpl implements ClientSyncService {
     @Autowired
     private ClientManager clientManager;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Client> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -53,7 +55,8 @@ public class ClientSyncServiceImpl implements ClientSyncService {
         return RxJava2Adapter.maybeToMono(client != null ? RxJava2Adapter.monoToMaybe(Mono.just(client)) : RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientId_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Client> findByClientId(String clientId) {
  return RxJava2Adapter.monoToMaybe(findByClientId_migrated(clientId));
@@ -63,7 +66,8 @@ public class ClientSyncServiceImpl implements ClientSyncService {
         return RxJava2Adapter.maybeToMono(findByDomainAndClientId(domain.getId(), clientId));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientId_migrated(domain, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Client> findByDomainAndClientId(String domain, String clientId) {
  return RxJava2Adapter.monoToMaybe(findByDomainAndClientId_migrated(domain, clientId));
@@ -77,7 +81,8 @@ public class ClientSyncServiceImpl implements ClientSyncService {
         return RxJava2Adapter.maybeToMono(optClient.isPresent() ? RxJava2Adapter.monoToMaybe(Mono.just(optClient.get())) : RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTemplates_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<Client>> findTemplates() {
  return RxJava2Adapter.monoToSingle(findTemplates_migrated());

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.reporter.vertx;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.analytics.Type;
 import io.gravitee.am.model.Platform;
 import io.gravitee.am.model.ReferenceType;
@@ -88,29 +89,31 @@ public class EventBusReporterWrapper implements Reporter, Handler<Message<Report
         return referenceType == ReferenceType.PLATFORM;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page> search(ReferenceType referenceType, String referenceId, ReportableCriteria criteria, int page, int size) {
  return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
 }
 @Override
     public Mono<Page> search_migrated(ReferenceType referenceType, String referenceId, ReportableCriteria criteria, int page, int size) {
-        return RxJava2Adapter.singleToMono(reporter.search(referenceType, referenceId, criteria, page, size));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(reporter.search_migrated(referenceType, referenceId, criteria, page, size)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(referenceType, referenceId, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId, ReportableCriteria criteria, Type analyticsType) {
  return RxJava2Adapter.monoToSingle(aggregate_migrated(referenceType, referenceId, criteria, analyticsType));
 }
 @Override
     public Mono<Map<Object,Object>> aggregate_migrated(ReferenceType referenceType, String referenceId, ReportableCriteria criteria, Type analyticsType) {
-        return RxJava2Adapter.singleToMono(reporter.aggregate(referenceType, referenceId, criteria, analyticsType));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(reporter.aggregate_migrated(referenceType, referenceId, criteria, analyticsType)));
     }
 
     @Override
     public Maybe findById(ReferenceType referenceType, String referenceId, String id) {
-        return reporter.findById(referenceType, referenceId, id);
+        return RxJava2Adapter.monoToMaybe(reporter.findById_migrated(referenceType, referenceId, id));
     }
 
     @Override

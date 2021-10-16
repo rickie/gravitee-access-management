@@ -82,8 +82,8 @@ public class AlertNotifierServiceTest {
         final AlertNotifier alertNotifier = new AlertNotifier();
         alertNotifier.setReferenceType(ReferenceType.DOMAIN);
         alertNotifier.setReferenceId(DOMAIN_ID);
-        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(alertNotifier)));
-        final TestObserver<AlertNotifier> obs = cut.getById(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID).test();
+        when(alertNotifierRepository.findById_migrated(ALERT_NOTIFIER_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(alertNotifier))));
+        final TestObserver<AlertNotifier> obs = RxJava2Adapter.monoToSingle(cut.getById_migrated(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID)).test();
 
         obs.awaitTerminalEvent();
         obs.assertValue(alertNotifier);
@@ -91,8 +91,8 @@ public class AlertNotifierServiceTest {
 
     @Test
     public void getByIdNotFound() {
-        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        final TestObserver<AlertNotifier> obs = cut.getById(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID).test();
+        when(alertNotifierRepository.findById_migrated(ALERT_NOTIFIER_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        final TestObserver<AlertNotifier> obs = RxJava2Adapter.monoToSingle(cut.getById_migrated(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID)).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(AlertNotifierNotFoundException.class);
@@ -102,8 +102,8 @@ public class AlertNotifierServiceTest {
     public void findByDomainCriteria() {
         final AlertNotifier alertNotifier = new AlertNotifier();
         final AlertNotifierCriteria criteria = new AlertNotifierCriteria();
-        when(alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertNotifier)));
-        final TestSubscriber<AlertNotifier> obs = cut.findByDomainAndCriteria(DOMAIN_ID, criteria).test();
+        when(alertNotifierRepository.findByCriteria_migrated(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(alertNotifier))));
+        final TestSubscriber<AlertNotifier> obs = RxJava2Adapter.fluxToFlowable(cut.findByDomainAndCriteria_migrated(DOMAIN_ID, criteria)).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -114,8 +114,8 @@ public class AlertNotifierServiceTest {
     public void findByReferenceAndCriteria() {
         final AlertNotifier alertNotifier = new AlertNotifier();
         final AlertNotifierCriteria criteria = new AlertNotifierCriteria();
-        when(alertNotifierRepository.findByCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(alertNotifier)));
-        final TestSubscriber<AlertNotifier> obs = cut.findByReferenceAndCriteria(ReferenceType.DOMAIN, DOMAIN_ID, criteria).test();
+        when(alertNotifierRepository.findByCriteria_migrated(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(alertNotifier))));
+        final TestSubscriber<AlertNotifier> obs = RxJava2Adapter.fluxToFlowable(cut.findByReferenceAndCriteria_migrated(ReferenceType.DOMAIN, DOMAIN_ID, criteria)).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -132,10 +132,10 @@ public class AlertNotifierServiceTest {
         newAlertNotifier.setConfiguration(CONFIGURATION);
         newAlertNotifier.setType(TYPE);
 
-        when(alertNotifierRepository.create(any(AlertNotifier.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
-        when(eventService.create(any(Event.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
+        when(alertNotifierRepository.create_migrated(any(AlertNotifier.class))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(eventService.create_migrated(any(Event.class))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
 
-        final TestObserver<AlertNotifier> obs = cut.create(ReferenceType.DOMAIN, DOMAIN_ID, newAlertNotifier, new DefaultUser(USERNAME)).test();
+        final TestObserver<AlertNotifier> obs = RxJava2Adapter.monoToSingle(cut.create_migrated(ReferenceType.DOMAIN, DOMAIN_ID, newAlertNotifier, new DefaultUser(USERNAME))).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -171,11 +171,11 @@ public class AlertNotifierServiceTest {
         alertNotifierToUpdate.setReferenceId(DOMAIN_ID);
         alertNotifierToUpdate.setCreatedAt(createdAt);
 
-        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(alertNotifierToUpdate)));
-        when(alertNotifierRepository.update(any(AlertNotifier.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
-        when(eventService.create(any(Event.class))).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
+        when(alertNotifierRepository.findById_migrated(ALERT_NOTIFIER_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(alertNotifierToUpdate))));
+        when(alertNotifierRepository.update_migrated(any(AlertNotifier.class))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(eventService.create_migrated(any(Event.class))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
 
-        final TestObserver<AlertNotifier> obs = cut.update(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID, patchAlertNotifier, new DefaultUser(USERNAME)).test();
+        final TestObserver<AlertNotifier> obs = RxJava2Adapter.monoToSingle(cut.update_migrated(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID, patchAlertNotifier, new DefaultUser(USERNAME))).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -204,9 +204,9 @@ public class AlertNotifierServiceTest {
         patchAlertNotifier.setConfiguration(Optional.of(CONFIGURATION));
 
 
-        when(alertNotifierRepository.findById(ALERT_NOTIFIER_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(alertNotifierRepository.findById_migrated(ALERT_NOTIFIER_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        final TestObserver<AlertNotifier> obs = cut.update(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID, patchAlertNotifier, new DefaultUser(USERNAME)).test();
+        final TestObserver<AlertNotifier> obs = RxJava2Adapter.monoToSingle(cut.update_migrated(ReferenceType.DOMAIN, DOMAIN_ID, ALERT_NOTIFIER_ID, patchAlertNotifier, new DefaultUser(USERNAME))).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(AlertNotifierNotFoundException.class);

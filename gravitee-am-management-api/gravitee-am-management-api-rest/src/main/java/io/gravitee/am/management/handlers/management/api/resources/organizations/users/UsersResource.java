@@ -81,7 +81,7 @@ public class UsersResource extends AbstractUsersResource {
 
         io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(permissionService.findAllPermissions(authenticatedUser, ReferenceType.ORGANIZATION, organizationId)).flatMap(organizationPermissions->RxJava2Adapter.completableToMono(checkPermission(organizationPermissions, Permission.ORGANIZATION_USER, Acl.LIST)).then(RxJava2Adapter.singleToMono(searchUsers(ReferenceType.ORGANIZATION, organizationId, query, filter, page, size)).flatMap(pagedUsers->RxJava2Adapter.singleToMono(Observable.fromIterable(pagedUsers.getData()).flatMapSingle((io.gravitee.am.model.User user)->filterUserInfos(organizationPermissions, user)).toSortedList(Comparator.comparing(User::getUsername))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.User> users)->new Page<>(users, pagedUsers.getCurrentPage(), pagedUsers.getTotalCount())))))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(permissionService.findAllPermissions_migrated(authenticatedUser, ReferenceType.ORGANIZATION, organizationId))).flatMap(organizationPermissions->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(organizationPermissions, Permission.ORGANIZATION_USER, Acl.LIST))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(searchUsers_migrated(ReferenceType.ORGANIZATION, organizationId, query, filter, page, size))).flatMap(pagedUsers->RxJava2Adapter.singleToMono(Observable.fromIterable(pagedUsers.getData()).flatMapSingle((io.gravitee.am.model.User user)->RxJava2Adapter.monoToSingle(filterUserInfos_migrated(organizationPermissions, user))).toSortedList(Comparator.comparing(User::getUsername))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.User> users)->new Page<>(users, pagedUsers.getCurrentPage(), pagedUsers.getTotalCount())))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -100,7 +100,7 @@ public class UsersResource extends AbstractUsersResource {
 
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.CREATE)).then(RxJava2Adapter.singleToMono(organizationService.findById(organizationId)).flatMap(organization->RxJava2Adapter.singleToMono(organizationUserService.createGraviteeUser(organization, newUser, authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> Response
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.CREATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(organizationService.findById_migrated(organizationId))).flatMap(organization->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(organizationUserService.createGraviteeUser_migrated(organization, newUser, authenticatedUser)))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/users/" + user.getId()))
                                 .entity(user)
                                 .build()))))
@@ -125,7 +125,7 @@ private Mono<User> filterUserInfos_migrated(Map<Permission, Set<Acl>> organizati
             // Current user has read permission, copy all information.
             filteredUser = new User(user);
             if (user.getSource() != null) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(user.getSource())).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(user.getSource()))).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
                             filteredUser.setSource(idP.getName());
                             return filteredUser;
                         })).defaultIfEmpty(filteredUser).single()));

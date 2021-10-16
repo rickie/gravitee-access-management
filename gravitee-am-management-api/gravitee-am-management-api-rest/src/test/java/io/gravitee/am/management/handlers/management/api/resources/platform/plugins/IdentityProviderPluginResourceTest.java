@@ -41,7 +41,7 @@ public class IdentityProviderPluginResourceTest extends JerseySpringTest {
         identityProviderPlugin.setId(identityProviderPluginId);
         identityProviderPlugin.setName("identityProvider-plugin-name");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(identityProviderPlugin))).when(identityProviderPluginService).findById(identityProviderPluginId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(identityProviderPlugin)))).when(identityProviderPluginService).findById_migrated(identityProviderPluginId);
 
         final Response response = target("platform")
                 .path("plugins")
@@ -54,7 +54,7 @@ public class IdentityProviderPluginResourceTest extends JerseySpringTest {
     @Test
     public void shouldGet_technicalManagementException() {
         final String identityProviderPluginId = "identityProvider-plugin-id";
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("Error occurs")))).when(identityProviderPluginService).findById(identityProviderPluginId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("Error occurs"))))).when(identityProviderPluginService).findById_migrated(identityProviderPluginId);
 
         final Response response = target("platform")
                 .path("plugins")
@@ -73,8 +73,8 @@ public class IdentityProviderPluginResourceTest extends JerseySpringTest {
 
         final String schema = "identityProvider-plugin-schema";
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(identityProviderPlugin))).when(identityProviderPluginService).findById(identityProviderPluginId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(schema))).when(identityProviderPluginService).getSchema(identityProviderPluginId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(identityProviderPlugin)))).when(identityProviderPluginService).findById_migrated(identityProviderPluginId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(schema)))).when(identityProviderPluginService).getSchema_migrated(identityProviderPluginId);
 
         final Response response = target("platform")
                 .path("plugins")
@@ -91,7 +91,7 @@ public class IdentityProviderPluginResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetSchema_technicalManagementException() {
         final String identityProviderPluginId = "identityProvider-plugin-id";
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("Error occurs")))).when(identityProviderPluginService).findById(identityProviderPluginId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("Error occurs"))))).when(identityProviderPluginService).findById_migrated(identityProviderPluginId);
 
         final Response response = target("platform")
                 .path("plugins")

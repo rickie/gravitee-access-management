@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.user.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.common.user.UserService;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
@@ -38,83 +39,91 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private io.gravitee.am.service.UserService userService;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
 @Override
     public Mono<User> findById_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(userService.findById(id));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(id)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndExternalIdAndSource_migrated(domain, externalId, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findByDomainAndExternalIdAndSource(String domain, String externalId, String source) {
  return RxJava2Adapter.monoToMaybe(findByDomainAndExternalIdAndSource_migrated(domain, externalId, source));
 }
 @Override
     public Mono<User> findByDomainAndExternalIdAndSource_migrated(String domain, String externalId, String source) {
-        return RxJava2Adapter.maybeToMono(userService.findByExternalIdAndSource(ReferenceType.DOMAIN, domain, externalId, source));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findByExternalIdAndSource_migrated(ReferenceType.DOMAIN, domain, externalId, source)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndUsernameAndSource_migrated(domain, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findByDomainAndUsernameAndSource(String domain, String username, String source) {
  return RxJava2Adapter.monoToMaybe(findByDomainAndUsernameAndSource_migrated(domain, username, source));
 }
 @Override
     public Mono<User> findByDomainAndUsernameAndSource_migrated(String domain, String username, String source) {
-        return RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain, username, source));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findByDomainAndUsernameAndSource_migrated(domain, username, source)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomainAndCriteria_migrated(domain, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<User>> findByDomainAndCriteria(String domain, FilterCriteria criteria) {
  return RxJava2Adapter.monoToSingle(findByDomainAndCriteria_migrated(domain, criteria));
 }
 @Override
     public Mono<List<User>> findByDomainAndCriteria_migrated(String domain, FilterCriteria criteria) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userService.search(ReferenceType.DOMAIN, domain, criteria, 0, 2)).map(RxJavaReactorMigrationUtil.toJdkFunction(p -> new ArrayList<>(p.getData())))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.search_migrated(ReferenceType.DOMAIN, domain, criteria, 0, 2))).map(RxJavaReactorMigrationUtil.toJdkFunction(p -> new ArrayList<>(p.getData())))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> create(User user) {
  return RxJava2Adapter.monoToSingle(create_migrated(user));
 }
 @Override
     public Mono<User> create_migrated(User user) {
-        return RxJava2Adapter.singleToMono(userService.create(user));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.create_migrated(user)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> update(User user) {
  return RxJava2Adapter.monoToSingle(update_migrated(user));
 }
 @Override
     public Mono<User> update_migrated(User user) {
-        return RxJava2Adapter.singleToMono(userService.update(user));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.update_migrated(user)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enhance_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> enhance(User user) {
  return RxJava2Adapter.monoToSingle(enhance_migrated(user));
 }
 @Override
     public Mono<User> enhance_migrated(User user) {
-        return RxJava2Adapter.singleToMono(userService.enhance(user));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.enhance_migrated(user)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addFactor_migrated(userId, enrolledFactor, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> addFactor(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
  return RxJava2Adapter.monoToSingle(addFactor_migrated(userId, enrolledFactor, principal));
 }
 @Override
     public Mono<User> addFactor_migrated(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.singleToMono(userService.upsertFactor(userId, enrolledFactor, principal));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.upsertFactor_migrated(userId, enrolledFactor, principal)));
     }
 }

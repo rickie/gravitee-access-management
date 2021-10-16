@@ -84,7 +84,7 @@ public class HybridFlow extends AbstractFlow {
 @Override
     protected Mono<AuthorizationResponse> prepareResponse_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
         // Authorization Code is always returned when using the Hybrid Flow.
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(authorizationCodeService.create(authorizationRequest, endUser)).flatMap(v->RxJava2Adapter.singleToMono((Single<AuthorizationResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<AuthorizationCode, Single<AuthorizationResponse>>)code -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authorizationCodeService.create_migrated(authorizationRequest, endUser))).flatMap(v->RxJava2Adapter.singleToMono((Single<AuthorizationResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<AuthorizationCode, Single<AuthorizationResponse>>)code -> {
                     // prepare response
                     HybridResponse hybridResponse = new HybridResponse();
                     hybridResponse.setRedirectUri(authorizationRequest.getRedirectUri());
@@ -98,13 +98,13 @@ public class HybridFlow extends AbstractFlow {
                     switch (authorizationRequest.getResponseType()) {
                         // code id_token response type MUST include both an Authorization Code and an id_token
                         case ResponseType.CODE_ID_TOKEN:
-                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(idTokenService.create(oAuth2Request, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(idToken -> {
+                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, endUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(idToken -> {
                                         hybridResponse.setIdToken(idToken);
                                         return hybridResponse;
                                     })));
                         // others Hybrid Flow response type MUST include at least an Access Token, an Access Token Type and optionally an ID Token
                         default:
-                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(tokenService.create(oAuth2Request, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> {
+                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tokenService.create_migrated(oAuth2Request, client, endUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> {
                                         hybridResponse.setAccessToken(accessToken);
                                         return hybridResponse;
                                     })));

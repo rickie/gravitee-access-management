@@ -69,14 +69,14 @@ public class IntrospectionTokenServiceTest {
         final Client client = new Client();
         client.setClientId("client-id");
 
-        when(jwtService.decode(token)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
-        when(jwtService.decodeAndVerify(token, client)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
+        when(jwtService.decode_migrated(token)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(clientService.findByDomainAndClientId_migrated(jwt.getDomain(), jwt.getAud())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(jwtService.decodeAndVerify_migrated(token, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
 
-        TestObserver testObserver = introspectionTokenService.introspect(token, true).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(introspectionTokenService.introspect_migrated(token, true)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        verify(accessTokenRepository, never()).findByToken(jwt.getJti());
+        verify(accessTokenRepository, never()).findByToken_migrated(jwt.getJti());
     }
 
     @Test
@@ -95,15 +95,15 @@ public class IntrospectionTokenServiceTest {
         final AccessToken accessToken = new AccessToken();
         accessToken.setExpireAt(new Date(Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli()));
 
-        when(jwtService.decode(token)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
-        when(jwtService.decodeAndVerify(token, client)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(accessTokenRepository.findByToken(jwt.getJti())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(accessToken)));
+        when(jwtService.decode_migrated(token)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(clientService.findByDomainAndClientId_migrated(jwt.getDomain(), jwt.getAud())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(jwtService.decodeAndVerify_migrated(token, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(accessTokenRepository.findByToken_migrated(jwt.getJti())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(accessToken))));
 
-        TestObserver testObserver = introspectionTokenService.introspect(token, false).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(introspectionTokenService.introspect_migrated(token, false)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        verify(accessTokenRepository, times(1)).findByToken(jwt.getJti());
+        verify(accessTokenRepository, times(1)).findByToken_migrated(jwt.getJti());
     }
 
     @Test
@@ -117,15 +117,15 @@ public class IntrospectionTokenServiceTest {
         final Client client = new Client();
         client.setClientId("client-id");
 
-        when(jwtService.decode(token)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
-        when(jwtService.decodeAndVerify(token, client)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
+        when(jwtService.decode_migrated(token)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(clientService.findByDomainAndClientId_migrated(jwt.getDomain(), jwt.getAud())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(jwtService.decodeAndVerify_migrated(token, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
 
-        TestObserver testObserver = introspectionTokenService.introspect(token, false).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(introspectionTokenService.introspect_migrated(token, false)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         // repository should not be call because the token is too recent
-        verify(accessTokenRepository, never()).findByToken(jwt.getJti());
+        verify(accessTokenRepository, never()).findByToken_migrated(jwt.getJti());
     }
 
     @Test
@@ -139,13 +139,13 @@ public class IntrospectionTokenServiceTest {
         final Client client = new Client();
         client.setClientId("client-id");
 
-        when(jwtService.decode(token)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
-        when(jwtService.decodeAndVerify(token, client)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new JWTException("invalid token"))));
+        when(jwtService.decode_migrated(token)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(clientService.findByDomainAndClientId_migrated(jwt.getDomain(), jwt.getAud())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(jwtService.decodeAndVerify_migrated(token, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new JWTException("invalid token")))));
 
-        TestObserver testObserver = introspectionTokenService.introspect(token, false).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(introspectionTokenService.introspect_migrated(token, false)).test();
         testObserver.assertError(InvalidTokenException.class);
-        verify(accessTokenRepository, never()).findByToken(jwt.getJti());
+        verify(accessTokenRepository, never()).findByToken_migrated(jwt.getJti());
     }
 
     @Test
@@ -159,14 +159,14 @@ public class IntrospectionTokenServiceTest {
         final Client client = new Client();
         client.setClientId("client-id");
 
-        when(jwtService.decode(token)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
-        when(jwtService.decodeAndVerify(token, client)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(accessTokenRepository.findByToken(jwt.getJti())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(jwtService.decode_migrated(token)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(clientService.findByDomainAndClientId_migrated(jwt.getDomain(), jwt.getAud())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(jwtService.decodeAndVerify_migrated(token, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(accessTokenRepository.findByToken_migrated(jwt.getJti())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver testObserver = introspectionTokenService.introspect(token, false).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(introspectionTokenService.introspect_migrated(token, false)).test();
         testObserver.assertError(InvalidTokenException.class);
-        verify(accessTokenRepository, times(1)).findByToken(jwt.getJti());
+        verify(accessTokenRepository, times(1)).findByToken_migrated(jwt.getJti());
     }
 
     @Test
@@ -183,13 +183,13 @@ public class IntrospectionTokenServiceTest {
         final AccessToken accessToken = new AccessToken();
         accessToken.setExpireAt(new Date(Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli()));
 
-        when(jwtService.decode(token)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(clientService.findByDomainAndClientId(jwt.getDomain(), jwt.getAud())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
-        when(jwtService.decodeAndVerify(token, client)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(accessTokenRepository.findByToken(jwt.getJti())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(accessToken)));
+        when(jwtService.decode_migrated(token)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(clientService.findByDomainAndClientId_migrated(jwt.getDomain(), jwt.getAud())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(jwtService.decodeAndVerify_migrated(token, client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(accessTokenRepository.findByToken_migrated(jwt.getJti())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(accessToken))));
 
-        TestObserver testObserver = introspectionTokenService.introspect(token, false).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(introspectionTokenService.introspect_migrated(token, false)).test();
         testObserver.assertError(InvalidTokenException.class);
-        verify(accessTokenRepository, times(1)).findByToken(jwt.getJti());
+        verify(accessTokenRepository, times(1)).findByToken_migrated(jwt.getJti());
     }
 }

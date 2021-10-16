@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.identityprovider.ldap.authentication;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.exception.authentication.InternalAuthenticationServiceException;
 import io.gravitee.am.common.exception.authentication.UsernameNotFoundException;
@@ -126,7 +127,8 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
@@ -153,7 +155,8 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
         })).map(RxJavaReactorMigrationUtil.toJdkFunction(ldapUser -> createUser(authentication.getContext(), ldapUser)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> loadUserByUsername(String username) {
  return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));

@@ -73,55 +73,55 @@ public class PurgeManagerTest {
 
     @Before
     public void prepare() {
-        when(accessTokenRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(loginAttemptRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(permissionTicketRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(authorizationCodeRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(scopeApprovalRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(refreshTokenRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(requestObjectRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(authenticationFlowContextRepository.purgeExpiredData()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(accessTokenRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(loginAttemptRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(permissionTicketRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(authorizationCodeRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(scopeApprovalRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(refreshTokenRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(requestObjectRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(authenticationFlowContextRepository.purgeExpiredData_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
     }
 
     @Test
     public void testNullExclude() {
         manager.purge(null);
 
-        verify(accessTokenRepository).purgeExpiredData();
-        verify(loginAttemptRepository).purgeExpiredData();
-        verify(permissionTicketRepository).purgeExpiredData();
-        verify(authorizationCodeRepository).purgeExpiredData();
-        verify(scopeApprovalRepository).purgeExpiredData();
-        verify(refreshTokenRepository).purgeExpiredData();
-        verify(requestObjectRepository).purgeExpiredData();
-        verify(authenticationFlowContextRepository).purgeExpiredData();
+        verify(accessTokenRepository).purgeExpiredData_migrated();
+        verify(loginAttemptRepository).purgeExpiredData_migrated();
+        verify(permissionTicketRepository).purgeExpiredData_migrated();
+        verify(authorizationCodeRepository).purgeExpiredData_migrated();
+        verify(scopeApprovalRepository).purgeExpiredData_migrated();
+        verify(refreshTokenRepository).purgeExpiredData_migrated();
+        verify(requestObjectRepository).purgeExpiredData_migrated();
+        verify(authenticationFlowContextRepository).purgeExpiredData_migrated();
     }
 
     @Test
     public void testEmptyExclude() {
         manager.purge(Collections.emptyList());
 
-        verify(accessTokenRepository).purgeExpiredData();
-        verify(loginAttemptRepository).purgeExpiredData();
-        verify(permissionTicketRepository).purgeExpiredData();
-        verify(authorizationCodeRepository).purgeExpiredData();
-        verify(scopeApprovalRepository).purgeExpiredData();
-        verify(refreshTokenRepository).purgeExpiredData();
-        verify(requestObjectRepository).purgeExpiredData();
-        verify(authenticationFlowContextRepository).purgeExpiredData();
+        verify(accessTokenRepository).purgeExpiredData_migrated();
+        verify(loginAttemptRepository).purgeExpiredData_migrated();
+        verify(permissionTicketRepository).purgeExpiredData_migrated();
+        verify(authorizationCodeRepository).purgeExpiredData_migrated();
+        verify(scopeApprovalRepository).purgeExpiredData_migrated();
+        verify(refreshTokenRepository).purgeExpiredData_migrated();
+        verify(requestObjectRepository).purgeExpiredData_migrated();
+        verify(authenticationFlowContextRepository).purgeExpiredData_migrated();
     }
 
     @Test
     public void testExclude_AccessToken() {
         manager.purge(Arrays.asList(TableName.access_tokens));
 
-        verify(accessTokenRepository, never()).purgeExpiredData();
-        verify(loginAttemptRepository).purgeExpiredData();
-        verify(permissionTicketRepository).purgeExpiredData();
-        verify(authorizationCodeRepository).purgeExpiredData();
-        verify(scopeApprovalRepository).purgeExpiredData();
-        verify(refreshTokenRepository).purgeExpiredData();
-        verify(requestObjectRepository).purgeExpiredData();
-        verify(authenticationFlowContextRepository).purgeExpiredData();
+        verify(accessTokenRepository, never()).purgeExpiredData_migrated();
+        verify(loginAttemptRepository).purgeExpiredData_migrated();
+        verify(permissionTicketRepository).purgeExpiredData_migrated();
+        verify(authorizationCodeRepository).purgeExpiredData_migrated();
+        verify(scopeApprovalRepository).purgeExpiredData_migrated();
+        verify(refreshTokenRepository).purgeExpiredData_migrated();
+        verify(requestObjectRepository).purgeExpiredData_migrated();
+        verify(authenticationFlowContextRepository).purgeExpiredData_migrated();
     }
 }

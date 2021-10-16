@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.gateway.handler.common.auth.user.UserAuthenticationManager;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
@@ -98,7 +99,8 @@ public class CompositeTokenGranter implements TokenGranter, InitializingBean {
 
     public CompositeTokenGranter() { }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.grant_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Token> grant(TokenRequest tokenRequest, Client client) {
  return RxJava2Adapter.monoToSingle(grant_migrated(tokenRequest, client));
@@ -107,7 +109,7 @@ public class CompositeTokenGranter implements TokenGranter, InitializingBean {
     public Mono<Token> grant_migrated(TokenRequest tokenRequest, Client client) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
                 .fromIterable(tokenGranters.values()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(tokenGranter -> tokenGranter.handle(tokenRequest.getGrantType(), client))).next().switchIfEmpty(Mono.error(new UnsupportedGrantTypeException("Unsupported grant type: " + tokenRequest.getGrantType()))))
-                .flatMapSingle(tokenGranter -> tokenGranter.grant(tokenRequest, client)));
+                .flatMapSingle(tokenGranter -> RxJava2Adapter.monoToSingle(tokenGranter.grant_migrated(tokenRequest, client))));
     }
 
 

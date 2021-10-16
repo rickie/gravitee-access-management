@@ -41,9 +41,9 @@ public class BotDetectionRepositoryTest extends AbstractManagementTest {
         BotDetection botDetection = buildBotDetection();
         botDetection.setReferenceId("testDomain");
         botDetection.setReferenceType(ReferenceType.DOMAIN);
-        RxJava2Adapter.singleToMono(repository.create(botDetection)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(botDetection))).block();
 
-        TestSubscriber<BotDetection> testSubscriber = repository.findByReference(ReferenceType.DOMAIN,"testDomain").test();
+        TestSubscriber<BotDetection> testSubscriber = RxJava2Adapter.fluxToFlowable(repository.findByReference_migrated(ReferenceType.DOMAIN, "testDomain")).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -68,9 +68,9 @@ public class BotDetectionRepositoryTest extends AbstractManagementTest {
     @Test
     public void testFindById() throws TechnicalException {
         BotDetection bdectection = buildBotDetection();
-        BotDetection bdetectionCreated = RxJava2Adapter.singleToMono(repository.create(bdectection)).block();
+        BotDetection bdetectionCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(bdectection))).block();
 
-        TestObserver<BotDetection> testObserver = repository.findById(bdetectionCreated.getId()).test();
+        TestObserver<BotDetection> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(bdetectionCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -84,14 +84,14 @@ public class BotDetectionRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testNotFoundById() throws TechnicalException {
-        repository.findById("test").test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(repository.findById_migrated("test")).test().assertEmpty();
     }
 
     @Test
     public void testCreate() throws TechnicalException {
         BotDetection bDetection = buildBotDetection();
 
-        TestObserver<BotDetection> testObserver = repository.create(bDetection).test();
+        TestObserver<BotDetection> testObserver = RxJava2Adapter.monoToSingle(repository.create_migrated(bDetection)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -106,13 +106,13 @@ public class BotDetectionRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdate() throws TechnicalException {
         BotDetection botDetection = buildBotDetection();
-        BotDetection botDetectionCreated = RxJava2Adapter.singleToMono(repository.create(botDetection)).block();
+        BotDetection botDetectionCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(botDetection))).block();
 
         BotDetection bDetection = buildBotDetection();
         bDetection.setId(botDetectionCreated.getId());
         bDetection.setName("testUpdatedName");
 
-        TestObserver<BotDetection> testObserver = repository.update(bDetection).test();
+        TestObserver<BotDetection> testObserver = RxJava2Adapter.monoToSingle(repository.update_migrated(bDetection)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -127,18 +127,18 @@ public class BotDetectionRepositoryTest extends AbstractManagementTest {
     @Test
     public void testDelete() throws TechnicalException {
         BotDetection botDetection = buildBotDetection();
-        BotDetection botDetectionCreated = RxJava2Adapter.singleToMono(repository.create(botDetection)).block();
+        BotDetection botDetectionCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(botDetection))).block();
 
-        TestObserver<BotDetection> testObserver = repository.findById(botDetectionCreated.getId()).test();
+        TestObserver<BotDetection> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(botDetectionCreated.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(bd -> bd.getName().equals(botDetectionCreated.getName()));
 
-        TestObserver testObserver1 = repository.delete(botDetectionCreated.getId()).test();
+        TestObserver testObserver1 = RxJava2Adapter.monoToCompletable(repository.delete_migrated(botDetectionCreated.getId())).test();
         testObserver1.awaitTerminalEvent();
 
-        repository.findById(botDetectionCreated.getId()).test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(repository.findById_migrated(botDetectionCreated.getId())).test().assertEmpty();
     }
 
 }

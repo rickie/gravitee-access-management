@@ -84,7 +84,8 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
@@ -109,7 +110,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
 
             // process request
             final String authenticationURI = templateEngine.getValue(resourceConfiguration.getBaseURL(), String.class);
-            final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, authenticationURI, authenticationHttpMethod, authenticationHttpHeaders, authenticationBody);
+            final Single<HttpResponse<Buffer>> requestHandler = RxJava2Adapter.monoToSingle(processRequest_migrated(templateEngine, authenticationURI, authenticationHttpMethod, authenticationHttpHeaders, authenticationBody));
 
             return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = resourceConfiguration.getHttpResponseErrorConditions();
@@ -129,24 +130,26 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadPreAuthenticatedUser_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> loadPreAuthenticatedUser(Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(authentication));
 }
 @Override
     public Mono<User> loadPreAuthenticatedUser_migrated(Authentication authentication) {
-        return RxJava2Adapter.maybeToMono(loadByUsername0(authentication.getContext(), new DefaultUser((io.gravitee.am.model.User) authentication.getPrincipal())));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(loadByUsername0_migrated(authentication.getContext(), new DefaultUser((io.gravitee.am.model.User) authentication.getPrincipal()))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> loadUserByUsername(String username) {
  return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(String username) {
-        return RxJava2Adapter.maybeToMono(loadByUsername0(new SimpleAuthenticationContext(), new DefaultUser(username)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(loadByUsername0_migrated(new SimpleAuthenticationContext(), new DefaultUser(username))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadByUsername0_migrated(authenticationContext, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -186,7 +189,7 @@ private Mono<User> loadByUsername0_migrated(AuthenticationContext authentication
             final HttpMethod readUserHttpMethod = HttpMethod.valueOf(readResourceConfiguration.getHttpMethod().toString());
             final List<HttpHeader> readUserHttpHeaders = readResourceConfiguration.getHttpHeaders();
             final String readUserBody = readResourceConfiguration.getHttpBody();
-            final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, readUserURI, readUserHttpMethod, readUserHttpHeaders, readUserBody);
+            final Single<HttpResponse<Buffer>> requestHandler = RxJava2Adapter.monoToSingle(processRequest_migrated(templateEngine, readUserURI, readUserHttpMethod, readUserHttpHeaders, readUserBody));
 
             return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = readResourceConfiguration.getHttpResponseErrorConditions();

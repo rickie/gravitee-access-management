@@ -82,8 +82,8 @@ public class BotDetectionServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(botDetectionRepository.findById("bot-detection")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new BotDetection())));
-        TestObserver testObserver = botDetectionService.findById("bot-detection").test();
+        when(botDetectionRepository.findById_migrated("bot-detection")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new BotDetection()))));
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(botDetectionService.findById_migrated("bot-detection")).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -93,8 +93,8 @@ public class BotDetectionServiceTest {
 
     @Test
     public void shouldFindById_notExistingBotDetection() {
-        when(botDetectionRepository.findById("bot-detection")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver testObserver = botDetectionService.findById("bot-detection").test();
+        when(botDetectionRepository.findById_migrated("bot-detection")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(botDetectionService.findById_migrated("bot-detection")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertNoValues();
@@ -102,9 +102,9 @@ public class BotDetectionServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(botDetectionRepository.findById("bot-detection")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(botDetectionRepository.findById_migrated("bot-detection")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
         TestObserver testObserver = new TestObserver();
-        botDetectionService.findById("bot-detection").subscribe(testObserver);
+        RxJava2Adapter.monoToMaybe(botDetectionService.findById_migrated("bot-detection")).subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -112,8 +112,8 @@ public class BotDetectionServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(botDetectionRepository.findByReference(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new BotDetection())));
-        TestSubscriber<BotDetection> testSubscriber = botDetectionService.findByDomain(DOMAIN).test();
+        when(botDetectionRepository.findByReference_migrated(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new BotDetection()))));
+        TestSubscriber<BotDetection> testSubscriber = RxJava2Adapter.fluxToFlowable(botDetectionService.findByDomain_migrated(DOMAIN)).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -123,9 +123,9 @@ public class BotDetectionServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(botDetectionRepository.findByReference(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(botDetectionRepository.findByReference_migrated(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestSubscriber testSubscriber = botDetectionService.findByDomain(DOMAIN).test();
+        TestSubscriber testSubscriber = RxJava2Adapter.fluxToFlowable(botDetectionService.findByDomain_migrated(DOMAIN)).test();
 
         testSubscriber.assertError(TechnicalManagementException.class);
         testSubscriber.assertNotComplete();
@@ -135,33 +135,33 @@ public class BotDetectionServiceTest {
     public void shouldCreate() {
         NewBotDetection newBotDetection = Mockito.mock(NewBotDetection.class);
         when(newBotDetection.getDetectionType()).thenReturn(BotDetection.DETECTION_TYPE_CAPTCHA);
-        when(botDetectionRepository.create(any(BotDetection.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new BotDetection())));
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(botDetectionRepository.create_migrated(any(BotDetection.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new BotDetection()))));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
 
-        TestObserver testObserver = botDetectionService.create(DOMAIN, newBotDetection).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(botDetectionService.create_migrated(DOMAIN, newBotDetection)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(eventService).create(any());
+        verify(eventService).create_migrated(any());
         verify(auditService).report(any(BotDetectionAuditBuilder.class));
-        verify(botDetectionRepository).create(any(BotDetection.class));
+        verify(botDetectionRepository).create_migrated(any(BotDetection.class));
     }
 
     @Test
     public void shouldCreate_technicalException() {
         NewBotDetection newBotDetection = Mockito.mock(NewBotDetection.class);
         when(newBotDetection.getDetectionType()).thenReturn(BotDetection.DETECTION_TYPE_CAPTCHA);
-        when(botDetectionRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(botDetectionRepository.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
         TestObserver<BotDetection> testObserver = new TestObserver<>();
-        botDetectionService.create(DOMAIN, newBotDetection).subscribe(testObserver);
+        RxJava2Adapter.monoToSingle(botDetectionService.create_migrated(DOMAIN, newBotDetection)).subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
 
-        verify(eventService, never()).create(any());
+        verify(eventService, never()).create_migrated(any());
         verify(auditService).report(any(BotDetectionAuditBuilder.class));
     }
 
@@ -169,53 +169,53 @@ public class BotDetectionServiceTest {
     public void shouldUpdate() {
         UpdateBotDetection updateBotDetection = Mockito.mock(UpdateBotDetection.class);
         when(updateBotDetection.getName()).thenReturn("bot-detection");
-        when(botDetectionRepository.findById("bot-detection")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new BotDetection())));
-        when(botDetectionRepository.update(any(BotDetection.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new BotDetection())));
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(botDetectionRepository.findById_migrated("bot-detection")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new BotDetection()))));
+        when(botDetectionRepository.update_migrated(any(BotDetection.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new BotDetection()))));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
 
-        TestObserver testObserver = botDetectionService.update(DOMAIN, "bot-detection", updateBotDetection).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(botDetectionService.update_migrated(DOMAIN, "bot-detection", updateBotDetection)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(botDetectionRepository).findById(anyString());
+        verify(botDetectionRepository).findById_migrated(anyString());
         verify(auditService).report(any(BotDetectionAuditBuilder.class));
-        verify(botDetectionRepository).update(any(BotDetection.class));
+        verify(botDetectionRepository).update_migrated(any(BotDetection.class));
     }
 
     @Test
     public void shouldUpdate_technicalException() {
         UpdateBotDetection updateBotDetection = Mockito.mock(UpdateBotDetection.class);
-        when(botDetectionRepository.findById("bot-detection")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(botDetectionRepository.findById_migrated("bot-detection")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestObserver testObserver = botDetectionService.update(DOMAIN, "bot-detection", updateBotDetection).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(botDetectionService.update_migrated(DOMAIN, "bot-detection", updateBotDetection)).test();
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
 
-        verify(botDetectionRepository).findById(anyString());
-        verify(botDetectionRepository, never()).update(any(BotDetection.class));
+        verify(botDetectionRepository).findById_migrated(anyString());
+        verify(botDetectionRepository, never()).update_migrated(any(BotDetection.class));
         verify(auditService, never()).report(any(BotDetectionAuditBuilder.class));
     }
 
     @Test
     public void shouldDelete_notBotDetection() {
-        when(botDetectionRepository.findById("bot-detection")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(botDetectionRepository.findById_migrated("bot-detection")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver testObserver = botDetectionService.delete(DOMAIN, "bot-detection").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(botDetectionService.delete_migrated(DOMAIN, "bot-detection")).test();
 
         testObserver.assertError(BotDetectionNotFoundException.class);
         testObserver.assertNotComplete();
 
-        verify(botDetectionRepository, never()).delete(anyString());
+        verify(botDetectionRepository, never()).delete_migrated(anyString());
         verify(auditService, never()).report(any(BotDetectionAuditBuilder.class));
     }
 
     @Test
     public void shouldDelete_technicalException() {
-        when(botDetectionRepository.findById("bot-detection")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(botDetectionRepository.findById_migrated("bot-detection")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestObserver testObserver = botDetectionService.delete(DOMAIN, "bot-detection").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(botDetectionService.delete_migrated(DOMAIN, "bot-detection")).test();
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -225,20 +225,20 @@ public class BotDetectionServiceTest {
     public void shouldDelete() {
         BotDetection detection = new BotDetection();
         detection.setId("detection-id");
-        when(botDetectionRepository.findById(detection.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(detection)));
-        when(botDetectionRepository.delete(detection.getId())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(botDetectionRepository.findById_migrated(detection.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(detection))));
+        when(botDetectionRepository.delete_migrated(detection.getId())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
         final Domain domain = new Domain();
-        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
-        when(applicationService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
+        when(domainService.findById_migrated(DOMAIN)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
+        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet()))));
 
-        TestObserver testObserver = botDetectionService.delete(DOMAIN, detection.getId()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(botDetectionService.delete_migrated(DOMAIN, detection.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(botDetectionRepository).delete(detection.getId());
+        verify(botDetectionRepository).delete_migrated(detection.getId());
         verify(auditService).report(any(BotDetectionAuditBuilder.class));
     }
 
@@ -246,41 +246,41 @@ public class BotDetectionServiceTest {
     public void shouldNotDelete_UsedByDomain() {
         BotDetection detection = new BotDetection();
         detection.setId("detection-id");
-        when(botDetectionRepository.findById(detection.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(detection)));
+        when(botDetectionRepository.findById_migrated(detection.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(detection))));
         final Domain domain = new Domain();
         final AccountSettings accountSettings = new AccountSettings();
         accountSettings.setBotDetectionPlugin(detection.getId());
         domain.setAccountSettings(accountSettings);
-        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(domainService.findById_migrated(DOMAIN)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
 
-        TestObserver testObserver = botDetectionService.delete(DOMAIN, detection.getId()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(botDetectionService.delete_migrated(DOMAIN, detection.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(BotDetectionUsedException.class);
 
-        verify(botDetectionRepository, never()).delete(detection.getId());
+        verify(botDetectionRepository, never()).delete_migrated(detection.getId());
     }
 
     @Test
     public void shouldNotDelete_UsedByApp() {
         BotDetection detection = new BotDetection();
         detection.setId("detection-id");
-        when(botDetectionRepository.findById(detection.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(detection)));
+        when(botDetectionRepository.findById_migrated(detection.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(detection))));
         final Domain domain = new Domain();
-        when(domainService.findById(DOMAIN)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(domain)));
+        when(domainService.findById_migrated(DOMAIN)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
         Application app = new Application();
         final AccountSettings accountSettings = new AccountSettings();
         accountSettings.setBotDetectionPlugin(detection.getId());
         final ApplicationSettings settings = new ApplicationSettings();
         settings.setAccount(accountSettings);
         app.setSettings(settings);
-        when(applicationService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Sets.newHashSet(app))));
+        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Sets.newHashSet(app)))));
 
-        TestObserver testObserver = botDetectionService.delete(DOMAIN, detection.getId()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(botDetectionService.delete_migrated(DOMAIN, detection.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(BotDetectionUsedException.class);
 
-        verify(botDetectionRepository, never()).delete(detection.getId());
+        verify(botDetectionRepository, never()).delete_migrated(detection.getId());
     }
 }

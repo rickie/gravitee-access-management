@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.endpoint.token;
 
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
+
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidClientException;
 import io.gravitee.am.gateway.handler.oauth2.resources.request.TokenRequestFactory;
@@ -26,8 +28,7 @@ import io.gravitee.common.http.MediaType;
 import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * The token endpoint is used by the client to obtain an access token by presenting its authorization grant or refresh token.
@@ -80,7 +81,7 @@ public class TokenEndpoint implements Handler<RoutingContext> {
             tokenRequest.setConfirmationMethodX5S256(context.get(ConstantKeys.PEER_CERTIFICATE_THUMBPRINT));
         }
 
-        tokenGranter.grant(tokenRequest, client)
+        RxJava2Adapter.monoToSingle(tokenGranter.grant_migrated(tokenRequest, client))
                 .subscribe(accessToken -> context.response()
                         .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                         .putHeader(HttpHeaders.PRAGMA, "no-cache")

@@ -60,8 +60,8 @@ public class CertificatesResourceTest extends JerseySpringTest {
         mockCertificate2.setName("certificate-2-name");
         mockCertificate2.setDomain(domainId);
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.fluxToFlowable(Flux.just(mockCertificate, mockCertificate2))).when(certificateService).findByDomain(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(mockCertificate, mockCertificate2)))).when(certificateService).findByDomain_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("certificates").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -73,7 +73,7 @@ public class CertificatesResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetCertificates_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs")))).when(certificateService).findByDomain(domainId);
+        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs"))))).when(certificateService).findByDomain_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("certificates").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -94,9 +94,9 @@ public class CertificatesResourceTest extends JerseySpringTest {
         certificate.setId("certificate-id");
         certificate.setName("certificate-name");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just("certificate-schema"))).when(certificatePluginService).getSchema(anyString());
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(certificate))).when(certificateService).create(eq(domainId), any(), any());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just("certificate-schema")))).when(certificatePluginService).getSchema_migrated(anyString());
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificate)))).when(certificateService).create_migrated(eq(domainId), any(), any());
 
         final Response response = target("domains")
                 .path(domainId)

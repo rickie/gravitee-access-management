@@ -64,7 +64,7 @@ public class GoodbyeCommandHandlerTest extends TestCase {
     public void handle() {
         GoodbyeCommand command = new GoodbyeCommand();
         final Installation installation = new Installation();
-        when(installationService.addAdditionalInformation(any(Map.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(installation)));
+        when(installationService.addAdditionalInformation_migrated(any(Map.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(installation))));
 
         TestObserver<GoodbyeReply> obs = cut.handle(command).test();
 
@@ -72,7 +72,7 @@ public class GoodbyeCommandHandlerTest extends TestCase {
         obs.assertValue(reply -> reply.getCommandId().equals(command.getId()) && reply.getCommandStatus() == CommandStatus.SUCCEEDED);
 
         final ArgumentCaptor<Map<String, String>> expectedAdditionalInfos = ArgumentCaptor.forClass(Map.class);
-        verify(installationService, times(1)).addAdditionalInformation(expectedAdditionalInfos.capture());
+        verify(installationService, times(1)).addAdditionalInformation_migrated(expectedAdditionalInfos.capture());
 
         assertEquals(DELETED_STATUS, expectedAdditionalInfos.getValue().get(COCKPIT_INSTALLATION_STATUS));
     }
@@ -81,7 +81,7 @@ public class GoodbyeCommandHandlerTest extends TestCase {
     public void handleWithException() {
         GoodbyeCommand command = new GoodbyeCommand();
 
-        when(installationService.addAdditionalInformation(any(Map.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new RuntimeException("Unexpected error"))));
+        when(installationService.addAdditionalInformation_migrated(any(Map.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new RuntimeException("Unexpected error")))));
 
         TestObserver<GoodbyeReply> obs = cut.handle(command).test();
 

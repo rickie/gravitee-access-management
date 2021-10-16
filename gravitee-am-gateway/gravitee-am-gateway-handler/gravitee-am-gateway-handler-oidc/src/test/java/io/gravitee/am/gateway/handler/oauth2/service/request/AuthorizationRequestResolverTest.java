@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.request;
 
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidScopeException;
 import io.gravitee.am.gateway.handler.oauth2.service.scope.ScopeManager;
 import io.gravitee.am.model.Role;
@@ -22,16 +25,13 @@ import io.gravitee.am.model.User;
 import io.gravitee.am.model.application.ApplicationScopeSettings;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.observers.TestObserver;
+import java.util.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.*;
-
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -60,7 +60,7 @@ public class AuthorizationRequestResolverTest {
         authorizationRequest.setRedirectUri(redirectUri);
         Client client = new Client();
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
+        TestObserver<AuthorizationRequest> testObserver = RxJava2Adapter.monoToSingle(authorizationRequestResolver.resolve_migrated(authorizationRequest, client, null)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidScopeException.class);
     }
@@ -72,7 +72,7 @@ public class AuthorizationRequestResolverTest {
         authorizationRequest.setRedirectUri(redirectUri);
         Client client = new Client();
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
+        TestObserver<AuthorizationRequest> testObserver = RxJava2Adapter.monoToSingle(authorizationRequestResolver.resolve_migrated(authorizationRequest, client, null)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
     }
@@ -89,7 +89,7 @@ public class AuthorizationRequestResolverTest {
         setting.setDefaultScope(true);
         client.setScopeSettings(Collections.singletonList(setting));
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
+        TestObserver<AuthorizationRequest> testObserver = RxJava2Adapter.monoToSingle(authorizationRequestResolver.resolve_migrated(authorizationRequest, client, null)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(request -> request.getScopes().iterator().next().equals(scope));
@@ -107,7 +107,7 @@ public class AuthorizationRequestResolverTest {
         setting.setScope("write");
         client.setScopeSettings(Collections.singletonList(setting));
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
+        TestObserver<AuthorizationRequest> testObserver = RxJava2Adapter.monoToSingle(authorizationRequestResolver.resolve_migrated(authorizationRequest, client, null)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidScopeException.class);
     }
@@ -125,7 +125,7 @@ public class AuthorizationRequestResolverTest {
         ApplicationScopeSettings setting = new ApplicationScopeSettings(scope);
         client.setScopeSettings(Collections.singletonList(setting));
         when(scopeManager.isParameterizedScope(scope)).thenReturn(true);
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, null).test();
+        TestObserver<AuthorizationRequest> testObserver = RxJava2Adapter.monoToSingle(authorizationRequestResolver.resolve_migrated(authorizationRequest, client, null)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(request -> request.getScopes().iterator().next().equals(parameterizedScope));
@@ -148,7 +148,7 @@ public class AuthorizationRequestResolverTest {
         role.setOauthScopes(Collections.singletonList("user"));
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
+        TestObserver<AuthorizationRequest> testObserver = RxJava2Adapter.monoToSingle(authorizationRequestResolver.resolve_migrated(authorizationRequest, client, user)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidScopeException.class);
     }
@@ -177,7 +177,7 @@ public class AuthorizationRequestResolverTest {
         role.setOauthScopes(userScopes);
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
+        TestObserver<AuthorizationRequest> testObserver = RxJava2Adapter.monoToSingle(authorizationRequestResolver.resolve_migrated(authorizationRequest, client, user)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
@@ -212,7 +212,7 @@ public class AuthorizationRequestResolverTest {
         role.setOauthScopes(userScopes);
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
+        TestObserver<AuthorizationRequest> testObserver = RxJava2Adapter.monoToSingle(authorizationRequestResolver.resolve_migrated(authorizationRequest, client, user)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
@@ -243,7 +243,7 @@ public class AuthorizationRequestResolverTest {
         role.setOauthScopes(userScopes);
         user.setRolesPermissions(Collections.singleton(role));
 
-        TestObserver<AuthorizationRequest> testObserver = authorizationRequestResolver.resolve(authorizationRequest, client, user).test();
+        TestObserver<AuthorizationRequest> testObserver = RxJava2Adapter.monoToSingle(authorizationRequestResolver.resolve_migrated(authorizationRequest, client, user)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 

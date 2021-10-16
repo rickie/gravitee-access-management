@@ -95,7 +95,7 @@ public class ResourceManagerImpl extends AbstractService implements ResourceMana
     @Override
     public void afterPropertiesSet() throws Exception {
         // load all known resource for the domain on startup
-        resourceService.findByDomain(this.domain.getId())
+        RxJava2Adapter.fluxToFlowable(resourceService.findByDomain_migrated(this.domain.getId()))
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         res -> {
@@ -130,7 +130,7 @@ public class ResourceManagerImpl extends AbstractService implements ResourceMana
     }
 
     private void loadResource(String resourceId) {
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(resourceService.findById(resourceId)).switchIfEmpty(Mono.error(new ResourceNotFoundException("Resource " + resourceId + " not found"))).map(RxJavaReactorMigrationUtil.toJdkFunction(res -> resourcePluginManager.create(res.getType(), res.getConfiguration()))))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(resourceService.findById_migrated(resourceId))).switchIfEmpty(Mono.error(new ResourceNotFoundException("Resource " + resourceId + " not found"))).map(RxJavaReactorMigrationUtil.toJdkFunction(res -> resourcePluginManager.create(res.getType(), res.getConfiguration()))))
                 .subscribe(
                         provider -> {
                             provider.start();

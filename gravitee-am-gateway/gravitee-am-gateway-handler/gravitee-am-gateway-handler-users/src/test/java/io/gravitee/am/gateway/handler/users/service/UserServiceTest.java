@@ -65,9 +65,9 @@ public class UserServiceTest {
         scopeApproval.setScope("");
 
         when(domain.getId()).thenReturn(domainId);
-        when(scopeApprovalService.findByDomainAndUser(domainId, userId)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(scopeApproval)));
+        when(scopeApprovalService.findByDomainAndUser_migrated(domainId, userId)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(scopeApproval))));
 
-        TestObserver<Set<ScopeApproval>> testObserver = userService.consents(userId).test();
+        TestObserver<Set<ScopeApproval>> testObserver = RxJava2Adapter.monoToSingle(userService.consents_migrated(userId)).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -79,9 +79,9 @@ public class UserServiceTest {
         final ScopeApproval scopeApproval = new ScopeApproval();
         scopeApproval.setId("consentId");
 
-        when(scopeApprovalService.findById("consentId")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(scopeApproval)));
+        when(scopeApprovalService.findById_migrated("consentId")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(scopeApproval))));
 
-        TestObserver<ScopeApproval> testObserver = userService.consent("consentId").test();
+        TestObserver<ScopeApproval> testObserver = RxJava2Adapter.monoToMaybe(userService.consent_migrated("consentId")).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -93,9 +93,9 @@ public class UserServiceTest {
         final ScopeApproval scopeApproval = new ScopeApproval();
         scopeApproval.setId("consentId");
 
-        when(scopeApprovalService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(scopeApprovalService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver<ScopeApproval> testObserver = userService.consent("consentId").test();
+        TestObserver<ScopeApproval> testObserver = RxJava2Adapter.monoToMaybe(userService.consent_migrated("consentId")).test();
 
         testObserver.assertNotComplete();
         testObserver.assertError(ScopeApprovalNotFoundException.class);
@@ -110,9 +110,9 @@ public class UserServiceTest {
         scopeApproval.setId("consentId");
 
         when(domain.getId()).thenReturn(domainId);
-        when(scopeApprovalService.revokeByUser(domainId, userId, null)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(scopeApprovalService.revokeByUser_migrated(domainId, userId, null)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver testObserver = userService.revokeConsents(userId).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.revokeConsents_migrated(userId)).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -125,9 +125,9 @@ public class UserServiceTest {
         final String consentId = "consentId";
 
         when(domain.getId()).thenReturn(domainId);
-        when(scopeApprovalService.revokeByConsent(domainId, userId, consentId, null)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(scopeApprovalService.revokeByConsent_migrated(domainId, userId, consentId, null)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver testObserver = userService.revokeConsent(userId, consentId).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.revokeConsent_migrated(userId, consentId)).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();

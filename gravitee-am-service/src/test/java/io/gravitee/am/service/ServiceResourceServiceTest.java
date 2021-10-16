@@ -75,8 +75,8 @@ public class ServiceResourceServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(resourceRepository.findById("my-resource")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new ServiceResource())));
-        TestObserver testObserver = resourceService.findById("my-resource").test();
+        when(resourceRepository.findById_migrated("my-resource")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new ServiceResource()))));
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(resourceService.findById_migrated("my-resource")).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -86,8 +86,8 @@ public class ServiceResourceServiceTest {
 
     @Test
     public void shouldFindById_NotExist() {
-        when(resourceRepository.findById("my-resource")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver testObserver = resourceService.findById("my-resource").test();
+        when(resourceRepository.findById_migrated("my-resource")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(resourceService.findById_migrated("my-resource")).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -97,8 +97,8 @@ public class ServiceResourceServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(resourceRepository.findByReference(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new ServiceResource())));
-        TestSubscriber<ServiceResource> testObserver = resourceService.findByDomain(DOMAIN).test();
+        when(resourceRepository.findByReference_migrated(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new ServiceResource()))));
+        TestSubscriber<ServiceResource> testObserver = RxJava2Adapter.fluxToFlowable(resourceService.findByDomain_migrated(DOMAIN)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -121,11 +121,11 @@ public class ServiceResourceServiceTest {
         record.setCreatedAt(new Date());
         record.setUpdatedAt(new Date());
 
-        when(resourceRepository.create(argThat(bean -> bean.getName().equals(resource.getName()))))
-                .thenReturn(RxJava2Adapter.monoToSingle(Mono.just(record)));
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(resourceRepository.create_migrated(argThat(bean -> bean.getName().equals(resource.getName()))))
+                .thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(record))));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
 
-        TestObserver<ServiceResource> testObserver = resourceService.create(DOMAIN, resource, null).test();
+        TestObserver<ServiceResource> testObserver = RxJava2Adapter.monoToSingle(resourceService.create_migrated(DOMAIN, resource, null)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -141,10 +141,10 @@ public class ServiceResourceServiceTest {
         resource.setName("myresource");
         resource.setType("rtype");
 
-        when(resourceRepository.create(argThat(bean -> bean.getName().equals(resource.getName()))))
-                .thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException())));
+        when(resourceRepository.create_migrated(argThat(bean -> bean.getName().equals(resource.getName()))))
+                .thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException()))));
 
-        TestObserver<ServiceResource> testObserver = resourceService.create(DOMAIN, resource, null).test();
+        TestObserver<ServiceResource> testObserver = RxJava2Adapter.monoToSingle(resourceService.create_migrated(DOMAIN, resource, null)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNoValues();
@@ -168,11 +168,11 @@ public class ServiceResourceServiceTest {
         record.setCreatedAt(new Date());
         record.setUpdatedAt(new Date());
 
-        when(resourceRepository.findById(record.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(record)));
-        when(resourceRepository.update(argThat(bean -> bean.getId().equals(record.getId())))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(record)));
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(resourceRepository.findById_migrated(record.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(record))));
+        when(resourceRepository.update_migrated(argThat(bean -> bean.getId().equals(record.getId())))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(record))));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
 
-        TestObserver<ServiceResource> testObserver = resourceService.update(DOMAIN, record.getId(), resource, null).test();
+        TestObserver<ServiceResource> testObserver = RxJava2Adapter.monoToSingle(resourceService.update_migrated(DOMAIN, record.getId(), resource, null)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -183,27 +183,27 @@ public class ServiceResourceServiceTest {
 
     @Test
     public void shouldUpdate_returnNotFound() {
-        when(resourceRepository.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(resourceRepository.findById_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver<ServiceResource> testObserver = resourceService.update(DOMAIN, UUID.randomUUID().toString(), new UpdateServiceResource(), null).test();
+        TestObserver<ServiceResource> testObserver = RxJava2Adapter.monoToSingle(resourceService.update_migrated(DOMAIN, UUID.randomUUID().toString(), new UpdateServiceResource(), null)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(ServiceResourceNotFoundException.class);
 
         verify(auditService, never()).report(any());
-        verify(eventService, never()).create(any());
-        verify(resourceRepository, never()).update(any());
+        verify(eventService, never()).create_migrated(any());
+        verify(resourceRepository, never()).update_migrated(any());
     }
 
     @Test
     public void shouldDelete_returnNotFound() {
-        when(resourceRepository.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(resourceRepository.findById_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver<Void> testObserver = resourceService.delete(DOMAIN, UUID.randomUUID().toString(), null).test();
+        TestObserver<Void> testObserver = RxJava2Adapter.monoToCompletable(resourceService.delete_migrated(DOMAIN, UUID.randomUUID().toString(), null)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(ServiceResourceNotFoundException.class);
 
         verify(auditService, never()).report(any());
-        verify(resourceRepository, never()).delete(any());
+        verify(resourceRepository, never()).delete_migrated(any());
     }
 
     @Test
@@ -215,12 +215,12 @@ public class ServiceResourceServiceTest {
         record.setCreatedAt(new Date());
         record.setUpdatedAt(new Date());
         
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
-        when(resourceRepository.findById(record.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(record)));
-        when(resourceRepository.delete(record.getId())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(factorService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(resourceRepository.findById_migrated(record.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(record))));
+        when(resourceRepository.delete_migrated(record.getId())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(factorService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
 
-        TestObserver<Void> testObserver = resourceService.delete(DOMAIN, record.getId(), null).test();
+        TestObserver<Void> testObserver = RxJava2Adapter.monoToCompletable(resourceService.delete_migrated(DOMAIN, record.getId(), null)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
 
@@ -236,17 +236,17 @@ public class ServiceResourceServiceTest {
         record.setCreatedAt(new Date());
         record.setUpdatedAt(new Date());
 
-        when(resourceRepository.findById(record.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(record)));
+        when(resourceRepository.findById_migrated(record.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(record))));
         Factor factor = new Factor();
         factor.setName("Factor");
         factor.setConfiguration("{\"ref\": \"" + record.getId() + "\"}");
-        when(factorService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(factor)));
+        when(factorService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(factor))));
 
-        TestObserver<Void> testObserver = resourceService.delete(DOMAIN, record.getId(), null).test();
+        TestObserver<Void> testObserver = RxJava2Adapter.monoToCompletable(resourceService.delete_migrated(DOMAIN, record.getId(), null)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(ServiceResourceCurrentlyUsedException.class);
 
         verify(auditService, never()).report(any());
-        verify(resourceRepository, never()).delete(any());
+        verify(resourceRepository, never()).delete_migrated(any());
     }
 }

@@ -185,7 +185,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
 
             if (routingContext.session().get(ConstantKeys.ENROLLED_FACTOR_ID_KEY) != null || factorProvider.useVariableFactorSecurity()) {
                 enrolledFactor.setStatus(FactorStatus.ACTIVATED);
-                saveFactor(endUser, factorProvider.changeVariableFactorSecurity(enrolledFactor), fh -> {
+                saveFactor(endUser, RxJava2Adapter.monoToSingle(factorProvider.changeVariableFactorSecurity_migrated(enrolledFactor)), fh -> {
                     if (fh.failed()) {
                         logger.error("An error occurs while saving enrolled factor for the current user", fh.cause());
                         handleException(routingContext);
@@ -213,14 +213,14 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
     }
 
     private void verify(FactorProvider factorProvider, FactorContext factorContext, Handler<AsyncResult<Void>> handler) {
-        factorProvider.verify(factorContext)
+        RxJava2Adapter.monoToCompletable(factorProvider.verify_migrated(factorContext))
                 .subscribe(
                         () -> handler.handle(Future.succeededFuture()),
                         error -> handler.handle(Future.failedFuture(error)));
     }
 
     private void saveFactor(User user, Single<EnrolledFactor> enrolledFactor, Handler<AsyncResult<User>> handler) {
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(enrolledFactor).flatMap(factor->RxJava2Adapter.singleToMono(userService.addFactor(user.getId(), factor, new DefaultUser(user)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(enrolledFactor).flatMap(factor->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.addFactor_migrated(user.getId(), factor, new DefaultUser(user))))))
                 .subscribe(
                         user1 -> handler.handle(Future.succeededFuture(user1)),
                         error -> handler.handle(Future.failedFuture(error))
@@ -243,7 +243,7 @@ public class MFAChallengeEndpoint extends AbstractEndpoint implements Handler<Ro
         factorData.put(FactorContext.KEY_ENROLLED_FACTOR, enrolledFactor);
         FactorContext factorContext = new FactorContext(applicationContext, factorData);
 
-        factorProvider.sendChallenge(factorContext)
+        RxJava2Adapter.monoToCompletable(factorProvider.sendChallenge_migrated(factorContext))
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         () -> handler.handle(Future.succeededFuture()),

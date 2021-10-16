@@ -50,24 +50,24 @@ public class EventRepositoryTest extends AbstractManagementTest {
         event.setType(Type.DOMAIN);
         event.setCreatedAt(new Date(from));
         event.setUpdatedAt(event.getCreatedAt());
-        Event expectedEvent = RxJava2Adapter.singleToMono(eventRepository.create(event)).block();
+        Event expectedEvent = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventRepository.create_migrated(event))).block();
 
         // create event before the from date
         Event eventBefore = new Event();
         eventBefore.setType(Type.DOMAIN);
         eventBefore.setCreatedAt(new Date(Instant.ofEpochMilli(from).minusSeconds(30).getEpochSecond()));
         eventBefore.setUpdatedAt(eventBefore.getCreatedAt());
-        RxJava2Adapter.singleToMono(eventRepository.create(eventBefore)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventRepository.create_migrated(eventBefore))).block();
 
         // create event after the to date
         Event eventAfter = new Event();
         eventAfter.setType(Type.DOMAIN);
         eventAfter.setCreatedAt(new Date(Instant.ofEpochMilli(to).plusSeconds(30).getEpochSecond()));
         eventAfter.setUpdatedAt(eventAfter.getCreatedAt());
-        RxJava2Adapter.singleToMono(eventRepository.create(eventAfter)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventRepository.create_migrated(eventAfter))).block();
 
         // fetch events
-        TestSubscriber<Event> testSubscriber = eventRepository.findByTimeFrame(from, to).test();
+        TestSubscriber<Event> testSubscriber = RxJava2Adapter.fluxToFlowable(eventRepository.findByTimeFrame_migrated(from, to)).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -84,10 +84,10 @@ public class EventRepositoryTest extends AbstractManagementTest {
         Payload payload = new Payload("pid", ReferenceType.ORGANIZATION, "oid", Action.BULK_CREATE);
         event.setPayload(new Payload(payload)); // duplicate the payload to avoid inner transformation that make test failing
 
-        Event eventCreated = RxJava2Adapter.singleToMono(eventRepository.create(event)).block();
+        Event eventCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventRepository.create_migrated(event))).block();
 
         // fetch domain
-        TestObserver<Event> testObserver = eventRepository.findById(eventCreated.getId()).test();
+        TestObserver<Event> testObserver = RxJava2Adapter.monoToMaybe(eventRepository.findById_migrated(eventCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -104,7 +104,7 @@ public class EventRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testNotFoundById() throws TechnicalException {
-        eventRepository.findById("test").test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(eventRepository.findById_migrated("test")).test().assertEmpty();
     }
 
     @Test
@@ -115,7 +115,7 @@ public class EventRepositoryTest extends AbstractManagementTest {
         Payload payload = new Payload("idx", ReferenceType.DOMAIN, "domainid", Action.CREATE);
         event.setPayload(payload);
 
-        TestObserver<Event> testObserver = eventRepository.create(event).test();
+        TestObserver<Event> testObserver = RxJava2Adapter.monoToSingle(eventRepository.create_migrated(event)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -128,20 +128,20 @@ public class EventRepositoryTest extends AbstractManagementTest {
         // create event
         Event event = new Event();
         event.setType(Type.DOMAIN);
-        Event eventCreated = RxJava2Adapter.singleToMono(eventRepository.create(event)).block();
+        Event eventCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventRepository.create_migrated(event))).block();
 
         // fetch event
-        TestObserver<Event> testObserver = eventRepository.findById(eventCreated.getId()).test();
+        TestObserver<Event> testObserver = RxJava2Adapter.monoToMaybe(eventRepository.findById_migrated(eventCreated.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(e -> e.getType() == Type.DOMAIN);
 
         // delete event
-        TestObserver testObserver1 = eventRepository.delete(eventCreated.getId()).test();
+        TestObserver testObserver1 = RxJava2Adapter.monoToCompletable(eventRepository.delete_migrated(eventCreated.getId())).test();
         testObserver1.awaitTerminalEvent();
 
         // fetch event
-        eventRepository.findById(eventCreated.getId()).test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(eventRepository.findById_migrated(eventCreated.getId())).test().assertEmpty();
     }
 }

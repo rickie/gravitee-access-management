@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization;
 
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY;
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
+
 import io.gravitee.am.gateway.handler.oauth2.resources.request.AuthorizationRequestFactory;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequestResolver;
@@ -25,9 +28,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.AUTHORIZATION_REQUEST_CONTEXT_KEY;
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -69,7 +70,7 @@ public class AuthorizationRequestResolveHandler implements Handler<RoutingContex
     }
 
     private void computeAuthorizationRequest(AuthorizationRequest authorizationRequest, Client client, User endUser, Handler<AsyncResult> handler) {
-        authorizationRequestResolver.resolve(authorizationRequest, client, endUser)
+        RxJava2Adapter.monoToSingle(authorizationRequestResolver.resolve_migrated(authorizationRequest, client, endUser))
                 .subscribe(
                         __ -> handler.handle(Future.succeededFuture()),
                         error -> handler.handle(Future.failedFuture(error)));

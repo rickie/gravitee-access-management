@@ -83,7 +83,7 @@ public class AccountFactorsEndpointHandler {
      */
     public void listAvailableFactors(RoutingContext routingContext) {
         final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        accountService.getFactors(user.getReferenceId())
+        RxJava2Adapter.monoToSingle(accountService.getFactors_migrated(user.getReferenceId()))
                 .subscribe(
                         factors -> AccountResponseHandler.handleDefaultResponse(routingContext, factors),
                         routingContext::fail
@@ -185,7 +185,7 @@ public class AccountFactorsEndpointHandler {
                     // send challenge
                     sendChallenge(factorProvider, enrolledFactor, user, routingContext, sh -> {
                         // save enrolled factor
-                        accountService.upsertFactor(user.getId(), enrolledFactor, new DefaultUser(user))
+                        RxJava2Adapter.monoToSingle(accountService.upsertFactor_migrated(user.getId(), enrolledFactor, new DefaultUser(user)))
                                 .subscribe(
                                         __ -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactor),
                                         routingContext::fail);
@@ -262,7 +262,7 @@ public class AccountFactorsEndpointHandler {
 
                     // verify successful, change the EnrolledFactor Status
                     enrolledFactor.setStatus(FactorStatus.ACTIVATED);
-                    accountService.upsertFactor(user.getId(), enrolledFactor, new DefaultUser(user))
+                    RxJava2Adapter.monoToSingle(accountService.upsertFactor_migrated(user.getId(), enrolledFactor, new DefaultUser(user)))
                             .subscribe(
                                     __ -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactor),
                                     routingContext::fail
@@ -326,7 +326,7 @@ public class AccountFactorsEndpointHandler {
         }
 
         EnrolledFactor enrolledFactor = optionalEnrolledFactor.get();
-        factorProvider.generateQrCode(user, enrolledFactor)
+        RxJava2Adapter.monoToMaybe(factorProvider.generateQrCode_migrated(user, enrolledFactor))
                 .subscribe(
                         barCode -> AccountResponseHandler.handleDefaultResponse(routingContext, new JsonObject().put("qrCode", barCode)),
                         routingContext::fail,
@@ -366,7 +366,7 @@ public class AccountFactorsEndpointHandler {
                 // update the factor
                 final EnrolledFactor enrolledFactor = optionalEnrolledFactor.get();
                 enrolledFactor.setPrimary(updateEnrolledFactor.isPrimary());
-                accountService.upsertFactor(user.getId(), enrolledFactor, new DefaultUser(user))
+                RxJava2Adapter.monoToSingle(accountService.upsertFactor_migrated(user.getId(), enrolledFactor, new DefaultUser(user)))
                         .subscribe(
                             __ -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactor),
                             routingContext::fail
@@ -381,7 +381,7 @@ public class AccountFactorsEndpointHandler {
         final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
         final String factorId = routingContext.request().getParam("factorId");
 
-        accountService.removeFactor(user.getId(), factorId, new DefaultUser(user))
+        RxJava2Adapter.monoToCompletable(accountService.removeFactor_migrated(user.getId(), factorId, new DefaultUser(user)))
                 .subscribe(
                         () -> AccountResponseHandler.handleNoBodyResponse(routingContext),
                         routingContext::fail
@@ -389,7 +389,7 @@ public class AccountFactorsEndpointHandler {
     }
 
     private void findFactor(String factorId, Handler<AsyncResult<Factor>> handler) {
-        accountService.getFactor(factorId)
+        RxJava2Adapter.monoToMaybe(accountService.getFactor_migrated(factorId))
                 .subscribe(
                         factor -> handler.handle(Future.succeededFuture(factor)),
                         error -> handler.handle(Future.failedFuture(error)),
@@ -401,7 +401,7 @@ public class AccountFactorsEndpointHandler {
                               EnrollmentAccount account,
                               User endUser,
                               Handler<AsyncResult<EnrolledFactor>> handler) {
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(factorProvider.enroll(endUser.getUsername())).map(RxJavaReactorMigrationUtil.toJdkFunction(enrollment -> {
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(factorProvider.enroll_migrated(endUser.getUsername()))).map(RxJavaReactorMigrationUtil.toJdkFunction(enrollment -> {
                     final EnrolledFactor enrolledFactor = buildEnrolledFactor(factor, enrollment, account, endUser);
                     if (factorProvider.checkSecurityFactor(enrolledFactor)) {
                         return enrolledFactor;
@@ -421,7 +421,7 @@ public class AccountFactorsEndpointHandler {
         Map<String, Object> factorData = new HashMap<>();
         factorData.put(FactorContext.KEY_CODE, code);
         factorData.put(FactorContext.KEY_ENROLLED_FACTOR, enrolledFactor);
-        factorProvider.verify(new FactorContext(applicationContext, factorData))
+        RxJava2Adapter.monoToCompletable(factorProvider.verify_migrated(new FactorContext(applicationContext, factorData)))
                 .subscribe(
                         () -> handler.handle(Future.succeededFuture()),
                         error -> handler.handle(Future.failedFuture(error))
@@ -446,7 +446,7 @@ public class AccountFactorsEndpointHandler {
         factorData.put(FactorContext.KEY_ENROLLED_FACTOR, enrolledFactor);
         FactorContext factorContext = new FactorContext(applicationContext, factorData);
 
-        factorProvider.sendChallenge(factorContext)
+        RxJava2Adapter.monoToCompletable(factorProvider.sendChallenge_migrated(factorContext))
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         () -> handler.handle(Future.succeededFuture()),

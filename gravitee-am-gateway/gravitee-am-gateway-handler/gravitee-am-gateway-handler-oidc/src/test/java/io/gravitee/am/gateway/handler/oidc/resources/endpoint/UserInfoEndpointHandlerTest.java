@@ -202,7 +202,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
 
         router.route().order(-1).handler(createOAuth2AuthHandler(oAuth2AuthProvider(jwt, client)));
 
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
         testRequest(
                 HttpMethod.GET, "/userinfo", req -> req.putHeader(HttpHeaders.AUTHORIZATION, "Bearer test-token"),
@@ -263,7 +263,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
 
         router.route().order(-1).handler(createOAuth2AuthHandler(oAuth2AuthProvider(jwt, client)));
 
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
 
         testRequest(
                 HttpMethod.GET, "/userinfo", req -> req.putHeader(HttpHeaders.AUTHORIZATION, "Bearer test-token"),
@@ -289,7 +289,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
                 .handler(BodyHandler.create())
                 .handler(createOAuth2AuthHandler(oAuth2AuthProvider(jwt, client)));
 
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
 
         testRequest(
                 HttpMethod.POST, "/userinfo", req ->
@@ -319,7 +319,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
 
         router.route().order(-1).handler(createOAuth2AuthHandler(oAuth2AuthProvider(jwt, client)));
 
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
 
         testRequest(
                 HttpMethod.GET, "/userinfo?access_token=test-token",
@@ -343,7 +343,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
 
         User user = createUser();
 
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
 
         testRequest(
                 HttpMethod.GET,
@@ -374,7 +374,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
 
         User user = createUser();
 
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
 
         testRequest(
                 HttpMethod.GET,
@@ -404,7 +404,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
 
         User user = createUser();
 
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
 
         testRequest(
                 HttpMethod.GET,
@@ -436,7 +436,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
 
         User user = createUser();
 
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
 
         testRequest(
                 HttpMethod.GET,
@@ -469,8 +469,8 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
 
         User user = createUser();
 
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
-        when(userService.enhance(user)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
+        when(userService.enhance_migrated(user)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
 
         testRequest(
                 HttpMethod.GET,
@@ -510,8 +510,8 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
         User user = createUser();
         user.setRoles(Arrays.asList("role1", "role2"));
         user.setRolesPermissions(new HashSet<>(Arrays.asList(role1, role2)));
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
-        when(userService.enhance(user)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
+        when(userService.enhance_migrated(user)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
 
         testRequest(
                 HttpMethod.GET,
@@ -543,8 +543,8 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
 
         User user = createUser();
 
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
-        when(userService.enhance(user)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
+        when(userService.enhance_migrated(user)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
 
         testRequest(
                 HttpMethod.GET,
@@ -575,8 +575,8 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
 
         User user = createUser();
         user.setGroups(Arrays.asList("group-1", "group-2"));
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
-        when(userService.enhance(user)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
+        when(userService.enhance_migrated(user)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
 
         testRequest(
                 HttpMethod.GET,
@@ -617,8 +617,8 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
         User user = createUser();
         user.setGroups(Arrays.asList("group-1", "group-2"));
         user.setRolesPermissions(new HashSet<>(Arrays.asList(role1, role2)));
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
-        when(userService.enhance(user)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
+        when(userService.enhance_migrated(user)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
 
         testRequest(
                 HttpMethod.GET,
@@ -661,8 +661,8 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
         User user = createUser();
         user.setRolesPermissions(new HashSet<>(Arrays.asList(role1, role2)));
         user.setGroups(Arrays.asList("group-1", "group-2"));
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
-        when(userService.enhance(user)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
+        when(userService.enhance_migrated(user)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
 
         testRequest(
                 HttpMethod.GET,
@@ -699,7 +699,7 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
 
         User user = createUser();
 
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
 
         testRequest(
                 HttpMethod.GET,
@@ -738,9 +738,9 @@ public class UserInfoEndpointHandlerTest extends RxWebTestBase {
 
         User user = createUser();
 
-        when(userService.findById(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
-        when(jwtService.encodeUserinfo(any(),any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just("signedJwtBearer")));
-        when(jweService.encryptUserinfo("signedJwtBearer",client)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just("signedJwtBearer")));
+        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
+        when(jwtService.encodeUserinfo_migrated(any(),any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("signedJwtBearer"))));
+        when(jweService.encryptUserinfo_migrated("signedJwtBearer",client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("signedJwtBearer"))));
 
         testRequest(
                 HttpMethod.GET,

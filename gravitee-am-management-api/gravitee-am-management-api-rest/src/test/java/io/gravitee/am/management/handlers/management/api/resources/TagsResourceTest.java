@@ -59,7 +59,7 @@ public class TagsResourceTest extends JerseySpringTest {
         mockRole2.setName("role-2-name");
         mockRole2.setOrganizationId(ORGANIZATION_ID);
 
-        doReturn(RxJava2Adapter.fluxToFlowable(Flux.just(mockRole, mockRole2))).when(tagService).findAll(anyString());
+        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(mockRole, mockRole2)))).when(tagService).findAll_migrated(anyString());
 
         final Response response = target("organizations")
                 .path("DEFAULT")
@@ -72,7 +72,7 @@ public class TagsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetTags_technicalManagementException() {
-        doReturn(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs")))).when(tagService).findAll(anyString());
+        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs"))))).when(tagService).findAll_migrated(anyString());
 
         final Response response = target("organizations")
                 .path("DEFAULT")
@@ -89,7 +89,7 @@ public class TagsResourceTest extends JerseySpringTest {
         tag.setId("tag-id");
         tag.setName("tag-name");
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(tag))).when(tagService).create(any(), anyString(), any());
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(tag)))).when(tagService).create_migrated(any(), anyString(), any());
 
         final Response response = target("organizations")
                 .path("DEFAULT")

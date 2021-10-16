@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.uma.policy;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.uma.policy.Rule;
 import io.gravitee.am.gateway.policy.Policy;
 import io.gravitee.am.gateway.policy.PolicyChainException;
@@ -46,7 +47,8 @@ public class DefaultRulesEngine implements RulesEngine {
     @Autowired
     private PolicyPluginManager policyPluginManager;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.fire_migrated(rules, executionContext))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable fire(List<Rule> rules, ExecutionContext executionContext) {
  return RxJava2Adapter.monoToCompletable(fire_migrated(rules, executionContext));

@@ -75,7 +75,7 @@ public class PolicyChainHandlerTest {
 
     @Test
     public void shouldNotInvoke_noPolicies() {
-        when(flowManager.findByExtensionPoint(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
+        when(flowManager.findByExtensionPoint_migrated(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()))));
         when(delegateRequest.method()).thenReturn(HttpMethod.GET);
         when(request.getDelegate()).thenReturn(delegateRequest);
         when(routingContext.request()).thenReturn(request);
@@ -87,14 +87,14 @@ public class PolicyChainHandlerTest {
         when(routingContext.request()).thenReturn(request);
         policyChainHandler.handle(routingContext);
 
-        verify(flowManager, times(1)).findByExtensionPoint(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class));
+        verify(flowManager, times(1)).findByExtensionPoint_migrated(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class));
         verify(policyChainProcessorFactory, never()).create(any(), any());
         verify(executionContextFactory).create(any());
     }
 
     @Test
     public void shouldInvoke_onePolicy() {
-        when(flowManager.findByExtensionPoint(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(policy))));
+        when(flowManager.findByExtensionPoint_migrated(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(policy)))));
         when(delegateRequest.method()).thenReturn(HttpMethod.GET);
         when(request.getDelegate()).thenReturn(delegateRequest);
         when(routingContext.request()).thenReturn(request);
@@ -108,14 +108,14 @@ public class PolicyChainHandlerTest {
 
         policyChainHandler.handle(routingContext);
 
-        verify(flowManager, times(1)).findByExtensionPoint(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class));
+        verify(flowManager, times(1)).findByExtensionPoint_migrated(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class));
         verify(policyChainProcessorFactory, times(1)).create(any(), any());
         verify(executionContextFactory, times(1)).create(any());
     }
 
     @Test
     public void shouldInvoke_manyPolicies() {
-        when(flowManager.findByExtensionPoint(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Arrays.asList(policy, policy))));
+        when(flowManager.findByExtensionPoint_migrated(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Arrays.asList(policy, policy)))));
         when(delegateRequest.method()).thenReturn(HttpMethod.GET);
         when(request.getDelegate()).thenReturn(delegateRequest);
         when(routingContext.request()).thenReturn(request);
@@ -130,7 +130,7 @@ public class PolicyChainHandlerTest {
         policyChainHandler.handle(routingContext);
 
         // should be only call once
-        verify(flowManager, times(1)).findByExtensionPoint(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class));
+        verify(flowManager, times(1)).findByExtensionPoint_migrated(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class));
         verify(policyChainProcessorFactory, times(1)).create(any(), any());
         verify(executionContextFactory, times(1)).create(any());
     }

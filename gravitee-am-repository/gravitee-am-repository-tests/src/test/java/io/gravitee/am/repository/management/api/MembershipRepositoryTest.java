@@ -47,9 +47,9 @@ public class MembershipRepositoryTest extends AbstractManagementTest {
         membership.setMemberType(MemberType.USER);
         membership.setMemberId("user#1");
 
-        Membership createdMembership = RxJava2Adapter.singleToMono(membershipRepository.create(membership)).block();
+        Membership createdMembership = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership))).block();
 
-        TestObserver<Membership> obs = membershipRepository.findById(createdMembership.getId()).test();
+        TestObserver<Membership> obs = RxJava2Adapter.monoToMaybe(membershipRepository.findById_migrated(createdMembership.getId())).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -71,9 +71,9 @@ public class MembershipRepositoryTest extends AbstractManagementTest {
         membership.setMemberType(MemberType.USER);
         membership.setMemberId("user#1");
 
-        Membership createdMembership = RxJava2Adapter.singleToMono(membershipRepository.create(membership)).block();
+        Membership createdMembership = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership))).block();
 
-        TestObserver<List<Membership>> obs = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(membershipRepository.findByReference(ORGANIZATION_ID, ReferenceType.ORGANIZATION)).collectList()).test();
+        TestObserver<List<Membership>> obs = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(membershipRepository.findByReference_migrated(ORGANIZATION_ID, ReferenceType.ORGANIZATION))).collectList()).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -90,9 +90,9 @@ public class MembershipRepositoryTest extends AbstractManagementTest {
         membership.setMemberType(MemberType.USER);
         membership.setMemberId("user#1");
 
-        Membership createdMembership = RxJava2Adapter.singleToMono(membershipRepository.create(membership)).block();
+        Membership createdMembership = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership))).block();
 
-        TestObserver<List<Membership>> obs = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(membershipRepository.findByMember("user#1", MemberType.USER)).collectList()).test();
+        TestObserver<List<Membership>> obs = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(membershipRepository.findByMember_migrated("user#1", MemberType.USER))).collectList()).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -109,9 +109,9 @@ public class MembershipRepositoryTest extends AbstractManagementTest {
         membership.setMemberType(MemberType.USER);
         membership.setMemberId("user#1");
 
-        Membership createdMembership = RxJava2Adapter.singleToMono(membershipRepository.create(membership)).block();
+        Membership createdMembership = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership))).block();
 
-        TestObserver<Membership> obs = membershipRepository.findByReferenceAndMember(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberType(), membership.getMemberId()).test();
+        TestObserver<Membership> obs = RxJava2Adapter.monoToMaybe(membershipRepository.findByReferenceAndMember_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberType(), membership.getMemberId())).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -135,17 +135,17 @@ public class MembershipRepositoryTest extends AbstractManagementTest {
         groupMembership.setMemberType(MemberType.GROUP);
         groupMembership.setMemberId("group#1");
 
-        RxJava2Adapter.singleToMono(membershipRepository.create(membership)).block();
-        RxJava2Adapter.singleToMono(membershipRepository.create(groupMembership)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership))).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(groupMembership))).block();
 
         MembershipCriteria criteria = new MembershipCriteria();
-        TestSubscriber<Membership> obs = membershipRepository.findByCriteria(ReferenceType.ORGANIZATION, ORGANIZATION_ID, criteria).test();
+        TestSubscriber<Membership> obs = RxJava2Adapter.fluxToFlowable(membershipRepository.findByCriteria_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, criteria)).test();
 
         obs.awaitTerminalEvent();
         obs.assertValueCount(2);
 
         criteria.setUserId("user#1");
-        obs = membershipRepository.findByCriteria(ReferenceType.ORGANIZATION, ORGANIZATION_ID, criteria).test();
+        obs = RxJava2Adapter.fluxToFlowable(membershipRepository.findByCriteria_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, criteria)).test();
 
         obs.awaitTerminalEvent();
         obs.assertValueCount(1);
@@ -153,7 +153,7 @@ public class MembershipRepositoryTest extends AbstractManagementTest {
 
         criteria.setUserId(null);
         criteria.setGroupIds(Arrays.asList("group#1"));
-        obs = membershipRepository.findByCriteria(ReferenceType.ORGANIZATION, ORGANIZATION_ID, criteria).test();
+        obs = RxJava2Adapter.fluxToFlowable(membershipRepository.findByCriteria_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, criteria)).test();
 
         obs.awaitTerminalEvent();
         obs.assertValueCount(1);
@@ -161,7 +161,7 @@ public class MembershipRepositoryTest extends AbstractManagementTest {
 
         criteria.setUserId("user#1");
         criteria.setGroupIds(Arrays.asList("group#1"));
-        obs = membershipRepository.findByCriteria(ReferenceType.ORGANIZATION, ORGANIZATION_ID, criteria).test();
+        obs = RxJava2Adapter.fluxToFlowable(membershipRepository.findByCriteria_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, criteria)).test();
 
         obs.awaitTerminalEvent();
         obs.assertNoValues();
@@ -170,7 +170,7 @@ public class MembershipRepositoryTest extends AbstractManagementTest {
         criteria.setUserId("user#1");
         criteria.setGroupIds(Arrays.asList("group#1"));
         criteria.setLogicalOR(true);
-        obs = membershipRepository.findByCriteria(ReferenceType.ORGANIZATION, ORGANIZATION_ID, criteria).test();
+        obs = RxJava2Adapter.fluxToFlowable(membershipRepository.findByCriteria_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, criteria)).test();
 
         obs.awaitTerminalEvent();
         obs.assertValueCount(2);

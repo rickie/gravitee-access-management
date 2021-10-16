@@ -60,7 +60,7 @@ public class EntrypointsResourceTest extends JerseySpringTest {
         entrypoint2.setName("entrypoint-2-name");
         entrypoint2.setOrganizationId(ORGANIZATION_ID);
 
-        doReturn(RxJava2Adapter.fluxToFlowable(Flux.just(entrypoint, entrypoint2))).when(entrypointService).findAll(ORGANIZATION_ID);
+        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(entrypoint, entrypoint2)))).when(entrypointService).findAll_migrated(ORGANIZATION_ID);
 
         final Response response = target("organizations")
                 .path(ORGANIZATION_ID)
@@ -73,7 +73,7 @@ public class EntrypointsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetEntrypoints_technicalManagementException() {
-        doReturn(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs")))).when(entrypointService).findAll(anyString());
+        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs"))))).when(entrypointService).findAll_migrated(anyString());
 
         final Response response = target("organizations")
                 .path(ORGANIZATION_ID)
@@ -92,7 +92,7 @@ public class EntrypointsResourceTest extends JerseySpringTest {
         entrypoint.setId("entrypoint-1");
         entrypoint.setName("name");
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(entrypoint))).when(entrypointService).create(eq(ORGANIZATION_ID), any(NewEntrypoint.class), any(User.class));
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(entrypoint)))).when(entrypointService).create_migrated(eq(ORGANIZATION_ID), any(NewEntrypoint.class), any(User.class));
 
         WebTarget path = target("organizations")
                 .path(ORGANIZATION_ID)

@@ -45,10 +45,10 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create resource_set, resource_scopes being the most important field.
         Resource resource = buildResource();
-        Resource rsCreated = RxJava2Adapter.singleToMono(repository.create(resource)).block();
+        Resource rsCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource))).block();
 
         // fetch resource_set
-        TestObserver<Resource> testObserver = repository.findById(rsCreated.getId()).test();
+        TestObserver<Resource> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(rsCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -81,11 +81,11 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
     public void update() throws TechnicalException {
         // create resource_set, resource_scopes being the most important field.
         Resource resource = new Resource().setResourceScopes(Arrays.asList("a","b","c"));
-        Resource rsCreated = RxJava2Adapter.singleToMono(repository.create(resource)).block();
+        Resource rsCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource))).block();
         Resource toUpdate = new Resource().setId(rsCreated.getId()).setResourceScopes(Arrays.asList("d","e","f"));
 
         // fetch resource_set
-        TestObserver<Resource> testObserver = repository.update(toUpdate).test();
+        TestObserver<Resource> testObserver = RxJava2Adapter.monoToSingle(repository.update_migrated(toUpdate)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -97,10 +97,10 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
     public void delete() throws TechnicalException {
         // create resource_set, resource_scopes being the most important field.
         Resource resource = new Resource().setResourceScopes(Arrays.asList("a","b","c"));
-        Resource rsCreated = RxJava2Adapter.singleToMono(repository.create(resource)).block();
+        Resource rsCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource))).block();
 
         // fetch resource_set
-        TestObserver<Void> testObserver = repository.delete(rsCreated.getId()).test();
+        TestObserver<Void> testObserver = RxJava2Adapter.monoToCompletable(repository.delete_migrated(rsCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -117,10 +117,10 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
                 .setClientId(CLIENT_ID)
                 .setUserId(USER_ID);
 
-        Resource rsCreated = RxJava2Adapter.singleToMono(repository.create(resource)).block();
+        Resource rsCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource))).block();
 
         // fetch scope
-        TestObserver<Resource> testObserver = repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, rsCreated.getId()).test();
+        TestObserver<Resource> testObserver = RxJava2Adapter.monoToMaybe(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, rsCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -134,11 +134,11 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
         Resource resource1 = new Resource().setResourceScopes(Arrays.asList("a","b","c")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId(USER_ID);
         Resource resource2 = new Resource().setResourceScopes(Arrays.asList("d","e","f")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId(USER_ID);
 
-        Resource rsCreated1 = RxJava2Adapter.singleToMono(repository.create(resource1)).block();
-        Resource rsCreated2 = RxJava2Adapter.singleToMono(repository.create(resource2)).block();
+        Resource rsCreated1 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource1))).block();
+        Resource rsCreated2 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource2))).block();
 
         // fetch scope
-        TestObserver<List<Resource>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findByDomainAndClientAndUser(DOMAIN_ID, CLIENT_ID, USER_ID)).collectList()).test();
+        TestObserver<List<Resource>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findByDomainAndClientAndUser_migrated(DOMAIN_ID, CLIENT_ID, USER_ID))).collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -153,11 +153,11 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
         Resource resource1 = new Resource().setResourceScopes(Arrays.asList("a","b","c")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId(USER_ID);
         Resource resource2 = new Resource().setResourceScopes(Arrays.asList("d","e","f")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId(USER_ID);
 
-        RxJava2Adapter.singleToMono(repository.create(resource1)).block();
-        RxJava2Adapter.singleToMono(repository.create(resource2)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource1))).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource2))).block();
 
         // fetch applications
-        TestObserver<Page<Resource>> testObserver = repository.findByDomain(DOMAIN_ID, 0, Integer.MAX_VALUE).test();
+        TestObserver<Page<Resource>> testObserver = RxJava2Adapter.monoToSingle(repository.findByDomain_migrated(DOMAIN_ID, 0, Integer.MAX_VALUE)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -171,10 +171,10 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
         Resource resource1 = new Resource().setResourceScopes(Arrays.asList("a","b","c")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId(USER_ID);
         Resource resource2 = new Resource().setResourceScopes(Arrays.asList("d","e","f")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId(USER_ID);
 
-        RxJava2Adapter.singleToMono(repository.create(resource1)).block();
-        RxJava2Adapter.singleToMono(repository.create(resource2)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource1))).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource2))).block();
 
-        TestObserver<Page<Resource>> testObserver = repository.findByDomain(DOMAIN_ID, 0, 1).test();
+        TestObserver<Page<Resource>> testObserver = RxJava2Adapter.monoToSingle(repository.findByDomain_migrated(DOMAIN_ID, 0, 1)).test();
         testObserver.awaitTerminalEvent();
 
         Set<String> readIds = new HashSet<>();
@@ -184,7 +184,7 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(resources -> resources.getTotalCount() == 2);
         testObserver.assertValue(resources -> readIds.add(resources.getData().iterator().next().getId()));
 
-        testObserver = repository.findByDomain(DOMAIN_ID, 1, 1).test();
+        testObserver = RxJava2Adapter.monoToSingle(repository.findByDomain_migrated(DOMAIN_ID, 1, 1)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -202,11 +202,11 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
         Resource resource1 = new Resource().setResourceScopes(Arrays.asList("a","b","c")).setDomain("domainA").setClientId(CLIENT_ID).setUserId(USER_ID);
         Resource resource2 = new Resource().setResourceScopes(Arrays.asList("d","e","f")).setDomain("domainB").setClientId(CLIENT_ID).setUserId(USER_ID);
 
-        Resource rsCreated1 = RxJava2Adapter.singleToMono(repository.create(resource1)).block();
-        Resource rsCreated2 = RxJava2Adapter.singleToMono(repository.create(resource2)).block();
+        Resource rsCreated1 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource1))).block();
+        Resource rsCreated2 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource2))).block();
 
         // fetch applications
-        TestSubscriber<Resource> testSubscriber = repository.findByResources(Arrays.asList(rsCreated1.getId(),rsCreated2.getId(),"notMatching")).test();
+        TestSubscriber<Resource> testSubscriber = RxJava2Adapter.fluxToFlowable(repository.findByResources_migrated(Arrays.asList(rsCreated1.getId(),rsCreated2.getId(),"notMatching"))).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -223,16 +223,16 @@ public class ResourceRepositoryTest extends AbstractManagementTest {
         Resource resource4 = new Resource().setResourceScopes(Arrays.asList("d")).setDomain(DOMAIN_ID).setClientId("another").setUserId(USER_ID);
         Resource resource5 = new Resource().setResourceScopes(Arrays.asList("d")).setDomain(DOMAIN_ID).setClientId(CLIENT_ID).setUserId("another");
 
-        Resource rsCreated1 = RxJava2Adapter.singleToMono(repository.create(resource1)).block();
-        Resource rsCreated2 = RxJava2Adapter.singleToMono(repository.create(resource2)).block();
-        Resource rsCreated3 = RxJava2Adapter.singleToMono(repository.create(resource3)).block();
-        Resource rsCreated4 = RxJava2Adapter.singleToMono(repository.create(resource4)).block();
-        Resource rsCreated5 = RxJava2Adapter.singleToMono(repository.create(resource5)).block();
+        Resource rsCreated1 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource1))).block();
+        Resource rsCreated2 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource2))).block();
+        Resource rsCreated3 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource3))).block();
+        Resource rsCreated4 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource4))).block();
+        Resource rsCreated5 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(resource5))).block();
 
         // fetch applications
-        TestSubscriber<Resource> testSubscriber = repository.findByDomainAndClientAndResources(DOMAIN_ID, CLIENT_ID, Arrays.asList(
+        TestSubscriber<Resource> testSubscriber = RxJava2Adapter.fluxToFlowable(repository.findByDomainAndClientAndResources_migrated(DOMAIN_ID, CLIENT_ID, Arrays.asList(
                 rsCreated1.getId(),rsCreated2.getId(),rsCreated3.getId(),rsCreated4.getId(),rsCreated5.getId(),"unknown"
-        )).test();
+        ))).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();

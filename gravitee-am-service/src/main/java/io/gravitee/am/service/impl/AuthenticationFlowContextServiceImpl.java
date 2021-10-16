@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.AuthenticationFlowContext;
 import io.gravitee.am.repository.management.api.AuthenticationFlowContextRepository;
 import io.gravitee.am.service.AuthenticationFlowContextService;
@@ -56,7 +57,8 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
     @Value("${authenticationFlow.retryInterval:1000}")
     private int retryDelay;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.clearContext_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable clearContext(final String transactionId) {
  return RxJava2Adapter.monoToCompletable(clearContext_migrated(transactionId));
@@ -66,17 +68,18 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
         if (transactionId == null) {
             return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
         }
-        return RxJava2Adapter.completableToMono(authContextRepository.delete(transactionId));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(authContextRepository.delete_migrated(transactionId)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadContext_migrated(transactionId, expectedVersion))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<AuthenticationFlowContext> loadContext(final String transactionId, final int expectedVersion) {
  return RxJava2Adapter.monoToMaybe(loadContext_migrated(transactionId, expectedVersion));
 }
 @Override
     public Mono<AuthenticationFlowContext> loadContext_migrated(final String transactionId, final int expectedVersion) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authContextRepository.findLastByTransactionId(transactionId)).switchIfEmpty(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authContextRepository.findLastByTransactionId_migrated(transactionId))).switchIfEmpty(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
             AuthenticationFlowContext context = new AuthenticationFlowContext();
             context.setTransactionId(transactionId);
             context.setVersion(0);
@@ -91,7 +94,8 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
         }))).retryWhen(new RetryWithDelay(consistencyRetries, retryDelay)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.removeContext_migrated(transactionId, expectedVersion))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<AuthenticationFlowContext> removeContext(String transactionId, int expectedVersion) {
  return RxJava2Adapter.monoToMaybe(removeContext_migrated(transactionId, expectedVersion));

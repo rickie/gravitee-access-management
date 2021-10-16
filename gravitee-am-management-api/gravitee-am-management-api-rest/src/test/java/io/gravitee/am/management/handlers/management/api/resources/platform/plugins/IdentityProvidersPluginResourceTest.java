@@ -42,7 +42,7 @@ public class IdentityProvidersPluginResourceTest extends JerseySpringTest {
         identityProviderPlugin.setId("identityProvider-plugin-id");
         identityProviderPlugin.setName("identityProvider-plugin-name");
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(identityProviderPlugin)))).when(identityProviderPluginService).findAll(false, new ArrayList<>());
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(identityProviderPlugin))))).when(identityProviderPluginService).findAll_migrated(false, new ArrayList<>());
 
         final Response response = target("platform")
                 .path("plugins")
@@ -54,7 +54,7 @@ public class IdentityProvidersPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldList_technicalManagementException() {
-        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("Error occurs")))).when(identityProviderPluginService).findAll(false, new ArrayList<>());
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("Error occurs"))))).when(identityProviderPluginService).findAll_migrated(false, new ArrayList<>());
 
         final Response response = target("platform")
                 .path("plugins")

@@ -55,7 +55,7 @@ public class ResourcesPluginResource {
     public void list(@QueryParam("expand") List<String> expand,
                      @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resourcePluginService.findAll(expand)).map(RxJavaReactorMigrationUtil.toJdkFunction(resourcePlugins -> resourcePlugins.stream()
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(resourcePluginService.findAll_migrated(expand))).map(RxJavaReactorMigrationUtil.toJdkFunction(resourcePlugins -> resourcePlugins.stream()
                         .sorted(Comparator.comparing(ResourcePlugin::getName))
                         .collect(Collectors.toList()))))
                 .subscribe(response::resume, response::resume);

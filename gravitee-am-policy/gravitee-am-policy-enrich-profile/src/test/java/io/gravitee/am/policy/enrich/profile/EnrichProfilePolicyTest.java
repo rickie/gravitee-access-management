@@ -139,7 +139,7 @@ public class EnrichProfilePolicyTest {
         User user = mock(User.class);
         when(executionContext.getAttribute("user")).thenReturn(user);
 
-        when(userRepository.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new RuntimeException("Exception thrown for test"))));
+        when(userRepository.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new RuntimeException("Exception thrown for test")))));
 
 
         new EnrichProfilePolicy(configuration){
@@ -164,7 +164,7 @@ public class EnrichProfilePolicyTest {
         lock.await(1, TimeUnit.SECONDS);
         verify(policyChain, never()).failWith(any());
         verify(policyChain).doNext(any(), any());
-        verify(userRepository, never()).update(any());
+        verify(userRepository, never()).update_migrated(any());
     }
 
     @Test
@@ -181,7 +181,7 @@ public class EnrichProfilePolicyTest {
         when(user.getAdditionalInformation()).thenReturn(additionalInformation);
         when(executionContext.getAttribute("user")).thenReturn(user);
 
-        when(userRepository.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(userRepository.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
 
         EnrichProfilePolicy enrichProfilePolicy = new EnrichProfilePolicy(configuration);
         enrichProfilePolicy.onRequest(request, response, executionContext, policyChain);
@@ -189,7 +189,7 @@ public class EnrichProfilePolicyTest {
         lock.await(1, TimeUnit.SECONDS);
         verify(policyChain, never()).failWith(any());
         verify(policyChain).doNext(any(), any());
-        verify(userRepository).update(argThat(u ->
+        verify(userRepository).update_migrated(argThat(u ->
                 u.getAdditionalInformation() != null &&
                 u.getAdditionalInformation().containsKey("myclaim") &&
                 "myclaimValue".equals(u.getAdditionalInformation().get("myclaim")) &&

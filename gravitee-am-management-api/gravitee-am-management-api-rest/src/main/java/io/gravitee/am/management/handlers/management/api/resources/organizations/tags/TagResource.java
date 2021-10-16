@@ -67,7 +67,7 @@ public class TagResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @PathParam("tag") String tagId, @Suspended final AsyncResponse response) {
 
-        checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.READ).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(tagService.findById(tagId, organizationId)).switchIfEmpty(Mono.error(new TagNotFoundException(tagId)))).as(RxJava2Adapter::monoToMaybe)
+        RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.READ)).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(tagService.findById_migrated(tagId, organizationId))).switchIfEmpty(Mono.error(new TagNotFoundException(tagId)))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -86,7 +86,7 @@ public class TagResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(tagService.update(tagId, organizationId, tagToUpdate, authenticatedUser))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagService.update_migrated(tagId, organizationId, tagToUpdate, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -102,7 +102,7 @@ public class TagResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.DELETE)).then(RxJava2Adapter.completableToMono(tagService.delete(tag, organizationId, authenticatedUser))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.DELETE))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(tagService.delete_migrated(tag, organizationId, authenticatedUser)))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

@@ -40,7 +40,7 @@ public class AccessTokenRepositoryTest extends AbstractOAuthTest {
 
     @Test
     public void shouldNotFindToken() {
-        TestObserver<AccessToken> observer = accessTokenRepository.findByToken("unknown-token").test();
+        TestObserver<AccessToken> observer = RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated("unknown-token")).test();
 
         observer.awaitTerminalEvent();
 
@@ -55,9 +55,8 @@ public class AccessTokenRepositoryTest extends AbstractOAuthTest {
         token.setId(RandomString.generate());
         token.setToken("my-token");
 
-        TestObserver<AccessToken> observer = accessTokenRepository
-                .create(token)
-                .toCompletable().as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken("my-token"))).as(RxJava2Adapter::monoToMaybe)
+        TestObserver<AccessToken> observer = RxJava2Adapter.monoToSingle(accessTokenRepository.create_migrated(token))
+                .toCompletable().as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated("my-token")))).as(RxJava2Adapter::monoToMaybe)
                 .test();
 
         observer.awaitTerminalEvent();
@@ -73,9 +72,8 @@ public class AccessTokenRepositoryTest extends AbstractOAuthTest {
         token.setId(RandomString.generate());
         token.setToken("my-token-todelete");
 
-        TestObserver<AccessToken> observer = accessTokenRepository
-                .create(token)
-                .toCompletable().as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken(token.getToken()))).as(RxJava2Adapter::monoToMaybe)
+        TestObserver<AccessToken> observer = RxJava2Adapter.monoToSingle(accessTokenRepository.create_migrated(token))
+                .toCompletable().as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated(token.getToken())))).as(RxJava2Adapter::monoToMaybe)
                 .test();
 
         observer.awaitTerminalEvent();
@@ -84,7 +82,7 @@ public class AccessTokenRepositoryTest extends AbstractOAuthTest {
         observer.assertValueCount(1);
         observer.assertNoErrors();
 
-        TestObserver<Void> testDelete = accessTokenRepository.delete(token.getToken()).test();
+        TestObserver<Void> testDelete = RxJava2Adapter.monoToCompletable(accessTokenRepository.delete_migrated(token.getToken())).test();
         testDelete.awaitTerminalEvent();
         testDelete.assertNoErrors();
     }
@@ -96,10 +94,9 @@ public class AccessTokenRepositoryTest extends AbstractOAuthTest {
         token.setToken("my-token");
         token.setAuthorizationCode("some-auth-code");
 
-        TestObserver<AccessToken> observer = accessTokenRepository
-                .create(token)
+        TestObserver<AccessToken> observer = RxJava2Adapter.monoToSingle(accessTokenRepository.create_migrated(token))
                 .toCompletable()
-                .andThen(accessTokenRepository.findByAuthorizationCode(token.getAuthorizationCode()))
+                .andThen(RxJava2Adapter.fluxToObservable(accessTokenRepository.findByAuthorizationCode_migrated(token.getAuthorizationCode())))
                 .test();
 
         observer.awaitTerminalEvent();
@@ -115,10 +112,9 @@ public class AccessTokenRepositoryTest extends AbstractOAuthTest {
         token.setToken("my-token");
         token.setAuthorizationCode("some-auth-code");
 
-        TestObserver<AccessToken> observer = accessTokenRepository
-                .create(token)
+        TestObserver<AccessToken> observer = RxJava2Adapter.monoToSingle(accessTokenRepository.create_migrated(token))
                 .toCompletable()
-                .andThen(accessTokenRepository.findByAuthorizationCode("unknown"))
+                .andThen(RxJava2Adapter.fluxToObservable(accessTokenRepository.findByAuthorizationCode_migrated("unknown")))
                 .test();
 
         observer.awaitTerminalEvent();
@@ -135,9 +131,9 @@ public class AccessTokenRepositoryTest extends AbstractOAuthTest {
         token.setClient("my-client-id");
         token.setSubject("my-subject");
 
-        TestObserver<AccessToken> observer = accessTokenRepository.create(token)
+        TestObserver<AccessToken> observer = RxJava2Adapter.monoToSingle(accessTokenRepository.create_migrated(token))
                 .toCompletable()
-                .andThen(accessTokenRepository.findByClientIdAndSubject("my-client-id", "my-subject"))
+                .andThen(RxJava2Adapter.fluxToObservable(accessTokenRepository.findByClientIdAndSubject_migrated("my-client-id", "my-subject")))
                 .test();
 
 
@@ -155,9 +151,9 @@ public class AccessTokenRepositoryTest extends AbstractOAuthTest {
         token.setToken("my-token");
         token.setClient("my-client-id-2");
 
-        TestObserver<AccessToken> observer = accessTokenRepository.create(token)
+        TestObserver<AccessToken> observer = RxJava2Adapter.monoToSingle(accessTokenRepository.create_migrated(token))
                 .toCompletable()
-                .andThen(accessTokenRepository.findByClientId("my-client-id-2"))
+                .andThen(RxJava2Adapter.fluxToObservable(accessTokenRepository.findByClientId_migrated("my-client-id-2")))
                 .test();
 
         observer.awaitTerminalEvent();
@@ -173,8 +169,8 @@ public class AccessTokenRepositoryTest extends AbstractOAuthTest {
         token.setToken("my-token");
         token.setClient("my-client-id-count");
 
-        TestObserver<Long> observer = RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(accessTokenRepository.create(token)
-                .toCompletable()).then(RxJava2Adapter.singleToMono(accessTokenRepository.countByClientId("my-client-id-count"))))
+        TestObserver<Long> observer = RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(accessTokenRepository.create_migrated(token))
+                .toCompletable()).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accessTokenRepository.countByClientId_migrated("my-client-id-count")))))
                 .test();
 
         observer.awaitTerminalEvent();
@@ -199,13 +195,12 @@ public class AccessTokenRepositoryTest extends AbstractOAuthTest {
         token2.setDomain("domain-id2");
         token2.setSubject("user-id2");
 
-        TestObserver<AccessToken> testObserver = RxJava2Adapter.completableToMono(accessTokenRepository
-                .bulkWrite(Arrays.asList(token1, token2))).then(RxJava2Adapter.completableToMono(accessTokenRepository.deleteByDomainIdClientIdAndUserId("domain-id", "client-id", "user-id"))).then(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken("my-token"))).as(RxJava2Adapter::monoToMaybe)
+        TestObserver<AccessToken> testObserver = RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(accessTokenRepository.bulkWrite_migrated(Arrays.asList(token1, token2)))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(accessTokenRepository.deleteByDomainIdClientIdAndUserId_migrated("domain-id", "client-id", "user-id")))).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated("my-token")))).as(RxJava2Adapter::monoToMaybe)
                 .test();
         testObserver.awaitTerminalEvent();
         assertEquals(0, testObserver.valueCount());
 
-        assertNotNull(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken("my-token2")).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated("my-token2"))).block());
     }
 
     @Test
@@ -224,13 +219,12 @@ public class AccessTokenRepositoryTest extends AbstractOAuthTest {
         token2.setDomain("domain-id2");
         token2.setSubject("user-id2");
 
-        TestObserver<AccessToken> testObservable = RxJava2Adapter.completableToMono(accessTokenRepository
-                .bulkWrite(Arrays.asList(token1, token2))).then(RxJava2Adapter.completableToMono(accessTokenRepository.deleteByDomainIdAndUserId("domain-id", "user-id"))).then(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken("my-token"))).as(RxJava2Adapter::monoToMaybe)
+        TestObserver<AccessToken> testObservable = RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(accessTokenRepository.bulkWrite_migrated(Arrays.asList(token1, token2)))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(accessTokenRepository.deleteByDomainIdAndUserId_migrated("domain-id", "user-id")))).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated("my-token")))).as(RxJava2Adapter::monoToMaybe)
                 .test();
         testObservable.awaitTerminalEvent();
         assertEquals(0, testObservable.valueCount());
 
-        assertNotNull(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken("my-token2")).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated("my-token2"))).block());
     }
 
 }

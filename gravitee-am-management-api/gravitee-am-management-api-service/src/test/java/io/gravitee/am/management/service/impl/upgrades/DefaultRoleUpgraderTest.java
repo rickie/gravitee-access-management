@@ -48,13 +48,13 @@ public class DefaultRoleUpgraderTest {
 
     @Test
     public void shouldCreateSystemRoles() {
-        when(roleService.createOrUpdateSystemRoles()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(roleService.createOrUpdateSystemRoles_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
         cut.upgrade();
     }
 
     @Test
     public void shouldCreateSystemRoles_technicalError() {
-        when(roleService.createOrUpdateSystemRoles()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(TechnicalException::new)));
+        when(roleService.createOrUpdateSystemRoles_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(TechnicalException::new))));
         assertFalse(cut.upgrade());
     }
 }

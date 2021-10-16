@@ -71,7 +71,7 @@ public class AuthenticationFlowHandlerTest extends RxWebTestBase {
         steps.add(new MFAChallengeStep(RedirectHandler.create("/mfa/challenge")));
         AuthenticationFlowChainHandler authenticationFlowChainHandler = new AuthenticationFlowChainHandler(steps);
 
-        when(jwtService.encode(any(JWT.class), (CertificateProvider) eq(null))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just("token")));
+        when(jwtService.encode_migrated(any(JWT.class), (CertificateProvider) eq(null))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("token"))));
 
         router.route("/login")
                 .order(Integer.MIN_VALUE)

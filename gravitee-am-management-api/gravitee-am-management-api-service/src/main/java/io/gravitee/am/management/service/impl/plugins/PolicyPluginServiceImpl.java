@@ -18,6 +18,7 @@ package io.gravitee.am.management.service.impl.plugins;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.management.service.PolicyPluginService;
 import io.gravitee.am.plugins.policy.core.PolicyPluginManager;
 import io.gravitee.am.service.exception.TechnicalManagementException;
@@ -49,7 +50,8 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<PolicyPlugin>> findAll() {
  return RxJava2Adapter.monoToSingle(findAll_migrated());
@@ -59,7 +61,8 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
         return RxJava2Adapter.singleToMono(findAll(null));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<PolicyPlugin>> findAll(List<String> expand) {
  return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
@@ -72,7 +75,8 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
             .toList());
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<PolicyPlugin> findById(String policyId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(policyId));
@@ -95,7 +99,8 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<String> getSchema(String policyId) {
  return RxJava2Adapter.monoToMaybe(getSchema_migrated(policyId));
@@ -126,7 +131,8 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<String> getIcon(String policyId) {
  return RxJava2Adapter.monoToMaybe(getIcon_migrated(policyId));
@@ -149,7 +155,8 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getDocumentation_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<String> getDocumentation(String policyId) {
  return RxJava2Adapter.monoToMaybe(getDocumentation_migrated(policyId));

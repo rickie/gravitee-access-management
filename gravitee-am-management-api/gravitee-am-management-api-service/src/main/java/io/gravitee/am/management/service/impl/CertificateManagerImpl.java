@@ -65,7 +65,7 @@ public class CertificateManagerImpl extends AbstractService<CertificateManager> 
         eventManager.subscribeForEvents(this, CertificateEvent.class);
 
         logger.info("Initializing certificate providers");
-        certificateService.findAll().blockingIterable().forEach(certificate -> {
+        RxJava2Adapter.fluxToFlowable(certificateService.findAll_migrated()).blockingIterable().forEach(certificate -> {
             logger.info("\tInitializing certificate: {} [{}]", certificate.getName(), certificate.getType());
             loadCertificate(certificate);
         });
@@ -84,14 +84,15 @@ public class CertificateManagerImpl extends AbstractService<CertificateManager> 
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getCertificateProvider_migrated(certificateId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<CertificateProvider> getCertificateProvider(String certificateId) {
  return RxJava2Adapter.monoToMaybe(getCertificateProvider_migrated(certificateId));
 }
 @Override
     public Mono<CertificateProvider> getCertificateProvider_migrated(String certificateId) {
-        return RxJava2Adapter.maybeToMono(doGetCertificateProvider(certificateId, System.currentTimeMillis()));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(doGetCertificateProvider_migrated(certificateId, System.currentTimeMillis())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.doGetCertificateProvider_migrated(certificateId, startTime))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -110,7 +111,7 @@ private Mono<CertificateProvider> doGetCertificateProvider_migrated(String certi
         // to propagate across the cluster so if the next call comes
         // in quickly at a different node there is a possibility it isn't available yet.
         try {
-            Certificate certificate = RxJava2Adapter.maybeToMono(certificateService.findById(certificateId)).block();
+            Certificate certificate = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateService.findById_migrated(certificateId))).block();
             if (certificate == null) {
                 return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
             }
@@ -127,7 +128,7 @@ private Mono<CertificateProvider> doGetCertificateProvider_migrated(String certi
 
     private void deployCertificate(String certificateId) {
         logger.info("Management API has received a deploy certificate event for {}", certificateId);
-        certificateService.findById(certificateId)
+        RxJava2Adapter.monoToMaybe(certificateService.findById_migrated(certificateId))
                 .subscribe(
                         this::loadCertificate,
                         error -> logger.error("Unable to deploy certificate {}", certificateId, error),

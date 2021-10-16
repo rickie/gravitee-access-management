@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.handler.impl.internal;
 
+import static io.gravitee.am.gateway.handler.common.utils.RoutingContextHelper.getEvaluableAttributes;
+
 import io.gravitee.am.common.policy.ExtensionPoint;
 import io.gravitee.am.gateway.handler.common.flow.FlowManager;
 import io.gravitee.am.gateway.handler.common.flow.FlowPredicate;
@@ -36,15 +38,13 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static io.gravitee.am.gateway.handler.common.utils.RoutingContextHelper.getEvaluableAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -134,7 +134,7 @@ public class PolicyChainHandlerImpl implements Handler<RoutingContext> {
     }
 
     private void resolve(ExecutionContext executionContext, Handler<AsyncResult<List<Policy>>> handler) {
-        flowManager.findByExtensionPoint(extensionPoint, (Client)executionContext.getAttribute(ConstantKeys.CLIENT_CONTEXT_KEY), FlowPredicate.from(executionContext))
+        RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(extensionPoint, (Client)executionContext.getAttribute(ConstantKeys.CLIENT_CONTEXT_KEY), FlowPredicate.from(executionContext)))
                 .subscribe(
                         policies -> handler.handle(Future.succeededFuture(policies)),
                         error -> handler.handle(Future.failedFuture(error)));

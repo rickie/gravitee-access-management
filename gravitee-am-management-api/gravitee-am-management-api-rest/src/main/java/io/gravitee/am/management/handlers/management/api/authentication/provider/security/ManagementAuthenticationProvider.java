@@ -71,7 +71,7 @@ public class ManagementAuthenticationProvider implements AuthenticationProvider 
         String organizationId = details.get(Claims.organization);
 
         // get organization identity providers
-        Organization organization = RxJava2Adapter.singleToMono(organizationService.findById(organizationId)).block();
+        Organization organization = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(organizationService.findById_migrated(organizationId))).block();
         if (organization == null) {
             throw new InternalAuthenticationServiceException("No organization found when trying to authenticate the end-user");
         }
@@ -110,7 +110,7 @@ public class ManagementAuthenticationProvider implements AuthenticationProvider 
             }
 
             try {
-                user = RxJava2Adapter.maybeToMono(authenticationProvider.loadUserByUsername(provAuthentication)).block();
+                user = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(provAuthentication))).block();
                 // set user identity provider source
                 details.put(SOURCE, provider);
                 lastException = null;

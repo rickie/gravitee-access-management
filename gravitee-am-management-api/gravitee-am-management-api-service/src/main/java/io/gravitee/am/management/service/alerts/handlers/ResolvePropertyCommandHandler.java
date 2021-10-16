@@ -57,7 +57,7 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
     public <T> void doOnCommand(Command command, Handler<T> resultHandler) {
         LOGGER.debug("Received a command from alert engine {}.", command);
         if (command instanceof ResolvePropertyCommand) {
-            resolveProperties((ResolvePropertyCommand) command)
+            RxJava2Adapter.monoToSingle(resolveProperties_migrated((ResolvePropertyCommand) command))
                     .subscribe(result -> resultHandler.handle((T) result), error -> resultHandler.handle(null));
         } else {
             LOGGER.warn("Unknown alert command: {}", command);
@@ -81,9 +81,9 @@ private Mono<Map<String,Map<String,Object>>> resolveProperties_migrated(ResolveP
         if (commandProperties != null) {
             commandProperties.forEach((key, value) -> {
                 if (RESOLVE_DOMAIN_PROPERTIES_KEY.equals(key)) {
-                    obs.add(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resolveDomainProperties(value)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(domainProperties -> values.put(key, domainProperties)))));
+                    obs.add(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(resolveDomainProperties_migrated(value))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(domainProperties -> values.put(key, domainProperties)))));
                 } else if (RESOLVE_APPLICATION_PROPERTIES_KEY.equals(key)) {
-                    obs.add(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resolveApplicationProperties(value)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(appProperties -> values.put(key, appProperties)))));
+                    obs.add(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(resolveApplicationProperties_migrated(value))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(appProperties -> values.put(key, appProperties)))));
                 }
             });
         }
@@ -100,7 +100,7 @@ private Mono<Map<String,Object>> resolveDomainProperties_migrated(String domainI
 
         final Map<String, Object> properties = new HashMap<>();
 
-        return RxJava2Adapter.singleToMono(domainService.findById(domainId)
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domainId))
                 .flatMapSingle(domain -> {
                     properties.put("id", domain.getId());
                     properties.put("name", domain.getName());
@@ -121,7 +121,7 @@ private Mono<Map<String,Object>> resolveApplicationProperties_migrated(String ap
 
         final Map<String, Object> properties = new HashMap<>();
 
-        return RxJava2Adapter.singleToMono(applicationService.findById(applicationId)
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(applicationService.findById_migrated(applicationId))
                 .flatMapSingle(application -> {
                     properties.put("id", application.getId());
                     properties.put("name", application.getName());

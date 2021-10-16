@@ -18,6 +18,7 @@ package io.gravitee.am.gateway.handler.oauth2.service.consent.impl;
 import static io.gravitee.am.gateway.handler.oauth2.service.utils.ParameterizedScopeUtils.getScopeBase;
 import static io.gravitee.am.gateway.handler.oauth2.service.utils.ParameterizedScopeUtils.isParameterizedScope;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.oauth2.service.consent.UserConsentService;
 import io.gravitee.am.gateway.handler.oauth2.service.scope.ScopeManager;
 import io.gravitee.am.gateway.handler.oauth2.service.scope.ScopeService;
@@ -58,21 +59,23 @@ public class UserConsentServiceImpl implements UserConsentService {
     @Value("${oauth2.approval.expiry:-1}")
     private int approvalExpirySeconds;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkConsent_migrated(client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Set<String>> checkConsent(Client client, io.gravitee.am.model.User user) {
  return RxJava2Adapter.monoToSingle(checkConsent_migrated(client, user));
 }
 @Override
     public Mono<Set<String>> checkConsent_migrated(Client client, io.gravitee.am.model.User user) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(scopeApprovalService.findByDomainAndUserAndClient(domain.getId(), user.getId(), client.getClientId())).filter(RxJavaReactorMigrationUtil.toJdkPredicate(approval -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUserAndClient_migrated(domain.getId(), user.getId(), client.getClientId()))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(approval -> {
                     Date today = new Date();
                     return (approval.getExpiresAt().after(today) && approval.getStatus() == ScopeApproval.ApprovalStatus.APPROVED);
                 })).map(RxJavaReactorMigrationUtil.toJdkFunction(ScopeApproval::getScope)))
                 .collect(HashSet::new, Set::add));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.saveConsent_migrated(client, approvals, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<ScopeApproval>> saveConsent(Client client, List<ScopeApproval> approvals, User principal) {
  return RxJava2Adapter.monoToSingle(saveConsent_migrated(client, approvals, principal));
@@ -88,17 +91,18 @@ public class UserConsentServiceImpl implements UserConsentService {
 
         approvals.forEach(a -> a.setExpiresAt(computeExpiry(scopeApprovals, a.getScope(), parameterizedScopes)));
         // save consent
-        return RxJava2Adapter.singleToMono(scopeApprovalService.saveConsent(domain.getId(), client, approvals));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeApprovalService.saveConsent_migrated(domain.getId(), client, approvals)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getConsentInformation_migrated(consent))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<Scope>> getConsentInformation(Set<String> consent) {
  return RxJava2Adapter.monoToSingle(getConsentInformation_migrated(consent));
 }
 @Override
     public Mono<List<Scope>> getConsentInformation_migrated(Set<String> consent) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(scopeService.getAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(scopes -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.getAll_migrated())).map(RxJavaReactorMigrationUtil.toJdkFunction(scopes -> {
                     List<Scope> requestedScopes = new ArrayList<>();
                     for (String requestScope : consent) {
                         Scope requestedScope = scopes

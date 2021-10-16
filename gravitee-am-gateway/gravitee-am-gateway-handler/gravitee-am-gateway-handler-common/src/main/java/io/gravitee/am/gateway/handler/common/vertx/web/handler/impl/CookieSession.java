@@ -52,7 +52,7 @@ public class CookieSession extends AbstractSession {
     public String value() {
         JWT jwt = new JWT(this.data());
         jwt.setExp((System.currentTimeMillis() + this.timeout()) / 1000);
-        return RxJava2Adapter.singleToMono(this.jwtService.encode(jwt, certificateProvider)).block();
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.jwtService.encode_migrated(jwt, certificateProvider))).block();
     }
 
     @Override
@@ -90,7 +90,7 @@ protected Mono<CookieSession> setValue_migrated(String payload) {
             setData(new HashMap<>());
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.jwtService.decodeAndVerify(payload, certificateProvider)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(jwt -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.jwtService.decodeAndVerify_migrated(payload, certificateProvider))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(jwt -> {
                     this.lastLogin = new Date(jwt.getExp() * 1000 - this.timeout());
                     this.setData(jwt);
                 })).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> this))));

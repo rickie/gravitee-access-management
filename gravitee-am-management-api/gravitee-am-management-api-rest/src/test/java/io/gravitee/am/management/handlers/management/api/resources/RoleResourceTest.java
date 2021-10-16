@@ -47,8 +47,8 @@ public class RoleResourceTest extends JerseySpringTest {
         mockRole.setName("role-name");
         mockRole.setReferenceId(domainId);
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockRole))).when(roleService).findById(roleId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockRole)))).when(roleService).findById_migrated(roleId);
 
         final Response response = target("domains").path(domainId).path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -66,8 +66,8 @@ public class RoleResourceTest extends JerseySpringTest {
 
         final String roleId = "role-id";
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(roleService).findById(roleId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(roleService).findById_migrated(roleId);
 
         final Response response = target("domains").path(domainId).path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -79,7 +79,7 @@ public class RoleResourceTest extends JerseySpringTest {
         final String domainId = "domain-id";
         final String roleId = "role-id";
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -98,8 +98,8 @@ public class RoleResourceTest extends JerseySpringTest {
         mockRole.setReferenceType(ReferenceType.DOMAIN);
         mockRole.setReferenceId("wrong-domain");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockRole))).when(roleService).findById(roleId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockRole)))).when(roleService).findById_migrated(roleId);
 
         final Response response = target("domains").path(domainId).path("roles").path(roleId).request().get();
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());

@@ -87,7 +87,7 @@ public class LoginController {
         // fetch domain social identity providers
         List<IdentityProvider> socialProviders = null;
         try {
-            socialProviders = RxJava2Adapter.singleToMono(organizationService.findById(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(org -> Optional.ofNullable(org.getIdentities()).orElse(emptyList()))).block()
+            socialProviders = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(organizationService.findById_migrated(organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(org -> Optional.ofNullable(org.getIdentities()).orElse(emptyList()))).block()
                     .stream()
                     .map(identityProviderManager::getIdentityProvider)
                     .filter(Objects::nonNull)
@@ -110,7 +110,7 @@ public class LoginController {
                 String identityId = identity.getId();
                 SocialAuthenticationProvider socialAuthenticationProvider = (SocialAuthenticationProvider) identityProviderManager.get(identityId);
                 if (socialAuthenticationProvider != null) {
-                    final Maybe<Request> maybe = socialAuthenticationProvider.asyncSignInUrl(buildRedirectUri(request, identityId), RandomString.generate());
+                    final Maybe<Request> maybe = RxJava2Adapter.monoToMaybe(socialAuthenticationProvider.asyncSignInUrl_migrated(buildRedirectUri(request, identityId), RandomString.generate()));
                     authorizeUrls.put(identityId, RxJava2Adapter.maybeToMono(maybe).block().getUri());
                 }
             });

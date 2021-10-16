@@ -78,7 +78,7 @@ public class SSOSessionHandler implements Handler<RoutingContext> {
                     // user has been disabled, invalidate session
 
                     // clear AuthenticationFlowContext. data of this context have a TTL so we can fire and forget in case on error.
-                    authenticationFlowContextService.clearContext(context.session().get(ConstantKeys.TRANSACTION_ID_KEY)).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.info("Deletion of some authentication flow data fails '{}'", error.getMessage()))).as(RxJava2Adapter::monoToCompletable)
+                    RxJava2Adapter.monoToCompletable(authenticationFlowContextService.clearContext_migrated(context.session().get(ConstantKeys.TRANSACTION_ID_KEY))).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.info("Deletion of some authentication flow data fails '{}'", error.getMessage()))).as(RxJava2Adapter::monoToCompletable)
                             .subscribe();
 
                     context.clearUser();
@@ -150,7 +150,7 @@ public class SSOSessionHandler implements Handler<RoutingContext> {
             return;
         }
         // check if both clients (requested and user client) share the same identity provider
-        Single.zip(getClient(clientId), getClient(user.getClient()), (optRequestedClient, optUserClient) -> {
+        Single.zip(RxJava2Adapter.monoToSingle(getClient_migrated(clientId)), RxJava2Adapter.monoToSingle(getClient_migrated(user.getClient())), (optRequestedClient, optUserClient) -> {
             Client requestedClient = optRequestedClient.get();
             Client userClient = optUserClient.get();
 
@@ -188,6 +188,6 @@ private Single<Optional<Client>> getClient(String clientId) {
  return RxJava2Adapter.monoToSingle(getClient_migrated(clientId));
 }
 private Mono<Optional<Client>> getClient_migrated(String clientId) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(clientSyncService.findById(clientId)).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(clientSyncService.findByClientId(clientId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientSyncService.findById_migrated(clientId))).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated(clientId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()).single()));
     }
 }

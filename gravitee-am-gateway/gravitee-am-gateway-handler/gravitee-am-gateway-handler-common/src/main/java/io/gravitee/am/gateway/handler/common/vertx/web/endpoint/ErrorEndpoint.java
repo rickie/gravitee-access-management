@@ -112,7 +112,7 @@ public class ErrorEndpoint implements Handler<RoutingContext> {
         final String jarm = request.getParam(io.gravitee.am.common.oidc.Parameters.RESPONSE);
         if (error == null && jarm != null) {
             // extract error details from the JWT provided as response parameter
-            singlePageRendering = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.jwtService.decode(jarm)).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> {
+            singlePageRendering = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.jwtService.decode_migrated(jarm))).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> {
                 Map<String, String> result = new HashMap<>();
                 result.put(ERROR_PARAM, (String) jwt.get(ERROR_PARAM));
                 result.put(ERROR_DESCRIPTION_PARAM, (String) jwt.get(ERROR_DESCRIPTION_PARAM));
@@ -147,7 +147,7 @@ public class ErrorEndpoint implements Handler<RoutingContext> {
     }
 
     private void resolveClient(String clientId, Handler<AsyncResult<Client>> handler) {
-        clientSyncService.findByDomainAndClientId(domain, clientId)
+        RxJava2Adapter.monoToMaybe(clientSyncService.findByDomainAndClientId_migrated(domain, clientId))
                 .subscribe(
                         client -> handler.handle(Future.succeededFuture(client)),
                         error -> handler.handle(Future.failedFuture(error)),

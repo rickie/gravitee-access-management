@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.token.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.jwt.JWTException;
 import io.gravitee.am.common.exception.oauth2.InvalidTokenException;
 import io.gravitee.am.common.jwt.Claims;
@@ -94,49 +95,53 @@ public class TokenServiceImpl implements TokenService {
     @Autowired
     private IntrospectionTokenService introspectionTokenService;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getAccessToken_migrated(token, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Token> getAccessToken(String token, Client client) {
  return RxJava2Adapter.monoToMaybe(getAccessToken_migrated(token, client));
 }
 @Override
     public Mono<Token> getAccessToken_migrated(String token, Client client) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(jwtService.decodeAndVerify(token, client)
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(token, client))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof JWTException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidTokenException(ex.getMessage(), ex)));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));
-                })).flatMap(e->RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken(e.getJti())).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.oauth2.model.AccessToken accessToken)->convertAccessToken(e))))));
+                })).flatMap(e->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated(e.getJti()))).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.oauth2.model.AccessToken accessToken)->convertAccessToken(e))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getRefreshToken_migrated(refreshToken, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Token> getRefreshToken(String refreshToken, Client client) {
  return RxJava2Adapter.monoToMaybe(getRefreshToken_migrated(refreshToken, client));
 }
 @Override
     public Mono<Token> getRefreshToken_migrated(String refreshToken, Client client) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(jwtService.decodeAndVerify(refreshToken, client)
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(refreshToken, client))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof JWTException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidTokenException(ex.getMessage(), ex)));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));
-                })).flatMap(e->RxJava2Adapter.maybeToMono(refreshTokenRepository.findByToken(e.getJti())).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.oauth2.model.RefreshToken refreshToken1)->convertRefreshToken(e))))));
+                })).flatMap(e->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(refreshTokenRepository.findByToken_migrated(e.getJti()))).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.oauth2.model.RefreshToken refreshToken1)->convertRefreshToken(e))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.introspect_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Token> introspect(String token) {
  return RxJava2Adapter.monoToSingle(introspect_migrated(token));
 }
 @Override
     public Mono<Token> introspect_migrated(String token) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(introspectionTokenService.introspect(token, false)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convertAccessToken))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(introspectionTokenService.introspect_migrated(token, false))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convertAccessToken))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(oAuth2Request, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Token> create(OAuth2Request oAuth2Request, Client client, User endUser) {
  return RxJava2Adapter.monoToSingle(create_migrated(oAuth2Request, client, endUser));
@@ -152,14 +157,15 @@ public class TokenServiceImpl implements TokenService {
                     // encode and sign JWT tokens
                     // and create token response (+ enhance information)
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.zip(
-                            jwtService.encode(accessToken, client),
-                            (refreshToken != null ? RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.encode(refreshToken, client)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of))) : RxJava2Adapter.monoToSingle(Mono.just(Optional.<String>empty()))),
-                            (encodedAccessToken, optionalEncodedRefreshToken) -> convert(accessToken, encodedAccessToken, optionalEncodedRefreshToken.orElse(null), oAuth2Request))).flatMap(accessToken1->RxJava2Adapter.singleToMono(tokenEnhancer.enhance(accessToken1, oAuth2Request, client, endUser, executionContext))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(token -> storeTokens(accessToken, refreshToken, oAuth2Request))));
+                            RxJava2Adapter.monoToSingle(jwtService.encode_migrated(accessToken, client)),
+                            (refreshToken != null ? RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.encode_migrated(refreshToken, client))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of))) : RxJava2Adapter.monoToSingle(Mono.just(Optional.<String>empty()))),
+                            (encodedAccessToken, optionalEncodedRefreshToken) -> convert(accessToken, encodedAccessToken, optionalEncodedRefreshToken.orElse(null), oAuth2Request))).flatMap(accessToken1->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tokenEnhancer.enhance_migrated(accessToken1, oAuth2Request, client, endUser, executionContext)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(token -> storeTokens(accessToken, refreshToken, oAuth2Request))));
 
                 }).apply(v)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.refresh_migrated(refreshToken, tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Token> refresh(String refreshToken, TokenRequest tokenRequest, Client client) {
  return RxJava2Adapter.monoToSingle(refresh_migrated(refreshToken, tokenRequest, client));
@@ -181,28 +187,30 @@ public class TokenServiceImpl implements TokenService {
                     }
 
                     // refresh token is used only once
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(refreshTokenRepository.delete(refreshToken1.getValue())).then(Mono.just(refreshToken1)));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(refreshTokenRepository.delete_migrated(refreshToken1.getValue()))).then(Mono.just(refreshToken1)));
                 }).apply(v)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteAccessToken_migrated(accessToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable deleteAccessToken(String accessToken) {
  return RxJava2Adapter.monoToCompletable(deleteAccessToken_migrated(accessToken));
 }
 @Override
     public Mono<Void> deleteAccessToken_migrated(String accessToken) {
-        return RxJava2Adapter.completableToMono(accessTokenRepository.delete(accessToken));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(accessTokenRepository.delete_migrated(accessToken)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteRefreshToken_migrated(refreshToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable deleteRefreshToken(String refreshToken) {
  return RxJava2Adapter.monoToCompletable(deleteRefreshToken_migrated(refreshToken));
 }
 @Override
     public Mono<Void> deleteRefreshToken_migrated(String refreshToken) {
-        return RxJava2Adapter.completableToMono(refreshTokenRepository.delete(refreshToken));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(refreshTokenRepository.delete_migrated(refreshToken)));
     }
 
     private void storeTokens(JWT accessToken, JWT refreshToken, OAuth2Request oAuth2Request) {

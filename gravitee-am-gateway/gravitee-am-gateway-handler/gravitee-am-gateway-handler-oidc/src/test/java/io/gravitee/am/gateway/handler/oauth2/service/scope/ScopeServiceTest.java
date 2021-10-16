@@ -15,22 +15,22 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.scope;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.gateway.handler.oauth2.service.scope.impl.ScopeServiceImpl;
 import io.gravitee.am.model.oauth2.Scope;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -59,7 +59,7 @@ public class ScopeServiceTest {
 
     @Test
     public void getAll() {
-        TestObserver testObserver = scopeService.getAll().test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(scopeService.getAll_migrated()).test();
 
         verify(scopeManager, times(1)).findAll();
         testObserver.assertNoErrors();

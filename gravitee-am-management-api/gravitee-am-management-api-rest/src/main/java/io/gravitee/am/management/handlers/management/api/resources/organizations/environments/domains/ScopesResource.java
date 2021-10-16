@@ -87,7 +87,7 @@ public class ScopesResource extends AbstractResource {
             @QueryParam("q") String query,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.LIST)).then(RxJava2Adapter.singleToMono(Single.wrap(query != null ? scopeService.search(domain, query, page, Math.min(size, MAX_SCOPES_SIZE_PER_PAGE)) : scopeService.findByDomain(domain, page, Math.min(size, MAX_SCOPES_SIZE_PER_PAGE))))).map(RxJavaReactorMigrationUtil.toJdkFunction(searchPage -> new Page(
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.LIST))).then(RxJava2Adapter.singleToMono(Single.wrap(query != null ? RxJava2Adapter.monoToSingle(scopeService.search_migrated(domain, query, page, Math.min(size, MAX_SCOPES_SIZE_PER_PAGE))) : RxJava2Adapter.monoToSingle(scopeService.findByDomain_migrated(domain, page, Math.min(size, MAX_SCOPES_SIZE_PER_PAGE)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(searchPage -> new Page(
                     searchPage.getData().stream().map(this::filterScopeInfos).sorted(Comparator.comparing(Scope::getKey)).collect(Collectors.toList()),
                     searchPage.getCurrentPage(),
                     searchPage.getTotalCount()))))
@@ -114,8 +114,8 @@ public class ScopesResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.CREATE)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(scopeService.create(domain, newScope, authenticatedUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> Response
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_SCOPE, Acl.CREATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.create_migrated(domain, newScope, authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> Response
                                         .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/scopes/" + scope.getId()))
                                         .entity(scope)
                                         .build())))

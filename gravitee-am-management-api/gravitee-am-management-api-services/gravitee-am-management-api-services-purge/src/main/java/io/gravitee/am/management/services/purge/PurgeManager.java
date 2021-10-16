@@ -15,6 +15,10 @@
  */
 package io.gravitee.am.management.services.purge;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
+
 import io.gravitee.am.repository.management.api.AuthenticationFlowContextRepository;
 import io.gravitee.am.repository.management.api.LoginAttemptRepository;
 import io.gravitee.am.repository.management.api.PermissionTicketRepository;
@@ -23,18 +27,14 @@ import io.gravitee.am.repository.oauth2.api.AuthorizationCodeRepository;
 import io.gravitee.am.repository.oauth2.api.RefreshTokenRepository;
 import io.gravitee.am.repository.oauth2.api.ScopeApprovalRepository;
 import io.gravitee.am.repository.oidc.api.RequestObjectRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-
-import javax.inject.Singleton;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Optional.ofNullable;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -80,28 +80,28 @@ public class PurgeManager {
             LOGGER.debug("Purging expired data for table '{}'", toProcess);
             switch (toProcess) {
                 case access_tokens:
-                    accessTokenRepository.purgeExpiredData().subscribe();
+                    RxJava2Adapter.monoToCompletable(accessTokenRepository.purgeExpiredData_migrated()).subscribe();
                     break;
                 case authorization_codes:
-                    authorizationCodeRepository.purgeExpiredData().subscribe();
+                    RxJava2Adapter.monoToCompletable(authorizationCodeRepository.purgeExpiredData_migrated()).subscribe();
                     break;
                 case refresh_tokens:
-                    refreshTokenRepository.purgeExpiredData().subscribe();
+                    RxJava2Adapter.monoToCompletable(refreshTokenRepository.purgeExpiredData_migrated()).subscribe();
                     break;
                 case request_objects:
-                    requestObjectRepository.purgeExpiredData().subscribe();
+                    RxJava2Adapter.monoToCompletable(requestObjectRepository.purgeExpiredData_migrated()).subscribe();
                     break;
                 case scope_approvals:
-                    scopeApprovalRepository.purgeExpiredData().subscribe();
+                    RxJava2Adapter.monoToCompletable(scopeApprovalRepository.purgeExpiredData_migrated()).subscribe();
                     break;
                 case login_attempts:
-                    loginAttemptRepository.purgeExpiredData().subscribe();
+                    RxJava2Adapter.monoToCompletable(loginAttemptRepository.purgeExpiredData_migrated()).subscribe();
                     break;
                 case uma_permission_ticket:
-                    permissionTicketRepository.purgeExpiredData().subscribe();
+                    RxJava2Adapter.monoToCompletable(permissionTicketRepository.purgeExpiredData_migrated()).subscribe();
                     break;
                 case auth_flow_ctx:
-                    authenticationFlowContextRepository.purgeExpiredData().subscribe();
+                    RxJava2Adapter.monoToCompletable(authenticationFlowContextRepository.purgeExpiredData_migrated()).subscribe();
                     break;
             }
         }

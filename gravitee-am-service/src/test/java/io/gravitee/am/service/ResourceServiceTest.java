@@ -85,30 +85,30 @@ public class ResourceServiceTest {
 
     @Before
     public void setUp() {
-        when(repository.findByDomainAndClientAndUser(DOMAIN_ID, CLIENT_ID, USER_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Resource().setId(RESOURCE_ID))));
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Resource().setId(RESOURCE_ID))));
-        when(scopeService.findByDomainAndKeys(DOMAIN_ID, Arrays.asList("scope"))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Arrays.asList(new Scope("scope")))));
+        when(repository.findByDomainAndClientAndUser_migrated(DOMAIN_ID, CLIENT_ID, USER_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Resource().setId(RESOURCE_ID)))));
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Resource().setId(RESOURCE_ID)))));
+        when(scopeService.findByDomainAndKeys_migrated(DOMAIN_ID, Arrays.asList("scope"))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Arrays.asList(new Scope("scope"))))));
     }
 
     @Test
     public void delete_nonExistingResource() {
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver testObserver = service.delete(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID).test();
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(service.delete_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).test();
         testObserver.assertError(ResourceNotFoundException.class);
     }
 
     @Test
     public void delete_existingResource() {
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Resource().setId(RESOURCE_ID))));
-        when(repository.delete(RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        TestObserver testObserver = service.delete(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID).test();
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Resource().setId(RESOURCE_ID)))));
+        when(repository.delete_migrated(RESOURCE_ID)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(service.delete_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).test();
         testObserver.assertComplete().assertNoErrors().assertNoValues();
     }
 
     @Test
     public void update_nonExistingResource() {
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver testObserver = service.update(new NewResource(), DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID).test();
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(service.update_migrated(new NewResource(), DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).test();
         testObserver.assertError(ResourceNotFoundException.class);
     }
 
@@ -116,59 +116,59 @@ public class ResourceServiceTest {
     public void update_scopeMissing() {
         NewResource newResource = new JsonObject("{\"resource_scopes\":[]}").mapTo(NewResource.class);
         Resource exitingRS = new Resource().setId(RESOURCE_ID).setDomain(DOMAIN_ID);
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(exitingRS)));
-        TestObserver<Resource> testObserver = service.update(newResource, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID).test();
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(exitingRS))));
+        TestObserver<Resource> testObserver = RxJava2Adapter.monoToSingle(service.update_migrated(newResource, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).test();
         testObserver.assertError(MissingScopeException.class);
-        verify(repository, times(0)).update(any());
+        verify(repository, times(0)).update_migrated(any());
     }
 
     @Test
     public void update_scopeNotFound() {
         NewResource newResource = new JsonObject("{\"resource_scopes\":[\"scope\"]}").mapTo(NewResource.class);
         Resource exitingRS = new Resource().setId(RESOURCE_ID).setDomain(DOMAIN_ID);
-        when(scopeService.findByDomainAndKeys(DOMAIN_ID, Arrays.asList("scope"))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(exitingRS)));
-        TestObserver<Resource> testObserver = service.update(newResource, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID).test();
+        when(scopeService.findByDomainAndKeys_migrated(DOMAIN_ID, Arrays.asList("scope"))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()))));
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(exitingRS))));
+        TestObserver<Resource> testObserver = RxJava2Adapter.monoToSingle(service.update_migrated(newResource, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).test();
         testObserver.assertError(ScopeNotFoundException.class);
-        verify(repository, times(0)).update(any());
+        verify(repository, times(0)).update_migrated(any());
     }
 
     @Test
     public void update_malformedIconUri() {
         NewResource newResource = new JsonObject("{\"resource_scopes\":[\"scope\"],\"icon_uri\":\"badIconUriFormat\"}").mapTo(NewResource.class);
         Resource exitingRS = new Resource().setId(RESOURCE_ID).setDomain(DOMAIN_ID);
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(exitingRS)));
-        TestObserver<Resource> testObserver = service.update(newResource, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID).test();
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(exitingRS))));
+        TestObserver<Resource> testObserver = RxJava2Adapter.monoToSingle(service.update_migrated(newResource, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).test();
         testObserver.assertError(MalformedIconUriException.class);
-        verify(repository, times(0)).update(any());
+        verify(repository, times(0)).update_migrated(any());
     }
 
     @Test
     public void update_existingResource() {
         NewResource newResource = new JsonObject("{\"resource_scopes\":[\"scope\"],\"icon_uri\":\"https://gravitee.io/icon\"}").mapTo(NewResource.class);
         Resource exitingRS = new Resource().setId(RESOURCE_ID).setDomain(DOMAIN_ID);
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(exitingRS)));
-        when(repository.update(exitingRS)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(exitingRS)));
-        TestObserver<Resource> testObserver = service.update(newResource, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID).test();
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(exitingRS))));
+        when(repository.update_migrated(exitingRS)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(exitingRS))));
+        TestObserver<Resource> testObserver = RxJava2Adapter.monoToSingle(service.update_migrated(newResource, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).test();
         testObserver.assertComplete().assertNoErrors().assertValue(this::assertResourceValues);
     }
 
     @Test
     public void create_success() {
         NewResource newResource = new JsonObject("{\"resource_scopes\":[\"scope\"]}").mapTo(NewResource.class);
-        when(repository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Resource())));
-        when(accessPolicyRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new AccessPolicy())));
-        TestObserver<Resource> testObserver = service.create(newResource, DOMAIN_ID, CLIENT_ID, USER_ID).test();
+        when(repository.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Resource()))));
+        when(accessPolicyRepository.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new AccessPolicy()))));
+        TestObserver<Resource> testObserver = RxJava2Adapter.monoToSingle(service.create_migrated(newResource, DOMAIN_ID, CLIENT_ID, USER_ID)).test();
         testObserver.assertComplete().assertNoErrors();
         ArgumentCaptor<Resource> rsCaptor = ArgumentCaptor.forClass(Resource.class);
-        verify(repository, times(1)).create(rsCaptor.capture());
-        verify(accessPolicyRepository, times(1)).create(any());
+        verify(repository, times(1)).create_migrated(rsCaptor.capture());
+        verify(accessPolicyRepository, times(1)).create_migrated(any());
         Assert.assertTrue(this.assertResourceValues(rsCaptor.getValue()));
     }
 
     @Test
     public void list() {
-        TestSubscriber<Resource> testSubscriber = service.listByDomainAndClientAndUser(DOMAIN_ID, CLIENT_ID, USER_ID).test();
+        TestSubscriber<Resource> testSubscriber = RxJava2Adapter.fluxToFlowable(service.listByDomainAndClientAndUser_migrated(DOMAIN_ID, CLIENT_ID, USER_ID)).test();
         testSubscriber
                 .assertNoErrors()
                 .assertComplete()
@@ -177,16 +177,16 @@ public class ResourceServiceTest {
 
     @Test
     public void findByDomain_fail() {
-        when(repository.findByDomain(DOMAIN_ID, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new ArrayIndexOutOfBoundsException())));
-        TestObserver<Set<Resource>> testObserver = service.findByDomain(DOMAIN_ID).test();
+        when(repository.findByDomain_migrated(DOMAIN_ID, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new ArrayIndexOutOfBoundsException()))));
+        TestObserver<Set<Resource>> testObserver = RxJava2Adapter.monoToSingle(service.findByDomain_migrated(DOMAIN_ID)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(TechnicalManagementException.class);
     }
 
     @Test
     public void findByDomain_success() {
-        when(repository.findByDomain(DOMAIN_ID, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(new Resource()), 0, 1))));
-        TestObserver<Set<Resource>> testObserver = service.findByDomain(DOMAIN_ID).test();
+        when(repository.findByDomain_migrated(DOMAIN_ID, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(new Resource()), 0, 1)))));
+        TestObserver<Set<Resource>> testObserver = RxJava2Adapter.monoToSingle(service.findByDomain_migrated(DOMAIN_ID)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -205,64 +205,64 @@ public class ResourceServiceTest {
     //Testing straightforward CRUD methods
     @Test
     public void findByResources() {
-        when(repository.findByResources(anyList())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
-        TestSubscriber testObserver = service.findByResources(Collections.emptyList()).test();
+        when(repository.findByResources_migrated(anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        TestSubscriber testObserver = RxJava2Adapter.fluxToFlowable(service.findByResources_migrated(Collections.emptyList())).test();
         testObserver.assertComplete().assertNoErrors();
-        verify(repository, times(1)).findByResources(Collections.emptyList());
+        verify(repository, times(1)).findByResources_migrated(Collections.emptyList());
     }
 
     @Test
     public void findByDomainAndClient() {
-        when(repository.findByDomainAndClient(DOMAIN_ID, CLIENT_ID, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptyList(), 0, 0))));
-        TestObserver testObserver = service.findByDomainAndClient(DOMAIN_ID, CLIENT_ID, 0, Integer.MAX_VALUE).test();
+        when(repository.findByDomainAndClient_migrated(DOMAIN_ID, CLIENT_ID, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptyList(), 0, 0)))));
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(service.findByDomainAndClient_migrated(DOMAIN_ID, CLIENT_ID, 0, Integer.MAX_VALUE)).test();
         testObserver.assertComplete().assertNoErrors();
-        verify(repository, times(1)).findByDomainAndClient(DOMAIN_ID, CLIENT_ID, 0, Integer.MAX_VALUE);
+        verify(repository, times(1)).findByDomainAndClient_migrated(DOMAIN_ID, CLIENT_ID, 0, Integer.MAX_VALUE);
     }
 
     @Test
     public void findByDomainAndClient_technicalFailure() {
-        when(repository.findByDomainAndClient(DOMAIN_ID, CLIENT_ID, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(RuntimeException::new))));
-        TestObserver testObserver = service.findByDomainAndClient(DOMAIN_ID, CLIENT_ID, 0, Integer.MAX_VALUE).test();
+        when(repository.findByDomainAndClient_migrated(DOMAIN_ID, CLIENT_ID, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(RuntimeException::new)))));
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(service.findByDomainAndClient_migrated(DOMAIN_ID, CLIENT_ID, 0, Integer.MAX_VALUE)).test();
         testObserver.assertNotComplete().assertError(TechnicalManagementException.class);
-        verify(repository, times(1)).findByDomainAndClient(DOMAIN_ID, CLIENT_ID, 0, Integer.MAX_VALUE);
+        verify(repository, times(1)).findByDomainAndClient_migrated(DOMAIN_ID, CLIENT_ID, 0, Integer.MAX_VALUE);
     }
 
     @Test
     public void findByDomainAndClientAndResources() {
-        when(repository.findByDomainAndClientAndResources(DOMAIN_ID, CLIENT_ID, Collections.emptyList())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
-        TestSubscriber testSubscriber = service.findByDomainAndClientAndResources(DOMAIN_ID, CLIENT_ID, Collections.emptyList()).test();
+        when(repository.findByDomainAndClientAndResources_migrated(DOMAIN_ID, CLIENT_ID, Collections.emptyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        TestSubscriber testSubscriber = RxJava2Adapter.fluxToFlowable(service.findByDomainAndClientAndResources_migrated(DOMAIN_ID, CLIENT_ID, Collections.emptyList())).test();
         testSubscriber.assertComplete().assertNoErrors();
-        verify(repository, times(1)).findByDomainAndClientAndResources(anyString(), anyString(), anyList());
+        verify(repository, times(1)).findByDomainAndClientAndResources_migrated(anyString(), anyString(), anyList());
     }
 
     @Test
     public void findByDomainAndClientResource() {
-        when(repository.findByDomainAndClientAndResources(eq(DOMAIN_ID), eq(CLIENT_ID), anyList())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
-        TestObserver testObserver = service.findByDomainAndClientResource(DOMAIN_ID, CLIENT_ID, RESOURCE_ID).test();
+        when(repository.findByDomainAndClientAndResources_migrated(eq(DOMAIN_ID), eq(CLIENT_ID), anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(service.findByDomainAndClientResource_migrated(DOMAIN_ID, CLIENT_ID, RESOURCE_ID)).test();
         testObserver.assertComplete().assertNoErrors();
-        verify(repository, times(1)).findByDomainAndClientAndResources(eq(DOMAIN_ID), eq(CLIENT_ID), anyList());
+        verify(repository, times(1)).findByDomainAndClientAndResources_migrated(eq(DOMAIN_ID), eq(CLIENT_ID), anyList());
     }
 
     @Test
     public void update() {
         Date now = new Date(System.currentTimeMillis()-1000);
         Resource toUpdate = new Resource().setId(RESOURCE_ID).setDomain(DOMAIN_ID).setUpdatedAt(now);
-        when(repository.update(toUpdate)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(toUpdate)));
-        TestObserver<Resource> testObserver = service.update(toUpdate).test();
+        when(repository.update_migrated(toUpdate)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(toUpdate))));
+        TestObserver<Resource> testObserver = RxJava2Adapter.monoToSingle(service.update_migrated(toUpdate)).test();
         testObserver.assertComplete().assertNoErrors();
         ArgumentCaptor<Resource> rsCaptor = ArgumentCaptor.forClass(Resource.class);
-        verify(repository, times(1)).update(rsCaptor.capture());
+        verify(repository, times(1)).update_migrated(rsCaptor.capture());
         Assert.assertTrue(rsCaptor.getValue().getUpdatedAt().after(now));
     }
 
     @Test
     public void delete() {
         Resource toDelete = new Resource().setId(RESOURCE_ID).setDomain(DOMAIN_ID);
-        when(accessPolicyRepository.findByDomainAndResource(toDelete.getDomain(), toDelete.getId())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
-        when(repository.delete(RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        TestObserver testObserver = service.delete(toDelete).test();
+        when(accessPolicyRepository.findByDomainAndResource_migrated(toDelete.getDomain(), toDelete.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(repository.delete_migrated(RESOURCE_ID)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(service.delete_migrated(toDelete)).test();
         testObserver.assertComplete().assertNoErrors();
-        verify(repository, times(1)).delete(RESOURCE_ID);
+        verify(repository, times(1)).delete_migrated(RESOURCE_ID);
     }
 
     @Test
@@ -271,30 +271,30 @@ public class ResourceServiceTest {
         accessPolicy.setId("policy-id");
         accessPolicy.setResource(RESOURCE_ID);
         accessPolicy.setDomain(DOMAIN_ID);
-        when(accessPolicyRepository.findByDomainAndResource(DOMAIN_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(accessPolicy)));
-        TestObserver<List<AccessPolicy>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(service.findAccessPolicies(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).collectList()).test();
+        when(accessPolicyRepository.findByDomainAndResource_migrated(DOMAIN_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(accessPolicy))));
+        TestObserver<List<AccessPolicy>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(service.findAccessPolicies_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID))).collectList()).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(accessPolicies -> accessPolicies.size() == 1);
-        verify(repository, times(1)).findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
-        verify(accessPolicyRepository, times(1)).findByDomainAndResource(DOMAIN_ID, RESOURCE_ID);
+        verify(repository, times(1)).findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
+        verify(accessPolicyRepository, times(1)).findByDomainAndResource_migrated(DOMAIN_ID, RESOURCE_ID);
     }
 
     @Test
     public void findAccessPolicies_resourceNotFound() {
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestSubscriber<AccessPolicy> testSubscriber = service.findAccessPolicies(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID).test();
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestSubscriber<AccessPolicy> testSubscriber = RxJava2Adapter.fluxToFlowable(service.findAccessPolicies_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).test();
         testSubscriber.assertNotComplete().assertError(ResourceNotFoundException.class);
-        verify(repository, times(1)).findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
-        verify(accessPolicyRepository, never()).findByDomainAndResource(DOMAIN_ID, RESOURCE_ID);
+        verify(repository, times(1)).findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
+        verify(accessPolicyRepository, never()).findByDomainAndResource_migrated(DOMAIN_ID, RESOURCE_ID);
     }
 
     @Test
     public void findAccessPolicies_technicalFailure() {
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(RuntimeException::new))));
-        TestSubscriber<AccessPolicy> testSubscriber = service.findAccessPolicies(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID).test();
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(RuntimeException::new)))));
+        TestSubscriber<AccessPolicy> testSubscriber = RxJava2Adapter.fluxToFlowable(service.findAccessPolicies_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).test();
         testSubscriber.assertNotComplete().assertError(TechnicalManagementException.class);
-        verify(repository, times(1)).findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
-        verify(accessPolicyRepository, never()).findByDomainAndResource(DOMAIN_ID, RESOURCE_ID);
+        verify(repository, times(1)).findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
+        verify(accessPolicyRepository, never()).findByDomainAndResource_migrated(DOMAIN_ID, RESOURCE_ID);
     }
 
     @Test
@@ -304,37 +304,37 @@ public class ResourceServiceTest {
         accessPolicy.setResource(RESOURCE_ID);
         accessPolicy.setDomain(DOMAIN_ID);
         List<String> resourceIds = Collections.singletonList(RESOURCE_ID);
-        when(accessPolicyRepository.findByResources(resourceIds)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(accessPolicy)));
-        TestObserver<List<AccessPolicy>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(service.findAccessPoliciesByResources(resourceIds)).collectList()).test();
+        when(accessPolicyRepository.findByResources_migrated(resourceIds)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(accessPolicy))));
+        TestObserver<List<AccessPolicy>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(service.findAccessPoliciesByResources_migrated(resourceIds))).collectList()).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(accessPolicies -> accessPolicies.size() == 1);
-        verify(accessPolicyRepository, times(1)).findByResources(resourceIds);
+        verify(accessPolicyRepository, times(1)).findByResources_migrated(resourceIds);
     }
 
     @Test
     public void findAccessPoliciesByResources_technicalFailure() {
         List<String> resourceIds = Collections.singletonList(RESOURCE_ID);
-        when(accessPolicyRepository.findByResources(resourceIds)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(RuntimeException::new))));
-        TestSubscriber<AccessPolicy> testObserver = service.findAccessPoliciesByResources(resourceIds).test();
+        when(accessPolicyRepository.findByResources_migrated(resourceIds)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(RuntimeException::new)))));
+        TestSubscriber<AccessPolicy> testObserver = RxJava2Adapter.fluxToFlowable(service.findAccessPoliciesByResources_migrated(resourceIds)).test();
         testObserver.assertNotComplete().assertError(TechnicalManagementException.class);
-        verify(accessPolicyRepository, times(1)).findByResources(resourceIds);
+        verify(accessPolicyRepository, times(1)).findByResources_migrated(resourceIds);
     }
 
     @Test
     public void countAccessPolicyByResource() {
-        when(accessPolicyRepository.countByResource(RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(1l)));
-        TestObserver<Long> testObserver = service.countAccessPolicyByResource(RESOURCE_ID).test();
+        when(accessPolicyRepository.countByResource_migrated(RESOURCE_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(1l))));
+        TestObserver<Long> testObserver = RxJava2Adapter.monoToSingle(service.countAccessPolicyByResource_migrated(RESOURCE_ID)).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(accessPolicies -> accessPolicies == 1l);
-        verify(accessPolicyRepository, times(1)).countByResource(RESOURCE_ID);
+        verify(accessPolicyRepository, times(1)).countByResource_migrated(RESOURCE_ID);
     }
 
     @Test
     public void countAccessPolicyByResource_technicalFailure() {
-        when(accessPolicyRepository.countByResource(RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(RuntimeException::new))));
-        TestObserver<Long> testObserver = service.countAccessPolicyByResource(RESOURCE_ID).test();
+        when(accessPolicyRepository.countByResource_migrated(RESOURCE_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(RuntimeException::new)))));
+        TestObserver<Long> testObserver = RxJava2Adapter.monoToSingle(service.countAccessPolicyByResource_migrated(RESOURCE_ID)).test();
         testObserver.assertNotComplete().assertError(TechnicalManagementException.class);
-        verify(accessPolicyRepository, times(1)).countByResource(RESOURCE_ID);
+        verify(accessPolicyRepository, times(1)).countByResource_migrated(RESOURCE_ID);
     }
 
     @Test
@@ -343,30 +343,30 @@ public class ResourceServiceTest {
         accessPolicy.setId(POLICY_ID);
         accessPolicy.setResource(RESOURCE_ID);
         accessPolicy.setDomain(DOMAIN_ID);
-        when(accessPolicyRepository.findById(POLICY_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(accessPolicy)));
-        TestObserver<AccessPolicy> testObserver = service.findAccessPolicy(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID).test();
+        when(accessPolicyRepository.findById_migrated(POLICY_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(accessPolicy))));
+        TestObserver<AccessPolicy> testObserver = RxJava2Adapter.monoToMaybe(service.findAccessPolicy_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID)).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(accessPolicy1 -> accessPolicy1.getId().equals(POLICY_ID));
-        verify(repository, times(1)).findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
-        verify(accessPolicyRepository, times(1)).findById(POLICY_ID);
+        verify(repository, times(1)).findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
+        verify(accessPolicyRepository, times(1)).findById_migrated(POLICY_ID);
     }
 
     @Test
     public void findAccessPolicy_resourceNotFound() {
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver<AccessPolicy> testObserver = service.findAccessPolicy(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID).test();
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver<AccessPolicy> testObserver = RxJava2Adapter.monoToMaybe(service.findAccessPolicy_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID)).test();
         testObserver.assertNotComplete().assertError(ResourceNotFoundException.class);
-        verify(repository, times(1)).findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
-        verify(accessPolicyRepository, never()).findById(POLICY_ID);
+        verify(repository, times(1)).findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
+        verify(accessPolicyRepository, never()).findById_migrated(POLICY_ID);
     }
 
     @Test
     public void findAccessPolicy_technicalFailure() {
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(RuntimeException::new))));
-        TestObserver<AccessPolicy> testObserver = service.findAccessPolicy(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID).test();
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(RuntimeException::new)))));
+        TestObserver<AccessPolicy> testObserver = RxJava2Adapter.monoToMaybe(service.findAccessPolicy_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID)).test();
         testObserver.assertNotComplete().assertError(TechnicalManagementException.class);
-        verify(repository, times(1)).findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
-        verify(accessPolicyRepository, never()).findById(POLICY_ID);
+        verify(repository, times(1)).findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
+        verify(accessPolicyRepository, never()).findById_migrated(POLICY_ID);
     }
 
     @Test
@@ -375,19 +375,19 @@ public class ResourceServiceTest {
         accessPolicy.setId(POLICY_ID);
         accessPolicy.setResource(RESOURCE_ID);
         accessPolicy.setDomain(DOMAIN_ID);
-        when(accessPolicyRepository.findById(POLICY_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(accessPolicy)));
-        TestObserver<AccessPolicy> testObserver = service.findAccessPolicy(POLICY_ID).test();
+        when(accessPolicyRepository.findById_migrated(POLICY_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(accessPolicy))));
+        TestObserver<AccessPolicy> testObserver = RxJava2Adapter.monoToMaybe(service.findAccessPolicy_migrated(POLICY_ID)).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(accessPolicy1 -> accessPolicy1.getId().equals(POLICY_ID));
-        verify(accessPolicyRepository, times(1)).findById(POLICY_ID);
+        verify(accessPolicyRepository, times(1)).findById_migrated(POLICY_ID);
     }
 
     @Test
     public void findAccessPolicy_byId_technicalFailure() {
-        when(accessPolicyRepository.findById(POLICY_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(RuntimeException::new))));
-        TestObserver<AccessPolicy> testObserver = service.findAccessPolicy(POLICY_ID).test();
+        when(accessPolicyRepository.findById_migrated(POLICY_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(RuntimeException::new)))));
+        TestObserver<AccessPolicy> testObserver = RxJava2Adapter.monoToMaybe(service.findAccessPolicy_migrated(POLICY_ID)).test();
         testObserver.assertNotComplete().assertError(TechnicalManagementException.class);
-        verify(accessPolicyRepository, times(1)).findById(POLICY_ID);
+        verify(accessPolicyRepository, times(1)).findById_migrated(POLICY_ID);
     }
 
     @Test
@@ -396,12 +396,12 @@ public class ResourceServiceTest {
         accessPolicy.setId(POLICY_ID);
         accessPolicy.setResource(RESOURCE_ID);
         accessPolicy.setDomain(DOMAIN_ID);
-        when(accessPolicyRepository.create(accessPolicy)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(accessPolicy)));
-        TestObserver<AccessPolicy> testObserver = service.createAccessPolicy(accessPolicy, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID).test();
+        when(accessPolicyRepository.create_migrated(accessPolicy)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(accessPolicy))));
+        TestObserver<AccessPolicy> testObserver = RxJava2Adapter.monoToSingle(service.createAccessPolicy_migrated(accessPolicy, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(accessPolicy1 -> accessPolicy1.getId().equals(POLICY_ID));
-        verify(repository, times(1)).findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
-        verify(accessPolicyRepository, times(1)).create(accessPolicy);
+        verify(repository, times(1)).findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
+        verify(accessPolicyRepository, times(1)).create_migrated(accessPolicy);
     }
 
     @Test
@@ -410,11 +410,11 @@ public class ResourceServiceTest {
         accessPolicy.setId(POLICY_ID);
         accessPolicy.setResource(RESOURCE_ID);
         accessPolicy.setDomain(DOMAIN_ID);
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver<AccessPolicy> testObserver = service.createAccessPolicy(accessPolicy, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID).test();
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver<AccessPolicy> testObserver = RxJava2Adapter.monoToSingle(service.createAccessPolicy_migrated(accessPolicy, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).test();
         testObserver.assertNotComplete().assertError(ResourceNotFoundException.class);
-        verify(repository, times(1)).findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
-        verify(accessPolicyRepository, never()).create(accessPolicy);
+        verify(repository, times(1)).findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
+        verify(accessPolicyRepository, never()).create_migrated(accessPolicy);
     }
 
     @Test
@@ -423,14 +423,14 @@ public class ResourceServiceTest {
         accessPolicy.setId(POLICY_ID);
         accessPolicy.setResource(RESOURCE_ID);
         accessPolicy.setDomain(DOMAIN_ID);
-        when(accessPolicyRepository.findById(POLICY_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(accessPolicy)));
-        when(accessPolicyRepository.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(accessPolicy)));
-        TestObserver<AccessPolicy> testObserver = service.updateAccessPolicy(accessPolicy, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID).test();
+        when(accessPolicyRepository.findById_migrated(POLICY_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(accessPolicy))));
+        when(accessPolicyRepository.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(accessPolicy))));
+        TestObserver<AccessPolicy> testObserver = RxJava2Adapter.monoToSingle(service.updateAccessPolicy_migrated(accessPolicy, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID)).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(accessPolicy1 -> accessPolicy1.getId().equals(POLICY_ID));
-        verify(repository, times(1)).findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
-        verify(accessPolicyRepository, times(1)).findById(POLICY_ID);
-        verify(accessPolicyRepository, times(1)).update(any());
+        verify(repository, times(1)).findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
+        verify(accessPolicyRepository, times(1)).findById_migrated(POLICY_ID);
+        verify(accessPolicyRepository, times(1)).update_migrated(any());
     }
 
     @Test
@@ -439,12 +439,12 @@ public class ResourceServiceTest {
         accessPolicy.setId(POLICY_ID);
         accessPolicy.setResource(RESOURCE_ID);
         accessPolicy.setDomain(DOMAIN_ID);
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver<AccessPolicy> testObserver = service.updateAccessPolicy(accessPolicy, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID).test();
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver<AccessPolicy> testObserver = RxJava2Adapter.monoToSingle(service.updateAccessPolicy_migrated(accessPolicy, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID)).test();
         testObserver.assertNotComplete().assertError(ResourceNotFoundException.class);
-        verify(repository, times(1)).findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
-        verify(accessPolicyRepository, never()).findById(POLICY_ID);
-        verify(accessPolicyRepository, never()).update(any());
+        verify(repository, times(1)).findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
+        verify(accessPolicyRepository, never()).findById_migrated(POLICY_ID);
+        verify(accessPolicyRepository, never()).update_migrated(any());
     }
 
     @Test
@@ -453,42 +453,42 @@ public class ResourceServiceTest {
         accessPolicy.setId(POLICY_ID);
         accessPolicy.setResource(RESOURCE_ID);
         accessPolicy.setDomain(DOMAIN_ID);
-        when(accessPolicyRepository.findById(POLICY_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver<AccessPolicy> testObserver = service.updateAccessPolicy(accessPolicy, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID).test();
+        when(accessPolicyRepository.findById_migrated(POLICY_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver<AccessPolicy> testObserver = RxJava2Adapter.monoToSingle(service.updateAccessPolicy_migrated(accessPolicy, DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID)).test();
         testObserver.assertNotComplete().assertError(AccessPolicyNotFoundException.class);
-        verify(repository, times(1)).findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
-        verify(accessPolicyRepository, times(1)).findById(POLICY_ID);
-        verify(accessPolicyRepository, never()).update(any());
+        verify(repository, times(1)).findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
+        verify(accessPolicyRepository, times(1)).findById_migrated(POLICY_ID);
+        verify(accessPolicyRepository, never()).update_migrated(any());
     }
 
     @Test
     public void deleteAccessPolicy() {
-        when(accessPolicyRepository.delete(POLICY_ID)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        TestObserver testObserver = service.deleteAccessPolicy(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID).test();
+        when(accessPolicyRepository.delete_migrated(POLICY_ID)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(service.deleteAccessPolicy_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID)).test();
         testObserver.assertComplete().assertNoErrors();
-        verify(repository, times(1)).findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
-        verify(accessPolicyRepository, times(1)).delete(POLICY_ID);
+        verify(repository, times(1)).findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
+        verify(accessPolicyRepository, times(1)).delete_migrated(POLICY_ID);
     }
 
     @Test
     public void deleteAccessPolicy_resourceNotFound() {
-        when(repository.findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver testObserver = service.deleteAccessPolicy(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID).test();
+        when(repository.findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(service.deleteAccessPolicy_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID, POLICY_ID)).test();
         testObserver.assertNotComplete().assertError(ResourceNotFoundException.class);
-        verify(repository, times(1)).findByDomainAndClientAndUserAndResource(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
-        verify(accessPolicyRepository, never()).delete(POLICY_ID);
+        verify(repository, times(1)).findByDomainAndClientAndUserAndResource_migrated(DOMAIN_ID, CLIENT_ID, USER_ID, RESOURCE_ID);
+        verify(accessPolicyRepository, never()).delete_migrated(POLICY_ID);
     }
 
     @Test
     public void getMetadata_noResources_null() {
-        TestObserver<Map<String, Map<String, Object>>> testObserver = service.getMetadata(null).test();
+        TestObserver<Map<String, Map<String, Object>>> testObserver = RxJava2Adapter.monoToSingle(service.getMetadata_migrated(null)).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(Map::isEmpty);
     }
 
     @Test
     public void getMetadata_noResources_empty() {
-        TestObserver<Map<String, Map<String, Object>>> testObserver = service.getMetadata(Collections.emptyList()).test();
+        TestObserver<Map<String, Map<String, Object>>> testObserver = RxJava2Adapter.monoToSingle(service.getMetadata_migrated(Collections.emptyList())).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(Map::isEmpty);
     }
@@ -501,9 +501,9 @@ public class ResourceServiceTest {
         resource.setUserId(USER_ID);
         List<Resource> resources = Collections.singletonList(resource);
 
-        when(userService.findByIdIn(anyList())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new User())));
-        when(applicationService.findByIdIn(anyList())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Application())));
-        TestObserver<Map<String, Map<String, Object>>> testObserver = service.getMetadata(resources).test();
+        when(userService.findByIdIn_migrated(anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new User()))));
+        when(applicationService.findByIdIn_migrated(anyList())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Application()))));
+        TestObserver<Map<String, Map<String, Object>>> testObserver = RxJava2Adapter.monoToSingle(service.getMetadata_migrated(resources)).test();
         testObserver.assertComplete().assertNoErrors();
     }
 }

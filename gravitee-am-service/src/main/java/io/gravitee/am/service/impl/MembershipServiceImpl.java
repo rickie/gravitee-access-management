@@ -86,7 +86,8 @@ public class MembershipServiceImpl implements MembershipService {
     @Autowired
     private EventService eventService;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Membership> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -94,14 +95,15 @@ public class MembershipServiceImpl implements MembershipService {
 @Override
     public Mono<Membership> findById_migrated(String id) {
         LOGGER.debug("Find membership by ID {}", id);
-        return RxJava2Adapter.maybeToMono(membershipRepository.findById(id)
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(membershipRepository.findById_migrated(id))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find membership by id {}", id, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to find membership by ID %s", id), ex)));
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Membership> findByCriteria(ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
  return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
@@ -111,10 +113,11 @@ public class MembershipServiceImpl implements MembershipService {
 
         LOGGER.debug("Find memberships by reference type {} and reference id {} and criteria {}", referenceType, referenceId, criteria);
 
-        return RxJava2Adapter.flowableToFlux(membershipRepository.findByCriteria(referenceType, referenceId, criteria));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(membershipRepository.findByCriteria_migrated(referenceType, referenceId, criteria)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceId, referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Membership> findByReference(String referenceId, ReferenceType referenceType) {
  return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceId, referenceType));
@@ -122,14 +125,15 @@ public class MembershipServiceImpl implements MembershipService {
 @Override
     public Flux<Membership> findByReference_migrated(String referenceId, ReferenceType referenceType) {
         LOGGER.debug("Find memberships by reference id {} and reference type {}", referenceId, referenceType);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(membershipRepository.findByReference(referenceId, referenceType)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(membershipRepository.findByReference_migrated(referenceId, referenceType))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find memberships by reference id {} and reference type {}", referenceId, referenceType, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find memberships by reference id %s and reference type %s", referenceId, referenceType), ex)));
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Membership> findByMember(String memberId, MemberType memberType) {
  return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId, memberType));
@@ -137,14 +141,15 @@ public class MembershipServiceImpl implements MembershipService {
 @Override
     public Flux<Membership> findByMember_migrated(String memberId, MemberType memberType) {
         LOGGER.debug("Find memberships by member id {} and member type {}", memberId, memberType);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(membershipRepository.findByMember(memberId, memberType)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(membershipRepository.findByMember_migrated(memberId, memberType))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find memberships by member id {} and member type {}", memberId, memberType, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find memberships by member id %s and member type %s", memberId, memberType), ex)));
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addOrUpdate_migrated(organizationId, membership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Membership> addOrUpdate(String organizationId, Membership membership, User principal) {
  return RxJava2Adapter.monoToSingle(addOrUpdate_migrated(organizationId, membership, principal));
@@ -153,7 +158,7 @@ public class MembershipServiceImpl implements MembershipService {
     public Mono<Membership> addOrUpdate_migrated(String organizationId, Membership membership, User principal) {
         LOGGER.debug("Add or update membership {}", membership);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkMember(organizationId, membership)).then(RxJava2Adapter.completableToMono(checkRole(organizationId, membership))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(membershipRepository.findByReferenceAndMember(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId())).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkMember_migrated(organizationId, membership))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkRole_migrated(organizationId, membership)))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(membershipRepository.findByReferenceAndMember_migrated(membership.getReferenceType(), membership.getReferenceId(), membership.getMemberType(), membership.getMemberId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
                         .flatMapSingle(optMembership -> {
                             if (!optMembership.isPresent()) {
                                 // add membership
@@ -167,16 +172,16 @@ public class MembershipServiceImpl implements MembershipService {
                                 newMembership.setRoleId(membership.getRoleId());
                                 newMembership.setCreatedAt(new Date());
                                 newMembership.setUpdatedAt(newMembership.getCreatedAt());
-                                return createInternal(newMembership, principal);
+                                return RxJava2Adapter.monoToSingle(createInternal_migrated(newMembership, principal));
                             } else {
                                 // update membership
                                 Membership oldMembership = optMembership.get();
                                 Membership updateMembership = new Membership(oldMembership);
                                 updateMembership.setRoleId(membership.getRoleId());
                                 updateMembership.setUpdatedAt(new Date());
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipRepository.update(updateMembership)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
+                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.update_migrated(updateMembership))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
                                             Event event = new Event(Type.MEMBERSHIP, new Payload(membership1.getId(), membership1.getReferenceType(), membership1.getReferenceId(), Action.UPDATE));
-                                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(membership1)));
+                                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(membership1)));
                                         }).apply(v)))))
                                         .onErrorResumeNext(ex -> {
                                             if (ex instanceof AbstractManagementException) {
@@ -189,7 +194,8 @@ public class MembershipServiceImpl implements MembershipService {
                         })))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setPlatformAdmin_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Membership> setPlatformAdmin(String userId) {
  return RxJava2Adapter.monoToSingle(setPlatformAdmin_migrated(userId));
@@ -200,7 +206,7 @@ public class MembershipServiceImpl implements MembershipService {
         MembershipCriteria criteria = new MembershipCriteria();
         criteria.setUserId(userId);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(roleService.findSystemRole(SystemRole.PLATFORM_ADMIN, ReferenceType.PLATFORM)).switchIfEmpty(Mono.error(new RoleNotFoundException(SystemRole.PLATFORM_ADMIN.name()))).flatMap(role->RxJava2Adapter.flowableToFlux(findByCriteria(ReferenceType.PLATFORM, Platform.DEFAULT, criteria)).next().switchIfEmpty(RxJava2Adapter.singleToMono(Single.defer(()->{
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleService.findSystemRole_migrated(SystemRole.PLATFORM_ADMIN, ReferenceType.PLATFORM))).switchIfEmpty(Mono.error(new RoleNotFoundException(SystemRole.PLATFORM_ADMIN.name()))).flatMap(role->RxJava2Adapter.flowableToFlux(findByCriteria(ReferenceType.PLATFORM, Platform.DEFAULT, criteria)).next().switchIfEmpty(RxJava2Adapter.singleToMono(Single.defer(()->{
 final Date now = new Date();
 Membership membership = new Membership();
 membership.setRoleId(role.getId());
@@ -210,12 +216,13 @@ membership.setReferenceType(ReferenceType.PLATFORM);
 membership.setReferenceId(Platform.DEFAULT);
 membership.setCreatedAt(now);
 membership.setUpdatedAt(now);
-return createInternal(membership, null);
+return RxJava2Adapter.monoToSingle(createInternal_migrated(membership, null));
 }))))));
     }
 
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getMetadata_migrated(memberships))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Map<String, Map<String, Object>>> getMetadata(List<Membership> memberships) {
  return RxJava2Adapter.monoToSingle(getMetadata_migrated(memberships));
@@ -230,9 +237,9 @@ return createInternal(membership, null);
         List<String> groupIds = memberships.stream().filter(membership -> MemberType.GROUP == membership.getMemberType()).map(Membership::getMemberId).distinct().collect(Collectors.toList());
         List<String> roleIds = memberships.stream().map(Membership::getRoleId).distinct().collect(Collectors.toList());
 
-        return RxJava2Adapter.singleToMono(Single.zip(orgUserService.findByIdIn(userIds).toMap(io.gravitee.am.model.User::getId, this::convert),
-                groupService.findByIdIn(groupIds).toMap(Group::getId, this::convert),
-                roleService.findByIdIn(roleIds), (users, groups, roles) -> {
+        return RxJava2Adapter.singleToMono(Single.zip(RxJava2Adapter.fluxToFlowable(orgUserService.findByIdIn_migrated(userIds)).toMap(io.gravitee.am.model.User::getId, this::convert),
+                RxJava2Adapter.fluxToFlowable(groupService.findByIdIn_migrated(groupIds)).toMap(Group::getId, this::convert),
+                RxJava2Adapter.monoToSingle(roleService.findByIdIn_migrated(roleIds)), (users, groups, roles) -> {
             Map<String, Map<String, Object>> metadata = new HashMap<>();
             metadata.put("users", (Map)users);
             metadata.put("groups", (Map)groups);
@@ -241,7 +248,8 @@ return createInternal(membership, null);
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(membershipId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String membershipId, User principal) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(membershipId, principal));
@@ -250,7 +258,7 @@ return createInternal(membership, null);
     public Mono<Void> delete_migrated(String membershipId, User principal) {
         LOGGER.debug("Delete membership {}", membershipId);
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(membershipRepository.findById(membershipId)).switchIfEmpty(Mono.error(new MembershipNotFoundException(membershipId))).flatMap(membership->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(membershipRepository.delete(membershipId)).then(RxJava2Adapter.completableToMono(Completable.fromSingle(eventService.create(new Event(Type.MEMBERSHIP, new Payload(membership.getId(), membership.getReferenceType(), membership.getReferenceId(), Action.DELETE))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_DELETED).membership(membership)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_DELETED).throwable(throwable))))).then())
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(membershipRepository.findById_migrated(membershipId))).switchIfEmpty(Mono.error(new MembershipNotFoundException(membershipId))).flatMap(membership->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(membershipRepository.delete_migrated(membershipId))).then(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(eventService.create_migrated(new Event(Type.MEMBERSHIP, new Payload(membership.getId(), membership.getReferenceType(), membership.getReferenceId(), Action.DELETE)))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_DELETED).membership(membership)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(MembershipAuditBuilder.class).principal(principal).type(EventType.MEMBERSHIP_DELETED).throwable(throwable))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
@@ -261,7 +269,8 @@ return createInternal(membership, null);
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.addDomainUserRoleIfNecessary_migrated(organizationId, environmentId, domainId, newMembership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable addDomainUserRoleIfNecessary(String organizationId, String environmentId, String domainId, NewMembership newMembership, User principal) {
  return RxJava2Adapter.monoToCompletable(addDomainUserRoleIfNecessary_migrated(organizationId, environmentId, domainId, newMembership, principal));
@@ -271,7 +280,7 @@ return createInternal(membership, null);
 
         MembershipCriteria criteria = convert(newMembership);
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(this.findByCriteria(ReferenceType.DOMAIN, domainId, criteria)).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.defer(RxJavaReactorMigrationUtil.callableAsSupplier(() -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(roleService.findDefaultRole(organizationId, DefaultRole.DOMAIN_USER, ReferenceType.DOMAIN)
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(this.findByCriteria(ReferenceType.DOMAIN, domainId, criteria)).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.defer(RxJavaReactorMigrationUtil.callableAsSupplier(() -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(roleService.findDefaultRole_migrated(organizationId, DefaultRole.DOMAIN_USER, ReferenceType.DOMAIN))
                         .flatMapSingle(role -> {
                             final Membership domainMembership = new Membership();
                             domainMembership.setMemberId(newMembership.getMemberId());
@@ -279,11 +288,12 @@ return createInternal(membership, null);
                             domainMembership.setRoleId(role.getId());
                             domainMembership.setReferenceId(domainId);
                             domainMembership.setReferenceType(ReferenceType.DOMAIN);
-                            return this.createInternal(domainMembership, principal);
+                            return RxJava2Adapter.monoToSingle(this.createInternal_migrated(domainMembership, principal));
                         })).flux()))))).ignoreElements().then().then(RxJava2Adapter.completableToMono(addEnvironmentUserRoleIfNecessary(organizationId, environmentId, newMembership, principal)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable addEnvironmentUserRoleIfNecessary(String organizationId, String environmentId, NewMembership newMembership, User principal) {
  return RxJava2Adapter.monoToCompletable(addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal));
@@ -293,7 +303,7 @@ return createInternal(membership, null);
 
         MembershipCriteria criteria = convert(newMembership);
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(this.findByCriteria(ReferenceType.ENVIRONMENT, environmentId, criteria)).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.defer(RxJavaReactorMigrationUtil.callableAsSupplier(() -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(roleService.findDefaultRole(organizationId, DefaultRole.ENVIRONMENT_USER, ReferenceType.ENVIRONMENT)
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(this.findByCriteria(ReferenceType.ENVIRONMENT, environmentId, criteria)).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.defer(RxJavaReactorMigrationUtil.callableAsSupplier(() -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(roleService.findDefaultRole_migrated(organizationId, DefaultRole.ENVIRONMENT_USER, ReferenceType.ENVIRONMENT))
                         .flatMapSingle(role -> {
                             final Membership environmentMembership = new Membership();
                             environmentMembership.setMemberId(newMembership.getMemberId());
@@ -301,7 +311,7 @@ return createInternal(membership, null);
                             environmentMembership.setRoleId(role.getId());
                             environmentMembership.setReferenceId(environmentId);
                             environmentMembership.setReferenceType(ReferenceType.ENVIRONMENT);
-                            return this.createInternal(environmentMembership, principal);
+                            return RxJava2Adapter.monoToSingle(this.createInternal_migrated(environmentMembership, principal));
                         })).flux()))))).ignoreElements().then()));
     }
 
@@ -311,9 +321,9 @@ private Single<Membership> createInternal(Membership membership, User principal)
  return RxJava2Adapter.monoToSingle(createInternal_migrated(membership, principal));
 }
 private Mono<Membership> createInternal_migrated(Membership membership, User principal) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipRepository.create(membership)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Membership, SingleSource<Membership>>toJdkFunction(membership1 -> {
                     Event event = new Event(Type.MEMBERSHIP, new Payload(membership1.getId(), membership1.getReferenceType(), membership1.getReferenceId(), Action.CREATE));
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(membership1)));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(membership1)));
                 }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -370,9 +380,9 @@ private Completable checkMember(String organizationId, Membership membership) {
 private Mono<Void> checkMember_migrated(String organizationId, Membership membership) {
 
         if (MemberType.USER == membership.getMemberType()) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(orgUserService.findById(ReferenceType.ORGANIZATION, organizationId, membership.getMemberId())).then()));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(orgUserService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, membership.getMemberId()))).then()));
         } else {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(groupService.findById(ReferenceType.ORGANIZATION, organizationId, membership.getMemberId())).then()));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(groupService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, membership.getMemberId()))).then()));
         }
     }
 
@@ -387,7 +397,7 @@ private Completable checkRole(String organizationId, Membership membership) {
  return RxJava2Adapter.monoToCompletable(checkRole_migrated(organizationId, membership));
 }
 private Mono<Void> checkRole_migrated(String organizationId, Membership membership) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(roleService.findById(membership.getRoleId())).switchIfEmpty(Mono.error(new RoleNotFoundException(membership.getRoleId()))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Role, MaybeSource<Role>>toJdkFunction(role -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleService.findById_migrated(membership.getRoleId()))).switchIfEmpty(Mono.error(new RoleNotFoundException(membership.getRoleId()))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Role, MaybeSource<Role>>toJdkFunction(role -> {
                     // If role is a 'PRIMARY_OWNER' role, need to check if it is already assigned or not.
                     if (role.isSystem() && role.getName().endsWith("_PRIMARY_OWNER")) {
 
@@ -397,7 +407,7 @@ private Mono<Void> checkRole_migrated(String organizationId, Membership membersh
 
                         MembershipCriteria criteria = new MembershipCriteria();
                         criteria.setRoleId(membership.getRoleId());
-                        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(membershipRepository.findByCriteria(membership.getReferenceType(), membership.getReferenceId(), criteria)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(existingMembership -> !existingMembership.isMember(membership.getMemberType(), membership.getMemberId())))) // Exclude the member himself if he is already the primary owner.
+                        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(membershipRepository.findByCriteria_migrated(membership.getReferenceType(), membership.getReferenceId(), criteria))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(existingMembership -> !existingMembership.isMember(membership.getMemberType(), membership.getMemberId())))) // Exclude the member himself if he is already the primary owner.
                                 .count()).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Long, MaybeSource<Role>>toJdkFunction(count -> count >= 1 ? RxJava2Adapter.monoToMaybe(Mono.error(new SinglePrimaryOwnerException(membership.getReferenceType()))) : RxJava2Adapter.monoToMaybe(Mono.just(role))).apply(e)))));
                     }
 

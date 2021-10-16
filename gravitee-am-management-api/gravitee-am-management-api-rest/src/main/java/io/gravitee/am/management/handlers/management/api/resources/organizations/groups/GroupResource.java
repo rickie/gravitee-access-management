@@ -65,7 +65,7 @@ public class GroupResource extends AbstractResource {
             @PathParam("group") String group,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.READ)).then(RxJava2Adapter.singleToMono(groupService.findById(ReferenceType.ORGANIZATION, organizationId, group))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.READ))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(groupService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, group)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -84,7 +84,7 @@ public class GroupResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(groupService.update(ReferenceType.ORGANIZATION, organizationId, group, updateGroup, authenticatedUser))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(groupService.update_migrated(ReferenceType.ORGANIZATION, organizationId, group, updateGroup, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -100,7 +100,7 @@ public class GroupResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.DELETE)).then(RxJava2Adapter.completableToMono(groupService.delete(ReferenceType.ORGANIZATION, organizationId, group, authenticatedUser))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.DELETE))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(groupService.delete_migrated(ReferenceType.ORGANIZATION, organizationId, group, authenticatedUser)))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 

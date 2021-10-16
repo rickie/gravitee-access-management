@@ -61,7 +61,8 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         return mapper.map(entity, JdbcLoginAttempt.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<LoginAttempt> findByCriteria(LoginAttemptCriteria criteria) {
  return RxJava2Adapter.monoToMaybe(findByCriteria_migrated(criteria));
@@ -105,7 +106,8 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         return whereClause;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(LoginAttemptCriteria criteria) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(criteria));
@@ -167,7 +169,8 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(loginAttemptRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));
@@ -178,7 +181,8 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         return RxJava2Adapter.completableToMono(loginAttemptRepository.deleteById(id));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Completable purgeExpiredData() {
  return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
 }

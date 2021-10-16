@@ -59,9 +59,9 @@ public class DomainIdpUpgrader implements Upgrader, Ordered {
     @Override
     public boolean upgrade() {
         logger.info("Applying domain idp upgrade");
-        domainService.findAll()
+        RxJava2Adapter.monoToSingle(domainService.findAll_migrated())
                 .flatMapObservable(Observable::fromIterable)
-                .flatMapSingle(this::updateDefaultIdp)
+                .flatMapSingle((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.monoToSingle(updateDefaultIdp_migrated(ident)))
                 .subscribe();
         return true;
     }
@@ -72,10 +72,10 @@ private Single<IdentityProvider> updateDefaultIdp(Domain domain) {
  return RxJava2Adapter.monoToSingle(updateDefaultIdp_migrated(domain));
 }
 private Mono<IdentityProvider> updateDefaultIdp_migrated(Domain domain) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(DEFAULT_IDP_PREFIX + domain.getId())).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<IdentityProvider>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<IdentityProvider>>)isEmpty -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(DEFAULT_IDP_PREFIX + domain.getId()))).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<IdentityProvider>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<IdentityProvider>>)isEmpty -> {
                     if (isEmpty) {
                         logger.info("No default idp found for domain {}, update domain", domain.getName());
-                        return identityProviderManager.create(domain.getId());
+                        return RxJava2Adapter.monoToSingle(identityProviderManager.create_migrated(domain.getId()));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(new IdentityProvider()));
                 }).apply(v)))));

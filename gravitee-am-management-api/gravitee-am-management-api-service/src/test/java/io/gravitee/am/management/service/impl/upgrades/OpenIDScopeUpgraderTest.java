@@ -62,16 +62,16 @@ public class OpenIDScopeUpgraderTest {
     @Before
     public void setUp() {
         when(domain.getId()).thenReturn(DOMAIN_ID);
-        when(domainService.findAll()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Arrays.asList(domain))));
+        when(domainService.findAll_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Arrays.asList(domain)))));
     }
 
     @Test
     public void shouldCreateSystemScope() {
-        when(scopeService.findByDomainAndKey(eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(scopeService.create(anyString(),any(NewSystemScope.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
+        when(scopeService.findByDomainAndKey_migrated(eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(scopeService.create_migrated(anyString(),any(NewSystemScope.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
 
         assertTrue(openIDScopeUpgrader.upgrade());
-        verify(scopeService, times(io.gravitee.am.common.oidc.Scope.values().length)).create(anyString(), any(NewSystemScope.class));
+        verify(scopeService, times(io.gravitee.am.common.oidc.Scope.values().length)).create_migrated(anyString(), any(NewSystemScope.class));
     }
 
     @Test
@@ -93,15 +93,15 @@ public class OpenIDScopeUpgraderTest {
         email.setKey("email");
         email.setDiscovery(true);
 
-        when(scopeService.findByDomainAndKey(eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(scopeService.findByDomainAndKey(DOMAIN_ID, "openid")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(openId)));
-        when(scopeService.findByDomainAndKey(DOMAIN_ID, "phone")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(phone)));
-        when(scopeService.findByDomainAndKey(DOMAIN_ID, "email")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(email)));
-        when(scopeService.create(anyString(),any(NewSystemScope.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
-        when(scopeService.update(anyString(), anyString(), any(UpdateSystemScope.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Scope())));
+        when(scopeService.findByDomainAndKey_migrated(eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(scopeService.findByDomainAndKey_migrated(DOMAIN_ID, "openid")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(openId))));
+        when(scopeService.findByDomainAndKey_migrated(DOMAIN_ID, "phone")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(phone))));
+        when(scopeService.findByDomainAndKey_migrated(DOMAIN_ID, "email")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(email))));
+        when(scopeService.create_migrated(anyString(),any(NewSystemScope.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
+        when(scopeService.update_migrated(anyString(), anyString(), any(UpdateSystemScope.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
 
         assertTrue(openIDScopeUpgrader.upgrade());
-        verify(scopeService, times(io.gravitee.am.common.oidc.Scope.values().length-3)).create(anyString(), any(NewSystemScope.class));
-        verify(scopeService, times(2)).update(anyString(), anyString(), any(UpdateSystemScope.class));
+        verify(scopeService, times(io.gravitee.am.common.oidc.Scope.values().length-3)).create_migrated(anyString(), any(NewSystemScope.class));
+        verify(scopeService, times(2)).update_migrated(anyString(), anyString(), any(UpdateSystemScope.class));
     }
 }

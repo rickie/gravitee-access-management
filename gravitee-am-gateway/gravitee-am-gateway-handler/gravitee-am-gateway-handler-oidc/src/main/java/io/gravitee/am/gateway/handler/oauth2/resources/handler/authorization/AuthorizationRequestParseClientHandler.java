@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization;
 
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
@@ -24,8 +26,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 
 /**
@@ -61,8 +62,7 @@ public class AuthorizationRequestParseClientHandler implements Handler<RoutingCo
     }
 
     private void fetchClient(String clientId, Handler<AsyncResult<Client>> authHandler) {
-        clientSyncService
-                .findByClientId(clientId)
+        RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated(clientId))
                 .subscribe(
                         client -> authHandler.handle(Future.succeededFuture(client)),
                         error -> authHandler.handle(Future.failedFuture(new ServerErrorException("Server error: unable to find client with client_id " + clientId))),

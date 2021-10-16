@@ -54,7 +54,7 @@ public class MembershipHelper {
      */
     public void setOrganizationPrimaryOwnerRole(User user) {
 
-        Role adminRole = RxJava2Adapter.maybeToMono(roleService.findSystemRole(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).block();
+        Role adminRole = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleService.findSystemRole_migrated(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION))).block();
 
         setOrganizationRole(user, adminRole);
     }
@@ -67,14 +67,14 @@ public class MembershipHelper {
      */
     public void setPlatformAdminRole() {
 
-        Role organizationPrimaryOwnerRole = RxJava2Adapter.maybeToMono(roleService.findSystemRole(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).block();
+        Role organizationPrimaryOwnerRole = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleService.findSystemRole_migrated(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION))).block();
 
         MembershipCriteria criteria = new MembershipCriteria();
         criteria.setRoleId(organizationPrimaryOwnerRole.getId());
-        Membership member = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(membershipService.findByCriteria(ReferenceType.ORGANIZATION, Organization.DEFAULT, criteria)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(membership -> membership.getMemberType() == MemberType.USER))).blockingFirst(null);
+        Membership member = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(membershipService.findByCriteria_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT, criteria))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(membership -> membership.getMemberType() == MemberType.USER))).blockingFirst(null);
 
         if (member != null) {
-            RxJava2Adapter.singleToMono(membershipService.setPlatformAdmin(member.getMemberId())).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipService.setPlatformAdmin_migrated(member.getMemberId()))).block();
         }
     }
 
@@ -88,7 +88,7 @@ public class MembershipHelper {
 
         MembershipCriteria criteria = new MembershipCriteria();
         criteria.setUserId(user.getId());
-        Boolean alreadyHasMembership = RxJava2Adapter.singleToMono(membershipService.findByCriteria(ReferenceType.ORGANIZATION, Organization.DEFAULT, criteria).count()).map(RxJavaReactorMigrationUtil.toJdkFunction(count -> count > 0)).block();
+        Boolean alreadyHasMembership = RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(membershipService.findByCriteria_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT, criteria)).count()).map(RxJavaReactorMigrationUtil.toJdkFunction(count -> count > 0)).block();
 
         // If admin user already has a role on the default organization no need to do anything (either he is already admin, either someone decided to change his role).
         if (!alreadyHasMembership) {
@@ -100,7 +100,7 @@ public class MembershipHelper {
             membership.setReferenceType(ReferenceType.ORGANIZATION);
             membership.setReferenceId(Organization.DEFAULT);
 
-            RxJava2Adapter.singleToMono(membershipService.addOrUpdate(Organization.DEFAULT, membership)).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipService.addOrUpdate_migrated(Organization.DEFAULT, membership))).block();
         }
     }
 }

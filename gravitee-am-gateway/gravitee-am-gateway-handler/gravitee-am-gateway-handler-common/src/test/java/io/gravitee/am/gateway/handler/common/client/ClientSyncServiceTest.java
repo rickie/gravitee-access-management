@@ -15,10 +15,15 @@
  */
 package io.gravitee.am.gateway.handler.common.client;
 
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.gateway.handler.common.client.impl.ClientSyncServiceImpl;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.observers.TestObserver;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,12 +31,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -107,33 +107,33 @@ public class ClientSyncServiceTest {
     @Test
     public void findById_clientFound() {
         when(clientManager.get("aa")).thenReturn(clientSet.stream().filter(c -> c.getId().equals("aa")).findFirst().get());
-        TestObserver<Client> test = clientSyncService.findById("aa").test();
+        TestObserver<Client> test = RxJava2Adapter.monoToMaybe(clientSyncService.findById_migrated("aa")).test();
         test.assertComplete().assertNoErrors();
         test.assertValue(client -> client.getClientId().equals("domainAClientA"));
     }
 
     @Test
     public void findById_clientNotFound() {
-        TestObserver<Client> test = clientSyncService.findById("aa").test();
+        TestObserver<Client> test = RxJava2Adapter.monoToMaybe(clientSyncService.findById_migrated("aa")).test();
         test.assertComplete().assertNoErrors().assertNoValues();
     }
 
     @Test
     public void findByClientId_clientFound() {
-        TestObserver<Client> test = clientSyncService.findByClientId("domainAClientA").test();
+        TestObserver<Client> test = RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated("domainAClientA")).test();
         test.assertComplete().assertNoErrors();
         test.assertValue(client -> client.getClientId().equals("domainAClientA"));
     }
 
     @Test
     public void findByClientId_templateShouldNotBeThere() {
-        TestObserver<Client> test = clientSyncService.findByClientId("domainAClientB").test();
+        TestObserver<Client> test = RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated("domainAClientB")).test();
         test.assertComplete().assertNoErrors().assertNoValues();
     }
 
     @Test
     public void findTemplates() {
-        TestObserver<List<Client>> test = clientSyncService.findTemplates().test();
+        TestObserver<List<Client>> test = RxJava2Adapter.monoToSingle(clientSyncService.findTemplates_migrated()).test();
         test.assertComplete().assertNoErrors();
         test.assertValue(clients -> clients!=null && clients.size()==2);
     }
@@ -147,7 +147,7 @@ public class ClientSyncServiceTest {
         existingClient.setClientId("domainAClientA");
 
         clientSyncService.addDynamicClientRegistred(existingClient);
-        TestObserver<Client> test = clientSyncService.findByClientId("domainAClientA").test();
+        TestObserver<Client> test = RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated("domainAClientA")).test();
         test.assertComplete().assertNoErrors();
         test.assertValue(client -> client.getClientId().equals("domainAClientA"));
     }

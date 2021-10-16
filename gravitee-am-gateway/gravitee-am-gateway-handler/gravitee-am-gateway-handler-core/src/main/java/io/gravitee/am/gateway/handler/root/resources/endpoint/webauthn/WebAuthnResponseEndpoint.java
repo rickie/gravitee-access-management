@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.webauthn;
 
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.gateway.handler.common.auth.user.EndUserAuthentication;
 import io.gravitee.am.gateway.handler.common.auth.user.UserAuthenticationManager;
@@ -45,8 +47,7 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * The callback route to verify attestations and assertions. Usually this route is <pre>/webauthn/response</pre>
@@ -181,7 +182,7 @@ public class WebAuthnResponseEndpoint extends WebAuthnEndpoint {
 
     private void authenticateUser(AuthenticationContext authenticationContext, Client client, String username, Handler<AsyncResult<User>> handler) {
         final Authentication authentication = new EndUserAuthentication(username, null, authenticationContext);
-        userAuthenticationManager.authenticate(client, authentication, true)
+        RxJava2Adapter.monoToSingle(userAuthenticationManager.authenticate_migrated(client, authentication, true))
                 .subscribe(
                         user -> handler.handle(Future.succeededFuture(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user))),
                         error -> handler.handle(Future.failedFuture(error))
@@ -193,7 +194,7 @@ public class WebAuthnResponseEndpoint extends WebAuthnEndpoint {
         credential.setUserId(userId);
         credential.setUserAgent(String.valueOf(authenticationContext.get(Claims.user_agent)));
         credential.setIpAddress(String.valueOf(authenticationContext.get(Claims.ip_address)));
-        credentialService.update(ReferenceType.DOMAIN, domain.getId(), credentialId, credential)
+        RxJava2Adapter.monoToCompletable(credentialService.update_migrated(ReferenceType.DOMAIN, domain.getId(), credentialId, credential))
                 .subscribe(
                         () -> handler.handle(Future.succeededFuture()),
                         error -> handler.handle(Future.failedFuture(error))

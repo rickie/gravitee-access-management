@@ -55,7 +55,7 @@ public class FormRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void shouldNotFindById() {
-        final TestObserver<Form> testObserver = repository.findById("unknownId").test();
+        final TestObserver<Form> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated("unknownId")).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoValues();
     }
@@ -63,9 +63,9 @@ public class FormRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindById() {
         Form form = buildForm();
-        Form createdForm = RxJava2Adapter.singleToMono(repository.create(form)).block();
+        Form createdForm = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(form))).block();
 
-        TestObserver<Form> testObserver = repository.findById(createdForm.getId()).test();
+        TestObserver<Form> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdForm.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -76,9 +76,9 @@ public class FormRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindById_withRef() {
         Form form = buildForm();
-        Form createdForm = RxJava2Adapter.singleToMono(repository.create(form)).block();
+        Form createdForm = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(form))).block();
 
-        TestObserver<Form> testObserver = repository.findById(createdForm.getReferenceType(), createdForm.getReferenceId(), createdForm.getId()).test();
+        TestObserver<Form> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdForm.getReferenceType(), createdForm.getReferenceId(), createdForm.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -89,9 +89,9 @@ public class FormRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldUpdateEmail() {
         Form form = buildForm();
-        Form createdForm = RxJava2Adapter.singleToMono(repository.create(form)).block();
+        Form createdForm = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(form))).block();
 
-        TestObserver<Form> testObserver = repository.findById(createdForm.getId()).test();
+        TestObserver<Form> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdForm.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -100,7 +100,7 @@ public class FormRepositoryTest extends AbstractManagementTest {
 
         Form updatableForm = buildForm();
         updatableForm.setId(createdForm.getId());
-        TestObserver<Form> updatedForm = repository.update(updatableForm).test();
+        TestObserver<Form> updatedForm = RxJava2Adapter.monoToSingle(repository.update_migrated(updatableForm)).test();
         updatedForm.awaitTerminalEvent();
         assertEqualsTo(updatableForm, createdForm.getId(), updatedForm);
     }
@@ -119,18 +119,18 @@ public class FormRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldDeleteById() {
         Form form = buildForm();
-        Form createdForm = RxJava2Adapter.singleToMono(repository.create(form)).block();
+        Form createdForm = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(form))).block();
 
-        TestObserver<Form> testObserver = repository.findById(createdForm.getId()).test();
+        TestObserver<Form> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdForm.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         assertEqualsTo(form, createdForm.getId(), testObserver);
 
-        repository.delete(createdForm.getId()).blockingGet();
+        RxJava2Adapter.monoToCompletable(repository.delete_migrated(createdForm.getId())).blockingGet();
 
-        testObserver = repository.findById(createdForm.getId()).test();
+        testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdForm.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -143,15 +143,15 @@ public class FormRepositoryTest extends AbstractManagementTest {
         for (int i = 0; i < loop; i++) {
             final Form form = buildForm();
             form.setReferenceId(FIXED_REF_ID);
-            RxJava2Adapter.singleToMono(repository.create(form)).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(form))).block();
         }
 
         for (int i = 0; i < loop; i++) {
             // random ref id
-            RxJava2Adapter.singleToMono(repository.create(buildForm())).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(buildForm()))).block();
         }
 
-        TestObserver<List<Form>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findAll(ReferenceType.DOMAIN, FIXED_REF_ID)).collectList()).test();
+        TestObserver<List<Form>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findAll_migrated(ReferenceType.DOMAIN, FIXED_REF_ID))).collectList()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(l -> l.size() == loop);
@@ -166,16 +166,16 @@ public class FormRepositoryTest extends AbstractManagementTest {
             final Form form = buildForm();
             form.setReferenceId(FIXED_REF_ID);
             form.setClient(FIXED_CLI_ID);
-            RxJava2Adapter.singleToMono(repository.create(form)).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(form))).block();
         }
 
         for (int i = 0; i < loop; i++) {
             final Form form = buildForm();
             form.setReferenceId(FIXED_REF_ID);
-            RxJava2Adapter.singleToMono(repository.create(form)).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(form))).block();
         }
 
-        TestObserver<List<Form>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findByClient(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID)).collectList()).test();
+        TestObserver<List<Form>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findByClient_migrated(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID))).collectList()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(l -> l.size() == loop);
@@ -188,16 +188,16 @@ public class FormRepositoryTest extends AbstractManagementTest {
         for (int i = 0; i < loop; i++) {
             final Form form = buildForm();
             form.setReferenceId(FIXED_REF_ID);
-            RxJava2Adapter.singleToMono(repository.create(form)).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(form))).block();
         }
 
         final Form form = buildForm();
         form.setReferenceId(FIXED_REF_ID);
         form.setTemplate("MyTemplateId");
         form.setClient(null);
-        Form templateForm = RxJava2Adapter.singleToMono(repository.create(form)).block();
+        Form templateForm = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(form))).block();
 
-        TestObserver<Form> testMaybe = repository.findByTemplate(ReferenceType.DOMAIN, FIXED_REF_ID, "MyTemplateId").test();
+        TestObserver<Form> testMaybe = RxJava2Adapter.monoToMaybe(repository.findByTemplate_migrated(ReferenceType.DOMAIN, FIXED_REF_ID, "MyTemplateId")).test();
         testMaybe.awaitTerminalEvent();
         testMaybe.assertNoErrors();
         assertEqualsTo(templateForm, templateForm.getId(), testMaybe);
@@ -210,16 +210,16 @@ public class FormRepositoryTest extends AbstractManagementTest {
             final Form form = buildForm();
             form.setReferenceId(FIXED_REF_ID);
             form.setClient(FIXED_CLI_ID);
-            RxJava2Adapter.singleToMono(repository.create(form)).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(form))).block();
         }
 
         final Form form = buildForm();
         form.setReferenceId(FIXED_REF_ID);
         form.setClient(FIXED_CLI_ID);
         form.setTemplate("MyTemplateId");
-        Form templateForm = RxJava2Adapter.singleToMono(repository.create(form)).block();
+        Form templateForm = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(form))).block();
 
-        TestObserver<Form> testMaybe = repository.findByClientAndTemplate(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID, "MyTemplateId").test();
+        TestObserver<Form> testMaybe = RxJava2Adapter.monoToMaybe(repository.findByClientAndTemplate_migrated(ReferenceType.DOMAIN, FIXED_REF_ID, FIXED_CLI_ID, "MyTemplateId")).test();
         testMaybe.awaitTerminalEvent();
         testMaybe.assertNoErrors();
         assertEqualsTo(templateForm, templateForm.getId(), testMaybe);

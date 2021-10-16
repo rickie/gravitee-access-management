@@ -15,13 +15,13 @@
  */
 package io.gravitee.am.identityprovider.mongo.authentication;
 
+import io.gravitee.am.common.exception.authentication.BadCredentialsException;
+import io.gravitee.am.common.exception.authentication.UsernameNotFoundException;
 import io.gravitee.am.identityprovider.api.Authentication;
 import io.gravitee.am.identityprovider.api.AuthenticationContext;
 import io.gravitee.am.identityprovider.api.AuthenticationProvider;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.identityprovider.mongo.authentication.spring.MongoAuthenticationProviderConfiguration;
-import io.gravitee.am.common.exception.authentication.BadCredentialsException;
-import io.gravitee.am.common.exception.authentication.UsernameNotFoundException;
 import io.reactivex.observers.TestObserver;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -43,7 +44,7 @@ public class MongoAuthenticationProviderTest {
 
     @Test
     public void shouldLoadUserByUsername_authentication() {
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "bobspassword";
@@ -58,7 +59,7 @@ public class MongoAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
 
@@ -69,7 +70,7 @@ public class MongoAuthenticationProviderTest {
 
     @Test
     public void shouldLoadUserByUsername_authentication_multifield_username() {
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "user01";
@@ -84,7 +85,7 @@ public class MongoAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
 
@@ -95,7 +96,7 @@ public class MongoAuthenticationProviderTest {
 
     @Test
     public void shouldLoadUserByUsername_authentication_multifield_email() {
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "user01";
@@ -110,7 +111,7 @@ public class MongoAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
 
@@ -121,7 +122,7 @@ public class MongoAuthenticationProviderTest {
 
     @Test
     public void shouldLoadUserByUsername_authentication_case_insensitive() {
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "bobspassword";
@@ -136,7 +137,7 @@ public class MongoAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
 
@@ -147,7 +148,7 @@ public class MongoAuthenticationProviderTest {
 
     @Test
     public void shouldLoadUserByUsername_authentication_badCredentials() {
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "wrongpassword";
@@ -162,14 +163,14 @@ public class MongoAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(BadCredentialsException.class);
     }
 
     @Test
     public void shouldLoadUserByUsername_authentication_usernameNotFound() {
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "bobspassword";
@@ -184,7 +185,7 @@ public class MongoAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertError(UsernameNotFoundException.class);

@@ -50,7 +50,8 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
         super.createIndex(collection, new Document(FIELD_ID, 1).append(FIELD_ORGANIZATION_ID, 1));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Environment> findAll() {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated());
@@ -61,7 +62,8 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(collection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Environment> findAll(String organizationId) {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
@@ -72,7 +74,8 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(eq(FIELD_ORGANIZATION_ID, organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Environment> findById(String id, String organizationId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id, organizationId));
@@ -84,7 +87,8 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
     }
 
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Environment> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -132,7 +136,8 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Long> count() {
  return RxJava2Adapter.monoToSingle(count_migrated());

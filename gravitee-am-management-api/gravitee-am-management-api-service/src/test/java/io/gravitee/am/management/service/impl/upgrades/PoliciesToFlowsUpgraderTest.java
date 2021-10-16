@@ -70,22 +70,22 @@ public class PoliciesToFlowsUpgraderTest {
 
     @Test
     public void testMigration_NoPolicies() throws Exception {
-        when(policyRepository.collectionExists()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
-        when(policyRepository.deleteCollection()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(policyRepository.findAll()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(policyRepository.collectionExists_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true))));
+        when(policyRepository.deleteCollection_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(policyRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
 
         assertTrue(upgrader.upgrade());
 
-        verify(policyRepository).findAll();
+        verify(policyRepository).findAll_migrated();
         verify(flowService, never()).defaultFlows(ReferenceType.DOMAIN, MY_DOMAIN_ID);
-        verify(flowService, never()).create(any(), anyString(), any());
-        verify(policyRepository).deleteCollection();
+        verify(flowService, never()).create_migrated(any(), anyString(), any());
+        verify(policyRepository).deleteCollection_migrated();
     }
 
     @Test
     public void testMigration_SingleDomainWithPolicies() throws Exception {
-        when(policyRepository.collectionExists()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
-        when(policyRepository.deleteCollection()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(policyRepository.collectionExists_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true))));
+        when(policyRepository.deleteCollection_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
         // return policies for root & consent
         Policy rootPolicy1 = new Policy();
@@ -123,17 +123,17 @@ public class PoliciesToFlowsUpgraderTest {
         postConsent2.setOrder(1);
         postConsent2.setConfiguration("POST CONSENT CONFIG");
 
-        when(policyRepository.findAll()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(rootPolicy2, rootPolicy1, preConsent, postConsent2, postConsent))); // rootPolicy2 first to test ordering
+        when(policyRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(rootPolicy2, rootPolicy1, preConsent, postConsent2, postConsent)))); // rootPolicy2 first to test ordering
         when(flowService.defaultFlows( ReferenceType.DOMAIN, MY_DOMAIN_ID)).thenReturn(FLOWS.stream().map(type -> buildFlow(type, ReferenceType.DOMAIN, MY_DOMAIN_ID)).collect(Collectors.toList()));
-        when(flowService.create(any(), anyString(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Flow())));
-        when(policyPluginService.findById(null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new PolicyPlugin())));
+        when(flowService.create_migrated(any(), anyString(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Flow()))));
+        when(policyPluginService.findById_migrated(null)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new PolicyPlugin()))));
 
         assertTrue(upgrader.upgrade());
 
         verify(flowService).defaultFlows(ReferenceType.DOMAIN, MY_DOMAIN_ID);
-        verify(policyRepository).deleteCollection();
-        verify(policyRepository).findAll();
-        verify(flowService, times(4)).create(any(), anyString(), argThat(flow -> {
+        verify(policyRepository).deleteCollection_migrated();
+        verify(policyRepository).findAll_migrated();
+        verify(flowService, times(4)).create_migrated(any(), anyString(), argThat(flow -> {
             boolean result = false;
             switch (flow.getType()) {
                 case ROOT:
@@ -162,8 +162,8 @@ public class PoliciesToFlowsUpgraderTest {
 
     @Test
     public void testMigration_MultipleDomains_withPolicies() {
-        when(policyRepository.collectionExists()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
-        when(policyRepository.deleteCollection()).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(policyRepository.collectionExists_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true))));
+        when(policyRepository.deleteCollection_migrated()).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
         // return policies for root & consent
         Policy rootPolicy1 = new Policy();
@@ -201,19 +201,19 @@ public class PoliciesToFlowsUpgraderTest {
         postConsent2.setOrder(1);
         postConsent2.setConfiguration("POST CONSENT CONFIG");
 
-        when(policyRepository.findAll()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(rootPolicy2, rootPolicy1, preConsent, postConsent2, postConsent))); // rootPolicy2 first to test ordering
+        when(policyRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(rootPolicy2, rootPolicy1, preConsent, postConsent2, postConsent)))); // rootPolicy2 first to test ordering
         when(flowService.defaultFlows( ReferenceType.DOMAIN, MY_DOMAIN_ID)).thenReturn(FLOWS.stream().map(type -> buildFlow(type, ReferenceType.DOMAIN, MY_DOMAIN_ID)).collect(Collectors.toList()));
         when(flowService.defaultFlows( ReferenceType.DOMAIN, MY_DOMAIN_ID2)).thenReturn(FLOWS.stream().map(type -> buildFlow(type, ReferenceType.DOMAIN, MY_DOMAIN_ID2)).collect(Collectors.toList()));
-        when(flowService.create(any(), anyString(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Flow())));
-        when(policyPluginService.findById(null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new PolicyPlugin())));
+        when(flowService.create_migrated(any(), anyString(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Flow()))));
+        when(policyPluginService.findById_migrated(null)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new PolicyPlugin()))));
 
         assertTrue(upgrader.upgrade());
 
         verify(flowService).defaultFlows(ReferenceType.DOMAIN, MY_DOMAIN_ID);
         verify(flowService).defaultFlows(ReferenceType.DOMAIN, MY_DOMAIN_ID2);
-        verify(policyRepository).deleteCollection();
-        verify(policyRepository).findAll();
-        verify(flowService, times(8)).create(any(), anyString(), argThat(flow -> {
+        verify(policyRepository).deleteCollection_migrated();
+        verify(policyRepository).findAll_migrated();
+        verify(flowService, times(8)).create_migrated(any(), anyString(), argThat(flow -> {
             boolean result = false;
             switch (flow.getType()) {
                 case ROOT:

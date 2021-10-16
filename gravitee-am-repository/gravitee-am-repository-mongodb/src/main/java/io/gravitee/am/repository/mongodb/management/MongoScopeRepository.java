@@ -78,7 +78,7 @@ public class MongoScopeRepository extends AbstractManagementMongoRepository impl
     public Mono<Scope> create_migrated(Scope item) {
         ScopeMongo scope = convert(item);
         scope.setId(scope.getId() == null ? RandomString.generate() : scope.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopesCollection.insertOne(scope))).flatMap(success->RxJava2Adapter.maybeToMono(findById(scope.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopesCollection.insertOne(scope))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(scope.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -90,7 +90,7 @@ public class MongoScopeRepository extends AbstractManagementMongoRepository impl
 @Override
     public Mono<Scope> update_migrated(Scope item) {
         ScopeMongo scope = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopesCollection.replaceOne(eq(FIELD_ID, scope.getId()), scope))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(scope.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopesCollection.replaceOne(eq(FIELD_ID, scope.getId()), scope))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(scope.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -104,7 +104,8 @@ public class MongoScopeRepository extends AbstractManagementMongoRepository impl
         return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(scopesCollection.deleteOne(eq(FIELD_ID, id)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomain_migrated(domain, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<Scope>> findByDomain(String domain, int page, int size) {
  return RxJava2Adapter.monoToSingle(findByDomain_migrated(domain, page, size));
@@ -117,7 +118,8 @@ public class MongoScopeRepository extends AbstractManagementMongoRepository impl
         return RxJava2Adapter.singleToMono(Single.zip(countOperation, scopesOperation, (count, scope) -> new Page<Scope>(scope, page, count)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<Scope>> search(String domain, String query, int page, int size) {
  return RxJava2Adapter.monoToSingle(search_migrated(domain, query, page, size));
@@ -142,7 +144,8 @@ public class MongoScopeRepository extends AbstractManagementMongoRepository impl
         return RxJava2Adapter.singleToMono(Single.zip(countOperation, scopesOperation, (count, scopes) -> new Page<>(scopes, page, count)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndKey_migrated(domain, key))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Scope> findByDomainAndKey(String domain, String key) {
  return RxJava2Adapter.monoToMaybe(findByDomainAndKey_migrated(domain, key));
@@ -152,7 +155,8 @@ public class MongoScopeRepository extends AbstractManagementMongoRepository impl
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(scopesCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_KEY, key))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndKeys_migrated(domain, keys))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Scope> findByDomainAndKeys(String domain, List<String> keys) {
  return RxJava2Adapter.fluxToFlowable(findByDomainAndKeys_migrated(domain, keys));

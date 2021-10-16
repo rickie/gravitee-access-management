@@ -15,20 +15,20 @@
  */
 package io.gravitee.am.gateway.handler.uma.policy;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.gateway.policy.PolicyChainProcessorFactory;
 import io.gravitee.am.plugins.policy.core.PolicyPluginManager;
 import io.gravitee.gateway.api.ExecutionContext;
 import io.reactivex.observers.TestObserver;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -50,7 +50,7 @@ public class RulesEngineTest {
 
     @Test
     public void shouldNotInvoke_noPolicies() {
-        TestObserver testObserver = rulesEngine.fire(Collections.emptyList(), executionContext).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(rulesEngine.fire_migrated(Collections.emptyList(), executionContext)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete().assertNoErrors();
         verify(policyPluginManager, never()).create(anyString(), anyString());

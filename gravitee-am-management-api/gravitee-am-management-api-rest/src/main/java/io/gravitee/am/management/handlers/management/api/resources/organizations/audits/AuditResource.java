@@ -60,7 +60,7 @@ public class AuditResource extends AbstractResource {
             @PathParam("audit") String audit,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkPermission(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_AUDIT, Acl.READ)).then(RxJava2Adapter.singleToMono(auditService.findById(ReferenceType.ORGANIZATION, organizationId, audit))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_AUDIT, Acl.READ))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(auditService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, audit)))))
                 .subscribe(response::resume, response::resume);
     }
 

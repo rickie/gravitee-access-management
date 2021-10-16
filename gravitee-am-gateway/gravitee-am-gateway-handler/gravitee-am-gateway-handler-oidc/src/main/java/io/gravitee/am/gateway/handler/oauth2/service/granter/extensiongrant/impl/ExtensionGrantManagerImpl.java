@@ -91,7 +91,7 @@ public class ExtensionGrantManagerImpl extends AbstractService implements Extens
     public void afterPropertiesSet() {
         logger.info("Initializing extension grants for domain {}", domain.getName());
         this.tokenRequestResolver.setScopeManager(this.scopeManager);
-        extensionGrantRepository.findByDomain(domain.getId())
+        RxJava2Adapter.fluxToFlowable(extensionGrantRepository.findByDomain_migrated(domain.getId()))
                 .subscribe(
                         extensionGrant -> {
                             // backward compatibility, get the oldest extension grant to set the good one for the old clients
@@ -131,7 +131,7 @@ public class ExtensionGrantManagerImpl extends AbstractService implements Extens
     private void updateExtensionGrant(String extensionGrantId, ExtensionGrantEvent extensionGrantEvent) {
         final String eventType = extensionGrantEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} extension grant event for {}", domain.getName(), eventType, extensionGrantId);
-        extensionGrantRepository.findById(extensionGrantId)
+        RxJava2Adapter.monoToMaybe(extensionGrantRepository.findById_migrated(extensionGrantId))
                 .subscribe(
                         extensionGrant -> {
                             // backward compatibility, get the oldest extension grant to set the good one for the old clients
@@ -162,7 +162,7 @@ public class ExtensionGrantManagerImpl extends AbstractService implements Extens
             AuthenticationProvider authenticationProvider = null;
             if (extensionGrant.getIdentityProvider() != null) {
                 logger.info("\tLooking for extension grant identity provider: {}", extensionGrant.getIdentityProvider());
-                authenticationProvider = RxJava2Adapter.maybeToMono(identityProviderManager.get(extensionGrant.getIdentityProvider())).block();
+                authenticationProvider = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.get_migrated(extensionGrant.getIdentityProvider()))).block();
                 if (authenticationProvider != null) {
                     logger.info("\tExtension grant identity provider: {}, loaded", extensionGrant.getIdentityProvider());
                 }

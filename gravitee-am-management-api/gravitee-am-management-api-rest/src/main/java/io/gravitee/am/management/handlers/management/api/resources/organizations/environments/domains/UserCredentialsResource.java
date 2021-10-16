@@ -71,8 +71,8 @@ public class UserCredentialsResource extends AbstractResource {
             @PathParam("user") String user,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).thenMany(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapPublisher(__ -> credentialService.findByUserId(ReferenceType.DOMAIN, domain, user))).collectList())
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ))).thenMany(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapPublisher(__ -> RxJava2Adapter.fluxToFlowable(credentialService.findByUserId_migrated(ReferenceType.DOMAIN, domain, user)))).collectList())
                 .subscribe(response::resume, response::resume);
     }
 

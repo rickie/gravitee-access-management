@@ -138,24 +138,24 @@ public class DynamicClientRegistrationServiceTest {
         reset(domain, environment);
 
         when(domain.getId()).thenReturn(DOMAIN_ID);
-        when(identityProviderService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
-        when(certificateService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(identityProviderService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(certificateService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
         when(openIDProviderMetadata.getRegistrationEndpoint()).thenReturn("https://issuer/register");
         when(openIDDiscoveryService.getConfiguration(BASE_PATH)).thenReturn(openIDProviderMetadata);
         when(openIDProviderMetadata.getIssuer()).thenReturn("https://issuer");
-        when(jwtService.encode(any(JWT.class),any(Client.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just("jwt")));
+        when(jwtService.encode_migrated(any(JWT.class),any(Client.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("jwt"))));
 
-        when(clientService.create(any())).thenAnswer(i -> {
+        when(clientService.create_migrated(any())).thenAnswer(i -> {
             Client res = i.getArgument(0);
             res.setId(ID_TARGET);
-            return RxJava2Adapter.monoToSingle(Mono.just(res));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(res)));
         });
-        when(clientService.update(any())).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
-        when(clientService.delete(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(clientService.renewClientSecret(any(), any())).thenAnswer(i -> {
+        when(clientService.update_migrated(any())).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(clientService.delete_migrated(any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(clientService.renewClientSecret_migrated(any(), any())).thenAnswer(i -> {
             Client toRenew = new Client();
             toRenew.setClientSecret("secretRenewed");
-            return RxJava2Adapter.monoToSingle(Mono.just(toRenew));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(toRenew)));
         });
 
         when(domain.useFapiBrazilProfile()).thenReturn(false);
@@ -167,7 +167,7 @@ public class DynamicClientRegistrationServiceTest {
 
     @Test
     public void create_nullRequest() {
-        TestObserver<Client> testObserver = dcrService.create(null, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(null, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("One of the Client Metadata value is invalid.");
         testObserver.assertNotComplete();
@@ -175,7 +175,7 @@ public class DynamicClientRegistrationServiceTest {
 
     @Test
     public void create_missingRedirectUri() {
-        TestObserver<Client> testObserver = dcrService.create(new DynamicClientRegistrationRequest(), BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(new DynamicClientRegistrationRequest(), BASE_PATH)).test();
         testObserver.assertError(InvalidRedirectUriException.class);
         testObserver.assertErrorMessage("Missing or invalid redirect_uris.");//redirect_uri metadata can be null but is mandatory
         testObserver.assertNotComplete();
@@ -186,7 +186,7 @@ public class DynamicClientRegistrationServiceTest {
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.of(Arrays.asList()));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(client -> client.getRedirectUris().isEmpty());
     }
@@ -199,26 +199,26 @@ public class DynamicClientRegistrationServiceTest {
         request.setClientName(Optional.of(clientName));
         request.setRedirectUris(Optional.empty());
 
-        TestObserver<Client> testObserver = dcrService.create(request,BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(client -> this.defaultAssertion(client) &&
                 client.getClientName().equals(clientName) &&
                 client.getIdentities() == null &&
                 client.getCertificate() == null
         );
-        verify(clientService, times(1)).create(any());
+        verify(clientService, times(1)).create_migrated(any());
     }
 
     @Test
     public void create_applyDefaultIdentiyProvider() {
         IdentityProvider identityProvider = Mockito.mock(IdentityProvider.class);
         when(identityProvider.getId()).thenReturn("identity-provider-id-123");
-        when(identityProviderService.findByDomain(DOMAIN_ID)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(identityProvider)));
+        when(identityProviderService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(identityProvider))));
 
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> defaultAssertion(client) && client.getIdentities().contains("identity-provider-id-123"));
@@ -228,12 +228,12 @@ public class DynamicClientRegistrationServiceTest {
     public void create_applyDefaultCertificateProvider() {
         Certificate certificate = Mockito.mock(Certificate.class);
         when(certificate.getId()).thenReturn("certificate-id-123");
-        when(certificateService.findByDomain(any())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(certificate)));
+        when(certificateService.findByDomain_migrated(any())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(certificate))));
 
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> defaultAssertion(client) && client.getCertificate().equals("certificate-id-123"));
@@ -250,7 +250,7 @@ public class DynamicClientRegistrationServiceTest {
         oidc.getClientRegistrationSettings().setAllowedScopes(Arrays.asList("openid","profile"));
         when(domain.getOidc()).thenReturn(oidc);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         //scope is not allowed, so expecting to erase scope (no scope)
@@ -269,7 +269,7 @@ public class DynamicClientRegistrationServiceTest {
         oidc.getClientRegistrationSettings().setDefaultScopes(Arrays.asList("phone","email"));
         when(domain.getOidc()).thenReturn(oidc);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> this.defaultAssertion(client) &&
@@ -290,7 +290,7 @@ public class DynamicClientRegistrationServiceTest {
         oidc.getClientRegistrationSettings().setAllowedScopes(Arrays.asList("openid","profile"));
         when(domain.getOidc()).thenReturn(oidc);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> this.defaultAssertion(client) &&
@@ -310,7 +310,7 @@ public class DynamicClientRegistrationServiceTest {
         oidc.getClientRegistrationSettings().setDefaultScopes(Arrays.asList("phone","email"));
         when(domain.getOidc()).thenReturn(oidc);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> this.defaultAssertion(client) &&
@@ -329,7 +329,7 @@ public class DynamicClientRegistrationServiceTest {
         oidc.getClientRegistrationSettings().setDefaultScopes(Arrays.asList("phone","email"));
         when(domain.getOidc()).thenReturn(oidc);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> this.defaultAssertion(client) &&
@@ -345,7 +345,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setResponseTypes(Optional.empty());
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> client.getResponseTypes()==null);
@@ -357,7 +357,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setResponseTypes(Optional.of(Arrays.asList("unknownResponseType")));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Invalid response type.");
         testObserver.assertNotComplete();
@@ -369,7 +369,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setGrantTypes(Optional.of(Arrays.asList("unknownGrantType")));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Missing or invalid grant type.");
         testObserver.assertNotComplete();
@@ -381,7 +381,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setSubjectType(Optional.of("unknownSubjectType"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Unsupported subject type");
         testObserver.assertNotComplete();
@@ -393,7 +393,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setUserinfoSignedResponseAlg(Optional.of("unknownSigningAlg"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Unsupported userinfo signing algorithm");
         testObserver.assertNotComplete();
@@ -405,7 +405,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setUserinfoEncryptedResponseAlg(Optional.of("unknownEncryptionAlg"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Unsupported userinfo_encrypted_response_alg value");
         testObserver.assertNotComplete();
@@ -417,7 +417,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setUserinfoEncryptedResponseEnc(Optional.of("unknownEncryptionAlg"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("When userinfo_encrypted_response_enc is included, userinfo_encrypted_response_alg MUST also be provided");
         testObserver.assertNotComplete();
@@ -430,7 +430,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setUserinfoEncryptedResponseAlg(Optional.of("RSA-OAEP-256"));
         request.setUserinfoEncryptedResponseEnc(Optional.of("unknownEncryptionAlg"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Unsupported userinfo_encrypted_response_enc value");
         testObserver.assertNotComplete();
@@ -442,7 +442,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setUserinfoEncryptedResponseAlg(Optional.of("RSA-OAEP-256"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> defaultAssertion(client) && client.getUserinfoEncryptedResponseEnc()!=null);
@@ -454,7 +454,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setIdTokenSignedResponseAlg(Optional.of("unknownSigningAlg"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Unsupported id_token signing algorithm");
         testObserver.assertNotComplete();
@@ -466,7 +466,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setIdTokenEncryptedResponseAlg(Optional.of("unknownEncryptionAlg"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Unsupported id_token_encrypted_response_alg value");
         testObserver.assertNotComplete();
@@ -478,7 +478,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setIdTokenEncryptedResponseEnc(Optional.of("unknownEncryptionAlg"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("When id_token_encrypted_response_enc is included, id_token_encrypted_response_alg MUST also be provided");
         testObserver.assertNotComplete();
@@ -491,7 +491,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setIdTokenEncryptedResponseAlg(Optional.of("RSA-OAEP-256"));
         request.setIdTokenEncryptedResponseEnc(Optional.of("unknownEncryptionAlg"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Unsupported id_token_encrypted_response_enc value");
         testObserver.assertNotComplete();
@@ -503,7 +503,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setIdTokenEncryptedResponseAlg(Optional.of("RSA-OAEP-256"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> defaultAssertion(client) && client.getIdTokenEncryptedResponseEnc()!=null);
@@ -515,7 +515,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setRequestUris(Optional.of(Arrays.asList("nonValidUri")));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount()==1);
@@ -528,7 +528,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setTokenEndpointAuthMethod(Optional.of(ClientAuthenticationMethod.TLS_CLIENT_AUTH));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount()==1);
@@ -543,7 +543,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setTlsClientAuthSubjectDn(Optional.of("subject-dn"));
         request.setTlsClientAuthSanDns(Optional.of("san-dns"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount()==1);
@@ -556,7 +556,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setTokenEndpointAuthMethod(Optional.of(ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount()==1);
@@ -570,7 +570,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setJwks(Optional.of(new JWKSet()));
         request.setTokenEndpointAuthMethod(Optional.of(ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
     }
@@ -581,7 +581,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setRequestUris(Optional.of(Arrays.asList("https://valid/request/uri")));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> defaultAssertion(client) && client.getRequestUris().contains("https://valid/request/uri"));
@@ -594,7 +594,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setSectorIdentifierUri(Optional.of("blabla"));//fail due to invalid url
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount()==1);
@@ -607,7 +607,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setSectorIdentifierUri(Optional.of("http://something"));//fail due to invalid url
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount()==1);
@@ -626,7 +626,7 @@ public class DynamicClientRegistrationServiceTest {
         when(webClient.getAbs(sectorUri)).thenReturn(httpRequest);
         when(httpRequest.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(httpResponse)));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
         assertTrue("Should have only one exception", testObserver.errorCount()==1);
@@ -646,7 +646,7 @@ public class DynamicClientRegistrationServiceTest {
         when(httpRequest.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(httpResponse)));
         when(httpResponse.bodyAsString()).thenReturn("[\"https://not/same/redirect/uri\"]");
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidRedirectUriException.class);
         testObserver.assertNotComplete();
     }
@@ -665,7 +665,7 @@ public class DynamicClientRegistrationServiceTest {
         when(httpRequest.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(httpResponse)));
         when(httpResponse.bodyAsString()).thenReturn("[\""+redirectUri+"\"]");
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
     }
@@ -677,7 +677,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setJwks(Optional.of(new JWKSet()));
         request.setJwksUri(Optional.of("something"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("The jwks_uri and jwks parameters MUST NOT be used together.");
         testObserver.assertNotComplete();
@@ -689,9 +689,9 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setJwksUri(Optional.of("something"));
 
-        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("No JWK found behind jws uri...");
         testObserver.assertNotComplete();
@@ -703,9 +703,9 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setJwksUri(Optional.of("something"));
 
-        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> defaultAssertion(client) && client.getJwksUri().equals("something"));
@@ -717,7 +717,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setGrantTypes(Optional.of(Arrays.asList("client_credentials")));
         request.setResponseTypes(Optional.of(Arrays.asList()));
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> client.getRedirectUris()==null &&
@@ -734,7 +734,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setGrantTypes(Optional.of(Arrays.asList("implicit")));
         request.setResponseTypes(Optional.of(Arrays.asList("token")));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> client.getRedirectUris().contains("https://graviee.io/callback") &&
@@ -762,10 +762,10 @@ public class DynamicClientRegistrationServiceTest {
 
     @Test
     public void patch_noRedirectUriMetadata() {
-        TestObserver<Client> testObserver = dcrService.patch(new Client(), new DynamicClientRegistrationRequest(), BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.patch_migrated(new Client(), new DynamicClientRegistrationRequest(), BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        verify(clientService, times(1)).update(any());
+        verify(clientService, times(1)).update_migrated(any());
     }
 
     @Test
@@ -774,18 +774,18 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.of(Arrays.asList("https://graviee.io/callback")));
         request.setJwksUri(Optional.of("something"));
 
-        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
 
-        TestObserver<Client> testObserver = dcrService.patch(new Client(), request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.patch_migrated(new Client(), request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> client.getJwksUri().equals("something") && client.getRedirectUris().size()==1);
-        verify(clientService, times(1)).update(any());
+        verify(clientService, times(1)).update_migrated(any());
     }
 
     @Test
     public void update_missingRedirectUri() {
-        TestObserver<Client> testObserver = dcrService.update(new Client(), new DynamicClientRegistrationRequest(), BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.update_migrated(new Client(), new DynamicClientRegistrationRequest(), BASE_PATH)).test();
         testObserver.assertError(InvalidRedirectUriException.class);
         testObserver.assertErrorMessage("Missing or invalid redirect_uris.");//redirect_uri metadata can be null but is mandatory
         testObserver.assertNotComplete();
@@ -797,19 +797,19 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.of(Arrays.asList()));
         request.setApplicationType(Optional.of("something"));
 
-        TestObserver<Client> testObserver = dcrService.update(new Client(), request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.update_migrated(new Client(), request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> client.getApplicationType().equals("something") && client.getRedirectUris().isEmpty());
-        verify(clientService, times(1)).update(any());
+        verify(clientService, times(1)).update_migrated(any());
     }
 
     @Test
     public void delete() {
-        TestObserver<Client> testObserver = dcrService.delete(new Client()).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.delete_migrated(new Client())).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
-        verify(clientService, times(1)).delete(any());
+        verify(clientService, times(1)).delete_migrated(any());
     }
 
     @Test
@@ -820,12 +820,12 @@ public class DynamicClientRegistrationServiceTest {
         toRenew.setClientId("client_id");
         toRenew.setClientSecret("oldSecret");
 
-        TestObserver<Client> testObserver = dcrService.renewSecret(toRenew, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.renewSecret_migrated(toRenew, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> client.getClientSecret().equals("secretRenewed"));
-        verify(clientService, times(1)).renewClientSecret(anyString(), anyString());
-        verify(clientService, times(1)).update(any());
+        verify(clientService, times(1)).renewClientSecret_migrated(anyString(), anyString());
+        verify(clientService, times(1)).update_migrated(any());
     }
 
     @Test
@@ -834,13 +834,13 @@ public class DynamicClientRegistrationServiceTest {
         request.setSoftwareId(Optional.of("123"));
 
         when(domain.isDynamicClientRegistrationTemplateEnabled()).thenReturn(true);
-        when(clientService.findById(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(clientService.findById_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver<Client> testObserver = dcrService.create(request,BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("No template found for software_id 123");
-        verify(clientService, times(0)).create(any());
+        verify(clientService, times(0)).create_migrated(any());
     }
 
     @Test
@@ -859,13 +859,13 @@ public class DynamicClientRegistrationServiceTest {
         request.setApplicationType(Optional.of("app"));
 
         when(domain.isDynamicClientRegistrationTemplateEnabled()).thenReturn(true);
-        when(clientService.findById("123")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(template)));
+        when(clientService.findById_migrated("123")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(template))));
 
-        TestObserver<Client> testObserver = dcrService.create(request,BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Client behind software_id is not a template");
-        verify(clientService, times(0)).create(any());
+        verify(clientService, times(0)).create_migrated(any());
     }
 
     @Test
@@ -884,12 +884,12 @@ public class DynamicClientRegistrationServiceTest {
         request.setSoftwareId(Optional.of(ID_SOURCE));
         request.setApplicationType(Optional.of("app"));
 
-        when(formService.copyFromClient(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
-        when(emailTemplateService.copyFromClient(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(formService.copyFromClient_migrated(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()))));
+        when(emailTemplateService.copyFromClient_migrated(DOMAIN_ID, ID_SOURCE, ID_TARGET)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
         when(domain.isDynamicClientRegistrationTemplateEnabled()).thenReturn(true);
-        when(clientService.findById("123")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(template)));
+        when(clientService.findById_migrated("123")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(template))));
 
-        TestObserver<Client> testObserver = dcrService.create(request,BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(client ->
                 client.getId().equals("abc") &&
@@ -902,7 +902,7 @@ public class DynamicClientRegistrationServiceTest {
                 client.getJwks() == null &&
                 client.getSectorIdentifierUri() == null
         );
-        verify(clientService, times(1)).create(any());
+        verify(clientService, times(1)).create_migrated(any());
     }
 
     @Test
@@ -911,7 +911,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setAuthorizationSignedResponseAlg(Optional.of("unknownSigningAlg"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Unsupported authorization signing algorithm");
         testObserver.assertNotComplete();
@@ -922,11 +922,11 @@ public class DynamicClientRegistrationServiceTest {
         DynamicClientRegistrationRequest request = new DynamicClientRegistrationRequest();
         request.setRedirectUris(Optional.empty());
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(client -> client.getAuthorizationSignedResponseAlg().equals(JWSAlgorithm.RS256.getName()));
-        verify(clientService, times(1)).create(any());
+        verify(clientService, times(1)).create_migrated(any());
     }
 
     @Test
@@ -935,7 +935,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setRequestObjectSigningAlg(Optional.of("unknownSigningAlg"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Unsupported request object signing algorithm");
         testObserver.assertNotComplete();
@@ -948,7 +948,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRedirectUris(Optional.empty());
         request.setRequestObjectSigningAlg(Optional.of(JWSAlgorithm.RS256.getName()));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("request_object_signing_alg shall be PS256");
         testObserver.assertNotComplete();
@@ -961,7 +961,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionAlg(null);
         request.setRequestObjectEncryptionEnc(Optional.of(JWAlgorithmUtils.getDefaultRequestObjectEnc()));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("When request_object_encryption_enc is included, request_object_encryption_alg MUST also be provided");
         testObserver.assertNotComplete();
@@ -974,7 +974,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionAlg(Optional.of("unknownKeyAlg"));
         request.setRequestObjectEncryptionEnc(Optional.of(JWAlgorithmUtils.getDefaultRequestObjectEnc()));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Unsupported request_object_encryption_alg value");
         testObserver.assertNotComplete();
@@ -987,7 +987,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionAlg(Optional.of(JWEAlgorithm.RSA_OAEP_256.getName()));
         request.setRequestObjectEncryptionEnc(Optional.of(JWAlgorithmUtils.getDefaultRequestObjectEnc()));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
     }
@@ -999,7 +999,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionAlg(Optional.of(JWEAlgorithm.RSA_OAEP_256.getName()));
         request.setRequestObjectEncryptionEnc(Optional.of("unsupported"));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Unsupported request_object_encryption_enc value");
         testObserver.assertNotComplete();
@@ -1015,7 +1015,7 @@ public class DynamicClientRegistrationServiceTest {
         request.setRequestObjectEncryptionAlg(Optional.of(JWEAlgorithm.RSA_OAEP_256.getName()));
         request.setRequestObjectEncryptionEnc(Optional.of(JWAlgorithmUtils.getDefaultRequestObjectEnc()));
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Request object must be encrypted using RSA-OAEP with A256GCM");
         testObserver.assertNotComplete();
@@ -1033,7 +1033,7 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(null);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("No jwks_uri for OpenBanking Directory, unable to validate software_statement");
         testObserver.assertNotComplete();
@@ -1053,7 +1053,7 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("software_statement isn't signed or doesn't use PS256");
         testObserver.assertNotComplete();
@@ -1073,11 +1073,11 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
-        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
         when(jwsService.isValidSignature(any(), any())).thenReturn(false);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("Invalid signature for software_statement");
         testObserver.assertNotComplete();
@@ -1097,11 +1097,11 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
-        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("software_statement older than 5 minutes");
         testObserver.assertNotComplete();
@@ -1124,11 +1124,11 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
-        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("jwks is forbidden, prefer jwks_uri");
         testObserver.assertNotComplete();
@@ -1148,11 +1148,11 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
-        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("jwks_uri is required");
         testObserver.assertNotComplete();
@@ -1173,11 +1173,11 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
-        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("jwks_uri doesn't match the software_jwks_uri");
         testObserver.assertNotComplete();
@@ -1200,11 +1200,11 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
-        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("redirect_uris are missing");
         testObserver.assertNotComplete();
@@ -1227,11 +1227,11 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
-        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("redirect_uris contains unknown uri from software_statement");
         testObserver.assertNotComplete();
@@ -1260,11 +1260,11 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
-        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertErrorMessage("tls_client_auth_subject_dn is required with tls_client_auth as client authentication method");
         testObserver.assertNotComplete();
@@ -1296,15 +1296,15 @@ public class DynamicClientRegistrationServiceTest {
         when(domain.useFapiBrazilProfile()).thenReturn(true);
         when(environment.getProperty(DynamicClientRegistrationServiceImpl.FAPI_OPENBANKING_BRAZIL_DIRECTORY_JWKS_URI)).thenReturn(DUMMY_JWKS_URI);
 
-        when(jwkService.getKeys(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet())));
-        when(jwkService.getKey(any(), any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey())));
+        when(jwkService.getKeys_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new JWKSet()))));
+        when(jwkService.getKey_migrated(any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.jose.RSAKey()))));
         when(jwsService.isValidSignature(any(), any())).thenReturn(true);
 
-        TestObserver<Client> testObserver = dcrService.create(request, BASE_PATH).test();
+        TestObserver<Client> testObserver = RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, BASE_PATH)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
 
-        verify(clientService).create(argThat(client -> client.getAccessTokenValiditySeconds() == FAPI_OPENBANKING_BRAZIL_DEFAULT_ACCESS_TOKEN_VALIDITY
+        verify(clientService).create_migrated(argThat(client -> client.getAccessTokenValiditySeconds() == FAPI_OPENBANKING_BRAZIL_DEFAULT_ACCESS_TOKEN_VALIDITY
                 && client.getRefreshTokenValiditySeconds() == 1000
                 && client.getIdTokenValiditySeconds() == 1100));
 

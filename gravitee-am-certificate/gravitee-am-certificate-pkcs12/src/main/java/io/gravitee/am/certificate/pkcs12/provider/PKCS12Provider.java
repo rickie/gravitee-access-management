@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.certificate.pkcs12.provider;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyOperation;
 import com.nimbusds.jose.jwk.KeyUse;
@@ -106,7 +107,8 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.privateKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<JWK> privateKey() {
  return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
@@ -121,7 +123,8 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(convert(nimbusJwk, true).collect(Collectors.toList()))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.key_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<io.gravitee.am.certificate.api.Key> key() {
  return RxJava2Adapter.monoToSingle(key_migrated());
@@ -131,7 +134,8 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificateKey)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.publicKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<String> publicKey() {
  return RxJava2Adapter.monoToSingle(publicKey_migrated());
@@ -147,7 +151,8 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
                         .get())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.publicKeys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<CertificateKey>> publicKeys() {
  return RxJava2Adapter.monoToSingle(publicKeys_migrated());
@@ -157,7 +162,8 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificateKeys)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.keys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<JWK> keys() {
  return RxJava2Adapter.fluxToFlowable(keys_migrated());

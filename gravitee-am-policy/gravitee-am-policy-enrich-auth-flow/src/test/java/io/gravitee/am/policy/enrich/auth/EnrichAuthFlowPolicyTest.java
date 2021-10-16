@@ -120,7 +120,7 @@ public class EnrichAuthFlowPolicyTest {
                 new Property("key", "myValue"),
                 new Property("key-tpl", "{#request.params['"+REQUEST_PARAM+"']}")));
 
-        when(authContextRepository.create(any())).then((arg) -> RxJava2Adapter.monoToSingle(Mono.just(arg.getArgument(0))));
+        when(authContextRepository.create_migrated(any())).then((arg) -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(arg.getArgument(0)))));
 
         EnrichAuthFlowPolicy enrichAuthFlowPolicy = buildPolicy();
         enrichAuthFlowPolicy.onRequest(request, response, executionContext, policyChain);
@@ -128,7 +128,7 @@ public class EnrichAuthFlowPolicyTest {
         lock.await(1, TimeUnit.SECONDS);
         verify(policyChain, never()).failWith(any());
         verify(policyChain).doNext(any(), any());
-        verify(authContextRepository).create(argThat(authContext ->
+        verify(authContextRepository).create_migrated(argThat(authContext ->
         {
             return authContext.getVersion() == expectedVersion && // version is incremented
             authContext.getData() != null &&
@@ -153,7 +153,7 @@ public class EnrichAuthFlowPolicyTest {
         lock.await(1, TimeUnit.SECONDS);
         verify(policyChain, never()).failWith(any());
         verify(policyChain).doNext(any(), any());
-        verify(authContextRepository, never()).create(any());
+        verify(authContextRepository, never()).create_migrated(any());
     }
 
     @Test
@@ -167,7 +167,7 @@ public class EnrichAuthFlowPolicyTest {
         lock.await(1, TimeUnit.SECONDS);
         verify(policyChain, never()).failWith(any());
         verify(policyChain).doNext(any(), any());
-        verify(authContextRepository, never()).create(any());
+        verify(authContextRepository, never()).create_migrated(any());
     }
 
     private EnrichAuthFlowPolicy buildPolicy() {

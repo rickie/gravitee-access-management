@@ -58,16 +58,16 @@ public class IntrospectionServiceTest {
         AccessToken accessToken = new AccessToken(token);
         accessToken.setSubject("user");
         accessToken.setClientId("client-id");
-        when(tokenService.introspect("token")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(accessToken)));
-        when(userService.findById("user")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new User())));
+        when(tokenService.introspect_migrated("token")).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(accessToken))));
+        when(userService.findById_migrated("user")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new User()))));
 
         IntrospectionRequest introspectionRequest = new IntrospectionRequest(token);
-        TestObserver<IntrospectionResponse> testObserver = introspectionService.introspect(introspectionRequest).test();
+        TestObserver<IntrospectionResponse> testObserver = RxJava2Adapter.monoToSingle(introspectionService.introspect_migrated(introspectionRequest)).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        verify(userService, times(1)).findById("user");
+        verify(userService, times(1)).findById_migrated("user");
     }
 
     @Test
@@ -76,15 +76,15 @@ public class IntrospectionServiceTest {
         AccessToken accessToken = new AccessToken(token);
         accessToken.setSubject("client-id");
         accessToken.setClientId("client-id");
-        when(tokenService.introspect("token")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(accessToken)));
+        when(tokenService.introspect_migrated("token")).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(accessToken))));
 
         IntrospectionRequest introspectionRequest = new IntrospectionRequest(token);
-        TestObserver<IntrospectionResponse> testObserver = introspectionService.introspect(introspectionRequest).test();
+        TestObserver<IntrospectionResponse> testObserver = RxJava2Adapter.monoToSingle(introspectionService.introspect_migrated(introspectionRequest)).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        verify(userService, never()).findById(anyString());
+        verify(userService, never()).findById_migrated(anyString());
     }
 
     @Test
@@ -96,10 +96,10 @@ public class IntrospectionServiceTest {
         accessToken.setCreatedAt(new Date());
         accessToken.setExpireAt(new Date());
         accessToken.setAdditionalInformation(Collections.singletonMap("custom-claim", "test"));
-        when(tokenService.introspect(token)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(accessToken)));
+        when(tokenService.introspect_migrated(token)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(accessToken))));
 
         IntrospectionRequest introspectionRequest = new IntrospectionRequest(token);
-        TestObserver<IntrospectionResponse> testObserver = introspectionService.introspect(introspectionRequest).test();
+        TestObserver<IntrospectionResponse> testObserver = RxJava2Adapter.monoToSingle(introspectionService.introspect_migrated(introspectionRequest)).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -116,10 +116,10 @@ public class IntrospectionServiceTest {
         accessToken.setCreatedAt(new Date());
         accessToken.setExpireAt(new Date());
         accessToken.setAdditionalInformation(Collections.singletonMap(Claims.aud, "test-aud"));
-        when(tokenService.introspect(token)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(accessToken)));
+        when(tokenService.introspect_migrated(token)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(accessToken))));
 
         IntrospectionRequest introspectionRequest = new IntrospectionRequest(token);
-        TestObserver<IntrospectionResponse> testObserver = introspectionService.introspect(introspectionRequest).test();
+        TestObserver<IntrospectionResponse> testObserver = RxJava2Adapter.monoToSingle(introspectionService.introspect_migrated(introspectionRequest)).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();

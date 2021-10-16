@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.extensiongrant.jwtbearer.provider;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.jwt.ExpiredJWTException;
 import io.gravitee.am.common.exception.jwt.MalformedJWTException;
 import io.gravitee.am.common.exception.jwt.PrematureJWTException;
@@ -71,7 +72,8 @@ public class JWTBearerExtensionGrantProvider implements ExtensionGrantProvider, 
         jwtParser = new DefaultJWTParser(publicKey);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.grant_migrated(tokenRequest))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> grant(TokenRequest tokenRequest) throws InvalidGrantException {
  return RxJava2Adapter.monoToMaybe(grant_migrated(tokenRequest));

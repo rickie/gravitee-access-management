@@ -28,13 +28,13 @@ import io.gravitee.am.service.FactorService;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -61,7 +61,7 @@ public class FactorManagerImpl extends AbstractService implements FactorManager,
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing factors for domain {}", domain.getName());
-        factorService.findByDomain(domain.getId())
+        RxJava2Adapter.fluxToFlowable(factorService.findByDomain_migrated(domain.getId()))
                 .subscribe(
                         this::updateFactor,
                         error -> logger.error("Unable to initialize factors for domain {}", domain.getName(), error));
@@ -116,7 +116,7 @@ public class FactorManagerImpl extends AbstractService implements FactorManager,
     private void updateFactor(String factorId, FactorEvent factorEvent) {
         final String eventType = factorEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} factor event for {}", domain.getName(), eventType, factorId);
-        factorService.findById(factorId)
+        RxJava2Adapter.monoToMaybe(factorService.findById_migrated(factorId))
                 .subscribe(
                         this::updateFactor,
                         error -> logger.error("Unable to load factor for domain {}", domain.getName(), error),

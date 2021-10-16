@@ -134,7 +134,7 @@ public class JWKServiceTest {
 
     @Test
     public void testGetKeys_UriException() {
-        TestObserver testObserver = jwkService.getKeys("blabla").test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated("blabla")).test();
 
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
@@ -150,7 +150,7 @@ public class JWKServiceTest {
         when(webClient.getAbs(any())).thenReturn(request);
         when(request.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(response)));
 
-        TestObserver testObserver = jwkService.getKeys(JWKS_URI).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(JWKS_URI)).test();
 
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
@@ -167,7 +167,7 @@ public class JWKServiceTest {
         when(request.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(response)));
         when(response.bodyAsString()).thenReturn("{\"unknown\":[]}");
 
-        TestObserver testObserver = jwkService.getKeys(JWKS_URI).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(JWKS_URI)).test();
 
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertNotComplete();
@@ -185,7 +185,7 @@ public class JWKServiceTest {
         when(request.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(response)));
         when(response.bodyAsString()).thenReturn(bodyAsString);
 
-        TestObserver testObserver = jwkService.getKeys(JWKS_URI).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(JWKS_URI)).test();
 
         testObserver.assertNoErrors();
         testObserver.assertComplete();
@@ -199,7 +199,7 @@ public class JWKServiceTest {
         JWKSet jwkSet = new JWKSet();
         jwkSet.setKeys(Arrays.asList(jwk));
 
-        TestObserver testObserver = jwkService.getKey(jwkSet,null).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.getKey_migrated(jwkSet, null)).test();
 
         testObserver.assertNoErrors();
         testObserver.assertComplete();
@@ -215,7 +215,7 @@ public class JWKServiceTest {
 
         when(jwk.getKid()).thenReturn("notTheExpectedOne");
 
-        TestObserver testObserver = jwkService.getKey(jwkSet,"expectedKid").test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.getKey_migrated(jwkSet, "expectedKid")).test();
 
         testObserver.assertNoErrors();
         testObserver.assertComplete();
@@ -231,7 +231,7 @@ public class JWKServiceTest {
 
         when(jwk.getKid()).thenReturn("expectedKid");
 
-        TestObserver testObserver = jwkService.getKey(jwkSet,"expectedKid").test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.getKey_migrated(jwkSet, "expectedKid")).test();
 
         testObserver.assertNoErrors();
         testObserver.assertComplete();
@@ -240,7 +240,7 @@ public class JWKServiceTest {
 
     @Test
     public void testGetClientKeys_noKeys() {
-        TestObserver testObserver = jwkService.getKeys(new Client()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(new Client())).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertResult();//Expect empty result
@@ -254,7 +254,7 @@ public class JWKServiceTest {
         Client client = new Client();
         client.setJwks(jwkSet);
 
-        TestObserver testObserver = jwkService.getKeys(client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertResult(client.getJwks());
@@ -274,7 +274,7 @@ public class JWKServiceTest {
         when(request.rxSend()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(response)));
         when(response.bodyAsString()).thenReturn(bodyAsString);
 
-        TestObserver testObserver = jwkService.getKeys(client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwkSet -> ((JWKSet)jwkSet).getKeys().get(0).getKid().equals("KID"));
@@ -291,7 +291,7 @@ public class JWKServiceTest {
     }
 
     private void testFilter_expectEmptyResult(JWKSet jwkSet) {
-        TestObserver testObserver = jwkService.filter(jwkSet,null).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(jwkSet, null)).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertResult();//Expect empty result
@@ -299,7 +299,7 @@ public class JWKServiceTest {
 
     @Test
     public void testFilter_RSA() {
-        TestObserver testObserver = jwkService.filter(JWK_SET, JWKFilter.RSA_KEY_ENCRYPTION()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.RSA_KEY_ENCRYPTION())).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("rsaEnc"));
@@ -307,7 +307,7 @@ public class JWKServiceTest {
 
     @Test
     public void testFilter_EC() {
-        TestObserver testObserver = jwkService.filter(JWK_SET, JWKFilter.CURVE_KEY_ENCRYPTION()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.CURVE_KEY_ENCRYPTION())).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("ecEnc"));
@@ -315,7 +315,7 @@ public class JWKServiceTest {
 
     @Test
     public void testFilter_AES_notMatchingAlgorithm() {
-        TestObserver testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.parse("none"))).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.parse("none")))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertResult();
@@ -323,12 +323,12 @@ public class JWKServiceTest {
 
     @Test
     public void testFilter_AES_128_keys() {
-        TestObserver testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A128KW)).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A128KW))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("octEnc128"));
 
-        testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A128GCMKW)).test();
+        testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A128GCMKW))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("octEnc128"));
@@ -357,12 +357,12 @@ public class JWKServiceTest {
         JWKSet jwkSet = new JWKSet();
         jwkSet.setKeys(Arrays.asList(oct192, oct256, octSig));
 
-        TestObserver testObserver = jwkService.filter(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A128KW)).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A128KW))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertResult();
 
-        testObserver = jwkService.filter(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A128GCMKW)).test();
+        testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A128GCMKW))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertResult();
@@ -370,12 +370,12 @@ public class JWKServiceTest {
 
     @Test
     public void testFilter_AES_192_keys() {
-        TestObserver testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A192KW)).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A192KW))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("octEnc192"));
 
-        testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A192GCMKW)).test();
+        testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A192GCMKW))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("octEnc192"));
@@ -403,12 +403,12 @@ public class JWKServiceTest {
         JWKSet jwkSet = new JWKSet();
         jwkSet.setKeys(Arrays.asList(oct128, oct256, octSig));
 
-        TestObserver testObserver = jwkService.filter(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A192KW)).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A192KW))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertResult();
 
-        testObserver = jwkService.filter(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A192GCMKW)).test();
+        testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A192GCMKW))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertResult();
@@ -416,12 +416,12 @@ public class JWKServiceTest {
 
     @Test
     public void testFilter_AES_256_keys() {
-        TestObserver testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A256KW)).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A256KW))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("octEnc256"));
 
-        testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A256GCMKW)).test();
+        testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A256GCMKW))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("octEnc256"));
@@ -449,12 +449,12 @@ public class JWKServiceTest {
         JWKSet jwkSet = new JWKSet();
         jwkSet.setKeys(Arrays.asList(oct128, oct192, octSig));
 
-        TestObserver testObserver = jwkService.filter(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A256KW)).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A256KW))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertResult();
 
-        testObserver = jwkService.filter(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A256GCMKW)).test();
+        testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(jwkSet, JWKFilter.OCT_KEY_ENCRYPTION(JWEAlgorithm.A256GCMKW))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertResult();
@@ -462,7 +462,7 @@ public class JWKServiceTest {
 
     @Test
     public void testFilter_OCT() {
-        TestObserver testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION())).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("octEnc128"));
@@ -470,32 +470,32 @@ public class JWKServiceTest {
 
     @Test
     public void testFilter_OCT_byEnc() {
-        TestObserver testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(EncryptionMethod.A128GCM)).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(EncryptionMethod.A128GCM))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("octEnc128"));
 
-        testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(EncryptionMethod.A128CBC_HS256)).test();
+        testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(EncryptionMethod.A128CBC_HS256))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("octEnc256"));
 
-        testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(EncryptionMethod.A192GCM)).test();
+        testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(EncryptionMethod.A192GCM))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("octEnc192"));
 
-        testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(EncryptionMethod.A192CBC_HS384)).test();
+        testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(EncryptionMethod.A192CBC_HS384))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("octEnc384"));
 
-        testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(EncryptionMethod.A256GCM)).test();
+        testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(EncryptionMethod.A256GCM))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("octEnc256"));
 
-        testObserver = jwkService.filter(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(EncryptionMethod.A256CBC_HS512)).test();
+        testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(JWK_SET, JWKFilter.OCT_KEY_ENCRYPTION(EncryptionMethod.A256CBC_HS512))).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("octEnc512"));
@@ -517,7 +517,7 @@ public class JWKServiceTest {
         okpSet.setKeys(Arrays.asList(okpEnc,okpSig));
 
 
-        TestObserver testObserver = jwkService.filter(okpSet, JWKFilter.CURVE_KEY_ENCRYPTION()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(okpSet, JWKFilter.CURVE_KEY_ENCRYPTION())).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(jwk -> ((JWK)jwk).getKid().equals("okpEnc"));
@@ -541,7 +541,7 @@ public class JWKServiceTest {
         rsaSet.setKeys(Arrays.asList(rsaEnc, rsaSig));
 
 
-        TestObserver testObserver = jwkService.filter(rsaSet, JWKFilter.RSA_KEY_ENCRYPTION()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(rsaSet, JWKFilter.RSA_KEY_ENCRYPTION())).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertResult();
@@ -558,7 +558,7 @@ public class JWKServiceTest {
         okpSet.setKeys(Arrays.asList(okpSig));
 
 
-        TestObserver testObserver = jwkService.filter(okpSet, JWKFilter.CURVE_KEY_ENCRYPTION()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(jwkService.filter_migrated(okpSet, JWKFilter.CURVE_KEY_ENCRYPTION())).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertResult();
@@ -571,11 +571,11 @@ public class JWKServiceTest {
         key.setKid("my-test-key");
 
         CertificateProvider certificateProvider = mock(CertificateProvider.class);
-        when(certificateProvider.keys()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(key)));
+        when(certificateProvider.keys_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(key))));
 
         when(certificateManager.providers()).thenReturn(Collections.singletonList(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
 
-        TestObserver<JWKSet> testObserver = jwkService.getKeys().test();
+        TestObserver<JWKSet> testObserver = RxJava2Adapter.monoToSingle(jwkService.getKeys_migrated()).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -586,7 +586,7 @@ public class JWKServiceTest {
     public void shouldGetJWKSet_noCertificateProvider() {
         when(certificateManager.providers()).thenReturn(Collections.emptySet());
 
-        TestObserver<JWKSet> testObserver = jwkService.getKeys().test();
+        TestObserver<JWKSet> testObserver = RxJava2Adapter.monoToSingle(jwkService.getKeys_migrated()).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -601,9 +601,9 @@ public class JWKServiceTest {
         key.setKid("my-test-key-2");
 
         CertificateProvider certificateProvider = mock(CertificateProvider.class);
-        when(certificateProvider.keys()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(key)));
+        when(certificateProvider.keys_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(key))));
         CertificateProvider certificateProvider2 = mock(CertificateProvider.class);
-        when(certificateProvider2.keys()).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(key2)));
+        when(certificateProvider2.keys_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(key2))));
 
         List<io.gravitee.am.gateway.certificate.CertificateProvider> certificateProviders = new ArrayList<>();
         certificateProviders.add(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider));
@@ -611,7 +611,7 @@ public class JWKServiceTest {
 
         when(certificateManager.providers()).thenReturn(certificateProviders);
 
-        TestObserver<JWKSet> testObserver = jwkService.getKeys().test();
+        TestObserver<JWKSet> testObserver = RxJava2Adapter.monoToSingle(jwkService.getKeys_migrated()).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();

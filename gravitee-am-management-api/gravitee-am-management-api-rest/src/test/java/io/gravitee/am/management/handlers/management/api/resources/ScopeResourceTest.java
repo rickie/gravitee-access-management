@@ -47,8 +47,8 @@ public class ScopeResourceTest extends JerseySpringTest {
         mockScope.setName("scope-name");
         mockScope.setDomain(domainId);
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockScope))).when(scopeService).findById(scopeId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockScope)))).when(scopeService).findById_migrated(scopeId);
 
         final Response response = target("domains").path(domainId).path("scopes").path(scopeId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -66,8 +66,8 @@ public class ScopeResourceTest extends JerseySpringTest {
 
         final String scopeId = "scope-id";
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(scopeService).findById(scopeId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(scopeService).findById_migrated(scopeId);
 
         final Response response = target("domains").path(domainId).path("scopes").path(scopeId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -79,7 +79,7 @@ public class ScopeResourceTest extends JerseySpringTest {
         final String domainId = "domain-id";
         final String scopeId = "scope-id";
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("scopes").path(scopeId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -98,8 +98,8 @@ public class ScopeResourceTest extends JerseySpringTest {
         mockScope.setName("scope-name");
         mockScope.setDomain("wrong-domain");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockScope))).when(scopeService).findById(scopeId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockScope)))).when(scopeService).findById_migrated(scopeId);
 
         final Response response = target("domains").path(domainId).path("scopes").path(scopeId).request().get();
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());

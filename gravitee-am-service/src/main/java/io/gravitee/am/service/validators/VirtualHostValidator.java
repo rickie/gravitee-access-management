@@ -75,7 +75,7 @@ public static Mono<Void> validate_migrated(VirtualHost vhost, List<String> domai
             }
         }
 
-        return RxJava2Adapter.completableToMono(PathValidator.validate(vhost.getPath()));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(PathValidator.validate_migrated(vhost.getPath())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(VirtualHostValidator.validateDomainVhosts_migrated(domain, domains))", imports = {"io.gravitee.am.service.validators.VirtualHostValidator", "reactor.adapter.rxjava.RxJava2Adapter"})

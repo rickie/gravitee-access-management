@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.policy.ExtensionPoint;
 import io.gravitee.am.model.Policy;
@@ -42,7 +43,8 @@ public class MongoPolicyRepository extends AbstractManagementMongoRepository imp
 
     public static final String COLLECTION_NAME = "policies";
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Policy> findAll() {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated());
@@ -53,7 +55,8 @@ public class MongoPolicyRepository extends AbstractManagementMongoRepository imp
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(policiesCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.collectionExists_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Boolean> collectionExists() {
  return RxJava2Adapter.monoToSingle(collectionExists_migrated());
@@ -64,7 +67,8 @@ public class MongoPolicyRepository extends AbstractManagementMongoRepository imp
                 .isEmpty()).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> !isEmpty))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteCollection_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable deleteCollection() {
  return RxJava2Adapter.monoToCompletable(deleteCollection_migrated());

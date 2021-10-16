@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.manager.botdetection.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.botdetection.api.BotDetectionContext;
 import io.gravitee.am.botdetection.api.BotDetectionProvider;
 import io.gravitee.am.common.event.BotDetectionEvent;
@@ -85,7 +86,7 @@ public class BotDetectionManagerImpl extends AbstractService implements BotDetec
     @Override
     public void afterPropertiesSet() {
         LOGGER.info("Initializing bot detections for domain {}", domain.getName());
-        botDetectionService.findByDomain(domain.getId())
+        RxJava2Adapter.fluxToFlowable(botDetectionService.findByDomain_migrated(domain.getId()))
                 .subscribe(
                         detection -> {
                             updateBotDetection(detection);
@@ -125,7 +126,8 @@ public class BotDetectionManagerImpl extends AbstractService implements BotDetec
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validate_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Boolean> validate(BotDetectionContext context) {
  return RxJava2Adapter.monoToSingle(validate_migrated(context));
@@ -134,7 +136,7 @@ public class BotDetectionManagerImpl extends AbstractService implements BotDetec
     public Mono<Boolean> validate_migrated(BotDetectionContext context) {
         final BotDetectionProvider botDetectionProvider = this.providers.get(context.getPluginId());
         if (botDetectionProvider != null) {
-            return RxJava2Adapter.singleToMono(botDetectionProvider.validate(context));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(botDetectionProvider.validate_migrated(context)));
         } else {
             LOGGER.error("No BotDetectionProvider matches the pluginId '{}'", context.getPluginId());
             return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(false)));
@@ -166,7 +168,7 @@ public class BotDetectionManagerImpl extends AbstractService implements BotDetec
     private void updateBotDetection(String pluginId, BotDetectionEvent event) {
         final String eventType = event.toString().toLowerCase();
         LOGGER.info("Domain {} has received {} bot detection event for {}", domain.getName(), eventType, pluginId);
-        botDetectionService.findById(pluginId)
+        RxJava2Adapter.monoToMaybe(botDetectionService.findById_migrated(pluginId))
                 .subscribe(
                         this::updateBotDetection,
                         error -> LOGGER.error("Unable to load bot detection for domain {}", domain.getName(), error),

@@ -53,7 +53,7 @@ public class ConfigurationResource {
     @ApiOperation(value = "Get the Policy Studio flow schema",
             notes = "There is no particular permission needed. User must be authenticated.")
     public void list(@Suspended final AsyncResponse response) {
-        flowService.getSchema()
+        RxJava2Adapter.monoToSingle(flowService.getSchema_migrated())
                 .subscribe(response::resume, response::resume);
     }
 
@@ -67,7 +67,7 @@ public class ConfigurationResource {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void getAlertServiceStatus(@Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(alertService.isAlertingAvailable()).map(RxJavaReactorMigrationUtil.toJdkFunction(AlertServiceStatusEntity::new)))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertService.isAlertingAvailable_migrated())).map(RxJavaReactorMigrationUtil.toJdkFunction(AlertServiceStatusEntity::new)))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -77,7 +77,7 @@ public class ConfigurationResource {
     @ApiOperation(value = "Get the spel grammar",
         notes = "There is no particular permission needed. User must be authenticated.")
     public void getSpelGrammar(@Suspended final AsyncResponse response) {
-        spelService.getGrammar()
+        RxJava2Adapter.monoToSingle(spelService.getGrammar_migrated())
             .subscribe(response::resume, response::resume);
     }
 

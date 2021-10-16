@@ -91,9 +91,9 @@ public class UserConsentEndpoint implements Handler<RoutingContext> {
         final Single<List<Scope>> consentInformation;
 
         if (prompt) {
-            consentInformation = userConsentService.getConsentInformation(requestedConsents);
+            consentInformation = RxJava2Adapter.monoToSingle(userConsentService.getConsentInformation_migrated(requestedConsents));
         } else {
-            consentInformation = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(userConsentService.checkConsent(client, user)).flatMap(v->RxJava2Adapter.singleToMono((Single<List<Scope>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Set<String>, Single<List<Scope>>>)approvedConsent -> {
+            consentInformation = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userConsentService.checkConsent_migrated(client, user))).flatMap(v->RxJava2Adapter.singleToMono((Single<List<Scope>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Set<String>, Single<List<Scope>>>)approvedConsent -> {
                         // user approved consent, continue
                         if (approvedConsent.containsAll(requestedConsents)) {
                             //redirectToAuthorize
@@ -102,7 +102,7 @@ public class UserConsentEndpoint implements Handler<RoutingContext> {
                         // else go to the user consent page
                         Set<String> requiredConsent = requestedConsents.stream().filter(requestedScope -> !approvedConsent.contains(requestedScope)).collect(Collectors.toSet());
 
-                        return userConsentService.getConsentInformation(requiredConsent);
+                        return RxJava2Adapter.monoToSingle(userConsentService.getConsentInformation_migrated(requiredConsent));
                     }).apply(v))));
         }
 

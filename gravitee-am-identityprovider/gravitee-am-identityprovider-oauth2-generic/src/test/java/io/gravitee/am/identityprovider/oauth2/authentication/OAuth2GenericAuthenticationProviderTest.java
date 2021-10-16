@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.identityprovider.oauth2.authentication;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.identityprovider.api.*;
@@ -22,6 +25,10 @@ import io.gravitee.am.identityprovider.common.oauth2.utils.URLEncodedUtils;
 import io.gravitee.am.identityprovider.oauth2.authentication.spring.OAuth2GenericAuthenticationProviderConfiguration;
 import io.gravitee.common.http.HttpHeaders;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,14 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -66,7 +66,7 @@ public class OAuth2GenericAuthenticationProviderTest {
                 .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer test_token"))
                 .willReturn(okJson("{ \"sub\": \"bob\" }")));
 
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "__social__";
@@ -83,7 +83,7 @@ public class OAuth2GenericAuthenticationProviderTest {
                 dummyRequest.setParameters(Collections.singletonMap("code", Arrays.asList("test-code")));
                 return new DummyAuthenticationContext(Collections.singletonMap("redirect_uri", "http://redirect_uri"), dummyRequest);
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
 
@@ -99,7 +99,7 @@ public class OAuth2GenericAuthenticationProviderTest {
                 .withRequestBody(matching(".*"))
                 .willReturn(unauthorized()));
 
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "__social__";
@@ -116,7 +116,7 @@ public class OAuth2GenericAuthenticationProviderTest {
                 dummyRequest.setParameters(Collections.singletonMap("code", Arrays.asList("wrong-code")));
                 return new DummyAuthenticationContext(Collections.singletonMap("redirect_uri", "http://redirect_uri"), dummyRequest);
             }
-        }).test();
+        })).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(BadCredentialsException.class);
@@ -133,7 +133,7 @@ public class OAuth2GenericAuthenticationProviderTest {
                 .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer test_token"))
                 .willReturn(notFound()));
 
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "__social__";
@@ -150,7 +150,7 @@ public class OAuth2GenericAuthenticationProviderTest {
                 dummyRequest.setParameters(Collections.singletonMap("code", Arrays.asList("test-code")));
                 return new DummyAuthenticationContext(Collections.singletonMap("redirect_uri", "http://redirect_uri"), dummyRequest);
             }
-        }).test();
+        })).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(BadCredentialsException.class);
@@ -172,7 +172,7 @@ public class OAuth2GenericAuthenticationProviderTest {
                 .withHeader(HttpHeaders.AUTHORIZATION, equalTo("Bearer test_token"))
                 .willReturn(okJson("{ \"sub\": \"bob\", \"preferred_username\": \"bob\" }")));
 
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "__social__";
@@ -189,7 +189,7 @@ public class OAuth2GenericAuthenticationProviderTest {
                 dummyRequest.setParameters(Collections.singletonMap("code", Arrays.asList("test-code")));
                 return new DummyAuthenticationContext(Collections.singletonMap("redirect_uri", "http://redirect_uri"), dummyRequest);
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
 

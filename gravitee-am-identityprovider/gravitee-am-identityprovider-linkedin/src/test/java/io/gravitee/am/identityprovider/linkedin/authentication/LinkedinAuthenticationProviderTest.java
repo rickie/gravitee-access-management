@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.identityprovider.linkedin.authentication;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.common.utils.RandomString;
@@ -34,6 +37,9 @@ import io.vertx.ext.web.client.impl.ClientPhase;
 import io.vertx.ext.web.client.impl.WebClientInternal;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,13 +47,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -167,7 +167,7 @@ public class LinkedinAuthenticationProviderTest {
                                                                         .put("identifier", "http://picture"))))))));
 
 
-        TestObserver<User> obs = cut.loadUserByUsername(authentication).test();
+        TestObserver<User> obs = RxJava2Adapter.monoToMaybe(cut.loadUserByUsername_migrated(authentication)).test();
 
         obs.awaitTerminalEvent();
         obs.assertValue(user -> {
@@ -212,7 +212,7 @@ public class LinkedinAuthenticationProviderTest {
                 .thenReturn(HttpStatusCode.UNAUTHORIZED_401);
 
 
-        TestObserver<User> obs = cut.loadUserByUsername(authentication).test();
+        TestObserver<User> obs = RxJava2Adapter.monoToMaybe(cut.loadUserByUsername_migrated(authentication)).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(BadCredentialsException.class);
@@ -247,7 +247,7 @@ public class LinkedinAuthenticationProviderTest {
         when(httpResponse.bodyAsJsonObject())
                 .thenReturn(new JsonObject().put("access_token", "myaccesstoken"));
 
-        TestObserver<User> obs = cut.loadUserByUsername(authentication).test();
+        TestObserver<User> obs = RxJava2Adapter.monoToMaybe(cut.loadUserByUsername_migrated(authentication)).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(BadCredentialsException.class);

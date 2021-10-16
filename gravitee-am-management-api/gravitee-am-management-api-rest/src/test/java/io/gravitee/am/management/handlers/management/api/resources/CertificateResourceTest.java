@@ -46,8 +46,8 @@ public class CertificateResourceTest extends JerseySpringTest {
         mockCertificate.setName("certificate-name");
         mockCertificate.setDomain(domainId);
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockCertificate))).when(certificateService).findById(certificateId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockCertificate)))).when(certificateService).findById_migrated(certificateId);
 
         final Response response = target("domains").path(domainId).path("certificates").path(certificateId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -65,8 +65,8 @@ public class CertificateResourceTest extends JerseySpringTest {
 
         final String certificateId = "certificate-id";
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(certificateService).findById(certificateId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(certificateService).findById_migrated(certificateId);
 
         final Response response = target("domains").path(domainId).path("certificates").path(certificateId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -78,7 +78,7 @@ public class CertificateResourceTest extends JerseySpringTest {
         final String domainId = "domain-id";
         final String certificateId = "certificate-id";
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("certificates").path(certificateId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -96,8 +96,8 @@ public class CertificateResourceTest extends JerseySpringTest {
         mockCertificate.setName("certificate-name");
         mockCertificate.setDomain("wrong-domain");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockCertificate))).when(certificateService).findById(certificateId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockCertificate)))).when(certificateService).findById_migrated(certificateId);
 
         final Response response = target("domains").path(domainId).path("certificates").path(certificateId).request().get();
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());

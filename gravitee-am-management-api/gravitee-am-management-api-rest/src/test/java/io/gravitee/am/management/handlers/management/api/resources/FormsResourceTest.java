@@ -58,7 +58,7 @@ public class FormsResourceTest extends JerseySpringTest {
         mockForm.setReferenceType(ReferenceType.DOMAIN);
         mockForm.setReferenceId(domainId);
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockForm))).when(formService).findByDomainAndTemplate(domainId, Template.LOGIN.template());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockForm)))).when(formService).findByDomainAndTemplate_migrated(domainId, Template.LOGIN.template());
 
         final Response response = target("domains")
                 .path(domainId).path("forms")
@@ -74,7 +74,7 @@ public class FormsResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetForms_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs")))).when(formService).findByDomainAndTemplate(domainId, Template.LOGIN.template());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs"))))).when(formService).findByDomainAndTemplate_migrated(domainId, Template.LOGIN.template());
 
         final Response response = target("domains")
                 .path(domainId).path("forms")
@@ -95,8 +95,8 @@ public class FormsResourceTest extends JerseySpringTest {
         newForm.setTemplate(Template.LOGIN);
         newForm.setContent("content");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(new Form()))).when(formService).create(eq(domainId), any(), any(User.class));
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Form())))).when(formService).create_migrated(eq(domainId), any(), any(User.class));
 
         final Response response = target("domains")
                 .path(domainId)

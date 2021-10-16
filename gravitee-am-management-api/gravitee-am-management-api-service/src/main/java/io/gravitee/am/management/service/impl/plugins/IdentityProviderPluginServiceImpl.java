@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service.impl.plugins;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.management.service.IdentityProviderPluginService;
 import io.gravitee.am.plugins.idp.core.IdentityProviderPluginManager;
 import io.gravitee.am.service.exception.TechnicalManagementException;
@@ -50,7 +51,8 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
     @Autowired
     private IdentityProviderPluginManager identityProviderPluginManager;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<IdentityProviderPlugin>> findAll(List<String> expand) {
  return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
@@ -60,7 +62,8 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
         return RxJava2Adapter.singleToMono(this.findAll(false, null));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(external))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<IdentityProviderPlugin>> findAll(Boolean external) {
  return RxJava2Adapter.monoToSingle(findAll_migrated(external));
@@ -70,7 +73,8 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
         return RxJava2Adapter.singleToMono(this.findAll(external, null));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(external, expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<IdentityProviderPlugin>> findAll(Boolean external, List<String> expand) {
  return RxJava2Adapter.monoToSingle(findAll_migrated(external, expand));
@@ -87,7 +91,8 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
             }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(identityProviderId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<IdentityProviderPlugin> findById(String identityProviderId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(identityProviderId));
@@ -110,7 +115,8 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(identityProviderId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<String> getSchema(String identityProviderId) {
  return RxJava2Adapter.monoToMaybe(getSchema_migrated(identityProviderId));
@@ -133,7 +139,8 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(identityProviderId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<String> getIcon(String identityProviderId) {
  return RxJava2Adapter.monoToMaybe(getIcon_migrated(identityProviderId));

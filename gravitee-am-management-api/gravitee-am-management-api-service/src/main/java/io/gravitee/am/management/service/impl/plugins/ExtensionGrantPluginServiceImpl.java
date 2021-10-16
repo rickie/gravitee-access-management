@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service.impl.plugins;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.management.service.ExtensionGrantPluginService;
 import io.gravitee.am.plugins.extensiongrant.core.ExtensionGrantPluginManager;
 import io.gravitee.am.service.exception.TechnicalManagementException;
@@ -46,7 +47,8 @@ public class ExtensionGrantPluginServiceImpl implements ExtensionGrantPluginServ
     @Autowired
     private ExtensionGrantPluginManager extensionGrantPluginManager;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Set<ExtensionGrantPlugin>> findAll() {
  return RxJava2Adapter.monoToSingle(findAll_migrated());
@@ -67,7 +69,8 @@ public class ExtensionGrantPluginServiceImpl implements ExtensionGrantPluginServ
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(extensionGrantPluginId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<ExtensionGrantPlugin> findById(String extensionGrantPluginId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(extensionGrantPluginId));
@@ -90,7 +93,8 @@ public class ExtensionGrantPluginServiceImpl implements ExtensionGrantPluginServ
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(extensionGrantPluginId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<String> getSchema(String extensionGrantPluginId) {
  return RxJava2Adapter.monoToMaybe(getSchema_migrated(extensionGrantPluginId));

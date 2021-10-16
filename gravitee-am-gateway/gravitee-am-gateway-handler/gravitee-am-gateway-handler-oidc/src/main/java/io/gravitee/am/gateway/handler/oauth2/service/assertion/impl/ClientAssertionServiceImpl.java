@@ -82,7 +82,8 @@ public class ClientAssertionServiceImpl implements ClientAssertionService {
     @Autowired
     private Domain domain;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.assertClient_migrated(assertionType, assertion, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Client> assertClient(String assertionType, String assertion, String basePath) {
  return RxJava2Adapter.monoToMaybe(assertClient_migrated(assertionType, assertion, basePath));
@@ -97,15 +98,15 @@ public class ClientAssertionServiceImpl implements ClientAssertionService {
         }
 
         if (JWT_BEARER.equals(assertionType)) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.validateJWT(assertion, basePath)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(new Function<JWT, MaybeSource<Client>>() {
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.validateJWT_migrated(assertion, basePath))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(new Function<JWT, MaybeSource<Client>>() {
                         @Override
                         public MaybeSource<Client> apply(JWT jwt) throws Exception {
                             // Handle client_secret_key client authentication
                             if (JWSAlgorithm.Family.HMAC_SHA.contains(jwt.getHeader().getAlgorithm())) {
-                                return validateSignatureWithHMAC(jwt);
+                                return RxJava2Adapter.monoToMaybe(validateSignatureWithHMAC_migrated(jwt));
                             } else {
                                 // Handle private_key_jwt client authentication
-                                return validateSignatureWithPublicKey(jwt);
+                                return RxJava2Adapter.monoToMaybe(validateSignatureWithPublicKey_migrated(jwt));
                             }
                         }
                     }).apply(v))))));
@@ -178,10 +179,10 @@ private Mono<Client> validateSignatureWithPublicKey_migrated(JWT jwt) {
             String clientId = jwt.getJWTClaimsSet().getSubject();
             SignedJWT signedJWT = (SignedJWT) jwt;
 
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.clientSyncService.findByClientId(clientId)).switchIfEmpty(Mono.error(new InvalidClientException("Missing or invalid client"))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client -> {
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.clientSyncService.findByClientId_migrated(clientId))).switchIfEmpty(Mono.error(new InvalidClientException("Missing or invalid client"))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client -> {
                         if (client.getTokenEndpointAuthMethod() == null ||
                                 ClientAuthenticationMethod.PRIVATE_KEY_JWT.equalsIgnoreCase(client.getTokenEndpointAuthMethod())) {
-                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.getClientJwkSet(client)).switchIfEmpty(Mono.error(new InvalidClientException("No jwk keys available on client"))).flatMap(z->jwkService.getKey(z, signedJWT.getHeader().getKeyID()).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new InvalidClientException("Unable to validate client, no matching key."))).flatMap(t->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWK, MaybeSource<Client>>toJdkFunction(jwk -> {
+                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getClientJwkSet_migrated(client))).switchIfEmpty(Mono.error(new InvalidClientException("No jwk keys available on client"))).flatMap(z->RxJava2Adapter.monoToMaybe(jwkService.getKey_migrated(z, signedJWT.getHeader().getKeyID())).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new InvalidClientException("Unable to validate client, no matching key."))).flatMap(t->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWK, MaybeSource<Client>>toJdkFunction(jwk -> {
                                         if (jwsService.isValidSignature(signedJWT, jwk)) {
                                             return RxJava2Adapter.monoToMaybe(Mono.just(client));
                                         }
@@ -223,7 +224,7 @@ private Mono<Client> validateSignatureWithHMAC_migrated(JWT jwt) {
 
 
 
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.clientSyncService.findByClientId(clientId)).switchIfEmpty(Mono.error(new InvalidClientException("Missing or invalid client"))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client -> {
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.clientSyncService.findByClientId_migrated(clientId))).switchIfEmpty(Mono.error(new InvalidClientException("Missing or invalid client"))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client -> {
                         try {
                             // Ensure to validate JWT using client_secret_key only if client is authorized to use this auth method
                             if (client.getTokenEndpointAuthMethod() == null ||
@@ -256,7 +257,7 @@ private Maybe<JWKSet> getClientJwkSet(Client client) {
 }
 private Mono<JWKSet> getClientJwkSet_migrated(Client client) {
         if(client.getJwksUri()!=null && !client.getJwksUri().trim().isEmpty()) {
-            return RxJava2Adapter.maybeToMono(jwkService.getKeys(client.getJwksUri()));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client.getJwksUri())));
         }
         else if(client.getJwks()!=null) {
             return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client.getJwks())));

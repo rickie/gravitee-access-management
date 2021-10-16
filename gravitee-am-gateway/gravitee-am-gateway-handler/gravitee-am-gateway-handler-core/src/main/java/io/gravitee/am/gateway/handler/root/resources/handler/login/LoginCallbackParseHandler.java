@@ -110,7 +110,7 @@ public class LoginCallbackParseHandler implements Handler<RoutingContext> {
             return;
         }
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.decodeAndVerify(state, certificateManager.defaultCertificateProvider())).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(stateJwt -> {
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(state, certificateManager.defaultCertificateProvider()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(stateJwt -> {
                     final MultiMap initialQueryParams = RequestUtils.getQueryParams((String) stateJwt.getOrDefault("q", ""), false);
                     context.put(ConstantKeys.PARAM_CONTEXT_KEY, initialQueryParams);
                     context.put(ConstantKeys.PROVIDER_ID_PARAM_KEY, stateJwt.get("p"));
@@ -132,7 +132,7 @@ public class LoginCallbackParseHandler implements Handler<RoutingContext> {
         }
 
         final String clientId = ((MultiMap) context.get(ConstantKeys.PARAM_CONTEXT_KEY)).get(Parameters.CLIENT_ID);
-        clientSyncService.findByClientId(clientId)
+        RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated(clientId))
                 .subscribe(
                         client -> handler.handle(Future.succeededFuture(client)),
                         ex -> {
@@ -156,7 +156,7 @@ public class LoginCallbackParseHandler implements Handler<RoutingContext> {
             return;
         }
 
-        identityProviderManager.get(providerId)
+        RxJava2Adapter.monoToMaybe(identityProviderManager.get_migrated(providerId))
                 .subscribe(
                         authenticationProvider -> handler.handle(Future.succeededFuture(authenticationProvider)),
                         ex -> {

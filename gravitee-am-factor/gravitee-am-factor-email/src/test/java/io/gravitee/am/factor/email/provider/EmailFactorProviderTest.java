@@ -111,16 +111,16 @@ public class EmailFactorProviderTest {
         when(user.getId()).thenReturn("id");
         when(factorContext.getUser()).thenReturn(user);
 
-        when(userService.addFactor(any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(smtpProvider.sendMessage(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(userService.addFactor_migrated(any(), any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(smtpProvider.sendMessage_migrated(any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
         TestObserver<Void> test = cut.sendChallenge(factorContext).test();
         test.awaitTerminalEvent();
         test.assertNoValues();
         test.assertNoErrors();
 
-        verify(smtpProvider).sendMessage(argThat(m -> m.getTo()[0].equals(RECIPIENT)));
-        verify(userService).addFactor(any(), any(), any());
+        verify(smtpProvider).sendMessage_migrated(argThat(m -> m.getTo()[0].equals(RECIPIENT)));
+        verify(userService).addFactor_migrated(any(), any(), any());
     }
 
     @Test

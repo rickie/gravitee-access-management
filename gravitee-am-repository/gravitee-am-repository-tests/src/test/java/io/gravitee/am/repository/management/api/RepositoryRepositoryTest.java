@@ -38,7 +38,7 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
     public void shouldCreate() {
         Reporter reporter = buildReporter();
 
-        TestObserver<Reporter> testObserver = repository.create(reporter).test();
+        TestObserver<Reporter> testObserver = RxJava2Adapter.monoToSingle(repository.create_migrated(reporter)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue( p -> p.getId() != null);
@@ -48,9 +48,9 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindById() {
         Reporter reporter = buildReporter();
-        Reporter createdReporter = RxJava2Adapter.singleToMono(repository.create(reporter)).block();
+        Reporter createdReporter = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(reporter))).block();
 
-        TestObserver<Reporter> testObserver = repository.findById(createdReporter.getId()).test();
+        TestObserver<Reporter> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdReporter.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue( p -> p.getId().equals(createdReporter.getId()));
@@ -60,9 +60,9 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldUpdate() {
         Reporter reporter = buildReporter();
-        Reporter createdReporter = RxJava2Adapter.singleToMono(repository.create(reporter)).block();
+        Reporter createdReporter = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(reporter))).block();
 
-        TestObserver<Reporter> testObserver = repository.findById(createdReporter.getId()).test();
+        TestObserver<Reporter> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdReporter.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue( p -> p.getId().equals(createdReporter.getId()));
@@ -70,9 +70,9 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
 
         Reporter updatableReporter = buildReporter();
         updatableReporter.setId(createdReporter.getId());
-        Reporter updatedReporter = RxJava2Adapter.singleToMono(repository.update(updatableReporter)).block();
+        Reporter updatedReporter = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.update_migrated(updatableReporter))).block();
 
-        testObserver = repository.findById(createdReporter.getId()).test();
+        testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdReporter.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue( p -> p.getId().equals(createdReporter.getId()));
@@ -82,18 +82,18 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldDelete() {
         Reporter reporter = buildReporter();
-        Reporter createdReporter = RxJava2Adapter.singleToMono(repository.create(reporter)).block();
+        Reporter createdReporter = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(reporter))).block();
 
-        TestObserver<Reporter> testObserver = repository.findById(createdReporter.getId()).test();
+        TestObserver<Reporter> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdReporter.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue( p -> p.getId().equals(createdReporter.getId()));
 
-        TestObserver<Void> deleteObserver = repository.delete(createdReporter.getId()).test();
+        TestObserver<Void> deleteObserver = RxJava2Adapter.monoToCompletable(repository.delete_migrated(createdReporter.getId())).test();
         deleteObserver.awaitTerminalEvent();
         deleteObserver.assertNoErrors();
 
-        testObserver = repository.findById(createdReporter.getId()).test();
+        testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdReporter.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertNoValues();
@@ -104,10 +104,10 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
         final int loop = 10;
         for (int i =0; i < loop; ++i) {
             Reporter reporter = buildReporter();
-            RxJava2Adapter.singleToMono(repository.create(reporter)).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(reporter))).block();
         }
 
-        TestObserver<List<Reporter>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findAll()).collectList()).test();
+        TestObserver<List<Reporter>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findAll_migrated())).collectList()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue( p -> p.size() == loop);
@@ -121,10 +121,10 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
         for (int i =0; i < loop; ++i) {
             Reporter reporter = buildReporter();
             if (i % 2 == 0) reporter.setDomain(domain);
-            RxJava2Adapter.singleToMono(repository.create(reporter)).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(reporter))).block();
         }
 
-        TestObserver<List<Reporter>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findByDomain(domain)).collectList()).test();
+        TestObserver<List<Reporter>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findByDomain_migrated(domain))).collectList()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue( p -> p.size() == loop/2);

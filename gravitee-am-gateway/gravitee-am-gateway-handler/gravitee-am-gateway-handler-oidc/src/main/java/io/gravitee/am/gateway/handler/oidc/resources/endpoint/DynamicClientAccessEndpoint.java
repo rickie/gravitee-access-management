@@ -61,7 +61,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void read(RoutingContext context) {
         LOGGER.debug("Dynamic client registration GET endpoint");
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.getClient(context)).map(RxJavaReactorMigrationUtil.toJdkFunction(DynamicClientRegistrationResponse::fromClient)).map(RxJavaReactorMigrationUtil.toJdkFunction(response -> {
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(DynamicClientRegistrationResponse::fromClient)).map(RxJavaReactorMigrationUtil.toJdkFunction(response -> {
                     //The Authorization Server need not include the registration access_token or client_uri unless they have been updated.
                     response.setRegistrationAccessToken(null);
                     response.setRegistrationClientUri(null);
@@ -85,8 +85,8 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void patch(RoutingContext context) {
         LOGGER.debug("Dynamic client registration PATCH endpoint");
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.getClient(context)
-                .flatMapSingle(Single::just)).flatMap(client->RxJava2Adapter.singleToMono(this.extractRequest(context)).flatMap(request->RxJava2Adapter.singleToMono(dcrService.patch(client, request, UriBuilderRequest.resolveProxyRequest(context)))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))
+                .flatMapSingle(Single::just)).flatMap(client->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context))).flatMap(request->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(dcrService.patch_migrated(client, request, UriBuilderRequest.resolveProxyRequest(context))))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))))
                 .subscribe(
                         client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -105,8 +105,8 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void update(RoutingContext context) {
         LOGGER.debug("Dynamic client registration UPDATE endpoint");
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.getClient(context)
-                .flatMapSingle(Single::just)).flatMap(client->RxJava2Adapter.singleToMono(this.extractRequest(context)).flatMap(request->RxJava2Adapter.singleToMono(dcrService.update(client, request, UriBuilderRequest.resolveProxyRequest(context)))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))
+                .flatMapSingle(Single::just)).flatMap(client->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context))).flatMap(request->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(dcrService.update_migrated(client, request, UriBuilderRequest.resolveProxyRequest(context))))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred))))
                 .subscribe(
                         client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -125,8 +125,8 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void delete(RoutingContext context) {
         LOGGER.debug("Dynamic client registration DELETE endpoint");
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.getClient(context)
-                .flatMapSingle(dcrService::delete)).map(RxJavaReactorMigrationUtil.toJdkFunction(this.clientSyncService::removeDynamicClientRegistred)))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))
+                .flatMapSingle((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(dcrService.delete_migrated(ident)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this.clientSyncService::removeDynamicClientRegistred)))
                 .subscribe(
                         client -> context.response().setStatusCode(HttpStatusCode.NO_CONTENT_204).end()
                         , context::fail
@@ -140,8 +140,8 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void renewClientSecret(RoutingContext context) {
         LOGGER.debug("Dynamic client registration RENEW SECRET endpoint");
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.getClient(context)
-                .flatMapSingle(Single::just)).flatMap(toRenew->RxJava2Adapter.singleToMono(dcrService.renewSecret(toRenew, UriBuilderRequest.resolveProxyRequest(context)))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred)))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(this.getClient_migrated(context))
+                .flatMapSingle(Single::just)).flatMap(toRenew->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(dcrService.renewSecret_migrated(toRenew, UriBuilderRequest.resolveProxyRequest(context))))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred)))
                 .subscribe(
                         client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -161,6 +161,6 @@ private Maybe<Client> getClient(RoutingContext context) {
 private Mono<Client> getClient_migrated(RoutingContext context) {
         String clientId = context.request().getParam("client_id");
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.clientSyncService.findByClientId(clientId)).switchIfEmpty(Mono.error(new ResourceNotFoundException("client not found"))).map(RxJavaReactorMigrationUtil.toJdkFunction(Client::clone))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.clientSyncService.findByClientId_migrated(clientId))).switchIfEmpty(Mono.error(new ResourceNotFoundException("client not found"))).map(RxJavaReactorMigrationUtil.toJdkFunction(Client::clone))));
     }
 }

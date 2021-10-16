@@ -47,10 +47,10 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application application = new Application();
         application.setName("testApp");
         application.setDomain("testDomain");
-        RxJava2Adapter.singleToMono(applicationRepository.create(application)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(application))).block();
 
         // fetch applications
-        TestObserver<Page<Application>> testObserver = applicationRepository.findByDomain("testDomain", 0, Integer.MAX_VALUE).test();
+        TestObserver<Page<Application>> testObserver = RxJava2Adapter.monoToSingle(applicationRepository.findByDomain_migrated("testDomain", 0, Integer.MAX_VALUE)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -69,10 +69,10 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         ApplicationOAuthSettings oauth = new ApplicationOAuthSettings();
         settings.setOauth(oauth);
         oauth.setGrantTypes(Arrays.asList("test-grant"));
-        RxJava2Adapter.singleToMono(applicationRepository.create(application)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(application))).block();
 
         // fetch applications
-        TestSubscriber<Application> testSubscriber = applicationRepository.findByDomainAndExtensionGrant("testDomain", "test-grant").test();
+        TestSubscriber<Application> testSubscriber = RxJava2Adapter.fluxToFlowable(applicationRepository.findByDomainAndExtensionGrant_migrated("testDomain", "test-grant")).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -93,10 +93,10 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         settings.setOauth(oauth);
         oauth.setClientId("clientId1");
         oauth.setGrantTypes(Arrays.asList("test-grant"));
-        Application createdApplication = RxJava2Adapter.singleToMono(applicationRepository.create(application)).block();
+        Application createdApplication = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(application))).block();
 
         // fetch applications
-        TestObserver<Application> testObserver = applicationRepository.findByDomainAndClientId("testDomain", "clientId1").test();
+        TestObserver<Application> testObserver = RxJava2Adapter.monoToMaybe(applicationRepository.findByDomainAndClientId_migrated("testDomain", "clientId1")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -110,15 +110,15 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application app = new Application();
         app.setName("testClientId");
         app.setDomain("testDomainPagination");
-        RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(app))).block();
 
         // create app 2
         Application app2 = new Application();
         app2.setName("testClientId2");
         app2.setDomain("testDomainPagination");
-        RxJava2Adapter.singleToMono(applicationRepository.create(app2)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(app2))).block();
 
-        TestObserver<Page<Application>> testObserver = applicationRepository.findByDomain("testDomainPagination", 1, 1).test();
+        TestObserver<Page<Application>> testObserver = RxJava2Adapter.monoToSingle(applicationRepository.findByDomain_migrated("testDomainPagination", 1, 1)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -130,10 +130,10 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create app
         Application app = buildApplication();
-        Application appCreated = RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
+        Application appCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(app))).block();
 
         // fetch app
-        TestObserver<Application> testObserver = applicationRepository.findById(appCreated.getId()).test();
+        TestObserver<Application> testObserver = RxJava2Adapter.monoToMaybe(applicationRepository.findById_migrated(appCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -145,10 +145,10 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
     public void testFindByIdentity() {
         // create app
         Application app = buildApplication();
-        Application appCreated = RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
+        Application appCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(app))).block();
 
         // fetch app
-        TestSubscriber<Application> testSubscriber = applicationRepository.findByIdentityProvider(appCreated.getIdentities().iterator().next()).test();
+        TestSubscriber<Application> testSubscriber = RxJava2Adapter.fluxToFlowable(applicationRepository.findByIdentityProvider_migrated(appCreated.getIdentities().iterator().next())).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -214,7 +214,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testNotFoundById() throws TechnicalException {
-        applicationRepository.findById("test").test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(applicationRepository.findById_migrated("test")).test().assertEmpty();
     }
 
     @Test
@@ -222,7 +222,7 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application application = new Application();
         application.setName("testClientId");
 
-        TestObserver<Application> testObserver = applicationRepository.create(application).test();
+        TestObserver<Application> testObserver = RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(application)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -234,13 +234,13 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create app
         Application app = buildApplication();
-        Application appCreated = RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
+        Application appCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(app))).block();
 
         // update app
         Application updatedApp = buildApplication();
         updatedApp.setId(appCreated.getId());
 
-        TestObserver<Application> testObserver = applicationRepository.update(updatedApp).test();
+        TestObserver<Application> testObserver = RxJava2Adapter.monoToSingle(applicationRepository.update_migrated(updatedApp)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -253,21 +253,21 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         // create app
         Application app = new Application();
         app.setName("testClientId");
-        Application appCreated = RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
+        Application appCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(app))).block();
 
         // fetch app
-        TestObserver<Application> testObserver = applicationRepository.findById(appCreated.getId()).test();
+        TestObserver<Application> testObserver = RxJava2Adapter.monoToMaybe(applicationRepository.findById_migrated(appCreated.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(a -> a.getName().equals(app.getName()));
 
         // delete app
-        TestObserver testObserver1 = applicationRepository.delete(appCreated.getId()).test();
+        TestObserver testObserver1 = RxJava2Adapter.monoToCompletable(applicationRepository.delete_migrated(appCreated.getId())).test();
         testObserver1.awaitTerminalEvent();
 
         // fetch app
-        applicationRepository.findById(appCreated.getId()).test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(applicationRepository.findById_migrated(appCreated.getId())).test().assertEmpty();
     }
 
     @Test
@@ -277,15 +277,15 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application app = new Application();
         app.setDomain(domain);
         app.setName("clientId");
-        RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(app))).block();
 
         Application app2 = new Application();
         app2.setDomain(domain);
         app2.setName("clientId2");
-        RxJava2Adapter.singleToMono(applicationRepository.create(app2)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(app2))).block();
 
         // fetch user
-        TestObserver<Page<Application>> testObserver = applicationRepository.search(domain, "clientId", 0, Integer.MAX_VALUE).test();
+        TestObserver<Page<Application>> testObserver = RxJava2Adapter.monoToSingle(applicationRepository.search_migrated(domain, "clientId", 0, Integer.MAX_VALUE)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -303,17 +303,17 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         Application app = new Application();
         app.setDomain(domain);
         app.setName("clientId");
-        RxJava2Adapter.singleToMono(applicationRepository.create(app)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(app))).block();
 
         Application app2 = new Application();
         app2.setDomain(domain);
         app2.setName("clientId2");
-        RxJava2Adapter.singleToMono(applicationRepository.create(app2)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(app2))).block();
 
         Application app3 = new Application();
         app3.setDomain(domain);
         app3.setName("test");
-        RxJava2Adapter.singleToMono(applicationRepository.create(app3)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(app3))).block();
 
         Application app4 = new Application();
         app4.setDomain(domain);
@@ -323,10 +323,10 @@ public class ApplicationRepositoryTest extends AbstractManagementTest {
         ApplicationOAuthSettings oauth = new ApplicationOAuthSettings();
         settings.setOauth(oauth);
         oauth.setClientId("clientId4");
-        RxJava2Adapter.singleToMono(applicationRepository.create(app4)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.create_migrated(app4))).block();
 
         // fetch apps
-        TestObserver<Page<Application>> testObserver = applicationRepository.search(domain, "clientId*", 0, Integer.MAX_VALUE).test();
+        TestObserver<Page<Application>> testObserver = RxJava2Adapter.monoToSingle(applicationRepository.search_migrated(domain, "clientId*", 0, Integer.MAX_VALUE)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();

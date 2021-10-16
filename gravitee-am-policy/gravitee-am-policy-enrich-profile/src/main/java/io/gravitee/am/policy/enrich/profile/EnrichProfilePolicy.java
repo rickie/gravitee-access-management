@@ -57,7 +57,7 @@ public class EnrichProfilePolicy {
         LOGGER.debug("Start EnrichProfilePolicy.onRequest");
         try {
             if (prepareUserProfile(context)) {
-                enrichProfile(context)
+                RxJava2Adapter.monoToSingle(enrichProfile_migrated(context))
                         .subscribe(
                                 (user) -> {
                                     LOGGER.debug("User profile updated", user.getId());
@@ -128,7 +128,7 @@ protected Single<User> enrichProfile(ExecutionContext context) {
 protected Mono<User> enrichProfile_migrated(ExecutionContext context) {
         UserRepository userRepository = context.getComponent(UserRepository.class);
         User user = (User)context.getAttribute("user");
-        return RxJava2Adapter.singleToMono(userRepository.update(user));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userRepository.update_migrated(user)));
     }
 
 }

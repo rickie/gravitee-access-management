@@ -79,7 +79,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         super.createIndex(applicationsCollection, new Document(FIELD_DOMAIN, 1).append(FIELD_GRANT_TYPES, 1));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Application> findAll() {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated());
@@ -89,7 +90,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(applicationsCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<Application>> findAll(int page, int size) {
  return RxJava2Adapter.monoToSingle(findAll_migrated(page, size));
@@ -101,7 +103,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.singleToMono(Single.zip(countOperation, applicationsOperation, (count, applications) -> new Page<>(applications, page, count)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Application> findByDomain(String domain) {
  return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
@@ -111,7 +114,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(applicationsCollection.find(eq(FIELD_DOMAIN, domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomain_migrated(domain, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<Application>> findByDomain(String domain, int page, int size) {
  return RxJava2Adapter.monoToSingle(findByDomain_migrated(domain, page, size));
@@ -123,7 +127,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.singleToMono(Single.zip(countOperation, applicationsOperation, (count, applications) -> new Page<>(applications, page, count)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<Application>> search(String domain, String query, int page, int size) {
  return RxJava2Adapter.monoToSingle(search_migrated(domain, query, page, size));
@@ -149,7 +154,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.singleToMono(Single.zip(countOperation, applicationsOperation, (count, applications) -> new Page<>(applications, page, count)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCertificate_migrated(certificate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Application> findByCertificate(String certificate) {
  return RxJava2Adapter.fluxToFlowable(findByCertificate_migrated(certificate));
@@ -159,7 +165,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(applicationsCollection.find(eq(FIELD_CERTIFICATE, certificate))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdentityProvider_migrated(identityProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Application> findByIdentityProvider(String identityProvider) {
  return RxJava2Adapter.fluxToFlowable(findByIdentityProvider_migrated(identityProvider));
@@ -169,7 +176,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(applicationsCollection.find(eq(FIELD_IDENTITIES, identityProvider))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByFactor_migrated(factor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Application> findByFactor(String factor) {
  return RxJava2Adapter.fluxToFlowable(findByFactor_migrated(factor));
@@ -190,7 +198,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(applicationsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientId_migrated(domain, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Application> findByDomainAndClientId(String domain, String clientId) {
  return RxJava2Adapter.monoToMaybe(findByDomainAndClientId_migrated(domain, clientId));
@@ -201,7 +210,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
                 .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndExtensionGrant_migrated(domain, extensionGrant))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Application> findByDomainAndExtensionGrant(String domain, String extensionGrant) {
  return RxJava2Adapter.fluxToFlowable(findByDomainAndExtensionGrant_migrated(domain, extensionGrant));
@@ -211,7 +221,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(applicationsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_GRANT_TYPES, extensionGrant)))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoApplicationRepository::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Application> findByIdIn(List<String> ids) {
  return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
@@ -231,7 +242,7 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
     public Mono<Application> create_migrated(Application item) {
         ApplicationMongo application = convert(item);
         application.setId(application.getId() == null ? RandomString.generate() : application.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(applicationsCollection.insertOne(application))).flatMap(success->RxJava2Adapter.maybeToMono(findById(application.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(applicationsCollection.insertOne(application))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(application.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -243,7 +254,7 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
 @Override
     public Mono<Application> update_migrated(Application item) {
         ApplicationMongo application = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(applicationsCollection.replaceOne(eq(FIELD_ID, application.getId()), application))).flatMap(success->RxJava2Adapter.maybeToMono(findById(application.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(applicationsCollection.replaceOne(eq(FIELD_ID, application.getId()), application))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(application.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -257,7 +268,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(applicationsCollection.deleteOne(eq(FIELD_ID, id)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Long> count() {
  return RxJava2Adapter.monoToSingle(count_migrated());
@@ -267,7 +279,8 @@ public class MongoApplicationRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.singleToMono(Single.fromPublisher(applicationsCollection.countDocuments()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Long> countByDomain(String domain) {
  return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));

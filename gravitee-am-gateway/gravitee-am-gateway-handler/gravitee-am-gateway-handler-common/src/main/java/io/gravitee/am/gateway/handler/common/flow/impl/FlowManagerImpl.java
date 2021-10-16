@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.common.flow.impl;
 
 import static io.gravitee.am.gateway.handler.common.flow.FlowPredicate.alwaysTrue;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.event.EventManager;
 import io.gravitee.am.common.event.FlowEvent;
 import io.gravitee.am.common.policy.ExtensionPoint;
@@ -119,7 +120,8 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByExtensionPoint_migrated(extensionPoint, client, filter))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<Policy>> findByExtensionPoint(ExtensionPoint extensionPoint, Client client, FlowPredicate filter) {
  return RxJava2Adapter.monoToSingle(findByExtensionPoint_migrated(extensionPoint, client, filter));
@@ -161,7 +163,7 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
     private void updateFlow(String flowId, FlowEvent flowEvent) {
         final String eventType = flowEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} flow event for {}", domain.getName(), eventType, flowId);
-        flowService.findById(flowId)
+        RxJava2Adapter.monoToMaybe(flowService.findById_migrated(flowId))
                 .subscribe(
                         flow -> {
                             loadFlow(flow);
@@ -181,7 +183,7 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
     }
 
     private void loadFlows() {
-        flowService.findAll(ReferenceType.DOMAIN, domain.getId())
+        RxJava2Adapter.fluxToFlowable(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId()))
                 .subscribe(
                         flow -> {
                             if (flow != null && flow.getId() != null) {

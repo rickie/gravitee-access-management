@@ -66,7 +66,7 @@ public class ProviderJWKSetEndpointHandlerTest extends RxWebTestBase {
         JWKSet jwkSet = new JWKSet();
         jwkSet.setKeys(Collections.singletonList(jwk));
 
-        when(jwkService.getKeys()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwkSet)));
+        when(jwkService.getKeys_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwkSet))));
 
         testRequest(
                 HttpMethod.GET, "/.well-known/jwks.json",
@@ -83,7 +83,7 @@ public class ProviderJWKSetEndpointHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeJWKSetEndpoint_runtimeException() throws Exception {
-        when(jwkService.getKeys()).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new RuntimeException())));
+        when(jwkService.getKeys_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new RuntimeException()))));
 
         testRequest(
                 HttpMethod.GET, "/.well-known/jwks.json",

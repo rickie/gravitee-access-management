@@ -124,8 +124,8 @@ public class UMATokenGranter extends AbstractTokenGranter {
 }
 @Override
     public Mono<Token> grant_migrated(TokenRequest tokenRequest, Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(parseRequest(tokenRequest, client)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<TokenRequest, MaybeSource<User>>toJdkFunction(tokenRequest1 -> resolveResourceOwner(tokenRequest, client)).apply(e)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
-                .flatMapSingle(user -> handleRequest(tokenRequest, client, user.orElse(null))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(parseRequest_migrated(tokenRequest, client))).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<TokenRequest, MaybeSource<User>>toJdkFunction(tokenRequest1 -> RxJava2Adapter.monoToMaybe(resolveResourceOwner_migrated(tokenRequest, client))).apply(e)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
+                .flatMapSingle(user -> RxJava2Adapter.monoToSingle(handleRequest_migrated(tokenRequest, client, user.orElse(null)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.parseRequest_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -175,7 +175,7 @@ public class UMATokenGranter extends AbstractTokenGranter {
         tokenRequest.setPersistedClaimsToken(persistedClaimsToken);
         tokenRequest.setRequestingPartyToken(requestingPartyToken);
 
-        return RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(super.parseRequest_migrated(tokenRequest, client)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.resolveResourceOwner_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -190,7 +190,7 @@ public class UMATokenGranter extends AbstractTokenGranter {
             return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(jwtService.decodeAndVerify(tokenRequest.getClaimToken(), client)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<User>>toJdkFunction(jwt -> userAuthenticationManager.loadPreAuthenticatedUser(jwt.getSub(), tokenRequest)).apply(e)))).switchIfEmpty(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(UserInvalidException::new))))
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(tokenRequest.getClaimToken(), client))).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<User>>toJdkFunction(jwt -> RxJava2Adapter.monoToMaybe(userAuthenticationManager.loadPreAuthenticatedUser_migrated(jwt.getSub(), tokenRequest))).apply(e)))).switchIfEmpty(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(UserInvalidException::new))))
                 .onErrorResumeNext(ex -> {
                     //If user
                     return RxJava2Adapter.monoToMaybe(Mono.error(UmaException.needInfoBuilder(tokenRequest.getTicket())
@@ -207,7 +207,7 @@ private Single<Token> handleRequest(TokenRequest tokenRequest, Client client, Us
  return RxJava2Adapter.monoToSingle(handleRequest_migrated(tokenRequest, client, endUser));
 }
 private Mono<Token> handleRequest_migrated(TokenRequest tokenRequest, Client client, User endUser) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resolveRequestedScopes(tokenRequest, client)).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(this.resolvePermissions(tokenRequest1, client, endUser))).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(this.createOAuth2Request(tokenRequest1, client, endUser))).flatMap(oAuth2Request->RxJava2Adapter.singleToMono(this.executePolicies(oAuth2Request, client, endUser))).flatMap(oAuth2Request->RxJava2Adapter.singleToMono(getTokenService().create(oAuth2Request, client, endUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(token -> this.handleUpgradedToken(tokenRequest, token)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(resolveRequestedScopes_migrated(tokenRequest, client))).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.resolvePermissions_migrated(tokenRequest1, client, endUser)))).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.createOAuth2Request_migrated(tokenRequest1, client, endUser)))).flatMap(oAuth2Request->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.executePolicies_migrated(oAuth2Request, client, endUser)))).flatMap(oAuth2Request->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getTokenService().create_migrated(oAuth2Request, client, endUser)))).map(RxJavaReactorMigrationUtil.toJdkFunction(token -> this.handleUpgradedToken(tokenRequest, token)))));
     }
 
     /**
@@ -234,9 +234,9 @@ private Single<TokenRequest> resolvePermissions(TokenRequest tokenRequest, Clien
  return RxJava2Adapter.monoToSingle(resolvePermissions_migrated(tokenRequest, client, endUser));
 }
 private Mono<TokenRequest> resolvePermissions_migrated(TokenRequest tokenRequest, Client client, User endUser) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.permissionTicketService.remove(tokenRequest.getTicket())).map(RxJavaReactorMigrationUtil.toJdkFunction(PermissionTicket::getPermissionRequest)).flatMap(v->RxJava2Adapter.singleToMono((Single<TokenRequest>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<PermissionRequest>, Single<TokenRequest>>)permissionRequests -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.permissionTicketService.remove_migrated(tokenRequest.getTicket()))).map(RxJavaReactorMigrationUtil.toJdkFunction(PermissionTicket::getPermissionRequest)).flatMap(v->RxJava2Adapter.singleToMono((Single<TokenRequest>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<PermissionRequest>, Single<TokenRequest>>)permissionRequests -> {
                     List<String> resourceIds = permissionRequests.stream().map(PermissionRequest::getResourceId).collect(Collectors.toList());
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(resourceService.findByResources(resourceIds)).collectList().flatMap(resourceSet->RxJava2Adapter.singleToMono(this.checkRequestedScopesMatchResource(tokenRequest, resourceSet))).flatMap(resourceMap->RxJava2Adapter.singleToMono(this.resolveScopeRequestAssessment(tokenRequest, permissionRequests, resourceMap))).flatMap(resolvedPermissionRequests->RxJava2Adapter.singleToMono(this.extendPermissionWithRPT(tokenRequest, client, endUser, resolvedPermissionRequests))).map(RxJavaReactorMigrationUtil.toJdkFunction(extendedPermissionRequests -> {tokenRequest.setPermissions(extendedPermissionRequests); return tokenRequest;})));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(resourceService.findByResources_migrated(resourceIds))).collectList().flatMap(resourceSet->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.checkRequestedScopesMatchResource_migrated(tokenRequest, resourceSet)))).flatMap(resourceMap->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.resolveScopeRequestAssessment_migrated(tokenRequest, permissionRequests, resourceMap)))).flatMap(resolvedPermissionRequests->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.extendPermissionWithRPT_migrated(tokenRequest, client, endUser, resolvedPermissionRequests)))).map(RxJavaReactorMigrationUtil.toJdkFunction(extendedPermissionRequests -> {tokenRequest.setPermissions(extendedPermissionRequests); return tokenRequest;})));
                 }).apply(v)))));
     }
 
@@ -301,7 +301,7 @@ private Single<List<PermissionRequest>> extendPermissionWithRPT(TokenRequest tok
 }
 private Mono<List<PermissionRequest>> extendPermissionWithRPT_migrated(TokenRequest tokenRequest, Client client, User endUser, List<PermissionRequest> requestedPermissions) {
         if(!StringUtils.isEmpty(tokenRequest.getRequestingPartyToken())) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.decodeAndVerify(tokenRequest.getRequestingPartyToken(), client)).flatMap(rpt->RxJava2Adapter.singleToMono(this.checkRequestingPartyToken(rpt, client, endUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(rpt -> this.mergePermissions(rpt, requestedPermissions))))
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(tokenRequest.getRequestingPartyToken(), client))).flatMap(rpt->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.checkRequestingPartyToken_migrated(rpt, client, endUser)))).map(RxJavaReactorMigrationUtil.toJdkFunction(rpt -> this.mergePermissions(rpt, requestedPermissions))))
                     .onErrorResumeNext(throwable -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException("Requesting Party Token (rpt) not valid")))));
         }
 
@@ -417,7 +417,7 @@ private Mono<OAuth2Request> executePolicies_migrated(OAuth2Request oAuth2Request
         }
         List<String> resourceIds = permissionRequests.stream().map(PermissionRequest::getResourceId).collect(Collectors.toList());
         // find access policies for the given resources
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(resourceService.findAccessPoliciesByResources(resourceIds)).map(RxJavaReactorMigrationUtil.toJdkFunction(accessPolicy -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(resourceService.findAccessPoliciesByResources_migrated(resourceIds))).map(RxJavaReactorMigrationUtil.toJdkFunction(accessPolicy -> {
                     Rule rule = new DefaultRule(accessPolicy);
                     Optional<PermissionRequest> permission = permissionRequests
                             .stream()
@@ -440,7 +440,7 @@ private Mono<OAuth2Request> executePolicies_migrated(OAuth2Request oAuth2Request
                         executionContext.setAttribute("user", new UserProperties(endUser));
                     }
                     // execute the policies
-                    return rulesEngine.fire(rules, executionContext)
+                    return RxJava2Adapter.monoToCompletable(rulesEngine.fire_migrated(rules, executionContext))
                             .toSingleDefault(oAuth2Request)
                             .onErrorResumeNext(ex -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException("Policy conditions are not met for actual request parameters"))));
                 }).apply(v)))));

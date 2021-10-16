@@ -35,7 +35,7 @@ public Single<AuthorizationRequest> resolve(AuthorizationRequest authorizationRe
  return RxJava2Adapter.monoToSingle(resolve_migrated(authorizationRequest, client, endUser));
 }
 public Mono<AuthorizationRequest> resolve_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resolveAuthorizedScopes(authorizationRequest, client, endUser)).flatMap(request->RxJava2Adapter.singleToMono(resolveRedirectUri(request, client)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(resolveAuthorizedScopes_migrated(authorizationRequest, client, endUser))).flatMap(request->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(resolveRedirectUri_migrated(request, client))))));
     }
 
     /**

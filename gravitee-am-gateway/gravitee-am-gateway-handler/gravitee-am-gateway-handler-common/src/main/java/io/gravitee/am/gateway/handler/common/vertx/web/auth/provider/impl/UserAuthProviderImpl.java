@@ -15,10 +15,10 @@
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.auth.provider.impl;
 
-import io.gravitee.am.common.jwt.Claims;
-import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.exception.oauth2.ServerErrorException;
+import io.gravitee.am.common.jwt.Claims;
+import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.gateway.handler.common.auth.user.EndUserAuthentication;
 import io.gravitee.am.gateway.handler.common.auth.user.UserAuthenticationManager;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
@@ -36,6 +36,7 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -79,7 +80,7 @@ public class UserAuthProviderImpl implements UserAuthProvider {
             authenticationContext.set(Claims.user_agent, userAgent);
             authenticationContext.set(Claims.domain, client.getDomain());
 
-            userAuthenticationManager.authenticate(client, authentication)
+            RxJava2Adapter.monoToSingle(userAuthenticationManager.authenticate_migrated(client, authentication))
                     .subscribe(
                             user -> handler.handle(Future.succeededFuture(new User(user))),
                             error -> handler.handle(Future.failedFuture(error))
@@ -90,8 +91,7 @@ public class UserAuthProviderImpl implements UserAuthProvider {
     private void parseClient(String clientId, Handler<AsyncResult<Client>> authHandler) {
         logger.debug("Attempt authentication with client " + clientId);
 
-        clientSyncService
-                .findByClientId(clientId)
+        RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated(clientId))
                 .subscribe(
                         client -> authHandler.handle(Future.succeededFuture(client)),
                         error -> authHandler.handle(Future.failedFuture(new ServerErrorException("Server error: unable to find client with client_id " + clientId))),

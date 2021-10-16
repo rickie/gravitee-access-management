@@ -43,7 +43,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         plugin.setDescription("desc");
         plugin.setVersion("1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(plugin))).when(botDetectionPluginService).findById("plugin-id");
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(plugin)))).when(botDetectionPluginService).findById_migrated("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -58,7 +58,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         final BotDetectionPlugin plugin = new BotDetectionPlugin();
         plugin.setId("plugin-id");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(botDetectionPluginService).findById("plugin-id");
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(botDetectionPluginService).findById_migrated("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -71,7 +71,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetPlugin_TechnicalException() {
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException()))).when(botDetectionPluginService).findById("plugin-id");
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException())))).when(botDetectionPluginService).findById_migrated("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -89,8 +89,8 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         plugin.setDescription("desc");
         plugin.setVersion("1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(plugin))).when(botDetectionPluginService).findById("plugin-id");
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just("{}"))).when(botDetectionPluginService).getSchema("plugin-id");
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(plugin)))).when(botDetectionPluginService).findById_migrated("plugin-id");
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just("{}")))).when(botDetectionPluginService).getSchema_migrated("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -110,7 +110,7 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         plugin.setDescription("desc");
         plugin.setVersion("1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(botDetectionPluginService).findById("plugin-id");
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(botDetectionPluginService).findById_migrated("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -130,8 +130,8 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         plugin.setDescription("desc");
         plugin.setVersion("1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(plugin))).when(botDetectionPluginService).findById("plugin-id");
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(botDetectionPluginService).getSchema("plugin-id");
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(plugin)))).when(botDetectionPluginService).findById_migrated("plugin-id");
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(botDetectionPluginService).getSchema_migrated("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")
@@ -151,8 +151,8 @@ public class BotDetectionPluginResourceTest extends JerseySpringTest {
         plugin.setDescription("desc");
         plugin.setVersion("1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(plugin))).when(botDetectionPluginService).findById("plugin-id");
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException()))).when(botDetectionPluginService).getSchema("plugin-id");
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(plugin)))).when(botDetectionPluginService).findById_migrated("plugin-id");
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException())))).when(botDetectionPluginService).getSchema_migrated("plugin-id");
 
         final Response response = target("platform")
                 .path("plugins")

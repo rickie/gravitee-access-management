@@ -70,7 +70,7 @@ public class EnrichAuthFlowPolicy {
 
             } else {
 
-                enrichAuthFlowContext(context)
+                RxJava2Adapter.monoToSingle(enrichAuthFlowContext_migrated(context))
                         .subscribe(
                                 success -> policyChain.doNext(request, response),
                                 error -> policyChain.failWith(PolicyResult.failure(GATEWAY_POLICY_ENRICH_AUTH_FLOW_ERROR_KEY, error.getMessage()))
@@ -112,6 +112,6 @@ private Mono<AuthenticationFlowContext> enrichAuthFlowContext_migrated(Execution
         authContext.setCreatedAt(new Date(now.toEpochMilli()));
         authContext.setExpireAt(new Date(now.plus(expiration, ChronoUnit.SECONDS).toEpochMilli()));
 
-        return RxJava2Adapter.singleToMono(authContextRepository.create(authContext));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authContextRepository.create_migrated(authContext)));
     }
 }
