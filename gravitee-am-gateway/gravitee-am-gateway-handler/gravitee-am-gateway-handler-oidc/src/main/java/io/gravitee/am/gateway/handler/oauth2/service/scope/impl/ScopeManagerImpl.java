@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -60,13 +61,10 @@ public class ScopeManagerImpl extends AbstractService implements ScopeManager, I
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing scopes for domain {}", domain.getName());
-        RxJava2Adapter.monoToSingle(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE))
-                .subscribe(
-                        scopes -> {
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scopes -> {
                             updateScopes(scopes);
                             logger.info("Scopes loaded for domain {}", domain.getName());
-                        },
-                        error -> logger.error("Unable to initialize scopes for domain {}", domain.getName(), error));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize scopes for domain {}", domain.getName(), error)));
 
         logger.info("Register event listener for scopes events for domain {}", domain.getName());
         eventManager.subscribeForEvents(this, ScopeEvent.class, domain.getId());
@@ -127,14 +125,10 @@ public class ScopeManagerImpl extends AbstractService implements ScopeManager, I
     private void updateScope(String scopeId, ScopeEvent scopeEvent) {
         final String eventType = scopeEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} scope event for {}", domain.getName(), eventType, scopeId);
-        RxJava2Adapter.monoToMaybe(scopeService.findById_migrated(scopeId))
-                .subscribe(
-                        scope -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(scopeService.findById_migrated(scopeId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scope -> {
                             updateScopes(Collections.singleton(scope));
                             logger.info("Scope {} {}d for domain {}", scopeId, eventType, domain.getName());
-                        },
-                        error -> logger.error("Unable to {} scope for domain {}", eventType, domain.getName(), error),
-                        () -> logger.error("No scope found with id {}", scopeId));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} scope for domain {}", eventType, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No scope found with id {}", scopeId)));
     }
 
     private void removeScope(String scopeId) {

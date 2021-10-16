@@ -71,7 +71,7 @@ public class GroupMemberResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE).then(groupService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, group).flatMap(group1->userService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, userId).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.Group>>toJdkFunction((io.gravitee.am.model.User user)->{
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE).then(groupService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, group).flatMap(group1->userService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, userId).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.Group>>toJdkFunction((io.gravitee.am.model.User user)->{
 if (group1.getMembers() != null && group1.getMembers().contains(userId)) {
 return RxJava2Adapter.monoToSingle(Mono.error(new MemberAlreadyExistsException(userId)));
 }
@@ -83,8 +83,7 @@ updateGroup.setDescription(group1.getDescription());
 updateGroup.setRoles(group1.getRoles());
 updateGroup.setMembers(groupMembers);
 return RxJava2Adapter.monoToSingle(groupService.update_migrated(ReferenceType.ORGANIZATION, organizationId, group, updateGroup, authenticatedUser));
-}).apply(v)))))))
-                .subscribe(response::resume, response::resume);
+}).apply(v)))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE
@@ -102,7 +101,7 @@ return RxJava2Adapter.monoToSingle(groupService.update_migrated(ReferenceType.OR
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE).then(groupService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, group).flatMap(group1->userService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, userId).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.Group>>toJdkFunction((io.gravitee.am.model.User user)->{
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE).then(groupService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, group).flatMap(group1->userService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, userId).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.Group>>toJdkFunction((io.gravitee.am.model.User user)->{
 if (group1.getMembers() == null || !group1.getMembers().contains(userId)) {
 return RxJava2Adapter.monoToSingle(Mono.error(new MemberNotFoundException(userId)));
 }
@@ -114,7 +113,6 @@ updateGroup.setDescription(group1.getDescription());
 updateGroup.setRoles(group1.getRoles());
 updateGroup.setMembers(groupMembers);
 return RxJava2Adapter.monoToSingle(groupService.update_migrated(ReferenceType.ORGANIZATION, organizationId, group, updateGroup, authenticatedUser));
-}).apply(v)))))))
-                .subscribe(response::resume, response::resume);
+}).apply(v)))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

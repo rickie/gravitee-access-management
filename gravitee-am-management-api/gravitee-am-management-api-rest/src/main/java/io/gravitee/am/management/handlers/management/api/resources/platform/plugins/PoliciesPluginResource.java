@@ -54,10 +54,9 @@ public class PoliciesPluginResource {
             notes = "There is no particular permission needed. User must be authenticated.")
     public void list(@Suspended final AsyncResponse response, @QueryParam("expand") List<String> expand) {
 
-        RxJava2Adapter.monoToSingle(policyPluginService.findAll_migrated(expand).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugins -> policyPlugins.stream()
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(policyPluginService.findAll_migrated(expand).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugins -> policyPlugins.stream()
                         .sorted(Comparator.comparing(PolicyPlugin::getName))
-                        .collect(Collectors.toList()))))
-                .subscribe(response::resume, response::resume);
+                        .collect(Collectors.toList()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{policy}")

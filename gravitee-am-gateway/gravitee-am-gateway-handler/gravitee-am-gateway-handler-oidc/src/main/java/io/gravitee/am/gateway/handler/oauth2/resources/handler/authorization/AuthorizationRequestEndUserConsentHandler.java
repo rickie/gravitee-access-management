@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Once the End-User is authenticated, the Authorization Server MUST obtain an authorization decision before releasing information to the Relying Party.
@@ -127,10 +128,7 @@ public class AuthorizationRequestEndUserConsentHandler implements Handler<Routin
     }
 
     private void checkUserConsent(Client client, io.gravitee.am.model.User user, Handler<AsyncResult<Set<String>>> handler) {
-        RxJava2Adapter.monoToSingle(userConsentService.checkConsent_migrated(client, user))
-                .subscribe(
-                        result -> handler.handle(Future.succeededFuture(result)),
-                        error -> handler.handle(Future.failedFuture(error)));
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userConsentService.checkConsent_migrated(client, user))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(result -> handler.handle(Future.succeededFuture(result))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 
     private boolean skipConsent(Set<String> requestedConsent, Client client) {

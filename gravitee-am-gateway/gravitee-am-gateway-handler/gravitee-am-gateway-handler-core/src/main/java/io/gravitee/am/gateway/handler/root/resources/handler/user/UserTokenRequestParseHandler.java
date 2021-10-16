@@ -26,6 +26,7 @@ import io.vertx.core.Handler;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -91,10 +92,6 @@ public class UserTokenRequestParseHandler extends UserRequestHandler {
     }
 
     private void parseToken(String token, Handler<AsyncResult<UserToken>> handler) {
-        RxJava2Adapter.monoToMaybe(userService.verifyToken_migrated(token))
-                .subscribe(
-                        userToken -> handler.handle(Future.succeededFuture(userToken)),
-                        error -> handler.handle(Future.failedFuture(error)),
-                        () -> handler.handle(Future.failedFuture(new InvalidTokenException("The JWT token is invalid"))));
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.verifyToken_migrated(token))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(userToken -> handler.handle(Future.succeededFuture(userToken))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new InvalidTokenException("The JWT token is invalid")))));
     }
 }

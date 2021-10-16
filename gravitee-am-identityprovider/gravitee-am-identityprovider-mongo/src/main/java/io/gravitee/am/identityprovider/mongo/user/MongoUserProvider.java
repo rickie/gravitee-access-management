@@ -37,6 +37,7 @@ import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.security.SecureRandom;
 import java.util.Date;
@@ -157,8 +158,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
 }
 @Override
     public Mono<User> update_migrated(String id, User updateUser) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(findById_migrated(id).switchIfEmpty(Mono.error(new UserNotFoundException(id))))
-                .flatMapSingle(oldUser -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(id).switchIfEmpty(Mono.error(new UserNotFoundException(id))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
                     Document document = new Document();
                     // set username (keep the original value)
                     document.put(configuration.getUsernameField(), oldUser.getUsername());
@@ -182,7 +182,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
                     document.put(FIELD_CREATED_AT, oldUser.getCreatedAt());
                     document.put(FIELD_UPDATED_AT, new Date());
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, oldUser.getId()), document))).flatMap(updateResult->findById_migrated(oldUser.getId()).single()));
-                }));
+                }).apply(y))))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

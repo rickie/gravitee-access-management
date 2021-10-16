@@ -110,9 +110,8 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
         }
 
         // Need to wait the session to be ready before invoking next.
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(sessionObs).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(t -> logger.warn("Unable to restore the session", t))))
-                .doFinally(context::next)
-                .subscribe();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(sessionObs).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(t -> logger.warn("Unable to restore the session", t))))
+                .doFinally(context::next)).subscribe();
     }
 
     

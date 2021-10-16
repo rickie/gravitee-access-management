@@ -49,6 +49,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -163,15 +164,11 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
     private void updateFlow(String flowId, FlowEvent flowEvent) {
         final String eventType = flowEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} flow event for {}", domain.getName(), eventType, flowId);
-        RxJava2Adapter.monoToMaybe(flowService.findById_migrated(flowId))
-                .subscribe(
-                        flow -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(flowService.findById_migrated(flowId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(flow -> {
                             loadFlow(flow);
                             flows.put(flow.getId(), flow);
                             logger.info("Flow {} has been deployed for domain {}", flowId, domain.getName());
-                        },
-                        error -> logger.error("Unable to deploy flow {} for domain {}", flowId, domain.getName(), error),
-                        () -> logger.error("No flow found with id {}", flowId));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to deploy flow {} for domain {}", flowId, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No flow found with id {}", flowId)));
     }
 
     private void removeFlow(String flowId) {
@@ -183,17 +180,13 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
     }
 
     private void loadFlows() {
-        RxJava2Adapter.fluxToFlowable(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId()))
-                .subscribe(
-                        flow -> {
+        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(flow -> {
                             if (flow != null && flow.getId() != null) {
                                 loadFlow(flow);
                                 flows.put(flow.getId(), flow);
                                 logger.info("Flow {} loaded for domain {}", flow.getType(), domain.getName());
                             }
-                        },
-                        error -> logger.error("Unable to initialize flows for domain {}", domain.getName(), error)
-                );
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize flows for domain {}", domain.getName(), error)));
     }
 
     private void loadFlow(Flow flow) {

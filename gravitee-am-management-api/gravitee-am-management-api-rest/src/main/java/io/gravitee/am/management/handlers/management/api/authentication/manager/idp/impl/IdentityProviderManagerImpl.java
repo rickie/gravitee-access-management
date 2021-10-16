@@ -35,6 +35,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -109,14 +110,10 @@ public class IdentityProviderManagerImpl implements IdentityProviderManager, Ini
     private void updateIdentityProvider(String identityProviderId, String organizationId, IdentityProviderEvent identityProviderEvent) {
         final String eventType = identityProviderEvent.toString().toLowerCase();
         logger.info("Organization {} has received {} identity provider event for {}", organizationId, eventType, identityProviderId);
-        RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(identityProviderId))
-                .subscribe(
-                        identityProvider -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(identityProviderId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(identityProvider -> {
                             updateAuthenticationProvider(identityProvider);
                             logger.info("Identity provider {} {}d for organization {}", identityProviderId, eventType, organizationId);
-                        },
-                        error -> logger.error("Unable to {} identity provider for organization {}", eventType, organizationId, error),
-                        () -> logger.error("No identity provider found with id {}", identityProviderId));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} identity provider for organization {}", eventType, organizationId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No identity provider found with id {}", identityProviderId)));
     }
 
     private void updateAuthenticationProvider(IdentityProvider identityProvider) {

@@ -111,9 +111,7 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
             requestObject = RxJava2Adapter.monoToMaybe(handleRequestObjectURI_migrated(context));
         }
 
-        requestObject
-                .subscribe(
-                        jwt -> {
+        RxJava2Adapter.maybeToMono(requestObject).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(jwt -> {
                             try {
                                 // Check OAuth2 parameters
                                 checkOAuthParameters(context, jwt);
@@ -121,9 +119,7 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
                             } catch (Exception ex) {
                                 context.fail(ex);
                             }
-                        },
-                        context::fail,
-                        context::next);
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail), RxJavaReactorMigrationUtil.toRunnable(context::next));
     }
 
     private void checkRequestObjectParameters(RoutingContext context) {

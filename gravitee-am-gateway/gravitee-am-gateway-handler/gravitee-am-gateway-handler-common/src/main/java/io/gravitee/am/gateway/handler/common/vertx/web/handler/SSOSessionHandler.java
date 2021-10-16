@@ -150,7 +150,7 @@ public class SSOSessionHandler implements Handler<RoutingContext> {
             return;
         }
         // check if both clients (requested and user client) share the same identity provider
-        Single.zip(RxJava2Adapter.monoToSingle(getClient_migrated(clientId)), RxJava2Adapter.monoToSingle(getClient_migrated(user.getClient())), (optRequestedClient, optUserClient) -> {
+        RxJava2Adapter.singleToMono(Single.zip(RxJava2Adapter.monoToSingle(getClient_migrated(clientId)), RxJava2Adapter.monoToSingle(getClient_migrated(user.getClient())), (optRequestedClient, optUserClient) -> {
             Client requestedClient = optRequestedClient.get();
             Client userClient = optUserClient.get();
 
@@ -176,9 +176,7 @@ public class SSOSessionHandler implements Handler<RoutingContext> {
 
             // throw error
             throw new InvalidRequestException("User is not on a shared identity provider");
-        }).subscribe(
-            __ -> handler.handle(Future.succeededFuture()),
-            error -> handler.handle(Future.failedFuture(error)));
+        })).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> handler.handle(Future.succeededFuture())), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
 
     }
 

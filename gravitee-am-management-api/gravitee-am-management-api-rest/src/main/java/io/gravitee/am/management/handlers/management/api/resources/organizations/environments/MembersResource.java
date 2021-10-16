@@ -63,7 +63,6 @@ public class MembersResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.ENVIRONMENT, Acl.READ).then(permissionService.findAllPermissions_migrated(authenticatedUser, ReferenceType.ENVIRONMENT, environmentId).map(RxJavaReactorMigrationUtil.toJdkFunction(Permission::flatten))))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.ENVIRONMENT, Acl.READ).then(permissionService.findAllPermissions_migrated(authenticatedUser, ReferenceType.ENVIRONMENT, environmentId).map(RxJavaReactorMigrationUtil.toJdkFunction(Permission::flatten))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

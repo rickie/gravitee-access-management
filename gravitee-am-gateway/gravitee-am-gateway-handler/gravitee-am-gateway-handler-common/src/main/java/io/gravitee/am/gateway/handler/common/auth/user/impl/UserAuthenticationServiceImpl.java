@@ -157,8 +157,7 @@ return RxJava2Adapter.monoToMaybe(update_migrated(z, idpUser, false).flatMap(a->
     
 private Mono<User> saveOrUpdate_migrated(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         String source = (String) principal.getAdditionalInformation().get(SOURCE_FIELD);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(userService.findByDomainAndExternalIdAndSource_migrated(domain.getId(), principal.getId(), source).switchIfEmpty(Mono.defer(()->userService.findByDomainAndUsernameAndSource_migrated(domain.getId(), principal.getUsername(), source))).switchIfEmpty(Mono.error(new UserNotFoundException(principal.getUsername()))))
-                .flatMapSingle(existingUser -> RxJava2Adapter.monoToSingle(update_migrated(existingUser, principal, afterAuthentication)))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findByDomainAndExternalIdAndSource_migrated(domain.getId(), principal.getId(), source).switchIfEmpty(Mono.defer(()->userService.findByDomainAndUsernameAndSource_migrated(domain.getId(), principal.getUsername(), source))).switchIfEmpty(Mono.error(new UserNotFoundException(principal.getUsername()))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(existingUser -> RxJava2Adapter.monoToSingle(update_migrated(existingUser, principal, afterAuthentication))).apply(y)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof UserNotFoundException) {
                         return RxJava2Adapter.monoToSingle(create_migrated(principal, afterAuthentication));

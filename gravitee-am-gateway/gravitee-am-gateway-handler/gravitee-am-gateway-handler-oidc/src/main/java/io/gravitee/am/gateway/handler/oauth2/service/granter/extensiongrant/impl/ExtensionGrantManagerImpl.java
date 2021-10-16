@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -91,15 +92,12 @@ public class ExtensionGrantManagerImpl extends AbstractService implements Extens
     public void afterPropertiesSet() {
         logger.info("Initializing extension grants for domain {}", domain.getName());
         this.tokenRequestResolver.setScopeManager(this.scopeManager);
-        RxJava2Adapter.fluxToFlowable(extensionGrantRepository.findByDomain_migrated(domain.getId()))
-                .subscribe(
-                        extensionGrant -> {
+        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(extensionGrantRepository.findByDomain_migrated(domain.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(extensionGrant -> {
                             // backward compatibility, get the oldest extension grant to set the good one for the old clients
                             minDate = minDate == null ? extensionGrant.getCreatedAt() : minDate.after(extensionGrant.getCreatedAt()) ? extensionGrant.getCreatedAt() : minDate;
                             updateExtensionGrantProvider(extensionGrant);
                             logger.info("Extension grants loaded for domain {}", domain.getName());
-                        },
-                        error -> logger.error("Unable to initialize extension grants for domain {}", domain.getName(), error));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize extension grants for domain {}", domain.getName(), error)));
 
         logger.info("Register event listener for extension grant events for domain {}", domain.getName());
         eventManager.subscribeForEvents(this, ExtensionGrantEvent.class, domain.getId());
@@ -131,18 +129,14 @@ public class ExtensionGrantManagerImpl extends AbstractService implements Extens
     private void updateExtensionGrant(String extensionGrantId, ExtensionGrantEvent extensionGrantEvent) {
         final String eventType = extensionGrantEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} extension grant event for {}", domain.getName(), eventType, extensionGrantId);
-        RxJava2Adapter.monoToMaybe(extensionGrantRepository.findById_migrated(extensionGrantId))
-                .subscribe(
-                        extensionGrant -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(extensionGrantRepository.findById_migrated(extensionGrantId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(extensionGrant -> {
                             // backward compatibility, get the oldest extension grant to set the good one for the old clients
                             if (extensionGrants.isEmpty()) {
                                 minDate = extensionGrant.getCreatedAt();
                             }
                             updateExtensionGrantProvider(extensionGrant);
                             logger.info("Extension grant {} {}d for domain {}", extensionGrantId, eventType, domain.getName());
-                        },
-                        error -> logger.error("Unable to {} extension grant for domain {}", eventType, domain.getName(), error),
-                        () -> logger.error("No extension grant found with id {}", extensionGrantId));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} extension grant for domain {}", eventType, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No extension grant found with id {}", extensionGrantId)));
     }
 
     private void removeExtensionGrant(String extensionGrantId) {

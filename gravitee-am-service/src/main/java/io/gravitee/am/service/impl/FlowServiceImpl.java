@@ -200,8 +200,7 @@ public class FlowServiceImpl implements FlowService {
     public Mono<Flow> update_migrated(ReferenceType referenceType, String referenceId, String id, Flow flow, User principal) {
         LOGGER.debug("Update a flow {} ", flow);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(flowRepository.findById_migrated(referenceType, referenceId, id).switchIfEmpty(Mono.error(new FlowNotFoundException(id))))
-            .flatMapSingle(oldFlow -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.findById_migrated(referenceType, referenceId, id).switchIfEmpty(Mono.error(new FlowNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Flow, SingleSource<Flow>>toJdkFunction(oldFlow -> {
 
                 // if type isn't define, continue as the oldFlow will contains the right value
                 if (flow.getType() != null && oldFlow.getType() != flow.getType()) {
@@ -234,7 +233,7 @@ public class FlowServiceImpl implements FlowService {
                         return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(flow1)));
                     }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(flow1 -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_UPDATED).oldValue(oldFlow).flow(flow1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_UPDATED).throwable(throwable)))));
 
-            })
+            }).apply(y)))))
             .onErrorResumeNext(ex -> {
                 if (ex instanceof AbstractManagementException) {
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));

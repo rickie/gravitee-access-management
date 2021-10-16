@@ -51,18 +51,13 @@ public class AccountEndpointHandler {
 
     public void getUser(RoutingContext routingContext) {
         JWT token = routingContext.get(ConstantKeys.TOKEN_CONTEXT_KEY);
-        RxJava2Adapter.monoToMaybe(accountService.get_migrated(token.getSub()))
-                .subscribe(
-                        user -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accountService.get_migrated(token.getSub()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user -> {
                             routingContext.put(ConstantKeys.USER_CONTEXT_KEY, user);
                             routingContext.next();
-                        },
-                        error -> {
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> {
                             LOGGER.error("Unable to retrieve user for Id {}", token.getSub());
                             routingContext.fail(error);
-                        },
-                        () -> routingContext.fail(new UserNotFoundException(token.getSub()))
-                );
+                        }), RxJavaReactorMigrationUtil.toRunnable(() -> routingContext.fail(new UserNotFoundException(token.getSub()))));
     }
 
     public void getProfile(RoutingContext routingContext) {
@@ -75,11 +70,7 @@ public class AccountEndpointHandler {
         final int page = ContextPathParamUtil.getPageNumber(routingContext);
         final int size = ContextPathParamUtil.getPageSize(routingContext);
 
-        RxJava2Adapter.monoToSingle(accountService.getActivity_migrated(user, criteria, page, size))
-                .subscribe(
-                        activities -> AccountResponseHandler.handleDefaultResponse(routingContext, activities),
-                        routingContext::fail
-                );
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accountService.getActivity_migrated(user, criteria, page, size))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(activities -> AccountResponseHandler.handleDefaultResponse(routingContext, activities)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
     }
 
     public void redirectForgotPassword(RoutingContext routingContext) {
@@ -92,8 +83,7 @@ public class AccountEndpointHandler {
         User user = getUserFromContext(routingContext);
         User updatedUser = mapRequestToUser(user, routingContext);
         if (Objects.equals(user.getId(), updatedUser.getId())) {
-            RxJava2Adapter.monoToSingle(accountService.update_migrated(user).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(nestedResult -> AccountResponseHandler.handleUpdateUserResponse(routingContext))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(er -> AccountResponseHandler.handleUpdateUserResponse(routingContext, er.getMessage()))))
-                    .subscribe();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accountService.update_migrated(user).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(nestedResult -> AccountResponseHandler.handleUpdateUserResponse(routingContext))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(er -> AccountResponseHandler.handleUpdateUserResponse(routingContext, er.getMessage()))))).subscribe();
         } else {
             AccountResponseHandler.handleUpdateUserResponse(routingContext, "Mismatched user IDs", 401);
         }

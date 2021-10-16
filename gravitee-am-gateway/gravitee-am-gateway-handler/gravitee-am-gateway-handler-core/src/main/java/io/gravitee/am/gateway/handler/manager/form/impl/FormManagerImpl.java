@@ -35,6 +35,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -60,10 +61,7 @@ public class FormManagerImpl extends AbstractService implements FormManager, Ini
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing forms for domain {}", domain.getName());
-        RxJava2Adapter.fluxToFlowable(formRepository.findAll_migrated(ReferenceType.DOMAIN, domain.getId()))
-                .subscribe(
-                        this::updateForm,
-                        error -> logger.error("Unable to initialize forms for domain {}", domain.getName(), error));
+        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(formRepository.findAll_migrated(ReferenceType.DOMAIN, domain.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::updateForm), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize forms for domain {}", domain.getName(), error)));
     }
 
     @Override
@@ -100,9 +98,7 @@ public class FormManagerImpl extends AbstractService implements FormManager, Ini
     private void updateForm(String formId, FormEvent formEvent) {
         final String eventType = formEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} form event for {}", domain.getName(), eventType, formId);
-        RxJava2Adapter.monoToMaybe(formRepository.findById_migrated(formId))
-                .subscribe(
-                        form -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(formRepository.findById_migrated(formId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(form -> {
                             // check if form has been disabled
                             if (forms.containsKey(formId) && !form.isEnabled()) {
                                 removeForm(formId);
@@ -110,9 +106,7 @@ public class FormManagerImpl extends AbstractService implements FormManager, Ini
                                 updateForm(form);
                             }
                             logger.info("Form {} {}d for domain {}", formId, eventType, domain.getName());
-                        },
-                        error -> logger.error("Unable to {} form for domain {}", eventType, domain.getName(), error),
-                        () -> logger.error("No form found with id {}", formId));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} form for domain {}", eventType, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No form found with id {}", formId)));
     }
 
     private void removeForm(String formId) {

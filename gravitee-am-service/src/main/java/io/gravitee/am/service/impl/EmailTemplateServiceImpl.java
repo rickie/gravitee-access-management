@@ -354,8 +354,7 @@ private Mono<Email> create0_migrated(ReferenceType referenceType, String referen
 
     
 private Mono<Email> update0_migrated(ReferenceType referenceType, String referenceId, String id, UpdateEmail updateEmail, User principal) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(emailRepository.findById_migrated(referenceType, referenceId, id).switchIfEmpty(Mono.error(new EmailNotFoundException(id))))
-                .flatMapSingle(oldEmail -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(emailRepository.findById_migrated(referenceType, referenceId, id).switchIfEmpty(Mono.error(new EmailNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Email, SingleSource<Email>>toJdkFunction(oldEmail -> {
                     Email emailToUpdate = new Email(oldEmail);
                     emailToUpdate.setEnabled(updateEmail.isEnabled());
                     emailToUpdate.setFrom(updateEmail.getFrom());
@@ -370,7 +369,7 @@ private Mono<Email> update0_migrated(ReferenceType referenceType, String referen
                                 Event event = new Event(Type.EMAIL, new Payload(email.getId(), email.getReferenceType(), email.getReferenceId(), Action.UPDATE));
                                 return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(email)));
                             }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(email -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_UPDATED).oldValue(oldEmail).email(email)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_UPDATED).throwable(throwable)))));
-                })
+                }).apply(y)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));

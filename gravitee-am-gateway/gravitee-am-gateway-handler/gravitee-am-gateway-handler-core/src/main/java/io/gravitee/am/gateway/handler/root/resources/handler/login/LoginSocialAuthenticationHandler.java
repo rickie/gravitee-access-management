@@ -147,16 +147,14 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
     }
 
     private void enhanceSocialIdentityProviders(List<IdentityProvider> identityProviders, RoutingContext context, Handler<AsyncResult<List<SocialProviderData>>> resultHandler) {
-        Observable.fromIterable(identityProviders)
+        RxJava2Adapter.singleToMono(Observable.fromIterable(identityProviders)
                 .flatMapMaybe(identityProvider -> {
                     // get social identity provider type (currently use for display purpose (logo, description, ...)
                     identityProvider.setType(socialProviders.getOrDefault(identityProvider.getType(), identityProvider.getType()));
                     // get social sign in url
                     return RxJava2Adapter.monoToMaybe(getAuthorizeUrl_migrated(identityProvider.getId(), context).map(RxJavaReactorMigrationUtil.toJdkFunction(authorizeUrl -> new SocialProviderData(identityProvider, authorizeUrl))).defaultIfEmpty(new SocialProviderData(identityProvider, null)));
                 })
-                .toList()
-                .subscribe(socialProviderData -> resultHandler.handle(Future.succeededFuture(socialProviderData)),
-                        error -> resultHandler.handle(Future.failedFuture(error)));
+                .toList()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(socialProviderData -> resultHandler.handle(Future.succeededFuture(socialProviderData))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> resultHandler.handle(Future.failedFuture(error))));
     }
 
     

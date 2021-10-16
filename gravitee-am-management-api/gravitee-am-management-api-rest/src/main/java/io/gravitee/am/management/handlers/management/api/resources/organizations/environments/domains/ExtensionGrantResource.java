@@ -81,13 +81,12 @@ public class ExtensionGrantResource extends AbstractResource {
             @PathParam("extensionGrant") String extensionGrant,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_EXTENSION_GRANT, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->extensionGrantService.findById_migrated(extensionGrant)).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(extensionGrant))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrant1 -> {
+        RxJava2Adapter.maybeToMono(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_EXTENSION_GRANT, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->extensionGrantService.findById_migrated(extensionGrant)).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(extensionGrant))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrant1 -> {
                             if (!extensionGrant1.getDomain().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Extension grant does not belong to domain");
                             }
                             return Response.ok(extensionGrant1).build();
-                        }))).as(RxJava2Adapter::monoToMaybe)
-                .subscribe(response::resume, response::resume);
+                        }))).as(RxJava2Adapter::monoToMaybe)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PUT
@@ -109,9 +108,8 @@ public class ExtensionGrantResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_EXTENSION_GRANT, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(extensionGrantService.update_migrated(domain, extensionGrant, updateExtensionGrant, authenticatedUser))))))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_EXTENSION_GRANT, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(extensionGrantService.update_migrated(domain, extensionGrant, updateExtensionGrant, authenticatedUser))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE

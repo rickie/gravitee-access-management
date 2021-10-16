@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -193,9 +194,9 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
             for (String s : expand) {
                 switch (s) {
                     case "schema":
-                        RxJava2Adapter.monoToMaybe(getSchema_migrated(plugin.getId())).subscribe(plugin::setSchema);
+                        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getSchema_migrated(plugin.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(plugin::setSchema));
                     case "icon":
-                        RxJava2Adapter.monoToMaybe(getIcon_migrated(plugin.getId())).subscribe(plugin::setIcon);
+                        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getIcon_migrated(plugin.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(plugin::setIcon));
                     default:
                         break;
                 }

@@ -22,6 +22,7 @@ import io.gravitee.am.service.exception.CredentialNotFoundException;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import org.springframework.context.ApplicationContext;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -42,11 +43,7 @@ public class AccountWebAuthnCredentialsEndpointHandler {
      */
     public void listEnrolledWebAuthnCredentials(RoutingContext routingContext) {
         final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        RxJava2Adapter.monoToSingle(accountService.getWebAuthnCredentials_migrated(user))
-                        .subscribe(
-                                enrolledCredentials -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledCredentials),
-                                routingContext::fail
-                        );
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accountService.getWebAuthnCredentials_migrated(user))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(enrolledCredentials -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledCredentials)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
     }
 
     /**
@@ -57,10 +54,6 @@ public class AccountWebAuthnCredentialsEndpointHandler {
     public void getEnrolledWebAuthnCredential(RoutingContext routingContext) {
         final String credentialId = routingContext.request().getParam("credentialId");
 
-        RxJava2Adapter.monoToSingle(accountService.getWebAuthnCredential_migrated(credentialId))
-                .subscribe(
-                        credential -> AccountResponseHandler.handleDefaultResponse(routingContext, credential),
-                        routingContext::fail
-                );
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accountService.getWebAuthnCredential_migrated(credentialId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(credential -> AccountResponseHandler.handleDefaultResponse(routingContext, credential)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
     }
 }

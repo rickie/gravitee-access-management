@@ -530,13 +530,12 @@ private Flux<Audit> bulk_migrated(List<Audit> audits) {
 
     protected void initializeBulkProcessor() {
         if (!lifecycle.stopped()) {
-            disposable = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(bulkProcessor.buffer(
+            disposable = RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(bulkProcessor.buffer(
                     configuration.getFlushInterval(),
                     TimeUnit.SECONDS,
                     configuration.getBulkActions())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.reporter.api.audit.model.Audit> ident) -> RxJava2Adapter.fluxToFlowable(JdbcAuditReporter.this.bulk_migrated(ident)))))
                     .doOnError(error -> LOGGER.error("An error occurs while indexing data into report_audits_{} table of {} database",
-                            configuration.getTableSuffix(), configuration.getDatabase(), error))
-                    .subscribe();
+                            configuration.getTableSuffix(), configuration.getDatabase(), error))).subscribe();
 
             ready = true;
         }

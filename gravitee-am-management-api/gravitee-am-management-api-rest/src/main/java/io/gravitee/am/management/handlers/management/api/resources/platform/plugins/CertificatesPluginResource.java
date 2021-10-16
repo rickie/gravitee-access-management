@@ -52,10 +52,9 @@ public class CertificatesPluginResource {
             notes = "There is no particular permission needed. User must be authenticated.")
     public void list(@Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(certificatePluginService.findAll_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(certificatePlugins -> certificatePlugins.stream()
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(certificatePluginService.findAll_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(certificatePlugins -> certificatePlugins.stream()
                         .sorted(Comparator.comparing(CertificatePlugin::getName))
-                        .collect(Collectors.toList()))))
-                .subscribe(response::resume, response::resume);
+                        .collect(Collectors.toList()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{certificate}")

@@ -29,6 +29,7 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.SSLSession;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Client Authentication method : self_signed_tls_client_auth
@@ -68,9 +69,7 @@ public class ClientSelfSignedAuthProvider implements ClientAuthProvider {
             X509Certificate peerCertificate = (X509Certificate) peerCertificates[0];
             String thumbprint = getThumbprint(peerCertificate, "SHA-1");
             String thumbprint256 = getThumbprint(peerCertificate, "SHA-256");
-            RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client))
-                    .subscribe(
-                            jwkSet -> {
+            RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(jwkSet -> {
                                 boolean match = jwkSet.getKeys()
                                         .stream()
                                         .anyMatch(jwk -> thumbprint256.equals(jwk.getX5tS256()) || thumbprint.equals(jwk.getX5t()));
@@ -79,9 +78,7 @@ public class ClientSelfSignedAuthProvider implements ClientAuthProvider {
                                 } else {
                                     handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: invalid self-signed certificate")));
                                 }
-                            },
-                            throwable -> handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: invalid self-signed certificate"))),
-                            () -> handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: missing or unsupported JWK Set"))));
+                            }), RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: invalid self-signed certificate")))), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: missing or unsupported JWK Set")))));
         } catch (Exception ex) {
             handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: missing or unsupported self-signed certificate")));
         }

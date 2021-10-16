@@ -266,8 +266,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 }
 @Override
     public Mono<User> upsertFactor_migrated(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))
-                .flatMapSingle(oldUser -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
                     User user = new User(oldUser);
                     List<EnrolledFactor> enrolledFactors = user.getFactors();
                     if (enrolledFactors == null || enrolledFactors.isEmpty()) {
@@ -342,7 +341,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                                     auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).user(user1).oldValue(oldUser));
                                 }
                             })).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))));
-                }));
+                }).apply(y))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.removeFactor_migrated(userId, factorId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

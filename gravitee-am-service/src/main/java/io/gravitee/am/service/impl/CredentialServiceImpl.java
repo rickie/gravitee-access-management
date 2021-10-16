@@ -27,6 +27,8 @@ import io.reactivex.*;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
 import io.reactivex.Maybe;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.util.Date;
 import java.util.List;
@@ -146,8 +148,7 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Mono<Credential> update_migrated(Credential credential) {
         LOGGER.debug("Update a credential {}", credential);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(credentialRepository.findById_migrated(credential.getId()).switchIfEmpty(Mono.error(new CredentialNotFoundException(credential.getId()))))
-                .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(credentialRepository.update_migrated(credential)))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.findById_migrated(credential.getId()).switchIfEmpty(Mono.error(new CredentialNotFoundException(credential.getId()))).flatMap(y->credentialRepository.update_migrated(credential)))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));

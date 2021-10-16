@@ -95,17 +95,13 @@ public class ResourceManagerImpl extends AbstractService implements ResourceMana
     @Override
     public void afterPropertiesSet() throws Exception {
         // load all known resource for the domain on startup
-        RxJava2Adapter.fluxToFlowable(resourceService.findByDomain_migrated(this.domain.getId()))
-                .subscribeOn(Schedulers.io())
-                .subscribe(
-                        res -> {
+        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(resourceService.findByDomain_migrated(this.domain.getId()))
+                .subscribeOn(Schedulers.io())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(res -> {
                             ResourceProvider provider = resourcePluginManager.create(res.getType(), res.getConfiguration());
                             provider.start();
                             resourceProviders.put(res.getId(), provider);
                             logger.info("Resource {} loaded for domain {}", res.getName(), domain.getName());
-                        },
-                        error -> logger.error("Unable to initialize resources for domain {}", domain.getName(), error)
-                );
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize resources for domain {}", domain.getName(), error)));
     }
 
     public ResourceProvider getResourceProvider(String resourceId) {
@@ -130,13 +126,10 @@ public class ResourceManagerImpl extends AbstractService implements ResourceMana
     }
 
     private void loadResource(String resourceId) {
-        RxJava2Adapter.monoToMaybe(resourceService.findById_migrated(resourceId).switchIfEmpty(Mono.error(new ResourceNotFoundException("Resource " + resourceId + " not found"))).map(RxJavaReactorMigrationUtil.toJdkFunction(res -> resourcePluginManager.create(res.getType(), res.getConfiguration()))))
-                .subscribe(
-                        provider -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(resourceService.findById_migrated(resourceId).switchIfEmpty(Mono.error(new ResourceNotFoundException("Resource " + resourceId + " not found"))).map(RxJavaReactorMigrationUtil.toJdkFunction(res -> resourcePluginManager.create(res.getType(), res.getConfiguration()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(provider -> {
                             provider.start();
                             this.resourceProviders.put(resourceId, provider);
-                        },
-                        error -> logger.error("Initialization of Resource provider '{}' failed", error));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Initialization of Resource provider '{}' failed", error)));
     }
 
     private void refreshResource(String resourceId) {

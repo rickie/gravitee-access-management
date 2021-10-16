@@ -165,7 +165,7 @@ private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
                         logger.debug("No scope to process for application '{}'", app.getId());
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(app));
-                })).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> RxJava2Adapter.monoToSingle(updateSystemTask_migrated(task, (SystemTaskStatus.FAILURE), task.getOperationId())).subscribe())).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateSystemTask_migrated(task, SystemTaskStatus.SUCCESS, task.getOperationId()).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> true)))
+                })).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateSystemTask_migrated(task, (SystemTaskStatus.FAILURE), task.getOperationId()))).subscribe())).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateSystemTask_migrated(task, SystemTaskStatus.SUCCESS, task.getOperationId()).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> true)))
                         .onErrorResumeNext((err) -> {
                             logger.error("Unable to update status for migrate scope options task: {}", err.getMessage());
                             return RxJava2Adapter.monoToSingle(Mono.just(false));

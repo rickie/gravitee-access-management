@@ -20,10 +20,11 @@ import io.gravitee.node.api.healthcheck.Result;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.net.NetClient;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
-import java.util.concurrent.CompletableFuture;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * HTTP Probe used to check the gateway itself.
@@ -54,11 +55,8 @@ public class HttpServerProbe implements Probe {
         NetClientOptions options = new NetClientOptions().setConnectTimeout(500);
         NetClient client = vertx.createNetClient(options);
 
-        client.rxConnect(port, host)
-                .doFinally(client::close)
-                .subscribe(
-                        socket -> future.complete(Result.healthy()),
-                        error -> future.complete(Result.unhealthy(error.getCause())));
+        RxJava2Adapter.singleToMono(client.rxConnect(port, host)
+                .doFinally(client::close)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(socket -> future.complete(Result.healthy())), RxJavaReactorMigrationUtil.toJdkConsumer(error -> future.complete(Result.unhealthy(error.getCause()))));
         return future;
     }
 }

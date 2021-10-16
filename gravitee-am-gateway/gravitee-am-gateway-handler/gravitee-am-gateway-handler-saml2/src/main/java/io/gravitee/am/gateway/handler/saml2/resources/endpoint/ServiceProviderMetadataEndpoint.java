@@ -26,6 +26,7 @@ import io.vertx.core.Handler;
 import io.vertx.reactivex.core.http.HttpServerResponse;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * Like the identity provider, a service provider publishes data about itself in an <md:EntityDescriptor> element:
@@ -52,9 +53,7 @@ public class ServiceProviderMetadataEndpoint implements Handler<RoutingContext> 
         final String providerId = routingContext.request().getParam("providerId");
         final String basePath = UriBuilderRequest.resolveProxyRequest(routingContext.request(), routingContext.get(CONTEXT_PATH));
 
-        RxJava2Adapter.monoToSingle(serviceProviderService.metadata_migrated(providerId, basePath))
-                .subscribe(
-                        result -> {
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceProviderService.metadata_migrated(providerId, basePath))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(result -> {
                             // prepare response
                             HttpServerResponse response = routingContext.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -69,12 +68,10 @@ public class ServiceProviderMetadataEndpoint implements Handler<RoutingContext> 
                             response
                                     .setStatusCode(HttpStatusCode.OK_200)
                                     .end(result.getBody());
-                        }
-                        , error ->
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error ->
                                 routingContext
                                         .response()
                                         .setStatusCode(error instanceof AbstractManagementException ? ((AbstractManagementException) error).getHttpStatusCode() : 500)
-                                        .end()
-                );
+                                        .end()));
     }
 }

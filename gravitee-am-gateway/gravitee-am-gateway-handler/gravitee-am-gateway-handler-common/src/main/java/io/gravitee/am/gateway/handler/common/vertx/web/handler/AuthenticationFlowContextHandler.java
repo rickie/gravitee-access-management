@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -51,9 +52,7 @@ public class AuthenticationFlowContextHandler implements Handler<RoutingContext>
         if (session != null && !session.isDestroyed()) {
             final String transactionId = session.get(ConstantKeys.TRANSACTION_ID_KEY);
             final int version = ofNullable((Number) session.get(AUTH_FLOW_CONTEXT_VERSION_KEY)).map(Number::intValue).orElse(1);
-            RxJava2Adapter.monoToMaybe(authenticationFlowContextService.loadContext_migrated(transactionId, version))
-                    .subscribe(
-                            ctx ->  {
+            RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticationFlowContextService.loadContext_migrated(transactionId, version))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(ctx ->  {
                                 // store the AuthenticationFlowContext in order to provide all related information about this context
                                 context.put(ConstantKeys.AUTH_FLOW_CONTEXT_KEY, ctx);
                                 // store only the AuthenticationFlowContext.data attributes in order to simplify EL templating
@@ -61,15 +60,14 @@ public class AuthenticationFlowContextHandler implements Handler<RoutingContext>
                                 // {#context.attributes['authFlow']['entry']}
                                 context.put(ConstantKeys.AUTH_FLOW_CONTEXT_ATTRIBUTES_KEY, ctx.getData());
                                 context.next();
-                            },
-                            error -> {
+                            }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> {
                                 LOGGER.warn("AuthenticationFlowContext can't be loaded", error);
                                 if (exitOnError) {
                                     context.fail(error);
                                 } else {
                                     context.next();
                                 }
-                            });
+                            }));
         }
     }
 }

@@ -57,8 +57,7 @@ public class ReporterPluginResource {
             @PathParam("reporter") String reporterId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(reporterPluginService.findById_migrated(reporterId).switchIfEmpty(Mono.error(new ReporterPluginNotFoundException(reporterId))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPlugin -> Response.ok(reporterPlugin).build())))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(reporterPluginService.findById_migrated(reporterId).switchIfEmpty(Mono.error(new ReporterPluginNotFoundException(reporterId))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPlugin -> Response.ok(reporterPlugin).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @GET
@@ -70,7 +69,6 @@ public class ReporterPluginResource {
             @Suspended final AsyncResponse response) {
 
         // Check that the identity provider exists
-        RxJava2Adapter.monoToMaybe(reporterPluginService.findById_migrated(reporterId).switchIfEmpty(Mono.error(new ReporterPluginNotFoundException(reporterId))).flatMap(z->reporterPluginService.getSchema_migrated(reporterId)).switchIfEmpty(Mono.error(new ReporterPluginSchemaNotFoundException(reporterId))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPluginSchema -> Response.ok(reporterPluginSchema).build())))
-                .subscribe(response::resume, response::resume);
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(reporterPluginService.findById_migrated(reporterId).switchIfEmpty(Mono.error(new ReporterPluginNotFoundException(reporterId))).flatMap(z->reporterPluginService.getSchema_migrated(reporterId)).switchIfEmpty(Mono.error(new ReporterPluginSchemaNotFoundException(reporterId))).map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPluginSchema -> Response.ok(reporterPluginSchema).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

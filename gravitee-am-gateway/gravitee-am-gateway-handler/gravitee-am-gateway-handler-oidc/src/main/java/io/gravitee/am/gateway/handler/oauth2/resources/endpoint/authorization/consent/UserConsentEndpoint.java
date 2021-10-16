@@ -106,9 +106,7 @@ public class UserConsentEndpoint implements Handler<RoutingContext> {
                     }).apply(v))));
         }
 
-        consentInformation.subscribe(
-                scopes -> handler.handle(Future.succeededFuture(scopes)),
-                error -> handler.handle(Future.failedFuture(error)));
+        RxJava2Adapter.singleToMono(consentInformation).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scopes -> handler.handle(Future.succeededFuture(scopes))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 
     private String getTemplateFileName(Client client) {

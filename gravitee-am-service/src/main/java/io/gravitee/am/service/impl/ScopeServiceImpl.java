@@ -218,11 +218,10 @@ public class ScopeServiceImpl implements ScopeService {
 @Override
     public Mono<Scope> patch_migrated(String domain, String id, PatchScope patchScope, User principal) {
         LOGGER.debug("Patching a scope {} for domain {}", id, domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))))
-                .flatMapSingle(oldScope -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(oldScope -> {
                     Scope scopeToUpdate = patchScope.patch(oldScope);
                     return RxJava2Adapter.monoToSingle(update_migrated(domain, scopeToUpdate, oldScope, principal));
-                })
+                }).apply(y)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
@@ -241,8 +240,7 @@ public class ScopeServiceImpl implements ScopeService {
 @Override
     public Mono<Scope> update_migrated(String domain, String id, UpdateScope updateScope, User principal) {
         LOGGER.debug("Update a scope {} for domain {}", id, domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))))
-                .flatMapSingle(oldScope -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(oldScope -> {
                     Scope scopeToUpdate = new Scope(oldScope);
                     scopeToUpdate.setName(updateScope.getName());
                     scopeToUpdate.setDescription(updateScope.getDescription());
@@ -256,7 +254,7 @@ public class ScopeServiceImpl implements ScopeService {
                     scopeToUpdate.setIconUri(updateScope.getIconUri());
 
                     return RxJava2Adapter.monoToSingle(update_migrated(domain, scopeToUpdate, oldScope, principal));
-                })
+                }).apply(y)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
@@ -286,8 +284,7 @@ private Mono<Scope> update_migrated(String domain, Scope toUpdate, Scope oldValu
 @Override
     public Mono<Scope> update_migrated(String domain, String id, UpdateSystemScope updateScope) {
         LOGGER.debug("Update a system scope {} for domain {}", id, domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))))
-                .flatMapSingle(scope -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope -> {
                     scope.setName(updateScope.getName());
                     scope.setDescription(updateScope.getDescription());
                     scope.setUpdatedAt(new Date());
@@ -296,7 +293,7 @@ private Mono<Scope> update_migrated(String domain, Scope toUpdate, Scope oldValu
                     scope.setExpiresIn(updateScope.getExpiresIn());
                     scope.setDiscovery(updateScope.isDiscovery());
                     return RxJava2Adapter.monoToSingle(scopeRepository.update_migrated(scope));
-                })).flatMap(v->RxJava2Adapter.singleToMono((Single<Scope>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Scope, Single<Scope>>)scope -> {
+                }).apply(y)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Scope>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Scope, Single<Scope>>)scope -> {
                     // create event for sync process
                     Event event = new Event(Type.SCOPE, new Payload(scope.getId(), ReferenceType.DOMAIN, scope.getDomain(), Action.UPDATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(scope)));
@@ -319,13 +316,12 @@ private Mono<Scope> update_migrated(String domain, Scope toUpdate, Scope oldValu
 @Override
     public Mono<Void> delete_migrated(String scopeId, boolean force, User principal) {
         LOGGER.debug("Delete scope {}", scopeId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(scopeRepository.findById_migrated(scopeId).switchIfEmpty(Mono.error(new ScopeNotFoundException(scopeId))))
-                .flatMapSingle(scope -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(scopeRepository.findById_migrated(scopeId).switchIfEmpty(Mono.error(new ScopeNotFoundException(scopeId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope -> {
                     if (scope.isSystem() && !force) {
                         throw new SystemScopeDeleteException(scopeId);
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(scope));
-                })).flatMap(scope->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(roleService.findByDomain_migrated(scope.getDomain())).flatMapObservable((java.util.Set<io.gravitee.am.model.Role> roles)->Observable.fromIterable(roles.stream().filter((io.gravitee.am.model.Role role)->role.getOauthScopes() != null && role.getOauthScopes().contains(scope.getKey())).collect(Collectors.toList()))).flatMapSingle((io.gravitee.am.model.Role role)->{
+                }).apply(y)))).flatMap(scope->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(roleService.findByDomain_migrated(scope.getDomain())).flatMapObservable((java.util.Set<io.gravitee.am.model.Role> roles)->Observable.fromIterable(roles.stream().filter((io.gravitee.am.model.Role role)->role.getOauthScopes() != null && role.getOauthScopes().contains(scope.getKey())).collect(Collectors.toList()))).flatMapSingle((io.gravitee.am.model.Role role)->{
 role.getOauthScopes().remove(scope.getKey());
 UpdateRole updatedRole = new UpdateRole();
 updatedRole.setName(role.getName());

@@ -176,7 +176,7 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
         plugin.setVersion(identityProviderPlugin.manifest().version());
         if (expand != null) {
             if (expand.contains(IdentityProviderPluginService.EXPAND_ICON)) {
-                RxJava2Adapter.monoToMaybe(this.getIcon_migrated(plugin.getId())).subscribe(plugin::setIcon);
+                RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getIcon_migrated(plugin.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(plugin::setIcon));
             }
             if (expand.contains(IdentityProviderPluginService.EXPAND_DISPLAY_NAME)) {
                 plugin.setDisplayName(identityProviderPlugin.manifest().properties().get(IdentityProviderPluginService.EXPAND_DISPLAY_NAME));

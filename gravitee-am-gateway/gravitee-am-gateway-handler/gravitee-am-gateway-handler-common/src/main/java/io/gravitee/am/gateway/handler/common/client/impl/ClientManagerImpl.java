@@ -64,15 +64,11 @@ public class ClientManagerImpl extends AbstractService implements ClientManager,
     public void afterPropertiesSet() throws Exception {
         logger.info("Initializing applications for domain {}", domain.getName());
         Flowable<Application> applicationsSource = domain.isMaster() ? RxJava2Adapter.fluxToFlowable(applicationRepository.findAll_migrated()) : RxJava2Adapter.fluxToFlowable(applicationRepository.findByDomain_migrated(domain.getId()));
-        RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(applicationsSource).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)))
-                .subscribeOn(Schedulers.io())
-                .subscribe(
-                        client -> {
+        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(applicationsSource).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)))
+                .subscribeOn(Schedulers.io())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> {
                             clients.put(client.getId(), client);
                             logger.info("Application {} loaded for domain {}", client.getClientName(), domain.getName());
-                        },
-                        error -> logger.error("An error has occurred when loading applications for domain {}", domain.getName(), error)
-                );
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("An error has occurred when loading applications for domain {}", domain.getName(), error)));
     }
 
     @Override
@@ -144,15 +140,11 @@ public class ClientManagerImpl extends AbstractService implements ClientManager,
 
     private void deployClient(String applicationId) {
         logger.info("Deploying application {} for domain {}", applicationId, domain.getName());
-        RxJava2Adapter.monoToMaybe(applicationRepository.findById_migrated(applicationId).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)))
-                .subscribeOn(Schedulers.io())
-                .subscribe(
-                        client -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationRepository.findById_migrated(applicationId).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)))
+                .subscribeOn(Schedulers.io())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> {
                             clients.put(client.getId(), client);
                             logger.info("Application {} loaded for domain {}", applicationId, domain.getName());
-                        },
-                        error -> logger.error("An error has occurred when loading application {} for domain {}", applicationId, domain.getName(), error),
-                        () -> logger.error("No application found with id {}", applicationId));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("An error has occurred when loading application {} for domain {}", applicationId, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No application found with id {}", applicationId)));
     }
 
     private void removeClient(String applicationId) {

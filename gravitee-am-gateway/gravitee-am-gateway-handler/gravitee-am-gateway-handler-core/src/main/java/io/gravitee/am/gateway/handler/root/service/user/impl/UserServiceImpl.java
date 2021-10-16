@@ -188,8 +188,7 @@ public class UserServiceImpl implements UserService {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
                 // update the idp user
                 .flatMapSingle(userProvider -> {
-                    return RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated(user.getUsername()).switchIfEmpty(Mono.error(new UserNotFoundException(user.getUsername()))))
-                            .flatMapSingle(idpUser -> RxJava2Adapter.monoToSingle(userProvider.update_migrated(idpUser.getId(), convert(user))))
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated(user.getUsername()).switchIfEmpty(Mono.error(new UserNotFoundException(user.getUsername()))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(idpUser -> RxJava2Adapter.monoToSingle(userProvider.update_migrated(idpUser.getId(), convert(user)))).apply(y)))))
                             .onErrorResumeNext(ex -> {
                                 if (ex instanceof UserNotFoundException) {
                                     // idp user not found, create its account
@@ -240,12 +239,11 @@ public class UserServiceImpl implements UserService {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
                 // update the idp user
                 .flatMapSingle(userProvider -> {
-                    return RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated(user.getUsername()).switchIfEmpty(Mono.error(new UserNotFoundException(user.getUsername()))))
-                            .flatMapSingle(idpUser -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated(user.getUsername()).switchIfEmpty(Mono.error(new UserNotFoundException(user.getUsername()))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(idpUser -> {
                                 // set password
                                 ((DefaultUser) idpUser).setCredentials(user.getPassword());
                                 return RxJava2Adapter.monoToSingle(userProvider.update_migrated(idpUser.getId(), idpUser));
-                            })
+                            }).apply(y)))))
                             .onErrorResumeNext(ex -> {
                                 if (ex instanceof UserNotFoundException) {
                                     // idp user not found, create its account

@@ -29,6 +29,7 @@ import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -42,16 +43,12 @@ public class UserEndpoint extends AbstractUserEndpoint {
 
     public void get(RoutingContext context) {
         final String userId = context.request().getParam("id");
-        RxJava2Adapter.monoToMaybe(userService.get_migrated(userId, location(context.request())))
-                .subscribe(
-                        user -> context.response()
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.get_migrated(userId, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .putHeader(HttpHeaders.LOCATION, user.getMeta().getLocation())
-                                .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user)),
-                        context::fail,
-                        () -> context.fail(new UserNotFoundException(userId)));
+                                .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail), RxJavaReactorMigrationUtil.toRunnable(() -> context.fail(new UserNotFoundException(userId))));
     }
 
     /**
@@ -112,15 +109,12 @@ public class UserEndpoint extends AbstractUserEndpoint {
                 return;
             }
 
-            RxJava2Adapter.monoToSingle(userService.update_migrated(userId, user, location(context.request())))
-                    .subscribe(
-                            user1 -> context.response()
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.update_migrated(userId, user, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(HttpHeaders.LOCATION, user1.getMeta().getLocation())
-                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user1)),
-                            context::fail);
+                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user1))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
         } catch (DecodeException ex) {
             context.fail(new InvalidSyntaxException("Unable to parse body message", ex));
         }
@@ -174,15 +168,12 @@ public class UserEndpoint extends AbstractUserEndpoint {
                 return;
             }
 
-            RxJava2Adapter.monoToSingle(userService.patch_migrated(userId, patchOp, location(context.request())))
-                    .subscribe(
-                            user1 -> context.response()
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.patch_migrated(userId, patchOp, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(HttpHeaders.LOCATION, user1.getMeta().getLocation())
-                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user1)),
-                            context::fail);
+                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user1))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
         } catch (DecodeException ex) {
             context.fail(new InvalidSyntaxException("Unable to parse body message", ex));
         }

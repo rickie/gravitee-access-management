@@ -26,6 +26,7 @@ import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -64,14 +65,11 @@ public class GroupsEndpoint extends AbstractGroupEndpoint {
         }
 
         // group service use 0-based index
-        RxJava2Adapter.monoToSingle(groupService.list_migrated(page - 1, size, location(context.request())))
-                .subscribe(
-                        groups -> context.response()
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(groupService.list_migrated(page - 1, size, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(groups -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(groups)),
-                        context::fail);
+                                .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(groups))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
 
     }
 
@@ -137,16 +135,13 @@ public class GroupsEndpoint extends AbstractGroupEndpoint {
                 return;
             }
 
-            RxJava2Adapter.monoToSingle(groupService.create_migrated(group, location(context.request())))
-                    .subscribe(
-                            group1 -> context.response()
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(groupService.create_migrated(group, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(group1 -> context.response()
                                     .setStatusCode(201)
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(HttpHeaders.LOCATION, group1.getMeta().getLocation())
-                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group1)),
-                            context::fail);
+                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group1))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
         } catch (DecodeException ex) {
             context.fail(new InvalidSyntaxException("Unable to parse body message", ex));
         }

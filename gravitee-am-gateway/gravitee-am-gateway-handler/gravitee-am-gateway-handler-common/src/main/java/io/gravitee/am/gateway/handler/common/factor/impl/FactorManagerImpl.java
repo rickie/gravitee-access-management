@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -61,10 +62,7 @@ public class FactorManagerImpl extends AbstractService implements FactorManager,
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing factors for domain {}", domain.getName());
-        RxJava2Adapter.fluxToFlowable(factorService.findByDomain_migrated(domain.getId()))
-                .subscribe(
-                        this::updateFactor,
-                        error -> logger.error("Unable to initialize factors for domain {}", domain.getName(), error));
+        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(factorService.findByDomain_migrated(domain.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::updateFactor), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize factors for domain {}", domain.getName(), error)));
     }
 
     @Override
@@ -116,11 +114,7 @@ public class FactorManagerImpl extends AbstractService implements FactorManager,
     private void updateFactor(String factorId, FactorEvent factorEvent) {
         final String eventType = factorEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} factor event for {}", domain.getName(), eventType, factorId);
-        RxJava2Adapter.monoToMaybe(factorService.findById_migrated(factorId))
-                .subscribe(
-                        this::updateFactor,
-                        error -> logger.error("Unable to load factor for domain {}", domain.getName(), error),
-                        () -> logger.error("No factor found with id {}", factorId));
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(factorService.findById_migrated(factorId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::updateFactor), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to load factor for domain {}", domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No factor found with id {}", factorId)));
     }
 
     private void removeFactor(String factorId) {

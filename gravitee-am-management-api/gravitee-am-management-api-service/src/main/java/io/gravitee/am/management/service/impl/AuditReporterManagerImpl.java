@@ -220,18 +220,12 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
 
     private void deployReporter(String reporterId) {
         logger.info("Management API has received a deploy reporter event for {}", reporterId);
-        RxJava2Adapter.monoToMaybe(reporterService.findById_migrated(reporterId))
-                .subscribe(
-                        this::loadReporter,
-                        error -> logger.error("Unable to deploy reporter {}", reporterId, error),
-                        () -> logger.error("No reporter found with id {}", reporterId));
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(reporterService.findById_migrated(reporterId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::loadReporter), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to deploy reporter {}", reporterId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No reporter found with id {}", reporterId)));
     }
 
     private void reloadReporter(String reporterId) {
         logger.info("Management API has received an update reporter event for {}", reporterId);
-        RxJava2Adapter.monoToMaybe(reporterService.findById_migrated(reporterId))
-                .subscribe(
-                        reporter -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(reporterService.findById_migrated(reporterId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(reporter -> {
                             logger.debug("Reload reporter: {} after configuration update", reporter.getName());
                             Optional<Reporter> optionalAuditReporter = auditReporters
                                     .entrySet()
@@ -263,9 +257,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
                             } else {
                                 logger.info("There is no reporter to reload");
                             }
-                        },
-                        error -> logger.error("Unable to reload reporter {}", reporterId, error),
-                        () -> logger.error("No reporter found with id {}", reporterId));
+                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to reload reporter {}", reporterId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No reporter found with id {}", reporterId)));
     }
 
     private void loadReporter(io.gravitee.am.model.Reporter reporter) {
@@ -349,7 +341,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
     private void deployReporterVerticle(Collection<Reporter> reporters) {
         Single<String> deployment = RxHelper.deployVerticle(vertx, applicationContext.getBean(AuditReporterVerticle.class));
 
-        deployment.subscribe(id -> {
+        RxJava2Adapter.singleToMono(deployment).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(id -> {
             // Deployed
             deploymentId = id;
             if (!reporters.isEmpty()) {
@@ -364,9 +356,9 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
             } else {
                 logger.info("\tThere is no reporter to start");
             }
-        }, err -> {
+        }), RxJavaReactorMigrationUtil.toJdkConsumer(err -> {
             // Could not deploy
             logger.error("Reporter service can not be started", err);
-        });
+        }));
     }
 }

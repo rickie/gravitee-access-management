@@ -207,8 +207,7 @@ private Mono<Client> applyAccessTokenValidity_migrated(Client client) {
 
     
 private Mono<Client> createClientFromTemplate_migrated(DynamicClientRegistrationRequest request, String basePath) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(clientService.findById_migrated(request.getSoftwareId().get()).switchIfEmpty(Mono.error(new InvalidClientMetadataException("No template found for software_id "+request.getSoftwareId().get()))))
-                .flatMapSingle((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(sanitizeTemplate_migrated(ident)))).map(RxJavaReactorMigrationUtil.toJdkFunction(request::patch)).flatMap(app->this.applyRegistrationAccessToken_migrated(basePath, app)).flatMap(v->clientService.create_migrated(v)).flatMap(client->copyForms_migrated(request.getSoftwareId().get(), client)).flatMap(client->copyEmails_migrated(request.getSoftwareId().get(), client));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientService.findById_migrated(request.getSoftwareId().get()).switchIfEmpty(Mono.error(new InvalidClientMetadataException("No template found for software_id "+request.getSoftwareId().get()))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Client, SingleSource<Client>>toJdkFunction((io.gravitee.am.model.oidc.Client ident) -> RxJava2Adapter.monoToSingle(sanitizeTemplate_migrated(ident))).apply(y)))))).map(RxJavaReactorMigrationUtil.toJdkFunction(request::patch)).flatMap(app->this.applyRegistrationAccessToken_migrated(basePath, app)).flatMap(v->clientService.create_migrated(v)).flatMap(client->copyForms_migrated(request.getSoftwareId().get(), client)).flatMap(client->copyEmails_migrated(request.getSoftwareId().get(), client));
     }
 
     
