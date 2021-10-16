@@ -200,7 +200,7 @@ return RxJava2Adapter.monoToSingle(Mono.error(new ServiceResourceCurrentlyUsedEx
                             Event event = new Event(Type.RESOURCE, new Payload(resource.getId(), resource.getReferenceType(), resource.getReferenceId(), Action.DELETE));
                             return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(serviceResourceRepository.delete_migrated(resourceId).then(eventService.create_migrated(event)).then())
                                     .doOnComplete(() -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_DELETED).resource(resource)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_DELETED).throwable(throwable)))));
-                        }).apply(y)))).then())
+                        }).apply((ServiceResource) y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
