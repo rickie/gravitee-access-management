@@ -63,14 +63,24 @@ public class JdbcFactorRepository extends AbstractJdbcRepository implements Fact
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(factorRepository.findByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Factor> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Factor> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(factorRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(factorRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Factor> create(Factor item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Factor> create_migrated(Factor item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("create factor with id {}", item.getId());
 
@@ -79,18 +89,28 @@ public class JdbcFactorRepository extends AbstractJdbcRepository implements Fact
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Factor> update(Factor item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Factor> update_migrated(Factor item) {
         LOGGER.debug("update factor with id {}", item.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.factorRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.factorRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return factorRepository.deleteById(id);
+        return RxJava2Adapter.completableToMono(factorRepository.deleteById(id));
     }
 }

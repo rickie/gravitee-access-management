@@ -110,22 +110,37 @@ public class MongoRoleRepository extends AbstractManagementMongoRepository imple
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(rolesCollection.find(eq(FIELD_ID, role)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Role> create(Role item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Role> create_migrated(Role item) {
         RoleMongo role = convert(item);
         role.setId(role.getId() == null ? RandomString.generate() : role.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(rolesCollection.insertOne(role))).flatMap(success->RxJava2Adapter.maybeToMono(findById(role.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(rolesCollection.insertOne(role))).flatMap(success->RxJava2Adapter.maybeToMono(findById(role.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Role> update(Role item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Role> update_migrated(Role item) {
         RoleMongo role = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(rolesCollection.replaceOne(eq(FIELD_ID, role.getId()), role))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(role.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(rolesCollection.replaceOne(eq(FIELD_ID, role.getId()), role))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(role.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(rolesCollection.deleteOne(eq(FIELD_ID, id))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(rolesCollection.deleteOne(eq(FIELD_ID, id)))));
     }
 
     @Override

@@ -22,8 +22,8 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -31,17 +31,59 @@ import java.util.List;
  */
 public interface GroupService {
 
-    Single<ListResponse<Group>> list(int page, int size, String baseUrl);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.ListResponse<io.gravitee.am.gateway.handler.scim.model.Group>> list(int page, int size, java.lang.String baseUrl) {
+    return RxJava2Adapter.monoToSingle(list_migrated(page, size, baseUrl));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.ListResponse<io.gravitee.am.gateway.handler.scim.model.Group>> list_migrated(int page, int size, String baseUrl) {
+    return RxJava2Adapter.singleToMono(list(page, size, baseUrl));
+}
 
-    Flowable<Group> findByMember(String memberId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.gateway.handler.scim.model.Group> findByMember(java.lang.String memberId) {
+    return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.gateway.handler.scim.model.Group> findByMember_migrated(String memberId) {
+    return RxJava2Adapter.flowableToFlux(findByMember(memberId));
+}
 
-    Maybe<Group> get(String groupId, String baseUrl);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.gateway.handler.scim.model.Group> get(java.lang.String groupId, java.lang.String baseUrl) {
+    return RxJava2Adapter.monoToMaybe(get_migrated(groupId, baseUrl));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.Group> get_migrated(String groupId, String baseUrl) {
+    return RxJava2Adapter.maybeToMono(get(groupId, baseUrl));
+}
 
-    Single<Group> create(Group group, String baseUrl);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.Group> create(io.gravitee.am.gateway.handler.scim.model.Group group, java.lang.String baseUrl) {
+    return RxJava2Adapter.monoToSingle(create_migrated(group, baseUrl));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.Group> create_migrated(Group group, String baseUrl) {
+    return RxJava2Adapter.singleToMono(create(group, baseUrl));
+}
 
-    Single<Group> update(String groupId, Group group, String baseUrl);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.Group> update(java.lang.String groupId, io.gravitee.am.gateway.handler.scim.model.Group group, java.lang.String baseUrl) {
+    return RxJava2Adapter.monoToSingle(update_migrated(groupId, group, baseUrl));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.Group> update_migrated(String groupId, Group group, String baseUrl) {
+    return RxJava2Adapter.singleToMono(update(groupId, group, baseUrl));
+}
 
-    Single<Group> patch(String groupId, PatchOp patchOp, String baseUrl);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.Group> patch(java.lang.String groupId, io.gravitee.am.gateway.handler.scim.model.PatchOp patchOp, java.lang.String baseUrl) {
+    return RxJava2Adapter.monoToSingle(patch_migrated(groupId, patchOp, baseUrl));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.Group> patch_migrated(String groupId, PatchOp patchOp, String baseUrl) {
+    return RxJava2Adapter.singleToMono(patch(groupId, patchOp, baseUrl));
+}
 
-    Completable delete(String groupId);
+      @Deprecated  
+default io.reactivex.Completable delete(java.lang.String groupId) {
+    return RxJava2Adapter.monoToCompletable(delete_migrated(groupId));
+}
+default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String groupId) {
+    return RxJava2Adapter.completableToMono(delete(groupId));
+}
 }

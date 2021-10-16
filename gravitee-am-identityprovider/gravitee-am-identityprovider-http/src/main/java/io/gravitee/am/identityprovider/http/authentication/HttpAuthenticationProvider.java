@@ -133,26 +133,30 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
         return loadByUsername0(new SimpleAuthenticationContext(), new DefaultUser(username));
     }
 
-    private Maybe<User> loadByUsername0(AuthenticationContext authenticationContext, User user) {
+    @Deprecated
+private Maybe<User> loadByUsername0(AuthenticationContext authenticationContext, User user) {
+ return RxJava2Adapter.monoToMaybe(loadByUsername0_migrated(authenticationContext, user));
+}
+private Mono<User> loadByUsername0_migrated(AuthenticationContext authenticationContext, User user) {
         // prepare request
         final HttpAuthResourcePathsConfiguration authResourceConfiguration = configuration.getAuthenticationResource().getPaths();
         if (authResourceConfiguration == null) {
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
         if (authResourceConfiguration.getLoadPreAuthUserResource() == null) {
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
 
         final HttpResourceConfiguration readResourceConfiguration = authResourceConfiguration.getLoadPreAuthUserResource();
 
         if (readResourceConfiguration.getBaseURL() == null) {
             LOGGER.warn("Missing pre-authenticated user resource base URL");
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
 
         if (readResourceConfiguration.getHttpMethod() == null) {
             LOGGER.warn("Missing pre-authenticated user resource HTTP method");
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
 
         try {
@@ -167,7 +171,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
             final String readUserBody = readResourceConfiguration.getHttpBody();
             final Single<HttpResponse<Buffer>> requestHandler = processRequest(templateEngine, readUserURI, readUserHttpMethod, readUserHttpHeaders, readUserBody);
 
-            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = readResourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return createUser(authenticationContext, userAttributes);
@@ -178,14 +182,22 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
                         }
                         LOGGER.error("An error has occurred when loading pre-authenticated user {} from the remote HTTP identity provider", user.getUsername() != null ? user.getUsername() : user.getEmail(), ex);
                         return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error has occurred when loading pre-authenticated user from the remote HTTP identity provider", ex)));
-                    });
+                    }));
         } catch (Exception ex) {
             LOGGER.error("An error has occurred when loading pre-authenticated user {}", user.getUsername() != null ? user.getUsername() : user.getEmail(), ex);
-            return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error has occurred when when loading pre-authenticated user", ex)));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("An error has occurred when when loading pre-authenticated user", ex))));
         }
     }
 
-    private Single<HttpResponse<Buffer>> processRequest(TemplateEngine templateEngine,
+    @Deprecated
+private Single<HttpResponse<Buffer>> processRequest(TemplateEngine templateEngine,
+                                                        String httpURI,
+                                                        HttpMethod httpMethod,
+                                                        List<HttpHeader> httpHeaders,
+                                                        String httpBody) {
+ return RxJava2Adapter.monoToSingle(processRequest_migrated(templateEngine, httpURI, httpMethod, httpHeaders, httpBody));
+}
+private Mono<HttpResponse<Buffer>> processRequest_migrated(TemplateEngine templateEngine,
                                                         String httpURI,
                                                         HttpMethod httpMethod,
                                                         List<HttpHeader> httpHeaders,
@@ -229,7 +241,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
         } else {
             responseHandler = httpRequest.rxSend();
         }
-        return responseHandler;
+        return RxJava2Adapter.singleToMono(responseHandler);
     }
 
     private Map<String, Object> processResponse(TemplateEngine templateEngine, List<HttpResponseErrorCondition> errorConditions, HttpResponse<Buffer> httpResponse) throws Exception {

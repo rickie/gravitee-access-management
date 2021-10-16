@@ -17,11 +17,18 @@ package io.gravitee.am.service;
 
 import io.reactivex.Single;
 import net.minidev.json.JSONObject;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Guillaume CUSNIEUX (guillaume.cusnieux at graviteesource.com)
  * @author GraviteeSource Team
  */
 public interface SpelService {
-    Single<JSONObject> getGrammar();
+      @Deprecated  
+default io.reactivex.Single<net.minidev.json.JSONObject> getGrammar() {
+    return RxJava2Adapter.monoToSingle(getGrammar_migrated());
+}
+default reactor.core.publisher.Mono<net.minidev.json.JSONObject> getGrammar_migrated() {
+    return RxJava2Adapter.singleToMono(getGrammar());
+}
 }

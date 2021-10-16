@@ -78,18 +78,22 @@ public abstract class AbstractManagementMongoRepository extends AbstractMongoRep
         }).orElse(null);
     }
 
-    protected Maybe<Bson> toBsonFilter(boolean logicalOr, Bson... filter) {
+    @Deprecated
+protected Maybe<Bson> toBsonFilter(boolean logicalOr, Bson... filter) {
+ return RxJava2Adapter.monoToMaybe(toBsonFilter_migrated(logicalOr, filter));
+}
+protected Mono<Bson> toBsonFilter_migrated(boolean logicalOr, Bson... filter) {
 
         List<Bson> filterCriteria = Stream.of(filter).filter(Objects::nonNull).collect(Collectors.toList());
 
         if (filterCriteria.isEmpty()) {
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
 
         if (logicalOr) {
-            return RxJava2Adapter.monoToMaybe(Mono.just(or(filterCriteria)));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(or(filterCriteria))));
         } else {
-            return RxJava2Adapter.monoToMaybe(Mono.just(and(filterCriteria)));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(and(filterCriteria))));
         }
     }
 }

@@ -158,7 +158,11 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
         }
     }
 
-    private Maybe<JWT> handleRequestObjectValue(RoutingContext context) {
+    @Deprecated
+private Maybe<JWT> handleRequestObjectValue(RoutingContext context) {
+ return RxJava2Adapter.monoToMaybe(handleRequestObjectValue_migrated(context));
+}
+private Mono<JWT> handleRequestObjectValue_migrated(RoutingContext context) {
         final String request = context.request().getParam(Parameters.REQUEST);
 
         if (request != null) {
@@ -166,10 +170,10 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
             context.request().params().remove(Parameters.REQUEST);
 
 
-            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestObjectService
-                    .readRequestObject(request, context.get(CLIENT_CONTEXT_KEY), domain.useFapiBrazilProfile())).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> preserveRequestObject(context, jwt))).flatMap(jwt->RxJava2Adapter.singleToMono(validateRequestObjectClaims(context, jwt))));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestObjectService
+                    .readRequestObject(request, context.get(CLIENT_CONTEXT_KEY), domain.useFapiBrazilProfile())).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> preserveRequestObject(context, jwt))).flatMap(jwt->RxJava2Adapter.singleToMono(validateRequestObjectClaims(context, jwt)))));
         } else {
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
     }
 
@@ -186,7 +190,11 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
         return jwt;
     }
 
-    private Single<JWT> validateRequestObjectClaims(RoutingContext context, JWT jwt) {
+    @Deprecated
+private Single<JWT> validateRequestObjectClaims(RoutingContext context, JWT jwt) {
+ return RxJava2Adapter.monoToSingle(validateRequestObjectClaims_migrated(context, jwt));
+}
+private Mono<JWT> validateRequestObjectClaims_migrated(RoutingContext context, JWT jwt) {
         if (this.domain.usePlainFapiProfile()) {
             try {
                 final boolean fromRequestUri = context.get(REQUEST_OBJECT_FROM_URI);
@@ -248,13 +256,13 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
                 }
 
             } catch (OAuth2Exception e) {
-                return RxJava2Adapter.monoToSingle(Mono.error(e));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(e)));
             } catch (ParseException e) {
-                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException()));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException())));
             }
         }
 
-        return RxJava2Adapter.monoToSingle(Mono.just(jwt));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
     }
 
     private OAuth2Exception generateException(boolean throwUriException, String msg) {
@@ -262,7 +270,11 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
         return throwUriException ? new InvalidRequestUriException(msg) : new InvalidRequestObjectException(msg);
     }
 
-    private Maybe<JWT> handleRequestObjectURI(RoutingContext context) {
+    @Deprecated
+private Maybe<JWT> handleRequestObjectURI(RoutingContext context) {
+ return RxJava2Adapter.monoToMaybe(handleRequestObjectURI_migrated(context));
+}
+private Mono<JWT> handleRequestObjectURI_migrated(RoutingContext context) {
         final String requestUri = context.request().getParam(Parameters.REQUEST_URI);
 
         if (requestUri != null) {
@@ -270,17 +282,17 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
             context.request().params().remove(Parameters.REQUEST_URI);
 
             if (requestUri.startsWith(PushedAuthorizationRequestService.PAR_URN_PREFIX)) {
-                return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(parService.readFromURI(requestUri, context.get(CLIENT_CONTEXT_KEY), context.get(PROVIDER_METADATA_CONTEXT_KEY))).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> preserveRequestObject(context, jwt))).flatMap(jwt->RxJava2Adapter.singleToMono(validateRequestObjectClaims(context, jwt))).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> {
+                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(parService.readFromURI(requestUri, context.get(CLIENT_CONTEXT_KEY), context.get(PROVIDER_METADATA_CONTEXT_KEY))).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> preserveRequestObject(context, jwt))).flatMap(jwt->RxJava2Adapter.singleToMono(validateRequestObjectClaims(context, jwt))).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> {
                             final String uriIdentifier = requestUri.substring(PushedAuthorizationRequestService.PAR_URN_PREFIX.length());
                             context.put(REQUEST_URI_ID_KEY, uriIdentifier);
                             return jwt;
-                        })));
+                        }))));
             } else {
-                return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestObjectService
-                        .readRequestObjectFromURI(requestUri, context.get(CLIENT_CONTEXT_KEY))).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> preserveRequestObject(context, jwt))).flatMap(jwt->RxJava2Adapter.singleToMono(validateRequestObjectClaims(context, jwt))));
+                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(requestObjectService
+                        .readRequestObjectFromURI(requestUri, context.get(CLIENT_CONTEXT_KEY))).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> preserveRequestObject(context, jwt))).flatMap(jwt->RxJava2Adapter.singleToMono(validateRequestObjectClaims(context, jwt)))));
             }
         } else {
-            return RxJava2Adapter.monoToMaybe(Mono.empty());
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
     }
 

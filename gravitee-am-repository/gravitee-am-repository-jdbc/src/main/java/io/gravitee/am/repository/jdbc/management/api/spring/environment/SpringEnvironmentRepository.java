@@ -21,6 +21,7 @@ import io.reactivex.Maybe;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -28,9 +29,19 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SpringEnvironmentRepository extends RxJava2CrudRepository<JdbcEnvironment, String> {
-    @Query("select * from environments e where e.id = :id and e.organization_id = :organizationId")
-    Maybe<JdbcEnvironment> findByIdAndOrganization(String id, String organizationId);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment> findByIdAndOrganization(java.lang.String id, java.lang.String organizationId) {
+    return RxJava2Adapter.monoToMaybe(findByIdAndOrganization_migrated(id, organizationId));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment> findByIdAndOrganization_migrated(String id, String organizationId) {
+    return RxJava2Adapter.maybeToMono(findByIdAndOrganization(id, organizationId));
+}
 
-    @Query("select * from environments e where e.organization_id = :organizationId")
-    Flowable<JdbcEnvironment> findByOrganization(String organizationId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment> findByOrganization(java.lang.String organizationId) {
+    return RxJava2Adapter.fluxToFlowable(findByOrganization_migrated(organizationId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment> findByOrganization_migrated(String organizationId) {
+    return RxJava2Adapter.flowableToFlux(findByOrganization(organizationId));
+}
 }

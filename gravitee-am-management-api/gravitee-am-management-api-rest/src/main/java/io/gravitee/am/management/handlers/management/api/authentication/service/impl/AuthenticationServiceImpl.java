@@ -141,17 +141,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     /**
      * Update ORGANIZATION role to an existing user if the identity provider role mapper has changed
      */
-    private Completable updateRoles(User principal, io.gravitee.am.model.User existingUser) {
+    @Deprecated
+private Completable updateRoles(User principal, io.gravitee.am.model.User existingUser) {
+ return RxJava2Adapter.monoToCompletable(updateRoles_migrated(principal, existingUser));
+}
+private Mono<Void> updateRoles_migrated(User principal, io.gravitee.am.model.User existingUser) {
         // no role defined, continue
         if (principal.getRoles() == null || principal.getRoles().isEmpty()) {
-            return RxJava2Adapter.monoToCompletable(Mono.empty());
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
         }
 
         // role to update if it's different from the current one
         final String roleId = principal.getRoles().get(0);
 
         // update membership if necessary
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(membershipService.findByMember(existingUser.getId(), MemberType.USER)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(membership -> ReferenceType.ORGANIZATION == membership.getReferenceType())).next().map(RxJavaReactorMigrationUtil.toJdkFunction(membership -> !membership.getRoleId().equals(roleId))).switchIfEmpty(Mono.just(false)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)mustChangeOrganizationRole -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(membershipService.findByMember(existingUser.getId(), MemberType.USER)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(membership -> ReferenceType.ORGANIZATION == membership.getReferenceType())).next().map(RxJavaReactorMigrationUtil.toJdkFunction(membership -> !membership.getRoleId().equals(roleId))).switchIfEmpty(Mono.just(false)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)mustChangeOrganizationRole -> {
 
                     if (!mustChangeOrganizationRole) {
                         return RxJava2Adapter.monoToCompletable(Mono.empty());
@@ -166,6 +170,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
                     // check role and then update membership
                     return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(roleService.findById(existingUser.getReferenceType(), existingUser.getReferenceId(), roleId)).flatMap(__->RxJava2Adapter.singleToMono(membershipService.addOrUpdate(existingUser.getReferenceId(), membership))).then());
-                }).apply(y)))).then());
+                }).apply(y)))).then()));
     }
 }

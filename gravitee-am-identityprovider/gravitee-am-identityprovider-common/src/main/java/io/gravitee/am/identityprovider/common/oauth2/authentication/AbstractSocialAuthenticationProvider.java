@@ -85,14 +85,24 @@ public abstract class AbstractSocialAuthenticationProvider<T extends SocialIdent
         }
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticate(authentication)).flatMap(z->profile(z, authentication).as(RxJava2Adapter::maybeToMono)));
+ return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
+}
+@Override
+    public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticate(authentication)).flatMap(z->profile(z, authentication).as(RxJava2Adapter::maybeToMono))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> loadUserByUsername(String username) {
-        return RxJava2Adapter.monoToMaybe(Mono.empty());
+ return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
+}
+@Override
+    public Mono<User> loadUserByUsername_migrated(String username) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
 

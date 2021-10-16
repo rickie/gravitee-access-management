@@ -21,6 +21,7 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -29,7 +30,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringApplicationIdentityRepository extends RxJava2CrudRepository<JdbcApplication.Identity, String> {
 
-    @Query("Select * from application_identities i where i.application_id = :appId")
-    Flowable<JdbcApplication.Identity> findAllByApplicationId(@Param("appId") String applicationId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication.Identity> findAllByApplicationId(@org.springframework.data.repository.query.Param(value = "appId")
+java.lang.String applicationId) {
+    return RxJava2Adapter.fluxToFlowable(findAllByApplicationId_migrated(applicationId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication.Identity> findAllByApplicationId_migrated(@Param(value = "appId")
+String applicationId) {
+    return RxJava2Adapter.flowableToFlux(findAllByApplicationId(applicationId));
+}
 
 }

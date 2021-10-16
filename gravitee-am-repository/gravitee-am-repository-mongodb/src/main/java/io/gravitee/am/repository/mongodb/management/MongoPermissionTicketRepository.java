@@ -60,27 +60,47 @@ public class MongoPermissionTicketRepository extends AbstractManagementMongoRepo
         super.createIndex(permissionTicketCollection, new Document(FIELD_RESET_TIME, 1), new IndexOptions().expireAfter(0l, TimeUnit.SECONDS));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<PermissionTicket> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(permissionTicketCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<PermissionTicket> findById_migrated(String id) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(permissionTicketCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<PermissionTicket> create(PermissionTicket ticket) {
+ return RxJava2Adapter.monoToSingle(create_migrated(ticket));
+}
+@Override
+    public Mono<PermissionTicket> create_migrated(PermissionTicket ticket) {
         PermissionTicketMongo permissionTicket = convert(ticket);
         permissionTicket.setId(permissionTicket.getId() == null ? RandomString.generate() : permissionTicket.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(permissionTicketCollection.insertOne(permissionTicket))).flatMap(success->RxJava2Adapter.maybeToMono(findById(permissionTicket.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(permissionTicketCollection.insertOne(permissionTicket))).flatMap(success->RxJava2Adapter.maybeToMono(findById(permissionTicket.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<PermissionTicket> update(PermissionTicket ticket) {
+ return RxJava2Adapter.monoToSingle(update_migrated(ticket));
+}
+@Override
+    public Mono<PermissionTicket> update_migrated(PermissionTicket ticket) {
         PermissionTicketMongo permissionTicket = convert(ticket);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(permissionTicketCollection.replaceOne(eq(FIELD_ID, permissionTicket.getId()), permissionTicket))).flatMap(success->RxJava2Adapter.maybeToMono(findById(permissionTicket.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(permissionTicketCollection.replaceOne(eq(FIELD_ID, permissionTicket.getId()), permissionTicket))).flatMap(success->RxJava2Adapter.maybeToMono(findById(permissionTicket.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(permissionTicketCollection.deleteOne(eq(FIELD_ID, id))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(permissionTicketCollection.deleteOne(eq(FIELD_ID, id)))));
     }
 
     private PermissionTicketMongo convert(PermissionTicket permissionTicket) {

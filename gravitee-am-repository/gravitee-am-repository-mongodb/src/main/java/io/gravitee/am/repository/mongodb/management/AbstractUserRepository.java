@@ -188,22 +188,37 @@ public abstract class AbstractUserRepository<T extends UserMongo> extends Abstra
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCollection.find(eq(FIELD_ID, userId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> create(User item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<User> create_migrated(User item) {
         UserMongo user = convert(item);
         user.setId(user.getId() == null ? RandomString.generate() : user.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne((T)user))).flatMap(success->RxJava2Adapter.maybeToMono(findById(user.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne((T)user))).flatMap(success->RxJava2Adapter.maybeToMono(findById(user.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> update(User item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<User> update_migrated(User item) {
         UserMongo user = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, user.getId()), (T)user))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(user.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, user.getId()), (T)user))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(user.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(usersCollection.deleteOne(eq(FIELD_ID, id)))));
     }
 
     protected User convert(T userMongo) {

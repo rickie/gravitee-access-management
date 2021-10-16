@@ -118,7 +118,11 @@ public class OrganizationServiceImpl implements OrganizationService {
         return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findById(organizationId)).flatMap(organization->RxJava2Adapter.singleToMono(updateInternal(patchOrganization.patch(organization), updatedBy, organization))));
     }
 
-    private Single<Organization> createInternal(Organization toCreate, User owner) {
+    @Deprecated
+private Single<Organization> createInternal(Organization toCreate, User owner) {
+ return RxJava2Adapter.monoToSingle(createInternal_migrated(toCreate, owner));
+}
+private Mono<Organization> createInternal_migrated(Organization toCreate, User owner) {
 
         Date now = new Date();
 
@@ -126,13 +130,17 @@ public class OrganizationServiceImpl implements OrganizationService {
         toCreate.setUpdatedAt(now);
 
         // Creates an organization and set ownership.
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationRepository.create(toCreate)).flatMap(createdOrganization->RxJava2Adapter.completableToMono(Completable.mergeArrayDelayError(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(entrypointService.createDefaults(createdOrganization)).ignoreElements().then()), roleService.createDefaultRoles(createdOrganization.getId()))).then(Mono.just(createdOrganization))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(organization -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(organization).principal(owner)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(toCreate).principal(owner).throwable(throwable)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationRepository.create(toCreate)).flatMap(createdOrganization->RxJava2Adapter.completableToMono(Completable.mergeArrayDelayError(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(entrypointService.createDefaults(createdOrganization)).ignoreElements().then()), roleService.createDefaultRoles(createdOrganization.getId()))).then(Mono.just(createdOrganization))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(organization -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(organization).principal(owner)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(toCreate).principal(owner).throwable(throwable))))));
     }
 
-    private Single<Organization> updateInternal(Organization organization, User updatedBy, Organization previous) {
+    @Deprecated
+private Single<Organization> updateInternal(Organization organization, User updatedBy, Organization previous) {
+ return RxJava2Adapter.monoToSingle(updateInternal_migrated(organization, updatedBy, previous));
+}
+private Mono<Organization> updateInternal_migrated(Organization organization, User updatedBy, Organization previous) {
 
         organization.setUpdatedAt(new Date());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationRepository.update(organization)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(updated -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_UPDATED).organization(updated).principal(updatedBy).oldValue(previous)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_UPDATED).organization(previous).principal(updatedBy).throwable(throwable)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(organizationRepository.update(organization)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(updated -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_UPDATED).organization(updated).principal(updatedBy).oldValue(previous)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_UPDATED).organization(previous).principal(updatedBy).throwable(throwable))))));
     }
 }

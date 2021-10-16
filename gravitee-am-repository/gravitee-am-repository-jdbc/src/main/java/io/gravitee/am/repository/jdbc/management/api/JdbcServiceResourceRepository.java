@@ -52,14 +52,24 @@ public class JdbcServiceResourceRepository extends AbstractJdbcRepository implem
         return mapper.map(entity, JdbcServiceResource.class);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<ServiceResource> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<ServiceResource> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(serviceResourceRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(serviceResourceRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<ServiceResource> create(ServiceResource item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<ServiceResource> create_migrated(ServiceResource item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("Create Reporter with id {}", item.getId());
 
@@ -68,19 +78,29 @@ public class JdbcServiceResourceRepository extends AbstractJdbcRepository implem
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(insertResult.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertResult.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<ServiceResource> update(ServiceResource item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<ServiceResource> update_migrated(ServiceResource item) {
         LOGGER.debug("Update resource with id '{}'", item.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(serviceResourceRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(serviceResourceRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return serviceResourceRepository.deleteById(id);
+        return RxJava2Adapter.completableToMono(serviceResourceRepository.deleteById(id));
     }
 
     @Override

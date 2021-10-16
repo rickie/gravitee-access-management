@@ -48,16 +48,20 @@ public class AbstractUserConsentEndpointHandler {
         this.domain = domain;
     }
 
-    protected Single<User> getPrincipal(RoutingContext context) {
+    @Deprecated
+protected Single<User> getPrincipal(RoutingContext context) {
+ return RxJava2Adapter.monoToSingle(getPrincipal_migrated(context));
+}
+protected Mono<User> getPrincipal_migrated(RoutingContext context) {
         JWT token = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
 
         if (token.getSub() == null) {
-            return RxJava2Adapter.monoToSingle(Mono.just(defaultPrincipal(context, token)));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(defaultPrincipal(context, token))));
         }
 
         // end user
         if (!token.getSub().equals(token.getAud())) {
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findById(token.getSub())).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findById(token.getSub())).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                         User principal = new DefaultUser(user.getUsername());
                         ((DefaultUser) principal).setId(user.getId());
                         Map<String, Object> additionalInformation =
@@ -68,10 +72,10 @@ public class AbstractUserConsentEndpointHandler {
                         additionalInformation.put(Claims.domain, domain.getId());
                         ((DefaultUser) principal).setAdditionalInformation(additionalInformation);
                         return principal;
-                    })).defaultIfEmpty(defaultPrincipal(context, token)).single());
+                    })).defaultIfEmpty(defaultPrincipal(context, token)).single()));
         } else {
             // revocation made oauth2 clients
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(clientSyncService.findByClientId(token.getAud())).map(RxJavaReactorMigrationUtil.toJdkFunction(client -> {
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(clientSyncService.findByClientId(token.getAud())).map(RxJavaReactorMigrationUtil.toJdkFunction(client -> {
                         User principal = new DefaultUser(client.getClientId());
                         ((DefaultUser) principal).setId(client.getId());
                         Map<String, Object> additionalInformation = new HashMap<>();
@@ -81,7 +85,7 @@ public class AbstractUserConsentEndpointHandler {
                         additionalInformation.put(Claims.domain, domain.getId());
                         ((DefaultUser) principal).setAdditionalInformation(additionalInformation);
                         return principal;
-                    })).defaultIfEmpty(defaultPrincipal(context, token)).single());
+                    })).defaultIfEmpty(defaultPrincipal(context, token)).single()));
         }
 
     }

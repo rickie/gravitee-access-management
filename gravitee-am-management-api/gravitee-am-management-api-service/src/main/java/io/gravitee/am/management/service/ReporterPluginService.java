@@ -18,8 +18,8 @@ package io.gravitee.am.management.service;
 import io.gravitee.am.service.model.plugin.ReporterPlugin;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -27,9 +27,27 @@ import java.util.List;
  */
 public interface ReporterPluginService {
 
-    Single<List<ReporterPlugin>> findAll();
+      @Deprecated  
+default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.ReporterPlugin>> findAll() {
+    return RxJava2Adapter.monoToSingle(findAll_migrated());
+}
+default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.plugin.ReporterPlugin>> findAll_migrated() {
+    return RxJava2Adapter.singleToMono(findAll());
+}
 
-    Maybe<ReporterPlugin> findById(String reporterId);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.service.model.plugin.ReporterPlugin> findById(java.lang.String reporterId) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(reporterId));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.service.model.plugin.ReporterPlugin> findById_migrated(String reporterId) {
+    return RxJava2Adapter.maybeToMono(findById(reporterId));
+}
 
-    Maybe<String> getSchema(String reporterId);
+      @Deprecated  
+default io.reactivex.Maybe<java.lang.String> getSchema(java.lang.String reporterId) {
+    return RxJava2Adapter.monoToMaybe(getSchema_migrated(reporterId));
+}
+default reactor.core.publisher.Mono<java.lang.String> getSchema_migrated(String reporterId) {
+    return RxJava2Adapter.maybeToMono(getSchema(reporterId));
+}
 }

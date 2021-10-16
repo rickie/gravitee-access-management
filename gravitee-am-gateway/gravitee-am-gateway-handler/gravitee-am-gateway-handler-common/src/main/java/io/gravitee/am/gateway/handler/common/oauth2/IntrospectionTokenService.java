@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.common.oauth2;
 
 import io.gravitee.am.common.jwt.JWT;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -24,5 +25,11 @@ import io.reactivex.Single;
  */
 public interface IntrospectionTokenService {
 
-    Single<JWT> introspect(String token, boolean offlineVerification);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.common.jwt.JWT> introspect(java.lang.String token, boolean offlineVerification) {
+    return RxJava2Adapter.monoToSingle(introspect_migrated(token, offlineVerification));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.common.jwt.JWT> introspect_migrated(String token, boolean offlineVerification) {
+    return RxJava2Adapter.singleToMono(introspect(token, offlineVerification));
+}
 }

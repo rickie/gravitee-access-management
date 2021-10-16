@@ -374,8 +374,12 @@ public class DomainServiceImpl implements DomainService {
                 });
     }
 
-    private Single<Domain> createSystemScopes(Domain domain) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromArray(Scope.values())
+    @Deprecated
+private Single<Domain> createSystemScopes(Domain domain) {
+ return RxJava2Adapter.monoToSingle(createSystemScopes_migrated(domain));
+}
+private Mono<Domain> createSystemScopes_migrated(Domain domain) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromArray(Scope.values())
                 .flatMapSingle(systemScope -> {
                     final String scopeKey = systemScope.getKey();
                     NewSystemScope scope = new NewSystemScope();
@@ -386,7 +390,7 @@ public class DomainServiceImpl implements DomainService {
                     scope.setDiscovery(systemScope.isDiscovery());
                     return scopeService.create(domain.getId(), scope);
                 })
-                .lastOrError()).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> domain)));
+                .lastOrError()).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> domain))));
     }
 
     @Override
@@ -422,9 +426,13 @@ public class DomainServiceImpl implements DomainService {
         return uri;
     }
 
-    private Single<Domain> createDefaultCertificate(Domain domain) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateService
-                .create(domain.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(certificate -> domain)));
+    @Deprecated
+private Single<Domain> createDefaultCertificate(Domain domain) {
+ return RxJava2Adapter.monoToSingle(createDefaultCertificate_migrated(domain));
+}
+private Mono<Domain> createDefaultCertificate_migrated(Domain domain) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateService
+                .create(domain.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(certificate -> domain))));
     }
 
     private String generateContextPath(String domainName) {
@@ -432,26 +440,34 @@ public class DomainServiceImpl implements DomainService {
         return "/" + IdGenerator.generate(domainName);
     }
 
-    private Completable validateDomain(Domain domain) {
+    @Deprecated
+private Completable validateDomain(Domain domain) {
+ return RxJava2Adapter.monoToCompletable(validateDomain_migrated(domain));
+}
+private Mono<Void> validateDomain_migrated(Domain domain) {
         if (domain.getReferenceType() != ReferenceType.ENVIRONMENT) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("Domain must be attached to an environment")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("Domain must be attached to an environment"))));
         }
 
         // check the uniqueness of the domain
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(domainRepository.findByHrid(domain.getReferenceType(), domain.getReferenceId(), domain.getHrid())).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<Domain>, CompletableSource>)optDomain -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(domainRepository.findByHrid(domain.getReferenceType(), domain.getReferenceId(), domain.getHrid())).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<Domain>, CompletableSource>)optDomain -> {
                     if (optDomain.isPresent() && !optDomain.get().getId().equals(domain.getId())) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(new DomainAlreadyExistsException(domain.getName())));
                     } else {
                         // Get environment domain restrictions and validate all data are correctly defined.
                         return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(environmentService.findById(domain.getReferenceId())).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Environment, CompletableSource>toJdkFunction(environment -> validateDomain(domain, environment)).apply(z)))).then());
                     }
-                }).apply(y)))).then());
+                }).apply(y)))).then()));
     }
 
-    private Completable validateDomain(Domain domain, Environment environment) {
+    @Deprecated
+private Completable validateDomain(Domain domain, Environment environment) {
+ return RxJava2Adapter.monoToCompletable(validateDomain_migrated(domain, environment));
+}
+private Mono<Void> validateDomain_migrated(Domain domain, Environment environment) {
 
         // Get environment domain restrictions and validate all data are correctly defined.
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(DomainValidator.validate(domain, environment.getDomainRestrictions())).then(RxJava2Adapter.singleToMono(findAll()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<List<Domain>, CompletableSource>toJdkFunction(domains -> VirtualHostValidator.validateDomainVhosts(domain, domains)).apply(y)))).then()));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(DomainValidator.validate(domain, environment.getDomainRestrictions())).then(RxJava2Adapter.singleToMono(findAll()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<List<Domain>, CompletableSource>toJdkFunction(domains -> VirtualHostValidator.validateDomainVhosts(domain, domains)).apply(y)))).then())));
     }
 
     private void setDeployMode(Domain domain, Environment environment) {

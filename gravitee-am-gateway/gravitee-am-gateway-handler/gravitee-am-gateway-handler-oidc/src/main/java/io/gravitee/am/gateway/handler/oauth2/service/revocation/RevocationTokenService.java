@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.oauth2.service.revocation;
 
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Completable;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -24,5 +25,11 @@ import io.reactivex.Completable;
  */
 public interface RevocationTokenService {
 
-    Completable revoke(RevocationTokenRequest request, Client client);
+      @Deprecated  
+default io.reactivex.Completable revoke(io.gravitee.am.gateway.handler.oauth2.service.revocation.RevocationTokenRequest request, io.gravitee.am.model.oidc.Client client) {
+    return RxJava2Adapter.monoToCompletable(revoke_migrated(request, client));
+}
+default reactor.core.publisher.Mono<java.lang.Void> revoke_migrated(RevocationTokenRequest request, Client client) {
+    return RxJava2Adapter.completableToMono(revoke(request, client));
+}
 }

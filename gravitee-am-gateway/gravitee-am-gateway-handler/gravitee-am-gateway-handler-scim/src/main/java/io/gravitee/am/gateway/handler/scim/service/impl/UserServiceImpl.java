@@ -320,9 +320,13 @@ return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementExcept
                 .orElseGet(() -> !passwordValidator.isValid(password));
     }
 
-    private Single<User> setGroups(User scimUser) {
+    @Deprecated
+private Single<User> setGroups(User scimUser) {
+ return RxJava2Adapter.monoToSingle(setGroups_migrated(scimUser));
+}
+private Mono<User> setGroups_migrated(User scimUser) {
         // fetch groups
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(groupService.findByMember(scimUser.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(group -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(groupService.findByMember(scimUser.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(group -> {
                     Member member = new Member();
                     member.setValue(group.getId());
                     member.setDisplay(group.getDisplayName());
@@ -334,22 +338,26 @@ return RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalManagementExcept
                     } else {
                         return scimUser;
                     }
-                })));
+                }))));
     }
 
-    private Completable checkRoles(List<String> roles) {
+    @Deprecated
+private Completable checkRoles(List<String> roles) {
+ return RxJava2Adapter.monoToCompletable(checkRoles_migrated(roles));
+}
+private Mono<Void> checkRoles_migrated(List<String> roles) {
         if (roles == null || roles.isEmpty()) {
-            return RxJava2Adapter.monoToCompletable(Mono.empty());
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
         }
 
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(roleService.findByIdIn(roles)).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(roleService.findByIdIn(roles)).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
                     if (roles1.size() != roles.size()) {
                         // find difference between the two list
                         roles.removeAll(roles1.stream().map(Role::getId).collect(Collectors.toList()));
                         throw new RoleNotFoundException(String.join(",", roles));
                     }
                     return roles1;
-                })).then());
+                })).then()));
     }
 
     private User convert(io.gravitee.am.model.User user, String baseUrl, boolean listing) {

@@ -50,22 +50,35 @@ public abstract class AbstractUsersResource extends AbstractResource {
     @Autowired
     protected DomainService domainService;
 
-    protected Single<Page<User>> searchUsers(ReferenceType referenceType,
+    @Deprecated
+protected Single<Page<User>> searchUsers(ReferenceType referenceType,
+                                             String referenceId,
+                                             String query,
+                                             String filter,
+                                             int page,
+                                             int size) {
+ return RxJava2Adapter.monoToSingle(searchUsers_migrated(referenceType, referenceId, query, filter, page, size));
+}
+protected Mono<Page<User>> searchUsers_migrated(ReferenceType referenceType,
                                              String referenceId,
                                              String query,
                                              String filter,
                                              int page,
                                              int size) {
         CommonUserService service = (referenceType == ReferenceType.ORGANIZATION ? organizationUserService : userService);
-        return executeSearchUsers(service, referenceType, referenceId, query, filter, page, size);
+        return RxJava2Adapter.singleToMono(executeSearchUsers(service, referenceType, referenceId, query, filter, page, size));
     }
 
-    private Single<Page<User>> executeSearchUsers(CommonUserService service, ReferenceType referenceType, String referenceId, String query, String filter, int page, int size) {
+    @Deprecated
+private Single<Page<User>> executeSearchUsers(CommonUserService service, ReferenceType referenceType, String referenceId, String query, String filter, int page, int size) {
+ return RxJava2Adapter.monoToSingle(executeSearchUsers_migrated(service, referenceType, referenceId, query, filter, page, size));
+}
+private Mono<Page<User>> executeSearchUsers_migrated(CommonUserService service, ReferenceType referenceType, String referenceId, String query, String filter, int page, int size) {
         if (query != null) {
-            return service.search(referenceType, referenceId, query, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE));
+            return RxJava2Adapter.singleToMono(service.search(referenceType, referenceId, query, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE)));
         }
         if (filter != null) {
-            return Single.defer(() -> {
+            return RxJava2Adapter.singleToMono(Single.defer(() -> {
                 FilterCriteria filterCriteria = FilterCriteria.convert(SCIMFilterParser.parse(filter));
                 return service.search(referenceType, referenceId, filterCriteria, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE));
             }).onErrorResumeNext(ex -> {
@@ -73,9 +86,9 @@ public abstract class AbstractUsersResource extends AbstractResource {
                     return RxJava2Adapter.monoToSingle(Mono.error(new BadRequestException(ex.getMessage())));
                 }
                 return RxJava2Adapter.monoToSingle(Mono.error(ex));
-            });
+            }));
         }
-        return service.findAll(referenceType, referenceId, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE));
+        return RxJava2Adapter.singleToMono(service.findAll(referenceType, referenceId, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE)));
     }
 
 }

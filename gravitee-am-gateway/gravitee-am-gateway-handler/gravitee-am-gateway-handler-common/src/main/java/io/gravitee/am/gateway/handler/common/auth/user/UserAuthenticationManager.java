@@ -21,6 +21,8 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.gateway.api.Request;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -29,23 +31,56 @@ import io.reactivex.Single;
  */
 public interface UserAuthenticationManager {
 
-    Single<User> authenticate(Client client, Authentication authentication, boolean preAuthenticated);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.User> authenticate(io.gravitee.am.model.oidc.Client client, io.gravitee.am.identityprovider.api.Authentication authentication, boolean preAuthenticated) {
+    return RxJava2Adapter.monoToSingle(authenticate_migrated(client, authentication, preAuthenticated));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.User> authenticate_migrated(Client client, Authentication authentication, boolean preAuthenticated) {
+    return RxJava2Adapter.singleToMono(authenticate(client, authentication, preAuthenticated));
+}
 
-    Maybe<User> loadUserByUsername(Client client, String username, Request request);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.User> loadUserByUsername(io.gravitee.am.model.oidc.Client client, java.lang.String username, io.gravitee.gateway.api.Request request) {
+    return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(client, username, request));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.User> loadUserByUsername_migrated(Client client, String username, Request request) {
+    return RxJava2Adapter.maybeToMono(loadUserByUsername(client, username, request));
+}
 
-    Maybe<User> loadPreAuthenticatedUser(String subject, Request request);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.User> loadPreAuthenticatedUser(java.lang.String subject, io.gravitee.gateway.api.Request request) {
+    return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(subject, request));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.User> loadPreAuthenticatedUser_migrated(String subject, Request request) {
+    return RxJava2Adapter.maybeToMono(loadPreAuthenticatedUser(subject, request));
+}
 
-    Single<User> connect(io.gravitee.am.identityprovider.api.User user, boolean afterAuthentication);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.User> connect(io.gravitee.am.identityprovider.api.User user, boolean afterAuthentication) {
+    return RxJava2Adapter.monoToSingle(connect_migrated(user, afterAuthentication));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.User> connect_migrated(io.gravitee.am.identityprovider.api.User user, boolean afterAuthentication) {
+    return RxJava2Adapter.singleToMono(connect(user, afterAuthentication));
+}
 
-    default Single<User> authenticate(Client client, Authentication authentication) {
-        return authenticate(client, authentication, false);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.User> authenticate(io.gravitee.am.model.oidc.Client client, io.gravitee.am.identityprovider.api.Authentication authentication) {
+    return RxJava2Adapter.monoToSingle(authenticate_migrated(client, authentication));
+}default Mono<User> authenticate_migrated(Client client, Authentication authentication) {
+        return RxJava2Adapter.singleToMono(authenticate(client, authentication, false));
     }
 
-    default Maybe<User> loadPreAuthenticatedUser(String subject) {
-        return loadPreAuthenticatedUser(subject, null);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.User> loadPreAuthenticatedUser(java.lang.String subject) {
+    return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(subject));
+}default Mono<User> loadPreAuthenticatedUser_migrated(String subject) {
+        return RxJava2Adapter.maybeToMono(loadPreAuthenticatedUser(subject, null));
     }
 
-    default Single<User> connect(io.gravitee.am.identityprovider.api.User user) {
-        return connect(user, true);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.User> connect(io.gravitee.am.identityprovider.api.User user) {
+    return RxJava2Adapter.monoToSingle(connect_migrated(user));
+}default Mono<User> connect_migrated(io.gravitee.am.identityprovider.api.User user) {
+        return RxJava2Adapter.singleToMono(connect(user, true));
     }
 }

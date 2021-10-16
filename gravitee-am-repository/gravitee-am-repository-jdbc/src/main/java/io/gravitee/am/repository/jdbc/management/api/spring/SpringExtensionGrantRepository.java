@@ -21,15 +21,32 @@ import io.reactivex.Maybe;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 public interface SpringExtensionGrantRepository extends RxJava2CrudRepository<JdbcExtensionGrant, String> {
-    @Query("select * from extension_grants e where e.domain = :domain")
-    Flowable<JdbcExtensionGrant> findByDomain(@Param("domain") String domain);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcExtensionGrant> findByDomain(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain) {
+    return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcExtensionGrant> findByDomain_migrated(@Param(value = "domain")
+String domain) {
+    return RxJava2Adapter.flowableToFlux(findByDomain(domain));
+}
 
-    @Query("select * from extension_grants e where e.domain = :domain and e.name = :name")
-    Maybe<JdbcExtensionGrant> findByDomainAndName(@Param("domain") String domain, @Param("name") String name);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcExtensionGrant> findByDomainAndName(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain, @org.springframework.data.repository.query.Param(value = "name")
+java.lang.String name) {
+    return RxJava2Adapter.monoToMaybe(findByDomainAndName_migrated(domain, name));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcExtensionGrant> findByDomainAndName_migrated(@Param(value = "domain")
+String domain, @Param(value = "name")
+String name) {
+    return RxJava2Adapter.maybeToMono(findByDomainAndName(domain, name));
+}
 }

@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.handler.scim.service;
 
 import io.gravitee.am.gateway.handler.scim.model.ServiceProviderConfiguration;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -24,5 +25,11 @@ import io.reactivex.Single;
  */
 public interface ServiceProviderConfigService {
 
-    Single<ServiceProviderConfiguration> get();
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.gateway.handler.scim.model.ServiceProviderConfiguration> get() {
+    return RxJava2Adapter.monoToSingle(get_migrated());
+}
+default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.scim.model.ServiceProviderConfiguration> get_migrated() {
+    return RxJava2Adapter.singleToMono(get());
+}
 }

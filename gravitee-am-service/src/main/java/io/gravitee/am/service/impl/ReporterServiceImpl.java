@@ -239,7 +239,11 @@ return RxJava2Adapter.monoToSingle(Mono.just(reporter1));
      * @param reporter to check
      * @return
      */
-    private Single<Reporter> checkReporterConfiguration(Reporter reporter) {
+    @Deprecated
+private Single<Reporter> checkReporterConfiguration(Reporter reporter) {
+ return RxJava2Adapter.monoToSingle(checkReporterConfiguration_migrated(reporter));
+}
+private Mono<Reporter> checkReporterConfiguration_migrated(Reporter reporter) {
         Single<Reporter> result = RxJava2Adapter.monoToSingle(Mono.just(reporter));
 
         if (REPORTER_AM_FILE.equalsIgnoreCase(reporter.getType())) {
@@ -260,7 +264,7 @@ return RxJava2Adapter.monoToSingle(Mono.just(reporter1));
                     }).apply(v))));
         }
 
-        return result;
+        return RxJava2Adapter.singleToMono(result);
     }
 
     private NewReporter createMongoReporter(String domain) {

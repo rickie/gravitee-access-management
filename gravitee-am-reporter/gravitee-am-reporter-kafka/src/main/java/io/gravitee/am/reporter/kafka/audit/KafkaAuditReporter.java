@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Florent Amaridon
@@ -130,20 +131,37 @@ public class KafkaAuditReporter extends AbstractService implements AuditReporter
     return false;
   }
 
-  @Override
+  @Deprecated
+@Override
   public Single<Page<Audit>> search(ReferenceType referenceType, String referenceId,
+      AuditReportableCriteria criteria, int page, int size) {
+ return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
+}
+@Override
+  public Mono<Page<Audit>> search_migrated(ReferenceType referenceType, String referenceId,
       AuditReportableCriteria criteria, int page, int size) {
     throw new IllegalStateException("Search method not implemented for File reporter");
   }
 
-  @Override
+  @Deprecated
+@Override
   public Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId,
+      AuditReportableCriteria criteria, Type analyticsType) {
+ return RxJava2Adapter.monoToSingle(aggregate_migrated(referenceType, referenceId, criteria, analyticsType));
+}
+@Override
+  public Mono<Map<Object,Object>> aggregate_migrated(ReferenceType referenceType, String referenceId,
       AuditReportableCriteria criteria, Type analyticsType) {
     throw new IllegalStateException("Aggregate method not implemented for File reporter");
   }
 
-  @Override
+  @Deprecated
+@Override
   public Maybe<Audit> findById(ReferenceType referenceType, String referenceId, String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
+}
+@Override
+  public Mono<Audit> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
     throw new IllegalStateException("FindById method not implemented for File reporter");
   }
 }

@@ -123,8 +123,12 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
 
     }
 
-    private Completable revokeAccessToken(String token, Client client) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(tokenService.getAccessToken(token, client)).switchIfEmpty(Mono.error(new InvalidTokenException("Unknown access token"))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, CompletableSource>)accessToken -> {
+    @Deprecated
+private Completable revokeAccessToken(String token, Client client) {
+ return RxJava2Adapter.monoToCompletable(revokeAccessToken_migrated(token, client));
+}
+private Mono<Void> revokeAccessToken_migrated(String token, Client client) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(tokenService.getAccessToken(token, client)).switchIfEmpty(Mono.error(new InvalidTokenException("Unknown access token"))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, CompletableSource>)accessToken -> {
                     String tokenClientId = accessToken.getClientId();
                     if (!client.getClientId().equals(tokenClientId)) {
                         logger.debug("Revoke FAILED: requesting client = {}, token's client = {}.", client.getClientId(), tokenClientId);
@@ -132,11 +136,15 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
                     }
 
                     return tokenService.deleteAccessToken(accessToken.getValue());
-                }).apply(y)))).then());
+                }).apply(y)))).then()));
     }
 
-    private Completable revokeRefreshToken(String token, Client client) {
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(tokenService.getRefreshToken(token, client)).switchIfEmpty(Mono.error(new InvalidTokenException("Unknown refresh token"))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, CompletableSource>)refreshToken -> {
+    @Deprecated
+private Completable revokeRefreshToken(String token, Client client) {
+ return RxJava2Adapter.monoToCompletable(revokeRefreshToken_migrated(token, client));
+}
+private Mono<Void> revokeRefreshToken_migrated(String token, Client client) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(tokenService.getRefreshToken(token, client)).switchIfEmpty(Mono.error(new InvalidTokenException("Unknown refresh token"))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, CompletableSource>)refreshToken -> {
                     String tokenClientId = refreshToken.getClientId();
                     if (!client.getClientId().equals(tokenClientId)) {
                         logger.debug("Revoke FAILED: requesting client = {}, token's client = {}.", client.getClientId(), tokenClientId);
@@ -144,6 +152,6 @@ public class RevocationTokenServiceImpl implements RevocationTokenService {
                     }
 
                     return tokenService.deleteRefreshToken(refreshToken.getValue());
-                }).apply(y)))).then());
+                }).apply(y)))).then()));
     }
 }

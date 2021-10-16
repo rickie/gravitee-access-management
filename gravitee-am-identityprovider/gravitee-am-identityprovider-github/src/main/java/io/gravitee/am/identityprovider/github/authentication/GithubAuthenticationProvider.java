@@ -90,13 +90,18 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
         return this.client;
     }
 
-    @Override
+    @Deprecated
+@Override
     protected Maybe<Token> authenticate(Authentication authentication) {
+ return RxJava2Adapter.monoToMaybe(authenticate_migrated(authentication));
+}
+@Override
+    protected Mono<Token> authenticate_migrated(Authentication authentication) {
         // prepare body request parameters
         final String authorizationCode = authentication.getContext().request().parameters().getFirst(configuration.getCodeParameter());
         if (authorizationCode == null || authorizationCode.isEmpty()) {
             LOGGER.debug("Authorization code is missing, skip authentication");
-            return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Missing authorization code")));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Missing authorization code"))));
         }
         List<NameValuePair> urlParameters = new ArrayList<>();
         urlParameters.add(new BasicNameValuePair(CLIENT_ID, configuration.getClientId()));
@@ -105,7 +110,7 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
         urlParameters.add(new BasicNameValuePair(CODE, authorizationCode));
         String bodyRequest = URLEncodedUtils.format(urlParameters);
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
                 .putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(bodyRequest.length()))
                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
                 .rxSendBuffer(Buffer.buffer(bodyRequest))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
@@ -115,12 +120,17 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
 
                     Map<String, String> bodyResponse = URLEncodedUtils.format(httpResponse.bodyAsString());
                     return new Token(bodyResponse.get("access_token"), TokenTypeHint.ACCESS_TOKEN);
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     protected Maybe<User> profile(Token accessToken, Authentication authentication) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserProfileUri())
+ return RxJava2Adapter.monoToMaybe(profile_migrated(accessToken, authentication));
+}
+@Override
+    protected Mono<User> profile_migrated(Token accessToken, Authentication authentication) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.getAbs(configuration.getUserProfileUri())
                 .putHeader(HttpHeaders.AUTHORIZATION, "token " + accessToken.getValue())
                 .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
                     if (httpClientResponse.statusCode() != 200) {
@@ -128,7 +138,7 @@ public class GithubAuthenticationProvider extends AbstractSocialAuthenticationPr
                     }
 
                     return createUser(authentication.getContext(), httpClientResponse.bodyAsJsonObject().getMap());
-                })));
+                }))));
     }
 
     private User createUser(AuthenticationContext authContext, Map<String, Object> attributes) {

@@ -93,19 +93,28 @@ public class FacebookAuthenticationProvider extends AbstractSocialAuthentication
         return this.client;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticate(authentication)).flatMap(z->this.profile(z, authentication).as(RxJava2Adapter::maybeToMono)));
+ return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
+}
+@Override
+    public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticate(authentication)).flatMap(z->this.profile(z, authentication).as(RxJava2Adapter::maybeToMono))));
     }
 
-    protected Maybe<Token> authenticate(Authentication authentication) {
+    @Deprecated
+protected Maybe<Token> authenticate(Authentication authentication) {
+ return RxJava2Adapter.monoToMaybe(authenticate_migrated(authentication));
+}
+protected Mono<Token> authenticate_migrated(Authentication authentication) {
 
         // Prepare body request parameters.
         final String authorizationCode = authentication.getContext().request().parameters().getFirst(configuration.getCodeParameter());
 
         if (authorizationCode == null || authorizationCode.isEmpty()) {
             LOGGER.debug("Authorization code is missing, skip authentication");
-            return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Missing authorization code")));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Missing authorization code"))));
         }
 
         MultiMap form = MultiMap.caseInsensitiveMultiMap()
@@ -114,7 +123,7 @@ public class FacebookAuthenticationProvider extends AbstractSocialAuthentication
                 .set(REDIRECT_URI, (String) authentication.getContext().get(REDIRECT_URI))
                 .set(CODE, authorizationCode);
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getAccessTokenUri())
                 .rxSendForm(form)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<Token>>toJdkFunction(httpResponse -> {
                     if (httpResponse.statusCode() != 200) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException(httpResponse.bodyAsString())));
@@ -122,12 +131,16 @@ public class FacebookAuthenticationProvider extends AbstractSocialAuthentication
                     }
 
                     return RxJava2Adapter.monoToMaybe(Mono.just(new Token(httpResponse.bodyAsJsonObject().getString(ACCESS_TOKEN), TokenTypeHint.ACCESS_TOKEN)));
-                }).apply(v)))));
+                }).apply(v))))));
     }
 
-    protected Maybe<User> profile(Token accessToken, Authentication auth) {
+    @Deprecated
+protected Maybe<User> profile(Token accessToken, Authentication auth) {
+ return RxJava2Adapter.monoToMaybe(profile_migrated(accessToken, auth));
+}
+protected Mono<User> profile_migrated(Token accessToken, Authentication auth) {
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getUserProfileUri())
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(client.postAbs(configuration.getUserProfileUri())
                 .rxSendForm(MultiMap.caseInsensitiveMultiMap()
                         .set(ACCESS_TOKEN, accessToken.getValue())
                         .set(FIELDS, ALL_FIELDS_PARAM))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, MaybeSource<User>>toJdkFunction(httpResponse -> {
@@ -136,7 +149,7 @@ public class FacebookAuthenticationProvider extends AbstractSocialAuthentication
                     }
 
                     return RxJava2Adapter.monoToMaybe(Mono.just(convert(auth.getContext(), httpResponse.bodyAsJsonObject())));
-                }).apply(v)))));
+                }).apply(v))))));
     }
 
     private User convert(AuthenticationContext authContext, JsonObject facebookUser) {

@@ -20,9 +20,9 @@ import io.gravitee.am.model.oauth2.Scope;
 import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
-
 import java.util.List;
 import java.util.Set;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -30,9 +30,27 @@ import java.util.Set;
  */
 public interface UserConsentService {
 
-    Single<Set<String>> checkConsent(Client client, io.gravitee.am.model.User user);
+      @Deprecated  
+default io.reactivex.Single<java.util.Set<java.lang.String>> checkConsent(io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User user) {
+    return RxJava2Adapter.monoToSingle(checkConsent_migrated(client, user));
+}
+default reactor.core.publisher.Mono<java.util.Set<java.lang.String>> checkConsent_migrated(Client client, io.gravitee.am.model.User user) {
+    return RxJava2Adapter.singleToMono(checkConsent(client, user));
+}
 
-    Single<List<ScopeApproval>> saveConsent(Client client, List<ScopeApproval> approvals, User principal);
+      @Deprecated  
+default io.reactivex.Single<java.util.List<io.gravitee.am.model.oauth2.ScopeApproval>> saveConsent(io.gravitee.am.model.oidc.Client client, java.util.List<io.gravitee.am.model.oauth2.ScopeApproval> approvals, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToSingle(saveConsent_migrated(client, approvals, principal));
+}
+default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.model.oauth2.ScopeApproval>> saveConsent_migrated(Client client, List<ScopeApproval> approvals, User principal) {
+    return RxJava2Adapter.singleToMono(saveConsent(client, approvals, principal));
+}
 
-    Single<List<Scope>> getConsentInformation(Set<String> consent);
+      @Deprecated  
+default io.reactivex.Single<java.util.List<io.gravitee.am.model.oauth2.Scope>> getConsentInformation(java.util.Set<java.lang.String> consent) {
+    return RxJava2Adapter.monoToSingle(getConsentInformation_migrated(consent));
+}
+default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.model.oauth2.Scope>> getConsentInformation_migrated(Set<String> consent) {
+    return RxJava2Adapter.singleToMono(getConsentInformation(consent));
+}
 }

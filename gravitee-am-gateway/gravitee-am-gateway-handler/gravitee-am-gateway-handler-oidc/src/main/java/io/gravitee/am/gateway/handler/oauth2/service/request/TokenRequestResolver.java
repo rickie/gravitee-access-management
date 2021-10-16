@@ -15,9 +15,11 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.request;
 
-import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.model.User;
+import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -25,7 +27,11 @@ import io.reactivex.Single;
  */
 public class TokenRequestResolver extends AbstractRequestResolver<TokenRequest> {
 
-    public Single<TokenRequest> resolve(TokenRequest tokenRequest, Client client, User endUser) {
-        return resolveAuthorizedScopes(tokenRequest, client, endUser);
+    @Deprecated
+public Single<TokenRequest> resolve(TokenRequest tokenRequest, Client client, User endUser) {
+ return RxJava2Adapter.monoToSingle(resolve_migrated(tokenRequest, client, endUser));
+}
+public Mono<TokenRequest> resolve_migrated(TokenRequest tokenRequest, Client client, User endUser) {
+        return RxJava2Adapter.singleToMono(resolveAuthorizedScopes(tokenRequest, client, endUser));
     }
 }

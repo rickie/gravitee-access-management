@@ -73,14 +73,24 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
 
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Credential> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Credential> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(credentialRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve credential for Id {}", id, error))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(credentialRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve credential for Id {}", id, error)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Credential> create(Credential item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Credential> create_migrated(Credential item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("create credential with id {}", item.getId());
 
@@ -89,19 +99,29 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create credential with id {}", item.getId(), error))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create credential with id {}", item.getId(), error)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Credential> update(Credential item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Credential> update_migrated(Credential item) {
         LOGGER.debug("update credential with id {}", item.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.credentialRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create credential with id {}", item.getId(), error))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.credentialRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create credential with id {}", item.getId(), error)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return credentialRepository.deleteById(id).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete credential for Id {}", id, error))).as(RxJava2Adapter::monoToCompletable);
+        return RxJava2Adapter.completableToMono(credentialRepository.deleteById(id).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete credential for Id {}", id, error))).as(RxJava2Adapter::monoToCompletable));
 
     }
 

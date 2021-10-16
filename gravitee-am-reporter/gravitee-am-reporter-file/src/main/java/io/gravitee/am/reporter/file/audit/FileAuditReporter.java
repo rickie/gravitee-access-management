@@ -16,6 +16,7 @@
 package io.gravitee.am.reporter.file.audit;
 
 import io.gravitee.am.common.analytics.Type;
+import io.gravitee.am.common.utils.GraviteeContext;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
@@ -29,7 +30,6 @@ import io.gravitee.am.reporter.file.formatter.Formatter;
 import io.gravitee.am.reporter.file.formatter.FormatterFactory;
 import io.gravitee.am.reporter.file.spring.FileReporterSpringConfiguration;
 import io.gravitee.am.reporter.file.vertx.VertxFileWriter;
-import io.gravitee.am.common.utils.GraviteeContext;
 import io.gravitee.common.service.AbstractService;
 import io.gravitee.node.api.Node;
 import io.gravitee.reporter.api.Reportable;
@@ -37,6 +37,12 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Locale;
+import java.util.Map;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +52,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Locale;
-import java.util.Map;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -89,18 +89,33 @@ public class FileAuditReporter extends AbstractService implements AuditReporter,
 
     private VertxFileWriter writer;
 
-    @Override
+    @Deprecated
+@Override
     public Single<Page<Audit>> search(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
+ return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
+}
+@Override
+    public Mono<Page<Audit>> search_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
         throw new IllegalStateException("Search method not implemented for File reporter");
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
+ return RxJava2Adapter.monoToSingle(aggregate_migrated(referenceType, referenceId, criteria, analyticsType));
+}
+@Override
+    public Mono<Map<Object,Object>> aggregate_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
         throw new IllegalStateException("Aggregate method not implemented for File reporter");
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Audit> findById(ReferenceType referenceType, String referenceId, String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
+}
+@Override
+    public Mono<Audit> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
         throw new IllegalStateException("FindById method not implemented for File reporter");
     }
 

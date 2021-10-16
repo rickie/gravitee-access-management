@@ -18,8 +18,8 @@ package io.gravitee.am.management.service;
 import io.gravitee.am.service.model.plugin.ResourcePlugin;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -29,11 +29,35 @@ public interface ResourcePluginService {
     String MANIFEST_KEY_CATEGORIES = "categories";
     String EXPAND_ICON = "icon";
 
-    Single<List<ResourcePlugin>> findAll(List<String> expand);
+      @Deprecated  
+default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.ResourcePlugin>> findAll(java.util.List<java.lang.String> expand) {
+    return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
+}
+default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.plugin.ResourcePlugin>> findAll_migrated(List<String> expand) {
+    return RxJava2Adapter.singleToMono(findAll(expand));
+}
 
-    Maybe<ResourcePlugin> findById(String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.service.model.plugin.ResourcePlugin> findById(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.service.model.plugin.ResourcePlugin> findById_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(findById(id));
+}
 
-    Maybe<String> getSchema(String id);
+      @Deprecated  
+default io.reactivex.Maybe<java.lang.String> getSchema(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(getSchema_migrated(id));
+}
+default reactor.core.publisher.Mono<java.lang.String> getSchema_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(getSchema(id));
+}
 
-    Maybe<String> getIcon(String resourceId);
+      @Deprecated  
+default io.reactivex.Maybe<java.lang.String> getIcon(java.lang.String resourceId) {
+    return RxJava2Adapter.monoToMaybe(getIcon_migrated(resourceId));
+}
+default reactor.core.publisher.Mono<java.lang.String> getIcon_migrated(String resourceId) {
+    return RxJava2Adapter.maybeToMono(getIcon(resourceId));
+}
 }

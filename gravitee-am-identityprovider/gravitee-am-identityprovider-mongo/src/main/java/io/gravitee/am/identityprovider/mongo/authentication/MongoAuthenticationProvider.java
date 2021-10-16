@@ -117,13 +117,17 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
                 }).apply(e)))));
     }
 
-    private Flowable<Document> findUserByMultipleField(String value) {
+    @Deprecated
+private Flowable<Document> findUserByMultipleField(String value) {
+ return RxJava2Adapter.fluxToFlowable(findUserByMultipleField_migrated(value));
+}
+private Flux<Document> findUserByMultipleField_migrated(String value) {
         MongoCollection<Document> usersCol = this.mongoClient.getDatabase(this.configuration.getDatabase()).getCollection(this.configuration.getUsersCollection());
         String findQuery = this.configuration.getFindUserByMultipleFieldsQuery() != null ? this.configuration.getFindUserByMultipleFieldsQuery() : this.configuration.getFindUserByUsernameQuery();
         String rawQuery = findQuery.replaceAll("\\?", value);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return RxJava2Adapter.fluxToFlowable(Flux.from(usersCol.find(query)));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(usersCol.find(query))));
     }
 
     public Maybe<User> loadUserByUsername(String username) {
@@ -131,12 +135,16 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findUserByUsername(encodedUsername)).map(RxJavaReactorMigrationUtil.toJdkFunction(document -> createUser(new SimpleAuthenticationContext(), document))));
     }
 
-    private Maybe<Document> findUserByUsername(String username) {
+    @Deprecated
+private Maybe<Document> findUserByUsername(String username) {
+ return RxJava2Adapter.monoToMaybe(findUserByUsername_migrated(username));
+}
+private Mono<Document> findUserByUsername_migrated(String username) {
         MongoCollection<Document> usersCol = this.mongoClient.getDatabase(this.configuration.getDatabase()).getCollection(this.configuration.getUsersCollection());
         String rawQuery = this.configuration.getFindUserByUsernameQuery().replaceAll("\\?", username);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCol.find(query).first()), BackpressureStrategy.BUFFER).next());
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCol.find(query).first()), BackpressureStrategy.BUFFER).next()));
     }
 
     private User createUser(AuthenticationContext authContext, Document document) {

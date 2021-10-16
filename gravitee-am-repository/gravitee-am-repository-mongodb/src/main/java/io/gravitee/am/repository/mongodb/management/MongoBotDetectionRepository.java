@@ -61,27 +61,47 @@ public class MongoBotDetectionRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.fluxToFlowable(Flux.from(botDetectionMongoCollection.find(and(eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_REFERENCE_TYPE, referenceType.name())))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<BotDetection> findById(String botDetectionId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(botDetectionMongoCollection.find(eq(FIELD_ID, botDetectionId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findById_migrated(botDetectionId));
+}
+@Override
+    public Mono<BotDetection> findById_migrated(String botDetectionId) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(botDetectionMongoCollection.find(eq(FIELD_ID, botDetectionId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<BotDetection> create(BotDetection item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<BotDetection> create_migrated(BotDetection item) {
         BotDetectionMongo entity = convert(item);
         entity.setId(entity.getId() == null ? RandomString.generate() : entity.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(botDetectionMongoCollection.insertOne(entity))).flatMap(success->RxJava2Adapter.maybeToMono(findById(entity.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(botDetectionMongoCollection.insertOne(entity))).flatMap(success->RxJava2Adapter.maybeToMono(findById(entity.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<BotDetection> update(BotDetection item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<BotDetection> update_migrated(BotDetection item) {
         BotDetectionMongo entity = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(botDetectionMongoCollection.replaceOne(eq(FIELD_ID, entity.getId()), entity))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(entity.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(botDetectionMongoCollection.replaceOne(eq(FIELD_ID, entity.getId()), entity))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(entity.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(botDetectionMongoCollection.deleteOne(eq(FIELD_ID, id))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(botDetectionMongoCollection.deleteOne(eq(FIELD_ID, id)))));
     }
 
     private BotDetection convert(BotDetectionMongo entity) {

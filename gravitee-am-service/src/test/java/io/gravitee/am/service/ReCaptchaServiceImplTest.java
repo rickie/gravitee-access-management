@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.service;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.gravitee.am.service.impl.ReCaptchaServiceImpl;
 import io.gravitee.common.http.HttpStatusCode;
@@ -28,6 +31,7 @@ import io.vertx.ext.web.client.impl.WebClientInternal;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.ext.web.client.HttpRequest;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import java.util.concurrent.CompletableFuture;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,11 +40,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.concurrent.CompletableFuture;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -199,7 +200,11 @@ public class ReCaptchaServiceImplTest {
         verify(client).getDelegate();
     }
 
-    protected Single<HttpRequest> spyHttpRequest(HttpRequest httpRequest) {
+    @Deprecated
+protected Single<HttpRequest> spyHttpRequest(HttpRequest httpRequest) {
+ return RxJava2Adapter.monoToSingle(spyHttpRequest_migrated(httpRequest));
+}
+protected Mono<HttpRequest> spyHttpRequest_migrated(HttpRequest httpRequest) {
 
 
         CompletableFuture<HttpRequest> spyHttpRequest = new CompletableFuture<>();
@@ -209,6 +214,6 @@ public class ReCaptchaServiceImplTest {
             return spyHttpRequest.get();
         });
 
-        return Single.fromFuture(spyHttpRequest);
+        return RxJava2Adapter.singleToMono(Single.fromFuture(spyHttpRequest));
     }
 }

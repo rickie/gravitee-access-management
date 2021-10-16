@@ -19,12 +19,12 @@ import io.gravitee.am.repository.jdbc.management.api.model.JdbcResource;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.List;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -33,21 +33,67 @@ import java.util.List;
 @Repository
 public interface SpringResourceRepository extends RxJava2CrudRepository<JdbcResource, String> {
 
-    @Query("select count(u.id) from uma_resource_set u where u.domain = :domain")
-    Single<Long> countByDomain(@Param("domain") String domain);
+      @Deprecated  
+default io.reactivex.Single<java.lang.Long> countByDomain(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain) {
+    return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
+}
+default reactor.core.publisher.Mono<java.lang.Long> countByDomain_migrated(@Param(value = "domain")
+String domain) {
+    return RxJava2Adapter.singleToMono(countByDomain(domain));
+}
 
-    @Query("select * from uma_resource_set u where u.id in (:ids)")
-    Flowable<JdbcResource> findByIdIn(@Param("ids") List<String> resources);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcResource> findByIdIn(@org.springframework.data.repository.query.Param(value = "ids")
+java.util.List<java.lang.String> resources) {
+    return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(resources));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcResource> findByIdIn_migrated(@Param(value = "ids")
+List<String> resources) {
+    return RxJava2Adapter.flowableToFlux(findByIdIn(resources));
+}
 
-    @Query("select * from uma_resource_set u where u.domain = :domain and u.client_id = :client and u.user_id = :uid")
-    Flowable<JdbcResource> findByDomainAndClientAndUser(@Param("domain") String domain, @Param("client") String client,
-                                                        @Param("uid") String user);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcResource> findByDomainAndClientAndUser(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain, @org.springframework.data.repository.query.Param(value = "client")
+java.lang.String client, @org.springframework.data.repository.query.Param(value = "uid")
+java.lang.String user) {
+    return RxJava2Adapter.fluxToFlowable(findByDomainAndClientAndUser_migrated(domain, client, user));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcResource> findByDomainAndClientAndUser_migrated(@Param(value = "domain")
+String domain, @Param(value = "client")
+String client, @Param(value = "uid")
+String user) {
+    return RxJava2Adapter.flowableToFlux(findByDomainAndClientAndUser(domain, client, user));
+}
 
-    @Query("select * from uma_resource_set u where u.domain = :domain and u.client_id = :client and u.id in (:ids)")
-    Flowable<JdbcResource> findByDomainAndClientAndResources(@Param("domain") String domain, @Param("client") String client,
-                                                             @Param("ids") List<String> resources);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcResource> findByDomainAndClientAndResources(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain, @org.springframework.data.repository.query.Param(value = "client")
+java.lang.String client, @org.springframework.data.repository.query.Param(value = "ids")
+java.util.List<java.lang.String> resources) {
+    return RxJava2Adapter.fluxToFlowable(findByDomainAndClientAndResources_migrated(domain, client, resources));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcResource> findByDomainAndClientAndResources_migrated(@Param(value = "domain")
+String domain, @Param(value = "client")
+String client, @Param(value = "ids")
+List<String> resources) {
+    return RxJava2Adapter.flowableToFlux(findByDomainAndClientAndResources(domain, client, resources));
+}
 
-    @Query("select * from uma_resource_set u where u.domain = :domain and u.client_id = :client and u.user_id = :uid and u.id = :rid")
-    Maybe<JdbcResource> findByDomainAndClientAndUserIdAndResource(@Param("domain") String domain, @Param("client") String client,
-                                                                  @Param("uid") String user, @Param("rid") String resource);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcResource> findByDomainAndClientAndUserIdAndResource(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain, @org.springframework.data.repository.query.Param(value = "client")
+java.lang.String client, @org.springframework.data.repository.query.Param(value = "uid")
+java.lang.String user, @org.springframework.data.repository.query.Param(value = "rid")
+java.lang.String resource) {
+    return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndUserIdAndResource_migrated(domain, client, user, resource));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcResource> findByDomainAndClientAndUserIdAndResource_migrated(@Param(value = "domain")
+String domain, @Param(value = "client")
+String client, @Param(value = "uid")
+String user, @Param(value = "rid")
+String resource) {
+    return RxJava2Adapter.maybeToMono(findByDomainAndClientAndUserIdAndResource(domain, client, user, resource));
+}
 }

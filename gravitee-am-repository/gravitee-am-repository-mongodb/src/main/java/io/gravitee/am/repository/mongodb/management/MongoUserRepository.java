@@ -114,13 +114,17 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
         return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap()));
     }
 
-    private Single<Map<Object, Object>> usersStatusRepartition(AnalyticsQuery query) {
+    @Deprecated
+private Single<Map<Object, Object>> usersStatusRepartition(AnalyticsQuery query) {
+ return RxJava2Adapter.monoToSingle(usersStatusRepartition_migrated(query));
+}
+private Mono<Map<Object,Object>> usersStatusRepartition_migrated(AnalyticsQuery query) {
         List<Bson> filters = new ArrayList<>(Arrays.asList(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, query.getDomain())));
         if (query.getApplication() != null && !query.getApplication().isEmpty()) {
             filters.add(eq(FIELD_CLIENT, query.getApplication()));
         }
 
-        return Observable.fromPublisher(usersCollection.aggregate(
+        return RxJava2Adapter.singleToMono(Observable.fromPublisher(usersCollection.aggregate(
                 Arrays.asList(
                         Aggregates.match(and(filters)),
                         Aggregates.group(
@@ -142,11 +146,15 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
                     return users;
                 })
-                .first(Collections.emptyMap());
+                .first(Collections.emptyMap()));
     }
 
-    private Single<Map<Object, Object>> registrationsStatusRepartition(AnalyticsQuery query) {
-        return Observable.fromPublisher(usersCollection.aggregate(
+    @Deprecated
+private Single<Map<Object, Object>> registrationsStatusRepartition(AnalyticsQuery query) {
+ return RxJava2Adapter.monoToSingle(registrationsStatusRepartition_migrated(query));
+}
+private Mono<Map<Object,Object>> registrationsStatusRepartition_migrated(AnalyticsQuery query) {
+        return RxJava2Adapter.singleToMono(Observable.fromPublisher(usersCollection.aggregate(
                 Arrays.asList(
                         Aggregates.match(and(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, query.getDomain()), eq(FIELD_PRE_REGISTRATION, true))),
                         Aggregates.group(new BasicDBObject("_id", query.getField()),
@@ -161,7 +169,7 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
                     return registrations;
                 })
-                .first(Collections.emptyMap());
+                .first(Collections.emptyMap()));
     }
 
     @SuppressWarnings("unused")

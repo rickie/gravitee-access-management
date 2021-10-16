@@ -64,9 +64,14 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
         super.createIndex(loginAttemptsCollection, new Document(FIELD_RESET_TIME, 1), new IndexOptions().expireAfter(0L, TimeUnit.SECONDS));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<LoginAttempt> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(loginAttemptsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<LoginAttempt> findById_migrated(String id) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(loginAttemptsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
     @Override
@@ -74,17 +79,27 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(loginAttemptsCollection.find(query(criteria)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<LoginAttempt> create(LoginAttempt item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<LoginAttempt> create_migrated(LoginAttempt item) {
         LoginAttemptMongo loginAttempt = convert(item);
         loginAttempt.setId(loginAttempt.getId() == null ? RandomString.generate() : loginAttempt.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(loginAttemptsCollection.insertOne(loginAttempt))).flatMap(success->RxJava2Adapter.maybeToMono(findById(loginAttempt.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(loginAttemptsCollection.insertOne(loginAttempt))).flatMap(success->RxJava2Adapter.maybeToMono(findById(loginAttempt.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<LoginAttempt> update(LoginAttempt item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<LoginAttempt> update_migrated(LoginAttempt item) {
         LoginAttemptMongo loginAttempt = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(loginAttemptsCollection.replaceOne(eq(FIELD_ID, loginAttempt.getId()), loginAttempt))).flatMap(success->RxJava2Adapter.maybeToMono(findById(loginAttempt.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(loginAttemptsCollection.replaceOne(eq(FIELD_ID, loginAttempt.getId()), loginAttempt))).flatMap(success->RxJava2Adapter.maybeToMono(findById(loginAttempt.getId())).single())));
     }
 
     @Override

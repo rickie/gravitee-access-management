@@ -21,8 +21,8 @@ import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.Set;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -30,11 +30,35 @@ import java.util.Set;
  */
 public interface IdentityProviderRepository extends CrudRepository<IdentityProvider, String> {
 
-    Flowable<IdentityProvider> findAll(ReferenceType referenceType, String referenceId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.IdentityProvider> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.IdentityProvider> findAll_migrated(ReferenceType referenceType, String referenceId) {
+    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
+}
 
-    Flowable<IdentityProvider> findAll(ReferenceType referenceType);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.IdentityProvider> findAll(io.gravitee.am.model.ReferenceType referenceType) {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.IdentityProvider> findAll_migrated(ReferenceType referenceType) {
+    return RxJava2Adapter.flowableToFlux(findAll(referenceType));
+}
 
-    Flowable<IdentityProvider> findAll();
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.IdentityProvider> findAll() {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.IdentityProvider> findAll_migrated() {
+    return RxJava2Adapter.flowableToFlux(findAll());
+}
 
-    Maybe<IdentityProvider> findById(ReferenceType referenceType, String referenceId, String identityProviderId);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.IdentityProvider> findById(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String identityProviderId) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, identityProviderId));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.IdentityProvider> findById_migrated(ReferenceType referenceType, String referenceId, String identityProviderId) {
+    return RxJava2Adapter.maybeToMono(findById(referenceType, referenceId, identityProviderId));
+}
 }

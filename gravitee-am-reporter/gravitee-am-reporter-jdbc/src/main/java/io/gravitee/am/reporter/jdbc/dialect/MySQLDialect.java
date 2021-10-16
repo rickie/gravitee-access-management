@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -41,8 +42,13 @@ import reactor.core.publisher.Flux;
  */
 public class MySQLDialect extends AbstractDialect {
 
-    @Override
+    @Deprecated
+@Override
     public Single<List<Map<String, Object>>>  buildAndProcessHistogram(DatabaseClient dbClient, ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
+ return RxJava2Adapter.monoToSingle(buildAndProcessHistogram_migrated(dbClient, referenceType, referenceId, criteria));
+}
+@Override
+    public Mono<List<Map<String,Object>>>  buildAndProcessHistogram_migrated(DatabaseClient dbClient, ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
         Map<String, Object> bindings = new HashMap<>();
         StringBuilder queryBuilder = new StringBuilder();
         StringBuilder whereClauseBuilder = new StringBuilder();
@@ -52,7 +58,7 @@ public class MySQLDialect extends AbstractDialect {
         // Sequence Generator exist only since MySQL 8.x
         // process multiple queries to build the result
         Map<Long, Long> intervals = intervals(criteria);
-        return RxJava2Adapter.monoToSingle(Flux.fromIterable(intervals.keySet()).flatMap(slot -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Flux.fromIterable(intervals.keySet()).flatMap(slot -> {
             String beginSlot = dateTimeFormatter.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(slot), ZoneId.of(ZoneOffset.UTC.getId())));
             String endSlot = dateTimeFormatter.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(slot + criteria.interval()), ZoneId.of(ZoneOffset.UTC.getId())));
             String query =
@@ -74,7 +80,7 @@ public class MySQLDialect extends AbstractDialect {
             }
 
             return dbClient.execute(query).fetch().all();
-        }).collectList());
+        }).collectList()));
     }
 
     @Override

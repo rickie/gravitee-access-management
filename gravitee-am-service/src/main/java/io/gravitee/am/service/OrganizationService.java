@@ -23,8 +23,8 @@ import io.gravitee.am.service.model.UpdateOrganization;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Florent CHAMFROY (florent.chamfroy at graviteesource.com)
@@ -32,12 +32,36 @@ import java.util.List;
  */
 public interface OrganizationService {
 
-    Single<Organization> findById(String organizationId);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Organization> findById(java.lang.String organizationId) {
+    return RxJava2Adapter.monoToSingle(findById_migrated(organizationId));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Organization> findById_migrated(String organizationId) {
+    return RxJava2Adapter.singleToMono(findById(organizationId));
+}
 
-    Maybe<Organization> createDefault();
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.Organization> createDefault() {
+    return RxJava2Adapter.monoToMaybe(createDefault_migrated());
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Organization> createDefault_migrated() {
+    return RxJava2Adapter.maybeToMono(createDefault());
+}
 
-    Single<Organization> createOrUpdate(String organizationId, NewOrganization newOrganization, User byUser);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Organization> createOrUpdate(java.lang.String organizationId, io.gravitee.am.service.model.NewOrganization newOrganization, io.gravitee.am.identityprovider.api.User byUser) {
+    return RxJava2Adapter.monoToSingle(createOrUpdate_migrated(organizationId, newOrganization, byUser));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Organization> createOrUpdate_migrated(String organizationId, NewOrganization newOrganization, User byUser) {
+    return RxJava2Adapter.singleToMono(createOrUpdate(organizationId, newOrganization, byUser));
+}
 
-    Single<Organization> update(String organizationId, PatchOrganization patchOrganization, User authenticatedUser);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Organization> update(java.lang.String organizationId, io.gravitee.am.service.model.PatchOrganization patchOrganization, io.gravitee.am.identityprovider.api.User authenticatedUser) {
+    return RxJava2Adapter.monoToSingle(update_migrated(organizationId, patchOrganization, authenticatedUser));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Organization> update_migrated(String organizationId, PatchOrganization patchOrganization, User authenticatedUser) {
+    return RxJava2Adapter.singleToMono(update(organizationId, patchOrganization, authenticatedUser));
+}
 }
  

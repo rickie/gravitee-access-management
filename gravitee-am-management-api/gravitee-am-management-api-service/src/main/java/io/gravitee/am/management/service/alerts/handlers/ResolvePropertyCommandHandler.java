@@ -65,7 +65,11 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
     }
 
 
-    private Single<Map<String, Map<String, Object>>> resolveProperties(ResolvePropertyCommand command) {
+    @Deprecated
+private Single<Map<String, Map<String, Object>>> resolveProperties(ResolvePropertyCommand command) {
+ return RxJava2Adapter.monoToSingle(resolveProperties_migrated(command));
+}
+private Mono<Map<String,Map<String,Object>>> resolveProperties_migrated(ResolvePropertyCommand command) {
 
         Map<String, String> commandProperties = command.getProperties();
         Map<String, Map<String, Object>> values = new HashMap<>();
@@ -82,14 +86,18 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
             });
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Single.merge(obs)).ignoreElements().then().then(Mono.just(values)));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Single.merge(obs)).ignoreElements().then().then(Mono.just(values))));
     }
 
-    private Single<Map<String, Object>> resolveDomainProperties(String domainId) {
+    @Deprecated
+private Single<Map<String, Object>> resolveDomainProperties(String domainId) {
+ return RxJava2Adapter.monoToSingle(resolveDomainProperties_migrated(domainId));
+}
+private Mono<Map<String,Object>> resolveDomainProperties_migrated(String domainId) {
 
         final Map<String, Object> properties = new HashMap<>();
 
-        return domainService.findById(domainId)
+        return RxJava2Adapter.singleToMono(domainService.findById(domainId)
                 .flatMapSingle(domain -> {
                     properties.put("id", domain.getId());
                     properties.put("name", domain.getName());
@@ -98,14 +106,18 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
 
                     return RxJava2Adapter.monoToSingle(Mono.just(properties));
                 })
-                .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(properties)));
+                .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(properties))));
     }
 
-    private Single<Map<String, Object>> resolveApplicationProperties(String applicationId) {
+    @Deprecated
+private Single<Map<String, Object>> resolveApplicationProperties(String applicationId) {
+ return RxJava2Adapter.monoToSingle(resolveApplicationProperties_migrated(applicationId));
+}
+private Mono<Map<String,Object>> resolveApplicationProperties_migrated(String applicationId) {
 
         final Map<String, Object> properties = new HashMap<>();
 
-        return applicationService.findById(applicationId)
+        return RxJava2Adapter.singleToMono(applicationService.findById(applicationId)
                 .flatMapSingle(application -> {
                     properties.put("id", application.getId());
                     properties.put("name", application.getName());
@@ -115,6 +127,6 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
 
                     return RxJava2Adapter.monoToSingle(Mono.just(properties));
                 })
-                .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(properties)));
+                .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(properties))));
     }
 }

@@ -82,11 +82,15 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
                 .as(JdbcScope.class).fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId())).flux()))).collectList().flatMap(content->RxJava2Adapter.singleToMono(countByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<>(content, page, count)))));
     }
 
-    private Single<Long> countByDomain(String domain) {
-        return monoToSingle(dbClient.execute("select count(s."+databaseDialectHelper.toSql(SqlIdentifier.quoted("key"))+") from scopes s where s.domain = :domain")
+    @Deprecated
+private Single<Long> countByDomain(String domain) {
+ return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
+}
+private Mono<Long> countByDomain_migrated(String domain) {
+        return RxJava2Adapter.singleToMono(monoToSingle(dbClient.execute("select count(s."+databaseDialectHelper.toSql(SqlIdentifier.quoted("key"))+") from scopes s where s.domain = :domain")
                 .bind("domain", domain)
                 .as(Long.class)
-                .fetch().first());
+                .fetch().first()));
     }
 
     @Override
@@ -106,14 +110,18 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
                 .fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId())).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardSearch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<>(data, page, total)))));
     }
 
-    private Maybe<Scope> completeWithClaims(Maybe<Scope> maybeScope, String id) {
+    @Deprecated
+private Maybe<Scope> completeWithClaims(Maybe<Scope> maybeScope, String id) {
+ return RxJava2Adapter.monoToMaybe(completeWithClaims_migrated(maybeScope, id));
+}
+private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String id) {
         Maybe<List<String>> scopeClaims = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(claimRepository.findByScopeId(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcScope.Claims::getClaim)).collectList());
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeScope).zipWith(RxJava2Adapter.maybeToMono(scopeClaims), RxJavaReactorMigrationUtil.toJdkBiFunction((scope, claims) -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeScope).zipWith(RxJava2Adapter.maybeToMono(scopeClaims), RxJavaReactorMigrationUtil.toJdkBiFunction((scope, claims) -> {
             LOGGER.debug("findById({}) fetch {} scopeClaims", id, claims == null ? 0 : claims.size());
             scope.setClaims(claims);
             return scope;
-        })));
+        }))));
     }
 
     @Override
@@ -138,14 +146,24 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(scope -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(scope)), scope.getId())).flux()))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Scope> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Scope> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(z)), z.getId()).as(RxJava2Adapter::maybeToMono)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeWithClaims(RxJava2Adapter.monoToMaybe(Mono.just(z)), z.getId()).as(RxJava2Adapter::maybeToMono))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Scope> create(Scope item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Scope> create_migrated(Scope item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("Create Scope with id {}", item.getId());
 
@@ -177,11 +195,16 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
             }).reduce(Integer::sum));
         }
 
-        return RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Scope> update(Scope item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Scope> update_migrated(Scope item) {
         LOGGER.debug("Update Scope with id {}", item.getId());
 
         TransactionalOperator trx = TransactionalOperator.create(tm);
@@ -216,11 +239,16 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
             }).reduce(Integer::sum));
         }
 
-        return RxJava2Adapter.monoToSingle(deleteClaims.then(action).as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(deleteClaims.then(action).as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
 
         TransactionalOperator trx = TransactionalOperator.create(tm);
@@ -230,7 +258,7 @@ public class JdbcScopeRepository extends AbstractJdbcRepository implements Scope
         Mono<Integer> delete = dbClient.delete().from(JdbcScope.class)
                 .matching(from(where("id").is(id))).fetch().rowsUpdated();
 
-        return monoToCompletable(deleteClaim.then(delete).as(trx::transactional));
+        return RxJava2Adapter.completableToMono(monoToCompletable(deleteClaim.then(delete).as(trx::transactional)));
     }
 
 }

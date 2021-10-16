@@ -19,6 +19,7 @@ import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.certificate.CertificateProvider;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 
 /**
@@ -34,7 +35,13 @@ public interface JWTService {
      * @param certificateProvider certificate provider used to sign the token
      * @return JWT signed string representation
      */
-    Single<String> encode(JWT jwt, CertificateProvider certificateProvider);
+      @Deprecated  
+default io.reactivex.Single<java.lang.String> encode(io.gravitee.am.common.jwt.JWT jwt, io.gravitee.am.gateway.certificate.CertificateProvider certificateProvider) {
+    return RxJava2Adapter.monoToSingle(encode_migrated(jwt, certificateProvider));
+}
+default reactor.core.publisher.Mono<java.lang.String> encode_migrated(JWT jwt, CertificateProvider certificateProvider) {
+    return RxJava2Adapter.singleToMono(encode(jwt, certificateProvider));
+}
 
     /**
      * Encode raw JWT to JWT signed string representation
@@ -42,7 +49,13 @@ public interface JWTService {
      * @param client client which want to sign the token
      * @return JWT signed string representation
      */
-    Single<String> encode(JWT jwt, Client client);
+      @Deprecated  
+default io.reactivex.Single<java.lang.String> encode(io.gravitee.am.common.jwt.JWT jwt, io.gravitee.am.model.oidc.Client client) {
+    return RxJava2Adapter.monoToSingle(encode_migrated(jwt, client));
+}
+default reactor.core.publisher.Mono<java.lang.String> encode_migrated(JWT jwt, Client client) {
+    return RxJava2Adapter.singleToMono(encode(jwt, client));
+}
 
     /**
      * Encode raw JWT to JWT signed representation using userinfo_signed_response_alg Client preferences.
@@ -50,7 +63,13 @@ public interface JWTService {
      * @param client client which want to sign the token
      * @return JWT signed string representation
      */
-    Single<String> encodeUserinfo(JWT jwt, Client client);
+      @Deprecated  
+default io.reactivex.Single<java.lang.String> encodeUserinfo(io.gravitee.am.common.jwt.JWT jwt, io.gravitee.am.model.oidc.Client client) {
+    return RxJava2Adapter.monoToSingle(encodeUserinfo_migrated(jwt, client));
+}
+default reactor.core.publisher.Mono<java.lang.String> encodeUserinfo_migrated(JWT jwt, Client client) {
+    return RxJava2Adapter.singleToMono(encodeUserinfo(jwt, client));
+}
 
     /**
      * Encode raw JWT to JWT signed representation using authorization_signed_response_alg Client preferences.
@@ -58,7 +77,13 @@ public interface JWTService {
      * @param client client which want to sign the token
      * @return JWT signed string representation
      */
-    Single<String> encodeAuthorization(JWT jwt, Client client);
+      @Deprecated  
+default io.reactivex.Single<java.lang.String> encodeAuthorization(io.gravitee.am.common.jwt.JWT jwt, io.gravitee.am.model.oidc.Client client) {
+    return RxJava2Adapter.monoToSingle(encodeAuthorization_migrated(jwt, client));
+}
+default reactor.core.publisher.Mono<java.lang.String> encodeAuthorization_migrated(JWT jwt, Client client) {
+    return RxJava2Adapter.singleToMono(encodeAuthorization(jwt, client));
+}
 
     /**
      * Decode JWT signed string representation to JWT
@@ -66,7 +91,13 @@ public interface JWTService {
      * @param client client which want to decode the token
      * @return JWT object
      */
-    Single<JWT> decodeAndVerify(String jwt, Client client);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.common.jwt.JWT> decodeAndVerify(java.lang.String jwt, io.gravitee.am.model.oidc.Client client) {
+    return RxJava2Adapter.monoToSingle(decodeAndVerify_migrated(jwt, client));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.common.jwt.JWT> decodeAndVerify_migrated(String jwt, Client client) {
+    return RxJava2Adapter.singleToMono(decodeAndVerify(jwt, client));
+}
 
     /**
      * Decode JWT signed string representation to JWT using the specified certificate provider.
@@ -74,12 +105,24 @@ public interface JWTService {
      * @param certificateProvider the certificate provider to use to verify jwt signature.
      * @return JWT object
      */
-    Single<JWT> decodeAndVerify(String jwt, CertificateProvider certificateProvider);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.common.jwt.JWT> decodeAndVerify(java.lang.String jwt, io.gravitee.am.gateway.certificate.CertificateProvider certificateProvider) {
+    return RxJava2Adapter.monoToSingle(decodeAndVerify_migrated(jwt, certificateProvider));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.common.jwt.JWT> decodeAndVerify_migrated(String jwt, CertificateProvider certificateProvider) {
+    return RxJava2Adapter.singleToMono(decodeAndVerify(jwt, certificateProvider));
+}
 
     /**
      * Decode JWT signed string representation to JWT without signature verification
      * @param jwt JWT to decode
      * @return JWT object
      */
-    Single<JWT> decode(String jwt);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.common.jwt.JWT> decode(java.lang.String jwt) {
+    return RxJava2Adapter.monoToSingle(decode_migrated(jwt));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.common.jwt.JWT> decode_migrated(String jwt) {
+    return RxJava2Adapter.singleToMono(decode(jwt));
+}
 }

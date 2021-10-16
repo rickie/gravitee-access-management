@@ -97,8 +97,13 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.identityProviderRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<IdentityProvider> create(IdentityProvider item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<IdentityProvider> create_migrated(IdentityProvider item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("create identityProvider with id {}", item.getId());
 
@@ -120,11 +125,16 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<IdentityProvider> update(IdentityProvider item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<IdentityProvider> update_migrated(IdentityProvider item) {
         LOGGER.debug("update identityProvider with id {}", item.getId());
 
         final DatabaseClient.GenericUpdateSpec updateSpec = dbClient.update().table("identities");
@@ -146,12 +156,17 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 
         Mono<Integer> action = updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return this.identityProviderRepository.deleteById(id);
+        return RxJava2Adapter.completableToMono(this.identityProviderRepository.deleteById(id));
     }
 }

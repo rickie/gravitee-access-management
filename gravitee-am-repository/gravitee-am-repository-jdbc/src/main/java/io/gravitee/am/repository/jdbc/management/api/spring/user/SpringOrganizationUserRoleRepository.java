@@ -21,6 +21,7 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -28,6 +29,13 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SpringOrganizationUserRoleRepository extends RxJava2CrudRepository<JdbcOrganizationUser.Role, String> {
-    @Query("select * from organization_user_roles r where r.user_id = :user")
-    Flowable<JdbcOrganizationUser.Role> findByUserId(@Param("user") String userId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Role> findByUserId(@org.springframework.data.repository.query.Param(value = "user")
+java.lang.String userId) {
+    return RxJava2Adapter.fluxToFlowable(findByUserId_migrated(userId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganizationUser.Role> findByUserId_migrated(@Param(value = "user")
+String userId) {
+    return RxJava2Adapter.flowableToFlux(findByUserId(userId));
+}
 }

@@ -20,6 +20,7 @@ import io.gravitee.am.model.Organization;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -27,5 +28,11 @@ import io.reactivex.Single;
  */
 public interface InstallationRepository extends CrudRepository<Installation, String> {
 
-    Maybe<Installation> find();
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.Installation> find() {
+    return RxJava2Adapter.monoToMaybe(find_migrated());
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> find_migrated() {
+    return RxJava2Adapter.maybeToMono(find());
+}
 }

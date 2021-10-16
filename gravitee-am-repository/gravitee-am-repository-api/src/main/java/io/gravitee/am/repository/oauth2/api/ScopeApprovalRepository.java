@@ -31,20 +31,59 @@ import reactor.core.publisher.Mono;
  */
 public interface ScopeApprovalRepository extends CrudRepository<ScopeApproval, String> {
 
-    Flowable<ScopeApproval> findByDomainAndUserAndClient(String domain, String userId, String clientId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.oauth2.ScopeApproval> findByDomainAndUserAndClient(java.lang.String domain, java.lang.String userId, java.lang.String clientId) {
+    return RxJava2Adapter.fluxToFlowable(findByDomainAndUserAndClient_migrated(domain, userId, clientId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.oauth2.ScopeApproval> findByDomainAndUserAndClient_migrated(String domain, String userId, String clientId) {
+    return RxJava2Adapter.flowableToFlux(findByDomainAndUserAndClient(domain, userId, clientId));
+}
 
-    Flowable<ScopeApproval> findByDomainAndUser(String domain, String user);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.oauth2.ScopeApproval> findByDomainAndUser(java.lang.String domain, java.lang.String user) {
+    return RxJava2Adapter.fluxToFlowable(findByDomainAndUser_migrated(domain, user));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.oauth2.ScopeApproval> findByDomainAndUser_migrated(String domain, String user) {
+    return RxJava2Adapter.flowableToFlux(findByDomainAndUser(domain, user));
+}
 
-    Single<ScopeApproval> upsert(ScopeApproval scopeApproval);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.oauth2.ScopeApproval> upsert(io.gravitee.am.model.oauth2.ScopeApproval scopeApproval) {
+    return RxJava2Adapter.monoToSingle(upsert_migrated(scopeApproval));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.oauth2.ScopeApproval> upsert_migrated(ScopeApproval scopeApproval) {
+    return RxJava2Adapter.singleToMono(upsert(scopeApproval));
+}
 
-    Completable deleteByDomainAndScopeKey(String domain, String scope);
+      @Deprecated  
+default io.reactivex.Completable deleteByDomainAndScopeKey(java.lang.String domain, java.lang.String scope) {
+    return RxJava2Adapter.monoToCompletable(deleteByDomainAndScopeKey_migrated(domain, scope));
+}
+default reactor.core.publisher.Mono<java.lang.Void> deleteByDomainAndScopeKey_migrated(String domain, String scope) {
+    return RxJava2Adapter.completableToMono(deleteByDomainAndScopeKey(domain, scope));
+}
 
-    Completable deleteByDomainAndUserAndClient(String domain, String user, String client);
+      @Deprecated  
+default io.reactivex.Completable deleteByDomainAndUserAndClient(java.lang.String domain, java.lang.String user, java.lang.String client) {
+    return RxJava2Adapter.monoToCompletable(deleteByDomainAndUserAndClient_migrated(domain, user, client));
+}
+default reactor.core.publisher.Mono<java.lang.Void> deleteByDomainAndUserAndClient_migrated(String domain, String user, String client) {
+    return RxJava2Adapter.completableToMono(deleteByDomainAndUserAndClient(domain, user, client));
+}
 
-    Completable deleteByDomainAndUser(String domain, String user);
+      @Deprecated  
+default io.reactivex.Completable deleteByDomainAndUser(java.lang.String domain, java.lang.String user) {
+    return RxJava2Adapter.monoToCompletable(deleteByDomainAndUser_migrated(domain, user));
+}
+default reactor.core.publisher.Mono<java.lang.Void> deleteByDomainAndUser_migrated(String domain, String user) {
+    return RxJava2Adapter.completableToMono(deleteByDomainAndUser(domain, user));
+}
 
-    default Completable purgeExpiredData() {
-        return RxJava2Adapter.monoToCompletable(Mono.empty());
+      @Deprecated  
+default io.reactivex.Completable purgeExpiredData() {
+    return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
+}default Mono<Void> purgeExpiredData_migrated() {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 
 }

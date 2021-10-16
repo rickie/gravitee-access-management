@@ -21,6 +21,7 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest;
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -42,13 +43,25 @@ public interface PushedAuthorizationRequestService {
      * @param client
      * @return
      */
-    Single<JWT> readFromURI(String requestUri, Client client, OpenIDProviderMetadata oidcMetadata);
+      @Deprecated  
+default io.reactivex.Single<com.nimbusds.jwt.JWT> readFromURI(java.lang.String requestUri, io.gravitee.am.model.oidc.Client client, io.gravitee.am.gateway.handler.oidc.service.discovery.OpenIDProviderMetadata oidcMetadata) {
+    return RxJava2Adapter.monoToSingle(readFromURI_migrated(requestUri, client, oidcMetadata));
+}
+default reactor.core.publisher.Mono<com.nimbusds.jwt.JWT> readFromURI_migrated(String requestUri, Client client, OpenIDProviderMetadata oidcMetadata) {
+    return RxJava2Adapter.singleToMono(readFromURI(requestUri, client, oidcMetadata));
+}
 
     /**
      * Register a request object for a given Client
      * @return
      */
-    Single<PushedAuthorizationRequestResponse> registerParameters(PushedAuthorizationRequest par, Client client);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.gateway.handler.oauth2.service.par.PushedAuthorizationRequestResponse> registerParameters(io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest par, io.gravitee.am.model.oidc.Client client) {
+    return RxJava2Adapter.monoToSingle(registerParameters_migrated(par, client));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.oauth2.service.par.PushedAuthorizationRequestResponse> registerParameters_migrated(PushedAuthorizationRequest par, Client client) {
+    return RxJava2Adapter.singleToMono(registerParameters(par, client));
+}
 
     /**
      * Delete the PushedAuthorizationRequest entry from the repository
@@ -56,5 +69,11 @@ public interface PushedAuthorizationRequestService {
      * @param uriIdentifier
      * @return
      */
-    Completable deleteRequestUri(String uriIdentifier);
+      @Deprecated  
+default io.reactivex.Completable deleteRequestUri(java.lang.String uriIdentifier) {
+    return RxJava2Adapter.monoToCompletable(deleteRequestUri_migrated(uriIdentifier));
+}
+default reactor.core.publisher.Mono<java.lang.Void> deleteRequestUri_migrated(String uriIdentifier) {
+    return RxJava2Adapter.completableToMono(deleteRequestUri(uriIdentifier));
+}
 }

@@ -22,8 +22,8 @@ import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -31,9 +31,27 @@ import java.util.List;
  */
 public interface FlowRepository extends CrudRepository<Flow, String> {
 
-    Maybe<Flow> findById(ReferenceType referenceType, String referenceId, String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.flow.Flow> findById(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.flow.Flow> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
+    return RxJava2Adapter.maybeToMono(findById(referenceType, referenceId, id));
+}
 
-    Flowable<Flow> findAll(ReferenceType referenceType, String referenceId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.flow.Flow> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.flow.Flow> findAll_migrated(ReferenceType referenceType, String referenceId) {
+    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
+}
 
-    Flowable<Flow> findByApplication(ReferenceType referenceType, String referenceId, String application);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.flow.Flow> findByApplication(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, java.lang.String application) {
+    return RxJava2Adapter.fluxToFlowable(findByApplication_migrated(referenceType, referenceId, application));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.flow.Flow> findByApplication_migrated(ReferenceType referenceType, String referenceId, String application) {
+    return RxJava2Adapter.flowableToFlux(findByApplication(referenceType, referenceId, application));
+}
 }

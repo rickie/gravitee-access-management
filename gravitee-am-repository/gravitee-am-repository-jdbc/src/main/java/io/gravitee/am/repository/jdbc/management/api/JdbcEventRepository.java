@@ -69,14 +69,24 @@ public class JdbcEventRepository extends AbstractJdbcRepository implements Event
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(to), UTC))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Event> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Event> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(eventRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(eventRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Event> create(Event item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Event> create_migrated(Event item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("create event with id {}", item.getId());
 
@@ -91,11 +101,16 @@ public class JdbcEventRepository extends AbstractJdbcRepository implements Event
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Event> update(Event item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Event> update_migrated(Event item) {
         LOGGER.debug("update event with id {}", item.getId());
 
         final DatabaseClient.GenericUpdateSpec updateSpec = dbClient.update().table("events");
@@ -107,12 +122,17 @@ public class JdbcEventRepository extends AbstractJdbcRepository implements Event
         updateFields = addQuotedField(updateFields,"updated_at", dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
         Mono<Integer> action = updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return eventRepository.deleteById(id);
+        return RxJava2Adapter.completableToMono(eventRepository.deleteById(id));
     }
 }

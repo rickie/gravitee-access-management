@@ -23,8 +23,9 @@ import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -32,36 +33,93 @@ import java.util.List;
  */
 public interface CertificateService {
 
-    Maybe<Certificate> findById(String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.Certificate> findById(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Certificate> findById_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(findById(id));
+}
 
-    Flowable<Certificate> findAll();
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.Certificate> findAll() {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.Certificate> findAll_migrated() {
+    return RxJava2Adapter.flowableToFlux(findAll());
+}
 
-    Flowable<Certificate> findByDomain(String domain);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.Certificate> findByDomain(java.lang.String domain) {
+    return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.Certificate> findByDomain_migrated(String domain) {
+    return RxJava2Adapter.flowableToFlux(findByDomain(domain));
+}
 
     /**
      * This method is used to create a default certificate (mainly used when creating a new domain).
      * @return
      */
-    Single<Certificate> create(String domain);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Certificate> create(java.lang.String domain) {
+    return RxJava2Adapter.monoToSingle(create_migrated(domain));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Certificate> create_migrated(String domain) {
+    return RxJava2Adapter.singleToMono(create(domain));
+}
 
-    Single<Certificate> create(String domain, NewCertificate newCertificate, User principal);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Certificate> create(java.lang.String domain, io.gravitee.am.service.model.NewCertificate newCertificate, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToSingle(create_migrated(domain, newCertificate, principal));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Certificate> create_migrated(String domain, NewCertificate newCertificate, User principal) {
+    return RxJava2Adapter.singleToMono(create(domain, newCertificate, principal));
+}
 
-    Single<Certificate> update(String domain, String id, UpdateCertificate updateCertificate, User principal);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Certificate> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateCertificate updateCertificate, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateCertificate, principal));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Certificate> update_migrated(String domain, String id, UpdateCertificate updateCertificate, User principal) {
+    return RxJava2Adapter.singleToMono(update(domain, id, updateCertificate, principal));
+}
 
-    Single<Certificate> update(Certificate certificate);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Certificate> update(io.gravitee.am.model.Certificate certificate) {
+    return RxJava2Adapter.monoToSingle(update_migrated(certificate));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.Certificate> update_migrated(Certificate certificate) {
+    return RxJava2Adapter.singleToMono(update(certificate));
+}
 
-    Completable delete(String certificateId, User principal);
+      @Deprecated  
+default io.reactivex.Completable delete(java.lang.String certificateId, io.gravitee.am.identityprovider.api.User principal) {
+    return RxJava2Adapter.monoToCompletable(delete_migrated(certificateId, principal));
+}
+default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String certificateId, User principal) {
+    return RxJava2Adapter.completableToMono(delete(certificateId, principal));
+}
 
-    default Single<Certificate> create(String domain, NewCertificate newCertificate) {
-        return create(domain, newCertificate, null);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Certificate> create(java.lang.String domain, io.gravitee.am.service.model.NewCertificate newCertificate) {
+    return RxJava2Adapter.monoToSingle(create_migrated(domain, newCertificate));
+}default Mono<Certificate> create_migrated(String domain, NewCertificate newCertificate) {
+        return RxJava2Adapter.singleToMono(create(domain, newCertificate, null));
     }
 
-    default Single<Certificate> update(String domain, String id, UpdateCertificate updateCertificate) {
-        return update(domain, id, updateCertificate, null);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.Certificate> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateCertificate updateCertificate) {
+    return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateCertificate));
+}default Mono<Certificate> update_migrated(String domain, String id, UpdateCertificate updateCertificate) {
+        return RxJava2Adapter.singleToMono(update(domain, id, updateCertificate, null));
     }
 
-    default Completable delete(String certificateId) {
-        return delete(certificateId, null);
+      @Deprecated  
+default io.reactivex.Completable delete(java.lang.String certificateId) {
+    return RxJava2Adapter.monoToCompletable(delete_migrated(certificateId));
+}default Mono<Void> delete_migrated(String certificateId) {
+        return RxJava2Adapter.completableToMono(delete(certificateId, null));
     }
 
 }

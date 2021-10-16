@@ -368,14 +368,18 @@ return applicationService.update(application);
         return RxJava2Adapter.monoToSingle(Mono.just(true));
     }
 
-    private Single<Scope> validateIconUri(Scope scope) {
+    @Deprecated
+private Single<Scope> validateIconUri(Scope scope) {
+ return RxJava2Adapter.monoToSingle(validateIconUri_migrated(scope));
+}
+private Mono<Scope> validateIconUri_migrated(Scope scope) {
         if(scope.getIconUri()!=null) {
             try {
                 URI.create(scope.getIconUri()).toURL();
             } catch (MalformedURLException | IllegalArgumentException e) {
-                return RxJava2Adapter.monoToSingle(Mono.error(new MalformedIconUriException(scope.getIconUri())));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new MalformedIconUriException(scope.getIconUri()))));
             }
         }
-        return RxJava2Adapter.monoToSingle(Mono.just(scope));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(scope)));
     }
 }

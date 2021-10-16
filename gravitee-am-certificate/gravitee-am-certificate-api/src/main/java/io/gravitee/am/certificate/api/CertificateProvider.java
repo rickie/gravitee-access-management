@@ -30,13 +30,37 @@ import reactor.core.publisher.Mono;
  */
 public interface CertificateProvider {
 
-    Single<Key> key();
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.certificate.api.Key> key() {
+    return RxJava2Adapter.monoToSingle(key_migrated());
+}
+default reactor.core.publisher.Mono<io.gravitee.am.certificate.api.Key> key_migrated() {
+    return RxJava2Adapter.singleToMono(key());
+}
 
-    Single<String> publicKey();
+      @Deprecated  
+default io.reactivex.Single<java.lang.String> publicKey() {
+    return RxJava2Adapter.monoToSingle(publicKey_migrated());
+}
+default reactor.core.publisher.Mono<java.lang.String> publicKey_migrated() {
+    return RxJava2Adapter.singleToMono(publicKey());
+}
 
-    Flowable<JWK> privateKey();
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.jose.JWK> privateKey() {
+    return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.jose.JWK> privateKey_migrated() {
+    return RxJava2Adapter.flowableToFlux(privateKey());
+}
 
-    Flowable<JWK> keys();
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.jose.JWK> keys() {
+    return RxJava2Adapter.fluxToFlowable(keys_migrated());
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.jose.JWK> keys_migrated() {
+    return RxJava2Adapter.flowableToFlux(keys());
+}
 
     CertificateMetadata certificateMetadata();
 
@@ -46,7 +70,10 @@ public interface CertificateProvider {
         return null;
     }
 
-    default Single<List<CertificateKey>> publicKeys() {
-        return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()));
+      @Deprecated  
+default io.reactivex.Single<java.util.List<io.gravitee.am.certificate.api.CertificateKey>> publicKeys() {
+    return RxJava2Adapter.monoToSingle(publicKeys_migrated());
+}default Mono<List<CertificateKey>> publicKeys_migrated() {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
     }
 }

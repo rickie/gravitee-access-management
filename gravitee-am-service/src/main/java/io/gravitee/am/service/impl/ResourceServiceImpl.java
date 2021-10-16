@@ -316,32 +316,40 @@ public class ResourceServiceImpl implements ResourceService {
                 });
     }
 
-    private Single<Resource> validateScopes(Resource toValidate) {
+    @Deprecated
+private Single<Resource> validateScopes(Resource toValidate) {
+ return RxJava2Adapter.monoToSingle(validateScopes_migrated(toValidate));
+}
+private Mono<Resource> validateScopes_migrated(Resource toValidate) {
         if(toValidate.getResourceScopes()==null || toValidate.getResourceScopes().isEmpty()) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new MissingScopeException()));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new MissingScopeException())));
         }
         //Make sure they are distinct
         toValidate.setResourceScopes(toValidate.getResourceScopes().stream().distinct().collect(Collectors.toList()));
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(scopeService.findByDomainAndKeys(toValidate.getDomain(), toValidate.getResourceScopes())).flatMap(v->RxJava2Adapter.singleToMono((Single<Resource>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Scope>, Single<Resource>>)scopes -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(scopeService.findByDomainAndKeys(toValidate.getDomain(), toValidate.getResourceScopes())).flatMap(v->RxJava2Adapter.singleToMono((Single<Resource>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Scope>, Single<Resource>>)scopes -> {
                     if(toValidate.getResourceScopes().size() != scopes.size()) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new ScopeNotFoundException(
                                 toValidate.getResourceScopes().stream().filter(s -> !scopes.contains(s)).collect(Collectors.joining(","))
                         )));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(toValidate));
-                }).apply(v))));
+                }).apply(v)))));
     }
 
-    private Single<Resource> validateIconUri(Resource toValidate) {
+    @Deprecated
+private Single<Resource> validateIconUri(Resource toValidate) {
+ return RxJava2Adapter.monoToSingle(validateIconUri_migrated(toValidate));
+}
+private Mono<Resource> validateIconUri_migrated(Resource toValidate) {
         if(toValidate.getIconUri()!=null) {
             try {
                 URI.create(toValidate.getIconUri()).toURL();
             } catch (MalformedURLException | IllegalArgumentException e) {
-                return RxJava2Adapter.monoToSingle(Mono.error(new MalformedIconUriException(toValidate.getIconUri())));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new MalformedIconUriException(toValidate.getIconUri()))));
             }
         }
-        return RxJava2Adapter.monoToSingle(Mono.just(toValidate));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(toValidate)));
     }
 
     private User filter(User user) {

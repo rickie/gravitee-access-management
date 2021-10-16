@@ -140,19 +140,27 @@ public class UserConsentsResource extends AbstractResource {
         return resourceContext.getResource(UserConsentResource.class);
     }
 
-    private Single<ApplicationEntity> getClient(String domain, String clientId) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(applicationService.findByDomainAndClientId(domain, clientId)).map(RxJavaReactorMigrationUtil.toJdkFunction(ApplicationEntity::new)).defaultIfEmpty(new ApplicationEntity("unknown-id", clientId, "unknown-client-name")).single())
-                .cache();
+    @Deprecated
+private Single<ApplicationEntity> getClient(String domain, String clientId) {
+ return RxJava2Adapter.monoToSingle(getClient_migrated(domain, clientId));
+}
+private Mono<ApplicationEntity> getClient_migrated(String domain, String clientId) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(applicationService.findByDomainAndClientId(domain, clientId)).map(RxJavaReactorMigrationUtil.toJdkFunction(ApplicationEntity::new)).defaultIfEmpty(new ApplicationEntity("unknown-id", clientId, "unknown-client-name")).single())
+                .cache());
     }
 
-    private Single<ScopeEntity> getScope(String domain, String scopeKey) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, scopeKey)).switchIfEmpty(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, getScopeBase(scopeKey))).map(RxJavaReactorMigrationUtil.toJdkFunction(entity -> {
+    @Deprecated
+private Single<ScopeEntity> getScope(String domain, String scopeKey) {
+ return RxJava2Adapter.monoToSingle(getScope_migrated(domain, scopeKey));
+}
+private Mono<ScopeEntity> getScope_migrated(String domain, String scopeKey) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, scopeKey)).switchIfEmpty(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, getScopeBase(scopeKey))).map(RxJavaReactorMigrationUtil.toJdkFunction(entity -> {
                     // set the right scopeKey since the one returned by the service contains the scope definition without parameter
                     entity.setId("unknown-id");
                     entity.setKey(scopeKey);
                     return entity;
                 }))).map(RxJavaReactorMigrationUtil.toJdkFunction(ScopeEntity::new)).defaultIfEmpty(new ScopeEntity("unknown-id", scopeKey, "unknown-scope-name", "unknown-scope-description")).single())
-                .cache();
+                .cache());
     }
 
     private String getScopeBase(String scope) {

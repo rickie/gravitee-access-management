@@ -155,8 +155,12 @@ public class RequestObjectServiceImpl implements RequestObjectService {
         }
     }
 
-    private Single<JWT> validateSignature(SignedJWT jwt, Client client) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwkService.getKeys(client)).switchIfEmpty(Mono.error(new InvalidRequestObjectException())).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWKSet, MaybeSource<JWK>>toJdkFunction(new Function<JWKSet, MaybeSource<JWK>>() {
+    @Deprecated
+private Single<JWT> validateSignature(SignedJWT jwt, Client client) {
+ return RxJava2Adapter.monoToSingle(validateSignature_migrated(jwt, client));
+}
+private Mono<JWT> validateSignature_migrated(SignedJWT jwt, Client client) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwkService.getKeys(client)).switchIfEmpty(Mono.error(new InvalidRequestObjectException())).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWKSet, MaybeSource<JWK>>toJdkFunction(new Function<JWKSet, MaybeSource<JWK>>() {
                     @Override
                     public MaybeSource<JWK> apply(JWKSet jwkSet) throws Exception {
                         return jwkService.getKey(jwkSet, jwt.getHeader().getKeyID());
@@ -177,21 +181,25 @@ public class RequestObjectServiceImpl implements RequestObjectService {
                             return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException("Invalid signature")));
                         }
                     }
-                });
+                }));
     }
 
-    private Completable checkRequestObjectAlgorithm(JWT jwt) {
+    @Deprecated
+private Completable checkRequestObjectAlgorithm(JWT jwt) {
+ return RxJava2Adapter.monoToCompletable(checkRequestObjectAlgorithm_migrated(jwt));
+}
+private Mono<Void> checkRequestObjectAlgorithm_migrated(JWT jwt) {
         // The authorization server shall verify that the request object is valid, the signature algorithm is not
         // none, and the signature is correct as in clause 6.3 of [OIDC].
         if (! (jwt instanceof SignedJWT) ||
                 (jwt.getHeader().getAlgorithm() != null && "none".equalsIgnoreCase(jwt.getHeader().getAlgorithm().getName()))) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidRequestObjectException("Request object must be signed")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidRequestObjectException("Request object must be signed"))));
         }
 
         if (this.domain.usePlainFapiProfile() && !isSignAlgCompliantWithFapi(jwt.getHeader().getAlgorithm().getName())) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidRequestObjectException("Request object must be signed with PS256")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidRequestObjectException("Request object must be signed with PS256"))));
         }
 
-        return RxJava2Adapter.monoToCompletable(Mono.empty());
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 }

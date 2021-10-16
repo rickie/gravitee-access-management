@@ -18,6 +18,7 @@ package io.gravitee.am.repository.common;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -25,11 +26,35 @@ import io.reactivex.Single;
  */
 public interface CrudRepository<T, ID> {
 
-    Maybe<T> findById(ID id);
+      @Deprecated  
+default io.reactivex.Maybe<T> findById(ID id) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+default reactor.core.publisher.Mono<T> findById_migrated(ID id) {
+    return RxJava2Adapter.maybeToMono(findById(id));
+}
 
-    Single<T> create(T item);
+      @Deprecated  
+default io.reactivex.Single<T> create(T item) {
+    return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+default reactor.core.publisher.Mono<T> create_migrated(T item) {
+    return RxJava2Adapter.singleToMono(create(item));
+}
 
-    Single<T> update(T item);
+      @Deprecated  
+default io.reactivex.Single<T> update(T item) {
+    return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+default reactor.core.publisher.Mono<T> update_migrated(T item) {
+    return RxJava2Adapter.singleToMono(update(item));
+}
 
-    Completable delete(ID id);
+      @Deprecated  
+default io.reactivex.Completable delete(ID id) {
+    return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(ID id) {
+    return RxJava2Adapter.completableToMono(delete(id));
+}
 }

@@ -100,22 +100,37 @@ public class MongoFormRepository extends AbstractManagementMongoRepository imple
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(formsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Form> create(Form item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Form> create_migrated(Form item) {
         FormMongo page = convert(item);
         page.setId(page.getId() == null ? RandomString.generate() : page.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(formsCollection.insertOne(page))).flatMap(success->RxJava2Adapter.maybeToMono(findById(page.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(formsCollection.insertOne(page))).flatMap(success->RxJava2Adapter.maybeToMono(findById(page.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Form> update(Form item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Form> update_migrated(Form item) {
         FormMongo page = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(formsCollection.replaceOne(eq(FIELD_ID, page.getId()), page))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(page.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(formsCollection.replaceOne(eq(FIELD_ID, page.getId()), page))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(page.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(formsCollection.deleteOne(eq(FIELD_ID, id))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(formsCollection.deleteOne(eq(FIELD_ID, id)))));
     }
 
     private Form convert(FormMongo pageMongo) {

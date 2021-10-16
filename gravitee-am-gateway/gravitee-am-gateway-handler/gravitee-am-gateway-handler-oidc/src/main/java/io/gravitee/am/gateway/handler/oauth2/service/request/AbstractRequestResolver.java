@@ -51,7 +51,11 @@ public abstract class AbstractRequestResolver<R extends OAuth2Request> {
      * @param client the client which trigger the request
      * @return the oauth 2.0 request
      */
-    protected Single<R> resolveAuthorizedScopes(R request, Client client, User endUser) {
+    @Deprecated
+protected Single<R> resolveAuthorizedScopes(R request, Client client, User endUser) {
+ return RxJava2Adapter.monoToSingle(resolveAuthorizedScopes_migrated(request, client, endUser));
+}
+protected Mono<R> resolveAuthorizedScopes_migrated(R request, Client client, User endUser) {
         final Set<String> requestScopes = request.getScopes();
         Set<String> clientResolvedScopes = new HashSet<>();
         Set<String> resolvedScopes = new HashSet<>();
@@ -103,11 +107,11 @@ public abstract class AbstractRequestResolver<R extends OAuth2Request> {
         }
 
         if (!invalidScopes.isEmpty()) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidScopeException("Invalid scope(s): " + invalidScopes.stream().collect(Collectors.joining(SCOPE_DELIMITER)))));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidScopeException("Invalid scope(s): " + invalidScopes.stream().collect(Collectors.joining(SCOPE_DELIMITER))))));
         }
 
         if (resolvedScopes.isEmpty() && (requestScopes != null && !requestScopes.isEmpty())) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidScopeException("Invalid scope(s): " + requestScopes.stream().collect(Collectors.joining(SCOPE_DELIMITER)))));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidScopeException("Invalid scope(s): " + requestScopes.stream().collect(Collectors.joining(SCOPE_DELIMITER))))));
         }
 
         // only put default values if there is no requested scopes
@@ -115,7 +119,7 @@ public abstract class AbstractRequestResolver<R extends OAuth2Request> {
             request.setScopes(resolvedScopes);
         }
 
-        return RxJava2Adapter.monoToSingle(Mono.just(request));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(request)));
     }
 
 

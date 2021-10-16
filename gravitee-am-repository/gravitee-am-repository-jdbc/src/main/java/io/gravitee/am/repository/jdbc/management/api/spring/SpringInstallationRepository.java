@@ -22,6 +22,7 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -30,6 +31,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringInstallationRepository extends RxJava2CrudRepository<JdbcInstallation, String> {
 
-    @Query("select * from installations i where i.id = :id")
-    Maybe<JdbcInstallation> findById(@Param("id") String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcInstallation> findById(@org.springframework.data.repository.query.Param(value = "id")
+java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcInstallation> findById_migrated(@Param(value = "id")
+String id) {
+    return RxJava2Adapter.maybeToMono(findById(id));
+}
 }

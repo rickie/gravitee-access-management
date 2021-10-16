@@ -150,7 +150,11 @@ public class RepositoryCredentialStore {
         return promise.future();
     }
 
-    private Completable create(Authenticator authenticator) {
+    @Deprecated
+private Completable create(Authenticator authenticator) {
+ return RxJava2Adapter.monoToCompletable(create_migrated(authenticator));
+}
+private Mono<Void> create_migrated(Authenticator authenticator) {
         Credential credential = new Credential();
         credential.setReferenceType(ReferenceType.DOMAIN);
         credential.setReferenceId(domain.getId());
@@ -163,7 +167,7 @@ public class RepositoryCredentialStore {
         credential.setAttestationStatement(authenticator.getAttestationCertificates().toString());
         credential.setCreatedAt(new Date());
         credential.setUpdatedAt(credential.getCreatedAt());
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(credentialService.create(credential)).then());
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(credentialService.create(credential)).then()));
     }
 
     private Authenticator convert(Credential credential) {
@@ -181,11 +185,15 @@ public class RepositoryCredentialStore {
         return authenticator;
     }
 
-    private Single<String> generateCredID(String username, String claim) {
-        return Single.create(emitter -> {
+    @Deprecated
+private Single<String> generateCredID(String username, String claim) {
+ return RxJava2Adapter.monoToSingle(generateCredID_migrated(username, claim));
+}
+private Mono<String> generateCredID_migrated(String username, String claim) {
+        return RxJava2Adapter.singleToMono(Single.create(emitter -> {
             String credID = jwtBuilder.sign(new JWT(Collections.singletonMap(claim, username))).split("\\.")[2];
             emitter.onSuccess(credID);
-        });
+        }));
     }
 
     private static String createCredID(MessageDigest md, String input, String suffix) {

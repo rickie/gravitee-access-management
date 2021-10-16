@@ -95,17 +95,25 @@ public class ApplicationScopeSettingsUpgrader implements Upgrader, Ordered {
         return upgraded;
     }
 
-    private Single<Boolean> processUpgrade(String instanceOperationId, SystemTask task, String conditionalOperationId) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(updateSystemTask(task, (SystemTaskStatus.ONGOING), conditionalOperationId)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<SystemTask, SingleSource<Boolean>>toJdkFunction(updatedTask -> {
+    @Deprecated
+private Single<Boolean> processUpgrade(String instanceOperationId, SystemTask task, String conditionalOperationId) {
+ return RxJava2Adapter.monoToSingle(processUpgrade_migrated(instanceOperationId, task, conditionalOperationId));
+}
+private Mono<Boolean> processUpgrade_migrated(String instanceOperationId, SystemTask task, String conditionalOperationId) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(updateSystemTask(task, (SystemTaskStatus.ONGOING), conditionalOperationId)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<SystemTask, SingleSource<Boolean>>toJdkFunction(updatedTask -> {
                     if (updatedTask.getOperationId().equals(instanceOperationId)) {
                         return migrateScopeSettings(updatedTask);
                     } else {
                         return RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("Task " + TASK_ID + " already processed by another instance : trigger a retry")));
                     }
-                }).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> true)));
+                }).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> true))));
     }
 
-    private Single<SystemTask> createSystemTask(String operationId) {
+    @Deprecated
+private Single<SystemTask> createSystemTask(String operationId) {
+ return RxJava2Adapter.monoToSingle(createSystemTask_migrated(operationId));
+}
+private Mono<SystemTask> createSystemTask_migrated(String operationId) {
         SystemTask  systemTask = new SystemTask();
         systemTask.setId(TASK_ID);
         systemTask.setType(SystemTaskTypes.UPGRADER.name());
@@ -113,21 +121,29 @@ public class ApplicationScopeSettingsUpgrader implements Upgrader, Ordered {
         systemTask.setCreatedAt(new Date());
         systemTask.setUpdatedAt(systemTask.getCreatedAt());
         systemTask.setOperationId(operationId);
-        return systemTaskRepository.create(systemTask).onErrorResumeNext(err -> {
+        return RxJava2Adapter.singleToMono(systemTaskRepository.create(systemTask).onErrorResumeNext(err -> {
             logger.warn("SystemTask {} can't be created due to '{}'", TASK_ID, err.getMessage());
             // if the creation fails, try to find the task, this will allow to manage the retry properly
             return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(systemTaskRepository.findById(systemTask.getId())).single());
-        });
+        }));
     }
 
-    private Single<SystemTask>  updateSystemTask(SystemTask task, SystemTaskStatus status, String operationId) {
+    @Deprecated
+private Single<SystemTask>  updateSystemTask(SystemTask task, SystemTaskStatus status, String operationId) {
+ return RxJava2Adapter.monoToSingle(updateSystemTask_migrated(task, status, operationId));
+}
+private Mono<SystemTask>  updateSystemTask_migrated(SystemTask task, SystemTaskStatus status, String operationId) {
         task.setUpdatedAt(new Date());
         task.setStatus(status.name());
-        return systemTaskRepository.updateIf(task, operationId);
+        return RxJava2Adapter.singleToMono(systemTaskRepository.updateIf(task, operationId));
     }
 
-    private Single<Boolean> migrateScopeSettings(SystemTask task) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(applicationRepository.findAll().flatMapSingle(app -> {
+    @Deprecated
+private Single<Boolean> migrateScopeSettings(SystemTask task) {
+ return RxJava2Adapter.monoToSingle(migrateScopeSettings_migrated(task));
+}
+private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(applicationRepository.findAll().flatMapSingle(app -> {
                     logger.debug("Process application '{}'", app.getId());
                     if (app.getSettings() != null && app.getSettings().getOauth() != null) {
                         final ApplicationOAuthSettings oauthSettings = app.getSettings().getOauth();
@@ -168,7 +184,7 @@ public class ApplicationScopeSettingsUpgrader implements Upgrader, Ordered {
                 .onErrorResumeNext((err) -> {
                     logger.error("Unable to migrate scope options for applications: {}", err.getMessage());
                     return RxJava2Adapter.monoToSingle(Mono.just(false));
-                });
+                }));
     }
 
     @Override

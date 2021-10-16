@@ -21,15 +21,32 @@ import io.reactivex.Maybe;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 public interface SpringTagRepository extends RxJava2CrudRepository<JdbcTag, String> {
-    @Query("select * from tags t where t.organization_id = :orgId")
-    Flowable<JdbcTag> findByOrganization(@Param("orgId") String organizationId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcTag> findByOrganization(@org.springframework.data.repository.query.Param(value = "orgId")
+java.lang.String organizationId) {
+    return RxJava2Adapter.fluxToFlowable(findByOrganization_migrated(organizationId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcTag> findByOrganization_migrated(@Param(value = "orgId")
+String organizationId) {
+    return RxJava2Adapter.flowableToFlux(findByOrganization(organizationId));
+}
 
-    @Query("select * from tags t where t.organization_id = :orgId and t.id = :tid")
-    Maybe<JdbcTag> findById(@Param("tid") String id, @Param("orgId") String organizationId);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcTag> findById(@org.springframework.data.repository.query.Param(value = "tid")
+java.lang.String id, @org.springframework.data.repository.query.Param(value = "orgId")
+java.lang.String organizationId) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(id, organizationId));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcTag> findById_migrated(@Param(value = "tid")
+String id, @Param(value = "orgId")
+String organizationId) {
+    return RxJava2Adapter.maybeToMono(findById(id, organizationId));
+}
 }

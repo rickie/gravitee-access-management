@@ -17,9 +17,9 @@ package io.gravitee.am.gateway.handler.oauth2.service.scope;
 
 import io.gravitee.am.model.oauth2.Scope;
 import io.reactivex.Single;
-
 import java.util.List;
 import java.util.Set;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -27,7 +27,13 @@ import java.util.Set;
  */
 public interface ScopeService {
 
-    Single<Set<Scope>> getAll();
+      @Deprecated  
+default io.reactivex.Single<java.util.Set<io.gravitee.am.model.oauth2.Scope>> getAll() {
+    return RxJava2Adapter.monoToSingle(getAll_migrated());
+}
+default reactor.core.publisher.Mono<java.util.Set<io.gravitee.am.model.oauth2.Scope>> getAll_migrated() {
+    return RxJava2Adapter.singleToMono(getAll());
+}
 
     Scope findByKey(String key);
 

@@ -29,17 +29,44 @@ import reactor.core.publisher.Mono;
  */
 public interface UserProvider extends Service<UserProvider> {
 
-    default Maybe<User> findByEmail(String email) {
-        return RxJava2Adapter.monoToMaybe(Mono.empty());
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.User> findByEmail(java.lang.String email) {
+    return RxJava2Adapter.monoToMaybe(findByEmail_migrated(email));
+}default Mono<User> findByEmail_migrated(String email) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
-    Maybe<User> findByUsername(String username);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.User> findByUsername(java.lang.String username) {
+    return RxJava2Adapter.monoToMaybe(findByUsername_migrated(username));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.User> findByUsername_migrated(String username) {
+    return RxJava2Adapter.maybeToMono(findByUsername(username));
+}
 
-    Single<User> create(User user);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.identityprovider.api.User> create(io.gravitee.am.identityprovider.api.User user) {
+    return RxJava2Adapter.monoToSingle(create_migrated(user));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.User> create_migrated(User user) {
+    return RxJava2Adapter.singleToMono(create(user));
+}
 
-    Single<User> update(String id, User updateUser);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.identityprovider.api.User> update(java.lang.String id, io.gravitee.am.identityprovider.api.User updateUser) {
+    return RxJava2Adapter.monoToSingle(update_migrated(id, updateUser));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.User> update_migrated(String id, User updateUser) {
+    return RxJava2Adapter.singleToMono(update(id, updateUser));
+}
 
-    Completable delete(String id);
+      @Deprecated  
+default io.reactivex.Completable delete(java.lang.String id) {
+    return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String id) {
+    return RxJava2Adapter.completableToMono(delete(id));
+}
 
     default Lifecycle.State lifecycleState() {
         return Lifecycle.State.INITIALIZED;

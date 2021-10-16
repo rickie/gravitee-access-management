@@ -20,6 +20,7 @@ import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -27,7 +28,12 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SpringEnvironmentDomainRestrictionRepository extends RxJava2CrudRepository<JdbcEnvironment.DomainRestriction, String> {
-    @Query("select * from environment_domain_restrictions c where c.environment_id = :envId")
-    Flowable<JdbcEnvironment.DomainRestriction> findAllByEnvironmentId(String envId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment.DomainRestriction> findAllByEnvironmentId(java.lang.String envId) {
+    return RxJava2Adapter.fluxToFlowable(findAllByEnvironmentId_migrated(envId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment.DomainRestriction> findAllByEnvironmentId_migrated(String envId) {
+    return RxJava2Adapter.flowableToFlux(findAllByEnvironmentId(envId));
+}
 
 }

@@ -79,8 +79,12 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
         return mapper.map(entity, JdbcApplication.class);
     }
 
-    private Single<Application> completeApplication(Application entity) {
-        return RxJava2Adapter.monoToSingle(Mono.just(entity).flatMap(app->RxJava2Adapter.flowableToFlux(identityRepository.findAllByApplicationId(app.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Identity::getIdentity)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> idps)->{
+    @Deprecated
+private Single<Application> completeApplication(Application entity) {
+ return RxJava2Adapter.monoToSingle(completeApplication_migrated(entity));
+}
+private Mono<Application> completeApplication_migrated(Application entity) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(entity).flatMap(app->RxJava2Adapter.flowableToFlux(identityRepository.findAllByApplicationId(app.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Identity::getIdentity)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> idps)->{
 app.setIdentities(new HashSet<>(idps));
 return app;
 }))).flatMap(app->RxJava2Adapter.flowableToFlux(factorRepository.findAllByApplicationId(app.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Factor::getFactor)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> factors)->{
@@ -91,7 +95,7 @@ if (app.getSettings() != null && app.getSettings().getOauth() != null) {
 app.getSettings().getOauth().setScopeSettings(scopeSettings);
 }
 return app;
-}))));// do not read grant tables, information already present into the settings object
+})))));// do not read grant tables, information already present into the settings object
     }
 
     @Override
@@ -205,14 +209,24 @@ return app;
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(completeApplication(app)).flux()))).next());
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Application> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Application> findById_migrated(String id) {
         LOGGER.debug("findById({}", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.singleToMono(completeApplication(z))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.singleToMono(completeApplication(z)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Application> create(Application item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Application> create_migrated(Application item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("Create Application with id {}", item.getId());
 
@@ -237,11 +251,16 @@ return app;
 
         insertAction = persistChildEntities(insertAction, item);
 
-        return RxJava2Adapter.monoToSingle(insertAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Application> update(Application item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Application> update_migrated(Application item) {
         LOGGER.debug("Update Application with id {}", item.getId());
 
         TransactionalOperator trx = TransactionalOperator.create(tm);
@@ -267,15 +286,20 @@ return app;
         updateAction = deleteChildEntities(item.getId()).then(updateAction);
         updateAction = persistChildEntities(updateAction, item);
 
-        return RxJava2Adapter.monoToSingle(updateAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Integer> delete = dbClient.delete().from(JdbcApplication.class).matching(from(where("id").is(id))).fetch().rowsUpdated();
-        return RxJava2Adapter.monoToCompletable(delete.then(deleteChildEntities(id)).as(trx::transactional).then(RxJava2Adapter.completableToMono(applicationRepository.deleteById(id))));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(delete.then(deleteChildEntities(id)).as(trx::transactional).then(RxJava2Adapter.completableToMono(applicationRepository.deleteById(id)))));
     }
 
     private Mono<Integer> deleteChildEntities(String appId) {

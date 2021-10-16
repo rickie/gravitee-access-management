@@ -19,6 +19,7 @@ import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.token.Token;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * An authorization grant is a credential representing the resource
@@ -50,7 +51,13 @@ public interface TokenGranter {
      * @param client OAuth2 client
      * @return The authorization server authenticates the client and validates the authorization grant, and if valid, issues an access token.
      */
-    Single<Token> grant(TokenRequest tokenRequest, Client client);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.gateway.handler.oauth2.service.token.Token> grant(io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest tokenRequest, io.gravitee.am.model.oidc.Client client) {
+    return RxJava2Adapter.monoToSingle(grant_migrated(tokenRequest, client));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.oauth2.service.token.Token> grant_migrated(TokenRequest tokenRequest, Client client) {
+    return RxJava2Adapter.singleToMono(grant(tokenRequest, client));
+}
 
     default boolean handle(String grantType) {
         return handle(grantType, null);

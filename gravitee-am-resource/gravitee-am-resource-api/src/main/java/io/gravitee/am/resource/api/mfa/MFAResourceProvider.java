@@ -17,12 +17,25 @@ package io.gravitee.am.resource.api.mfa;
 
 import io.gravitee.am.resource.api.ResourceProvider;
 import io.reactivex.Completable;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
  * @author GraviteeSource Team
  */
 public interface MFAResourceProvider extends ResourceProvider {
-    Completable send(MFALink target);
-    Completable verify(MFAChallenge challenge);
+      @Deprecated  
+default io.reactivex.Completable send(io.gravitee.am.resource.api.mfa.MFALink target) {
+    return RxJava2Adapter.monoToCompletable(send_migrated(target));
+}
+default reactor.core.publisher.Mono<java.lang.Void> send_migrated(MFALink target) {
+    return RxJava2Adapter.completableToMono(send(target));
+}
+      @Deprecated  
+default io.reactivex.Completable verify(io.gravitee.am.resource.api.mfa.MFAChallenge challenge) {
+    return RxJava2Adapter.monoToCompletable(verify_migrated(challenge));
+}
+default reactor.core.publisher.Mono<java.lang.Void> verify_migrated(MFAChallenge challenge) {
+    return RxJava2Adapter.completableToMono(verify(challenge));
+}
 }

@@ -74,23 +74,38 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Environment> create(Environment environment) {
+ return RxJava2Adapter.monoToSingle(create_migrated(environment));
+}
+@Override
+    public Mono<Environment> create_migrated(Environment environment) {
 
         environment.setId(environment.getId() == null ? RandomString.generate() : environment.getId());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(environment)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(environment.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(environment)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(environment.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Environment> update(Environment environment) {
+ return RxJava2Adapter.monoToSingle(update_migrated(environment));
+}
+@Override
+    public Mono<Environment> update_migrated(Environment environment) {
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, environment.getId()), convert(environment)))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(environment.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, environment.getId()), convert(environment)))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(environment.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id)))));
     }
 
     @Override

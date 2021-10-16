@@ -230,7 +230,11 @@ public class JdbcUserRepository extends AbstractJdbcRepository implements UserRe
         return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap()));
     }
 
-    private Single<Map<Object, Object>> usersStatusRepartition(AnalyticsQuery query) {
+    @Deprecated
+private Single<Map<Object, Object>> usersStatusRepartition(AnalyticsQuery query) {
+ return RxJava2Adapter.monoToSingle(usersStatusRepartition_migrated(query));
+}
+private Mono<Map<Object,Object>> usersStatusRepartition_migrated(AnalyticsQuery query) {
         boolean filteringByApplication = query.getApplication() != null && !query.getApplication().isEmpty();
 
         Single<Long> total = filteringByApplication
@@ -246,7 +250,7 @@ public class JdbcUserRepository extends AbstractJdbcRepository implements UserRe
                 ? userRepository.countInactiveUserByClient(DOMAIN.name(), query.getDomain(), query.getApplication(), LocalDateTime.now(UTC).minus(90, ChronoUnit.DAYS))
                 : userRepository.countInactiveUser(DOMAIN.name(), query.getDomain(), LocalDateTime.now(UTC).minus(90, ChronoUnit.DAYS));
 
-        return RxJava2Adapter.monoToSingle(Mono.just(new HashMap<>()).flatMap(stats->RxJava2Adapter.singleToMono(disabled).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->{
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new HashMap<>()).flatMap(stats->RxJava2Adapter.singleToMono(disabled).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->{
 LOGGER.debug("usersStatusRepartition(disabled) = {}", count);
 stats.put("disabled", count);
 return stats;
@@ -263,14 +267,18 @@ return stats;
                     stats.put("active", value);
                     LOGGER.debug("usersStatusRepartition(active) = {}", value);
                     return stats;
-                })))).apply(v))));
+                })))).apply(v)))));
     }
 
-    private Single<Map<Object, Object>> registrationsStatusRepartition(AnalyticsQuery query) {
+    @Deprecated
+private Single<Map<Object, Object>> registrationsStatusRepartition(AnalyticsQuery query) {
+ return RxJava2Adapter.monoToSingle(registrationsStatusRepartition_migrated(query));
+}
+private Mono<Map<Object,Object>> registrationsStatusRepartition_migrated(AnalyticsQuery query) {
         LOGGER.debug("process statistic registrationsStatusRepartition({})", query);
         Single<Long> total = userRepository.countPreRegisteredUser(DOMAIN.name(), query.getDomain(), true);
         Single<Long> completed = userRepository.countRegistrationCompletedUser(DOMAIN.name(), query.getDomain(), true, true);
-        return RxJava2Adapter.monoToSingle(Mono.just(new HashMap<>()).flatMap(stats->RxJava2Adapter.singleToMono(total).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->{
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new HashMap<>()).flatMap(stats->RxJava2Adapter.singleToMono(total).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->{
 LOGGER.debug("registrationsStatusRepartition(total) = {}", count);
 stats.put("total", count);
 return stats;
@@ -278,7 +286,7 @@ return stats;
                     LOGGER.debug("registrationsStatusRepartition(completed) = {}", count);
                     stats.put("completed", count);
                     return stats;
-                })))).apply(v))));
+                })))).apply(v)))));
     }
 
     @Override
@@ -287,8 +295,13 @@ return stats;
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.singleToMono(completeUser(z))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> create(User item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<User> create_migrated(User item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("Create user with id {}", item.getId());
 
@@ -335,11 +348,16 @@ return stats;
 
         insertAction = persistChildEntities(insertAction, item);
 
-        return RxJava2Adapter.monoToSingle(insertAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> update(User item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<User> update_migrated(User item) {
         LOGGER.debug("Update User with id {}", item.getId());
 
         TransactionalOperator trx = TransactionalOperator.create(tm);
@@ -386,16 +404,21 @@ return stats;
         updateAction = deleteChildEntities(item.getId()).then(updateAction);
         updateAction = persistChildEntities(updateAction, item);
 
-        return RxJava2Adapter.monoToSingle(updateAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Integer> delete = dbClient.delete().from(JdbcUser.class).matching(from(where("id").is(id))).fetch().rowsUpdated();
 
-        return monoToCompletable(delete.then(deleteChildEntities(id)).as(trx::transactional));
+        return RxJava2Adapter.completableToMono(monoToCompletable(delete.then(deleteChildEntities(id)).as(trx::transactional)));
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, User item) {
@@ -461,8 +484,12 @@ return stats;
         return deleteRoles.then(deleteAddresses).then(deleteAttributes).then(deleteEntitlements);
     }
 
-    private Single<User> completeUser(User userToComplete) {
-        return RxJava2Adapter.monoToSingle(Mono.just(userToComplete).flatMap(user->RxJava2Adapter.flowableToFlux(roleRepository.findByUserId(user.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcUser.Role::getRole)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> roles)->{
+    @Deprecated
+private Single<User> completeUser(User userToComplete) {
+ return RxJava2Adapter.monoToSingle(completeUser_migrated(userToComplete));
+}
+private Mono<User> completeUser_migrated(User userToComplete) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(userToComplete).flatMap(user->RxJava2Adapter.flowableToFlux(roleRepository.findByUserId(user.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcUser.Role::getRole)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> roles)->{
 user.setRoles(roles);
 return user;
 }))).flatMap(user->RxJava2Adapter.flowableToFlux(entitlementRepository.findByUserId(user.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcUser.Entitlements::getEntitlement)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> entitlements)->{
@@ -486,7 +513,7 @@ if (map.containsKey(ATTRIBUTE_USER_FIELD_IM)) {
 user.setIms(map.get(ATTRIBUTE_USER_FIELD_IM));
 }
 return user;
-}))));
+})))));
     }
 
 }

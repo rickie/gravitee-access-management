@@ -89,27 +89,47 @@ public class MongoCredentialRepository extends AbstractManagementMongoRepository
                 )).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Credential> findById(String id) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(credentialsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Credential> findById_migrated(String id) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(credentialsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Credential> create(Credential item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Credential> create_migrated(Credential item) {
         CredentialMongo credential = convert(item);
         credential.setId(credential.getId() == null ? RandomString.generate() : credential.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(credentialsCollection.insertOne(credential))).flatMap(success->RxJava2Adapter.maybeToMono(findById(credential.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(credentialsCollection.insertOne(credential))).flatMap(success->RxJava2Adapter.maybeToMono(findById(credential.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Credential> update(Credential item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Credential> update_migrated(Credential item) {
         CredentialMongo credential = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(credentialsCollection.replaceOne(eq(FIELD_ID, credential.getId()), credential))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(credential.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(credentialsCollection.replaceOne(eq(FIELD_ID, credential.getId()), credential))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(credential.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(credentialsCollection.deleteOne(eq(FIELD_ID, id))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(credentialsCollection.deleteOne(eq(FIELD_ID, id)))));
     }
 
     @Override

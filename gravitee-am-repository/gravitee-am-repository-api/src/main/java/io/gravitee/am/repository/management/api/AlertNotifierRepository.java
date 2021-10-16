@@ -17,14 +17,13 @@ package io.gravitee.am.repository.management.api;
 
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.alert.AlertNotifier;
-import io.gravitee.am.model.alert.AlertNotifier;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.gravitee.am.repository.management.api.search.AlertNotifierCriteria;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -38,7 +37,13 @@ public interface AlertNotifierRepository extends CrudRepository<AlertNotifier, S
      * @param id the alert notifier id.
      * @return the alert notifier found or nothing if it has not been found.
      */
-    Maybe<AlertNotifier> findById(String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.alert.AlertNotifier> findById(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.alert.AlertNotifier> findById_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(findById(id));
+}
 
     /**
      * Find all the alert notifier attached to the specified reference.
@@ -47,7 +52,13 @@ public interface AlertNotifierRepository extends CrudRepository<AlertNotifier, S
      * @param referenceId the id of the reference.
      * @return the alert notifiers found.
      */
-    Flowable<AlertNotifier> findAll(ReferenceType referenceType, String referenceId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.alert.AlertNotifier> findAll(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.alert.AlertNotifier> findAll_migrated(ReferenceType referenceType, String referenceId) {
+    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
+}
 
     /**
      * Find all the alert notifier attached to the specified reference and matching the specified criteria.
@@ -57,5 +68,11 @@ public interface AlertNotifierRepository extends CrudRepository<AlertNotifier, S
      * @param criteria the criteria to match.
      * @return the alert notifiers found.
      */
-    Flowable<AlertNotifier> findByCriteria(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.alert.AlertNotifier> findByCriteria(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.repository.management.api.search.AlertNotifierCriteria criteria) {
+    return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.alert.AlertNotifier> findByCriteria_migrated(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
+    return RxJava2Adapter.flowableToFlux(findByCriteria(referenceType, referenceId, criteria));
+}
 }

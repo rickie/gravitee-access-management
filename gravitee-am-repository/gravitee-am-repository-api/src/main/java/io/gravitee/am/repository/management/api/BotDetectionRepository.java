@@ -20,8 +20,8 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-
 import java.util.Set;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -29,8 +29,20 @@ import java.util.Set;
  */
 public interface BotDetectionRepository extends CrudRepository<BotDetection, String> {
 
-    Flowable<BotDetection> findAll();
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.BotDetection> findAll() {
+    return RxJava2Adapter.fluxToFlowable(findAll_migrated());
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.BotDetection> findAll_migrated() {
+    return RxJava2Adapter.flowableToFlux(findAll());
+}
 
-    Flowable<BotDetection> findByReference(ReferenceType referenceType, String referenceId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.BotDetection> findByReference(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+    return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.BotDetection> findByReference_migrated(ReferenceType referenceType, String referenceId) {
+    return RxJava2Adapter.flowableToFlux(findByReference(referenceType, referenceId));
+}
 
 }

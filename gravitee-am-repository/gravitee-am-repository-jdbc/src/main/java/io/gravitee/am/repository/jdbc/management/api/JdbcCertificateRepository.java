@@ -81,14 +81,24 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
         return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.certificateRepository.findByDomain(domain)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Certificate> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Certificate> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.certificateRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve Certificate with id {}", id, error))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.certificateRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve Certificate with id {}", id, error)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Certificate> create(Certificate item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Certificate> create_migrated(Certificate item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("create certificate with id {}", item.getId());
 
@@ -106,11 +116,16 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create certificate with id {}", item.getId(), error))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create certificate with id {}", item.getId(), error)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Certificate> update(Certificate item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Certificate> update_migrated(Certificate item) {
         LOGGER.debug("update Certificate with id {}", item.getId());
         DatabaseClient.GenericUpdateSpec updatedSpec = dbClient.update().table("certificates");
 
@@ -127,12 +142,17 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
 
         Mono<Integer> action = updatedSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to update certificate with id {}", item.getId(), error))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to update certificate with id {}", item.getId(), error)))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return this.certificateRepository.deleteById(id).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete Certificate with id {}", id, error))).as(RxJava2Adapter::monoToCompletable);
+        return RxJava2Adapter.completableToMono(this.certificateRepository.deleteById(id).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete Certificate with id {}", id, error))).as(RxJava2Adapter::monoToCompletable));
     }
 }

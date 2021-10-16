@@ -87,15 +87,19 @@ return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setCl
      * @param requestedResourcesIds List of current requested resource set ids.
      * @return Permission requests input parameter if ok, else an error.
      */
-    private Single<List<PermissionRequest>> validatePermissionRequest(List<PermissionRequest> requestedPermissions, List<Resource> registeredResources, List<String> requestedResourcesIds) {
+    @Deprecated
+private Single<List<PermissionRequest>> validatePermissionRequest(List<PermissionRequest> requestedPermissions, List<Resource> registeredResources, List<String> requestedResourcesIds) {
+ return RxJava2Adapter.monoToSingle(validatePermissionRequest_migrated(requestedPermissions, registeredResources, requestedResourcesIds));
+}
+private Mono<List<PermissionRequest>> validatePermissionRequest_migrated(List<PermissionRequest> requestedPermissions, List<Resource> registeredResources, List<String> requestedResourcesIds) {
         //Check fetched resources is not empty
         if(registeredResources==null || registeredResources.isEmpty()) {
-            return RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_ID));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_ID)));
         }
 
         //Resources must belong to the same resource owner
         if (registeredResources.size() > 1 && registeredResources.stream().map(Resource::getUserId).distinct().count() > 1) {
-            return RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_OWNER));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_OWNER)));
         }
 
         //Build map with resource ID as key.
@@ -103,14 +107,14 @@ return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setCl
 
         //If the fetched resources does not contains all the requested ids, then return an invalid resource id error.
         if(!resourceSetMap.keySet().containsAll(requestedResourcesIds)) {
-            return RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_ID));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_RESOURCE_ID)));
         }
 
         //If current resource set does not contains all the requested scopes, then return an invalid scope error.
         for(PermissionRequest requestResourceScope:requestedPermissions) {
             Resource fetchedResource = resourceSetMap.get(requestResourceScope.getResourceId());
             if(!fetchedResource.getResourceScopes().containsAll(requestResourceScope.getResourceScopes())) {
-                return RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_SCOPE_RESOURCE));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(InvalidPermissionRequestException.INVALID_SCOPE_RESOURCE)));
             }
         }
 
@@ -120,7 +124,7 @@ return toCreate.setPermissionRequest(permissionRequests).setDomain(domain).setCl
         }
 
         //Everything is matching.
-        return RxJava2Adapter.monoToSingle(Mono.just(requestedPermissions));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(requestedPermissions)));
     }
 
     /**

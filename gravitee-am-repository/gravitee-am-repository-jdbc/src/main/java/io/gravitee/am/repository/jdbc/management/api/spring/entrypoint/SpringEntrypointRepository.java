@@ -22,6 +22,7 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -29,9 +30,25 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SpringEntrypointRepository extends RxJava2CrudRepository<JdbcEntrypoint, String> {
-    @Query("select * from entrypoints e where e.id = :id and e.organization_id = :org")
-    Maybe<JdbcEntrypoint> findById(@Param("id") String id,@Param("org") String organizationId);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcEntrypoint> findById(@org.springframework.data.repository.query.Param(value = "id")
+java.lang.String id, @org.springframework.data.repository.query.Param(value = "org")
+java.lang.String organizationId) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(id, organizationId));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcEntrypoint> findById_migrated(@Param(value = "id")
+String id, @Param(value = "org")
+String organizationId) {
+    return RxJava2Adapter.maybeToMono(findById(id, organizationId));
+}
 
-    @Query("select * from entrypoints e where e.organization_id = :org")
-    Flowable<JdbcEntrypoint> findAllByOrganization(@Param("org") String organizationId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEntrypoint> findAllByOrganization(@org.springframework.data.repository.query.Param(value = "org")
+java.lang.String organizationId) {
+    return RxJava2Adapter.fluxToFlowable(findAllByOrganization_migrated(organizationId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcEntrypoint> findAllByOrganization_migrated(@Param(value = "org")
+String organizationId) {
+    return RxJava2Adapter.flowableToFlux(findAllByOrganization(organizationId));
+}
 }

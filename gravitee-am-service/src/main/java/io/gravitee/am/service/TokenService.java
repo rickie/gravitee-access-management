@@ -19,6 +19,7 @@ import io.gravitee.am.model.Application;
 import io.gravitee.am.service.model.TotalToken;
 import io.reactivex.Completable;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -26,11 +27,35 @@ import io.reactivex.Single;
  */
 public interface TokenService {
 
-    Single<TotalToken> findTotalTokensByDomain(String domain);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.service.model.TotalToken> findTotalTokensByDomain(java.lang.String domain) {
+    return RxJava2Adapter.monoToSingle(findTotalTokensByDomain_migrated(domain));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.service.model.TotalToken> findTotalTokensByDomain_migrated(String domain) {
+    return RxJava2Adapter.singleToMono(findTotalTokensByDomain(domain));
+}
 
-    Single<TotalToken> findTotalTokensByApplication(Application application);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.service.model.TotalToken> findTotalTokensByApplication(io.gravitee.am.model.Application application) {
+    return RxJava2Adapter.monoToSingle(findTotalTokensByApplication_migrated(application));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.service.model.TotalToken> findTotalTokensByApplication_migrated(Application application) {
+    return RxJava2Adapter.singleToMono(findTotalTokensByApplication(application));
+}
 
-    Single<TotalToken> findTotalTokens();
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.service.model.TotalToken> findTotalTokens() {
+    return RxJava2Adapter.monoToSingle(findTotalTokens_migrated());
+}
+default reactor.core.publisher.Mono<io.gravitee.am.service.model.TotalToken> findTotalTokens_migrated() {
+    return RxJava2Adapter.singleToMono(findTotalTokens());
+}
 
-    Completable deleteByUserId(String userId);
+      @Deprecated  
+default io.reactivex.Completable deleteByUserId(java.lang.String userId) {
+    return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(userId));
+}
+default reactor.core.publisher.Mono<java.lang.Void> deleteByUserId_migrated(String userId) {
+    return RxJava2Adapter.completableToMono(deleteByUserId(userId));
+}
 }

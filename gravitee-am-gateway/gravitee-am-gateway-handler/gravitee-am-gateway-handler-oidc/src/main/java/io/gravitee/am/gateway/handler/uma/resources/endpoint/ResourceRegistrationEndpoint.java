@@ -160,16 +160,24 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
                 );
     }
 
-    private Single<NewResource> extractRequest(RoutingContext context) {
-        return RxJava2Adapter.monoToSingle(Mono.just(context.getBodyAsJson()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JsonObject, SingleSource<JsonObject>>toJdkFunction(this::bodyValidation).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class))));
+    @Deprecated
+private Single<NewResource> extractRequest(RoutingContext context) {
+ return RxJava2Adapter.monoToSingle(extractRequest_migrated(context));
+}
+private Mono<NewResource> extractRequest_migrated(RoutingContext context) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(context.getBodyAsJson()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JsonObject, SingleSource<JsonObject>>toJdkFunction(this::bodyValidation).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class)))));
     }
 
-    private Single<JsonObject> bodyValidation(JsonObject body) {
+    @Deprecated
+private Single<JsonObject> bodyValidation(JsonObject body) {
+ return RxJava2Adapter.monoToSingle(bodyValidation_migrated(body));
+}
+private Mono<JsonObject> bodyValidation_migrated(JsonObject body) {
         //Only one field is required from the spec, others are tag as optional
         if (body == null || !body.containsKey("resource_scopes")) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("missing resource_scopes")));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("missing resource_scopes"))));
         }
-        return RxJava2Adapter.monoToSingle(Mono.just(body));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(body)));
     }
 
     private String resourceLocation(String basePath, Resource resource) {

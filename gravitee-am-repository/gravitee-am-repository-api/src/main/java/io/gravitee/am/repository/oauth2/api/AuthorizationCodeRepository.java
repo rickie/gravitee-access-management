@@ -34,14 +34,26 @@ public interface AuthorizationCodeRepository {
      * @param authorizationCode The authorization code.
      * @return
      */
-    Single<AuthorizationCode> create(AuthorizationCode authorizationCode);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.repository.oauth2.model.AuthorizationCode> create(io.gravitee.am.repository.oauth2.model.AuthorizationCode authorizationCode) {
+    return RxJava2Adapter.monoToSingle(create_migrated(authorizationCode));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.oauth2.model.AuthorizationCode> create_migrated(AuthorizationCode authorizationCode) {
+    return RxJava2Adapter.singleToMono(create(authorizationCode));
+}
 
     /**
      * Look for an {@link AuthorizationCode} by id and delete it.
      *
      * @param id The id to consume.
      */
-    Maybe<AuthorizationCode> delete(String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.oauth2.model.AuthorizationCode> delete(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(delete_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.oauth2.model.AuthorizationCode> delete_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(delete(id));
+}
 
     /**
      * Find an {@link AuthorizationCode} by its code.
@@ -49,9 +61,18 @@ public interface AuthorizationCodeRepository {
      * @param code The authorization code.
      * @return
      */
-    Maybe<AuthorizationCode> findByCode(String code);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.oauth2.model.AuthorizationCode> findByCode(java.lang.String code) {
+    return RxJava2Adapter.monoToMaybe(findByCode_migrated(code));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.oauth2.model.AuthorizationCode> findByCode_migrated(String code) {
+    return RxJava2Adapter.maybeToMono(findByCode(code));
+}
 
-    default Completable purgeExpiredData() {
-        return RxJava2Adapter.monoToCompletable(Mono.empty());
+      @Deprecated  
+default io.reactivex.Completable purgeExpiredData() {
+    return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
+}default Mono<Void> purgeExpiredData_migrated() {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 }

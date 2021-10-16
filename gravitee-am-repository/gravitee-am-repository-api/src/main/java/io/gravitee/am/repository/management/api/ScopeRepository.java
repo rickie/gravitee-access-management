@@ -21,9 +21,9 @@ import io.gravitee.am.repository.common.CrudRepository;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.List;
 import java.util.Set;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -31,11 +31,35 @@ import java.util.Set;
  */
 public interface ScopeRepository extends CrudRepository<Scope, String> {
 
-    Single<Page<Scope>> findByDomain(String domain, int page, int size);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.oauth2.Scope>> findByDomain(java.lang.String domain, int page, int size) {
+    return RxJava2Adapter.monoToSingle(findByDomain_migrated(domain, page, size));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee.am.model.oauth2.Scope>> findByDomain_migrated(String domain, int page, int size) {
+    return RxJava2Adapter.singleToMono(findByDomain(domain, page, size));
+}
 
-    Single<Page<Scope>> search(String domain, String query, int page, int size);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.model.common.Page<io.gravitee.am.model.oauth2.Scope>> search(java.lang.String domain, java.lang.String query, int page, int size) {
+    return RxJava2Adapter.monoToSingle(search_migrated(domain, query, page, size));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.common.Page<io.gravitee.am.model.oauth2.Scope>> search_migrated(String domain, String query, int page, int size) {
+    return RxJava2Adapter.singleToMono(search(domain, query, page, size));
+}
 
-    Maybe<Scope> findByDomainAndKey(String domain, String key);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.model.oauth2.Scope> findByDomainAndKey(java.lang.String domain, java.lang.String key) {
+    return RxJava2Adapter.monoToMaybe(findByDomainAndKey_migrated(domain, key));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.model.oauth2.Scope> findByDomainAndKey_migrated(String domain, String key) {
+    return RxJava2Adapter.maybeToMono(findByDomainAndKey(domain, key));
+}
 
-    Flowable<Scope> findByDomainAndKeys(String domain, List<String> keys);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.model.oauth2.Scope> findByDomainAndKeys(java.lang.String domain, java.util.List<java.lang.String> keys) {
+    return RxJava2Adapter.fluxToFlowable(findByDomainAndKeys_migrated(domain, keys));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.model.oauth2.Scope> findByDomainAndKeys_migrated(String domain, List<String> keys) {
+    return RxJava2Adapter.flowableToFlux(findByDomainAndKeys(domain, keys));
+}
 }

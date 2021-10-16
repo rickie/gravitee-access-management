@@ -130,16 +130,20 @@ return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(update(z, idpUser,
                 }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).type(EventType.USER_LOCKED).domain(criteria.domain()).client(criteria.client()).principal(null).user(user1)))).then());
     }
 
-    private Single<User> saveOrUpdate(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
+    @Deprecated
+private Single<User> saveOrUpdate(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
+ return RxJava2Adapter.monoToSingle(saveOrUpdate_migrated(principal, afterAuthentication));
+}
+private Mono<User> saveOrUpdate_migrated(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         String source = (String) principal.getAdditionalInformation().get(SOURCE_FIELD);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndExternalIdAndSource(domain.getId(), principal.getId(), source)).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), principal.getUsername(), source)))).switchIfEmpty(Mono.error(new UserNotFoundException(principal.getUsername()))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByDomainAndExternalIdAndSource(domain.getId(), principal.getId(), source)).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(userService.findByDomainAndUsernameAndSource(domain.getId(), principal.getUsername(), source)))).switchIfEmpty(Mono.error(new UserNotFoundException(principal.getUsername()))))
                 .flatMapSingle(existingUser -> update(existingUser, principal, afterAuthentication))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof UserNotFoundException) {
                         return create(principal, afterAuthentication);
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));
-                });
+                }));
     }
 
     /**
@@ -147,11 +151,15 @@ return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(update(z, idpUser,
      * @param user Authenticated user
      * @return Completable.complete() or Completable.error(error) if account status is not ok
      */
-    private Completable checkAccountStatus(User user) {
+    @Deprecated
+private Completable checkAccountStatus(User user) {
+ return RxJava2Adapter.monoToCompletable(checkAccountStatus_migrated(user));
+}
+private Mono<Void> checkAccountStatus_migrated(User user) {
         if (!user.isEnabled()) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new AccountDisabledException("Account is disabled for user " + user.getUsername())));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new AccountDisabledException("Account is disabled for user " + user.getUsername()))));
         }
-        return RxJava2Adapter.monoToCompletable(Mono.empty());
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 
     /**
@@ -161,7 +169,11 @@ return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(update(z, idpUser,
      * @param afterAuthentication if update operation is called after a sign in operation
      * @return updated user
      */
-    private Single<User> update(User existingUser, io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
+    @Deprecated
+private Single<User> update(User existingUser, io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
+ return RxJava2Adapter.monoToSingle(update_migrated(existingUser, principal, afterAuthentication));
+}
+private Mono<User> update_migrated(User existingUser, io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         LOGGER.debug("Updating user: username[%s]", principal.getUsername());
         // set external id
         existingUser.setExternalId(principal.getId());
@@ -184,7 +196,7 @@ return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(update(z, idpUser,
             existingUser.getAdditionalInformation().remove(ConstantKeys.OIDC_PROVIDER_ID_TOKEN_KEY);
         }
         extractAdditionalInformation(existingUser, additionalInformation);
-        return userService.update(existingUser);
+        return RxJava2Adapter.singleToMono(userService.update(existingUser));
     }
 
     /**
@@ -193,7 +205,11 @@ return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(update(z, idpUser,
      * @param afterAuthentication if create operation is called after a sign in operation
      * @return created user
      */
-    private Single<User> create(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
+    @Deprecated
+private Single<User> create(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
+ return RxJava2Adapter.monoToSingle(create_migrated(principal, afterAuthentication));
+}
+private Mono<User> create_migrated(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         LOGGER.debug("Creating a new user: username[%s]", principal.getUsername());
         final User newUser = new User();
         // set external id
@@ -212,7 +228,7 @@ return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(update(z, idpUser,
 
         Map<String, Object> additionalInformation = principal.getAdditionalInformation();
         extractAdditionalInformation(newUser, additionalInformation);
-        return userService.create(newUser);
+        return RxJava2Adapter.singleToMono(userService.create(newUser));
     }
 
     private void extractAdditionalInformation(User user, Map<String, Object> additionalInformation) {

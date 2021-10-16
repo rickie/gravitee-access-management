@@ -88,13 +88,17 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
                     authorizationCodeRepository.delete(z.getId()).as(RxJava2Adapter::maybeToMono)));
   }
 
-  private Maybe<AuthorizationCode> handleInvalidCode(String code) {
+  @Deprecated
+private Maybe<AuthorizationCode> handleInvalidCode(String code) {
+ return RxJava2Adapter.monoToMaybe(handleInvalidCode_migrated(code));
+}
+private Mono<AuthorizationCode> handleInvalidCode_migrated(String code) {
     // The client MUST NOT use the authorization code more than once.
     // If an authorization code is used more than once, the authorization server MUST deny the
     // request and SHOULD
     // revoke (when possible) all tokens previously issued based on that authorization code.
     // https://tools.ietf.org/html/rfc6749#section-4.1.2
-    return RxJava2Adapter.monoToMaybe(
+    return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(
         RxJava2Adapter.completableToMono(
                 accessTokenRepository
                     .findByAuthorizationCode(code)
@@ -109,6 +113,6 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
                         }))
             .then(
                 Mono.error(new InvalidGrantException(
-                                "The authorization code " + code + " is invalid."))));
+                                "The authorization code " + code + " is invalid.")))));
   }
 }

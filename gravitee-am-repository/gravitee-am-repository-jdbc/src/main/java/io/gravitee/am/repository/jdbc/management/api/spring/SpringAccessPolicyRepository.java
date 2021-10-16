@@ -18,13 +18,13 @@ package io.gravitee.am.repository.jdbc.management.api.spring;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcAccessPolicy;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -32,18 +32,51 @@ import java.util.List;
  */
 @Repository
 public interface SpringAccessPolicyRepository extends RxJava2CrudRepository<JdbcAccessPolicy, String> {
-    @Query("Select count(*) from uma_access_policies u where u.domain = :domain")
-    Single<Long> countByDomain(String domain);
+      @Deprecated  
+default io.reactivex.Single<java.lang.Long> countByDomain(java.lang.String domain) {
+    return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
+}
+default reactor.core.publisher.Mono<java.lang.Long> countByDomain_migrated(String domain) {
+    return RxJava2Adapter.singleToMono(countByDomain(domain));
+}
 
-    @Query("Select * from uma_access_policies u where u.domain = :domain")
-    Flowable<JdbcAccessPolicy> findByDomain(@Param("domain") String domain, Pageable page);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcAccessPolicy> findByDomain(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain, org.springframework.data.domain.Pageable page) {
+    return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain, page));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcAccessPolicy> findByDomain_migrated(@Param(value = "domain")
+String domain, Pageable page) {
+    return RxJava2Adapter.flowableToFlux(findByDomain(domain, page));
+}
 
-    @Query("Select count(*) from uma_access_policies u where u.resource = :resource")
-    Single<Long> countByResource(String resource);
+      @Deprecated  
+default io.reactivex.Single<java.lang.Long> countByResource(java.lang.String resource) {
+    return RxJava2Adapter.monoToSingle(countByResource_migrated(resource));
+}
+default reactor.core.publisher.Mono<java.lang.Long> countByResource_migrated(String resource) {
+    return RxJava2Adapter.singleToMono(countByResource(resource));
+}
 
-    @Query("Select * from uma_access_policies u where u.domain = :domain and u.resource = :resource")
-    Flowable<JdbcAccessPolicy> findByDomainAndResource(@Param("domain") String domain, @Param("resource") String resource);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcAccessPolicy> findByDomainAndResource(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain, @org.springframework.data.repository.query.Param(value = "resource")
+java.lang.String resource) {
+    return RxJava2Adapter.fluxToFlowable(findByDomainAndResource_migrated(domain, resource));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcAccessPolicy> findByDomainAndResource_migrated(@Param(value = "domain")
+String domain, @Param(value = "resource")
+String resource) {
+    return RxJava2Adapter.flowableToFlux(findByDomainAndResource(domain, resource));
+}
 
-    @Query("Select * from uma_access_policies u where u.resource in (:resources)")
-    Flowable<JdbcAccessPolicy> findByResourceIn(@Param("resources")List<String> resources);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcAccessPolicy> findByResourceIn(@org.springframework.data.repository.query.Param(value = "resources")
+java.util.List<java.lang.String> resources) {
+    return RxJava2Adapter.fluxToFlowable(findByResourceIn_migrated(resources));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcAccessPolicy> findByResourceIn_migrated(@Param(value = "resources")
+List<String> resources) {
+    return RxJava2Adapter.flowableToFlux(findByResourceIn(resources));
+}
 }

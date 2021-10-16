@@ -28,8 +28,12 @@ import reactor.core.publisher.Mono;
  */
 public class AuthorizationRequestResolver extends AbstractRequestResolver<AuthorizationRequest> {
 
-    public Single<AuthorizationRequest> resolve(AuthorizationRequest authorizationRequest, Client client, User endUser) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resolveAuthorizedScopes(authorizationRequest, client, endUser)).flatMap(request->RxJava2Adapter.singleToMono(resolveRedirectUri(request, client))));
+    @Deprecated
+public Single<AuthorizationRequest> resolve(AuthorizationRequest authorizationRequest, Client client, User endUser) {
+ return RxJava2Adapter.monoToSingle(resolve_migrated(authorizationRequest, client, endUser));
+}
+public Mono<AuthorizationRequest> resolve_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resolveAuthorizedScopes(authorizationRequest, client, endUser)).flatMap(request->RxJava2Adapter.singleToMono(resolveRedirectUri(request, client)))));
     }
 
     /**
@@ -43,13 +47,17 @@ public class AuthorizationRequestResolver extends AbstractRequestResolver<Author
      * @param client the client which trigger the request
      * @return the authorization request
      */
-    public Single<AuthorizationRequest> resolveRedirectUri(AuthorizationRequest authorizationRequest, Client client) {
+    @Deprecated
+public Single<AuthorizationRequest> resolveRedirectUri(AuthorizationRequest authorizationRequest, Client client) {
+ return RxJava2Adapter.monoToSingle(resolveRedirectUri_migrated(authorizationRequest, client));
+}
+public Mono<AuthorizationRequest> resolveRedirectUri_migrated(AuthorizationRequest authorizationRequest, Client client) {
         final String requestedRedirectUri = authorizationRequest.getRedirectUri();
         final List<String> registeredClientRedirectUris = client.getRedirectUris();
         // no redirect_uri parameter supplied, return the first client registered redirect uri
         if (requestedRedirectUri == null || requestedRedirectUri.isEmpty()) {
             authorizationRequest.setRedirectUri(registeredClientRedirectUris.iterator().next());
         }
-        return RxJava2Adapter.monoToSingle(Mono.just(authorizationRequest));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(authorizationRequest)));
     }
 }

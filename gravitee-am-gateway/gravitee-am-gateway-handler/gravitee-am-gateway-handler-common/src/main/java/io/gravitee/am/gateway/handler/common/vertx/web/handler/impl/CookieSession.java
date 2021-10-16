@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import org.springframework.util.StringUtils;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -77,15 +78,19 @@ public class CookieSession extends AbstractSession {
         return super.put(key, obj);
     }
 
-    protected Single<CookieSession> setValue(String payload) {
+    @Deprecated
+protected Single<CookieSession> setValue(String payload) {
+ return RxJava2Adapter.monoToSingle(setValue_migrated(payload));
+}
+protected Mono<CookieSession> setValue_migrated(String payload) {
 
         if (StringUtils.isEmpty(payload)) {
             setData(new HashMap<>());
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.jwtService.decodeAndVerify(payload, certificateProvider)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(jwt -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.jwtService.decodeAndVerify(payload, certificateProvider)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(jwt -> {
                     this.lastLogin = new Date(jwt.getExp() * 1000 - this.timeout());
                     this.setData(jwt);
-                })).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> this)));
+                })).map(RxJavaReactorMigrationUtil.toJdkFunction(jwt -> this))));
     }
 }

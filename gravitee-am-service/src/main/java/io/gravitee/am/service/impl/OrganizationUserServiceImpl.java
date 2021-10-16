@@ -110,12 +110,17 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
                 }).apply(y)))).then());
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<User> update(User user) {
+ return RxJava2Adapter.monoToSingle(update_migrated(user));
+}
+@Override
+    public Mono<User> update_migrated(User user) {
         LOGGER.debug("Update a user {}", user);
         // updated date
         user.setUpdatedAt(new Date());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserRepository()
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserRepository()
                 .findByUsernameAndSource(ReferenceType.ORGANIZATION, user.getReferenceId(), user.getUsername(), user.getSource())
                 .flatMapSingle(oldUser -> {
 
@@ -146,6 +151,6 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
                     }
                     LOGGER.error("An error occurs while trying to update a user", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to update a user", ex)));
-                }))));
+                })))));
     }
 }

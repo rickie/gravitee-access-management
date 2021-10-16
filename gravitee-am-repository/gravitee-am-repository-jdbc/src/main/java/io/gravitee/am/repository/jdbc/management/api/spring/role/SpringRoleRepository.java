@@ -19,12 +19,12 @@ import io.gravitee.am.repository.jdbc.management.api.model.JdbcRole;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.util.List;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -33,21 +33,83 @@ import java.util.List;
 @Repository
 public interface SpringRoleRepository extends RxJava2CrudRepository<JdbcRole, String> {
 
-    @Query("select count(r.id) from roles r where r.reference_type = :refType and r.reference_id = :refId")
-    Single<Long> countByReference(@Param("refType")String refType, @Param("refId") String refId);
+      @Deprecated  
+default io.reactivex.Single<java.lang.Long> countByReference(@org.springframework.data.repository.query.Param(value = "refType")
+java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
+java.lang.String refId) {
+    return RxJava2Adapter.monoToSingle(countByReference_migrated(refType, refId));
+}
+default reactor.core.publisher.Mono<java.lang.Long> countByReference_migrated(@Param(value = "refType")
+String refType, @Param(value = "refId")
+String refId) {
+    return RxJava2Adapter.singleToMono(countByReference(refType, refId));
+}
 
-    @Query("select * from roles r where r.reference_type = :refType and r.reference_id = :refId")
-    Flowable<JdbcRole> findByReference(@Param("refType") String refType, @Param("refId") String refId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findByReference(@org.springframework.data.repository.query.Param(value = "refType")
+java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
+java.lang.String refId) {
+    return RxJava2Adapter.fluxToFlowable(findByReference_migrated(refType, refId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findByReference_migrated(@Param(value = "refType")
+String refType, @Param(value = "refId")
+String refId) {
+    return RxJava2Adapter.flowableToFlux(findByReference(refType, refId));
+}
 
-    @Query("select * from roles r where r.id in (:rid)")
-    Flowable<JdbcRole> findByIdIn(@Param("rid") List<String> roles);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findByIdIn(@org.springframework.data.repository.query.Param(value = "rid")
+java.util.List<java.lang.String> roles) {
+    return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(roles));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findByIdIn_migrated(@Param(value = "rid")
+List<String> roles) {
+    return RxJava2Adapter.flowableToFlux(findByIdIn(roles));
+}
 
-    @Query("select * from roles r where r.reference_type = :refType and r.reference_id = :refId and r.id = :rid")
-    Maybe<JdbcRole> findById(@Param("refType") String refType, @Param("refId") String refId, @Param("rid")String role);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findById(@org.springframework.data.repository.query.Param(value = "refType")
+java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
+java.lang.String refId, @org.springframework.data.repository.query.Param(value = "rid")
+java.lang.String role) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(refType, refId, role));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findById_migrated(@Param(value = "refType")
+String refType, @Param(value = "refId")
+String refId, @Param(value = "rid")
+String role) {
+    return RxJava2Adapter.maybeToMono(findById(refType, refId, role));
+}
 
-    @Query("select * from roles r where r.reference_type = :refType and r.reference_id = :refId and r.name = :name and r.assignable_type = :assignable")
-    Maybe<JdbcRole> findByNameAndAssignableType(@Param("refType") String refType, @Param("refId") String refId, @Param("name")String name, @Param("assignable")String assignableType);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findByNameAndAssignableType(@org.springframework.data.repository.query.Param(value = "refType")
+java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
+java.lang.String refId, @org.springframework.data.repository.query.Param(value = "name")
+java.lang.String name, @org.springframework.data.repository.query.Param(value = "assignable")
+java.lang.String assignableType) {
+    return RxJava2Adapter.monoToMaybe(findByNameAndAssignableType_migrated(refType, refId, name, assignableType));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findByNameAndAssignableType_migrated(@Param(value = "refType")
+String refType, @Param(value = "refId")
+String refId, @Param(value = "name")
+String name, @Param(value = "assignable")
+String assignableType) {
+    return RxJava2Adapter.maybeToMono(findByNameAndAssignableType(refType, refId, name, assignableType));
+}
 
-    @Query("select * from roles r where r.reference_type = :refType and r.reference_id = :refId and r.name in (:names) and r.assignable_type = :assignable")
-    Flowable<JdbcRole> findByNamesAndAssignableType(@Param("refType") String refType, @Param("refId") String refId, @Param("names")List<String> names, @Param("assignable")String assignableType);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findByNamesAndAssignableType(@org.springframework.data.repository.query.Param(value = "refType")
+java.lang.String refType, @org.springframework.data.repository.query.Param(value = "refId")
+java.lang.String refId, @org.springframework.data.repository.query.Param(value = "names")
+java.util.List<java.lang.String> names, @org.springframework.data.repository.query.Param(value = "assignable")
+java.lang.String assignableType) {
+    return RxJava2Adapter.fluxToFlowable(findByNamesAndAssignableType_migrated(refType, refId, names, assignableType));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole> findByNamesAndAssignableType_migrated(@Param(value = "refType")
+String refType, @Param(value = "refId")
+String refId, @Param(value = "names")
+List<String> names, @Param(value = "assignable")
+String assignableType) {
+    return RxJava2Adapter.flowableToFlux(findByNamesAndAssignableType(refType, refId, names, assignableType));
+}
 }

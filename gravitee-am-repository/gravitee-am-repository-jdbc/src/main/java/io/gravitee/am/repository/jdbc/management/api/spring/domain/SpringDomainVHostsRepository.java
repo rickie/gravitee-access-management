@@ -20,6 +20,7 @@ import io.reactivex.Flowable;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -27,6 +28,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SpringDomainVHostsRepository extends RxJava2CrudRepository<JdbcDomain.Vhost, String> {
-    @Query("select * from domain_vhosts c where c.domain_id = :domainId  ")
-    Flowable<JdbcDomain.Vhost> findAllByDomainId(String domainId);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcDomain.Vhost> findAllByDomainId(java.lang.String domainId) {
+    return RxJava2Adapter.fluxToFlowable(findAllByDomainId_migrated(domainId));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcDomain.Vhost> findAllByDomainId_migrated(String domainId) {
+    return RxJava2Adapter.flowableToFlux(findAllByDomainId(domainId));
+}
 }

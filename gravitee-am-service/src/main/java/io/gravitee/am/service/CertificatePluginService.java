@@ -18,8 +18,8 @@ package io.gravitee.am.service;
 import io.gravitee.am.service.model.plugin.CertificatePlugin;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
 import java.util.Set;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -27,9 +27,27 @@ import java.util.Set;
  */
 public interface CertificatePluginService {
 
-    Single<Set<CertificatePlugin>> findAll();
+      @Deprecated  
+default io.reactivex.Single<java.util.Set<io.gravitee.am.service.model.plugin.CertificatePlugin>> findAll() {
+    return RxJava2Adapter.monoToSingle(findAll_migrated());
+}
+default reactor.core.publisher.Mono<java.util.Set<io.gravitee.am.service.model.plugin.CertificatePlugin>> findAll_migrated() {
+    return RxJava2Adapter.singleToMono(findAll());
+}
 
-    Maybe<CertificatePlugin> findById(String id);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.service.model.plugin.CertificatePlugin> findById(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.service.model.plugin.CertificatePlugin> findById_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(findById(id));
+}
 
-    Maybe<String> getSchema(String id);
+      @Deprecated  
+default io.reactivex.Maybe<java.lang.String> getSchema(java.lang.String id) {
+    return RxJava2Adapter.monoToMaybe(getSchema_migrated(id));
+}
+default reactor.core.publisher.Mono<java.lang.String> getSchema_migrated(String id) {
+    return RxJava2Adapter.maybeToMono(getSchema(id));
+}
 }

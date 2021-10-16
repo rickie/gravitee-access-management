@@ -455,13 +455,17 @@ public class ApplicationServiceImpl implements ApplicationService {
                 });
     }
 
-    private Single<Application> create0(String domain, Application application, User principal) {
+    @Deprecated
+private Single<Application> create0(String domain, Application application, User principal) {
+ return RxJava2Adapter.monoToSingle(create0_migrated(domain, application, principal));
+}
+private Mono<Application> create0_migrated(String domain, Application application, User principal) {
         // created and updated date
         application.setCreatedAt(new Date());
         application.setUpdatedAt(application.getCreatedAt());
 
         // check uniqueness
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkApplicationUniqueness(domain, application)).then(RxJava2Adapter.singleToMono(validateApplicationMetadata(application))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(this::setDefaultCertificate).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(applicationRepository::create).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Object>>toJdkFunction(application1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkApplicationUniqueness(domain, application)).then(RxJava2Adapter.singleToMono(validateApplicationMetadata(application))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(this::setDefaultCertificate).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(applicationRepository::create).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Object>>toJdkFunction(application1 -> {
                     if (principal == null || principal.getAdditionalInformation() == null || StringUtils.isEmpty(principal.getAdditionalInformation().get(Claims.organization))) {
                         // There is no principal or we can not find the organization the user is attached to. Can't assign role.
                         return RxJava2Adapter.monoToSingle(Mono.just(application1));
@@ -480,19 +484,23 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Object, SingleSource<Application>>toJdkFunction(application1 -> {
                     Event event = new Event(Type.APPLICATION, new Payload(application.getId(), ReferenceType.DOMAIN, application.getDomain(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(domain1->Mono.just(application)));
-                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(application1 -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CREATED).application(application1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CREATED).throwable(throwable)))));
+                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(application1 -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CREATED).application(application1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CREATED).throwable(throwable))))));
     }
 
     //TODO Boualem : domain never used
-    private Single<Application> update0(String domain, Application currentApplication, Application applicationToUpdate, User principal) {
+    @Deprecated
+private Single<Application> update0(String domain, Application currentApplication, Application applicationToUpdate, User principal) {
+ return RxJava2Adapter.monoToSingle(update0_migrated(domain, currentApplication, applicationToUpdate, principal));
+}
+private Mono<Application> update0_migrated(String domain, Application currentApplication, Application applicationToUpdate, User principal) {
         // updated date
         applicationToUpdate.setUpdatedAt(new Date());
 
         // validate application metadata
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(validateApplicationMetadata(applicationToUpdate)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(this::validateApplicationIdentityProviders).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(applicationRepository::update).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(application1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(validateApplicationMetadata(applicationToUpdate)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(this::validateApplicationIdentityProviders).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(applicationRepository::update).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(application1 -> {
                     Event event = new Event(Type.APPLICATION, new Payload(application1.getId(), ReferenceType.DOMAIN, application1.getDomain(), Action.UPDATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(domain1->Mono.just(application1)));
-                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(application -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_UPDATED).oldValue(currentApplication).application(application)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_UPDATED).throwable(throwable)))));
+                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(application -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_UPDATED).oldValue(currentApplication).application(application)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_UPDATED).throwable(throwable))))));
     }
 
     /**
@@ -500,13 +508,17 @@ public class ApplicationServiceImpl implements ApplicationService {
      * @param application the application to create
      * @return the application with the certificate
      */
-    private Single<Application> setDefaultCertificate(Application application) {
+    @Deprecated
+private Single<Application> setDefaultCertificate(Application application) {
+ return RxJava2Adapter.monoToSingle(setDefaultCertificate_migrated(application));
+}
+private Mono<Application> setDefaultCertificate_migrated(Application application) {
         // certificate might have been set via DCR, continue
         if (application.getCertificate() != null) {
-            return RxJava2Adapter.monoToSingle(Mono.just(application));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(application)));
         }
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(certificateService
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(certificateService
                 .findByDomain(application.getDomain())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(certificates -> {
                     if (certificates == null || certificates.isEmpty()) {
                         return application;
@@ -518,24 +530,32 @@ public class ApplicationServiceImpl implements ApplicationService {
                             .orElse(certificates.get(0));
                     application.setCertificate(defaultCertificate.getId());
                     return application;
-                })));
+                }))));
     }
 
-    private Completable checkApplicationUniqueness(String domain, Application application) {
+    @Deprecated
+private Completable checkApplicationUniqueness(String domain, Application application) {
+ return RxJava2Adapter.monoToCompletable(checkApplicationUniqueness_migrated(domain, application));
+}
+private Mono<Void> checkApplicationUniqueness_migrated(String domain, Application application) {
         final String clientId = application.getSettings() != null && application.getSettings().getOauth() != null ? application.getSettings().getOauth().getClientId() : null;
-        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(findByDomainAndClientId(domain, clientId)).hasElement().flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)isEmpty -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(findByDomainAndClientId(domain, clientId)).hasElement().flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)isEmpty -> {
                     if (!isEmpty) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(new ApplicationAlreadyExistsException(clientId, domain)));
                     }
                     return RxJava2Adapter.monoToCompletable(Mono.empty());
-                }).apply(y)))).then());
+                }).apply(y)))).then()));
     }
 
-    private Single<Application> validateApplicationIdentityProviders(Application application) {
+    @Deprecated
+private Single<Application> validateApplicationIdentityProviders(Application application) {
+ return RxJava2Adapter.monoToSingle(validateApplicationIdentityProviders_migrated(application));
+}
+private Mono<Application> validateApplicationIdentityProviders_migrated(Application application) {
         if (application.getIdentities() == null || application.getIdentities().isEmpty()) {
-            return RxJava2Adapter.monoToSingle(Mono.just(application));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(application)));
         }
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(application.getIdentities())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(application.getIdentities())
                 .flatMapSingle(identity -> RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(identity)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).single()))
                 .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(optionalIdentities -> {
                     if (optionalIdentities == null || optionalIdentities.isEmpty()) {
@@ -550,7 +570,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                         application.setIdentities(identities);
                     }
                     return application;
-                })));
+                }))));
     }
 
     /**
@@ -563,21 +583,29 @@ public class ApplicationServiceImpl implements ApplicationService {
      * @param application application to check
      * @return a client only if every conditions are respected.
      */
-    private Single<Application> validateApplicationMetadata(Application application) {
+    @Deprecated
+private Single<Application> validateApplicationMetadata(Application application) {
+ return RxJava2Adapter.monoToSingle(validateApplicationMetadata_migrated(application));
+}
+private Mono<Application> validateApplicationMetadata_migrated(Application application) {
         // do nothing if application has no settings
         if (application.getSettings() == null) {
-            return RxJava2Adapter.monoToSingle(Mono.just(application));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(application)));
         }
         if (application.getSettings().getOauth() == null) {
-            return RxJava2Adapter.monoToSingle(Mono.just(application));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(application)));
         }
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(GrantTypeUtils.validateGrantTypes(application)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(this::validateRedirectUris).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(this::validateScopes).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(this::validateTokenEndpointAuthMethod).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Application>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Application, Single<Application>>)this::validateTlsClientAuth).apply(v))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(GrantTypeUtils.validateGrantTypes(application)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(this::validateRedirectUris).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(this::validateScopes).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(this::validateTokenEndpointAuthMethod).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono((Single<Application>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Application, Single<Application>>)this::validateTlsClientAuth).apply(v)))));
     }
 
-    private Single<Application> validateRedirectUris(Application application) {
+    @Deprecated
+private Single<Application> validateRedirectUris(Application application) {
+ return RxJava2Adapter.monoToSingle(validateRedirectUris_migrated(application));
+}
+private Mono<Application> validateRedirectUris_migrated(Application application) {
         ApplicationOAuthSettings oAuthSettings = application.getSettings().getOauth();
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(application.getDomain())).switchIfEmpty(Mono.error(new DomainNotFoundException(application.getDomain()))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(application.getDomain())).switchIfEmpty(Mono.error(new DomainNotFoundException(application.getDomain()))))
                 .flatMapSingle(domain -> {
                     //check redirect_uri
                     if (GrantTypeUtils.isRedirectUriRequired(oAuthSettings.getGrantTypes()) && CollectionUtils.isEmpty(oAuthSettings.getRedirectUris())) {
@@ -622,38 +650,46 @@ public class ApplicationServiceImpl implements ApplicationService {
                         }
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(application));
-                });
+                }));
     }
 
-    private Single<Application> validateScopes(Application application) {
+    @Deprecated
+private Single<Application> validateScopes(Application application) {
+ return RxJava2Adapter.monoToSingle(validateScopes_migrated(application));
+}
+private Mono<Application> validateScopes_migrated(Application application) {
         ApplicationOAuthSettings oAuthSettings = application.getSettings().getOauth();
         // check scope approvals and default scopes coherency
         List<String> scopes = oAuthSettings.getScopeSettings() != null ? oAuthSettings.getScopeSettings().stream().map(ApplicationScopeSettings::getScope).collect(Collectors.toList()) : new ArrayList<>();
         List<String> defaultScopes = oAuthSettings.getScopeSettings() != null ? oAuthSettings.getScopeSettings().stream().filter(ApplicationScopeSettings::isDefaultScope).map(ApplicationScopeSettings::getScope).collect(Collectors.toList()) : new ArrayList<>();
         Set<String> scopeApprovals = oAuthSettings.getScopeSettings() != null ? oAuthSettings.getScopeSettings().stream().filter(s -> s.getScopeApproval() != null).map(ApplicationScopeSettings::getScope).collect(Collectors.toSet()) : new HashSet<>();
         if (!scopes.containsAll(defaultScopes)) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("non valid default scopes")));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("non valid default scopes"))));
         }
         if (!scopes.containsAll(scopeApprovals)) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("non valid scope approvals")));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("non valid scope approvals"))));
         }
         // check scopes against domain scopes
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(scopeService.validateScope(application.getDomain(), scopes)).flatMap(v->RxJava2Adapter.singleToMono((Single<Application>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<Application>>)isValid -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(scopeService.validateScope(application.getDomain(), scopes)).flatMap(v->RxJava2Adapter.singleToMono((Single<Application>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<Application>>)isValid -> {
                     if (!isValid) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("non valid scopes")));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(application));
-                }).apply(v))));
+                }).apply(v)))));
     }
 
-    private Single<Application> validateTokenEndpointAuthMethod(Application application) {
+    @Deprecated
+private Single<Application> validateTokenEndpointAuthMethod(Application application) {
+ return RxJava2Adapter.monoToSingle(validateTokenEndpointAuthMethod_migrated(application));
+}
+private Mono<Application> validateTokenEndpointAuthMethod_migrated(Application application) {
         ApplicationOAuthSettings oauthSettings = application.getSettings().getOauth();
         String tokenEndpointAuthMethod = oauthSettings.getTokenEndpointAuthMethod();
         if ((ApplicationType.SERVICE == application.getType() || (oauthSettings.getGrantTypes() != null && oauthSettings.getGrantTypes().contains(GrantType.CLIENT_CREDENTIALS)))
                 && (tokenEndpointAuthMethod != null && ClientAuthenticationMethod.NONE.equals(tokenEndpointAuthMethod))) {
-            return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Invalid token_endpoint_auth_method for service application (client_credentials grant type)")));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Invalid token_endpoint_auth_method for service application (client_credentials grant type)"))));
         }
-        return RxJava2Adapter.monoToSingle(Mono.just(application));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(application)));
     }
 
     /**
@@ -661,7 +697,11 @@ public class ApplicationServiceImpl implements ApplicationService {
      * below metadata parameters to indicate the certificate subject value that the authorization server is
      * to expect when authenticating the respective client.
      */
-    private Single<Application> validateTlsClientAuth(Application application) {
+    @Deprecated
+private Single<Application> validateTlsClientAuth(Application application) {
+ return RxJava2Adapter.monoToSingle(validateTlsClientAuth_migrated(application));
+}
+private Mono<Application> validateTlsClientAuth_migrated(Application application) {
         ApplicationOAuthSettings settings = application.getSettings().getOauth();
         if (settings.getTokenEndpointAuthMethod() != null &&
                 ClientAuthenticationMethod.TLS_CLIENT_AUTH.equalsIgnoreCase(settings.getTokenEndpointAuthMethod())) {
@@ -671,7 +711,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     (settings.getTlsClientAuthSanIp() == null || settings.getTlsClientAuthSanIp().isEmpty()) &&
                     (settings.getTlsClientAuthSanEmail() == null || settings.getTlsClientAuthSanEmail().isEmpty()) &&
                     (settings.getTlsClientAuthSanUri() == null || settings.getTlsClientAuthSanUri().isEmpty())) {
-                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Missing TLS parameter for tls_client_auth.")));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Missing TLS parameter for tls_client_auth."))));
             }
 
             if (settings.getTlsClientAuthSubjectDn() != null && !settings.getTlsClientAuthSubjectDn().isEmpty() && (
@@ -679,34 +719,34 @@ public class ApplicationServiceImpl implements ApplicationService {
                             (settings.getTlsClientAuthSanEmail() != null && !settings.getTlsClientAuthSanEmail().isEmpty()) ||
                             (settings.getTlsClientAuthSanIp() != null && !settings.getTlsClientAuthSanIp().isEmpty()) ||
                             (settings.getTlsClientAuthSanUri() != null && !settings.getTlsClientAuthSanUri().isEmpty()))) {
-                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters.")));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."))));
             } else if (settings.getTlsClientAuthSanDns() != null && !settings.getTlsClientAuthSanDns().isEmpty() && (
                     (settings.getTlsClientAuthSubjectDn() != null && !settings.getTlsClientAuthSubjectDn().isEmpty()) ||
                             (settings.getTlsClientAuthSanEmail() != null && !settings.getTlsClientAuthSanEmail().isEmpty()) ||
                             (settings.getTlsClientAuthSanIp() != null && !settings.getTlsClientAuthSanIp().isEmpty()) ||
                             (settings.getTlsClientAuthSanUri() != null && !settings.getTlsClientAuthSanUri().isEmpty()))) {
-                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters.")));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."))));
             } else if (settings.getTlsClientAuthSanIp() != null && !settings.getTlsClientAuthSanIp().isEmpty() && (
                     (settings.getTlsClientAuthSubjectDn() != null && !settings.getTlsClientAuthSubjectDn().isEmpty()) ||
                             (settings.getTlsClientAuthSanDns() != null && !settings.getTlsClientAuthSanDns().isEmpty()) ||
                             (settings.getTlsClientAuthSanEmail() != null && !settings.getTlsClientAuthSanEmail().isEmpty()) ||
                             (settings.getTlsClientAuthSanUri() != null && !settings.getTlsClientAuthSanUri().isEmpty()))) {
-                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters.")));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."))));
             } else if (settings.getTlsClientAuthSanEmail() != null && !settings.getTlsClientAuthSanEmail().isEmpty() && (
                     (settings.getTlsClientAuthSubjectDn() != null && !settings.getTlsClientAuthSubjectDn().isEmpty()) ||
                             (settings.getTlsClientAuthSanDns() != null && !settings.getTlsClientAuthSanDns().isEmpty()) ||
                             (settings.getTlsClientAuthSanIp() != null && !settings.getTlsClientAuthSanIp().isEmpty()) ||
                             (settings.getTlsClientAuthSanUri() != null && !settings.getTlsClientAuthSanUri().isEmpty()))) {
-                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters.")));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."))));
             } else if (settings.getTlsClientAuthSanUri() != null && !settings.getTlsClientAuthSanUri().isEmpty() && (
                     (settings.getTlsClientAuthSubjectDn() != null && !settings.getTlsClientAuthSubjectDn().isEmpty()) ||
                             (settings.getTlsClientAuthSanDns() != null && !settings.getTlsClientAuthSanDns().isEmpty()) ||
                             (settings.getTlsClientAuthSanIp() != null && !settings.getTlsClientAuthSanIp().isEmpty()) ||
                             (settings.getTlsClientAuthSanEmail() != null && !settings.getTlsClientAuthSanEmail().isEmpty()))) {
-                return RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters.")));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("The tls_client_auth must use exactly one of the TLS parameters."))));
             }
         }
 
-        return RxJava2Adapter.monoToSingle(Mono.just(application));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(application)));
     }
 }

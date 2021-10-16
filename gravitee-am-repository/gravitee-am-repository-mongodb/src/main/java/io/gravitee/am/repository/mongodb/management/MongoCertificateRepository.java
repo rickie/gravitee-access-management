@@ -61,27 +61,47 @@ public class MongoCertificateRepository extends AbstractManagementMongoRepositor
         return RxJava2Adapter.fluxToFlowable(Flux.from(certificatesCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Certificate> findById(String certificateId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(certificatesCollection.find(eq(FIELD_ID, certificateId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findById_migrated(certificateId));
+}
+@Override
+    public Mono<Certificate> findById_migrated(String certificateId) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(certificatesCollection.find(eq(FIELD_ID, certificateId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Certificate> create(Certificate item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Certificate> create_migrated(Certificate item) {
         CertificateMongo certificate = convert(item);
         certificate.setId(certificate.getId() == null ? RandomString.generate() : certificate.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(certificatesCollection.insertOne(certificate))).flatMap(success->RxJava2Adapter.maybeToMono(findById(certificate.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(certificatesCollection.insertOne(certificate))).flatMap(success->RxJava2Adapter.maybeToMono(findById(certificate.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Certificate> update(Certificate item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Certificate> update_migrated(Certificate item) {
         CertificateMongo certificate = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(certificatesCollection.replaceOne(eq(FIELD_ID, certificate.getId()), certificate))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(certificate.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(certificatesCollection.replaceOne(eq(FIELD_ID, certificate.getId()), certificate))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(certificate.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(certificatesCollection.deleteOne(eq(FIELD_ID, id))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(certificatesCollection.deleteOne(eq(FIELD_ID, id)))));
     }
     private Certificate convert(CertificateMongo certificateMongo) {
         if (certificateMongo == null) {

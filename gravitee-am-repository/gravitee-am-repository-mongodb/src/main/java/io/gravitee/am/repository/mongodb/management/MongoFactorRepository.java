@@ -60,27 +60,47 @@ public class MongoFactorRepository extends AbstractManagementMongoRepository imp
         return RxJava2Adapter.fluxToFlowable(Flux.from(factorsCollection.find(eq(FIELD_DOMAIN, domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Factor> findById(String factorId) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(factorsCollection.find(eq(FIELD_ID, factorId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+ return RxJava2Adapter.monoToMaybe(findById_migrated(factorId));
+}
+@Override
+    public Mono<Factor> findById_migrated(String factorId) {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(factorsCollection.find(eq(FIELD_ID, factorId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Factor> create(Factor item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Factor> create_migrated(Factor item) {
         FactorMongo authenticator = convert(item);
         authenticator.setId(authenticator.getId() == null ? RandomString.generate() : authenticator.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(factorsCollection.insertOne(authenticator))).flatMap(success->RxJava2Adapter.maybeToMono(findById(authenticator.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(factorsCollection.insertOne(authenticator))).flatMap(success->RxJava2Adapter.maybeToMono(findById(authenticator.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Factor> update(Factor item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Factor> update_migrated(Factor item) {
         FactorMongo authenticator = convert(item);
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(factorsCollection.replaceOne(eq(FIELD_ID, authenticator.getId()), authenticator))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(authenticator.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(factorsCollection.replaceOne(eq(FIELD_ID, authenticator.getId()), authenticator))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(authenticator.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(factorsCollection.deleteOne(eq(FIELD_ID, id))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(factorsCollection.deleteOne(eq(FIELD_ID, id)))));
     }
 
     private Factor convert(FactorMongo factorMongo) {

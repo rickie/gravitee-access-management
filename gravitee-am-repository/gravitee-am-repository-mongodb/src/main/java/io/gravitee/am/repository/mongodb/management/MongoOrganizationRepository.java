@@ -55,29 +55,49 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
         return RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(in(HRID_KEY, hrids))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Organization> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Organization> findById_migrated(String id) {
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Organization> create(Organization organization) {
+ return RxJava2Adapter.monoToSingle(create_migrated(organization));
+}
+@Override
+    public Mono<Organization> create_migrated(Organization organization) {
 
         organization.setId(organization.getId() == null ? RandomString.generate() : organization.getId());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(organization)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(organization.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(organization)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(organization.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Organization> update(Organization organization) {
+ return RxJava2Adapter.monoToSingle(update_migrated(organization));
+}
+@Override
+    public Mono<Organization> update_migrated(Organization organization) {
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, organization.getId()), convert(organization)))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(organization.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, organization.getId()), convert(organization)))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(organization.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
-        return RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id))));
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id)))));
     }
 
     @Override

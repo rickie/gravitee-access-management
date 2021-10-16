@@ -106,14 +106,24 @@ public class JdbcMembershipRepository extends AbstractJdbcRepository implements 
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.membershipRepository.findByReferenceAndMember(referenceId, referenceType.name(), memberId, memberType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Membership> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<Membership> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(membershipRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(membershipRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Membership> create(Membership item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Membership> create_migrated(Membership item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("create Membership with id {}", item.getId());
 
@@ -122,18 +132,28 @@ public class JdbcMembershipRepository extends AbstractJdbcRepository implements 
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Membership> update(Membership item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Membership> update_migrated(Membership item) {
         LOGGER.debug("update membership with id {}", item.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(membershipRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return membershipRepository.deleteById(id);
+        return RxJava2Adapter.completableToMono(membershipRepository.deleteById(id));
     }
 }

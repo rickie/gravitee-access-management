@@ -112,15 +112,25 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
         throw new RepositoryIllegalQueryException("Unable to delete from LoginAttempt without criteria");
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<LoginAttempt> findById(String id) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(id));
+}
+@Override
+    public Mono<LoginAttempt> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<LoginAttempt> create(LoginAttempt item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<LoginAttempt> create_migrated(LoginAttempt item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("create LoginAttempt with id {}", item.getId());
 
@@ -129,13 +139,18 @@ public class JdbcLoginAttemptRepository extends AbstractJdbcRepository implement
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(item.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(item.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<LoginAttempt> update(LoginAttempt item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<LoginAttempt> update_migrated(LoginAttempt item) {
         LOGGER.debug("update loginAttempt with id '{}'", item.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(loginAttemptRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(loginAttemptRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
     @Override

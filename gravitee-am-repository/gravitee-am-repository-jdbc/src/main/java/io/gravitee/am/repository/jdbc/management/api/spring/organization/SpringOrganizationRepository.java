@@ -17,12 +17,12 @@ package io.gravitee.am.repository.jdbc.management.api.spring.organization;
 
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization;
 import io.reactivex.Flowable;
+import java.util.List;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -31,6 +31,13 @@ import java.util.List;
 @Repository
 public interface SpringOrganizationRepository extends RxJava2CrudRepository<JdbcOrganization, String> {
 
-    @Query("select * from organizations o INNER JOIN organization_hrids oh ON o.id = oh.organization_id where oh.hrid in (:hrids)")
-    Flowable<JdbcOrganization> findByHrids(@Param("hrids") List<String> hrids);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization> findByHrids(@org.springframework.data.repository.query.Param(value = "hrids")
+java.util.List<java.lang.String> hrids) {
+    return RxJava2Adapter.fluxToFlowable(findByHrids_migrated(hrids));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization> findByHrids_migrated(@Param(value = "hrids")
+List<String> hrids) {
+    return RxJava2Adapter.flowableToFlux(findByHrids(hrids));
+}
 }

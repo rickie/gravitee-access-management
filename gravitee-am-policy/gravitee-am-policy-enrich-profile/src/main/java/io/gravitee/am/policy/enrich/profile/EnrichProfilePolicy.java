@@ -27,11 +27,12 @@ import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.PolicyResult;
 import io.gravitee.policy.api.annotations.OnRequest;
 import io.reactivex.Single;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -118,10 +119,14 @@ public class EnrichProfilePolicy {
         return needUpdate;
     }
 
-    protected Single<User> enrichProfile(ExecutionContext context) {
+    @Deprecated
+protected Single<User> enrichProfile(ExecutionContext context) {
+ return RxJava2Adapter.monoToSingle(enrichProfile_migrated(context));
+}
+protected Mono<User> enrichProfile_migrated(ExecutionContext context) {
         UserRepository userRepository = context.getComponent(UserRepository.class);
         User user = (User)context.getAttribute("user");
-        return userRepository.update(user);
+        return RxJava2Adapter.singleToMono(userRepository.update(user));
     }
 
 }

@@ -18,6 +18,8 @@ package io.gravitee.am.identityprovider.api;
 import io.gravitee.common.component.Lifecycle;
 import io.gravitee.common.service.Service;
 import io.reactivex.Maybe;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -26,13 +28,28 @@ import io.reactivex.Maybe;
  */
 public interface AuthenticationProvider extends Service<AuthenticationProvider> {
 
-    Maybe<User> loadUserByUsername(Authentication authentication);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(io.gravitee.am.identityprovider.api.Authentication authentication) {
+    return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.User> loadUserByUsername_migrated(Authentication authentication) {
+    return RxJava2Adapter.maybeToMono(loadUserByUsername(authentication));
+}
 
-    Maybe<User> loadUserByUsername(String username);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(java.lang.String username) {
+    return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.User> loadUserByUsername_migrated(String username) {
+    return RxJava2Adapter.maybeToMono(loadUserByUsername(username));
+}
 
-    default Maybe<User> loadPreAuthenticatedUser(Authentication authentication) {
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.User> loadPreAuthenticatedUser(io.gravitee.am.identityprovider.api.Authentication authentication) {
+    return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(authentication));
+}default Mono<User> loadPreAuthenticatedUser_migrated(Authentication authentication) {
         io.gravitee.am.model.User user = (io.gravitee.am.model.User) authentication.getPrincipal();
-        return loadUserByUsername(user.getUsername());
+        return RxJava2Adapter.maybeToMono(loadUserByUsername(user.getUsername()));
     }
 
     default Metadata metadata(String idpUrl) {

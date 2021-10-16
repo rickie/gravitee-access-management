@@ -165,15 +165,19 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
         }
     }
 
-    private Single<JWT> readRequestObject(Client client, String request) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jweService.decrypt(request, false)
+    @Deprecated
+private Single<JWT> readRequestObject(Client client, String request) {
+ return RxJava2Adapter.monoToSingle(readRequestObject_migrated(client, request));
+}
+private Mono<JWT> readRequestObject_migrated(Client client, String request) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jweService.decrypt(request, false)
                 .onErrorResumeNext((ex) -> {
                     if (ex instanceof OAuth2Exception) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.debug("JWT invalid for the request parameter", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException()));
-                })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectClaims)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectAlgorithm)).flatMap(jwt->RxJava2Adapter.singleToMono(validateSignature((SignedJWT)jwt, client))));
+                })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectClaims)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectAlgorithm)).flatMap(jwt->RxJava2Adapter.singleToMono(validateSignature((SignedJWT)jwt, client)))));
     }
 
     private JWT checkRequestObjectClaims(JWT jwt) {
@@ -204,8 +208,12 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
         return jwt;
     }
 
-    private Single<JWT> validateSignature(SignedJWT jwt, Client client) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwkService.getKeys(client)).switchIfEmpty(Mono.error(new InvalidRequestObjectException())).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWKSet, MaybeSource<JWK>>toJdkFunction(new Function<JWKSet, MaybeSource<JWK>>() {
+    @Deprecated
+private Single<JWT> validateSignature(SignedJWT jwt, Client client) {
+ return RxJava2Adapter.monoToSingle(validateSignature_migrated(jwt, client));
+}
+private Mono<JWT> validateSignature_migrated(SignedJWT jwt, Client client) {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(jwkService.getKeys(client)).switchIfEmpty(Mono.error(new InvalidRequestObjectException())).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWKSet, MaybeSource<JWK>>toJdkFunction(new Function<JWKSet, MaybeSource<JWK>>() {
                     @Override
                     public MaybeSource<JWK> apply(JWKSet jwkSet) throws Exception {
                         return jwkService.getKey(jwkSet, jwt.getHeader().getKeyID());
@@ -226,7 +234,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
                             return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException("Invalid signature")));
                         }
                     }
-                });
+                }));
     }
 
     private PushedAuthorizationRequest checkRedirectUriParameter(PushedAuthorizationRequest request, Client client) {

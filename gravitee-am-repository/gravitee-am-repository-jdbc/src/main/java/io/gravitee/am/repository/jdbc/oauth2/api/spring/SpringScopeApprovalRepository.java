@@ -22,6 +22,7 @@ import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -30,16 +31,47 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringScopeApprovalRepository extends RxJava2CrudRepository<JdbcScopeApproval, String> {
 
-    @Query("Select * from scope_approvals s where domain = :domain and user_id = :user and client_id = :client")
-    Flowable<JdbcScopeApproval> findByDomainAndUserAndClient(@Param("domain") String domain, @Param("user") String user,
-                                                             @Param("client") String client);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUserAndClient(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain, @org.springframework.data.repository.query.Param(value = "user")
+java.lang.String user, @org.springframework.data.repository.query.Param(value = "client")
+java.lang.String client) {
+    return RxJava2Adapter.fluxToFlowable(findByDomainAndUserAndClient_migrated(domain, user, client));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUserAndClient_migrated(@Param(value = "domain")
+String domain, @Param(value = "user")
+String user, @Param(value = "client")
+String client) {
+    return RxJava2Adapter.flowableToFlux(findByDomainAndUserAndClient(domain, user, client));
+}
 
-    @Query("Select * from scope_approvals s where domain = :domain and user_id = :user")
-    Flowable<JdbcScopeApproval> findByDomainAndUser(@Param("domain") String domain, @Param("user") String user);
+      @Deprecated  
+default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUser(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain, @org.springframework.data.repository.query.Param(value = "user")
+java.lang.String user) {
+    return RxJava2Adapter.fluxToFlowable(findByDomainAndUser_migrated(domain, user));
+}
+default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUser_migrated(@Param(value = "domain")
+String domain, @Param(value = "user")
+String user) {
+    return RxJava2Adapter.flowableToFlux(findByDomainAndUser(domain, user));
+}
 
-    @Query("Select * from scope_approvals s where domain = :domain and user_id = :user and client_id = :client and scope = :scope")
-    Maybe<JdbcScopeApproval> findByDomainAndUserAndClientAndScope(@Param("domain") String domain, @Param("user") String user,
-                                                                  @Param("client") String client, @Param("scope") String scope);
+      @Deprecated  
+default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUserAndClientAndScope(@org.springframework.data.repository.query.Param(value = "domain")
+java.lang.String domain, @org.springframework.data.repository.query.Param(value = "user")
+java.lang.String user, @org.springframework.data.repository.query.Param(value = "client")
+java.lang.String client, @org.springframework.data.repository.query.Param(value = "scope")
+java.lang.String scope) {
+    return RxJava2Adapter.monoToMaybe(findByDomainAndUserAndClientAndScope_migrated(domain, user, client, scope));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval> findByDomainAndUserAndClientAndScope_migrated(@Param(value = "domain")
+String domain, @Param(value = "user")
+String user, @Param(value = "client")
+String client, @Param(value = "scope")
+String scope) {
+    return RxJava2Adapter.maybeToMono(findByDomainAndUserAndClientAndScope(domain, user, client, scope));
+}
 
 
 }

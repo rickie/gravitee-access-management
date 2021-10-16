@@ -189,12 +189,16 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
         return completeWithMembersAndRole(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybe).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))), id);
     }
 
-    private Maybe<Group> completeWithMembersAndRole(Maybe<Group> maybeGroup, String id) {
+    @Deprecated
+private Maybe<Group> completeWithMembersAndRole(Maybe<Group> maybeGroup, String id) {
+ return RxJava2Adapter.monoToMaybe(completeWithMembersAndRole_migrated(maybeGroup, id));
+}
+private Mono<Group> completeWithMembersAndRole_migrated(Maybe<Group> maybeGroup, String id) {
         Maybe<List<String>> members = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(memberRepository.findAllByGroup(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcGroup.JdbcMember::getMember)).collectList());
 
         Maybe<List<String>> roles = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(roleRepository.findAllByGroup(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcGroup.JdbcRole::getRole)).collectList());
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeGroup).zipWith(RxJava2Adapter.maybeToMono(members), RxJavaReactorMigrationUtil.toJdkBiFunction((grp, member) -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(maybeGroup).zipWith(RxJava2Adapter.maybeToMono(members), RxJavaReactorMigrationUtil.toJdkBiFunction((grp, member) -> {
                     LOGGER.debug("findById({}) fetch {} group members", id, member == null ? 0 : member.size());
                     grp.setMembers(member);
                     return grp;
@@ -202,11 +206,16 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
                     LOGGER.debug("findById({}) fetch {} group roles", id, role == null ? 0 : role.size());
                     grp.setRoles(role);
                     return grp;
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Group> create(Group item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Group> create_migrated(Group item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("create Group with id {}", item.getId());
         TransactionalOperator trx = TransactionalOperator.create(tm);
@@ -224,7 +233,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
 
         action = persistChildEntities(action, item);
 
-        return RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, Group item) {
@@ -251,8 +260,13 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
         return actionFlow;
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Group> update(Group item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Group> update_migrated(Group item) {
         LOGGER.debug("update Group with id {}", item.getId());
 
         TransactionalOperator trx = TransactionalOperator.create(tm);
@@ -274,7 +288,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
         action = deleteChildEntities(item.getId()).then(action);
         action = persistChildEntities(action, item);
 
-        return RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
     private Mono<Integer> deleteChildEntities(String groupId) {
@@ -283,11 +297,16 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
         return deleteRoles.then(deleteMembers);
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete Group with id {}", id);
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Integer> delete = dbClient.delete().from(databaseDialectHelper.toSql(quoted("groups"))).matching(from(where("id").is(id))).fetch().rowsUpdated();
-        return monoToCompletable(delete.then(deleteChildEntities(id)).as(trx::transactional));
+        return RxJava2Adapter.completableToMono(monoToCompletable(delete.then(deleteChildEntities(id)).as(trx::transactional)));
     }
 }

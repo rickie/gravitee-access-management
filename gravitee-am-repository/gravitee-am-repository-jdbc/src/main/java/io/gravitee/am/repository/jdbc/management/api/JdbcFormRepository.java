@@ -93,8 +93,13 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
         return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(formRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Form> create(Form item) {
+ return RxJava2Adapter.monoToSingle(create_migrated(item));
+}
+@Override
+    public Mono<Form> create_migrated(Form item) {
         item.setId(item.getId() == null ? RandomString.generate() : item.getId());
         LOGGER.debug("create forms with id {}", item.getId());
 
@@ -103,18 +108,28 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Form> update(Form item) {
+ return RxJava2Adapter.monoToSingle(update_migrated(item));
+}
+@Override
+    public Mono<Form> update_migrated(Form item) {
         LOGGER.debug("update forms with id {}", item.getId());
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.formRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.formRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String id) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(id));
+}
+@Override
+    public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return formRepository.deleteById(id);
+        return RxJava2Adapter.completableToMono(formRepository.deleteById(id));
     }
 }

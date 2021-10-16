@@ -35,44 +35,52 @@ import reactor.core.publisher.Mono;
  */
 public class VirtualHostValidator {
 
-    public static Completable validate(VirtualHost vhost, List<String> domainRestrictions) {
+    @Deprecated
+public static Completable validate(VirtualHost vhost, List<String> domainRestrictions) {
+ return RxJava2Adapter.monoToCompletable(validate_migrated(vhost, domainRestrictions));
+}
+public static Mono<Void> validate_migrated(VirtualHost vhost, List<String> domainRestrictions) {
 
         String host = vhost.getHost();
 
         if (host == null || "".equals(host)) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host is required")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host is required"))));
         }
 
         String[] split = host.split(":");
         String hostWithoutPort = split[0];
 
         if (!InternetDomainName.isValid(hostWithoutPort)) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host [" + hostWithoutPort + "] is invalid")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host [" + hostWithoutPort + "] is invalid"))));
         }
 
         if(!isValidDomainOrSubDomain(hostWithoutPort, domainRestrictions)) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host [" + hostWithoutPort + "] must be a subdomain of " + domainRestrictions)));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host [" + hostWithoutPort + "] must be a subdomain of " + domainRestrictions))));
         }
 
         if (host.contains(":") && split.length < 2) {
-            return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host port for [" + host + "] is invalid")));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host port for [" + host + "] is invalid"))));
         }
 
         if (split.length > 1) {
             try {
                 int port = Integer.parseInt(split[1]);
                 if (port < 0 || port > 65535) {
-                    return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host port [" + port + "] is invalid")));
+                    return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host port [" + port + "] is invalid"))));
                 }
             } catch (NumberFormatException nfe) {
-                return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host port for [" + host + "] is invalid")));
+                return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Host port for [" + host + "] is invalid"))));
             }
         }
 
-        return PathValidator.validate(vhost.getPath());
+        return RxJava2Adapter.completableToMono(PathValidator.validate(vhost.getPath()));
     }
 
-    public static Completable validateDomainVhosts(Domain domain, List<Domain> domains) {
+    @Deprecated
+public static Completable validateDomainVhosts(Domain domain, List<Domain> domains) {
+ return RxJava2Adapter.monoToCompletable(validateDomainVhosts_migrated(domain, domains));
+}
+public static Mono<Void> validateDomainVhosts_migrated(Domain domain, List<Domain> domains) {
 
         List<VirtualHost> otherVhosts = domains.stream()
                 .filter(d -> !d.getId().equals(domain.getId()))
@@ -108,11 +116,11 @@ public class VirtualHostValidator {
                 // Check is the domain context path overlap a path of another domain.
                 for (String otherPath : pathsToCheck) {
                     if (overlap(vhost.getPath(), otherPath)) {
-                        return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Path [" + vhost.getPath() + "] overlap path defined in another security domain")));
+                        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Path [" + vhost.getPath() + "] overlap path defined in another security domain"))));
                     }
 
                     if (overlap(otherPath, vhost.getPath())) {
-                        return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Path [" + vhost.getPath() + "] is overlapped by another security domain")));
+                        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Path [" + vhost.getPath() + "] is overlapped by another security domain"))));
                     }
                 }
             }
@@ -124,16 +132,16 @@ public class VirtualHostValidator {
             // Check is the domain context path overlap a path of another domain.
             for (String otherPath : paths) {
                 if (overlap(domain.getPath(), otherPath)) {
-                    return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Path [" + domain.getPath() + "] overlap path defined in another security domain")));
+                    return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Path [" + domain.getPath() + "] overlap path defined in another security domain"))));
                 }
 
                 if (overlap(otherPath, domain.getPath())) {
-                    return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Path [" + domain.getPath() + "] is overlapped by another security domain")));
+                    return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidVirtualHostException("Path [" + domain.getPath() + "] is overlapped by another security domain"))));
                 }
             }
         }
 
-        return RxJava2Adapter.monoToCompletable(Mono.empty());
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
     }
 
     private static boolean overlap(String path, String other) {

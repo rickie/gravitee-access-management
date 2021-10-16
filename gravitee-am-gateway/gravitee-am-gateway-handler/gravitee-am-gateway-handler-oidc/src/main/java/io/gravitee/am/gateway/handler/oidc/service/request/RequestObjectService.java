@@ -18,6 +18,7 @@ package io.gravitee.am.gateway.handler.oidc.service.request;
 import com.nimbusds.jwt.JWT;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -38,7 +39,13 @@ public interface RequestObjectService {
      * @param encRequired true if the request object has to be encrypted (JWE)
      * @return
      */
-    Single<JWT> readRequestObject(String request, Client client, boolean encRequired);
+      @Deprecated  
+default io.reactivex.Single<com.nimbusds.jwt.JWT> readRequestObject(java.lang.String request, io.gravitee.am.model.oidc.Client client, boolean encRequired) {
+    return RxJava2Adapter.monoToSingle(readRequestObject_migrated(request, client, encRequired));
+}
+default reactor.core.publisher.Mono<com.nimbusds.jwt.JWT> readRequestObject_migrated(String request, Client client, boolean encRequired) {
+    return RxJava2Adapter.singleToMono(readRequestObject(request, client, encRequired));
+}
 
     /**
      * Validate encryption, signature and read the content of the JWT token from the URI.
@@ -47,11 +54,23 @@ public interface RequestObjectService {
      * @param client
      * @return
      */
-    Single<JWT> readRequestObjectFromURI(String requestUri, Client client);
+      @Deprecated  
+default io.reactivex.Single<com.nimbusds.jwt.JWT> readRequestObjectFromURI(java.lang.String requestUri, io.gravitee.am.model.oidc.Client client) {
+    return RxJava2Adapter.monoToSingle(readRequestObjectFromURI_migrated(requestUri, client));
+}
+default reactor.core.publisher.Mono<com.nimbusds.jwt.JWT> readRequestObjectFromURI_migrated(String requestUri, Client client) {
+    return RxJava2Adapter.singleToMono(readRequestObjectFromURI(requestUri, client));
+}
 
     /**
      * Register a request object for a given Client
      * @return
      */
-    Single<RequestObjectRegistrationResponse> registerRequestObject(RequestObjectRegistrationRequest request, Client client);
+      @Deprecated  
+default io.reactivex.Single<io.gravitee.am.gateway.handler.oidc.service.request.RequestObjectRegistrationResponse> registerRequestObject(io.gravitee.am.gateway.handler.oidc.service.request.RequestObjectRegistrationRequest request, io.gravitee.am.model.oidc.Client client) {
+    return RxJava2Adapter.monoToSingle(registerRequestObject_migrated(request, client));
+}
+default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.oidc.service.request.RequestObjectRegistrationResponse> registerRequestObject_migrated(RequestObjectRegistrationRequest request, Client client) {
+    return RxJava2Adapter.singleToMono(registerRequestObject(request, client));
+}
 }

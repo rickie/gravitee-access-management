@@ -16,6 +16,7 @@
 package io.gravitee.am.service;
 
 import io.reactivex.Single;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -23,7 +24,13 @@ import io.reactivex.Single;
  */
 public interface ReCaptchaService {
 
-    Single<Boolean> isValid(String token);
+      @Deprecated  
+default io.reactivex.Single<java.lang.Boolean> isValid(java.lang.String token) {
+    return RxJava2Adapter.monoToSingle(isValid_migrated(token));
+}
+default reactor.core.publisher.Mono<java.lang.Boolean> isValid_migrated(String token) {
+    return RxJava2Adapter.singleToMono(isValid(token));
+}
 
     boolean isEnabled();
 

@@ -16,8 +16,8 @@
 package io.gravitee.am.management.service;
 
 import io.reactivex.Single;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -35,5 +35,11 @@ public interface NewsletterService {
      * Get tag lines
      * @return tag lines
      */
-    Single<List<String>> getTaglines();
+      @Deprecated  
+default io.reactivex.Single<java.util.List<java.lang.String>> getTaglines() {
+    return RxJava2Adapter.monoToSingle(getTaglines_migrated());
+}
+default reactor.core.publisher.Mono<java.util.List<java.lang.String>> getTaglines_migrated() {
+    return RxJava2Adapter.singleToMono(getTaglines());
+}
 }

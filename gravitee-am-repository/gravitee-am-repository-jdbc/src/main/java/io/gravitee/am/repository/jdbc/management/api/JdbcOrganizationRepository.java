@@ -79,8 +79,13 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
         return organizationRepository.count();
     }
 
-    @Override
+    @Deprecated
+@Override
     public Maybe<Organization> findById(String organizationId) {
+ return RxJava2Adapter.monoToMaybe(findById_migrated(organizationId));
+}
+@Override
+    public Mono<Organization> findById_migrated(String organizationId) {
         LOGGER.debug("findById({})", organizationId);
 
         Maybe<List<String>> identities = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(identitiesRepository.findAllByOrganizationId(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcOrganization.Identity::getIdentity)).collectList());
@@ -89,7 +94,7 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
 
         Maybe<List<String>> hrids = RxJava2Adapter.monoToMaybe(RxJava2Adapter.flowableToFlux(hridsRepository.findAllByOrganizationId(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcOrganization.Hrid::getHrid)).collectList());
 
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(organizationRepository.findById(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toOrganization)).zipWith(RxJava2Adapter.maybeToMono(identities), RxJavaReactorMigrationUtil.toJdkBiFunction((org, idp) -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(organizationRepository.findById(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toOrganization)).zipWith(RxJava2Adapter.maybeToMono(identities), RxJavaReactorMigrationUtil.toJdkBiFunction((org, idp) -> {
                     LOGGER.debug("findById({}) fetch {} identities", organizationId, idp.size());
                     org.setIdentities(idp);
                     return org;
@@ -101,11 +106,16 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
                     LOGGER.debug("findById({}) fetch {} hrids", organizationId, hrid.size());
                     org.setHrids(hrid);
                     return org;
-                })));
+                }))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Organization> create(Organization organization) {
+ return RxJava2Adapter.monoToSingle(create_migrated(organization));
+}
+@Override
+    public Mono<Organization> create_migrated(Organization organization) {
         organization.setId(organization.getId() == null ? RandomString.generate() : organization.getId());
         LOGGER.debug("create organization with id {}", organization.getId());
 
@@ -119,16 +129,21 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
         final Mono<Void> storeDomainRestrictions = storeDomainRestrictions(organization, false);
         final Mono<Void> storeHrids = storeHrids(organization, false);
 
-        return monoToSingle(insert
+        return RxJava2Adapter.singleToMono(monoToSingle(insert
                 .then(storeIdentities)
                 .then(storeDomainRestrictions)
                 .then(storeHrids)
                 .as(trx::transactional)
-                .then(maybeToMono(findById(organization.getId()))));
+                .then(maybeToMono(findById(organization.getId())))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Single<Organization> update(Organization organization) {
+ return RxJava2Adapter.monoToSingle(update_migrated(organization));
+}
+@Override
+    public Mono<Organization> update_migrated(Organization organization) {
         LOGGER.debug("update organization with id {}", organization.getId());
         TransactionalOperator trx = TransactionalOperator.create(tm);
 
@@ -142,16 +157,21 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
         final Mono<Void> storeDomainRestrictions = storeDomainRestrictions(organization, true);
         final Mono<Void> storeHrids = storeHrids(organization, true);
 
-        return monoToSingle(update
+        return RxJava2Adapter.singleToMono(monoToSingle(update
                 .then(storeIdentities)
                 .then(storeDomainRestrictions)
                 .then(storeHrids)
                 .as(trx::transactional)
-                .then(maybeToMono(findById(organization.getId()))));
+                .then(maybeToMono(findById(organization.getId())))));
     }
 
-    @Override
+    @Deprecated
+@Override
     public Completable delete(String organizationId) {
+ return RxJava2Adapter.monoToCompletable(delete_migrated(organizationId));
+}
+@Override
+    public Mono<Void> delete_migrated(String organizationId) {
         LOGGER.debug("delete organization with id {}", organizationId);
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Void> deleteIdentities = deleteIdentities(organizationId);
@@ -159,11 +179,11 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
         Mono<Void> deleteHrids = deleteHrids(organizationId);
         Mono<Void> delete = dbClient.delete().from(JdbcOrganization.class).matching(from(where("id").is(organizationId))).then();
 
-        return monoToCompletable(delete
+        return RxJava2Adapter.completableToMono(monoToCompletable(delete
                 .then(deleteDomainRestrictions)
                 .then(deleteIdentities)
                 .then(deleteHrids)
-                .as(trx::transactional));
+                .as(trx::transactional)));
     }
 
     private Mono<Void> storeIdentities(Organization organization, boolean deleteFirst) {

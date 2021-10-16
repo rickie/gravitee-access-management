@@ -120,20 +120,28 @@ return toCreate;
 })).flatMap(toCreate->RxJava2Adapter.singleToMono(createInternal(toCreate, byUser))))));
     }
 
-    private Single<Environment> createInternal(Environment toCreate, User createdBy) {
+    @Deprecated
+private Single<Environment> createInternal(Environment toCreate, User createdBy) {
+ return RxJava2Adapter.monoToSingle(createInternal_migrated(toCreate, createdBy));
+}
+private Mono<Environment> createInternal_migrated(Environment toCreate, User createdBy) {
 
         Date now = new Date();
 
         toCreate.setCreatedAt(now);
         toCreate.setUpdatedAt(now);
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentRepository.create(toCreate)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_CREATED).environment(environment).principal(createdBy)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_CREATED).environment(toCreate).principal(createdBy).throwable(throwable)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentRepository.create(toCreate)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_CREATED).environment(environment).principal(createdBy)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_CREATED).environment(toCreate).principal(createdBy).throwable(throwable))))));
     }
 
-    private Single<Environment> updateInternal(Environment toUpdate, User updatedBy) {
+    @Deprecated
+private Single<Environment> updateInternal(Environment toUpdate, User updatedBy) {
+ return RxJava2Adapter.monoToSingle(updateInternal_migrated(toUpdate, updatedBy));
+}
+private Mono<Environment> updateInternal_migrated(Environment toUpdate, User updatedBy) {
 
         toUpdate.setUpdatedAt(new Date());
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentRepository.update(toUpdate)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(updated -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_UPDATED).environment(updated).principal(updatedBy).oldValue(toUpdate)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_UPDATED).environment(toUpdate).principal(updatedBy).throwable(throwable)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentRepository.update(toUpdate)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(updated -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_UPDATED).environment(updated).principal(updatedBy).oldValue(toUpdate)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EnvironmentAuditBuilder.class).type(EventType.ENVIRONMENT_UPDATED).environment(toUpdate).principal(updatedBy).throwable(throwable))))));
     }
 }

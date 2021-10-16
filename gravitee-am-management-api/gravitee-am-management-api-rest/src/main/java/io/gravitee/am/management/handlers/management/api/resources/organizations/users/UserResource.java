@@ -159,13 +159,17 @@ public class UserResource extends AbstractResource {
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
 
     }
-    private Single<UserEntity> enhanceIdentityProvider(UserEntity userEntity) {
+    @Deprecated
+private Single<UserEntity> enhanceIdentityProvider(UserEntity userEntity) {
+ return RxJava2Adapter.monoToSingle(enhanceIdentityProvider_migrated(userEntity));
+}
+private Mono<UserEntity> enhanceIdentityProvider_migrated(UserEntity userEntity) {
         if (userEntity.getSource() != null) {
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(userEntity.getSource())).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderService.findById(userEntity.getSource())).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
                         userEntity.setSource(idP.getName());
                         return userEntity;
-                    })).defaultIfEmpty(userEntity).single());
+                    })).defaultIfEmpty(userEntity).single()));
         }
-        return RxJava2Adapter.monoToSingle(Mono.just(userEntity));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(userEntity)));
     }
 }

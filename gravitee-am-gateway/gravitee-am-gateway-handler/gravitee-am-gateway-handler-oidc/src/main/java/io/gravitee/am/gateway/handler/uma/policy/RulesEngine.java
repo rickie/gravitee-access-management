@@ -17,8 +17,8 @@ package io.gravitee.am.gateway.handler.uma.policy;
 
 import io.gravitee.gateway.api.ExecutionContext;
 import io.reactivex.Completable;
-
 import java.util.List;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -26,5 +26,11 @@ import java.util.List;
  */
 public interface RulesEngine {
 
-    Completable fire(List<Rule> rules, ExecutionContext executionContext);
+      @Deprecated  
+default io.reactivex.Completable fire(java.util.List<io.gravitee.am.gateway.handler.uma.policy.Rule> rules, io.gravitee.gateway.api.ExecutionContext executionContext) {
+    return RxJava2Adapter.monoToCompletable(fire_migrated(rules, executionContext));
+}
+default reactor.core.publisher.Mono<java.lang.Void> fire_migrated(List<Rule> rules, ExecutionContext executionContext) {
+    return RxJava2Adapter.completableToMono(fire(rules, executionContext));
+}
 }

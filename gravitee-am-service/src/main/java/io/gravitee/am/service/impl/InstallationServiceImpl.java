@@ -83,7 +83,11 @@ public class InstallationServiceImpl implements InstallationService {
         return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(this.installationRepository.find()).flatMap(installation->RxJava2Adapter.completableToMono(installationRepository.delete(installation.getId()))).then());
     }
 
-    private Single<Installation> createInternal() {
+    @Deprecated
+private Single<Installation> createInternal() {
+ return RxJava2Adapter.monoToSingle(createInternal_migrated());
+}
+private Mono<Installation> createInternal_migrated() {
 
         final Date now = Date.from(Instant.now());
         final Installation installation = new Installation();
@@ -92,14 +96,18 @@ public class InstallationServiceImpl implements InstallationService {
         installation.setUpdatedAt(now);
         installation.setAdditionalInformation(new HashMap<>());
 
-        return installationRepository.create(installation);
+        return RxJava2Adapter.singleToMono(installationRepository.create(installation));
     }
 
-    private Single<Installation> updateInternal(Installation toUpdate) {
+    @Deprecated
+private Single<Installation> updateInternal(Installation toUpdate) {
+ return RxJava2Adapter.monoToSingle(updateInternal_migrated(toUpdate));
+}
+private Mono<Installation> updateInternal_migrated(Installation toUpdate) {
 
         final Date now = Date.from(Instant.now());
         toUpdate.setUpdatedAt(now);
 
-        return installationRepository.update(toUpdate);
+        return RxJava2Adapter.singleToMono(installationRepository.update(toUpdate));
     }
 }
