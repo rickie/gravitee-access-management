@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
 }
 @Override
     public Mono<ScopeApproval> consent_migrated(String consentId) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(scopeApprovalService.findById_migrated(consentId))).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consentId)));
+        return scopeApprovalService.findById_migrated(consentId).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consentId)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeConsent_migrated(userId, consentId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

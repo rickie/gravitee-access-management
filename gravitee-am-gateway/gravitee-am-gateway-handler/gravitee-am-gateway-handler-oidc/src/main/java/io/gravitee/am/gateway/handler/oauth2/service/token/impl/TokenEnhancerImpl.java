@@ -68,7 +68,7 @@ private Mono<Token> enhanceIDToken_migrated(Token accessToken, Client client, Us
         if (oAuth2Request.isSupportAtHashValue()) {
             oAuth2Request.getContext().put(Claims.at_hash, accessToken.getValue());
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, user, executionContext))).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<Token>>)idToken -> {
+        return idTokenService.create_migrated(oAuth2Request, client, user, executionContext).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<Token>>)idToken -> {
                     Map<String, Object> additionalInformation = new HashMap<>(accessToken.getAdditionalInformation());
                     additionalInformation.put(ResponseType.ID_TOKEN, idToken);
                     accessToken.setAdditionalInformation(additionalInformation);

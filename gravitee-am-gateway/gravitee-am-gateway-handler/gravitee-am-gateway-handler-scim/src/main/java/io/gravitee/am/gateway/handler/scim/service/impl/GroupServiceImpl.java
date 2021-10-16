@@ -112,7 +112,7 @@ public class GroupServiceImpl implements GroupService {
 @Override
     public Flux<Group> findByMember_migrated(String memberId) {
         LOGGER.debug("Find groups by member : {}", memberId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(groupRepository.findByMember_migrated(memberId))).map(RxJavaReactorMigrationUtil.toJdkFunction(group -> convert(group, null, true))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return groupRepository.findByMember_migrated(memberId).map(RxJavaReactorMigrationUtil.toJdkFunction(group -> convert(group, null, true))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a groups using member ", memberId, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a user using member: %s", memberId), ex)));
@@ -265,7 +265,7 @@ private Mono<Group> setMembers_migrated(Group group, String baseUrl) {
         Set<Member> members = group.getMembers() != null ? new HashSet<>(group.getMembers()) : null;
         if (members != null && !members.isEmpty()) {
             List<String> memberIds = group.getMembers().stream().map(Member::getValue).collect(Collectors.toList());
-            return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(userRepository.findByIdIn_migrated(memberIds))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
+            return userRepository.findByIdIn_migrated(memberIds).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                         String display = (user.getDisplayName() != null) ? user.getDisplayName()
                                 : (user.getFirstName() != null) ? user.getFirstName() + " " + (user.getLastName() != null ? user.getLastName() : "")
                                 : user.getUsername();

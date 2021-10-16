@@ -332,7 +332,7 @@ public class UserServiceImpl implements UserService {
 @Override
     public Mono<Void> delete_migrated(String userId) {
         LOGGER.debug("Delete user {}", userId);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userRepository.findById_migrated(userId))).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()))).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))).flatMap(userProvider->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userProvider.delete_migrated(user.getExternalId())))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userRepository.delete_migrated(userId))))).onErrorResumeNext((java.lang.Throwable ex)->{
+        return userRepository.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(user->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))).flatMap(userProvider->userProvider.delete_migrated(user.getExternalId())).then(userRepository.delete_migrated(userId))).onErrorResumeNext((java.lang.Throwable ex)->{
 if (ex instanceof UserNotFoundException) {
 return RxJava2Adapter.monoToCompletable(userRepository.delete_migrated(userId));
 }
@@ -364,7 +364,7 @@ private Single<User> setGroups(User scimUser) {
 }
 private Mono<User> setGroups_migrated(User scimUser) {
         // fetch groups
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(groupService.findByMember_migrated(scimUser.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(group -> {
+        return groupService.findByMember_migrated(scimUser.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(group -> {
                     Member member = new Member();
                     member.setValue(group.getId());
                     member.setDisplay(group.getDisplayName());
@@ -389,7 +389,7 @@ private Mono<Void> checkRoles_migrated(List<String> roles) {
             return Mono.empty();
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.findByIdIn_migrated(roles))).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
+        return roleService.findByIdIn_migrated(roles).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
                     if (roles1.size() != roles.size()) {
                         // find difference between the two list
                         roles.removeAll(roles1.stream().map(Role::getId).collect(Collectors.toList()));

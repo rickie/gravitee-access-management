@@ -113,13 +113,13 @@ private Mono<Role> findRole_migrated(String roleName, String organizationId, Ref
 
         // First try to map to a system role.
         if (systemRole != null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleService.findSystemRole_migrated(systemRole, assignableType))).single();
+            return roleService.findSystemRole_migrated(systemRole, assignableType).single();
         } else {
             // Then try to find a default role.
             DefaultRole defaultRole = DefaultRole.fromName(roleName);
 
             if (defaultRole != null) {
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleService.findDefaultRole_migrated(organizationId, defaultRole, assignableType))).single();
+                return roleService.findDefaultRole_migrated(organizationId, defaultRole, assignableType).single();
             }
         }
 

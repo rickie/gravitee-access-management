@@ -102,7 +102,7 @@ private Single<Boolean> processUpgrade(String instanceOperationId, SystemTask ta
  return RxJava2Adapter.monoToSingle(processUpgrade_migrated(instanceOperationId, task, conditionalOperationId));
 }
 private Mono<Boolean> processUpgrade_migrated(String instanceOperationId, SystemTask task, String conditionalOperationId) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateSystemTask_migrated(task, (SystemTaskStatus.ONGOING), conditionalOperationId))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<SystemTask, SingleSource<Boolean>>toJdkFunction(updatedTask -> {
+        return updateSystemTask_migrated(task, (SystemTaskStatus.ONGOING), conditionalOperationId).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<SystemTask, SingleSource<Boolean>>toJdkFunction(updatedTask -> {
                     if (updatedTask.getOperationId().equals(instanceOperationId)) {
                         return RxJava2Adapter.monoToSingle(migrateScopeSettings_migrated(updatedTask));
                     } else {

@@ -78,7 +78,7 @@ public class MongoScopeRepository extends AbstractManagementMongoRepository impl
     public Mono<Scope> create_migrated(Scope item) {
         ScopeMongo scope = convert(item);
         scope.setId(scope.getId() == null ? RandomString.generate() : scope.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(scopesCollection.insertOne(scope))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(scope.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(scopesCollection.insertOne(scope))).flatMap(success->findById_migrated(scope.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -90,7 +90,7 @@ public class MongoScopeRepository extends AbstractManagementMongoRepository impl
 @Override
     public Mono<Scope> update_migrated(Scope item) {
         ScopeMongo scope = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(scopesCollection.replaceOne(eq(FIELD_ID, scope.getId()), scope))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(scope.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(scopesCollection.replaceOne(eq(FIELD_ID, scope.getId()), scope))).flatMap(updateResult->findById_migrated(scope.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

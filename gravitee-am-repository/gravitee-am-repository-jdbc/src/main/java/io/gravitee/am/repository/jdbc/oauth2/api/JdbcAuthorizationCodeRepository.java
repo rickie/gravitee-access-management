@@ -109,7 +109,7 @@ public class JdbcAuthorizationCodeRepository extends AbstractJdbcRepository impl
 @Override
     public Mono<AuthorizationCode> findByCode_migrated(String code) {
         LOGGER.debug("findByCode({})", code);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(code, LocalDateTime.now(UTC)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve AuthorizationCode with code {}", code)));
+        return authorizationCodeRepository.findByCode_migrated(code, LocalDateTime.now(UTC)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve AuthorizationCode with code {}", code)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")

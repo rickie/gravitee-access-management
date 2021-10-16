@@ -79,7 +79,7 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Flux<Credential> findByUserId_migrated(ReferenceType referenceType, String referenceId, String userId) {
         LOGGER.debug("Find credentials by {} {} and user id: {}", referenceType, referenceId, userId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByUserId_migrated(referenceType, referenceId, userId))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return credentialRepository.findByUserId_migrated(referenceType, referenceId, userId).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a credential using {} {} and user id: {}", referenceType, referenceId, userId, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a credential using %s %s and user id: %s", referenceType, referenceId, userId), ex)));
@@ -95,7 +95,7 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Flux<Credential> findByUsername_migrated(ReferenceType referenceType, String referenceId, String username) {
         LOGGER.debug("Find credentials by {} {} and username: {}", referenceType, referenceId, username);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByUsername_migrated(referenceType, referenceId, username))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return credentialRepository.findByUsername_migrated(referenceType, referenceId, username).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a credential using {} {} and username: {}", referenceType, referenceId, username, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a credential using %s %s and username: %s", referenceType, referenceId, username), ex)));
@@ -111,7 +111,7 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Flux<Credential> findByCredentialId_migrated(ReferenceType referenceType, String referenceId, String credentialId) {
         LOGGER.debug("Find credentials by {} {} and credential ID: {}", referenceType, referenceId, credentialId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByCredentialId_migrated(referenceType, referenceId, credentialId))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return credentialRepository.findByCredentialId_migrated(referenceType, referenceId, credentialId).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a credential using {} {} and credential ID: {}", referenceType, referenceId, credentialId, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a credential using %s %s and credential ID: %s", referenceType, referenceId, credentialId), ex)));

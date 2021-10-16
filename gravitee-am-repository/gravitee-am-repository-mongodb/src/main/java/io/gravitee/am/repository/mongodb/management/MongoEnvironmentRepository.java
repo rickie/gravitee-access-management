@@ -110,7 +110,7 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
 
         environment.setId(environment.getId() == null ? RandomString.generate() : environment.getId());
 
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(environment)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(environment.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(environment)))).flatMap(success->findById_migrated(environment.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(environment))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -122,7 +122,7 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
 @Override
     public Mono<Environment> update_migrated(Environment environment) {
 
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, environment.getId()), convert(environment)))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(environment.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, environment.getId()), convert(environment)))).flatMap(updateResult->findById_migrated(environment.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

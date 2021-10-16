@@ -93,7 +93,7 @@ public class MongoEntrypointRepository extends AbstractManagementMongoRepository
     public Mono<Entrypoint> create_migrated(Entrypoint item) {
         EntrypointMongo entrypoint = convert(item);
         entrypoint.setId(entrypoint.getId() == null ? RandomString.generate() : entrypoint.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(entrypoint))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(entrypoint.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(entrypoint))).flatMap(success->findById_migrated(entrypoint.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -105,7 +105,7 @@ public class MongoEntrypointRepository extends AbstractManagementMongoRepository
 @Override
     public Mono<Entrypoint> update_migrated(Entrypoint item) {
         EntrypointMongo entrypoint = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, entrypoint.getId()), entrypoint))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(entrypoint.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, entrypoint.getId()), entrypoint))).flatMap(updateResult->findById_migrated(entrypoint.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

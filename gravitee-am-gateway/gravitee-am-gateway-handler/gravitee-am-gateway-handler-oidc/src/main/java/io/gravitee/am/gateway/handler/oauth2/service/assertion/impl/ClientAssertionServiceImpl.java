@@ -98,7 +98,7 @@ public class ClientAssertionServiceImpl implements ClientAssertionService {
         }
 
         if (JWT_BEARER.equals(assertionType)) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.validateJWT_migrated(assertion, basePath))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(new Function<JWT, MaybeSource<Client>>() {
+            return this.validateJWT_migrated(assertion, basePath).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(new Function<JWT, MaybeSource<Client>>() {
                         @Override
                         public MaybeSource<Client> apply(JWT jwt) throws Exception {
                             // Handle client_secret_key client authentication
@@ -179,10 +179,10 @@ private Mono<Client> validateSignatureWithPublicKey_migrated(JWT jwt) {
             String clientId = jwt.getJWTClaimsSet().getSubject();
             SignedJWT signedJWT = (SignedJWT) jwt;
 
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.clientSyncService.findByClientId_migrated(clientId))).switchIfEmpty(Mono.error(new InvalidClientException("Missing or invalid client"))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client -> {
+            return this.clientSyncService.findByClientId_migrated(clientId).switchIfEmpty(Mono.error(new InvalidClientException("Missing or invalid client"))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client -> {
                         if (client.getTokenEndpointAuthMethod() == null ||
                                 ClientAuthenticationMethod.PRIVATE_KEY_JWT.equalsIgnoreCase(client.getTokenEndpointAuthMethod())) {
-                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getClientJwkSet_migrated(client))).switchIfEmpty(Mono.error(new InvalidClientException("No jwk keys available on client"))).flatMap(z->RxJava2Adapter.monoToMaybe(jwkService.getKey_migrated(z, signedJWT.getHeader().getKeyID())).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new InvalidClientException("Unable to validate client, no matching key."))).flatMap(t->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWK, MaybeSource<Client>>toJdkFunction(jwk -> {
+                            return RxJava2Adapter.monoToMaybe(this.getClientJwkSet_migrated(client).switchIfEmpty(Mono.error(new InvalidClientException("No jwk keys available on client"))).flatMap(z->jwkService.getKey_migrated(z, signedJWT.getHeader().getKeyID())).switchIfEmpty(Mono.error(new InvalidClientException("Unable to validate client, no matching key."))).flatMap(t->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWK, MaybeSource<Client>>toJdkFunction(jwk -> {
                                         if (jwsService.isValidSignature(signedJWT, jwk)) {
                                             return RxJava2Adapter.monoToMaybe(Mono.just(client));
                                         }
@@ -224,7 +224,7 @@ private Mono<Client> validateSignatureWithHMAC_migrated(JWT jwt) {
 
 
 
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.clientSyncService.findByClientId_migrated(clientId))).switchIfEmpty(Mono.error(new InvalidClientException("Missing or invalid client"))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client -> {
+            return this.clientSyncService.findByClientId_migrated(clientId).switchIfEmpty(Mono.error(new InvalidClientException("Missing or invalid client"))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client -> {
                         try {
                             // Ensure to validate JWT using client_secret_key only if client is authorized to use this auth method
                             if (client.getTokenEndpointAuthMethod() == null ||

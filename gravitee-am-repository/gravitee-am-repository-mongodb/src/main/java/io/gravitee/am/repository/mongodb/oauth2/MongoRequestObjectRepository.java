@@ -77,7 +77,7 @@ public class MongoRequestObjectRepository extends AbstractOAuth2MongoRepository 
 @Override
     public Mono<RequestObject> create_migrated(RequestObject requestObject) {
         return RxJava2Adapter.singleToMono(Single
-                .fromPublisher(requestObjectCollection.insertOne(convert(requestObject)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(requestObject.getId()))).single());
+                .fromPublisher(requestObjectCollection.insertOne(convert(requestObject)))).flatMap(success->findById_migrated(requestObject.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

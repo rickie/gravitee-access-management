@@ -81,7 +81,7 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
 @Override
     public Mono<Installation> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.installationRepository.findById_migrated(id))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
+        return this.installationRepository.findById_migrated(id).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(installation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -103,7 +103,7 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         insertSpec = addQuotedField(insertSpec, "updated_at", dateConverter.convertTo(installation.getUpdatedAt(), null), LocalDateTime.class);
         insertSpec = databaseDialectHelper.addJsonField(insertSpec, "additional_information", installation.getAdditionalInformation());
 
-        return insertSpec.then().then(Mono.defer(()->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(installation.getId()))).single()));
+        return insertSpec.then().then(Mono.defer(()->this.findById_migrated(installation.getId()).single()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(installation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -125,7 +125,7 @@ public class JdbcInstallationRepository extends AbstractJdbcRepository implement
         updateFields = addQuotedField(updateFields, "updated_at", dateConverter.convertTo(installation.getUpdatedAt(), null), LocalDateTime.class);
         updateFields = databaseDialectHelper.addJsonField(updateFields, "additional_information", installation.getAdditionalInformation());
 
-        return updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(installation.getId()))).then().then(Mono.defer(()->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(installation.getId()))).single()));
+        return updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(installation.getId()))).then().then(Mono.defer(()->this.findById_migrated(installation.getId()).single()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

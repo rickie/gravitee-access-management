@@ -84,7 +84,7 @@ public Maybe<User> loadUserByUsername(Authentication authentication) {
 }
 public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
         String username = ((String) authentication.getPrincipal()).toLowerCase();
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(findUserByMultipleField_migrated(username))).collectList().flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(users -> {
+        return findUserByMultipleField_migrated(username).collectList().flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(users -> {
                     if (users.isEmpty()) {
                         return RxJava2Adapter.fluxToFlowable(Flux.error(new UsernameNotFoundException(username)));
                     }
@@ -144,7 +144,7 @@ public Maybe<User> loadUserByUsername(String username) {
 }
 public Mono<User> loadUserByUsername_migrated(String username) {
         final String encodedUsername = username.toLowerCase();
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findUserByUsername_migrated(encodedUsername))).map(RxJavaReactorMigrationUtil.toJdkFunction(document -> createUser(new SimpleAuthenticationContext(), document)));
+        return findUserByUsername_migrated(encodedUsername).map(RxJavaReactorMigrationUtil.toJdkFunction(document -> createUser(new SimpleAuthenticationContext(), document)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

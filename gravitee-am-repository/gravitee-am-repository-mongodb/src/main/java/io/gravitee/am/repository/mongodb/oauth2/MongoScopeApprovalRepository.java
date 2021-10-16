@@ -109,7 +109,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
     public Mono<ScopeApproval> create_migrated(ScopeApproval scopeApproval) {
         ScopeApprovalMongo scopeApprovalMongo = convert(scopeApproval);
         scopeApprovalMongo.setId(scopeApprovalMongo.getId() == null ? RandomString.generate() : scopeApprovalMongo.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.insertOne(scopeApprovalMongo))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(_findById_migrated(scopeApprovalMongo.getId()))));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.insertOne(scopeApprovalMongo))).flatMap(success->_findById_migrated(scopeApprovalMongo.getId()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(scopeApproval))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -127,7 +127,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
                         eq(FIELD_CLIENT_ID, scopeApproval.getClientId()),
                         eq(FIELD_USER_ID, scopeApproval.getUserId()),
                         eq(FIELD_SCOPE, scopeApproval.getScope()))
-                , scopeApprovalMongo))).flatMap(updateResult->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(_findById_migrated(scopeApprovalMongo.getId()))));
+                , scopeApprovalMongo))).flatMap(updateResult->_findById_migrated(scopeApprovalMongo.getId()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.upsert_migrated(scopeApproval))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

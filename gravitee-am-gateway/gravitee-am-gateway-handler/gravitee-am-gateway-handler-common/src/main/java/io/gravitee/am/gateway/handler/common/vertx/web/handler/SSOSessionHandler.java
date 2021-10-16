@@ -188,6 +188,6 @@ private Single<Optional<Client>> getClient(String clientId) {
  return RxJava2Adapter.monoToSingle(getClient_migrated(clientId));
 }
 private Mono<Optional<Client>> getClient_migrated(String clientId) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientSyncService.findById_migrated(clientId))).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientSyncService.findByClientId_migrated(clientId))))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()).single();
+        return clientSyncService.findById_migrated(clientId).switchIfEmpty(Mono.defer(()->clientSyncService.findByClientId_migrated(clientId))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::ofNullable)).defaultIfEmpty(Optional.empty()).single();
     }
 }

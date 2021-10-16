@@ -131,7 +131,7 @@ private Completable checkPermissions(User authenticatedUser, PermissionAcls perm
 }
 private Mono<Void> checkPermissions_migrated(User authenticatedUser, PermissionAcls permissionAcls) {
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(hasPermission_migrated(authenticatedUser, permissionAcls))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)(java.lang.Boolean ident) -> RxJava2Adapter.monoToCompletable(checkPermission_migrated(ident))).apply(y)))).then();
+        return hasPermission_migrated(authenticatedUser, permissionAcls).flatMap(ident->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ident)))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.hasPermission_migrated(user, referenceType, referenceId, permission, acls))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

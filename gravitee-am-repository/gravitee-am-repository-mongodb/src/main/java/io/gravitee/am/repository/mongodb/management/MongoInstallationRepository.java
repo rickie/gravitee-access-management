@@ -86,7 +86,7 @@ public class MongoInstallationRepository extends AbstractManagementMongoReposito
 
         installation.setId(installation.getId() == null ? RandomString.generate() : installation.getId());
 
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(installation)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(installation.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(installation)))).flatMap(success->findById_migrated(installation.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(installation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -98,7 +98,7 @@ public class MongoInstallationRepository extends AbstractManagementMongoReposito
 @Override
     public Mono<Installation> update_migrated(Installation installation) {
 
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, installation.getId()), convert(installation)))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(installation.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, installation.getId()), convert(installation)))).flatMap(updateResult->findById_migrated(installation.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

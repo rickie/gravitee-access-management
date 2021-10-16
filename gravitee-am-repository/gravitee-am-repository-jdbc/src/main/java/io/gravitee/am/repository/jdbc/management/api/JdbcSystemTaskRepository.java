@@ -94,7 +94,7 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
         insertSpec = addQuotedField(insertSpec, "updated_at", dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
-        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
+        return action.flatMap(i->this.findById_migrated(item.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -132,7 +132,7 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
                 .fetch()
                 .rowsUpdated();
 
-        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
+        return action.flatMap(i->this.findById_migrated(item.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

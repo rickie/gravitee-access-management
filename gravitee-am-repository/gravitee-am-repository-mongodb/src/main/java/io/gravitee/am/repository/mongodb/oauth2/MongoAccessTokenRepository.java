@@ -98,7 +98,7 @@ private Mono<AccessToken> findById_migrated(String id) {
 @Override
     public Mono<AccessToken> create_migrated(AccessToken accessToken) {
         return RxJava2Adapter.singleToMono(Single
-                .fromPublisher(accessTokenCollection.insertOne(convert(accessToken)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(accessToken.getId()))).single());
+                .fromPublisher(accessTokenCollection.insertOne(convert(accessToken)))).flatMap(success->findById_migrated(accessToken.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(accessTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -62,7 +62,7 @@ public class JdbcExtensionGrantRepository extends AbstractJdbcRepository impleme
 @Override
     public Flux<ExtensionGrant> findByDomain_migrated(String domain) {
         LOGGER.debug("findByDomain({})", domain);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(extensionGrantRepository.findByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
+        return extensionGrantRepository.findByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndName_migrated(domain, name))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -74,7 +74,7 @@ public class JdbcExtensionGrantRepository extends AbstractJdbcRepository impleme
 @Override
     public Mono<ExtensionGrant> findByDomainAndName_migrated(String domain, String name) {
         LOGGER.debug("findByDomainAndName({}, {})", domain, name);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(extensionGrantRepository.findByDomainAndName_migrated(domain, name))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
+        return extensionGrantRepository.findByDomainAndName_migrated(domain, name).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -105,7 +105,7 @@ public class JdbcExtensionGrantRepository extends AbstractJdbcRepository impleme
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
+        return action.flatMap(i->this.findById_migrated(item.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

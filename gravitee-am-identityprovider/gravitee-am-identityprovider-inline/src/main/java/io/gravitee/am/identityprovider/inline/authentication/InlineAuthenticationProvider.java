@@ -77,7 +77,7 @@ public class InlineAuthenticationProvider implements AuthenticationProvider, Ini
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userDetailsService.loadUserByUsername_migrated((String) authentication.getPrincipal()))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
+        return userDetailsService.loadUserByUsername_migrated((String) authentication.getPrincipal()).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                     String presentedPassword = authentication.getCredentials().toString();
                     if (!passwordEncoder.matches(presentedPassword, user.getPassword())) {
                         LOGGER.debug("Authentication failed: password does not match stored value");
@@ -95,7 +95,7 @@ public class InlineAuthenticationProvider implements AuthenticationProvider, Ini
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(String username) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userDetailsService.loadUserByUsername_migrated(username))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> createUser(new SimpleAuthenticationContext(), user)));
+        return userDetailsService.loadUserByUsername_migrated(username).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> createUser(new SimpleAuthenticationContext(), user)));
     }
 
     private List<String> getUserRoles(AuthenticationContext authContext, io.gravitee.am.identityprovider.inline.model.User inlineUser) {

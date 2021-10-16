@@ -165,13 +165,13 @@ private Maybe<String> getAuthorizeUrl(String identityProviderId, RoutingContext 
  return RxJava2Adapter.monoToMaybe(getAuthorizeUrl_migrated(identityProviderId, context));
 }
 private Mono<String> getAuthorizeUrl_migrated(String identityProviderId, RoutingContext context) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.get_migrated(identityProviderId))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<String>>toJdkFunction(authenticationProvider -> {
+        return identityProviderManager.get_migrated(identityProviderId).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<String>>toJdkFunction(authenticationProvider -> {
                     // Generate a state containing provider id and current query parameter string. This state will be sent back to AM after social authentication.
                     final JWT stateJwt = new JWT();
                     stateJwt.put("p", identityProviderId);
                     stateJwt.put("q", context.request().query());
 
-                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.encode_migrated(stateJwt, certificateManager.defaultCertificateProvider()))).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<String, MaybeSource<String>>toJdkFunction(state -> {
+                    return RxJava2Adapter.monoToMaybe(jwtService.encode_migrated(stateJwt, certificateManager.defaultCertificateProvider()).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<String, MaybeSource<String>>toJdkFunction(state -> {
                                 String redirectUri = UriBuilderRequest.resolveProxyRequest(context.request(), context.get(CONTEXT_PATH) + "/login/callback");
                                 Maybe<Request> signInURL = RxJava2Adapter.monoToMaybe(((SocialAuthenticationProvider) authenticationProvider).asyncSignInUrl_migrated(redirectUri, state));
 

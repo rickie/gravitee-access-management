@@ -425,8 +425,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
     return RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne((T) user)))
         .flatMap(
             success ->
-                RxJava2Adapter.maybeToMono(
-                        RxJava2Adapter.monoToMaybe(findById_migrated(user.getId())))
+                findById_migrated(user.getId())
                     .single());
   }
 
@@ -446,8 +445,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
             Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, user.getId()), (T) user)))
         .flatMap(
             updateResult ->
-                RxJava2Adapter.maybeToMono(
-                        RxJava2Adapter.monoToMaybe(findById_migrated(user.getId())))
+                findById_migrated(user.getId())
                     .single());
   }
 

@@ -62,7 +62,7 @@ public class InstallationServiceImpl implements InstallationService {
 }
 @Override
     public Mono<Installation> get_migrated() {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.installationRepository.find_migrated())).switchIfEmpty(Mono.error(new InstallationNotFoundException()));
+        return this.installationRepository.find_migrated().switchIfEmpty(Mono.error(new InstallationNotFoundException()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getOrInitialize_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -73,7 +73,7 @@ public class InstallationServiceImpl implements InstallationService {
 }
 @Override
     public Mono<Installation> getOrInitialize_migrated() {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.installationRepository.find_migrated())).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(createInternal_migrated())));
+        return this.installationRepository.find_migrated().switchIfEmpty(createInternal_migrated());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setAdditionalInformation_migrated(additionalInformation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -84,7 +84,7 @@ public class InstallationServiceImpl implements InstallationService {
 }
 @Override
     public Mono<Installation> setAdditionalInformation_migrated(Map<String, String> additionalInformation) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(get_migrated())).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)installation -> {
+        return get_migrated().flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)installation -> {
                     Installation toUpdate = new Installation(installation);
                     toUpdate.setAdditionalInformation(additionalInformation);
 
@@ -100,7 +100,7 @@ public class InstallationServiceImpl implements InstallationService {
 }
 @Override
     public Mono<Installation> addAdditionalInformation_migrated(Map<String, String> additionalInformation) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getOrInitialize_migrated())).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installation -> installation.getAdditionalInformation().putAll(additionalInformation))).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)(io.gravitee.am.model.Installation ident) -> RxJava2Adapter.monoToSingle(updateInternal_migrated(ident))).apply(v)));
+        return getOrInitialize_migrated().doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(installation -> installation.getAdditionalInformation().putAll(additionalInformation))).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)(io.gravitee.am.model.Installation ident) -> RxJava2Adapter.monoToSingle(updateInternal_migrated(ident))).apply(v)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -111,7 +111,7 @@ public class InstallationServiceImpl implements InstallationService {
 }
 @Override
     public Mono<Void> delete_migrated() {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.installationRepository.find_migrated())).flatMap(installation->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(installationRepository.delete_migrated(installation.getId())))).then();
+        return this.installationRepository.find_migrated().flatMap(installation->installationRepository.delete_migrated(installation.getId())).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")

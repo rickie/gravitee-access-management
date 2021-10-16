@@ -95,7 +95,7 @@ public class MongoBotDetectionRepository extends AbstractManagementMongoReposito
     public Mono<BotDetection> create_migrated(BotDetection item) {
         BotDetectionMongo entity = convert(item);
         entity.setId(entity.getId() == null ? RandomString.generate() : entity.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(botDetectionMongoCollection.insertOne(entity))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(entity.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(botDetectionMongoCollection.insertOne(entity))).flatMap(success->findById_migrated(entity.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -107,7 +107,7 @@ public class MongoBotDetectionRepository extends AbstractManagementMongoReposito
 @Override
     public Mono<BotDetection> update_migrated(BotDetection item) {
         BotDetectionMongo entity = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(botDetectionMongoCollection.replaceOne(eq(FIELD_ID, entity.getId()), entity))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(entity.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(botDetectionMongoCollection.replaceOne(eq(FIELD_ID, entity.getId()), entity))).flatMap(updateResult->findById_migrated(entity.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

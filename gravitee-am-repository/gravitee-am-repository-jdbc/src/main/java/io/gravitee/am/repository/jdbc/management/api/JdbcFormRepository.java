@@ -63,7 +63,7 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
 @Override
     public Flux<Form>  findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findAll({}, {})", referenceType, referenceId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(formRepository.findAll_migrated(referenceType.name(), referenceId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
+        return formRepository.findAll_migrated(referenceType.name(), referenceId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -74,7 +74,7 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
 }
 @Override
     public Flux<Form> findAll_migrated(ReferenceType referenceType) {LOGGER.debug("findAll({})", referenceType);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(formRepository.findAll_migrated(referenceType.name()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
+        return formRepository.findAll_migrated(referenceType.name()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByClient_migrated(referenceType, referenceId, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -86,7 +86,7 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
 @Override
     public Flux<Form> findByClient_migrated(ReferenceType referenceType, String referenceId, String client) {
         LOGGER.debug("findByClient({}, {}, {})", referenceType, referenceId, client);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(formRepository.findByClient_migrated(referenceType.name(), referenceId, client))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
+        return formRepository.findByClient_migrated(referenceType.name(), referenceId, client).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByTemplate_migrated(referenceType, referenceId, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -98,7 +98,7 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
 @Override
     public Mono<Form> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template) {
         LOGGER.debug("findByTemplate({}, {}, {})", referenceType, referenceId, template);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(formRepository.findByTemplate_migrated(referenceType.name(), referenceId, template))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
+        return formRepository.findByTemplate_migrated(referenceType.name(), referenceId, template).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientAndTemplate_migrated(referenceType, referenceId, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -110,7 +110,7 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
 @Override
     public Mono<Form> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template) {
         LOGGER.debug("findByClientAndTemplate({}, {}, {}, {})", referenceType, referenceId, client, template);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(formRepository.findByClientAndTemplate_migrated(referenceType.name(), referenceId, client, template))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
+        return formRepository.findByClientAndTemplate_migrated(referenceType.name(), referenceId, client, template).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -122,7 +122,7 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
 @Override
     public Mono<Form> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("findById({}, {}, {})", referenceType, referenceId, id);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(formRepository.findById_migrated(referenceType.name(), referenceId, id))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
+        return formRepository.findById_migrated(referenceType.name(), referenceId, id).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -153,7 +153,7 @@ public class JdbcFormRepository extends AbstractJdbcRepository implements FormRe
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
+        return action.flatMap(i->this.findById_migrated(item.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

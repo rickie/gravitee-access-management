@@ -117,7 +117,7 @@ public Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User pri
 
         return RxJava2Adapter.maybeToMono(roleObs).switchIfEmpty(Mono.error(new TechnicalManagementException(String.format("Cannot add user membership to organization %s. Unable to find ORGANIZATION_USER role", user.getReferenceId())))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Role, CompletableSource>)role -> {
                     membership.setRoleId(role.getId());
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipService.addOrUpdate_migrated(user.getReferenceId(), membership))).then());
+                    return RxJava2Adapter.monoToCompletable(membershipService.addOrUpdate_migrated(user.getReferenceId(), membership).then());
                 }).apply(y)))).then();
     }
 
@@ -132,7 +132,7 @@ public Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User pri
         LOGGER.debug("Update a user {}", user);
         // updated date
         user.setUpdatedAt(new Date());
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(getUserRepository().findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, user.getReferenceId(), user.getUsername(), user.getSource()))
+        return userValidator.validate_migrated(user).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(getUserRepository().findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, user.getReferenceId(), user.getUsername(), user.getSource()))
                 .flatMapSingle(oldUser -> {
 
                         user.setId(oldUser.getId());
@@ -154,7 +154,7 @@ public Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User pri
                 })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user1 -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user1.getId(), user1.getReferenceType(), user1.getReferenceId(), Action.UPDATE));
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(user1)));
+                    return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(user1)));
                 }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {

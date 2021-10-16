@@ -74,7 +74,7 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
 @Override
     public Flux<Reporter> findByDomain_migrated(String domain) {
         LOGGER.debug("findByDomain({})", domain);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(reporterRepository.findByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
+        return reporterRepository.findByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -105,7 +105,7 @@ public class JdbcReporterRepository extends AbstractJdbcRepository implements Re
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return insertResult.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
+        return insertResult.flatMap(i->this.findById_migrated(item.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

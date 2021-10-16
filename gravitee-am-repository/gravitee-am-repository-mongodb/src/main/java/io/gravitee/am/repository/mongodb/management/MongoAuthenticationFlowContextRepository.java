@@ -100,7 +100,7 @@ public class MongoAuthenticationFlowContextRepository extends AbstractManagement
     public Mono<AuthenticationFlowContext> create_migrated(AuthenticationFlowContext context) {
         AuthenticationFlowContextMongo contextMongo = convert(context);
         contextMongo.setId(context.getTransactionId() + "-" + context.getVersion());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(authContextCollection.insertOne(contextMongo))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(contextMongo.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(authContextCollection.insertOne(contextMongo))).flatMap(success->findById_migrated(contextMongo.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

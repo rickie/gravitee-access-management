@@ -178,7 +178,7 @@ private Mono<Void> generateCodeAndSendEmail_migrated(FactorContext context, Emai
             final String recipient = enrolledFactor.getChannel().getTarget();
             EmailService.EmailWrapper emailWrapper = emailService.createEmail(Template.MFA_CHALLENGE, context.getClient(), asList(recipient), params);
 
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(provider.sendMessage_migrated(emailWrapper.getEmail()))).then(Mono.just(enrolledFactor).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<EnrolledFactor, SingleSource<io.gravitee.am.model.User>>toJdkFunction(ef ->  {
+            return provider.sendMessage_migrated(emailWrapper.getEmail()).then(Mono.just(enrolledFactor).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<EnrolledFactor, SingleSource<io.gravitee.am.model.User>>toJdkFunction(ef ->  {
                                 ef.setPrimary(true);
                                 ef.setStatus(FactorStatus.ACTIVATED);
                                 ef.getSecurity().putData(FactorDataKeys.KEY_EXPIRE_AT, emailWrapper.getExpireAt());

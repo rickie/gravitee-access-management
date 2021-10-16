@@ -133,7 +133,7 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
             var identityProvider = optionalIdp.get();
             final String id = identityProvider.getId() == null ? RandomString.generate() : identityProvider.getId();
             identityProvider.setId(id);
-            return RxJava2Adapter.singleToMono(Single.fromPublisher(identitiesCollection.insertOne(identityProvider))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(identityProvider.getId()))).single());
+            return RxJava2Adapter.singleToMono(Single.fromPublisher(identitiesCollection.insertOne(identityProvider))).flatMap(success->findById_migrated(identityProvider.getId()).single());
         }
         return Mono.error(new TechnicalException("Identity provider must be present for create"));
     }
@@ -149,7 +149,7 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
         Optional<IdentityProviderMongo> optionalIdp = convert(item);
         if (optionalIdp.isPresent()) {
             var identityProvider = optionalIdp.get();
-            return RxJava2Adapter.singleToMono(Single.fromPublisher(identitiesCollection.replaceOne(eq(FIELD_ID, identityProvider.getId()), identityProvider))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(identityProvider.getId()))).single());
+            return RxJava2Adapter.singleToMono(Single.fromPublisher(identitiesCollection.replaceOne(eq(FIELD_ID, identityProvider.getId()), identityProvider))).flatMap(updateResult->findById_migrated(identityProvider.getId()).single());
         }
         return Mono.error(new TechnicalException("Identity provider must be present for update"));
     }

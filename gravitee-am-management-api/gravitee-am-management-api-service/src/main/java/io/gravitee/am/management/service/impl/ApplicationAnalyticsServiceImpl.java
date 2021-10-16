@@ -76,7 +76,7 @@ private Mono<AnalyticsResponse> executeGroupBy_migrated(AnalyticsQuery query) {
 
         switch (query.getField()) {
             case Field.USER_STATUS:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.statistics_migrated(query))).map(RxJavaReactorMigrationUtil.toJdkFunction(AnalyticsGroupByResponse::new));
+                return userService.statistics_migrated(query).map(RxJavaReactorMigrationUtil.toJdkFunction(AnalyticsGroupByResponse::new));
             default :
                 return Mono.just(new AnalyticsResponse() {});
         }
@@ -98,9 +98,9 @@ private Mono<AnalyticsResponse> executeCount_migrated(AnalyticsQuery query) {
 
         switch (query.getField()) {
             case Field.USER:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.countByApplication_migrated(query.getDomain(), query.getApplication()))).map(RxJavaReactorMigrationUtil.toJdkFunction(AnalyticsCountResponse::new));
+                return userService.countByApplication_migrated(query.getDomain(), query.getApplication()).map(RxJavaReactorMigrationUtil.toJdkFunction(AnalyticsCountResponse::new));
             default:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(auditService.aggregate_migrated(query.getDomain(), queryBuilder.build(), query.getType()))).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> new AnalyticsCountResponse((Long) values.values().iterator().next())));
+                return auditService.aggregate_migrated(query.getDomain(), queryBuilder.build(), query.getType()).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> new AnalyticsCountResponse((Long) values.values().iterator().next())));
         }
     }
 
@@ -117,7 +117,7 @@ private Mono<AnalyticsResponse> executeDateHistogram_migrated(AnalyticsQuery que
         queryBuilder.interval(query.getInterval());
         queryBuilder.accessPointId(query.getApplication());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(auditService.aggregate_migrated(query.getDomain(), queryBuilder.build(), query.getType()))).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> {
+        return auditService.aggregate_migrated(query.getDomain(), queryBuilder.build(), query.getType()).map(RxJavaReactorMigrationUtil.toJdkFunction(values -> {
                     Timestamp timestamp = new Timestamp(query.getFrom(), query.getTo(), query.getInterval());
                     List<Bucket> buckets = values
                             .entrySet()

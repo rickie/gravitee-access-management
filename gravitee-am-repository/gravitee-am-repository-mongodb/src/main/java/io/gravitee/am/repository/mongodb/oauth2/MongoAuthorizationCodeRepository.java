@@ -85,7 +85,7 @@ private Mono<AuthorizationCode> findById_migrated(String id) {
         }
 
         return RxJava2Adapter.singleToMono(Single
-                .fromPublisher(authorizationCodeCollection.insertOne(convert(authorizationCode)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(authorizationCode.getId()))).single());
+                .fromPublisher(authorizationCodeCollection.insertOne(convert(authorizationCode)))).flatMap(success->findById_migrated(authorizationCode.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.delete_migrated(code))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

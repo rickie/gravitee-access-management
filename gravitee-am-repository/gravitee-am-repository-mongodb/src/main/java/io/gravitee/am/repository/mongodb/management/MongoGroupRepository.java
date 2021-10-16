@@ -150,7 +150,7 @@ public class MongoGroupRepository extends AbstractManagementMongoRepository impl
     public Mono<Group> create_migrated(Group item) {
         GroupMongo group = convert(item);
         group.setId(group.getId() == null ? RandomString.generate() : group.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(groupsCollection.insertOne(group))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(group.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(groupsCollection.insertOne(group))).flatMap(success->findById_migrated(group.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -162,7 +162,7 @@ public class MongoGroupRepository extends AbstractManagementMongoRepository impl
 @Override
     public Mono<Group> update_migrated(Group item) {
         GroupMongo group = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(groupsCollection.replaceOne(eq(FIELD_ID, group.getId()), group))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(group.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(groupsCollection.replaceOne(eq(FIELD_ID, group.getId()), group))).flatMap(success->findById_migrated(group.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

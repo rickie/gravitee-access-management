@@ -106,7 +106,7 @@ public class MongoMembershipRepository extends AbstractManagementMongoRepository
             eqUserId = eq(FIELD_ROLE, criteria.getRoleId().get());
         }
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(toBsonFilter_migrated(criteria.isLogicalOR(), eqGroupId, eqUserId))).map(RxJavaReactorMigrationUtil.toJdkFunction(filter -> and(eqReference, filter))).switchIfEmpty(Mono.just(eqReference)).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> RxJava2Adapter.fluxToFlowable(Flux.from(membershipsCollection.find(filter))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return toBsonFilter_migrated(criteria.isLogicalOR(), eqGroupId, eqUserId).map(RxJavaReactorMigrationUtil.toJdkFunction(filter -> and(eqReference, filter))).switchIfEmpty(Mono.just(eqReference)).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> RxJava2Adapter.fluxToFlowable(Flux.from(membershipsCollection.find(filter))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByReferenceAndMember_migrated(referenceType, referenceId, memberType, memberId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -167,7 +167,7 @@ private Single<UserEntity> enhanceIdentityProvider(UserEntity userEntity) {
 }
 private Mono<UserEntity> enhanceIdentityProvider_migrated(UserEntity userEntity) {
         if (userEntity.getSource() != null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(userEntity.getSource()))).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
+            return identityProviderService.findById_migrated(userEntity.getSource()).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
                         userEntity.setSource(idP.getName());
                         return userEntity;
                     })).defaultIfEmpty(userEntity).single();

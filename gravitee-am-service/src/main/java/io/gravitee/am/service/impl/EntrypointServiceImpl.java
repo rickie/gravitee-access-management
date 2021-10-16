@@ -87,7 +87,7 @@ public class EntrypointServiceImpl implements EntrypointService {
 
         LOGGER.debug("Find entrypoint by id {} and organizationId {}", id, organizationId);
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(entrypointRepository.findById_migrated(id, organizationId))).switchIfEmpty(Mono.error(new EntrypointNotFoundException(id)));
+        return entrypointRepository.findById_migrated(id, organizationId).switchIfEmpty(Mono.error(new EntrypointNotFoundException(id)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -174,7 +174,7 @@ public class EntrypointServiceImpl implements EntrypointService {
 
         LOGGER.debug("Update an existing entrypoint {}", updateEntrypoint);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findById_migrated(entrypointId, organizationId))).flatMap(v->RxJava2Adapter.singleToMono((Single<Entrypoint>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Entrypoint, Single<Entrypoint>>)oldEntrypoint -> {
+        return findById_migrated(entrypointId, organizationId).flatMap(v->RxJava2Adapter.singleToMono((Single<Entrypoint>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Entrypoint, Single<Entrypoint>>)oldEntrypoint -> {
                     Entrypoint toUpdate = new Entrypoint(oldEntrypoint);
                     toUpdate.setName(updateEntrypoint.getName());
                     toUpdate.setDescription(updateEntrypoint.getDescription());
@@ -182,7 +182,7 @@ public class EntrypointServiceImpl implements EntrypointService {
                     toUpdate.setTags(updateEntrypoint.getTags());
                     toUpdate.setUpdatedAt(new Date());
 
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(validate_migrated(toUpdate, oldEntrypoint))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(entrypointRepository.update_migrated(toUpdate))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(updated -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_UPDATED).entrypoint(updated).oldValue(oldEntrypoint)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_UPDATED).throwable(throwable))))));
+                    return RxJava2Adapter.monoToSingle(validate_migrated(toUpdate, oldEntrypoint).then(entrypointRepository.update_migrated(toUpdate).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(updated -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_UPDATED).entrypoint(updated).oldValue(oldEntrypoint)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_UPDATED).throwable(throwable))))));
                 }).apply(v)));
     }
 
@@ -197,7 +197,7 @@ public class EntrypointServiceImpl implements EntrypointService {
 
         LOGGER.debug("Delete entrypoint by id {} and organizationId {}", id, organizationId);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findById_migrated(id, organizationId))).flatMap(entrypoint->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(entrypointRepository.delete_migrated(id)).doOnComplete(()->auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_DELETED).entrypoint(entrypoint)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_DELETED).throwable(throwable))))).then();
+        return findById_migrated(id, organizationId).flatMap(entrypoint->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(entrypointRepository.delete_migrated(id)).doOnComplete(()->auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_DELETED).entrypoint(entrypoint)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).principal(principal).type(EventType.ENTRYPOINT_DELETED).throwable(throwable))))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createInternal_migrated(toCreate, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -213,7 +213,7 @@ private Mono<Entrypoint> createInternal_migrated(Entrypoint toCreate, User princ
         toCreate.setCreatedAt(now);
         toCreate.setUpdatedAt(now);
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(validate_migrated(toCreate))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(entrypointRepository.create_migrated(toCreate))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(entrypoint -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).entrypoint(entrypoint).principal(principal).type(EventType.ENTRYPOINT_CREATED)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).referenceId(toCreate.getOrganizationId()).principal(principal).type(EventType.ENTRYPOINT_CREATED).throwable(throwable)))));
+        return validate_migrated(toCreate).then(entrypointRepository.create_migrated(toCreate).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(entrypoint -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).entrypoint(entrypoint).principal(principal).type(EventType.ENTRYPOINT_CREATED)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EntrypointAuditBuilder.class).referenceId(toCreate.getOrganizationId()).principal(principal).type(EventType.ENTRYPOINT_CREATED).throwable(throwable)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.validate_migrated(entrypoint))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -248,7 +248,7 @@ private Mono<Void> validate_migrated(Entrypoint entrypoint, Entrypoint oldEntryp
                 throw new MalformedURLException();
             }
 
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(organizationService.findById_migrated(entrypoint.getOrganizationId()))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Organization, CompletableSource>)organization -> {
+            return organizationService.findById_migrated(entrypoint.getOrganizationId()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Organization, CompletableSource>)organization -> {
                         String hostWithoutPort = url.getHost().split(":")[0];
                         if (!VirtualHostValidator.isValidDomainOrSubDomain(hostWithoutPort, organization.getDomainRestrictions())) {
                             return RxJava2Adapter.monoToCompletable(Mono.error(new InvalidEntrypointException("Host [" + hostWithoutPort + "] must be a subdomain of " + organization.getDomainRestrictions())));

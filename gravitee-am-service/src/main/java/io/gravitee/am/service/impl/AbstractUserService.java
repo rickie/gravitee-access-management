@@ -86,7 +86,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
     public Flux<User> findByIdIn_migrated(List<String> ids) {
         String userIds = String.join(",", ids);
         LOGGER.debug("Find users by ids: {}", userIds);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(getUserRepository().findByIdIn_migrated(ids))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return getUserRepository().findByIdIn_migrated(ids).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find users by ids {}", userIds, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error occurs while trying to find users by ids %s", userIds), ex)));
                 }));

@@ -189,7 +189,7 @@ private Mono<Optional<String>> generateLogoutCallback_migrated(RoutingContext ro
             // this state will be restored during after the redirect triggered by the external idp
             routingContext.request().params().remove(io.gravitee.am.common.oauth2.Parameters.STATE);
 
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.encode_migrated(stateJwt, certificateManager.defaultCertificateProvider()))).map(RxJavaReactorMigrationUtil.toJdkFunction(state -> {
+            return jwtService.encode_migrated(stateJwt, certificateManager.defaultCertificateProvider()).map(RxJavaReactorMigrationUtil.toJdkFunction(state -> {
                 String redirectUri = UriBuilderRequest.resolveProxyRequest(routingContext.request(), routingContext.get(CONTEXT_PATH) + "/logout/callback");
                 UriBuilder builder = UriBuilder.fromHttpUrl(endpoint.getUri());
                 builder.addParameter(Parameters.POST_LOGOUT_REDIRECT_URI, redirectUri);

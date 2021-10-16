@@ -92,7 +92,7 @@ public class MongoResourceRepository extends AbstractManagementMongoRepository i
     public Mono<Resource> create_migrated(Resource item) {
         ResourceMongo resource = convert(item);
         resource.setId(resource.getId() == null ? RandomString.generate() : resource.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.insertOne(resource))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(resource.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.insertOne(resource))).flatMap(success->findById_migrated(resource.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -104,7 +104,7 @@ public class MongoResourceRepository extends AbstractManagementMongoRepository i
 @Override
     public Mono<Resource> update_migrated(Resource item) {
         ResourceMongo resourceMongo = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.replaceOne(eq(FIELD_ID, resourceMongo.getId()), resourceMongo))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(resourceMongo.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.replaceOne(eq(FIELD_ID, resourceMongo.getId()), resourceMongo))).flatMap(success->findById_migrated(resourceMongo.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

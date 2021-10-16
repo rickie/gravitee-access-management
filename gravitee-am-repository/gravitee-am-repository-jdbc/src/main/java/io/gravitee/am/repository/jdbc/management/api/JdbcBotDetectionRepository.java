@@ -118,7 +118,7 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
+        return action.flatMap(i->this.findById_migrated(item.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -134,7 +134,7 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
                 .table(JdbcBotDetection.class)
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
-        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
+        return action.flatMap(i->this.findById_migrated(item.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

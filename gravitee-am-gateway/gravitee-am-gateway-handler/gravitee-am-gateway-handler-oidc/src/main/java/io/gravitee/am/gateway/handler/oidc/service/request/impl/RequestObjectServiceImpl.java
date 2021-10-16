@@ -97,7 +97,7 @@ public class RequestObjectServiceImpl implements RequestObjectService {
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException("Malformed request object")));
                 })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JWT, SingleSource<JWT>>toJdkFunction((Function<JWT, SingleSource<JWT>>)jwt -> {
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkRequestObjectAlgorithm_migrated(jwt))).then(Mono.defer(()->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(validateSignature_migrated((SignedJWT)jwt, client))))));
+                    return RxJava2Adapter.monoToSingle(checkRequestObjectAlgorithm_migrated(jwt).then(Mono.defer(()->validateSignature_migrated((SignedJWT)jwt, client))));
                 }).apply(v))));
     }
 
@@ -114,7 +114,7 @@ public class RequestObjectServiceImpl implements RequestObjectService {
                 // Extract the identifier
                 String identifier = requestUri.substring(RESOURCE_OBJECT_URN_PREFIX.length());
 
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(requestObjectRepository.findById_migrated(identifier))).switchIfEmpty(Mono.error(new InvalidRequestObjectException())).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<RequestObject, Single<JWT>>)(Function<RequestObject, Single<JWT>>)req -> {
+                return requestObjectRepository.findById_migrated(identifier).switchIfEmpty(Mono.error(new InvalidRequestObjectException())).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<RequestObject, Single<JWT>>)(Function<RequestObject, Single<JWT>>)req -> {
                             if (req.getExpireAt().after(new Date())) {
                                 return RxJava2Adapter.monoToSingle(readRequestObject_migrated(req.getPayload(), client, false));
                             }
@@ -142,7 +142,7 @@ public class RequestObjectServiceImpl implements RequestObjectService {
         try {
             JWT jwt = JWTParser.parse(request.getRequest());
 
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkRequestObjectAlgorithm_migrated(jwt))).then(Mono.defer(()->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(validateSignature_migrated((SignedJWT)jwt, client))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JWT, SingleSource<RequestObject>>toJdkFunction(new Function<JWT, SingleSource<RequestObject>>() {
+            return checkRequestObjectAlgorithm_migrated(jwt).then(Mono.defer(()->validateSignature_migrated((SignedJWT)jwt, client))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JWT, SingleSource<RequestObject>>toJdkFunction(new Function<JWT, SingleSource<RequestObject>>() {
                         @Override
                         public SingleSource<RequestObject> apply(JWT jwt) throws Exception {
                             RequestObject requestObject = new RequestObject();

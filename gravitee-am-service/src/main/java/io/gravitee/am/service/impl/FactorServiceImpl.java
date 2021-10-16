@@ -109,7 +109,7 @@ public class FactorServiceImpl implements FactorService {
 @Override
     public Flux<Factor> findByDomain_migrated(String domain) {
         LOGGER.debug("Find factors by domain: {}", domain);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(factorRepository.findByDomain_migrated(domain))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return factorRepository.findByDomain_migrated(domain).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find factors by domain", ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find factors by domain", ex)));
                 }));
@@ -135,10 +135,10 @@ public class FactorServiceImpl implements FactorService {
         factor.setCreatedAt(new Date());
         factor.setUpdatedAt(factor.getCreatedAt());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factor))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction((Factor  ident) -> RxJava2Adapter.monoToSingle(factorRepository.create_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(factor1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkFactorConfiguration_migrated(factor).flatMap(v->factorRepository.create_migrated(v)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(factor1 -> {
                     // create event for sync process
                     Event event = new Event(Type.FACTOR, new Payload(factor1.getId(), ReferenceType.DOMAIN, factor1.getDomain(), Action.CREATE));
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(factor1)));
+                    return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(factor1)));
                 }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {

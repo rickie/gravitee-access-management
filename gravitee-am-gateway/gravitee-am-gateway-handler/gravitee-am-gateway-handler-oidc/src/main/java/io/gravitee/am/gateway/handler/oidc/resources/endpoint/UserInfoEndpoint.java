@@ -233,7 +233,7 @@ private Mono<User> enhance_migrated(User user, JWT accessToken) {
             return Mono.just(user);
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.enhance_migrated(user))).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> {
+        return userService.enhance_migrated(user).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> {
                     Map<String, Object> userClaims = user.getAdditionalInformation() == null ?
                             new HashMap<>() :
                             new HashMap<>(user.getAdditionalInformation());

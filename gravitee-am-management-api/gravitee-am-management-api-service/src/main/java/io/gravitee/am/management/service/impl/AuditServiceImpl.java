@@ -100,7 +100,7 @@ public class AuditServiceImpl implements AuditService {
 @Override
     public Mono<Audit> findById_migrated(ReferenceType referenceType, String referenceId, String auditId) {
         try {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getReporter(referenceType, referenceId).findById_migrated(referenceType, referenceId, auditId))).switchIfEmpty(Mono.error(new AuditNotFoundException(auditId)));
+            return getReporter(referenceType, referenceId).findById_migrated(referenceType, referenceId, auditId).switchIfEmpty(Mono.error(new AuditNotFoundException(auditId)));
         } catch (Exception ex) {
             logger.error("An error occurs while trying to find audit by id: {} and for the {}}: {}", auditId, referenceType, referenceId, ex);
             return Mono.error(ex);
@@ -115,7 +115,7 @@ public class AuditServiceImpl implements AuditService {
 }
 @Override
     public Mono<Audit> findById_migrated(String domain, String auditId) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findById_migrated(ReferenceType.DOMAIN, domain, auditId)));
+        return findById_migrated(ReferenceType.DOMAIN, domain, auditId);
     }
 
     private Reporter getReporter(String domain) {

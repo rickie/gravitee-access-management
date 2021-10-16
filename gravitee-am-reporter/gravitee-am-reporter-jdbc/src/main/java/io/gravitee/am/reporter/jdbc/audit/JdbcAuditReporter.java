@@ -200,7 +200,7 @@ protected Mono<Map<Object,Object>> executeHistogramAggregation_migrated(Referenc
             return Mono.just(result);
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(dialectHelper.buildAndProcessHistogram_migrated(dbClient, referenceType, referenceId, criteria))).map(RxJavaReactorMigrationUtil.toJdkFunction(stats -> {
+        return dialectHelper.buildAndProcessHistogram_migrated(dbClient, referenceType, referenceId, criteria).map(RxJavaReactorMigrationUtil.toJdkFunction(stats -> {
             Map<Long, Long> successResult = new TreeMap<>();
             Map<Long, Long> failureResult = new TreeMap<>();
             stats.forEach(slotValue -> {

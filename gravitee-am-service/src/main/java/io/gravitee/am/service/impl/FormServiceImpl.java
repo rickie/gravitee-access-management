@@ -103,7 +103,7 @@ public class FormServiceImpl implements FormService {
 @Override
     public Flux<Form> findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("Find form by {} {}", referenceType, referenceId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(formRepository.findAll_migrated(referenceType, referenceId))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return formRepository.findAll_migrated(referenceType, referenceId).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a form using its {} {}", referenceType, referenceId, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a form using its %s %s", referenceType, referenceId), ex)));
@@ -142,7 +142,7 @@ public class FormServiceImpl implements FormService {
 @Override
     public Flux<Form> findByClient_migrated(ReferenceType referenceType, String referenceId, String client) {
         LOGGER.debug("Find form by {} {} and client {}", referenceType, referenceId, client);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(formRepository.findByClient_migrated(referenceType, referenceId, client))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return formRepository.findByClient_migrated(referenceType, referenceId, client).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a form using its {} {} and its client {}", referenceType, referenceId, client, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a form using its %s %s and client %s", referenceType, referenceId, client), ex)));
@@ -341,7 +341,7 @@ private Mono<Form> create0_migrated(ReferenceType referenceType, String referenc
         String formId = RandomString.generate();
 
         // check if form is unique
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkFormUniqueness_migrated(referenceType, referenceId, client, newForm.getTemplate().template()))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Form>>toJdkFunction(irrelevant -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkFormUniqueness_migrated(referenceType, referenceId, client, newForm.getTemplate().template()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Form>>toJdkFunction(irrelevant -> {
                     Form form = new Form();
                     form.setId(formId);
                     form.setReferenceType(referenceType);
@@ -357,7 +357,7 @@ private Mono<Form> create0_migrated(ReferenceType referenceType, String referenc
                 }).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Form, SingleSource<Form>>toJdkFunction(page -> {
                     // create event for sync process
                     Event event = new Event(Type.FORM, new Payload(page.getId(), page.getReferenceType(), page.getReferenceId(), Action.CREATE));
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(page)));
+                    return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(page)));
                 }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {

@@ -79,7 +79,7 @@ public Single<Map<Permission, Set<Acl>>> findAllPermissions(User user, Reference
 }
 public Mono<Map<Permission,Set<Acl>>> findAllPermissions_migrated(User user, ReferenceType referenceType, String referenceId) {
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findMembershipPermissions_migrated(user, Collections.singletonMap(referenceType, referenceId).entrySet().stream()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::aclsPerPermission));
+        return findMembershipPermissions_migrated(user, Collections.singletonMap(referenceType, referenceId).entrySet().stream()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::aclsPerPermission));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.hasPermission_migrated(user, permissions))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -89,9 +89,9 @@ public Single<Boolean> hasPermission(User user, PermissionAcls permissions) {
 }
 public Mono<Boolean> hasPermission_migrated(User user, PermissionAcls permissions) {
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(haveConsistentReferenceIds_migrated(permissions))).flatMap(v->RxJava2Adapter.singleToMono((Single<Boolean>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<Boolean>>)consistent -> {
+        return haveConsistentReferenceIds_migrated(permissions).flatMap(v->RxJava2Adapter.singleToMono((Single<Boolean>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<Boolean>>)consistent -> {
                     if (consistent) {
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findMembershipPermissions_migrated(user, permissions.referenceStream()))).map(RxJavaReactorMigrationUtil.toJdkFunction(permissions::match)));
+                        return RxJava2Adapter.monoToSingle(findMembershipPermissions_migrated(user, permissions.referenceStream()).map(RxJavaReactorMigrationUtil.toJdkFunction(permissions::match)));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(false));
                 }).apply(v)));
@@ -216,7 +216,7 @@ private Mono<Map<Membership,Map<Permission,Set<Acl>>>> findMembershipPermissions
             return Mono.error(new InvalidUserException("Specified user is invalid"));
         }
 
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(groupService.findByMember_migrated(user.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(Group::getId)).collectList().flatMap(v->RxJava2Adapter.singleToMono((Single<Map<Membership, Map<Permission, Set<Acl>>>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<String>, Single<Map<Membership, Map<Permission, Set<Acl>>>>>)userGroupIds -> {
+        return groupService.findByMember_migrated(user.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(Group::getId)).collectList().flatMap(v->RxJava2Adapter.singleToMono((Single<Map<Membership, Map<Permission, Set<Acl>>>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<String>, Single<Map<Membership, Map<Permission, Set<Acl>>>>>)userGroupIds -> {
                     MembershipCriteria criteria = new MembershipCriteria();
                     criteria.setUserId(user.getId());
                     criteria.setGroupIds(userGroupIds.isEmpty() ? null : userGroupIds);
@@ -230,7 +230,7 @@ private Mono<Map<Membership,Map<Permission,Set<Acl>>>> findMembershipPermissions
                                 }
 
                                 // Get all roles.
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.findByIdIn_migrated(allMemberships.stream().map(Membership::getRoleId).collect(Collectors.toList())))).map(RxJavaReactorMigrationUtil.toJdkFunction(allRoles -> permissionsPerMembership(allMemberships, allRoles))));
+                                return RxJava2Adapter.monoToSingle(roleService.findByIdIn_migrated(allMemberships.stream().map(Membership::getRoleId).collect(Collectors.toList())).map(RxJavaReactorMigrationUtil.toJdkFunction(allRoles -> permissionsPerMembership(allMemberships, allRoles))));
                             }).apply(z)))));
                 }).apply(v)));
     }

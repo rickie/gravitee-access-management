@@ -157,7 +157,7 @@ public class MongoRoleRepository extends AbstractManagementMongoRepository imple
     public Mono<Role> create_migrated(Role item) {
         RoleMongo role = convert(item);
         role.setId(role.getId() == null ? RandomString.generate() : role.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(rolesCollection.insertOne(role))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(role.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(rolesCollection.insertOne(role))).flatMap(success->findById_migrated(role.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -169,7 +169,7 @@ public class MongoRoleRepository extends AbstractManagementMongoRepository imple
 @Override
     public Mono<Role> update_migrated(Role item) {
         RoleMongo role = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(rolesCollection.replaceOne(eq(FIELD_ID, role.getId()), role))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(role.getId()))).single());
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(rolesCollection.replaceOne(eq(FIELD_ID, role.getId()), role))).flatMap(updateResult->findById_migrated(role.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

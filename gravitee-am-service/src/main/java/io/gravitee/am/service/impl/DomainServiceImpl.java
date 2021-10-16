@@ -275,7 +275,7 @@ public class DomainServiceImpl implements DomainService {
 @Override
     public Flux<Domain> findByIdIn_migrated(Collection<String> ids) {
         LOGGER.debug("Find domains by id in {}", ids);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(domainRepository.findByIdIn_migrated(ids))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return domainRepository.findByIdIn_migrated(ids).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find domains by id in {}", ids, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find domains by id in", ex)));
                 }));
@@ -292,7 +292,7 @@ public class DomainServiceImpl implements DomainService {
         LOGGER.debug("Create a new domain: {}", newDomain);
         // generate hrid
         String hrid = IdGenerator.generate(newDomain.getName());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, environmentId, hrid))).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Domain>>toJdkFunction(empty -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, environmentId, hrid).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Domain>>toJdkFunction(empty -> {
                     if (!empty) {
                         throw new DomainAlreadyExistsException(newDomain.getName());
                     } else {
@@ -310,13 +310,13 @@ public class DomainServiceImpl implements DomainService {
                         domain.setCreatedAt(new Date());
                         domain.setUpdatedAt(domain.getCreatedAt());
 
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment -> setDeployMode(domain, environment))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Environment, CompletableSource>toJdkFunction(environment -> RxJava2Adapter.monoToCompletable(validateDomain_migrated(domain, environment))).apply(y)))).then().then(Mono.defer(()->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.create_migrated(domain))))));
+                        return RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment -> setDeployMode(domain, environment))).flatMap(v->validateDomain_migrated(domain, v)).then().then(Mono.defer(()->domainRepository.create_migrated(domain))));
                     }
-                }).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Domain, SingleSource<Domain>>toJdkFunction((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.monoToSingle(createSystemScopes_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Domain, SingleSource<Domain>>toJdkFunction((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.monoToSingle(createDefaultCertificate_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Domain, SingleSource<Domain>>toJdkFunction(domain -> {
+                }).apply(v)))).flatMap(v->createSystemScopes_migrated(v)).flatMap(v->createDefaultCertificate_migrated(v)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Domain, SingleSource<Domain>>toJdkFunction(domain -> {
                     if (principal == null) {
                         return RxJava2Adapter.monoToSingle(Mono.just(domain));
                     }
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleService.findSystemRole_migrated(SystemRole.DOMAIN_PRIMARY_OWNER, ReferenceType.DOMAIN))).switchIfEmpty(Mono.error(new InvalidRoleException("Cannot assign owner to the domain, owner role does not exist"))).flatMap(t->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Role, SingleSource<Domain>>toJdkFunction(role -> {
+                    return RxJava2Adapter.monoToSingle(roleService.findSystemRole_migrated(SystemRole.DOMAIN_PRIMARY_OWNER, ReferenceType.DOMAIN).switchIfEmpty(Mono.error(new InvalidRoleException("Cannot assign owner to the domain, owner role does not exist"))).flatMap(t->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Role, SingleSource<Domain>>toJdkFunction(role -> {
                                 Membership membership = new Membership();
                                 membership.setDomain(domain.getId());
                                 membership.setMemberId(principal.getId());
@@ -324,11 +324,11 @@ public class DomainServiceImpl implements DomainService {
                                 membership.setReferenceId(domain.getId());
                                 membership.setReferenceType(ReferenceType.DOMAIN);
                                 membership.setRoleId(role.getId());
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipService.addOrUpdate_migrated(organizationId, membership))).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> domain)));
+                                return RxJava2Adapter.monoToSingle(membershipService.addOrUpdate_migrated(organizationId, membership).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> domain)));
                             }).apply(t)))));
                 }).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Domain, SingleSource<Domain>>toJdkFunction(domain -> {
                     Event event = new Event(Type.DOMAIN, new Payload(domain.getId(), ReferenceType.DOMAIN, domain.getId(), Action.CREATE));
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(domain)));
+                    return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(domain)));
                 }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -496,7 +496,7 @@ private Single<Domain> createDefaultCertificate(Domain domain) {
  return RxJava2Adapter.monoToSingle(createDefaultCertificate_migrated(domain));
 }
 private Mono<Domain> createDefaultCertificate_migrated(Domain domain) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(certificateService.create_migrated(domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificate -> domain));
+        return certificateService.create_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(certificate -> domain));
     }
 
     private String generateContextPath(String domainName) {
@@ -515,12 +515,12 @@ private Mono<Void> validateDomain_migrated(Domain domain) {
         }
 
         // check the uniqueness of the domain
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainRepository.findByHrid_migrated(domain.getReferenceType(), domain.getReferenceId(), domain.getHrid()))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<Domain>, CompletableSource>)optDomain -> {
+        return domainRepository.findByHrid_migrated(domain.getReferenceType(), domain.getReferenceId(), domain.getHrid()).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Optional<Domain>, CompletableSource>)optDomain -> {
                     if (optDomain.isPresent() && !optDomain.get().getId().equals(domain.getId())) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(new DomainAlreadyExistsException(domain.getName())));
                     } else {
                         // Get environment domain restrictions and validate all data are correctly defined.
-                        return RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()))).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Environment, CompletableSource>toJdkFunction(environment -> RxJava2Adapter.monoToCompletable(validateDomain_migrated(domain, environment))).apply(z)))).then());
+                        return RxJava2Adapter.monoToCompletable(environmentService.findById_migrated(domain.getReferenceId()).flatMap(v->validateDomain_migrated(domain, v)).then());
                     }
                 }).apply(y)))).then();
     }
@@ -533,7 +533,7 @@ private Completable validateDomain(Domain domain, Environment environment) {
 private Mono<Void> validateDomain_migrated(Domain domain, Environment environment) {
 
         // Get environment domain restrictions and validate all data are correctly defined.
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, environment.getDomainRestrictions()))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findAll_migrated())).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<List<Domain>, CompletableSource>toJdkFunction(domains -> RxJava2Adapter.monoToCompletable(VirtualHostValidator.validateDomainVhosts_migrated(domain, domains))).apply(y)))).then());
+        return DomainValidator.validate_migrated(domain, environment.getDomainRestrictions()).then(findAll_migrated().flatMap(v->VirtualHostValidator.validateDomainVhosts_migrated(domain, v)).then());
     }
 
     private void setDeployMode(Domain domain, Environment environment) {

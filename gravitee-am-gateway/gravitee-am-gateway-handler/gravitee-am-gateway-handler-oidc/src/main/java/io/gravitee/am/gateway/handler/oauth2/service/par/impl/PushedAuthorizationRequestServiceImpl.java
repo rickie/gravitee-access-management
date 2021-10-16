@@ -98,7 +98,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
             // Extract the identifier
             String identifier = requestUri.substring(PAR_URN_PREFIX.length());
 
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(parRepository.findById_migrated(identifier))).switchIfEmpty(Mono.error(new InvalidRequestUriException())).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PushedAuthorizationRequest, Single<JWT>>)(Function<PushedAuthorizationRequest, Single<JWT>>)req -> {
+            return parRepository.findById_migrated(identifier).switchIfEmpty(Mono.error(new InvalidRequestUriException())).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<PushedAuthorizationRequest, Single<JWT>>)(Function<PushedAuthorizationRequest, Single<JWT>>)req -> {
                         if (req.getParameters() != null &&
                                 req.getExpireAt() != null &&
                                 req.getExpireAt().after(new Date())) {
@@ -155,7 +155,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
             RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(registrationValidation).then(Mono.fromRunnable(RxJavaReactorMigrationUtil.toRunnable(() -> checkRedirectUriParameter(par, client)))));
         }
 
-        return RxJava2Adapter.completableToMono(registrationValidation).then(Mono.defer(()->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(parRepository.create_migrated(par))))).map(RxJavaReactorMigrationUtil.toJdkFunction(parPersisted -> {
+        return RxJava2Adapter.completableToMono(registrationValidation).then(Mono.defer(()->parRepository.create_migrated(par))).map(RxJavaReactorMigrationUtil.toJdkFunction(parPersisted -> {
             final PushedAuthorizationRequestResponse response = new PushedAuthorizationRequestResponse();
             response.setRequestUri(PAR_URN_PREFIX + parPersisted.getId());
             // the lifetime of the request URI in seconds as a positive integer
@@ -191,7 +191,7 @@ private Mono<JWT> readRequestObject_migrated(Client client, String request) {
                     }
                     LOGGER.debug("JWT invalid for the request parameter", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException()));
-                })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectClaims)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectAlgorithm)).flatMap(jwt->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(validateSignature_migrated((SignedJWT)jwt, client))));
+                })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectClaims)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectAlgorithm)).flatMap(jwt->validateSignature_migrated((SignedJWT)jwt, client));
     }
 
     private JWT checkRequestObjectClaims(JWT jwt) {
