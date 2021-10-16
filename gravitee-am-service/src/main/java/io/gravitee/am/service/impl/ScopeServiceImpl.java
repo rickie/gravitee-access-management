@@ -284,7 +284,7 @@ private Mono<Scope> update_migrated(String domain, Scope toUpdate, Scope oldValu
 @Override
     public Mono<Scope> update_migrated(String domain, String id, UpdateSystemScope updateScope) {
         LOGGER.debug("Update a system scope {} for domain {}", id, domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope -> {
                     scope.setName(updateScope.getName());
                     scope.setDescription(updateScope.getDescription());
                     scope.setUpdatedAt(new Date());
@@ -316,7 +316,7 @@ private Mono<Scope> update_migrated(String domain, Scope toUpdate, Scope oldValu
 @Override
     public Mono<Void> delete_migrated(String scopeId, boolean force, User principal) {
         LOGGER.debug("Delete scope {}", scopeId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(scopeRepository.findById_migrated(scopeId).switchIfEmpty(Mono.error(new ScopeNotFoundException(scopeId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(scopeRepository.findById_migrated(scopeId).switchIfEmpty(Mono.error(new ScopeNotFoundException(scopeId))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope -> {
                     if (scope.isSystem() && !force) {
                         throw new SystemScopeDeleteException(scopeId);
                     }

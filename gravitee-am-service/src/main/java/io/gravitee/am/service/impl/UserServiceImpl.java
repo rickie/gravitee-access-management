@@ -266,7 +266,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 }
 @Override
     public Mono<User> upsertFactor_migrated(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
+        return findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
                     User user = new User(oldUser);
                     List<EnrolledFactor> enrolledFactors = user.getFactors();
                     if (enrolledFactors == null || enrolledFactors.isEmpty()) {

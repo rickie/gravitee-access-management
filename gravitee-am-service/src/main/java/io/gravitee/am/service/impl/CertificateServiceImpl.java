@@ -358,12 +358,12 @@ public class CertificateServiceImpl implements CertificateService {
 @Override
     public Mono<Void> delete_migrated(String certificateId, User principal) {
         LOGGER.debug("Delete certificate {}", certificateId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateRepository.findById_migrated(certificateId).switchIfEmpty(Mono.error(new CertificateNotFoundException(certificateId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificate -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByCertificate_migrated(certificateId)).count()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Long, SingleSource<Certificate>>toJdkFunction(applications -> {
-                            if (applications > 0) {
-                                throw new CertificateWithApplicationsException();
-                            }
-                            return RxJava2Adapter.monoToSingle(Mono.just(certificate));
-                        }).apply(v)))))).apply(y)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Certificate, CompletableSource>)certificate -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(certificateRepository.findById_migrated(certificateId).switchIfEmpty(Mono.error(new CertificateNotFoundException(certificateId))).flatMap(y->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByCertificate_migrated(certificateId)).count()).flatMap((java.lang.Long v)->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long applications)->{
+if (applications > 0) {
+throw new CertificateWithApplicationsException();
+}
+return RxJava2Adapter.monoToSingle(Mono.just(y));
+}).apply(v))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Certificate, CompletableSource>)certificate -> {
                     // create event for sync process
                     Event event = new Event(Type.CERTIFICATE, new Payload(certificate.getId(), ReferenceType.DOMAIN, certificate.getDomain(), Action.DELETE));
                     return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(certificateRepository.delete_migrated(certificateId).then(eventService.create_migrated(event)))

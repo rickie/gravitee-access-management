@@ -80,7 +80,7 @@ public class ApplicationResourcePoliciesResource extends AbstractResource {
             @PathParam("resource") String resource,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))).flatMap(application1->resourceService.findAccessPoliciesByResources_migrated(Collections.singletonList(resource)).map(RxJavaReactorMigrationUtil.toJdkFunction(AccessPolicyListItem::new)).collectList())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))).flatMap(application1->resourceService.findAccessPoliciesByResources_migrated(Collections.singletonList(resource)).map(RxJavaReactorMigrationUtil.toJdkFunction(AccessPolicyListItem::new)).collectList())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{policy}")

@@ -349,7 +349,7 @@ public class DomainServiceImpl implements DomainService {
 @Override
     public Mono<Domain> update_migrated(String domainId, Domain domain) {
         LOGGER.debug("Update an existing domain: {}", domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainRepository.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Domain, SingleSource<Domain>>toJdkFunction(__ -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(domainRepository.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Domain, SingleSource<Domain>>toJdkFunction(__ -> {
                     domain.setHrid(IdGenerator.generate(domain.getName()));
                     domain.setUpdatedAt(new Date());
                     return RxJava2Adapter.monoToSingle(validateDomain_migrated(domain).then(Mono.defer(()->domainRepository.update_migrated(domain))));

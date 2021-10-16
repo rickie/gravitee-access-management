@@ -71,6 +71,6 @@ public class ApplicationAnalyticsResource extends AbstractResource {
         query.setInterval(param.getInterval());
         query.setSize(param.getSize());
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.APPLICATION_ANALYTICS, Acl.READ).then(applicationAnalyticsService.execute_migrated(query)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.APPLICATION_ANALYTICS, Acl.READ).then(applicationAnalyticsService.execute_migrated(query)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

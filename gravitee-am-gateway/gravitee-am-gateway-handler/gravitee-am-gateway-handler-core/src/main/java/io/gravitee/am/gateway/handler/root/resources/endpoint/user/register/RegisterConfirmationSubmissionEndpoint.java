@@ -92,6 +92,6 @@ public class RegisterConfirmationSubmissionEndpoint extends UserRequestHandler {
     }
 
     private void confirmRegistration(Client client, User user, io.gravitee.am.identityprovider.api.User principal, Handler<AsyncResult<RegistrationResponse>> handler) {
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.confirmRegistration_migrated(client, user, principal))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response -> handler.handle(Future.succeededFuture(response))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+        userService.confirmRegistration_migrated(client, user, principal).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response -> handler.handle(Future.succeededFuture(response))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 }

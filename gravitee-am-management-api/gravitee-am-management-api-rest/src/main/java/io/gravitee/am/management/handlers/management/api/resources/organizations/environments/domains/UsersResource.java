@@ -96,8 +96,8 @@ public class UsersResource extends AbstractUsersResource {
 
         io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.LIST).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(searchUsers_migrated(ReferenceType.DOMAIN, domain, query, filter, page, size)))).flatMap(pagedUsers->hasAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).flatMap(hasPermission->RxJava2Adapter.singleToMono(Observable.fromIterable(pagedUsers.getData()).flatMapSingle((io.gravitee.am.model.User user)->RxJava2Adapter.monoToSingle(filterUserInfos_migrated(hasPermission, user))).toSortedList(Comparator.comparing(User::getUsername))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.User> users)->new Page<>(users, pagedUsers.getCurrentPage(), pagedUsers.getTotalCount())))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.LIST).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(searchUsers_migrated(ReferenceType.DOMAIN, domain, query, filter, page, size)))).flatMap(pagedUsers->hasAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).flatMap(hasPermission->RxJava2Adapter.singleToMono(Observable.fromIterable(pagedUsers.getData()).flatMapSingle((io.gravitee.am.model.User user)->RxJava2Adapter.monoToSingle(filterUserInfos_migrated(hasPermission, user))).toSortedList(Comparator.comparing(User::getUsername))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.User> users)->new Page<>(users, pagedUsers.getCurrentPage(), pagedUsers.getTotalCount())))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST
@@ -120,11 +120,11 @@ public class UsersResource extends AbstractUsersResource {
 
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domainId, Permission.DOMAIN_USER, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))))
+        checkAnyPermission_migrated(organizationId, environmentId, domainId, Permission.DOMAIN_USER, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))))
                         .flatMapSingle(domain -> RxJava2Adapter.monoToSingle(userService.create_migrated(domain, newUser, authenticatedUser)))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domainId + "/users/" + user.getId()))
                                 .entity(user)
-                                .build()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                                .build()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{user}")

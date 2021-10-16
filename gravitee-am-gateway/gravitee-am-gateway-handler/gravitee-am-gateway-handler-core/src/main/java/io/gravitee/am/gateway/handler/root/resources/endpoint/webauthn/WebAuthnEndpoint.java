@@ -55,7 +55,7 @@ public abstract class WebAuthnEndpoint extends AbstractEndpoint implements Handl
      * @param handler Response handler
      */
     protected void checkUser(Client client, String username, Request request, Handler<AsyncResult<User>> handler) {
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userAuthenticationManager.loadUserByUsername_migrated(client, username, request))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user -> handler.handle(Future.succeededFuture(user))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new UsernameNotFoundException(username)))));
+        userAuthenticationManager.loadUserByUsername_migrated(client, username, request).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user -> handler.handle(Future.succeededFuture(user))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new UsernameNotFoundException(username)))));
     }
 
     protected static boolean isEmptyString(JsonObject json, String key) {

@@ -71,7 +71,7 @@ public class AuthorizationRequestResolveHandler implements Handler<RoutingContex
     }
 
     private void computeAuthorizationRequest(AuthorizationRequest authorizationRequest, Client client, User endUser, Handler<AsyncResult> handler) {
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authorizationRequestResolver.resolve_migrated(authorizationRequest, client, endUser))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> handler.handle(Future.succeededFuture())), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+        authorizationRequestResolver.resolve_migrated(authorizationRequest, client, endUser).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> handler.handle(Future.succeededFuture())), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 
     private AuthorizationRequest resolveInitialAuthorizeRequest(RoutingContext routingContext) {

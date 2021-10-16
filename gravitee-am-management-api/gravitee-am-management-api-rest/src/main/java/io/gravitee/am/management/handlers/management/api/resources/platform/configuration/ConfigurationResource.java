@@ -53,7 +53,7 @@ public class ConfigurationResource {
     @ApiOperation(value = "Get the Policy Studio flow schema",
             notes = "There is no particular permission needed. User must be authenticated.")
     public void list(@Suspended final AsyncResponse response) {
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowService.getSchema_migrated())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        flowService.getSchema_migrated().subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @GET
@@ -66,7 +66,7 @@ public class ConfigurationResource {
             @ApiResponse(code = 500, message = "Internal server error")})
     public void getAlertServiceStatus(@Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertService.isAlertingAvailable_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(AlertServiceStatusEntity::new)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        alertService.isAlertingAvailable_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(AlertServiceStatusEntity::new)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @GET
@@ -75,7 +75,7 @@ public class ConfigurationResource {
     @ApiOperation(value = "Get the spel grammar",
         notes = "There is no particular permission needed. User must be authenticated.")
     public void getSpelGrammar(@Suspended final AsyncResponse response) {
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(spelService.getGrammar_migrated())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        spelService.getGrammar_migrated().subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
 }

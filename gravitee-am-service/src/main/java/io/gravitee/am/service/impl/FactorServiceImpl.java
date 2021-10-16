@@ -207,12 +207,12 @@ private Mono<Factor> checkFactorConfiguration_migrated(Factor factor) {
     public Mono<Void> delete_migrated(String domain, String factorId, User principal) {
         LOGGER.debug("Delete factor {}", factorId);
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(factorRepository.findById_migrated(factorId).switchIfEmpty(Mono.error(new FactorNotFoundException(factorId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Factor, SingleSource<Factor>>toJdkFunction(factor -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByFactor_migrated(factorId)).count()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Long, SingleSource<Factor>>toJdkFunction(applications -> {
-                            if (applications > 0) {
-                                throw new FactorWithApplicationsException();
-                            }
-                            return RxJava2Adapter.monoToSingle(Mono.just(factor));
-                        }).apply(v)))))).apply(y)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Factor, CompletableSource>)factor -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(factorRepository.findById_migrated(factorId).switchIfEmpty(Mono.error(new FactorNotFoundException(factorId))).flatMap(y->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByFactor_migrated(factorId)).count()).flatMap((java.lang.Long v)->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long applications)->{
+if (applications > 0) {
+throw new FactorWithApplicationsException();
+}
+return RxJava2Adapter.monoToSingle(Mono.just(y));
+}).apply(v))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Factor, CompletableSource>)factor -> {
                     // create event for sync process
                     Event event = new Event(Type.FACTOR, new Payload(factorId, ReferenceType.DOMAIN, domain, Action.DELETE));
                     return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(factorRepository.delete_migrated(factorId).then(eventService.create_migrated(event)))

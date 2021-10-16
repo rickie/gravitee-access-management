@@ -53,7 +53,7 @@ public class ServiceProviderMetadataEndpoint implements Handler<RoutingContext> 
         final String providerId = routingContext.request().getParam("providerId");
         final String basePath = UriBuilderRequest.resolveProxyRequest(routingContext.request(), routingContext.get(CONTEXT_PATH));
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceProviderService.metadata_migrated(providerId, basePath))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(result -> {
+        serviceProviderService.metadata_migrated(providerId, basePath).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(result -> {
                             // prepare response
                             HttpServerResponse response = routingContext.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")

@@ -83,7 +83,7 @@ public class AccountFactorsEndpointHandler {
      */
     public void listAvailableFactors(RoutingContext routingContext) {
         final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accountService.getFactors_migrated(user.getReferenceId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(factors -> AccountResponseHandler.handleDefaultResponse(routingContext, factors)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
+        accountService.getFactors_migrated(user.getReferenceId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(factors -> AccountResponseHandler.handleDefaultResponse(routingContext, factors)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
     }
 
     /**
@@ -181,7 +181,7 @@ public class AccountFactorsEndpointHandler {
                     // send challenge
                     sendChallenge(factorProvider, enrolledFactor, user, routingContext, sh -> {
                         // save enrolled factor
-                        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accountService.upsertFactor_migrated(user.getId(), enrolledFactor, new DefaultUser(user)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactor)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
+                        accountService.upsertFactor_migrated(user.getId(), enrolledFactor, new DefaultUser(user)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactor)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
                     });
                 });
             });
@@ -255,7 +255,7 @@ public class AccountFactorsEndpointHandler {
 
                     // verify successful, change the EnrolledFactor Status
                     enrolledFactor.setStatus(FactorStatus.ACTIVATED);
-                    RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accountService.upsertFactor_migrated(user.getId(), enrolledFactor, new DefaultUser(user)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactor)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
+                    accountService.upsertFactor_migrated(user.getId(), enrolledFactor, new DefaultUser(user)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactor)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
                 });
             });
         } catch (DecodeException ex) {
@@ -315,7 +315,7 @@ public class AccountFactorsEndpointHandler {
         }
 
         EnrolledFactor enrolledFactor = optionalEnrolledFactor.get();
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(factorProvider.generateQrCode_migrated(user, enrolledFactor))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(barCode -> AccountResponseHandler.handleDefaultResponse(routingContext, new JsonObject().put("qrCode", barCode))), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail), RxJavaReactorMigrationUtil.toRunnable(() -> routingContext.fail(404)));
+        factorProvider.generateQrCode_migrated(user, enrolledFactor).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(barCode -> AccountResponseHandler.handleDefaultResponse(routingContext, new JsonObject().put("qrCode", barCode))), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail), RxJavaReactorMigrationUtil.toRunnable(() -> routingContext.fail(404)));
     }
 
     public void updateEnrolledFactor(RoutingContext routingContext) {
@@ -350,7 +350,7 @@ public class AccountFactorsEndpointHandler {
                 // update the factor
                 final EnrolledFactor enrolledFactor = optionalEnrolledFactor.get();
                 enrolledFactor.setPrimary(updateEnrolledFactor.isPrimary());
-                RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accountService.upsertFactor_migrated(user.getId(), enrolledFactor, new DefaultUser(user)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactor)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
+                accountService.upsertFactor_migrated(user.getId(), enrolledFactor, new DefaultUser(user)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledFactor)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
                 });
         } catch (DecodeException ex) {
             routingContext.fail(new InvalidRequestException("Unable to parse body message"));
@@ -369,7 +369,7 @@ public class AccountFactorsEndpointHandler {
     }
 
     private void findFactor(String factorId, Handler<AsyncResult<Factor>> handler) {
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accountService.getFactor_migrated(factorId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(factor -> handler.handle(Future.succeededFuture(factor))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new FactorNotFoundException(factorId)))));
+        accountService.getFactor_migrated(factorId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(factor -> handler.handle(Future.succeededFuture(factor))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new FactorNotFoundException(factorId)))));
     }
 
     private void enrollFactor(Factor factor,
@@ -377,13 +377,13 @@ public class AccountFactorsEndpointHandler {
                               EnrollmentAccount account,
                               User endUser,
                               Handler<AsyncResult<EnrolledFactor>> handler) {
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(factorProvider.enroll_migrated(endUser.getUsername()).map(RxJavaReactorMigrationUtil.toJdkFunction(enrollment -> {
+        factorProvider.enroll_migrated(endUser.getUsername()).map(RxJavaReactorMigrationUtil.toJdkFunction(enrollment -> {
                     final EnrolledFactor enrolledFactor = buildEnrolledFactor(factor, enrollment, account, endUser);
                     if (factorProvider.checkSecurityFactor(enrolledFactor)) {
                         return enrolledFactor;
                     }
                     throw new InvalidFactorAttributeException("Invalid account information");
-                })))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(enrolledFactor -> handler.handle(Future.succeededFuture(enrolledFactor))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+                })).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(enrolledFactor -> handler.handle(Future.succeededFuture(enrolledFactor))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 
     private void verifyFactor(String code,

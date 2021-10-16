@@ -64,7 +64,7 @@ public class AlertTriggersResource extends AbstractResource {
             @PathParam("domain") String domainId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.LIST).thenMany(alertTriggerService.findByDomainAndCriteria_migrated(domainId, new AlertTriggerCriteria())).sort(Comparator.comparingInt(o -> o.getType().getOrder())).collectList())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.LIST).thenMany(alertTriggerService.findByDomainAndCriteria_migrated(domainId, new AlertTriggerCriteria())).sort(Comparator.comparingInt(o -> o.getType().getOrder())).collectList().subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PATCH
@@ -86,7 +86,7 @@ public class AlertTriggersResource extends AbstractResource {
 
         final User authenticatedUser = this.getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.UPDATE).thenMany(Flux.fromIterable(patchAlertTriggers)))
-                .flatMapSingle(patchAlertTrigger -> RxJava2Adapter.monoToSingle(alertTriggerService.createOrUpdate_migrated(ReferenceType.DOMAIN, domainId, patchAlertTrigger, authenticatedUser)))).collectList())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.UPDATE).thenMany(Flux.fromIterable(patchAlertTriggers)))
+                .flatMapSingle(patchAlertTrigger -> RxJava2Adapter.monoToSingle(alertTriggerService.createOrUpdate_migrated(ReferenceType.DOMAIN, domainId, patchAlertTrigger, authenticatedUser)))).collectList().subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

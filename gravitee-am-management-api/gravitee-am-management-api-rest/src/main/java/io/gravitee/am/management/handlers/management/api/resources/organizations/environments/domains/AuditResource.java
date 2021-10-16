@@ -64,6 +64,6 @@ public class AuditResource extends AbstractResource {
             @PathParam("audit") String audit,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.maybeToMono(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_AUDIT, Acl.READ).then(auditService.findById_migrated(domain, audit)).as(RxJava2Adapter::monoToMaybe)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_AUDIT, Acl.READ).then(auditService.findById_migrated(domain, audit)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

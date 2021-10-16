@@ -92,6 +92,6 @@ public class UserTokenRequestParseHandler extends UserRequestHandler {
     }
 
     private void parseToken(String token, Handler<AsyncResult<UserToken>> handler) {
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.verifyToken_migrated(token))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(userToken -> handler.handle(Future.succeededFuture(userToken))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new InvalidTokenException("The JWT token is invalid")))));
+        userService.verifyToken_migrated(token).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(userToken -> handler.handle(Future.succeededFuture(userToken))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new InvalidTokenException("The JWT token is invalid")))));
     }
 }

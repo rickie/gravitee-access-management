@@ -42,7 +42,7 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
 
     public void get(RoutingContext context) {
         final String groupId = context.request().getParam("id");
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(groupService.get_migrated(groupId, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(group -> context.response()
+        groupService.get_migrated(groupId, location(context.request())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(group -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -107,7 +107,7 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
                 return;
             }
 
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(groupService.update_migrated(groupId, group, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(group1 -> context.response()
+            groupService.update_migrated(groupId, group, location(context.request())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(group1 -> context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -166,7 +166,7 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
                 return;
             }
 
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(groupService.patch_migrated(groupId, patchOp, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(group1 -> context.response()
+            groupService.patch_migrated(groupId, patchOp, location(context.request())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(group1 -> context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)

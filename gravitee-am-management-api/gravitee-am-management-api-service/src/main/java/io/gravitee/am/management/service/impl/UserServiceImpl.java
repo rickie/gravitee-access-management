@@ -301,7 +301,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
                                 return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
                                         .flatMapSingle(userProvider -> {
                                             // update idp user
-                                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated(user.getUsername()).switchIfEmpty(Mono.error(new UserNotFoundException(user.getUsername()))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(idpUser -> {
+                                            return RxJava2Adapter.monoToSingle(userProvider.findByUsername_migrated(user.getUsername()).switchIfEmpty(Mono.error(new UserNotFoundException(user.getUsername()))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(idpUser -> {
                                                         // set password
                                                         ((DefaultUser) idpUser).setCredentials(password);
                                                         return RxJava2Adapter.monoToSingle(userProvider.update_migrated(idpUser.getId(), idpUser));
@@ -410,11 +410,11 @@ return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(checkClientFu
 }
 @Override
     public Mono<User> enrollFactors_migrated(String userId, List<EnrolledFactor> factors, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
                     User userToUpdate = new User(oldUser);
                     userToUpdate.setFactors(factors);
                     return RxJava2Adapter.monoToSingle(userService.update_migrated(userToUpdate).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).user(user1).oldValue(oldUser)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))));
-                }).apply(y))))));
+                }).apply(y))));
     }
 
     public void setExpireAfter(Integer expireAfter) {

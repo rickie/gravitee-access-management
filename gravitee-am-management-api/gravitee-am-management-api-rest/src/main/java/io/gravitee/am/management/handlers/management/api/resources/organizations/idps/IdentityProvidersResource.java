@@ -71,12 +71,12 @@ public class IdentityProvidersResource extends AbstractResource {
             @QueryParam("userProvider") boolean userProvider,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.LIST).then(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, organizationId).filter(RxJavaReactorMigrationUtil.toJdkPredicate(identityProvider -> {
+        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.LIST).then(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, organizationId).filter(RxJavaReactorMigrationUtil.toJdkPredicate(identityProvider -> {
                             if (userProvider) {
                                 return identityProviderManager.userProviderExists(identityProvider.getId());
                             }
                             return true;
-                        })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterIdentityProviderInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterIdentityProviderInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST
@@ -94,10 +94,10 @@ public class IdentityProvidersResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.CREATE).then(identityProviderService.create_migrated(ReferenceType.ORGANIZATION, organizationId, newIdentityProvider, authenticatedUser).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProvider -> Response
+        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_IDENTITY_PROVIDER, Acl.CREATE).then(identityProviderService.create_migrated(ReferenceType.ORGANIZATION, organizationId, newIdentityProvider, authenticatedUser).map(RxJavaReactorMigrationUtil.toJdkFunction(identityProvider -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/identities/" + identityProvider.getId()))
                                 .entity(identityProvider)
-                                .build()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                                .build()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{identity}")

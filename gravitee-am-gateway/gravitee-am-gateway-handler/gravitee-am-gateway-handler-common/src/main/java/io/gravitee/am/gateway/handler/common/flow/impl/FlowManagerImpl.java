@@ -164,7 +164,7 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
     private void updateFlow(String flowId, FlowEvent flowEvent) {
         final String eventType = flowEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} flow event for {}", domain.getName(), eventType, flowId);
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(flowService.findById_migrated(flowId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(flow -> {
+        flowService.findById_migrated(flowId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(flow -> {
                             loadFlow(flow);
                             flows.put(flow.getId(), flow);
                             logger.info("Flow {} has been deployed for domain {}", flowId, domain.getName());
@@ -180,7 +180,7 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
     }
 
     private void loadFlows() {
-        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(flow -> {
+        flowService.findAll_migrated(ReferenceType.DOMAIN, domain.getId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(flow -> {
                             if (flow != null && flow.getId() != null) {
                                 loadFlow(flow);
                                 flows.put(flow.getId(), flow);

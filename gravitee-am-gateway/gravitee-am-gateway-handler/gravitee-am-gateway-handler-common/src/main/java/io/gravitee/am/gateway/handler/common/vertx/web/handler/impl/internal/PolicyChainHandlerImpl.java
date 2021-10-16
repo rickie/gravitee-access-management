@@ -135,7 +135,7 @@ public class PolicyChainHandlerImpl implements Handler<RoutingContext> {
     }
 
     private void resolve(ExecutionContext executionContext, Handler<AsyncResult<List<Policy>>> handler) {
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowManager.findByExtensionPoint_migrated(extensionPoint, (Client)executionContext.getAttribute(ConstantKeys.CLIENT_CONTEXT_KEY), FlowPredicate.from(executionContext)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(policies -> handler.handle(Future.succeededFuture(policies))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+        flowManager.findByExtensionPoint_migrated(extensionPoint, (Client)executionContext.getAttribute(ConstantKeys.CLIENT_CONTEXT_KEY), FlowPredicate.from(executionContext)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(policies -> handler.handle(Future.succeededFuture(policies))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 
     private void prepareContext(RoutingContext routingContext, Handler<AsyncResult<ExecutionContext>> handler) {

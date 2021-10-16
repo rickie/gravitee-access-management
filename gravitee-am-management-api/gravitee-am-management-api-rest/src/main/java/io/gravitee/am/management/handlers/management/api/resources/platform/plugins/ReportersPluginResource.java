@@ -51,9 +51,9 @@ public class ReportersPluginResource {
             notes = "There is no particular permission needed. User must be authenticated.")
     public void list(@Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(reporterPluginService.findAll_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPlugins -> reporterPlugins.stream()
+        reporterPluginService.findAll_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(reporterPlugins -> reporterPlugins.stream()
                         .sorted(Comparator.comparing(ReporterPlugin::getName))
-                        .collect(Collectors.toList()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        .collect(Collectors.toList()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{reporter}")

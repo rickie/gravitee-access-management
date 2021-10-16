@@ -110,7 +110,7 @@ public class IdentityProviderManagerImpl implements IdentityProviderManager, Ini
     private void updateIdentityProvider(String identityProviderId, String organizationId, IdentityProviderEvent identityProviderEvent) {
         final String eventType = identityProviderEvent.toString().toLowerCase();
         logger.info("Organization {} has received {} identity provider event for {}", organizationId, eventType, identityProviderId);
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(identityProviderId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(identityProvider -> {
+        identityProviderService.findById_migrated(identityProviderId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(identityProvider -> {
                             updateAuthenticationProvider(identityProvider);
                             logger.info("Identity provider {} {}d for organization {}", identityProviderId, eventType, organizationId);
                         }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} identity provider for organization {}", eventType, organizationId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No identity provider found with id {}", identityProviderId)));

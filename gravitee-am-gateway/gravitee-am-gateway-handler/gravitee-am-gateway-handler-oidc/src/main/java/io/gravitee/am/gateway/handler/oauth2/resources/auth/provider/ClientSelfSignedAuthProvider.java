@@ -69,7 +69,7 @@ public class ClientSelfSignedAuthProvider implements ClientAuthProvider {
             X509Certificate peerCertificate = (X509Certificate) peerCertificates[0];
             String thumbprint = getThumbprint(peerCertificate, "SHA-1");
             String thumbprint256 = getThumbprint(peerCertificate, "SHA-256");
-            RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(jwkSet -> {
+            jwkService.getKeys_migrated(client).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(jwkSet -> {
                                 boolean match = jwkSet.getKeys()
                                         .stream()
                                         .anyMatch(jwk -> thumbprint256.equals(jwk.getX5tS256()) || thumbprint.equals(jwk.getX5t()));

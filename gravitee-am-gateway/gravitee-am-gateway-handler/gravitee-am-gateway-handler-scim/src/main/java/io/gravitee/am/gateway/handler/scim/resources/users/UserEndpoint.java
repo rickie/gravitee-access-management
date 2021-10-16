@@ -43,7 +43,7 @@ public class UserEndpoint extends AbstractUserEndpoint {
 
     public void get(RoutingContext context) {
         final String userId = context.request().getParam("id");
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.get_migrated(userId, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user -> context.response()
+        userService.get_migrated(userId, location(context.request())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -109,7 +109,7 @@ public class UserEndpoint extends AbstractUserEndpoint {
                 return;
             }
 
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.update_migrated(userId, user, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> context.response()
+            userService.update_migrated(userId, user, location(context.request())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -168,7 +168,7 @@ public class UserEndpoint extends AbstractUserEndpoint {
                 return;
             }
 
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.patch_migrated(userId, patchOp, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> context.response()
+            userService.patch_migrated(userId, patchOp, location(context.request())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)

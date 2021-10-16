@@ -57,7 +57,7 @@ public class ResolvePropertyCommandHandler implements TriggerProvider.OnCommandR
     public <T> void doOnCommand(Command command, Handler<T> resultHandler) {
         LOGGER.debug("Received a command from alert engine {}.", command);
         if (command instanceof ResolvePropertyCommand) {
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(resolveProperties_migrated((ResolvePropertyCommand) command))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(result -> resultHandler.handle((T) result)), RxJavaReactorMigrationUtil.toJdkConsumer(error -> resultHandler.handle(null)));
+            resolveProperties_migrated((ResolvePropertyCommand) command).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(result -> resultHandler.handle((T) result)), RxJavaReactorMigrationUtil.toJdkConsumer(error -> resultHandler.handle(null)));
         } else {
             LOGGER.warn("Unknown alert command: {}", command);
             resultHandler.handle(null);

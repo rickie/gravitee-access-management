@@ -73,7 +73,7 @@ public class GroupMembersResource extends AbstractResource {
             @QueryParam("size") @DefaultValue(MAX_MEMBERS_SIZE_PER_PAGE_STRING) int size,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.READ).then(groupService.findMembers_migrated(ReferenceType.ORGANIZATION, organizationId, group, page, Integer.min(size, MAX_MEMBERS_SIZE_PER_PAGE)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Page<io.gravitee.am.model.User>, SingleSource<Page<io.gravitee.am.model.User>>>toJdkFunction(pagedMembers -> {
+        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.READ).then(groupService.findMembers_migrated(ReferenceType.ORGANIZATION, organizationId, group, page, Integer.min(size, MAX_MEMBERS_SIZE_PER_PAGE)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Page<io.gravitee.am.model.User>, SingleSource<Page<io.gravitee.am.model.User>>>toJdkFunction(pagedMembers -> {
                             if (pagedMembers.getData() == null) {
                                 return RxJava2Adapter.monoToSingle(Mono.just(pagedMembers));
                             }
@@ -88,7 +88,7 @@ public class GroupMembersResource extends AbstractResource {
                                         return RxJava2Adapter.monoToSingle(Mono.just(member));
                                     })
                                     .toSortedList(Comparator.comparing(User::getUsername))).map(RxJavaReactorMigrationUtil.toJdkFunction(members -> new Page<>(members, pagedMembers.getCurrentPage(), pagedMembers.getTotalCount()))));
-                        }).apply(v))))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        }).apply(v))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @Path("{member}")

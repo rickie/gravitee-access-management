@@ -46,7 +46,7 @@ public class ProviderJWKSetEndpoint implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext context) {
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwkService.getKeys_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(JWKConverter::convert)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(keys -> context.response()
+        jwkService.getKeys_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(JWKConverter::convert)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(keys -> context.response()
                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                 .putHeader(HttpHeaders.CONTENT_TYPE, "application/jwk-set+json; charset=UTF-8")

@@ -76,7 +76,7 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing emails for domain {}", domain.getName());
-        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(emailRepository.findAll_migrated(ReferenceType.DOMAIN, domain.getId()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::updateEmail), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize emails for domain {}", domain.getName(), error)));
+        emailRepository.findAll_migrated(ReferenceType.DOMAIN, domain.getId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::updateEmail), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize emails for domain {}", domain.getName(), error)));
     }
 
     @Override
@@ -142,7 +142,7 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
     private void updateEmail(String emailId, EmailEvent emailEvent) {
         final String eventType = emailEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} email event for {}", domain.getName(), eventType, emailId);
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(emailRepository.findById_migrated(emailId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(email -> {
+        emailRepository.findById_migrated(emailId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(email -> {
                             // check if email has been disabled
                             if (emails.containsKey(emailId) && !email.isEnabled()) {
                                 removeEmail(emailId);

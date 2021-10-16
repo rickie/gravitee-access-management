@@ -79,7 +79,7 @@ public class UsersEndpoint extends AbstractUserEndpoint {
         }
 
         // user service use 0-based index
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.list_migrated(filter, page - 1, size, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(users -> context.response()
+        userService.list_migrated(filter, page - 1, size, location(context.request())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(users -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
@@ -148,7 +148,7 @@ public class UsersEndpoint extends AbstractUserEndpoint {
                 return;
             }
 
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.create_migrated(user, location(context.request())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> context.response()
+            userService.create_migrated(user, location(context.request())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> context.response()
                                     .setStatusCode(201)
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")

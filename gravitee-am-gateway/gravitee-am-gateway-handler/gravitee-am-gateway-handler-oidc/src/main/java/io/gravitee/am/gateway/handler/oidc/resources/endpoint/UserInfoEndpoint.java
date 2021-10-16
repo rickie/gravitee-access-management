@@ -88,7 +88,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String subject = accessToken.getSub();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(subject).switchIfEmpty(Mono.error(new InvalidTokenException("No user found for this token"))))
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(subject).switchIfEmpty(Mono.error(new InvalidTokenException("No user found for this token"))))
                 // enhance user information
                 .flatMapSingle(user -> RxJava2Adapter.monoToSingle(enhance_migrated(user, accessToken)))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> processClaims(user, accessToken))).flatMap(v->RxJava2Adapter.singleToMono((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Map<String, Object>, Single<String>>)claims -> {
                         if (!expectSignedOrEncryptedUserInfo(client)) {
@@ -106,7 +106,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
 
                             return RxJava2Adapter.monoToSingle(jwtService.encodeUserinfo_migrated(jwt, client).flatMap(userinfo->jweService.encryptUserinfo_migrated(userinfo, client)));//Encrypt if needed, else return JWT
                         }
-                    }).apply(v))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(buffer -> context.response()
+                    }).apply(v))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(buffer -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .end(buffer)), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));

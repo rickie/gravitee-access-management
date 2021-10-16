@@ -56,7 +56,7 @@ public class FactorPluginResource {
     public void get(@PathParam("factor") String authenticatorId,
                     @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticatorPluginService.findById_migrated(authenticatorId).switchIfEmpty(Mono.error(new AuthenticatorPluginNotFoundException(authenticatorId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        authenticatorPluginService.findById_migrated(authenticatorId).switchIfEmpty(Mono.error(new AuthenticatorPluginNotFoundException(authenticatorId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @GET
@@ -68,6 +68,6 @@ public class FactorPluginResource {
                           @Suspended final AsyncResponse response) {
 
         // Check that the authenticator exists
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticatorPluginService.findById_migrated(factorId).switchIfEmpty(Mono.error(new AuthenticatorPluginNotFoundException(factorId))).flatMap(z->authenticatorPluginService.getSchema_migrated(factorId)).switchIfEmpty(Mono.error(new AuthenticatorPluginSchemaNotFoundException(factorId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        authenticatorPluginService.findById_migrated(factorId).switchIfEmpty(Mono.error(new AuthenticatorPluginNotFoundException(factorId))).flatMap(z->authenticatorPluginService.getSchema_migrated(factorId)).switchIfEmpty(Mono.error(new AuthenticatorPluginSchemaNotFoundException(factorId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

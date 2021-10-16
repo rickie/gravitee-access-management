@@ -69,7 +69,7 @@ public class RequestObjectRegistrationEndpoint implements Handler<RoutingContext
         request.setRequest(context.getBodyAsString());
         request.setOrigin(extractOrigin(context));
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(requestObjectService.registerRequestObject_migrated(request, client))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(new Consumer<RequestObjectRegistrationResponse>() {
+        requestObjectService.registerRequestObject_migrated(request, client).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(new Consumer<RequestObjectRegistrationResponse>() {
                     @Override
                     public void accept(RequestObjectRegistrationResponse response) throws Exception {
                         context.response()

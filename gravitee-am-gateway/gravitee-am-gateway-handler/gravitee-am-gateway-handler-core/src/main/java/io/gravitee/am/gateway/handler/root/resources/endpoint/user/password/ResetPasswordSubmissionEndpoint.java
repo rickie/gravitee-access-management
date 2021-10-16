@@ -91,6 +91,6 @@ public class ResetPasswordSubmissionEndpoint extends UserRequestHandler {
     }
 
     private void resetPassword(Client client, User user, io.gravitee.am.identityprovider.api.User principal, Handler<AsyncResult<ResetPasswordResponse>> handler) {
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.resetPassword_migrated(client, user, principal))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response -> handler.handle(Future.succeededFuture(response))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+        userService.resetPassword_migrated(client, user, principal).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response -> handler.handle(Future.succeededFuture(response))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
     }
 }

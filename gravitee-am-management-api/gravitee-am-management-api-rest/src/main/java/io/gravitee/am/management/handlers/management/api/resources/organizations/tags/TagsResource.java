@@ -66,7 +66,7 @@ public class TagsResource extends AbstractResource {
             @PathParam("organizationId") String organizationId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.LIST).thenMany(tagService.findAll_migrated(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterTagInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.LIST).thenMany(tagService.findAll_migrated(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterTagInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList().subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST
@@ -84,7 +84,7 @@ public class TagsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.CREATE).then(tagService.create_migrated(newTag, organizationId, authenticatedUser)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(tag -> response.resume(Response
+        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_TAG, Acl.CREATE).then(tagService.create_migrated(newTag, organizationId, authenticatedUser)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(tag -> response.resume(Response
                                 .created(URI.create("/organizations/" + organizationId + "/tags/" + tag.getId()))
                                 .entity(tag)
                                 .build())), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));

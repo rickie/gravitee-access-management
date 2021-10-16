@@ -82,13 +82,13 @@ public class RoleResource extends AbstractResource {
             @PathParam("role") String role,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.maybeToMono(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->roleService.findById_migrated(role)).switchIfEmpty(Mono.error(new RoleNotFoundException(role))).map(RxJavaReactorMigrationUtil.toJdkFunction(role1 -> {
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->roleService.findById_migrated(role)).switchIfEmpty(Mono.error(new RoleNotFoundException(role))).map(RxJavaReactorMigrationUtil.toJdkFunction(role1 -> {
                             if (role1.getReferenceType() == ReferenceType.DOMAIN
                                     && !role1.getReferenceId().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("Role does not belong to domain");
                             }
                             return Response.ok(convert(role1)).build();
-                        }))).as(RxJava2Adapter::monoToMaybe)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        }))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PUT
@@ -111,8 +111,8 @@ public class RoleResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(irrelevant -> roleService.update(domain, role, convert(updateRole), authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_ROLE, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(irrelevant -> roleService.update(domain, role, convert(updateRole), authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE

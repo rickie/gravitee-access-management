@@ -144,6 +144,6 @@ public class ErrorEndpoint implements Handler<RoutingContext> {
     }
 
     private void resolveClient(String clientId, Handler<AsyncResult<Client>> handler) {
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientSyncService.findByDomainAndClientId_migrated(domain, clientId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> handler.handle(Future.succeededFuture(client))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new ClientNotFoundException(clientId)))));
+        clientSyncService.findByDomainAndClientId_migrated(domain, clientId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> handler.handle(Future.succeededFuture(client))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new ClientNotFoundException(clientId)))));
     }
 }
