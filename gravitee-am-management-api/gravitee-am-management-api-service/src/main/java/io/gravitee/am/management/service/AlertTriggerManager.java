@@ -109,7 +109,7 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
 
         final Payload payload = (Payload) event.content();
         RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(payload.getReferenceId()))
-                .flatMapPublisher((io.gravitee.am.model.Domain ident) -> prepareAETriggers_migrated(ident))
+                .flatMapPublisher(this::prepareAETriggers_migrated)
                 .flatMapSingle((io.gravitee.alert.api.trigger.Trigger ident) -> RxJava2Adapter.monoToSingle(registerAETrigger_migrated(ident)))
                 .count()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(count -> LOGGER.info("{} alert triggers synchronized with the alerting system for domain [{}].", count, payload.getReferenceId())), RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> LOGGER.error("An error occurred when trying to synchronize alert triggers with alerting system for domain [{}]", payload.getReferenceId(), throwable)));
     }

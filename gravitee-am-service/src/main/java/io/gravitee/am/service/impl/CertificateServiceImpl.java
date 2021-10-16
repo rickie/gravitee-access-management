@@ -218,7 +218,7 @@ public class CertificateServiceImpl implements CertificateService {
                     }
                 });
 
-        return RxJava2Adapter.singleToMono(certificateSingle).flatMap(v->certificateRepository.create_migrated(v)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificate -> {
+        return RxJava2Adapter.singleToMono(certificateSingle).flatMap(certificateRepository::create_migrated).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificate -> {
                     Event event = new Event(Type.CERTIFICATE, new Payload(certificate.getId(), ReferenceType.DOMAIN, certificate.getDomain(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(certificate)));
                 }).apply(v)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(ex -> {
@@ -317,14 +317,13 @@ public class CertificateServiceImpl implements CertificateService {
                         emitter.onSuccess(certificateToUpdate);
                     });
 
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateSingle).flatMap(t->certificateRepository.update_migrated(t)).flatMap(o->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificate1 -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(certificateSingle).flatMap(t->certificateRepository.update_migrated(t)).flatMap(o->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Certificate, SingleSource<Certificate>>toJdkFunction(certificate1 -> {
                                 Event event = new Event(Type.CERTIFICATE, new Payload(certificate1.getId(), ReferenceType.DOMAIN, certificate1.getDomain(), Action.UPDATE));
                                 return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(certificate1)));
-                            }).apply(o)))))
-                            .onErrorResumeNext(ex -> {
+                            }).apply(o)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Certificate>>toJdkFunction(ex -> {
                                 LOGGER.error("An error occurs while trying to update a certificate", ex);
                                 throw new TechnicalManagementException("An error occurs while trying to update a certificate", ex);
-                            })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(certificate -> auditService.report(AuditBuilder.builder(CertificateAuditBuilder.class).principal(principal).type(EventType.CERTIFICATE_UPDATED).oldValue(oldCertificate).certificate(certificate)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(CertificateAuditBuilder.class).principal(principal).type(EventType.CERTIFICATE_UPDATED).throwable(throwable)))));
+                            }).apply(err))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(certificate -> auditService.report(AuditBuilder.builder(CertificateAuditBuilder.class).principal(principal).type(EventType.CERTIFICATE_UPDATED).oldValue(oldCertificate).certificate(certificate)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(CertificateAuditBuilder.class).principal(principal).type(EventType.CERTIFICATE_UPDATED).throwable(throwable)))));
                 }).apply(v)));
     }
 
@@ -358,12 +357,12 @@ public class CertificateServiceImpl implements CertificateService {
 @Override
     public Mono<Void> delete_migrated(String certificateId, User principal) {
         LOGGER.debug("Delete certificate {}", certificateId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(certificateRepository.findById_migrated(certificateId).switchIfEmpty(Mono.error(new CertificateNotFoundException(certificateId))).flatMap(y->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByCertificate_migrated(certificateId)).count()).flatMap((java.lang.Long v)->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long applications)->{
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(certificateRepository.findById_migrated(certificateId).switchIfEmpty(Mono.error(new CertificateNotFoundException(certificateId))).flatMap(y->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByCertificate_migrated(certificateId)).count()).flatMap((java.lang.Long v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long applications)->{
 if (applications > 0) {
 throw new CertificateWithApplicationsException();
 }
 return RxJava2Adapter.monoToSingle(Mono.just(y));
-}).apply(v))))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Certificate, CompletableSource>)certificate -> {
+}).apply(v)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Certificate, CompletableSource>)certificate -> {
                     // create event for sync process
                     Event event = new Event(Type.CERTIFICATE, new Payload(certificate.getId(), ReferenceType.DOMAIN, certificate.getDomain(), Action.DELETE));
                     return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(certificateRepository.delete_migrated(certificateId).then(eventService.create_migrated(event)))

@@ -108,7 +108,7 @@ public class UserResource extends AbstractResource {
                                 throw new BadRequestException("User does not belong to domain");
                             }
                             return RxJava2Adapter.monoToMaybe(Mono.just(new UserEntity(user1)));
-                        }).apply(v)))).flatMap(v->enhanceIdentityProvider_migrated(v)).flatMap(v->enhanceClient_migrated(v))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        }).apply(v)))).flatMap(this::enhanceIdentityProvider_migrated).flatMap(this::enhanceClient_migrated)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PUT

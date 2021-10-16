@@ -204,18 +204,14 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
                                                 // store user in its identity provider:
                                                 // - perform first validation of user to avoid error status 500 when the IDP is based on relational databases
                                                 // - in case of error, trace the event otherwise continue the creation process
-                                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userValidator.validate_migrated(transform(newUser)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).throwable(throwable)))).then(userProvider.create_migrated(convert(newUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(idpUser -> {
+                                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userValidator.validate_migrated(transform(newUser)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).throwable(throwable)))).then(userProvider.create_migrated(convert(newUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(idpUser -> {
                                                             // AM 'users' collection is not made for authentication (but only management stuff)
                                                             // clear password
                                                             newUser.setPassword(null);
                                                             // set external id
                                                             newUser.setExternalId(idpUser.getId());
                                                             return newUser;
-                                                        })))
-                                                        // if a user is already in the identity provider but not in the AM users collection,
-                                                        // it means that the user is coming from a pre-filled AM compatible identity provider (user creation enabled)
-                                                        // try to create the user with the idp user information
-                                                        .onErrorResumeNext(ex -> {
+                                                        })))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<NewUser>>toJdkFunction(ex -> {
                                                             if (ex instanceof UserAlreadyExistsException) {
                                                                 return RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated(newUser.getUsername()))
                                                                         // double check user existence for case sensitive
@@ -236,7 +232,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
                                                             } else {
                                                                 return RxJava2Adapter.monoToSingle(Mono.error(ex));
                                                             }
-                                                        })).flatMap(x->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.service.model.NewUser, SingleSource<io.gravitee.am.model.User>>toJdkFunction(newUser1 -> {
+                                                        }).apply(err))))).flatMap(x->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.service.model.NewUser, SingleSource<io.gravitee.am.model.User>>toJdkFunction(newUser1 -> {
                                                             User user = transform(newUser1);
                                                             AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
                                                             if (newUser.isPreRegistration() && accountSettings != null && accountSettings.isDynamicUserRegistration()) {
@@ -301,19 +297,18 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
                                 return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
                                         .flatMapSingle(userProvider -> {
                                             // update idp user
-                                            return RxJava2Adapter.monoToSingle(userProvider.findByUsername_migrated(user.getUsername()).switchIfEmpty(Mono.error(new UserNotFoundException(user.getUsername()))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(idpUser -> {
+                                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userProvider.findByUsername_migrated(user.getUsername()).switchIfEmpty(Mono.error(new UserNotFoundException(user.getUsername()))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction(idpUser -> {
                                                         // set password
                                                         ((DefaultUser) idpUser).setCredentials(password);
                                                         return RxJava2Adapter.monoToSingle(userProvider.update_migrated(idpUser.getId(), idpUser));
-                                                    }).apply(y)))))
-                                                    .onErrorResumeNext(ex -> {
+                                                    }).apply(y)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<io.gravitee.am.identityprovider.api.User>>toJdkFunction(ex -> {
                                                         if (ex instanceof UserNotFoundException) {
                                                             // idp user not found, create its account
                                                             user.setPassword(password);
                                                             return RxJava2Adapter.monoToSingle(userProvider.create_migrated(convert(user)));
                                                         }
                                                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
-                                                    });
+                                                    }).apply(err))));
                                         })).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(idpUser -> {
                                             // update 'users' collection for management and audit purpose
                                             // if user was in pre-registration mode, end the registration process
@@ -410,7 +405,7 @@ return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(checkClientFu
 }
 @Override
     public Mono<User> enrollFactors_migrated(String userId, List<EnrolledFactor> factors, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
+        return userService.findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
                     User userToUpdate = new User(oldUser);
                     userToUpdate.setFactors(factors);
                     return RxJava2Adapter.monoToSingle(userService.update_migrated(userToUpdate).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).user(user1).oldValue(oldUser)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))));

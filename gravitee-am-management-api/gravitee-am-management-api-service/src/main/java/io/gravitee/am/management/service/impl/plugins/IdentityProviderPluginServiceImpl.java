@@ -82,13 +82,12 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
 @Override
     public Mono<List<IdentityProviderPlugin>> findAll_migrated(Boolean external, List<String> expand) {
         LOGGER.debug("List all identity provider plugins");
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromIterable(identityProviderPluginManager.getAll().entrySet()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(entry -> (external != null && external) == entry.getKey().external())))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromIterable(identityProviderPluginManager.getAll().entrySet()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(entry -> (external != null && external) == entry.getKey().external())))
             .map(entry -> convert(entry.getValue(), expand))
-            .toList()
-            .onErrorResumeNext(ex -> {
+            .toList()).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<List<IdentityProviderPlugin>>>toJdkFunction(ex -> {
                 LOGGER.error("An error occurs while trying to list all identity provider plugins", ex);
                 return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to list all identity provider plugins", ex)));
-            }));
+            }).apply(err)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(identityProviderId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

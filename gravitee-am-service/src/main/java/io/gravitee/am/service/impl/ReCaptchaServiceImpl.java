@@ -86,7 +86,7 @@ public class ReCaptchaServiceImpl implements ReCaptchaService {
             return Mono.just(false);
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.post(URI.create(serviceUrl).toString())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.post(URI.create(serviceUrl).toString())
                 .rxSendForm(MultiMap.caseInsensitiveMultiMap().set("secret", secretKey).set("response", token))).map(RxJavaReactorMigrationUtil.toJdkFunction(buffer -> {
                     Map res = objectMapper.readValue(buffer.bodyAsString(), Map.class);
 
@@ -97,11 +97,10 @@ public class ReCaptchaServiceImpl implements ReCaptchaService {
 
                     // Result should be successful and score above 0.5.
                     return (success && score >= minScore);
-                })))
-                .onErrorResumeNext(throwable -> {
+                })))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Boolean>>toJdkFunction(throwable -> {
                     logger.error("An error occurred when trying to validate ReCaptcha token.", throwable);
                     return RxJava2Adapter.monoToSingle(Mono.just(false));
-                }));
+                }).apply(err)))));
     }
 
     public boolean isEnabled() {

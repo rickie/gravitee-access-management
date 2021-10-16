@@ -102,7 +102,7 @@ public abstract class AbstractUserService<T extends io.gravitee.am.service.Commo
 
     
 private Mono<User> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser, io.gravitee.am.identityprovider.api.User principal, BiFunction<String, String, Maybe<Application>> checkClient) {
-        return userValidator.validate_migrated(updateUser).then(getUserService().findById_migrated(referenceType, referenceId, id).flatMap(user->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<UserProvider, SingleSource<UserProvider>>toJdkFunction((io.gravitee.am.identityprovider.api.UserProvider userProvider)->{
+        return userValidator.validate_migrated(updateUser).then(getUserService().findById_migrated(referenceType, referenceId, id).flatMap(user->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<UserProvider, SingleSource<UserProvider>>toJdkFunction((io.gravitee.am.identityprovider.api.UserProvider userProvider)->{
 String client = updateUser.getClient() != null ? updateUser.getClient() : user.getClient();
 if (client != null && referenceType == ReferenceType.DOMAIN) {
 return checkClient.apply(referenceId, client).flatMapSingle((io.gravitee.am.model.Application client1)->{
@@ -114,12 +114,12 @@ return RxJava2Adapter.monoToSingle(Mono.just(userProvider));
 }).apply(y)))).flatMap(userProvider->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated(user.getUsername()).switchIfEmpty(Mono.error(new UserNotFoundException(user.getUsername()))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction((io.gravitee.am.identityprovider.api.User idpUser)->RxJava2Adapter.monoToSingle(userProvider.update_migrated(idpUser.getId(), convert(user.getUsername(), updateUser)))).apply(y))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction((io.gravitee.am.identityprovider.api.User idpUser)->{
 updateUser.setExternalId(idpUser.getId());
 return RxJava2Adapter.monoToSingle(getUserService().update_migrated(referenceType, referenceId, id, updateUser).map(RxJavaReactorMigrationUtil.toJdkFunction(this::setInternalStatus)));
-}).apply(v))))).onErrorResumeNext((java.lang.Throwable ex)->{
+}).apply(v)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction((java.lang.Throwable ex)->{
 if (ex instanceof UserNotFoundException) {
 return RxJava2Adapter.monoToSingle(getUserService().update_migrated(referenceType, referenceId, id, updateUser).map(RxJavaReactorMigrationUtil.toJdkFunction(this::setInternalStatus)));
 }
 return RxJava2Adapter.monoToSingle(Mono.error(ex));
-})).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer((io.gravitee.am.model.User user1)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).oldValue(user).user(user1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable))))));
+}).apply(err))))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer((io.gravitee.am.model.User user1)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).oldValue(user).user(user1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable))))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateStatus_migrated(referenceType, referenceId, id, status, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

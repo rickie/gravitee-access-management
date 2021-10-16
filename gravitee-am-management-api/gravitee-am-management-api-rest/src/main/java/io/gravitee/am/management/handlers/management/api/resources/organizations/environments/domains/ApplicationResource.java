@@ -32,6 +32,7 @@ import io.gravitee.common.http.MediaType;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import io.reactivex.SingleSource;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -97,8 +98,7 @@ public class ApplicationResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.READ).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))
-                        .flatMapSingle(app -> RxJava2Adapter.monoToSingle(findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domain, application).map(RxJavaReactorMigrationUtil.toJdkFunction(userPermissions -> filterApplicationInfos(app, userPermissions))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(application1 -> {
+        checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.READ).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(app -> RxJava2Adapter.monoToSingle(findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domain, application).map(RxJavaReactorMigrationUtil.toJdkFunction(userPermissions -> filterApplicationInfos(app, userPermissions))))).apply(y))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(application1 -> {
                     if (!application1.getDomain().equalsIgnoreCase(domain)) {
                         throw new BadRequestException("Application does not belong to domain");
                     }

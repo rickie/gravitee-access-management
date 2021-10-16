@@ -82,7 +82,7 @@ public class GoogleReCaptchaV3Provider implements BotDetectionProvider  {
             return Mono.just(false);
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.post(URI.create(configuration.getServiceUrl()).toString())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.post(URI.create(configuration.getServiceUrl()).toString())
                 .rxSendForm(MultiMap.caseInsensitiveMultiMap().set("secret", configuration.getSecretKey()).set("response", token))).map(RxJavaReactorMigrationUtil.toJdkFunction(buffer -> {
 
                     if (buffer.statusCode() != 200) {
@@ -99,10 +99,9 @@ public class GoogleReCaptchaV3Provider implements BotDetectionProvider  {
 
                     // Result should be successful and score above 0.5.
                     return (success && score >= configuration.getMinScore());
-                })))
-                .onErrorResumeNext(throwable -> {
+                })))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Boolean>>toJdkFunction(throwable -> {
                     LOGGER.error("An error occurred when trying to validate ReCaptcha token.", throwable);
                     return RxJava2Adapter.monoToSingle(Mono.just(false));
-                }));
+                }).apply(err)))));
     }
 }

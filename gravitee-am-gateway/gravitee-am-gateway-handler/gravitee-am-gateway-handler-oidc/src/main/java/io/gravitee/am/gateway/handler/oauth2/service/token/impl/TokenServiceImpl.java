@@ -103,13 +103,12 @@ public class TokenServiceImpl implements TokenService {
 }
 @Override
     public Mono<Token> getAccessToken_migrated(String token, Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(token, client))
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(token, client))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction(ex -> {
                     if (ex instanceof JWTException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidTokenException(ex.getMessage(), ex)));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));
-                })).flatMap(e->accessTokenRepository.findByToken_migrated(e.getJti()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.oauth2.model.AccessToken accessToken)->convertAccessToken(e))));
+                }).apply(err))))).flatMap(e->accessTokenRepository.findByToken_migrated(e.getJti()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.oauth2.model.AccessToken accessToken)->convertAccessToken(e))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getRefreshToken_migrated(refreshToken, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -120,13 +119,12 @@ public class TokenServiceImpl implements TokenService {
 }
 @Override
     public Mono<Token> getRefreshToken_migrated(String refreshToken, Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(refreshToken, client))
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(refreshToken, client))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction(ex -> {
                     if (ex instanceof JWTException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidTokenException(ex.getMessage(), ex)));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));
-                })).flatMap(e->refreshTokenRepository.findByToken_migrated(e.getJti()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.oauth2.model.RefreshToken refreshToken1)->convertRefreshToken(e))));
+                }).apply(err))))).flatMap(e->refreshTokenRepository.findByToken_migrated(e.getJti()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.oauth2.model.RefreshToken refreshToken1)->convertRefreshToken(e))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.introspect_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

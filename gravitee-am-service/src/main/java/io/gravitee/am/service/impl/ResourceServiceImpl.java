@@ -89,12 +89,11 @@ public class ResourceServiceImpl implements ResourceService {
 @Override
     public Mono<Page<Resource>> findByDomain_migrated(String domain, int page, int size) {
         LOGGER.debug("Listing resource for domain {}", domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.findByDomain_migrated(domain, page, size))
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.findByDomain_migrated(domain, page, size))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<Resource>>>toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find resources by domain {}", domain, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find resources by domain %s", domain), ex)));
-                }));
+                }).apply(err)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomainAndClient_migrated(domain, client, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -106,12 +105,11 @@ public class ResourceServiceImpl implements ResourceService {
 @Override
     public Mono<Page<Resource>> findByDomainAndClient_migrated(String domain, String client, int page, int size) {
         LOGGER.debug("Listing resource set for domain {} and client {}", domain, client);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.findByDomainAndClient_migrated(domain, client, page, size))
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.findByDomainAndClient_migrated(domain, client, page, size))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<Resource>>>toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find resources by domain {} and client {}", domain, client, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find resources by domain %s and client %s", domain, client), ex)));
-                }));
+                }).apply(err)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByResources_migrated(resourceIds))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -218,7 +216,7 @@ public class ResourceServiceImpl implements ResourceService {
                 .setCreatedAt(new Date())
                 .setUpdatedAt(toCreate.getCreatedAt());
 
-        return this.validateScopes_migrated(toCreate).flatMap(v->validateIconUri_migrated(v)).flatMap(v->repository.create_migrated(v)).flatMap(v->RxJava2Adapter.singleToMono((Single<Resource>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Resource, Single<Resource>>)r -> {
+        return this.validateScopes_migrated(toCreate).flatMap(this::validateIconUri_migrated).flatMap(repository::create_migrated).flatMap(v->RxJava2Adapter.singleToMono((Single<Resource>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Resource, Single<Resource>>)r -> {
                     AccessPolicy accessPolicy = new AccessPolicy();
                     accessPolicy.setName("Deny all");
                     accessPolicy.setDescription("Default deny access policy. Created by Gravitee.io.");
@@ -240,7 +238,7 @@ public class ResourceServiceImpl implements ResourceService {
 @Override
     public Mono<Resource> update_migrated(NewResource newResource, String domain, String client, String userId, String resourceId) {
         LOGGER.debug("Updating resource id {} for resource owner {} and client {}", resourceId, userId, client);
-        return findByDomainAndClientAndUserAndResource_migrated(domain, client, userId, resourceId).switchIfEmpty(Mono.error(new ResourceNotFoundException(resourceId))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Resource, SingleSource<Resource>>toJdkFunction(Single::just).apply(y)))).map(RxJavaReactorMigrationUtil.toJdkFunction(newResource::update)).map(RxJavaReactorMigrationUtil.toJdkFunction(toUpdate -> toUpdate.setUpdatedAt(new Date()))).flatMap(v->validateScopes_migrated(v)).flatMap(v->validateIconUri_migrated(v)).flatMap(v->RxJava2Adapter.singleToMono((Single<Resource>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Resource, Single<Resource>>)(Resource ident) -> RxJava2Adapter.monoToSingle(repository.update_migrated(ident))).apply(v)));
+        return findByDomainAndClientAndUserAndResource_migrated(domain, client, userId, resourceId).switchIfEmpty(Mono.error(new ResourceNotFoundException(resourceId))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Resource, SingleSource<Resource>>toJdkFunction(Single::just).apply(y)))).map(RxJavaReactorMigrationUtil.toJdkFunction(newResource::update)).map(RxJavaReactorMigrationUtil.toJdkFunction(toUpdate -> toUpdate.setUpdatedAt(new Date()))).flatMap(this::validateScopes_migrated).flatMap(this::validateIconUri_migrated).flatMap(v->RxJava2Adapter.singleToMono((Single<Resource>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Resource, Single<Resource>>)(Resource ident) -> RxJava2Adapter.monoToSingle(repository.update_migrated(ident))).apply(v)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -323,11 +321,10 @@ public class ResourceServiceImpl implements ResourceService {
 @Override
     public Mono<Long> countAccessPolicyByResource_migrated(String resourceId) {
         LOGGER.debug("Count access policies by resource {}", resourceId);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accessPolicyRepository.countByResource_migrated(resourceId))
-                .onErrorResumeNext(ex -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accessPolicyRepository.countByResource_migrated(resourceId))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Long>>toJdkFunction(ex -> {
                     LOGGER.error("An error has occurred while trying to count access policies by resource id {}", resourceId, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error has occurred while trying to count access policies by resource id %s", resourceId), ex)));
-                }));
+                }).apply(err)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findAccessPolicy_migrated(domain, client, user, resource, accessPolicy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -374,20 +371,19 @@ public class ResourceServiceImpl implements ResourceService {
 @Override
     public Mono<AccessPolicy> createAccessPolicy_migrated(AccessPolicy accessPolicy, String domain, String client, String user, String resource) {
         LOGGER.debug("Creating access policy for domain {}, client {}, resource owner {} and resource id {}", domain, client, user, resource);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findByDomainAndClientAndUserAndResource_migrated(domain, client, user, resource).switchIfEmpty(Mono.error(new ResourceNotFoundException(resource))).flatMap(v->RxJava2Adapter.singleToMono((Single<AccessPolicy>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Resource, Single<AccessPolicy>>)r -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findByDomainAndClientAndUserAndResource_migrated(domain, client, user, resource).switchIfEmpty(Mono.error(new ResourceNotFoundException(resource))).flatMap(v->RxJava2Adapter.singleToMono((Single<AccessPolicy>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Resource, Single<AccessPolicy>>)r -> {
                     accessPolicy.setDomain(domain);
                     accessPolicy.setResource(r.getId());
                     accessPolicy.setCreatedAt(new Date());
                     accessPolicy.setUpdatedAt(accessPolicy.getCreatedAt());
                     return RxJava2Adapter.monoToSingle(accessPolicyRepository.create_migrated(accessPolicy));
-                }).apply(v))))
-                .onErrorResumeNext(ex -> {
+                }).apply(v))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<AccessPolicy>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error has occurred while trying to create an access policy for domain {}, client {}, resource owner {} and resource id {}", domain, client, user, resource, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error has occurred while trying to create an access policy for domain %s, client %s, resource owner %s and resource id %s", domain, client, user, resource), ex)));
-                }));
+                }).apply(err)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateAccessPolicy_migrated(accessPolicy, domain, client, user, resource, accessPolicyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -399,7 +395,7 @@ public class ResourceServiceImpl implements ResourceService {
 @Override
     public Mono<AccessPolicy> updateAccessPolicy_migrated(AccessPolicy accessPolicy, String domain, String client, String user, String resource, String accessPolicyId) {
         LOGGER.debug("Updating access policy for domain {}, client {}, resource owner {}, resource id {} and policy id {}", domain, client, user, resource, accessPolicyId);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findByDomainAndClientAndUserAndResource_migrated(domain, client, user, resource).switchIfEmpty(Mono.error(new ResourceNotFoundException(resource))).flatMap(z->accessPolicyRepository.findById_migrated(accessPolicyId)).switchIfEmpty(Mono.error(new AccessPolicyNotFoundException(resource))).flatMap(v->RxJava2Adapter.singleToMono((Single<AccessPolicy>)RxJavaReactorMigrationUtil.toJdkFunction((Function<AccessPolicy, Single<AccessPolicy>>)oldPolicy -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findByDomainAndClientAndUserAndResource_migrated(domain, client, user, resource).switchIfEmpty(Mono.error(new ResourceNotFoundException(resource))).flatMap(z->accessPolicyRepository.findById_migrated(accessPolicyId)).switchIfEmpty(Mono.error(new AccessPolicyNotFoundException(resource))).flatMap(v->RxJava2Adapter.singleToMono((Single<AccessPolicy>)RxJavaReactorMigrationUtil.toJdkFunction((Function<AccessPolicy, Single<AccessPolicy>>)oldPolicy -> {
                     AccessPolicy policyToUpdate = new AccessPolicy();
                     policyToUpdate.setId(oldPolicy.getId());
                     policyToUpdate.setEnabled(accessPolicy.isEnabled());
@@ -413,14 +409,13 @@ public class ResourceServiceImpl implements ResourceService {
                     policyToUpdate.setCreatedAt(oldPolicy.getCreatedAt());
                     policyToUpdate.setUpdatedAt(new Date());
                     return RxJava2Adapter.monoToSingle(accessPolicyRepository.update_migrated(policyToUpdate));
-                }).apply(v))))
-                .onErrorResumeNext(ex -> {
+                }).apply(v))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<AccessPolicy>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.error("An error has occurred while trying to update access policy for domain {}, client {}, resource owner {}, resource id {} and policy id {}", domain, client, user, resource, accessPolicyId, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error has occurred while trying to update access policy for domain %s, client %s, resource owner %s, resource id %s and policy id %s", domain, client, user, resource, accessPolicyId), ex)));
-                }));
+                }).apply(err)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteAccessPolicy_migrated(domain, client, user, resource, accessPolicy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

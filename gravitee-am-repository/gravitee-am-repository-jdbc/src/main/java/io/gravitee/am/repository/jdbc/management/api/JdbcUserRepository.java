@@ -214,7 +214,7 @@ public class JdbcUserRepository extends AbstractJdbcRepository implements UserRe
 @Override
     public Mono<User> findByUsernameAndDomain_migrated(String domain, String username) {
         LOGGER.debug("findByUsernameAndDomain({},{},{})", domain, username);
-        return userRepository.findByUsername_migrated(ReferenceType.DOMAIN.name(), domain, username).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeUser_migrated(z));
+        return userRepository.findByUsername_migrated(ReferenceType.DOMAIN.name(), domain, username).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(this::completeUser_migrated);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsernameAndSource_migrated(referenceType, referenceId, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -226,7 +226,7 @@ public class JdbcUserRepository extends AbstractJdbcRepository implements UserRe
 @Override
     public Mono<User> findByUsernameAndSource_migrated(ReferenceType referenceType, String referenceId, String username, String source) {
         LOGGER.debug("findByUsernameAndSource({},{},{},{})", referenceType, referenceId, username, source);
-        return userRepository.findByUsernameAndSource_migrated(referenceType.name(), referenceId, username, source).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeUser_migrated(z));
+        return userRepository.findByUsernameAndSource_migrated(referenceType.name(), referenceId, username, source).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(this::completeUser_migrated);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByExternalIdAndSource_migrated(referenceType, referenceId, externalId, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -238,7 +238,7 @@ public class JdbcUserRepository extends AbstractJdbcRepository implements UserRe
 @Override
     public Mono<User> findByExternalIdAndSource_migrated(ReferenceType referenceType, String referenceId, String externalId, String source) {
         LOGGER.debug("findByExternalIdAndSource({},{},{},{})", referenceType, referenceId, externalId, source);
-        return userRepository.findByExternalIdAndSource_migrated(referenceType.name(), referenceId, externalId, source).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeUser_migrated(z));
+        return userRepository.findByExternalIdAndSource_migrated(referenceType.name(), referenceId, externalId, source).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(this::completeUser_migrated);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -266,7 +266,7 @@ public class JdbcUserRepository extends AbstractJdbcRepository implements UserRe
 @Override
     public Mono<User> findById_migrated(ReferenceType referenceType, String referenceId, String userId) {
         LOGGER.debug("findById({},{},{})", referenceType, referenceId, userId);
-        return userRepository.findById_migrated(referenceType.name(), referenceId, userId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeUser_migrated(z));
+        return userRepository.findById_migrated(referenceType.name(), referenceId, userId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(this::completeUser_migrated);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByReference_migrated(refType, domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -371,7 +371,7 @@ return stats;
 @Override
     public Mono<User> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.maybeToMono(userRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeUser_migrated(z));
+        return RxJava2Adapter.maybeToMono(userRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(this::completeUser_migrated);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

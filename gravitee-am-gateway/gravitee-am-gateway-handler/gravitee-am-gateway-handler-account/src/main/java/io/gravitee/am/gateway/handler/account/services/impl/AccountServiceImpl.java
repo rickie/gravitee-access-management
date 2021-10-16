@@ -23,6 +23,7 @@ import io.gravitee.am.gateway.handler.common.audit.AuditReporterManager;
 import io.gravitee.am.gateway.handler.common.auth.idp.IdentityProviderManager;
 import io.gravitee.am.identityprovider.api.DefaultUser;
 import io.gravitee.am.model.*;
+import io.gravitee.am.model.User;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.factor.EnrolledFactor;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
@@ -124,7 +125,7 @@ public class AccountServiceImpl implements AccountService {
     public Mono<User> update_migrated(User user) {
         LOGGER.debug("Update a user {} for domain {}", user.getUsername(), domain.getName());
 
-        return userValidator.validate_migrated(user).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
+        return userValidator.validate_migrated(user).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(user.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(user.getSource()))))
                 .flatMapSingle(userProvider -> {
                     if (user.getExternalId() == null) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("User does not exist in upstream IDP")));
@@ -133,8 +134,7 @@ public class AccountServiceImpl implements AccountService {
                     }
                 })).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(idpUser -> {
                     return RxJava2Adapter.monoToSingle(userRepository.update_migrated(user));
-                }).apply(v)))))
-                .onErrorResumeNext(ex -> {
+                }).apply(v)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
                     if (ex instanceof UserNotFoundException || ex instanceof UserInvalidException) {
                         // idp user does not exist, only update AM user
                         // clear password
@@ -142,7 +142,7 @@ public class AccountServiceImpl implements AccountService {
                         return RxJava2Adapter.monoToSingle(userRepository.update_migrated(user));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));
-                })));
+                }).apply(err))))));
 
     }
 

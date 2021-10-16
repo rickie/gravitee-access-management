@@ -180,14 +180,13 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
 
     
 private Mono<JWT> readRequestObject_migrated(Client client, String request) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jweService.decrypt_migrated(request, false))
-                .onErrorResumeNext((ex) -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jweService.decrypt_migrated(request, false))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction((ex) -> {
                     if (ex instanceof OAuth2Exception) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
                     LOGGER.debug("JWT invalid for the request parameter", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestObjectException()));
-                })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectClaims)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectAlgorithm)).flatMap(jwt->validateSignature_migrated((SignedJWT)jwt, client));
+                }).apply(err))))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectClaims)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::checkRequestObjectAlgorithm)).flatMap(jwt->validateSignature_migrated((SignedJWT)jwt, client));
     }
 
     private JWT checkRequestObjectClaims(JWT jwt) {
