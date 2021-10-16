@@ -1,16 +1,14 @@
 /**
  * Copyright (C) 2015 The Gravitee team (http://gravitee.io)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package io.gravitee.am.management.handlers.management.api.resources.organizations.environments.domains;
@@ -55,131 +53,237 @@ import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
  */
 public class CertificateResource extends AbstractResource {
 
-    @Context
-    private ResourceContext resourceContext;
+  @Context private ResourceContext resourceContext;
 
-    @Autowired
-    private CertificateService certificateService;
+  @Autowired private CertificateService certificateService;
 
-    @Autowired
-    private CertificateManager certificateManager;
+  @Autowired private CertificateManager certificateManager;
 
-    @Autowired
-    private DomainService domainService;
+  @Autowired private DomainService domainService;
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get a certificate",
-            notes = "User must have the DOMAIN_CERTIFICATE[READ] permission on the specified domain " +
-                    "or DOMAIN_CERTIFICATE[READ] permission on the specified environment " +
-                    "or DOMAIN_CERTIFICATE[READ] permission on the specified organization")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Certificate successfully fetched", response = Certificate.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
-    public void get(
-            @PathParam("organizationId") String organizationId,
-            @PathParam("environmentId") String environmentId,
-            @PathParam("domain") String domain,
-            @PathParam("certificate") String certificate,
-            @Suspended final AsyncResponse response) {
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @ApiOperation(
+      value = "Get a certificate",
+      notes =
+          "User must have the DOMAIN_CERTIFICATE[READ] permission on the specified domain "
+              + "or DOMAIN_CERTIFICATE[READ] permission on the specified environment "
+              + "or DOMAIN_CERTIFICATE[READ] permission on the specified organization")
+  @ApiResponses({
+    @ApiResponse(
+        code = 200,
+        message = "Certificate successfully fetched",
+        response = Certificate.class),
+    @ApiResponse(code = 500, message = "Internal server error")
+  })
+  public void get(
+      @PathParam("organizationId") String organizationId,
+      @PathParam("environmentId") String environmentId,
+      @PathParam("domain") String domain,
+      @PathParam("certificate") String certificate,
+      @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.READ)).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->RxJava2Adapter.monoToMaybe(certificateService.findById_migrated(certificate)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new CertificateNotFoundException(certificate))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificate1 -> {
-                            if (!certificate1.getDomain().equalsIgnoreCase(domain)) {
-                                throw new BadRequestException("Certificate does not belong to domain");
-                            }
-                            return Response.ok(certificate1).build();
-                        }))).as(RxJava2Adapter::monoToMaybe)
-                .subscribe(response::resume, response::resume);
-    }
+    RxJava2Adapter.monoToCompletable(
+            checkAnyPermission_migrated(
+                organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.READ))
+        .as(RxJava2Adapter::completableToMono)
+        .then(
+            RxJava2Adapter.maybeToMono(
+                    RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain)))
+                .switchIfEmpty(Mono.error(new DomainNotFoundException(domain)))
+                .flatMap(
+                    z ->
+                        RxJava2Adapter.monoToMaybe(
+                                certificateService.findById_migrated(certificate))
+                            .as(RxJava2Adapter::maybeToMono))
+                .switchIfEmpty(Mono.error(new CertificateNotFoundException(certificate)))
+                .map(
+                    RxJavaReactorMigrationUtil.toJdkFunction(
+                        certificate1 -> {
+                          if (!certificate1.getDomain().equalsIgnoreCase(domain)) {
+                            throw new BadRequestException("Certificate does not belong to domain");
+                          }
+                          return Response.ok(certificate1).build();
+                        })))
+        .as(RxJava2Adapter::monoToMaybe)
+        .subscribe(response::resume, response::resume);
+  }
 
-    @GET
-    @Path("key")
-    @ApiOperation(value = "Get the certificate public key",
-            notes = "User must have the DOMAIN[READ] permission on the specified domain " +
-                    "or DOMAIN[READ] permission on the specified environment " +
-                    "or DOMAIN[READ] permission on the specified organization")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Certificate key successfully fetched", response = String.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
-    public void getPublicKey(
-            @PathParam("organizationId") String organizationId,
-            @PathParam("environmentId") String environmentId,
-            @PathParam("domain") String domain,
-            @PathParam("certificate") String certificate,
-            @Suspended final AsyncResponse response) {
+  @GET
+  @Path("key")
+  @ApiOperation(
+      value = "Get the certificate public key",
+      notes =
+          "User must have the DOMAIN[READ] permission on the specified domain "
+              + "or DOMAIN[READ] permission on the specified environment "
+              + "or DOMAIN[READ] permission on the specified organization")
+  @ApiResponses({
+    @ApiResponse(
+        code = 200,
+        message = "Certificate key successfully fetched",
+        response = String.class),
+    @ApiResponse(code = 500, message = "Internal server error")
+  })
+  public void getPublicKey(
+      @PathParam("organizationId") String organizationId,
+      @PathParam("environmentId") String environmentId,
+      @PathParam("domain") String domain,
+      @PathParam("certificate") String certificate,
+      @Suspended final AsyncResponse response) {
 
-        // FIXME: should we create a DOMAIN_CERTIFICATE_KEY permission instead ?
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateManager.getCertificateProvider_migrated(certificate))).switchIfEmpty(Mono.error(new BadRequestException("No certificate provider found for the certificate " + certificate))))
-                        .flatMapSingle(() -> RxJava2Adapter.monoToSingle(CertificateProvider.publicKey_migrated())))))
-                .subscribe(response::resume, response::resume);
-    }
+    // FIXME: should we create a DOMAIN_CERTIFICATE_KEY permission instead ?
+    RxJava2Adapter.monoToSingle(
+            RxJava2Adapter.completableToMono(
+                    RxJava2Adapter.monoToCompletable(
+                        checkAnyPermission_migrated(
+                            organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)))
+                .then(
+                    RxJava2Adapter.maybeToMono(
+                            RxJava2Adapter.monoToMaybe(
+                                certificateManager.getCertificateProvider_migrated(certificate)))
+                        .switchIfEmpty(
+                            Mono.error(
+                                new BadRequestException(
+                                    "No certificate provider found for the certificate "
+                                        + certificate))))
+                .flatMap(CertificateProvider::publicKey_migrated))
+        .subscribe(response::resume, response::resume);
+  }
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("keys")
-    @ApiOperation(value = "Get the certificate public keys",
-            notes = "User must have the DOMAIN[READ] permission on the specified domain " +
-                    "or DOMAIN[READ] permission on the specified environment " +
-                    "or DOMAIN[READ] permission on the specified organization")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Certificate keys successfully fetched", response = CertificateKey.class, responseContainer = "List"),
-            @ApiResponse(code = 500, message = "Internal server error")})
-    public void getPublicKeys(
-            @PathParam("organizationId") String organizationId,
-            @PathParam("environmentId") String environmentId,
-            @PathParam("domain") String domain,
-            @PathParam("certificate") String certificate,
-            @Suspended final AsyncResponse response) {
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("keys")
+  @ApiOperation(
+      value = "Get the certificate public keys",
+      notes =
+          "User must have the DOMAIN[READ] permission on the specified domain "
+              + "or DOMAIN[READ] permission on the specified environment "
+              + "or DOMAIN[READ] permission on the specified organization")
+  @ApiResponses({
+    @ApiResponse(
+        code = 200,
+        message = "Certificate keys successfully fetched",
+        response = CertificateKey.class,
+        responseContainer = "List"),
+    @ApiResponse(code = 500, message = "Internal server error")
+  })
+  public void getPublicKeys(
+      @PathParam("organizationId") String organizationId,
+      @PathParam("environmentId") String environmentId,
+      @PathParam("domain") String domain,
+      @PathParam("certificate") String certificate,
+      @Suspended final AsyncResponse response) {
 
-        // FIXME: should we create a DOMAIN_CERTIFICATE_KEY permission instead ?
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateManager.getCertificateProvider_migrated(certificate))).switchIfEmpty(Mono.error(new BadRequestException("No certificate provider found for the certificate " + certificate))))
-                        .flatMapSingle(() -> RxJava2Adapter.monoToSingle(CertificateProvider.publicKeys_migrated())))))
-                .subscribe(response::resume, response::resume);
-    }
+    // FIXME: should we create a DOMAIN_CERTIFICATE_KEY permission instead ?
+    RxJava2Adapter.monoToSingle(
+            RxJava2Adapter.completableToMono(
+                    RxJava2Adapter.monoToCompletable(
+                        checkAnyPermission_migrated(
+                            organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)))
+                .then(
+                    RxJava2Adapter.maybeToMono(
+                            RxJava2Adapter.monoToMaybe(
+                                certificateManager.getCertificateProvider_migrated(certificate)))
+                        .switchIfEmpty(
+                            Mono.error(
+                                new BadRequestException(
+                                    "No certificate provider found for the certificate "
+                                        + certificate)))
+                        .flatMap(CertificateProvider::publicKeys_migrated)))
+        .subscribe(response::resume, response::resume);
+  }
 
-    @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Update a certificate",
-            notes = "User must have the DOMAIN_CERTIFICATE[UPDATE] permission on the specified domain " +
-                    "or DOMAIN_CERTIFICATE[UPDATE] permission on the specified environment " +
-                    "or DOMAIN_CERTIFICATE[UPDATE] permission on the specified organization")
-    @ApiResponses({
-            @ApiResponse(code = 201, message = "Certificate successfully updated", response = Certificate.class),
-            @ApiResponse(code = 500, message = "Internal server error")})
-    public void updateCertificate(
-            @PathParam("organizationId") String organizationId,
-            @PathParam("environmentId") String environmentId,
-            @PathParam("domain") String domain,
-            @PathParam("certificate") String certificate,
-            @ApiParam(name = "certificate", required = true) @Valid @NotNull UpdateCertificate updateCertificate,
-            @Suspended final AsyncResponse response) {
+  @PUT
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @ApiOperation(
+      value = "Update a certificate",
+      notes =
+          "User must have the DOMAIN_CERTIFICATE[UPDATE] permission on the specified domain "
+              + "or DOMAIN_CERTIFICATE[UPDATE] permission on the specified environment "
+              + "or DOMAIN_CERTIFICATE[UPDATE] permission on the specified organization")
+  @ApiResponses({
+    @ApiResponse(
+        code = 201,
+        message = "Certificate successfully updated",
+        response = Certificate.class),
+    @ApiResponse(code = 500, message = "Internal server error")
+  })
+  public void updateCertificate(
+      @PathParam("organizationId") String organizationId,
+      @PathParam("environmentId") String environmentId,
+      @PathParam("domain") String domain,
+      @PathParam("certificate") String certificate,
+      @ApiParam(name = "certificate", required = true) @Valid @NotNull
+          UpdateCertificate updateCertificate,
+      @Suspended final AsyncResponse response) {
 
-        final User authenticatedUser = getAuthenticatedUser();
+    final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(schema -> RxJava2Adapter.monoToSingle(certificateService.update_migrated(domain, certificate, updateCertificate, authenticatedUser)))).map(RxJavaReactorMigrationUtil.toJdkFunction(certificate1 -> Response.ok(certificate1).build()))))
-                .subscribe(response::resume, response::resume);
-    }
+    RxJava2Adapter.monoToSingle(
+            RxJava2Adapter.completableToMono(
+                    RxJava2Adapter.monoToCompletable(
+                        checkAnyPermission_migrated(
+                            organizationId,
+                            environmentId,
+                            domain,
+                            Permission.DOMAIN_CERTIFICATE,
+                            Acl.UPDATE)))
+                .then(
+                    RxJava2Adapter.singleToMono(
+                            RxJava2Adapter.monoToMaybe(
+                                    RxJava2Adapter.maybeToMono(
+                                            RxJava2Adapter.monoToMaybe(
+                                                domainService.findById_migrated(domain)))
+                                        .switchIfEmpty(
+                                            Mono.error(new DomainNotFoundException(domain))))
+                                .flatMapSingle(
+                                    schema ->
+                                        RxJava2Adapter.monoToSingle(
+                                            certificateService.update_migrated(
+                                                domain,
+                                                certificate,
+                                                updateCertificate,
+                                                authenticatedUser))))
+                        .map(
+                            RxJavaReactorMigrationUtil.toJdkFunction(
+                                certificate1 -> Response.ok(certificate1).build()))))
+        .subscribe(response::resume, response::resume);
+  }
 
-    @DELETE
-    @ApiOperation(value = "Delete a certificate",
-            notes = "User must have the DOMAIN_CERTIFICATE[DELETE] permission on the specified domain " +
-                    "or DOMAIN_CERTIFICATE[DELETE] permission on the specified environment " +
-                    "or DOMAIN_CERTIFICATE[DELETE] permission on the specified organization")
-    @ApiResponses({
-            @ApiResponse(code = 204, message = "Certificate successfully deleted"),
-            @ApiResponse(code = 400, message = "Certificate is bind to existing clients"),
-            @ApiResponse(code = 500, message = "Internal server error")})
-    public void delete(
-            @PathParam("organizationId") String organizationId,
-            @PathParam("environmentId") String environmentId,
-            @PathParam("domain") String domain,
-            @PathParam("certificate") String certificate,
-            @Suspended final AsyncResponse response) {
-        final User authenticatedUser = getAuthenticatedUser();
+  @DELETE
+  @ApiOperation(
+      value = "Delete a certificate",
+      notes =
+          "User must have the DOMAIN_CERTIFICATE[DELETE] permission on the specified domain "
+              + "or DOMAIN_CERTIFICATE[DELETE] permission on the specified environment "
+              + "or DOMAIN_CERTIFICATE[DELETE] permission on the specified organization")
+  @ApiResponses({
+    @ApiResponse(code = 204, message = "Certificate successfully deleted"),
+    @ApiResponse(code = 400, message = "Certificate is bind to existing clients"),
+    @ApiResponse(code = 500, message = "Internal server error")
+  })
+  public void delete(
+      @PathParam("organizationId") String organizationId,
+      @PathParam("environmentId") String environmentId,
+      @PathParam("domain") String domain,
+      @PathParam("certificate") String certificate,
+      @Suspended final AsyncResponse response) {
+    final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.DELETE))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(certificateService.delete_migrated(certificate, authenticatedUser)))))
-                .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
-    }
+    RxJava2Adapter.monoToCompletable(
+            RxJava2Adapter.completableToMono(
+                    RxJava2Adapter.monoToCompletable(
+                        checkAnyPermission_migrated(
+                            organizationId,
+                            environmentId,
+                            domain,
+                            Permission.DOMAIN_CERTIFICATE,
+                            Acl.DELETE)))
+                .then(
+                    RxJava2Adapter.completableToMono(
+                        RxJava2Adapter.monoToCompletable(
+                            certificateService.delete_migrated(certificate, authenticatedUser)))))
+        .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
+  }
 }
