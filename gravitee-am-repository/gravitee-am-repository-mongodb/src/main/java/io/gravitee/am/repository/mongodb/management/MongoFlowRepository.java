@@ -152,7 +152,7 @@ public class MongoFlowRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(flowsCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(flowsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private FlowMongo convert(Flow flow) {

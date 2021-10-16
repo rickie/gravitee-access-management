@@ -165,7 +165,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 @Override
     public Mono<Void> deleteByDomainAndScopeKey_migrated(String domain, String scope) {
         return Mono.from(scopeApprovalsCollection.deleteMany(
-                and(eq(FIELD_DOMAIN, domain), eq(FIELD_SCOPE, scope))));
+                and(eq(FIELD_DOMAIN, domain), eq(FIELD_SCOPE, scope)))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -176,7 +176,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(scopeApprovalsCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(scopeApprovalsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainAndUserAndClient_migrated(domain, user, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -188,7 +188,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 @Override
     public Mono<Void> deleteByDomainAndUserAndClient_migrated(String domain, String user, String client) {
         return Mono.from(scopeApprovalsCollection.deleteMany(
-                and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user), eq(FIELD_CLIENT_ID, client))));
+                and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user), eq(FIELD_CLIENT_ID, client)))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainAndUser_migrated(domain, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -200,7 +200,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 @Override
     public Mono<Void> deleteByDomainAndUser_migrated(String domain, String user) {
         return Mono.from(scopeApprovalsCollection.deleteMany(
-                and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user))));
+                and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user)))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this._findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -176,7 +176,7 @@ public class MongoFormRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(formsCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(formsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private Form convert(FormMongo pageMongo) {

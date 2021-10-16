@@ -184,7 +184,7 @@ private Mono<Entrypoint> completeTags_migrated(Entrypoint entrypoint) {
                 .matching(from(where("id").is(id)))
                 .fetch().rowsUpdated();
 
-        return deleteTags(id).then(delete).as(trx::transactional).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete entrypoint with id {}", id, error)));
+        return deleteTags(id).then(delete).as(trx::transactional).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete entrypoint with id {}", id, error))).then();
     }
 
     private Mono<Integer> deleteTags(String id) {

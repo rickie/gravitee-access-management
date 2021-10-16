@@ -292,7 +292,7 @@ public class JdbcRoleRepository extends AbstractJdbcRepository implements RoleRe
         Mono<Integer> delete = dbClient.delete().from(JdbcRole.class)
                 .matching(from(where("id").is(id))).fetch().rowsUpdated();
 
-        return delete.then(deleteScopes.as(trx::transactional));
+        return delete.then(deleteScopes.as(e -> trx.transactional(e).then()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.completeWithScopes_migrated(maybeRole, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

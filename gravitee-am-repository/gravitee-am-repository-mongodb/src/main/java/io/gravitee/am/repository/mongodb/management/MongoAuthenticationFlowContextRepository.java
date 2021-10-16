@@ -111,7 +111,7 @@ public class MongoAuthenticationFlowContextRepository extends AbstractManagement
 }
 @Override
     public Mono<Void> delete_migrated(String transactionId) {
-        return Mono.from(authContextCollection.deleteMany(eq(FIELD_TRANSACTION_ID, transactionId)));
+        return Mono.from(authContextCollection.deleteMany(eq(FIELD_TRANSACTION_ID, transactionId))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(transactionId, version))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -122,7 +122,7 @@ public class MongoAuthenticationFlowContextRepository extends AbstractManagement
 }
 @Override
     public Mono<Void> delete_migrated(String transactionId, int version) {
-        return Mono.from(authContextCollection.deleteOne(and(eq(FIELD_TRANSACTION_ID, transactionId), eq(FIELD_VERSION, version))));
+        return Mono.from(authContextCollection.deleteOne(and(eq(FIELD_TRANSACTION_ID, transactionId), eq(FIELD_VERSION, version)))).then();
     }
 
     private AuthenticationFlowContext convert(AuthenticationFlowContextMongo entity) {

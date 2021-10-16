@@ -152,7 +152,7 @@ public class MongoCredentialRepository extends AbstractManagementMongoRepository
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(credentialsCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(credentialsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -169,7 +169,7 @@ public class MongoCredentialRepository extends AbstractManagementMongoRepository
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_USER_ID, userId)
                         )
-                ));
+                )).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByAaguid_migrated(referenceType, referenceId, aaguid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -186,7 +186,7 @@ public class MongoCredentialRepository extends AbstractManagementMongoRepository
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_AAGUID, aaguid)
                         )
-                ));
+                )).then();
     }
 
     private Credential convert(CredentialMongo credentialMongo) {

@@ -117,7 +117,7 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(eventsCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(eventsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private EventMongo convert(Event event) {

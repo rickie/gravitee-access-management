@@ -148,7 +148,7 @@ public class MongoAccessPolicyRepository extends AbstractManagementMongoReposito
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(accessPoliciesCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(accessPoliciesCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private AccessPolicy convert(AccessPolicyMongo accessPolicyMongo) {

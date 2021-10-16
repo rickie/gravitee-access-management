@@ -265,6 +265,6 @@ private Mono<Resource> completeWithScopes_migrated(Maybe<Resource> maybeResource
         Mono<Integer> delete = dbClient.delete().from(JdbcResource.class)
                 .matching(from(where("id").is(id))).fetch().rowsUpdated();
 
-        return delete.then(deleteScopes).as(trx::transactional);
+        return delete.then(deleteScopes).as(e -> trx.transactional(e).then());
     }
 }

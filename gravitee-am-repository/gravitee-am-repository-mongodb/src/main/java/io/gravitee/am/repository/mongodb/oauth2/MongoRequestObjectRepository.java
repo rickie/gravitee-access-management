@@ -88,7 +88,7 @@ public class MongoRequestObjectRepository extends AbstractOAuth2MongoRepository 
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(requestObjectCollection.findOneAndDelete(eq(FIELD_ID, id)));
+        return Mono.from(requestObjectCollection.findOneAndDelete(eq(FIELD_ID, id))).then();
     }
 
     private RequestObjectMongo convert(RequestObject requestObject) {

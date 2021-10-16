@@ -119,7 +119,7 @@ public class MongoExtensionGrantRepository extends AbstractManagementMongoReposi
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(extensionGrantsCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(extensionGrantsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private ExtensionGrant convert(ExtensionGrantMongo extensionGrantMongo) {

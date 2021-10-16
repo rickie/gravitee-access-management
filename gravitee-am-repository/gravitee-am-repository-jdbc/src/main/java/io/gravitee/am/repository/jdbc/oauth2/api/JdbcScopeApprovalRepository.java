@@ -123,7 +123,7 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
                 .from(JdbcScopeApproval.class)
                 .matching(from(where("domain").is(domain)
                         .and(where("scope").is(scope))))
-                .fetch().rowsUpdated();
+                .fetch().rowsUpdated().then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainAndUserAndClient_migrated(domain, user, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -140,7 +140,7 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
                 .matching(from(where("domain").is(domain)
                         .and(where("user_id").is(user)
                         .and(where("client_id").is(client)))))
-                .fetch().rowsUpdated();
+                .fetch().rowsUpdated().then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainAndUser_migrated(domain, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -156,7 +156,7 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
                 .from(JdbcScopeApproval.class)
                 .matching(from(where("domain").is(domain)
                         .and(where("user_id").is(user))))
-                .fetch().rowsUpdated();
+                .fetch().rowsUpdated().then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

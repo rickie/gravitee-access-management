@@ -376,7 +376,7 @@ public class JdbcOrganizationUserRepository extends AbstractJdbcRepository imple
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Integer> delete = dbClient.delete().from(JdbcOrganizationUser.class).matching(from(where("id").is(id))).fetch().rowsUpdated();
 
-        return delete.then(deleteChildEntities(id)).as(trx::transactional);
+        return delete.then(deleteChildEntities(id)).as(e -> trx.transactional(e).then());
     }
 
     private Mono<Integer> persistChildEntities(Mono<Integer> actionFlow, User item) {

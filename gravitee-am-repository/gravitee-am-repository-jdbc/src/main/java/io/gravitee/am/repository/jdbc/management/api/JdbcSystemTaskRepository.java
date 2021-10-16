@@ -146,6 +146,6 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
         LOGGER.debug("Delete SystemTask with id {}", id);
         Mono<Integer> delete = dbClient.delete().from(JdbcSystemTask.class)
                 .matching(from(where("id").is(id))).fetch().rowsUpdated();
-        return delete;
+        return delete.then();
     }
 }

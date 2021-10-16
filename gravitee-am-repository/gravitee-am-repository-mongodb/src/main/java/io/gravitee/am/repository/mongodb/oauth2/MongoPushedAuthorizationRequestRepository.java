@@ -93,7 +93,7 @@ public class MongoPushedAuthorizationRequestRepository extends AbstractOAuth2Mon
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(parCollection.findOneAndDelete(eq(FIELD_ID, id)));
+        return Mono.from(parCollection.findOneAndDelete(eq(FIELD_ID, id))).then();
     }
 
     private PushedAuthorizationRequestMongo convert(PushedAuthorizationRequest par) {

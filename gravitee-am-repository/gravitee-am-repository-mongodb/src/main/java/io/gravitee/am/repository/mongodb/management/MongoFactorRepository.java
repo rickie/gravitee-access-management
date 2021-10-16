@@ -117,7 +117,7 @@ public class MongoFactorRepository extends AbstractManagementMongoRepository imp
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(factorsCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(factorsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private Factor convert(FactorMongo factorMongo) {

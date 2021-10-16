@@ -289,7 +289,7 @@ private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String 
         Mono<Integer> delete = dbClient.delete().from(JdbcScope.class)
                 .matching(from(where("id").is(id))).fetch().rowsUpdated();
 
-        return deleteClaim.then(delete).as(trx::transactional);
+        return deleteClaim.then(delete).as(e -> trx.transactional(e).then());
     }
 
 }

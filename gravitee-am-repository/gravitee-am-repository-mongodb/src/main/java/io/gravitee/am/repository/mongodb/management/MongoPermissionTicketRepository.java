@@ -105,7 +105,7 @@ public class MongoPermissionTicketRepository extends AbstractManagementMongoRepo
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(permissionTicketCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(permissionTicketCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private PermissionTicketMongo convert(PermissionTicket permissionTicket) {

@@ -204,7 +204,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(emailsCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(emailsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private Email convert(EmailMongo emailMongo) {

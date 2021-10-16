@@ -117,7 +117,7 @@ public class MongoReporterRepository extends AbstractManagementMongoRepository i
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(reportersCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(reportersCollection.deleteOne(eq(FIELD_ID, id))).then().then();
     }
 
     private ReporterMongo convert(Reporter reporter) {

@@ -162,7 +162,7 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(identitiesCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(identitiesCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private IdentityProvider convert(IdentityProviderMongo identityProviderMongo) {

@@ -118,7 +118,7 @@ public class MongoCertificateRepository extends AbstractManagementMongoRepositor
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(certificatesCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(certificatesCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
     private Certificate convert(CertificateMongo certificateMongo) {
         if (certificateMongo == null) {

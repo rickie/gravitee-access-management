@@ -106,7 +106,7 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(resourceCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(resourceCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     private ServiceResource convert(ServiceResourceMongo resMongo) {

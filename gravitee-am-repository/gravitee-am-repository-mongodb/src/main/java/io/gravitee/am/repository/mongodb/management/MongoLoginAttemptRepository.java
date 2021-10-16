@@ -120,7 +120,7 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return Mono.from(loginAttemptsCollection.deleteOne(eq(FIELD_ID, id)));
+        return Mono.from(loginAttemptsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -131,7 +131,7 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
 }
 @Override
     public Mono<Void> delete_migrated(LoginAttemptCriteria criteria) {
-        return Mono.from(loginAttemptsCollection.deleteOne(query(criteria)));
+        return Mono.from(loginAttemptsCollection.deleteOne(query(criteria))).then();
     }
 
     private Bson query(LoginAttemptCriteria criteria) {
