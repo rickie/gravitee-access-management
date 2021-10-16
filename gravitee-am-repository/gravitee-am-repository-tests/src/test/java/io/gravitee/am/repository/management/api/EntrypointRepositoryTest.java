@@ -41,9 +41,9 @@ public class EntrypointRepositoryTest extends AbstractManagementTest {
     public void testFindAll() {
 
         Entrypoint entrypoint = buildEntrypoint();
-        Entrypoint cratedEntrypoint =RxJava2Adapter.singleToMono(entrypointRepository.create(entrypoint)).block();
+        Entrypoint cratedEntrypoint =RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(entrypointRepository.create_migrated(entrypoint))).block();
 
-        TestSubscriber<Entrypoint> testObserver1 = entrypointRepository.findAll(ORGANIZATION_ID).test();
+        TestSubscriber<Entrypoint> testObserver1 = RxJava2Adapter.fluxToFlowable(entrypointRepository.findAll_migrated(ORGANIZATION_ID)).test();
         testObserver1.awaitTerminalEvent();
 
         testObserver1.assertComplete();
@@ -80,9 +80,9 @@ public class EntrypointRepositoryTest extends AbstractManagementTest {
     public void testFindById() {
 
         Entrypoint entrypoint = buildEntrypoint();
-        Entrypoint entrypointCreated = RxJava2Adapter.singleToMono(entrypointRepository.create(entrypoint)).block();
+        Entrypoint entrypointCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(entrypointRepository.create_migrated(entrypoint))).block();
 
-        TestObserver<Entrypoint> testObserver = entrypointRepository.findById(entrypointCreated.getId()).test();
+        TestObserver<Entrypoint> testObserver = RxJava2Adapter.monoToMaybe(entrypointRepository.findById_migrated(entrypointCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -92,14 +92,14 @@ public class EntrypointRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testNotFoundById() {
-        entrypointRepository.findById("test").test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(entrypointRepository.findById_migrated("test")).test().assertEmpty();
     }
 
     @Test
     public void testCreate() {
         Entrypoint entrypoint = buildEntrypoint();
         entrypoint.setId(UUID.randomUUID().toString());
-        TestObserver<Entrypoint> testObserver = entrypointRepository.create(entrypoint).test();
+        TestObserver<Entrypoint> testObserver = RxJava2Adapter.monoToSingle(entrypointRepository.create_migrated(entrypoint)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -111,13 +111,13 @@ public class EntrypointRepositoryTest extends AbstractManagementTest {
     public void testUpdate() {
 
         Entrypoint entrypoint = buildEntrypoint();
-        Entrypoint entrypointCreated = RxJava2Adapter.singleToMono(entrypointRepository.create(entrypoint)).block();
+        Entrypoint entrypointCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(entrypointRepository.create_migrated(entrypoint))).block();
 
         Entrypoint updatedEntrypoint = buildEntrypoint();
         updatedEntrypoint.setId(entrypointCreated.getId());
         updatedEntrypoint.setName("testUpdatedName");
 
-        TestObserver<Entrypoint> testObserver = entrypointRepository.update(updatedEntrypoint).test();
+        TestObserver<Entrypoint> testObserver = RxJava2Adapter.monoToSingle(entrypointRepository.update_migrated(updatedEntrypoint)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -129,18 +129,18 @@ public class EntrypointRepositoryTest extends AbstractManagementTest {
     public void testDelete() {
 
         Entrypoint entrypoint = buildEntrypoint();
-        Entrypoint entrypointCreated = RxJava2Adapter.singleToMono(entrypointRepository.create(entrypoint)).block();
+        Entrypoint entrypointCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(entrypointRepository.create_migrated(entrypoint))).block();
 
-        TestObserver<Entrypoint> testObserver = entrypointRepository.findById(entrypointCreated.getId()).test();
+        TestObserver<Entrypoint> testObserver = RxJava2Adapter.monoToMaybe(entrypointRepository.findById_migrated(entrypointCreated.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         assertEquals(entrypoint, entrypointCreated.getId(), testObserver);
 
-        TestObserver testObserver1 = entrypointRepository.delete(entrypointCreated.getId()).test();
+        TestObserver testObserver1 = RxJava2Adapter.monoToCompletable(entrypointRepository.delete_migrated(entrypointCreated.getId())).test();
         testObserver1.awaitTerminalEvent();
 
-        final TestObserver<Entrypoint> testFind = entrypointRepository.findById(entrypointCreated.getId()).test();
+        final TestObserver<Entrypoint> testFind = RxJava2Adapter.monoToMaybe(entrypointRepository.findById_migrated(entrypointCreated.getId())).test();
         testFind.awaitTerminalEvent();
         testFind.assertNoValues();
     }

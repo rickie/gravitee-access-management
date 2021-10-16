@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -41,7 +42,7 @@ public class DefaultRoleUpgrader implements Upgrader, Ordered {
         logger.info("Applying default roles upgrade");
         try {
             // create or update system roles
-            Throwable throwable = roleService.createOrUpdateSystemRoles().blockingGet();
+            Throwable throwable = RxJava2Adapter.monoToCompletable(roleService.createOrUpdateSystemRoles_migrated()).blockingGet();
             if (throwable != null) {
                 throw throwable;
             }

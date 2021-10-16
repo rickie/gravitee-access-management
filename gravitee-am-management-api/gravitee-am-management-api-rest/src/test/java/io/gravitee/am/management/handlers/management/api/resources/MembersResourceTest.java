@@ -50,7 +50,7 @@ public class MembersResourceTest extends JerseySpringTest {
 
         final String organizationId = "orga-1";
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new OrganizationNotFoundException(organizationId)))).when(organizationService).findById(organizationId);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new OrganizationNotFoundException(organizationId))))).when(organizationService).findById_migrated(organizationId);
 
         NewMembership newMembership = new NewMembership();
         newMembership.setMemberId("member#1");
@@ -74,8 +74,8 @@ public class MembersResourceTest extends JerseySpringTest {
         Membership membership = new Membership();
         membership.setId("membership-1");
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(organization))).when(organizationService).findById(organization.getId());
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(membership))).when(membershipService).addOrUpdate(eq(organization.getId()), any(Membership.class), any(User.class));
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(organization)))).when(organizationService).findById_migrated(organization.getId());
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(membership)))).when(membershipService).addOrUpdate_migrated(eq(organization.getId()), any(Membership.class), any(User.class));
 
         NewMembership newMembership = new NewMembership();
         newMembership.setMemberId("member#1");
@@ -99,8 +99,8 @@ public class MembersResourceTest extends JerseySpringTest {
         Membership membership = new Membership();
         membership.setId("membership-1");
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(organization))).when(organizationService).findById(organization.getId());
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(membership))).when(membershipService).addOrUpdate(eq(organization.getId()), any(Membership.class), any(User.class));
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(organization)))).when(organizationService).findById_migrated(organization.getId());
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(membership)))).when(membershipService).addOrUpdate_migrated(eq(organization.getId()), any(Membership.class), any(User.class));
 
         NewMembership newMembership = new NewMembership(); // invalid input.
 
@@ -121,9 +121,9 @@ public class MembersResourceTest extends JerseySpringTest {
         Membership membership = new Membership();
         membership.setId("membership#1");
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(organization))).when(organizationService).findById(organization.getId());
-        doReturn(RxJava2Adapter.fluxToFlowable(Flux.just(Arrays.asList(membership)))).when(membershipService).findByReference(organization.getId(), ReferenceType.ORGANIZATION);
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(new HashMap<>()))).when(membershipService).getMetadata(anyList());
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(organization)))).when(organizationService).findById_migrated(organization.getId());
+        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(Arrays.asList(membership))))).when(membershipService).findByReference_migrated(organization.getId(), ReferenceType.ORGANIZATION);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new HashMap<>())))).when(membershipService).getMetadata_migrated(anyList());
 
         final Response response = target("organizations")
                 .path(organization.getId())
@@ -142,7 +142,7 @@ public class MembersResourceTest extends JerseySpringTest {
         Membership membership = new Membership();
         membership.setId("membership#1");
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new OrganizationNotFoundException(organization.getId())))).when(organizationService).findById(organization.getId());
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new OrganizationNotFoundException(organization.getId()))))).when(organizationService).findById_migrated(organization.getId());
 
         final Response response = target("organizations")
                 .path(organization.getId())

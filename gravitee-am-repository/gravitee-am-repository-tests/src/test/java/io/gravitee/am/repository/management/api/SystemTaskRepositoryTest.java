@@ -37,10 +37,10 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
     public void testFindById() {
         // create task
         SystemTask task = buildSystemTask();
-        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(taskRepository.create(task)).block();
+        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(taskRepository.create_migrated(task))).block();
 
         // fetch task
-        TestObserver<SystemTask> testObserver = taskRepository.findById(systemTaskCreated.getId()).test();
+        TestObserver<SystemTask> testObserver = RxJava2Adapter.monoToMaybe(taskRepository.findById_migrated(systemTaskCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -69,12 +69,12 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testNotFoundById() throws TechnicalException {
-        taskRepository.findById("test").test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(taskRepository.findById_migrated("test")).test().assertEmpty();
     }
 
     @Test
     public void testUpdateNotImpl() {
-        TestObserver<SystemTask> testObserver = taskRepository.update(buildSystemTask()).test();
+        TestObserver<SystemTask> testObserver = RxJava2Adapter.monoToSingle(taskRepository.update_migrated(buildSystemTask())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(IllegalStateException.class);
@@ -83,12 +83,12 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdateIf() {
         SystemTask task = buildSystemTask();
-        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(taskRepository.create(task)).block();
+        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(taskRepository.create_migrated(task))).block();
 
         SystemTask updatedSystemTask = buildSystemTask();
         updatedSystemTask.setId(systemTaskCreated.getId());
 
-        TestObserver<SystemTask> testObserver = taskRepository.updateIf(updatedSystemTask, systemTaskCreated.getOperationId()).test();
+        TestObserver<SystemTask> testObserver = RxJava2Adapter.monoToSingle(taskRepository.updateIf_migrated(updatedSystemTask, systemTaskCreated.getOperationId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -99,12 +99,12 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdateIf_mismatch() {
         SystemTask task = buildSystemTask();
-        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(taskRepository.create(task)).block();
+        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(taskRepository.create_migrated(task))).block();
 
         SystemTask updatedSystemTask = buildSystemTask();
         updatedSystemTask.setId(systemTaskCreated.getId());
 
-        TestObserver<SystemTask> testObserver = taskRepository.updateIf(updatedSystemTask, "unknownId").test();
+        TestObserver<SystemTask> testObserver = RxJava2Adapter.monoToSingle(taskRepository.updateIf_migrated(updatedSystemTask, "unknownId")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -116,21 +116,21 @@ public class SystemTaskRepositoryTest extends AbstractManagementTest {
     @Test
     public void testDelete() {
         SystemTask task = buildSystemTask();
-        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(taskRepository.create(task)).block();
+        SystemTask systemTaskCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(taskRepository.create_migrated(task))).block();
 
         // fetch SystemTask
-        TestObserver<SystemTask> testObserver = taskRepository.findById(systemTaskCreated.getId()).test();
+        TestObserver<SystemTask> testObserver = RxJava2Adapter.monoToMaybe(taskRepository.findById_migrated(systemTaskCreated.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(s -> s.getId().equals(systemTaskCreated.getId()));
 
         // delete SystemTask
-        TestObserver testObserver1 = taskRepository.delete(systemTaskCreated.getId()).test();
+        TestObserver testObserver1 = RxJava2Adapter.monoToCompletable(taskRepository.delete_migrated(systemTaskCreated.getId())).test();
         testObserver1.awaitTerminalEvent();
 
         // fetch SystemTask
-        taskRepository.findById(systemTaskCreated.getId()).test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(taskRepository.findById_migrated(systemTaskCreated.getId())).test().assertEmpty();
     }
 
 }

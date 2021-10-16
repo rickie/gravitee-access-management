@@ -51,8 +51,8 @@ public class UserCredentialsResourceTest extends JerseySpringTest {
         final Credential mockCredential = new Credential();
         mockCredential.setId("credential-id");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.fluxToFlowable(Flux.just(mockCredential))).when(credentialService).findByUserId(ReferenceType.DOMAIN, domainId, mockUser.getId());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(mockCredential)))).when(credentialService).findByUserId_migrated(ReferenceType.DOMAIN, domainId, mockUser.getId());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -68,7 +68,7 @@ public class UserCredentialsResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetUserFactors_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs")))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs"))))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains")
                 .path(domainId)

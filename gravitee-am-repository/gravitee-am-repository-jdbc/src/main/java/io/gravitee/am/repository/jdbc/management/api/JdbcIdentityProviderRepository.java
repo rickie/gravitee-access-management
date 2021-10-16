@@ -69,7 +69,8 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
         return mapper.map(entity, JdbcIdentityProvider.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<IdentityProvider> findAll(ReferenceType referenceType, String referenceId) {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
@@ -77,10 +78,11 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 @Override
     public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findAll({}, {}", referenceType, referenceId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.identityProviderRepository.findAll(referenceType.name(), referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(this.identityProviderRepository.findAll_migrated(referenceType.name(), referenceId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<IdentityProvider> findAll(ReferenceType referenceType) {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType));
@@ -88,10 +90,11 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 @Override
     public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType) {
         LOGGER.debug("findAll()");
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.identityProviderRepository.findAll(referenceType.name())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(this.identityProviderRepository.findAll_migrated(referenceType.name()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<IdentityProvider> findAll() {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated());
@@ -102,7 +105,8 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.identityProviderRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, identityProviderId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<IdentityProvider> findById(ReferenceType referenceType, String referenceId, String identityProviderId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(referenceType, referenceId, identityProviderId));
@@ -110,10 +114,11 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
 @Override
     public Mono<IdentityProvider> findById_migrated(ReferenceType referenceType, String referenceId, String identityProviderId) {
         LOGGER.debug("findById({},{},{})", referenceType, referenceId, identityProviderId);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(this.identityProviderRepository.findById(referenceType.name(), referenceId, identityProviderId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.identityProviderRepository.findById_migrated(referenceType.name(), referenceId, identityProviderId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<IdentityProvider> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));

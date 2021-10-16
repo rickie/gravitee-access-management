@@ -132,7 +132,7 @@ public class GoogleAuthenticationProviderTest {
         when(configuration.getClientId()).thenReturn("testClientId");
 
         final String state = RandomString.generate();
-        Request request = (Request) RxJava2Adapter.maybeToMono(provider.asyncSignInUrl("https://gravitee.io", state)).block();
+        Request request = (Request) RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(provider.asyncSignInUrl_migrated("https://gravitee.io", state))).block();
 
         Assert.assertNotNull(request);
         assertEquals(HttpMethod.GET, request.getMethod());
@@ -191,7 +191,7 @@ public class GoogleAuthenticationProviderTest {
                         .put("access_token", jwt)
                         .put("id_token", jwt));
 
-        TestObserver<User> obs = provider.loadUserByUsername(authentication).test();
+        TestObserver<User> obs = RxJava2Adapter.monoToMaybe(provider.loadUserByUsername_migrated(authentication)).test();
 
         obs.awaitTerminalEvent();
         obs.assertValue(user -> {
@@ -242,7 +242,7 @@ public class GoogleAuthenticationProviderTest {
                         .put("access_token", jwt)
                         .put("id_token", jwt));
 
-        TestObserver<User> obs = provider.loadUserByUsername(authentication).test();
+        TestObserver<User> obs = RxJava2Adapter.monoToMaybe(provider.loadUserByUsername_migrated(authentication)).test();
 
         obs.awaitTerminalEvent();
         obs.assertValue(user -> {
@@ -290,7 +290,7 @@ public class GoogleAuthenticationProviderTest {
                         .put("access_token", jwt)
                         .put("id_token", badJwt));
 
-        TestObserver<User> obs = provider.loadUserByUsername(authentication).test();
+        TestObserver<User> obs = RxJava2Adapter.monoToMaybe(provider.loadUserByUsername_migrated(authentication)).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(BadCredentialsException.class);

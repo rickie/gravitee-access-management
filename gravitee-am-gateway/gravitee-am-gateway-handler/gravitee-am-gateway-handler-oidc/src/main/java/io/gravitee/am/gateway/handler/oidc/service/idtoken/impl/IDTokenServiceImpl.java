@@ -16,6 +16,7 @@
 package io.gravitee.am.gateway.handler.oidc.service.idtoken.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.certificate.api.CertificateMetadata;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
@@ -91,7 +92,8 @@ public class IDTokenServiceImpl implements IDTokenService {
     @Autowired
     private UserService userService;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(oAuth2Request, client, user, executionContext))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<String> create(OAuth2Request oAuth2Request, Client client, User user, ExecutionContext executionContext) {
  return RxJava2Adapter.monoToSingle(create_migrated(oAuth2Request, client, user, executionContext));
@@ -104,7 +106,7 @@ public class IDTokenServiceImpl implements IDTokenService {
                     IDToken idToken = createIDTokenJWT(oAuth2Request, client, user, executionContext);
 
                     // sign ID Token
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(certificateManager.findByAlgorithm(client.getIdTokenSignedResponseAlg())).switchIfEmpty(RxJava2Adapter.maybeToMono(certificateManager.get(client.getCertificate()))).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateManager.findByAlgorithm_migrated(client.getIdTokenSignedResponseAlg()))).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateManager.get_migrated(client.getCertificate())))).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
                             .flatMapSingle(certificateProvider -> {
                                 // set hash claims (hybrid flow)
                                 if (oAuth2Request.getContext() != null && !oAuth2Request.getContext().isEmpty()) {
@@ -121,25 +123,26 @@ public class IDTokenServiceImpl implements IDTokenService {
                                         }
                                     });
                                 }
-                                return jwtService.encode(idToken, certificateProvider);
+                                return RxJava2Adapter.monoToSingle(jwtService.encode_migrated(idToken, certificateProvider));
                             })).flatMap(z->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<String, SingleSource<String>>toJdkFunction(signedIdToken -> {
                                 if(client.getIdTokenEncryptedResponseAlg()!=null) {
-                                    return jweService.encryptIdToken(signedIdToken, client);
+                                    return RxJava2Adapter.monoToSingle(jweService.encryptIdToken_migrated(signedIdToken, client));
                                 }
                                 return RxJava2Adapter.monoToSingle(Mono.just(signedIdToken));
                             }).apply(z)))));
                 }).apply(v)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.extractUser_migrated(idToken, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> extractUser(String idToken, Client client) {
  return RxJava2Adapter.monoToSingle(extractUser_migrated(idToken, client));
 }
 @Override
     public Mono<User> extractUser_migrated(String idToken, Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(jwtService.decodeAndVerify(idToken, client)).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, Single<User>>)jwt -> {
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(userService.findById(jwt.getSub())).switchIfEmpty(Mono.error(new UserNotFoundException(jwt.getSub()))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(idToken, client))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, Single<User>>)jwt -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(jwt.getSub()))).switchIfEmpty(Mono.error(new UserNotFoundException(jwt.getSub()))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                                 if (!user.getReferenceId().equals(domain.getId())) {
                                     throw new UserNotFoundException(jwt.getSub());
                                 }

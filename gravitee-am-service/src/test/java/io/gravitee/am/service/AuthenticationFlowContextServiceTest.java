@@ -50,13 +50,13 @@ public class AuthenticationFlowContextServiceTest {
     @Test
     public void testLoadContext_UnknownSessionId() {
         // if sessionId is unknown load default Context
-        when(authFlowContextRepository.findLastByTransactionId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(authFlowContextRepository.findLastByTransactionId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
         TestObserver<AuthenticationFlowContext> testObserver = service.loadContext(SESSION_ID, 1).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(ctx -> ctx.getVersion() == 0);
-        verify(authFlowContextRepository).findLastByTransactionId(any());
+        verify(authFlowContextRepository).findLastByTransactionId_migrated(any());
     }
 
     @Test
@@ -66,14 +66,14 @@ public class AuthenticationFlowContextServiceTest {
         context.setTransactionId(SESSION_ID);
 
         // if sessionId is unknown load default Context
-        when(authFlowContextRepository.findLastByTransactionId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(context)));
+        when(authFlowContextRepository.findLastByTransactionId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(context))));
 
         TestObserver<AuthenticationFlowContext> testObserver = service.loadContext(SESSION_ID, 1).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(ctx -> ctx.getVersion() == 1);
         testObserver.assertValue(ctx -> ctx.getTransactionId().equals(SESSION_ID));
-        verify(authFlowContextRepository).findLastByTransactionId(any());
+        verify(authFlowContextRepository).findLastByTransactionId_migrated(any());
     }
 
     @Test
@@ -83,21 +83,21 @@ public class AuthenticationFlowContextServiceTest {
         context.setTransactionId(SESSION_ID);
 
         // if sessionId is unknown load default Context
-        when(authFlowContextRepository.findLastByTransactionId(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(context)));
+        when(authFlowContextRepository.findLastByTransactionId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(context))));
 
         TestObserver<AuthenticationFlowContext> testObserver = service.loadContext(SESSION_ID, 2).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(error -> error instanceof AuthenticationFlowConsistencyException);
-        verify(authFlowContextRepository).findLastByTransactionId(any());
+        verify(authFlowContextRepository).findLastByTransactionId_migrated(any());
     }
 
     @Test
     public void testClearContext() {
-        when(authFlowContextRepository.delete(SESSION_ID)).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(authFlowContextRepository.delete_migrated(SESSION_ID)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
         TestObserver<Void> testObserver = service.clearContext(SESSION_ID).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
-        verify(authFlowContextRepository).delete(SESSION_ID);
+        verify(authFlowContextRepository).delete_migrated(SESSION_ID);
     }
 
     @Test
@@ -105,6 +105,6 @@ public class AuthenticationFlowContextServiceTest {
         TestObserver<Void> testObserver = service.clearContext(null).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
-        verify(authFlowContextRepository, never()).delete(any());
+        verify(authFlowContextRepository, never()).delete_migrated(any());
     }
 }

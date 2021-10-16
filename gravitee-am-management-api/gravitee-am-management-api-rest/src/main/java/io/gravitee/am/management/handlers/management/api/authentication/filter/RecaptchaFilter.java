@@ -69,7 +69,7 @@ public class RecaptchaFilter extends GenericFilterBean {
                 reCaptchaToken = httpRequest.getParameter(DEFAULT_RECAPTCHA_HEADER_NAME);
             }
 
-            if(!RxJava2Adapter.singleToMono(reCaptchaService.isValid(reCaptchaToken)).block()) {
+            if(!RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(reCaptchaService.isValid_migrated(reCaptchaToken))).block()) {
 
                 HashMap<String, Object> error = new HashMap<>();
 

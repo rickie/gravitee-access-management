@@ -37,7 +37,7 @@ public class PushedAuthorizationRequestRepositoryTest extends AbstractOAuthTest 
 
     @Test
     public void shouldNotFindById() {
-        TestObserver<PushedAuthorizationRequest> observer = repository.findById("unknown-id").test();
+        TestObserver<PushedAuthorizationRequest> observer = RxJava2Adapter.monoToMaybe(repository.findById_migrated("unknown-id")).test();
 
         observer.awaitTerminalEvent();
 
@@ -57,9 +57,9 @@ public class PushedAuthorizationRequestRepositoryTest extends AbstractOAuthTest 
         parameters.add("key", "value");
         par.setParameters(parameters);
 
-        repository.create(par).test().awaitTerminalEvent();
+        RxJava2Adapter.monoToSingle(repository.create_migrated(par)).test().awaitTerminalEvent();
 
-        TestObserver<PushedAuthorizationRequest> observer = repository.findById(id).test();
+        TestObserver<PushedAuthorizationRequest> observer = RxJava2Adapter.monoToMaybe(repository.findById_migrated(id)).test();
 
         observer.awaitTerminalEvent();
 
@@ -79,8 +79,7 @@ public class PushedAuthorizationRequestRepositoryTest extends AbstractOAuthTest 
         parameters.add("key", "value");
         par.setParameters(parameters);
 
-        TestObserver<PushedAuthorizationRequest> observer = RxJava2Adapter.singleToMono(repository
-                .create(par)).then(RxJava2Adapter.maybeToMono(repository.findById(id))).then().then(RxJava2Adapter.completableToMono(repository.delete(id))).then(RxJava2Adapter.maybeToMono(repository.findById(id))).as(RxJava2Adapter::monoToMaybe)
+        TestObserver<PushedAuthorizationRequest> observer = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(par))).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(id)))).then().then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(repository.delete_migrated(id)))).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(id)))).as(RxJava2Adapter::monoToMaybe)
                 .test();
 
         observer.awaitTerminalEvent();

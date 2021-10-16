@@ -46,7 +46,7 @@ public class GroupMemberResourceTest extends JerseySpringTest {
         final Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains")
                 .path(domainId)
@@ -69,8 +69,8 @@ public class GroupMemberResourceTest extends JerseySpringTest {
         final Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(groupService).findById(mockGroup.getId());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(groupService).findById_migrated(mockGroup.getId());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -93,9 +93,9 @@ public class GroupMemberResourceTest extends JerseySpringTest {
         final Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup))).when(groupService).findById(mockGroup.getId());
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(userService).findById("member-1");
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup)))).when(groupService).findById_migrated(mockGroup.getId());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(userService).findById_migrated("member-1");
 
         final Response response = target("domains")
                 .path(domainId)
@@ -122,9 +122,9 @@ public class GroupMemberResourceTest extends JerseySpringTest {
         final User mockUser = new User();
         mockUser.setId("member-1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup))).when(groupService).findById(mockGroup.getId());
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockUser))).when(userService).findById(mockUser.getId());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup)))).when(groupService).findById_migrated(mockGroup.getId());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockUser)))).when(userService).findById_migrated(mockUser.getId());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -150,10 +150,10 @@ public class GroupMemberResourceTest extends JerseySpringTest {
         final User mockUser = new User();
         mockUser.setId("member-1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup))).when(groupService).findById(mockGroup.getId());
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(mockGroup))).when(groupService).update(eq(mockDomain.getId()), eq(mockGroup.getId()), any(), any());
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockUser))).when(userService).findById(mockUser.getId());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup)))).when(groupService).findById_migrated(mockGroup.getId());
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(mockGroup)))).when(groupService).update_migrated(eq(mockDomain.getId()), eq(mockGroup.getId()), any(), any());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockUser)))).when(userService).findById_migrated(mockUser.getId());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -174,7 +174,7 @@ public class GroupMemberResourceTest extends JerseySpringTest {
         final Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains")
                 .path(domainId)
@@ -197,8 +197,8 @@ public class GroupMemberResourceTest extends JerseySpringTest {
         final Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(groupService).findById(mockGroup.getId());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(groupService).findById_migrated(mockGroup.getId());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -221,9 +221,9 @@ public class GroupMemberResourceTest extends JerseySpringTest {
         final Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup))).when(groupService).findById(mockGroup.getId());
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.empty())).when(userService).findById("member-1");
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup)))).when(groupService).findById_migrated(mockGroup.getId());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(userService).findById_migrated("member-1");
 
         final Response response = target("domains")
                 .path(domainId)
@@ -249,10 +249,10 @@ public class GroupMemberResourceTest extends JerseySpringTest {
         final User mockUser = new User();
         mockUser.setId("member-1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup))).when(groupService).findById(mockGroup.getId());
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(mockGroup))).when(groupService).update(eq(mockDomain.getId()), eq(mockGroup.getId()), any(), any());
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockUser))).when(userService).findById(mockUser.getId());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup)))).when(groupService).findById_migrated(mockGroup.getId());
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(mockGroup)))).when(groupService).update_migrated(eq(mockDomain.getId()), eq(mockGroup.getId()), any(), any());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockUser)))).when(userService).findById_migrated(mockUser.getId());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -279,10 +279,10 @@ public class GroupMemberResourceTest extends JerseySpringTest {
         final User mockUser = new User();
         mockUser.setId("member-1");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup))).when(groupService).findById(mockGroup.getId());
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(mockGroup))).when(groupService).update(eq(mockDomain.getId()), eq(mockGroup.getId()), any(), any());
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockUser))).when(userService).findById(mockUser.getId());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup)))).when(groupService).findById_migrated(mockGroup.getId());
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(mockGroup)))).when(groupService).update_migrated(eq(mockDomain.getId()), eq(mockGroup.getId()), any(), any());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockUser)))).when(userService).findById_migrated(mockUser.getId());
 
         final Response response = target("domains")
                 .path(domainId)

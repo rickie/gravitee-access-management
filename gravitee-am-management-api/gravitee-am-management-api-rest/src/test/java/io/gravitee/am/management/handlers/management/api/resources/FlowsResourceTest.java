@@ -43,7 +43,7 @@ public class FlowsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetFlows() {
-        doReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Flow(), new Flow()))).when(flowService).findAll(ReferenceType.DOMAIN, DOMAIN_ID, true);
+        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Flow(), new Flow())))).when(flowService).findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID, true);
 
         final Response response = target("domains")
                 .path(DOMAIN_ID)
@@ -58,7 +58,7 @@ public class FlowsResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldGetFlows_technicalManagementException() {
-        doReturn(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs")))).when(flowService).findAll(ReferenceType.DOMAIN, DOMAIN_ID, true);
+        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs"))))).when(flowService).findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID, true);
 
         final Response response = target("domains")
                 .path(DOMAIN_ID)

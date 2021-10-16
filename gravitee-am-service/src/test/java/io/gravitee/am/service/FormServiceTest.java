@@ -82,13 +82,13 @@ public class FormServiceTest {
         Form formTwo = new Form(formOne);
         formTwo.setTemplate("error");
 
-        when(formRepository.findByClientAndTemplate(ReferenceType.DOMAIN, DOMAIN, targetUid, "login")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(formRepository.findByClientAndTemplate(ReferenceType.DOMAIN, DOMAIN, targetUid, "error")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(formRepository.create(any())).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0))));
-        when(formRepository.findByClient(ReferenceType.DOMAIN, DOMAIN, sourceUid)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(formOne, formTwo)));
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(formRepository.findByClientAndTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, targetUid, "login")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(formRepository.findByClientAndTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, targetUid, "error")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(formRepository.create_migrated(any())).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(formRepository.findByClient_migrated(ReferenceType.DOMAIN, DOMAIN, sourceUid)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(formOne, formTwo))));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
 
-        TestObserver<List<Form>> testObserver = formService.copyFromClient(DOMAIN, sourceUid, targetUid).test();
+        TestObserver<List<Form>> testObserver = RxJava2Adapter.monoToSingle(formService.copyFromClient_migrated(DOMAIN, sourceUid, targetUid)).test();
         testObserver.assertComplete().assertNoErrors();
         testObserver.assertValue(forms -> forms.size() == 2 && forms.stream().filter(
                 form -> form.getReferenceId().equals(DOMAIN) && form.getClient().equals(targetUid) && !form.getId().equals("templateId") && Arrays.asList("login", "error").contains(form.getTemplate()) && form.getContent().equals("formContent") && form.getAssets().equals("formAsset")
@@ -112,10 +112,10 @@ public class FormServiceTest {
         formOne.setContent("formContent");
         formOne.setAssets("formAsset");
 
-        when(formRepository.findByClientAndTemplate(ReferenceType.DOMAIN, DOMAIN, targetUid, "login")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Form())));
-        when(formRepository.findByClient(ReferenceType.DOMAIN, DOMAIN, sourceUid)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(formOne)));
+        when(formRepository.findByClientAndTemplate_migrated(ReferenceType.DOMAIN, DOMAIN, targetUid, "login")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Form()))));
+        when(formRepository.findByClient_migrated(ReferenceType.DOMAIN, DOMAIN, sourceUid)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(formOne))));
 
-        TestObserver<List<Form>> testObserver = formService.copyFromClient(DOMAIN, sourceUid, targetUid).test();
+        TestObserver<List<Form>> testObserver = RxJava2Adapter.monoToSingle(formService.copyFromClient_migrated(DOMAIN, sourceUid, targetUid)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(FormAlreadyExistsException.class);
     }
@@ -124,9 +124,9 @@ public class FormServiceTest {
     public void shouldFindAll() {
 
         Form form = new Form();
-        when(formRepository.findAll(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(form)));
+        when(formRepository.findAll_migrated(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(form))));
 
-        TestSubscriber<Form> obs = formService.findAll(ReferenceType.ORGANIZATION).test();
+        TestSubscriber<Form> obs = RxJava2Adapter.fluxToFlowable(formService.findAll_migrated(ReferenceType.ORGANIZATION)).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -136,9 +136,9 @@ public class FormServiceTest {
     @Test
     public void shouldFindAll_noForm() {
 
-        when(formRepository.findAll(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(formRepository.findAll_migrated(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
 
-        TestSubscriber<Form> obs = formService.findAll(ReferenceType.ORGANIZATION).test();
+        TestSubscriber<Form> obs = RxJava2Adapter.fluxToFlowable(formService.findAll_migrated(ReferenceType.ORGANIZATION)).test();
 
         obs.awaitTerminalEvent();
         obs.assertNoErrors();
@@ -149,9 +149,9 @@ public class FormServiceTest {
     @Test
     public void shouldFindAll_TechnicalException() {
 
-        when(formRepository.findAll(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(formRepository.findAll_migrated(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestSubscriber<Form> obs = formService.findAll(ReferenceType.ORGANIZATION).test();
+        TestSubscriber<Form> obs = RxJava2Adapter.fluxToFlowable(formService.findAll_migrated(ReferenceType.ORGANIZATION)).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(TechnicalException.class);

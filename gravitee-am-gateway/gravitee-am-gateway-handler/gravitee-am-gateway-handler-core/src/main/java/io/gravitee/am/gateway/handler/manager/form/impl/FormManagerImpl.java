@@ -27,14 +27,14 @@ import io.gravitee.am.repository.management.api.FormRepository;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.thymeleaf.templateresolver.ITemplateResolver;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -60,7 +60,7 @@ public class FormManagerImpl extends AbstractService implements FormManager, Ini
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing forms for domain {}", domain.getName());
-        formRepository.findAll(ReferenceType.DOMAIN, domain.getId())
+        RxJava2Adapter.fluxToFlowable(formRepository.findAll_migrated(ReferenceType.DOMAIN, domain.getId()))
                 .subscribe(
                         this::updateForm,
                         error -> logger.error("Unable to initialize forms for domain {}", domain.getName(), error));
@@ -100,7 +100,7 @@ public class FormManagerImpl extends AbstractService implements FormManager, Ini
     private void updateForm(String formId, FormEvent formEvent) {
         final String eventType = formEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} form event for {}", domain.getName(), eventType, formId);
-        formRepository.findById(formId)
+        RxJava2Adapter.monoToMaybe(formRepository.findById_migrated(formId))
                 .subscribe(
                         form -> {
                             // check if form has been disabled

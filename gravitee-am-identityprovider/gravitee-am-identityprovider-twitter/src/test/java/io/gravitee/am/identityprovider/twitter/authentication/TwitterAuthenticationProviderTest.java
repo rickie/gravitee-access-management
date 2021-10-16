@@ -98,7 +98,7 @@ public class TwitterAuthenticationProviderTest {
                         "&oauth_token_secret=veNRnAWe6inFuo8o2u8SLLZLjolYDmDP7SzL0YfYI" +
                         "&oauth_callback_confirmed=true");
 
-        Request request = RxJava2Adapter.maybeToMono(provider.asyncSignInUrl("https://gravitee.io", RandomString.generate())).block();
+        Request request = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(provider.asyncSignInUrl_migrated("https://gravitee.io", RandomString.generate()))).block();
 
         assertNotNull(request);
         assertEquals(HttpMethod.GET, request.getMethod());
@@ -112,7 +112,7 @@ public class TwitterAuthenticationProviderTest {
         when(httpResponse.statusCode())
                 .thenReturn(HttpStatusCode.BAD_REQUEST_400);
 
-        RxJava2Adapter.maybeToMono(provider.asyncSignInUrl("https://gravitee.io", RandomString.generate())).block();
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(provider.asyncSignInUrl_migrated("https://gravitee.io", RandomString.generate()))).block();
     }
 
     @Test(expected = IllegalStateException.class)
@@ -162,9 +162,9 @@ public class TwitterAuthenticationProviderTest {
                 );
 
         // init token secret
-        RxJava2Adapter.maybeToMono(provider.asyncSignInUrl("https://gravitee.io", RandomString.generate())).block();
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(provider.asyncSignInUrl_migrated("https://gravitee.io", RandomString.generate()))).block();
 
-        TestObserver<User> obs = provider.loadUserByUsername(authentication).test();
+        TestObserver<User> obs = RxJava2Adapter.monoToMaybe(provider.loadUserByUsername_migrated(authentication)).test();
 
         obs.awaitTerminalEvent();
         obs.assertValue(user -> {
@@ -208,9 +208,9 @@ public class TwitterAuthenticationProviderTest {
                 .thenReturn("[ { code: 89, message: 'Invalid or expired token.' } ]");
 
         // init token secret
-        RxJava2Adapter.maybeToMono(provider.asyncSignInUrl("https://gravitee.io", RandomString.generate())).block();
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(provider.asyncSignInUrl_migrated("https://gravitee.io", RandomString.generate()))).block();
 
-        TestObserver<User> obs = provider.loadUserByUsername(authentication).test();
+        TestObserver<User> obs = RxJava2Adapter.monoToMaybe(provider.loadUserByUsername_migrated(authentication)).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(BadCredentialsException.class);

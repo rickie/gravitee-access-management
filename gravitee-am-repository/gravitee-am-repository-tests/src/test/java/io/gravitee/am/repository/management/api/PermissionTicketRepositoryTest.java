@@ -40,10 +40,10 @@ public class PermissionTicketRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create permission_ticket
         PermissionTicket permissionTicket = new PermissionTicket().setPermissionRequest(Arrays.asList(permission));
-        PermissionTicket ptCreated = RxJava2Adapter.singleToMono(repository.create(permissionTicket)).block();
+        PermissionTicket ptCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(permissionTicket))).block();
 
         // fetch permission_ticket
-        TestObserver<PermissionTicket> testObserver = repository.findById(ptCreated.getId()).test();
+        TestObserver<PermissionTicket> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(ptCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -56,11 +56,11 @@ public class PermissionTicketRepositoryTest extends AbstractManagementTest {
         // create resource_set, resource_scopes being the most important field.
         PermissionRequest source = new PermissionRequest().setResourceId("one").setResourceScopes(Arrays.asList("c","d"));
         PermissionTicket permissionTicket = new PermissionTicket().setPermissionRequest(Arrays.asList(source));
-        PermissionTicket ptCreated = RxJava2Adapter.singleToMono(repository.create(permissionTicket)).block();
+        PermissionTicket ptCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(permissionTicket))).block();
         PermissionTicket toUpdate = new PermissionTicket().setId(ptCreated.getId()).setPermissionRequest(Arrays.asList(permission));
 
         // fetch permission_ticket
-        TestObserver<PermissionTicket> testObserver = repository.update(toUpdate).test();
+        TestObserver<PermissionTicket> testObserver = RxJava2Adapter.monoToSingle(repository.update_migrated(toUpdate)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -72,10 +72,10 @@ public class PermissionTicketRepositoryTest extends AbstractManagementTest {
     public void delete() throws TechnicalException {
         // create permission_ticket
         PermissionTicket permissionTicket = new PermissionTicket().setPermissionRequest(Arrays.asList(permission));
-        PermissionTicket ptCreated = RxJava2Adapter.singleToMono(repository.create(permissionTicket)).block();
+        PermissionTicket ptCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(permissionTicket))).block();
 
         // fetch permission_ticket
-        TestObserver<Void> testObserver = repository.delete(ptCreated.getId()).test();
+        TestObserver<Void> testObserver = RxJava2Adapter.monoToCompletable(repository.delete_migrated(ptCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();

@@ -30,6 +30,7 @@ import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -90,7 +91,7 @@ public class RegisterConfirmationSubmissionEndpoint extends UserRequestHandler {
     }
 
     private void confirmRegistration(Client client, User user, io.gravitee.am.identityprovider.api.User principal, Handler<AsyncResult<RegistrationResponse>> handler) {
-        userService.confirmRegistration(client, user, principal)
+        RxJava2Adapter.monoToSingle(userService.confirmRegistration_migrated(client, user, principal))
                 .subscribe(
                         response -> handler.handle(Future.succeededFuture(response)),
                         error -> handler.handle(Future.failedFuture(error)));

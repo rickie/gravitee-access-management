@@ -102,17 +102,17 @@ public class TokenServiceTest {
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
-        when(jwtService.encode(any(), any(Client.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just("")));
-        when(tokenEnhancer.enhance(any(), any(), any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new AccessToken("token-id"))));
+        when(jwtService.encode_migrated(any(), any(Client.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(""))));
+        when(tokenEnhancer.enhance_migrated(any(), any(), any(), any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new AccessToken("token-id")))));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
         doNothing().when(tokenManager).storeAccessToken(any());
-        TestObserver<Token> testObserver = tokenService.create(oAuth2Request, client, null).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(tokenService.create_migrated(oAuth2Request, client, null)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         verify(tokenManager, times(1)).storeAccessToken(any());
-        verify(accessTokenRepository, never()).delete(anyString());
-        verify(refreshTokenRepository, never()).delete(anyString());
+        verify(accessTokenRepository, never()).delete_migrated(anyString());
+        verify(refreshTokenRepository, never()).delete_migrated(anyString());
     }
 
     @Test
@@ -126,19 +126,19 @@ public class TokenServiceTest {
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
         ArgumentCaptor<JWT> jwtCaptor = ArgumentCaptor.forClass(JWT.class);
-        when(jwtService.encode(jwtCaptor.capture(), any(Client.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just("")));
-        when(tokenEnhancer.enhance(any(), any(), any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new AccessToken("token-id"))));
+        when(jwtService.encode_migrated(jwtCaptor.capture(), any(Client.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(""))));
+        when(tokenEnhancer.enhance_migrated(any(), any(), any(), any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new AccessToken("token-id")))));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
         doNothing().when(tokenManager).storeAccessToken(any());
-        TestObserver<Token> testObserver = tokenService.create(oAuth2Request, client, null).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(tokenService.create_migrated(oAuth2Request, client, null)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
         JWT jwt = jwtCaptor.getValue();
         assertTrue(jwt!=null && jwt.get("permissions")!=null);
         verify(tokenManager, times(1)).storeAccessToken(any());
-        verify(accessTokenRepository, never()).delete(anyString());
-        verify(refreshTokenRepository, never()).delete(anyString());
+        verify(accessTokenRepository, never()).delete_migrated(anyString());
+        verify(refreshTokenRepository, never()).delete_migrated(anyString());
     }
 
     @Test
@@ -167,12 +167,12 @@ public class TokenServiceTest {
         when(executionContext.getTemplateEngine()).thenReturn(templateEngine);
 
         ArgumentCaptor<JWT> jwtCaptor = ArgumentCaptor.forClass(JWT.class);
-        when(jwtService.encode(jwtCaptor.capture(), any(Client.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just("")));
-        when(tokenEnhancer.enhance(any(), any(), any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new AccessToken("token-id"))));
+        when(jwtService.encode_migrated(jwtCaptor.capture(), any(Client.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(""))));
+        when(tokenEnhancer.enhance_migrated(any(), any(), any(), any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new AccessToken("token-id")))));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
         doNothing().when(tokenManager).storeAccessToken(any());
 
-        TestObserver<Token> testObserver = tokenService.create(oAuth2Request, client, null).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(tokenService.create_migrated(oAuth2Request, client, null)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
@@ -181,8 +181,8 @@ public class TokenServiceTest {
         assertTrue(jwt.get("iss") != null && "https://custom-iss".equals(jwt.get("iss")));
         assertTrue(jwt.get("aud") != null && "my-api".equals(jwt.get("aud")));
         verify(tokenManager, times(1)).storeAccessToken(any());
-        verify(accessTokenRepository, never()).delete(anyString());
-        verify(refreshTokenRepository, never()).delete(anyString());
+        verify(accessTokenRepository, never()).delete_migrated(anyString());
+        verify(refreshTokenRepository, never()).delete_migrated(anyString());
         verify(executionContext).setAttribute(eq(ConstantKeys.AUTH_FLOW_CONTEXT_ATTRIBUTES_KEY), any());
     }
 
@@ -208,16 +208,16 @@ public class TokenServiceTest {
         jwt.setAud(clientId);
         jwt.setExp(refreshToken.getExpireAt().getTime() / 1000l);
 
-        when(jwtService.decodeAndVerify(any(), any(Client.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(refreshTokenRepository.findByToken(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(refreshToken)));
-        when(refreshTokenRepository.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(jwtService.decodeAndVerify_migrated(any(), any(Client.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(refreshTokenRepository.findByToken_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(refreshToken))));
+        when(refreshTokenRepository.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver<Token> testObserver = tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(tokenService.refresh_migrated(refreshToken.getToken(), tokenRequest, client)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(refreshTokenRepository, times(1)).findByToken(any());
-        verify(refreshTokenRepository, times(1)).delete(anyString());
+        verify(refreshTokenRepository, times(1)).findByToken_migrated(any());
+        verify(refreshTokenRepository, times(1)).delete_migrated(anyString());
     }
 
     @Test
@@ -243,11 +243,11 @@ public class TokenServiceTest {
         jwt.setExp(refreshToken.getExpireAt().getTime() / 1000l);
         jwt.put("permissions", Arrays.asList(new PermissionRequest().setResourceId("one").setResourceScopes(Arrays.asList("A"))));
 
-        when(jwtService.decodeAndVerify(any(), any(Client.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(refreshTokenRepository.findByToken(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(refreshToken)));
-        when(refreshTokenRepository.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(jwtService.decodeAndVerify_migrated(any(), any(Client.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(refreshTokenRepository.findByToken_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(refreshToken))));
+        when(refreshTokenRepository.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver<Token> testObserver = tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(tokenService.refresh_migrated(refreshToken.getToken(), tokenRequest, client)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         //Check permissions are well available into the refresh_token object.
@@ -256,8 +256,8 @@ public class TokenServiceTest {
         List<PermissionRequest> permissions = tokenRequest.getPermissions();
         assertNotNull(permissions);
         assertTrue("one".equals(permissions.get(0).getResourceId()) && "A".equals(permissions.get(0).getResourceScopes().get(0)));
-        verify(refreshTokenRepository, times(1)).findByToken(any());
-        verify(refreshTokenRepository, times(1)).delete(anyString());
+        verify(refreshTokenRepository, times(1)).findByToken_migrated(any());
+        verify(refreshTokenRepository, times(1)).delete_migrated(anyString());
     }
 
     @Test
@@ -280,16 +280,16 @@ public class TokenServiceTest {
         jwt.setAud(clientId);
         jwt.setExp(refreshToken.getExpireAt().getTime() / 1000l);
 
-        when(jwtService.decodeAndVerify(eq("encoded"), any(Client.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(refreshTokenRepository.findByToken(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(jwtService.decodeAndVerify_migrated(eq("encoded"), any(Client.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(refreshTokenRepository.findByToken_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver<Token> testObserver = tokenService.refresh("encoded", tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(tokenService.refresh_migrated("encoded", tokenRequest, client)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidGrantException.class);
 
-        verify(refreshTokenRepository, times(1)).findByToken(any());
-        verify(refreshTokenRepository, never()).delete(anyString());
-        verify(accessTokenRepository, never()).create(any());
+        verify(refreshTokenRepository, times(1)).findByToken_migrated(any());
+        verify(refreshTokenRepository, never()).delete_migrated(anyString());
+        verify(accessTokenRepository, never()).create_migrated(any());
     }
 
     @Test
@@ -312,16 +312,16 @@ public class TokenServiceTest {
         jwt.setAud(clientId);
         jwt.setExp(refreshToken.getExpireAt().getTime() / 1000l);
 
-        when(jwtService.decodeAndVerify(eq(refreshToken.getToken()), any(Client.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(refreshTokenRepository.findByToken(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(refreshToken)));
+        when(jwtService.decodeAndVerify_migrated(eq(refreshToken.getToken()), any(Client.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(refreshTokenRepository.findByToken_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(refreshToken))));
 
-        TestObserver<Token> testObserver = tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(tokenService.refresh_migrated(refreshToken.getToken(), tokenRequest, client)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidGrantException.class);
 
-        verify(refreshTokenRepository, times(1)).findByToken(any());
-        verify(refreshTokenRepository, never()).delete(anyString());
-        verify(accessTokenRepository, never()).create(any());
+        verify(refreshTokenRepository, times(1)).findByToken_migrated(any());
+        verify(refreshTokenRepository, never()).delete_migrated(anyString());
+        verify(accessTokenRepository, never()).create_migrated(any());
     }
 
     @Test
@@ -344,15 +344,15 @@ public class TokenServiceTest {
         jwt.setAud(clientId);
         jwt.setExp(refreshToken.getExpireAt().getTime() / 1000l);
 
-        when(jwtService.decodeAndVerify(any(), any(Client.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(refreshTokenRepository.findByToken(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(refreshToken)));
+        when(jwtService.decodeAndVerify_migrated(any(), any(Client.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(refreshTokenRepository.findByToken_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(refreshToken))));
 
-        TestObserver<Token> testObserver = tokenService.refresh(refreshToken.getToken(), tokenRequest, client).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(tokenService.refresh_migrated(refreshToken.getToken(), tokenRequest, client)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidGrantException.class);
 
-        verify(refreshTokenRepository, times(1)).findByToken(any());
-        verify(refreshTokenRepository, never()).delete(anyString());
-        verify(accessTokenRepository, never()).create(any());
+        verify(refreshTokenRepository, times(1)).findByToken_migrated(any());
+        verify(refreshTokenRepository, never()).delete_migrated(anyString());
+        verify(accessTokenRepository, never()).create_migrated(any());
     }
 }

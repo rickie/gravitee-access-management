@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -39,7 +40,7 @@ public class LdapBindAuthenticationProviderTest extends LdapAuthenticationProvid
         String credentials = "bobspassword";
         String principal = "bob";
 
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return credentials;
@@ -54,7 +55,7 @@ public class LdapBindAuthenticationProviderTest extends LdapAuthenticationProvid
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
 

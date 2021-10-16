@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -40,7 +41,7 @@ public abstract class JdbcAuthenticationProviderTest {
 
     @Test
     public void shouldLoadUserByUsername_authentication() {
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "bobspassword";
@@ -55,7 +56,7 @@ public abstract class JdbcAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
 
@@ -66,7 +67,7 @@ public abstract class JdbcAuthenticationProviderTest {
 
     @Test
     public void shouldLoadUserByUsername_authentication_multifield_username() {
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "user01";
@@ -81,7 +82,7 @@ public abstract class JdbcAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
 
@@ -92,7 +93,7 @@ public abstract class JdbcAuthenticationProviderTest {
 
     @Test
     public void shouldLoadUserByUsername_authentication_multifield_email() {
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "user01";
@@ -107,7 +108,7 @@ public abstract class JdbcAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
 
@@ -118,7 +119,7 @@ public abstract class JdbcAuthenticationProviderTest {
 
     @Test
     public void shouldLoadUserByUsername_authentication_badCredentials() {
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "wrongpassword";
@@ -133,14 +134,14 @@ public abstract class JdbcAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(BadCredentialsException.class);
     }
 
     @Test
     public void shouldNotLoadUserByUsername_authentication_usernameNotFound() {
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "bobspassword";
@@ -155,7 +156,7 @@ public abstract class JdbcAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertError(UsernameNotFoundException.class);

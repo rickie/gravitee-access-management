@@ -30,9 +30,9 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
 import java.util.HashMap;
 import java.util.Map;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -78,7 +78,7 @@ public class RegisterProcessHandler extends UserRequestHandler {
     }
 
     private void register(Client client, User user, io.gravitee.am.identityprovider.api.User principal, Handler<AsyncResult<RegistrationResponse>> handler) {
-        userService.register(client, user, principal)
+        RxJava2Adapter.monoToSingle(userService.register_migrated(client, user, principal))
                 .subscribe(
                         response -> handler.handle(Future.succeededFuture(response)),
                         error -> handler.handle(Future.failedFuture(error)));

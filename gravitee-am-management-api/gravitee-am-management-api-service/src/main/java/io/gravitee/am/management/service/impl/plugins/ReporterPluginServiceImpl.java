@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.management.service.impl.plugins;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.management.service.ReporterPluginService;
 import io.gravitee.am.plugins.reporter.core.ReporterPluginManager;
 import io.gravitee.am.service.exception.TechnicalManagementException;
@@ -43,7 +44,8 @@ public class ReporterPluginServiceImpl implements ReporterPluginService {
     @Autowired
     private ReporterPluginManager reporterPluginManager;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<ReporterPlugin>> findAll() {
  return RxJava2Adapter.monoToSingle(findAll_migrated());
@@ -56,7 +58,8 @@ public class ReporterPluginServiceImpl implements ReporterPluginService {
                 .toList());
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(reporterId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<ReporterPlugin> findById(String reporterId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(reporterId));
@@ -79,7 +82,8 @@ public class ReporterPluginServiceImpl implements ReporterPluginService {
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(reporterId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<String> getSchema(String reporterId) {
  return RxJava2Adapter.monoToMaybe(getSchema_migrated(reporterId));

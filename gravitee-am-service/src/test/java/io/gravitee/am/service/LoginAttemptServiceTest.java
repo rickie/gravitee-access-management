@@ -63,10 +63,10 @@ public class LoginAttemptServiceTest {
         accountSettings.setMaxLoginAttempts(1);
         accountSettings.setAccountBlockedDuration(24 * 60 * 60 * 1000);
 
-        when(loginAttemptRepository.findByCriteria(loginAttemptCriteria)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(loginAttempt)));
-        when(loginAttemptRepository.update(loginAttempt)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(loginAttempt)));
+        when(loginAttemptRepository.findByCriteria_migrated(loginAttemptCriteria)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(loginAttempt))));
+        when(loginAttemptRepository.update_migrated(loginAttempt)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(loginAttempt))));
 
-        TestObserver testObserver = loginAttemptService.loginFailed(loginAttemptCriteria, accountSettings).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(loginAttemptService.loginFailed_migrated(loginAttemptCriteria, accountSettings)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
     }
@@ -88,10 +88,10 @@ public class LoginAttemptServiceTest {
         accountSettings.setMaxLoginAttempts(1);
         accountSettings.setAccountBlockedDuration(24 * 60 * 60 * 1000);
 
-        when(loginAttemptRepository.findByCriteria(loginAttemptCriteria)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(loginAttempt)));
-        when(loginAttemptRepository.update(loginAttempt)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(loginAttempt)));
+        when(loginAttemptRepository.findByCriteria_migrated(loginAttemptCriteria)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(loginAttempt))));
+        when(loginAttemptRepository.update_migrated(loginAttempt)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(loginAttempt))));
 
-        TestObserver testObserver = loginAttemptService.loginFailed(loginAttemptCriteria, accountSettings).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(loginAttemptService.loginFailed_migrated(loginAttemptCriteria, accountSettings)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
     }

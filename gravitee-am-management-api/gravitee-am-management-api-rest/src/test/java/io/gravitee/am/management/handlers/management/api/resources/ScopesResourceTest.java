@@ -64,7 +64,7 @@ public class ScopesResourceTest extends JerseySpringTest {
 
         final Set<Scope> scopes = new HashSet<>(Arrays.asList(mockScope, mockScope2));
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(scopes,0, 2)))).when(scopeService).findByDomain(domainId, 0, 50);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(scopes,0, 2))))).when(scopeService).findByDomain_migrated(domainId, 0, 50);
 
         final Response response = target("domains").path(domainId).path("scopes").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -76,7 +76,7 @@ public class ScopesResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetScopes_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("error occurs")))).when(scopeService).findByDomain(domainId, 0, 50);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("error occurs"))))).when(scopeService).findByDomain_migrated(domainId, 0, 50);
 
         final Response response = target("domains").path(domainId).path("scopes").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -99,8 +99,8 @@ public class ScopesResourceTest extends JerseySpringTest {
         scope.setKey("scope-key");
         scope.setName("scope-name");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(scope))).when(scopeService).create(eq(domainId), any(NewScope.class), any());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(scope)))).when(scopeService).create_migrated(eq(domainId), any(NewScope.class), any());
 
         final Response response = target("domains")
                 .path(domainId)

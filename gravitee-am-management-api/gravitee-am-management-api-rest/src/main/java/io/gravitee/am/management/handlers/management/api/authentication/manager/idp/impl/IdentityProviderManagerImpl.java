@@ -27,14 +27,14 @@ import io.gravitee.am.service.IdentityProviderService;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.event.EventManager;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -77,7 +77,7 @@ public class IdentityProviderManagerImpl implements IdentityProviderManager, Ini
 
         logger.info("Initializing identity providers for all organizations");
         try {
-            identityProviderService.findAll(ReferenceType.ORGANIZATION).blockingForEach(this::updateAuthenticationProvider);
+            RxJava2Adapter.fluxToFlowable(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION)).blockingForEach(this::updateAuthenticationProvider);
             logger.info("Identity providers loaded for all organizations");
         } catch (Exception e) {
             logger.error("Unable to initialize identity providers", e);
@@ -109,7 +109,7 @@ public class IdentityProviderManagerImpl implements IdentityProviderManager, Ini
     private void updateIdentityProvider(String identityProviderId, String organizationId, IdentityProviderEvent identityProviderEvent) {
         final String eventType = identityProviderEvent.toString().toLowerCase();
         logger.info("Organization {} has received {} identity provider event for {}", organizationId, eventType, identityProviderId);
-        identityProviderService.findById(identityProviderId)
+        RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(identityProviderId))
                 .subscribe(
                         identityProvider -> {
                             updateAuthenticationProvider(identityProvider);

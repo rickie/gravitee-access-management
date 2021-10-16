@@ -15,11 +15,11 @@
  */
 package io.gravitee.am.identityprovider.ldap.authentication;
 
+import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.identityprovider.api.Authentication;
 import io.gravitee.am.identityprovider.api.AuthenticationContext;
 import io.gravitee.am.identityprovider.api.AuthenticationProvider;
 import io.gravitee.am.identityprovider.api.User;
-import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.reactivex.observers.TestObserver;
 import org.junit.After;
 import org.junit.Before;
@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.zapodot.junit.ldap.EmbeddedLdapRule;
 import org.zapodot.junit.ldap.EmbeddedLdapRuleBuilder;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -73,7 +74,7 @@ public abstract class LdapAuthenticationProviderTest {
     @Test
     public void shouldLoadUserByUsername_authentication_badCredentials() throws Exception {
         embeddedLdapRule.ldapConnection();
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "wrongpassword";
@@ -88,7 +89,7 @@ public abstract class LdapAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
 
         testObserver.assertError(BadCredentialsException.class);
     }
@@ -96,7 +97,7 @@ public abstract class LdapAuthenticationProviderTest {
     @Test
     public void shouldLoadUserByUsername_authentication_usernameNotFound() throws Exception {
         embeddedLdapRule.ldapConnection();
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "benspassword";
@@ -111,7 +112,7 @@ public abstract class LdapAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return null;
             }
-        }).test();
+        })).test();
 
         testObserver.assertError(BadCredentialsException.class);
     }

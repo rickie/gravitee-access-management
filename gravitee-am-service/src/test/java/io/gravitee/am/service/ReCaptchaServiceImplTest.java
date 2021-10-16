@@ -110,7 +110,7 @@ public class ReCaptchaServiceImplTest {
         when(httpResponse.bodyAsString())
                 .thenReturn(new JsonObject().put("success", true).put("score", 0.9d).toString());
 
-        spyHttpRequest(client.post(eq("https://verif")));
+        RxJava2Adapter.monoToSingle(spyHttpRequest_migrated(client.post(eq("https://verif"))));
 
         TestObserver<Boolean> obs = reCaptchaService.isValid("any").test();
         obs.awaitTerminalEvent();
@@ -126,7 +126,7 @@ public class ReCaptchaServiceImplTest {
         when(httpResponse.bodyAsString())
                 .thenReturn(new JsonObject().put("success", true).put("score", 1.0d).toString());
 
-        spyHttpRequest(client.post(eq("https://verif")));
+        RxJava2Adapter.monoToSingle(spyHttpRequest_migrated(client.post(eq("https://verif"))));
 
         TestObserver<Boolean> obs = reCaptchaService.isValid("any").test();
         obs.awaitTerminalEvent();
@@ -142,7 +142,7 @@ public class ReCaptchaServiceImplTest {
         when(httpResponse.bodyAsString())
                 .thenReturn(new JsonObject().put("success", true).put("score", 0.4d).toString());
 
-        spyHttpRequest(client.post(eq("https://verif")));
+        RxJava2Adapter.monoToSingle(spyHttpRequest_migrated(client.post(eq("https://verif"))));
 
         TestObserver<Boolean> obs = reCaptchaService.isValid("any").test();
         obs.awaitTerminalEvent();
@@ -158,7 +158,7 @@ public class ReCaptchaServiceImplTest {
         when(httpResponse.bodyAsString())
                 .thenReturn(new JsonObject().put("success", false).put("score", 0.0d).toString());
 
-        spyHttpRequest(client.post(eq("https://verif")));
+        RxJava2Adapter.monoToSingle(spyHttpRequest_migrated(client.post(eq("https://verif"))));
 
         TestObserver<Boolean> obs = reCaptchaService.isValid("any").test();
         obs.awaitTerminalEvent();

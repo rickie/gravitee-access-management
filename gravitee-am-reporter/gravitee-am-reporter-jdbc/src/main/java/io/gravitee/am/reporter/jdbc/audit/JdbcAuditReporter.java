@@ -170,13 +170,13 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
 
         switch (analyticsType) {
             case DATE_HISTO:
-                return RxJava2Adapter.singleToMono(executeHistogramAggregation(referenceType, referenceId, criteria));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(executeHistogramAggregation_migrated(referenceType, referenceId, criteria)));
             case GROUP_BY:
                 SearchQuery groupByQuery = dialectHelper.buildGroupByQuery(referenceType, referenceId, criteria);
-                return RxJava2Adapter.singleToMono(executeGroupBy(groupByQuery, criteria));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(executeGroupBy_migrated(groupByQuery, criteria)));
             case COUNT:
                 SearchQuery searchQuery = dialectHelper.buildSearchQuery(referenceType, referenceId, criteria);
-                return RxJava2Adapter.singleToMono(executeCount(searchQuery));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(executeCount_migrated(searchQuery)));
             default:
                 return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated"))));
         }
@@ -200,7 +200,7 @@ protected Mono<Map<Object,Object>> executeHistogramAggregation_migrated(Referenc
             return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(result)));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(dialectHelper.buildAndProcessHistogram(dbClient, referenceType, referenceId, criteria)).map(RxJavaReactorMigrationUtil.toJdkFunction(stats -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(dialectHelper.buildAndProcessHistogram_migrated(dbClient, referenceType, referenceId, criteria))).map(RxJavaReactorMigrationUtil.toJdkFunction(stats -> {
             Map<Long, Long> successResult = new TreeMap<>();
             Map<Long, Long> failureResult = new TreeMap<>();
             stats.forEach(slotValue -> {
@@ -558,7 +558,7 @@ private Flux<Audit> bulk_migrated(List<Audit> audits) {
             disposable = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(bulkProcessor.buffer(
                     configuration.getFlushInterval(),
                     TimeUnit.SECONDS,
-                    configuration.getBulkActions())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(JdbcAuditReporter.this::bulk)))
+                    configuration.getBulkActions())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.reporter.api.audit.model.Audit> ident) -> RxJava2Adapter.fluxToFlowable(JdbcAuditReporter.this.bulk_migrated(ident)))))
                     .doOnError(error -> LOGGER.error("An error occurs while indexing data into report_audits_{} table of {} database",
                             configuration.getTableSuffix(), configuration.getDatabase(), error))
                     .subscribe();

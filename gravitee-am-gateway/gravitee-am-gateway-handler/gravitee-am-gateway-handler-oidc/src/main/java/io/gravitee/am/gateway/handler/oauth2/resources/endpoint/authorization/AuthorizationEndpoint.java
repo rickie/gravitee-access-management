@@ -85,10 +85,10 @@ public class AuthorizationEndpoint implements Handler<RoutingContext> {
         io.gravitee.am.model.User endUser = ((io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User) authenticatedUser.getDelegate()).getUser();
 
         final String uriIdentifier = context.get(ConstantKeys.REQUEST_URI_ID_KEY);
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(parService.deleteRequestUri(uriIdentifier).onErrorResumeNext((err) -> {
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(parService.deleteRequestUri_migrated(uriIdentifier)).onErrorResumeNext((err) -> {
             logger.warn("Deletion of Pushed Authorization Request with id '{}' failed", uriIdentifier, err);
             return RxJava2Adapter.monoToCompletable(Mono.empty());
-        })).then(RxJava2Adapter.singleToMono(flow.run(request, client, endUser))))
+        })).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flow.run_migrated(request, client, endUser)))))
                 .subscribe(
                         authorizationResponse -> {
                             try {

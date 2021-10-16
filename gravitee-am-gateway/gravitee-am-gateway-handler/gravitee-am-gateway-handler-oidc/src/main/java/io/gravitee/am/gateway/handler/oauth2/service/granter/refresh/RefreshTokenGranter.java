@@ -73,7 +73,7 @@ public class RefreshTokenGranter extends AbstractTokenGranter {
             return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("A refresh token must be supplied."))));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client)).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(getTokenService().refresh(refreshToken, tokenRequest, client)).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.gateway.handler.oauth2.service.token.Token refreshToken1)->{
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(super.parseRequest_migrated(tokenRequest, client))).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getTokenService().refresh_migrated(refreshToken, tokenRequest, client))).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.gateway.handler.oauth2.service.token.Token refreshToken1)->{
 if (refreshToken1.getSubject() != null) {
 tokenRequest1.setSubject(refreshToken1.getSubject());
 }
@@ -104,7 +104,7 @@ return tokenRequest1;
             return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
         }
 
-        return RxJava2Adapter.maybeToMono(userAuthenticationManager.loadPreAuthenticatedUser(subject, tokenRequest)
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userAuthenticationManager.loadPreAuthenticatedUser_migrated(subject, tokenRequest))
                 .onErrorResumeNext(ex -> { return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException())); }));
     }
 

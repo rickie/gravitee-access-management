@@ -28,6 +28,7 @@ import io.gravitee.common.http.MediaType;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -41,8 +42,7 @@ public class UserEndpoint extends AbstractUserEndpoint {
 
     public void get(RoutingContext context) {
         final String userId = context.request().getParam("id");
-        userService
-                .get(userId, location(context.request()))
+        RxJava2Adapter.monoToMaybe(userService.get_migrated(userId, location(context.request())))
                 .subscribe(
                         user -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -112,7 +112,7 @@ public class UserEndpoint extends AbstractUserEndpoint {
                 return;
             }
 
-            userService.update(userId, user, location(context.request()))
+            RxJava2Adapter.monoToSingle(userService.update_migrated(userId, user, location(context.request())))
                     .subscribe(
                             user1 -> context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -174,7 +174,7 @@ public class UserEndpoint extends AbstractUserEndpoint {
                 return;
             }
 
-            userService.patch(userId, patchOp, location(context.request()))
+            RxJava2Adapter.monoToSingle(userService.patch_migrated(userId, patchOp, location(context.request())))
                     .subscribe(
                             user1 -> context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -207,7 +207,7 @@ public class UserEndpoint extends AbstractUserEndpoint {
      */
     public void delete(RoutingContext context) {
         final String userId = context.request().getParam("id");
-        userService.delete(userId)
+        RxJava2Adapter.monoToCompletable(userService.delete_migrated(userId))
                 .subscribe(
                         () -> context.response().setStatusCode(204).end(),
                         context::fail);

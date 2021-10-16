@@ -16,6 +16,7 @@
 package io.gravitee.am.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.service.ReCaptchaService;
 import io.reactivex.Single;
 import io.vertx.reactivex.core.MultiMap;
@@ -64,7 +65,8 @@ public class ReCaptchaServiceImpl implements ReCaptchaService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isValid_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Boolean> isValid(String token) {
  return RxJava2Adapter.monoToSingle(isValid_migrated(token));

@@ -21,6 +21,7 @@ import io.gravitee.am.model.User;
 import io.gravitee.am.service.exception.CredentialNotFoundException;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import org.springframework.context.ApplicationContext;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -41,7 +42,7 @@ public class AccountWebAuthnCredentialsEndpointHandler {
      */
     public void listEnrolledWebAuthnCredentials(RoutingContext routingContext) {
         final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        accountService.getWebAuthnCredentials(user)
+        RxJava2Adapter.monoToSingle(accountService.getWebAuthnCredentials_migrated(user))
                         .subscribe(
                                 enrolledCredentials -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledCredentials),
                                 routingContext::fail
@@ -56,7 +57,7 @@ public class AccountWebAuthnCredentialsEndpointHandler {
     public void getEnrolledWebAuthnCredential(RoutingContext routingContext) {
         final String credentialId = routingContext.request().getParam("credentialId");
 
-        accountService.getWebAuthnCredential(credentialId)
+        RxJava2Adapter.monoToSingle(accountService.getWebAuthnCredential_migrated(credentialId))
                 .subscribe(
                         credential -> AccountResponseHandler.handleDefaultResponse(routingContext, credential),
                         routingContext::fail

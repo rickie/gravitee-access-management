@@ -25,6 +25,7 @@ import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -44,7 +45,7 @@ public class DynamicClientRegistrationTemplateEndpoint implements Handler<Routin
     public void handle(RoutingContext context) {
         LOGGER.debug("Dynamic client registration TEMPLATE endpoint");
 
-        this.clientSyncService.findTemplates()
+        RxJava2Adapter.monoToSingle(this.clientSyncService.findTemplates_migrated())
                 .subscribe(
                         templates -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")

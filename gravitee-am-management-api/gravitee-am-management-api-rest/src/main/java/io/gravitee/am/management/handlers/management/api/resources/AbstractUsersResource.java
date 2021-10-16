@@ -68,7 +68,7 @@ protected Mono<Page<User>> searchUsers_migrated(ReferenceType referenceType,
                                              int page,
                                              int size) {
         CommonUserService service = (referenceType == ReferenceType.ORGANIZATION ? organizationUserService : userService);
-        return RxJava2Adapter.singleToMono(executeSearchUsers(service, referenceType, referenceId, query, filter, page, size));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(executeSearchUsers_migrated(service, referenceType, referenceId, query, filter, page, size)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeSearchUsers_migrated(service, referenceType, referenceId, query, filter, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -78,12 +78,12 @@ private Single<Page<User>> executeSearchUsers(CommonUserService service, Referen
 }
 private Mono<Page<User>> executeSearchUsers_migrated(CommonUserService service, ReferenceType referenceType, String referenceId, String query, String filter, int page, int size) {
         if (query != null) {
-            return RxJava2Adapter.singleToMono(service.search(referenceType, referenceId, query, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE)));
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(service.search_migrated(referenceType, referenceId, query, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE))));
         }
         if (filter != null) {
             return RxJava2Adapter.singleToMono(Single.defer(() -> {
                 FilterCriteria filterCriteria = FilterCriteria.convert(SCIMFilterParser.parse(filter));
-                return service.search(referenceType, referenceId, filterCriteria, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE));
+                return RxJava2Adapter.monoToSingle(service.search_migrated(referenceType, referenceId, filterCriteria, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE)));
             }).onErrorResumeNext(ex -> {
                 if (ex instanceof IllegalArgumentException) {
                     return RxJava2Adapter.monoToSingle(Mono.error(new BadRequestException(ex.getMessage())));
@@ -91,7 +91,7 @@ private Mono<Page<User>> executeSearchUsers_migrated(CommonUserService service, 
                 return RxJava2Adapter.monoToSingle(Mono.error(ex));
             }));
         }
-        return RxJava2Adapter.singleToMono(service.findAll(referenceType, referenceId, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE)));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(service.findAll_migrated(referenceType, referenceId, page, Integer.min(size, MAX_USERS_SIZE_PER_PAGE))));
     }
 
 }

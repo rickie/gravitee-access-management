@@ -34,6 +34,6 @@ public Single<TokenRequest> resolve(TokenRequest tokenRequest, Client client, Us
  return RxJava2Adapter.monoToSingle(resolve_migrated(tokenRequest, client, endUser));
 }
 public Mono<TokenRequest> resolve_migrated(TokenRequest tokenRequest, Client client, User endUser) {
-        return RxJava2Adapter.singleToMono(resolveAuthorizedScopes(tokenRequest, client, endUser));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(resolveAuthorizedScopes_migrated(tokenRequest, client, endUser)));
     }
 }

@@ -17,6 +17,7 @@ package io.gravitee.am.gateway.certificate;
 
 import static org.junit.Assert.assertEquals;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.certificate.api.CertificateMetadata;
 import io.gravitee.am.certificate.api.DefaultKey;
 import io.gravitee.am.common.jwt.JWT;
@@ -86,7 +87,8 @@ public class CertificateProviderManagerTest {
         certificateMetadata.setMetadata(Collections.singletonMap(CertificateMetadata.DIGEST_ALGORITHM_NAME, "none"));
 
         io.gravitee.am.certificate.api.CertificateProvider noneProvider = new io.gravitee.am.certificate.api.CertificateProvider() {
-            @Deprecated
+            @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(privateKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
             public Flowable<JWK> privateKey() {
  return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
@@ -96,7 +98,8 @@ public class CertificateProviderManagerTest {
                 throw new UnsupportedOperationException("No private key for \"none\" algorithm");
             }
 
-            @Deprecated
+            @InlineMe(replacement = "RxJava2Adapter.monoToSingle(key_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
             public Single<io.gravitee.am.certificate.api.Key> key() {
  return RxJava2Adapter.monoToSingle(key_migrated());
@@ -106,7 +109,8 @@ public class CertificateProviderManagerTest {
                 throw new UnsupportedOperationException("No key for \"none\" algorithm");
             }
 
-            @Deprecated
+            @InlineMe(replacement = "RxJava2Adapter.monoToSingle(publicKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
             public Single<String> publicKey() {
  return RxJava2Adapter.monoToSingle(publicKey_migrated());
@@ -116,7 +120,8 @@ public class CertificateProviderManagerTest {
                 throw new UnsupportedOperationException("No public key for \"none\" algorithm");
             }
 
-            @Deprecated
+            @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(keys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
             public Flowable<JWK> keys() {
  return RxJava2Adapter.fluxToFlowable(keys_migrated());
@@ -148,7 +153,8 @@ public class CertificateProviderManagerTest {
         certificateMetadata.setMetadata(Collections.singletonMap(CertificateMetadata.DIGEST_ALGORITHM_NAME, defaultDigestAlgorithm));
 
         io.gravitee.am.certificate.api.CertificateProvider defaultProvider = new io.gravitee.am.certificate.api.CertificateProvider() {
-            @Deprecated
+            @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(privateKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
             public Flowable<JWK> privateKey() {
  return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
@@ -158,7 +164,8 @@ public class CertificateProviderManagerTest {
                return RxJava2Adapter.flowableToFlux(null);
             }
 
-            @Deprecated
+            @InlineMe(replacement = "RxJava2Adapter.monoToSingle(key_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
             public Single<io.gravitee.am.certificate.api.Key> key() {
  return RxJava2Adapter.monoToSingle(key_migrated());
@@ -168,7 +175,8 @@ public class CertificateProviderManagerTest {
                 return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificateKey)));
             }
 
-            @Deprecated
+            @InlineMe(replacement = "RxJava2Adapter.monoToSingle(publicKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
             public Single<String> publicKey() {
  return RxJava2Adapter.monoToSingle(publicKey_migrated());
@@ -178,7 +186,8 @@ public class CertificateProviderManagerTest {
                 return RxJava2Adapter.singleToMono(null);
             }
 
-            @Deprecated
+            @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(keys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
             public Flowable<JWK> keys() {
  return RxJava2Adapter.fluxToFlowable(keys_migrated());

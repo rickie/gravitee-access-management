@@ -56,7 +56,7 @@ public class FactorPluginResource {
     public void get(@PathParam("factor") String authenticatorId,
                     @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticatorPluginService.findById(authenticatorId)).switchIfEmpty(Mono.error(new AuthenticatorPluginNotFoundException(authenticatorId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticatorPluginService.findById_migrated(authenticatorId))).switchIfEmpty(Mono.error(new AuthenticatorPluginNotFoundException(authenticatorId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPlugin -> Response.ok(policyPlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -69,7 +69,7 @@ public class FactorPluginResource {
                           @Suspended final AsyncResponse response) {
 
         // Check that the authenticator exists
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authenticatorPluginService.findById(factorId)).switchIfEmpty(Mono.error(new AuthenticatorPluginNotFoundException(factorId))).flatMap(z->authenticatorPluginService.getSchema(factorId).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new AuthenticatorPluginSchemaNotFoundException(factorId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticatorPluginService.findById_migrated(factorId))).switchIfEmpty(Mono.error(new AuthenticatorPluginNotFoundException(factorId))).flatMap(z->RxJava2Adapter.monoToMaybe(authenticatorPluginService.getSchema_migrated(factorId)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new AuthenticatorPluginSchemaNotFoundException(factorId))).map(RxJavaReactorMigrationUtil.toJdkFunction(policyPluginSchema -> Response.ok(policyPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

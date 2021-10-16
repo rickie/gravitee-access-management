@@ -90,32 +90,32 @@ public class AuthenticationServiceTest {
         user.setReferenceId(ORGANIZATION_ID);
 
         when(authenticationMock.getPrincipal()).thenReturn(userDetailsMock);
-        when(userServiceMock.findByExternalIdAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(userServiceMock.findByUsernameAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(userServiceMock.create(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(userServiceMock.setRoles(any(), any(User.class))).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(userServiceMock.enhance(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(userServiceMock.findByExternalIdAndSource_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(userServiceMock.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(userServiceMock.create_migrated(any(User.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(userServiceMock.setRoles_migrated(any(), any(User.class))).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(userServiceMock.enhance_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
         authenticationService.onAuthenticationSuccess(authenticationMock);
 
-        verify(userServiceMock, times(1)).findByExternalIdAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null);
-        verify(userServiceMock, times(1)).findByUsernameAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null);
-        verify(userServiceMock, times(1)).create(any(User.class));
-        verify(userServiceMock, times(1)).setRoles(any(), any(User.class));
-        verify(userServiceMock, never()).update(any(User.class));
+        verify(userServiceMock, times(1)).findByExternalIdAndSource_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null);
+        verify(userServiceMock, times(1)).findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null);
+        verify(userServiceMock, times(1)).create_migrated(any(User.class));
+        verify(userServiceMock, times(1)).setRoles_migrated(any(), any(User.class));
+        verify(userServiceMock, never()).update_migrated(any(User.class));
     }
 
     @Test
     public void shouldUpdatedUser() {
         when(authenticationMock.getPrincipal()).thenReturn(userDetailsMock);
-        when(userServiceMock.findByExternalIdAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(repositoryUserMock)));
-        when(userServiceMock.update(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
-        when(userServiceMock.enhance(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
+        when(userServiceMock.findByExternalIdAndSource_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(repositoryUserMock))));
+        when(userServiceMock.update_migrated(any(User.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new User()))));
+        when(userServiceMock.enhance_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new User()))));
 
         authenticationService.onAuthenticationSuccess(authenticationMock);
 
-        verify(userServiceMock, times(1)).findByExternalIdAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null);
-        verify(userServiceMock, times(1)).update(any(User.class));
-        verify(membershipServiceMock, never()).addOrUpdate(any(String.class), any(Membership.class));
+        verify(userServiceMock, times(1)).findByExternalIdAndSource_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null);
+        verify(userServiceMock, times(1)).update_migrated(any(User.class));
+        verify(membershipServiceMock, never()).addOrUpdate_migrated(any(String.class), any(Membership.class));
     }
 
     @Test
@@ -131,19 +131,19 @@ public class AuthenticationServiceTest {
 
         when(authenticationMock.getPrincipal()).thenReturn(userDetailsMock);
 
-        when(userServiceMock.findByExternalIdAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(repositoryUserMock)));
-        when(userServiceMock.update(any(User.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
-        when(userServiceMock.enhance(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
+        when(userServiceMock.findByExternalIdAndSource_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(repositoryUserMock))));
+        when(userServiceMock.update_migrated(any(User.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new User()))));
+        when(userServiceMock.enhance_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new User()))));
 
-        when(roleServiceMock.findById(ReferenceType.ORGANIZATION, "organization-id", "organization-owner-role-id")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Role())));
+        when(roleServiceMock.findById_migrated(ReferenceType.ORGANIZATION, "organization-id", "organization-owner-role-id")).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Role()))));
 
-        when(membershipServiceMock.findByMember("user-id", MemberType.USER)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(membershipMock)));
-        when(membershipServiceMock.addOrUpdate(anyString(), any(Membership.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Membership())));
+        when(membershipServiceMock.findByMember_migrated("user-id", MemberType.USER)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(membershipMock))));
+        when(membershipServiceMock.addOrUpdate_migrated(anyString(), any(Membership.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Membership()))));
 
         authenticationService.onAuthenticationSuccess(authenticationMock);
 
-        verify(userServiceMock, times(1)).findByExternalIdAndSource(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null);
-        verify(userServiceMock, times(1)).update(any(User.class));
-        verify(membershipServiceMock, times(1)).addOrUpdate(any(String.class), any(Membership.class));
+        verify(userServiceMock, times(1)).findByExternalIdAndSource_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, userDetailsMock.getUsername(), null);
+        verify(userServiceMock, times(1)).update_migrated(any(User.class));
+        verify(membershipServiceMock, times(1)).addOrUpdate_migrated(any(String.class), any(Membership.class));
     }
 }

@@ -115,7 +115,7 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
     public void shouldInvokeLogoutEndpoint_targetUrl_client_noRestriction() throws Exception {
         Client client = mock(Client.class);
         when(client.getPostLogoutRedirectUris()).thenReturn(null);
-        when(clientSyncService.findById("client-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findById_migrated("client-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
 
         router.route().order(-1).handler(routingContext -> {
             User endUser = new User();
@@ -139,7 +139,7 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
     public void shouldInvokeLogoutEndpoint_targetUrl_client_restriction() throws Exception {
         Client client = mock(Client.class);
         when(client.getPostLogoutRedirectUris()).thenReturn(Arrays.asList("https://test"));
-        when(clientSyncService.findById("client-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findById_migrated("client-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
 
         router.route().order(-1).handler(routingContext -> {
             User endUser = new User();
@@ -163,7 +163,7 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
     public void shouldInvokeLogoutEndpoint_targetUrl_client_restriction_2() throws Exception {
         Client client = mock(Client.class);
         when(client.getPostLogoutRedirectUris()).thenReturn(Arrays.asList("https://test", "https://dev"));
-        when(clientSyncService.findById("client-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findById_migrated("client-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
 
         router.route().order(-1).handler(routingContext -> {
             User endUser = new User();
@@ -188,7 +188,7 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
         Client client = new Client();
         client.setClientId("client-id");
         client.setPostLogoutRedirectUris(Arrays.asList("https://dev"));
-        when(clientSyncService.findById("client-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findById_migrated("client-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
 
         router.route().order(-1).handler(routingContext -> {
             User endUser = new User();
@@ -216,9 +216,9 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
         Client client = new Client();
         client.setClientId("client-id");
         client.setPostLogoutRedirectUris(Arrays.asList("https://dev"));
-        when(jwtService.decode("idToken")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
-        when(clientSyncService.findByClientId("client-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
-        when(jwtService.decodeAndVerify("idToken", client)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(jwt)));
+        when(jwtService.decode_migrated("idToken")).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
+        when(clientSyncService.findByClientId_migrated("client-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(jwtService.decodeAndVerify_migrated("idToken", client)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(jwt))));
 
         router.route().order(-1).handler(routingContext -> {
             User endUser = new User();
@@ -266,17 +266,17 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
         client.setSingleSignOut(true);
 
         when(certificateManager.defaultCertificateProvider()).thenReturn(mock(CertificateProvider.class));
-        when(jwtService.encode(any(JWT.class), any(CertificateProvider.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just("jwtstatevalue")));
+        when(jwtService.encode_migrated(any(JWT.class), any(CertificateProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("jwtstatevalue"))));
 
-        when(clientSyncService.findById("client-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(clientSyncService.findByClientId("client-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findById_migrated("client-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(clientSyncService.findByClientId_migrated("client-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
 
         final SocialAuthenticationProvider authProvider = mock(SocialAuthenticationProvider.class);
         final Request req = new Request();
         req.setUri("https://oidc/logout");
         req.setMethod(io.gravitee.common.http.HttpMethod.GET);
-        when(authProvider.signOutUrl(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(req)));
-        when(identityProviderManager.get(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(authProvider)));
+        when(authProvider.signOutUrl_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(req))));
+        when(identityProviderManager.get_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(authProvider))));
 
         router.route().order(-1).handler(routingContext -> {
             User endUser = new User();
@@ -310,17 +310,17 @@ public class LogoutEndpointHandlerTest extends RxWebTestBase {
         client.setSingleSignOut(true);
 
         when(certificateManager.defaultCertificateProvider()).thenReturn(mock(CertificateProvider.class));
-        when(jwtService.encode(any(JWT.class), any(CertificateProvider.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just("jwtstatevalue")));
+        when(jwtService.encode_migrated(any(JWT.class), any(CertificateProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("jwtstatevalue"))));
 
-        when(clientSyncService.findById("client-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(clientSyncService.findByClientId("client-id")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(client)));
+        when(clientSyncService.findById_migrated("client-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(clientSyncService.findByClientId_migrated("client-id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
 
         final SocialAuthenticationProvider authProvider = mock(SocialAuthenticationProvider.class);
         final Request req = new Request();
         req.setUri("https://oidc/logout");
         req.setMethod(io.gravitee.common.http.HttpMethod.GET);
-        when(authProvider.signOutUrl(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(req)));
-        when(identityProviderManager.get(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(authProvider)));
+        when(authProvider.signOutUrl_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(req))));
+        when(identityProviderManager.get_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(authProvider))));
 
         router.route().order(-1).handler(routingContext -> {
             User endUser = new User();

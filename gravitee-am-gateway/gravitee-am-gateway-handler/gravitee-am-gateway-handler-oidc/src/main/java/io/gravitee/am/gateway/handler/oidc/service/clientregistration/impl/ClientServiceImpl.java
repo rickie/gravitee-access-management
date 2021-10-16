@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.clientregistration.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.common.utils.SecureRandomString;
@@ -58,7 +59,8 @@ public class ClientServiceImpl implements ClientService {
     @Autowired
     private ApplicationService applicationService;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Client> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -66,7 +68,7 @@ public class ClientServiceImpl implements ClientService {
 @Override
     public Mono<Client> findById_migrated(String id) {
         LOGGER.debug("Find client by ID: {}", id);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationService.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationService.findById_migrated(id))).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> {
                     Client client = application.toClient();
                     // Send an empty array in case of no grant types
                     if (client.getAuthorizedGrantTypes() == null) {
@@ -76,7 +78,8 @@ public class ClientServiceImpl implements ClientService {
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Client> create(Client client) {
  return RxJava2Adapter.monoToSingle(create_migrated(client));
@@ -118,10 +121,11 @@ public class ClientServiceImpl implements ClientService {
         client.setCreatedAt(new Date());
         client.setUpdatedAt(client.getCreatedAt());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.create(convert(client))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.create_migrated(convert(client)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Client> update(Client client) {
  return RxJava2Adapter.monoToSingle(update_migrated(client));
@@ -134,10 +138,11 @@ public class ClientServiceImpl implements ClientService {
             return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("No domain set on client"))));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.update(convert(client))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.update_migrated(convert(client)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(clientId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String clientId, User principal) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(clientId, principal));
@@ -145,10 +150,11 @@ public class ClientServiceImpl implements ClientService {
 @Override
     public Mono<Void> delete_migrated(String clientId, User principal) {
         LOGGER.debug("Delete client {}", clientId);
-        return RxJava2Adapter.completableToMono(applicationService.delete(clientId, principal));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(applicationService.delete_migrated(clientId, principal)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.renewClientSecret_migrated(domain, id, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Client> renewClientSecret(String domain, String id, User principal) {
  return RxJava2Adapter.monoToSingle(renewClientSecret_migrated(domain, id, principal));
@@ -156,7 +162,7 @@ public class ClientServiceImpl implements ClientService {
 @Override
     public Mono<Client> renewClientSecret_migrated(String domain, String id, User principal) {
         LOGGER.debug("Renew client secret for client {} in domain {}", id, domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.renewClientSecret(domain, id, principal)).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.renewClientSecret_migrated(domain, id, principal))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient))));
     }
 
     private Application convert(Client client) {

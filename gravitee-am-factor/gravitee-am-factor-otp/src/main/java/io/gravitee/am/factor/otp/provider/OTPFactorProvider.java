@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.factor.otp.provider;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.mfa.InvalidCodeException;
 import io.gravitee.am.factor.api.Enrollment;
 import io.gravitee.am.factor.api.FactorContext;
@@ -47,7 +48,8 @@ public class OTPFactorProvider implements FactorProvider {
     @Autowired
     private OTPFactorConfiguration otpFactorConfiguration;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.verify_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable verify(FactorContext context) {
  return RxJava2Adapter.monoToCompletable(verify_migrated(context));
@@ -71,7 +73,8 @@ public class OTPFactorProvider implements FactorProvider {
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enroll_migrated(account))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Enrollment> enroll(String account) {
  return RxJava2Adapter.monoToSingle(enroll_migrated(account));
@@ -90,7 +93,8 @@ public class OTPFactorProvider implements FactorProvider {
         return false;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.sendChallenge_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable sendChallenge(FactorContext context) {
  return RxJava2Adapter.monoToCompletable(sendChallenge_migrated(context));
@@ -114,7 +118,8 @@ public class OTPFactorProvider implements FactorProvider {
         return valid;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.generateQrCode_migrated(user, enrolledFactor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<String> generateQrCode(User user, EnrolledFactor enrolledFactor) {
  return RxJava2Adapter.monoToMaybe(generateQrCode_migrated(user, enrolledFactor));

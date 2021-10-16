@@ -42,7 +42,7 @@ public class CertificatesPluginResourceTest extends JerseySpringTest {
         certificatePlugin.setId("certificate-plugin-id");
         certificatePlugin.setName("certificate-plugin-name");
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Arrays.asList(certificatePlugin))))).when(certificatePluginService).findAll();
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Arrays.asList(certificatePlugin)))))).when(certificatePluginService).findAll_migrated();
 
         final Response response = target("platform").path("plugins").path("certificates").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -50,7 +50,7 @@ public class CertificatesPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldList_technicalManagementException() {
-        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("Error occurs")))).when(certificatePluginService).findAll();
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("Error occurs"))))).when(certificatePluginService).findAll_migrated();
 
         final Response response = target("platform").path("plugins").path("certificates").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());

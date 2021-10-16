@@ -25,13 +25,13 @@ import io.gravitee.am.service.FormService;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.event.EventManager;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -58,7 +58,7 @@ public class FormManagerImpl implements FormManager, InitializingBean, EventList
 
         logger.info("Initializing forms");
 
-        formService.findAll(ReferenceType.ORGANIZATION)
+        RxJava2Adapter.fluxToFlowable(formService.findAll_migrated(ReferenceType.ORGANIZATION))
                 .subscribe(
                         form -> {
                             updateForm(form);
@@ -86,7 +86,7 @@ public class FormManagerImpl implements FormManager, InitializingBean, EventList
     private void updateForm(String formId, FormEvent formEvent) {
         final String eventType = formEvent.toString().toLowerCase();
         logger.info("Received {} form event for {}", eventType, formId);
-        formService.findById(formId)
+        RxJava2Adapter.monoToMaybe(formService.findById_migrated(formId))
                 .subscribe(
                         form -> {
                             // check if form has been disabled

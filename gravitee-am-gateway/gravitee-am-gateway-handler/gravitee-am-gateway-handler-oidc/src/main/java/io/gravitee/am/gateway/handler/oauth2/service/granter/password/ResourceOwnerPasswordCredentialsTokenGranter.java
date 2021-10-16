@@ -84,7 +84,7 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         tokenRequest.setUsername(username);
         tokenRequest.setPassword(password);
 
-        return RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(super.parseRequest_migrated(tokenRequest, client)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.resolveResourceOwner_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -98,7 +98,7 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         String username = tokenRequest.getUsername();
         String password = tokenRequest.getPassword();
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(userAuthenticationManager.authenticate(client, new EndUserAuthentication(username, password, new SimpleAuthenticationContext(tokenRequest)))
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userAuthenticationManager.authenticate_migrated(client, new EndUserAuthentication(username, password, new SimpleAuthenticationContext(tokenRequest))))
                 .onErrorResumeNext(ex -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException(ex.getMessage())))))));
     }
 

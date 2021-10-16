@@ -73,7 +73,8 @@ public abstract class AbstractSocialAuthenticationProvider<T extends SocialIdent
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.signOutUrl_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Request> signOutUrl(Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(signOutUrl_migrated(authentication));

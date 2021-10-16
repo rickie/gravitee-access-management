@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.model.account.AccountSettings;
@@ -51,7 +52,8 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
     @Autowired
     private LoginAttemptRepository loginAttemptRepository;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.loginFailed_migrated(criteria, accountSettings))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<LoginAttempt> loginFailed(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
  return RxJava2Adapter.monoToSingle(loginFailed_migrated(criteria, accountSettings));
@@ -59,7 +61,7 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
 @Override
     public Mono<LoginAttempt> loginFailed_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
         LOGGER.debug("Add login attempt for {}", criteria);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findByCriteria(criteria)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(loginAttemptRepository.findByCriteria_migrated(criteria))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optionalLoginAttempt -> {
                     if (optionalLoginAttempt.isPresent()) {
                         LoginAttempt loginAttempt = optionalLoginAttempt.get();
@@ -68,7 +70,7 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
                             loginAttempt.setExpireAt(new Date(System.currentTimeMillis() + (accountSettings.getAccountBlockedDuration() * 1000)));
                         }
                         loginAttempt.setUpdatedAt(new Date());
-                        return loginAttemptRepository.update(loginAttempt);
+                        return RxJava2Adapter.monoToSingle(loginAttemptRepository.update_migrated(loginAttempt));
                     } else {
                         LoginAttempt loginAttempt = new LoginAttempt();
                         loginAttempt.setId(RandomString.generate());
@@ -84,7 +86,7 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
                         }
                         loginAttempt.setCreatedAt(new Date());
                         loginAttempt.setUpdatedAt(loginAttempt.getCreatedAt());
-                        return loginAttemptRepository.create(loginAttempt);
+                        return RxJava2Adapter.monoToSingle(loginAttemptRepository.create_migrated(loginAttempt));
                     }
                 })
                 .onErrorResumeNext(ex -> {
@@ -96,7 +98,8 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.loginSucceeded_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable loginSucceeded(LoginAttemptCriteria criteria) {
  return RxJava2Adapter.monoToCompletable(loginSucceeded_migrated(criteria));
@@ -104,7 +107,7 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
 @Override
     public Mono<Void> loginSucceeded_migrated(LoginAttemptCriteria criteria) {
         LOGGER.debug("Delete login attempt for {}", criteria);
-        return RxJava2Adapter.completableToMono(loginAttemptRepository.delete(criteria)
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(loginAttemptRepository.delete_migrated(criteria))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
@@ -115,7 +118,8 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.reset_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable reset(LoginAttemptCriteria criteria) {
  return RxJava2Adapter.monoToCompletable(reset_migrated(criteria));
@@ -125,7 +129,8 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
         return RxJava2Adapter.completableToMono(loginSucceeded(criteria));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.checkAccount_migrated(criteria, accountSettings))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<LoginAttempt> checkAccount(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
  return RxJava2Adapter.monoToMaybe(checkAccount_migrated(criteria, accountSettings));
@@ -133,10 +138,11 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
 @Override
     public Mono<LoginAttempt> checkAccount_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
         LOGGER.debug("Check account status for {}", criteria);
-        return RxJava2Adapter.maybeToMono(loginAttemptRepository.findByCriteria(criteria));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(loginAttemptRepository.findByCriteria_migrated(criteria)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<LoginAttempt> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -144,7 +150,7 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
 @Override
     public Mono<LoginAttempt> findById_migrated(String id) {
         LOGGER.debug("Find login attempt by id {}", id);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(loginAttemptRepository.findById(id)).switchIfEmpty(Mono.error(new LoginAttemptNotFoundException(id))))
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(loginAttemptRepository.findById_migrated(id))).switchIfEmpty(Mono.error(new LoginAttemptNotFoundException(id))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(ex));

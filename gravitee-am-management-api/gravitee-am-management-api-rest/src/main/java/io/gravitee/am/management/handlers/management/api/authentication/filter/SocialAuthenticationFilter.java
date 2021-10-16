@@ -101,7 +101,7 @@ public class SocialAuthenticationFilter extends AbstractAuthenticationProcessing
         EndUserAuthentication provAuthentication = new EndUserAuthentication("__social__", "__social__", authenticationContext);
 
         try {
-            User user = RxJava2Adapter.maybeToMono(authenticationProvider.loadUserByUsername(provAuthentication)).block();
+            User user = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(provAuthentication))).block();
             if (user == null) {
                 logger.error("User is null, fail to authenticate user");
                 throw new BadCredentialsException("User is null after authentication process");

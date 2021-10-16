@@ -76,7 +76,7 @@ public class HelloCommandProducerTest {
         installation.getAdditionalInformation().put(CUSTOM_KEY, CUSTOM_VALUE);
 
         when(node.hostname()).thenReturn(HOSTNAME);
-        when(installationService.getOrInitialize()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(installation)));
+        when(installationService.getOrInitialize_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(installation))));
 
         final HelloCommand command = new HelloCommand();
         final HelloPayload payload = new HelloPayload();
@@ -102,7 +102,7 @@ public class HelloCommandProducerTest {
     @Test
     public void produceWithException() {
 
-        when(installationService.getOrInitialize()).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException())));
+        when(installationService.getOrInitialize_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException()))));
         final TestObserver<HelloCommand> obs = cut.prepare(new HelloCommand()).test();
 
         obs.awaitTerminalEvent();

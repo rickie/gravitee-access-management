@@ -48,25 +48,25 @@ public class LoginAttemptRepositoryPurgeTest extends AbstractManagementTest {
 
         LoginAttempt attemptNotExpired = buildLoginAttempt(now.plus(1, ChronoUnit.MINUTES));
 
-        TestObserver<LoginAttempt> testObserver = repository.create(attemptExpired).test();
+        TestObserver<LoginAttempt> testObserver = RxJava2Adapter.monoToSingle(repository.create_migrated(attemptExpired)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
-        testObserver = repository.create(attemptExpired2).test();
+        testObserver = RxJava2Adapter.monoToSingle(repository.create_migrated(attemptExpired2)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
-        testObserver = repository.create(attemptNotExpired).test();
+        testObserver = RxJava2Adapter.monoToSingle(repository.create_migrated(attemptNotExpired)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
 
-        assertNull(RxJava2Adapter.maybeToMono(repository.findById(attemptExpired.getId())).block());
-        assertNull(RxJava2Adapter.maybeToMono(repository.findById(attemptExpired2.getId())).block());
-        assertNotNull(RxJava2Adapter.maybeToMono(repository.findById(attemptNotExpired.getId())).block());
+        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(attemptExpired.getId()))).block());
+        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(attemptExpired2.getId()))).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(attemptNotExpired.getId()))).block());
 
         TestObserver<Void> test = repository.purgeExpiredData().test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(repository.findById(attemptNotExpired.getId())).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(repository.findById_migrated(attemptNotExpired.getId()))).block());
     }
 
     private LoginAttempt buildLoginAttempt(Instant expiredAt) {

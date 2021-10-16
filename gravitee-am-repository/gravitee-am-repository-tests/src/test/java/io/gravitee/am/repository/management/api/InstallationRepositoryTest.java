@@ -40,10 +40,10 @@ public class InstallationRepositoryTest extends AbstractManagementTest {
     public void testFindById() {
         // create idp
         Installation installation = buildInstallation();
-        Installation installationCreated = RxJava2Adapter.singleToMono(installationRepository.create(installation)).block();
+        Installation installationCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(installationRepository.create_migrated(installation))).block();
 
         // fetch idp
-        TestObserver<Installation> testObserver = installationRepository.findById(installationCreated.getId()).test();
+        TestObserver<Installation> testObserver = RxJava2Adapter.monoToMaybe(installationRepository.findById_migrated(installationCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -54,13 +54,13 @@ public class InstallationRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testNotFoundById() {
-        installationRepository.findById("UNKNOWN").test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(installationRepository.findById_migrated("UNKNOWN")).test().assertEmpty();
     }
 
     @Test
     public void testCreate() {
         Installation installation = buildInstallation();
-        TestObserver<Installation> testObserver = installationRepository.create(installation).test();
+        TestObserver<Installation> testObserver = RxJava2Adapter.monoToSingle(installationRepository.create_migrated(installation)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -73,7 +73,7 @@ public class InstallationRepositoryTest extends AbstractManagementTest {
     public void testUpdate() {
         // create idp
         Installation installation = buildInstallation();
-        Installation installationCreated = RxJava2Adapter.singleToMono(installationRepository.create(installation)).block();
+        Installation installationCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(installationRepository.create_migrated(installation))).block();
 
         // update idp
         Installation updatedInstallation = buildInstallation();
@@ -82,7 +82,7 @@ public class InstallationRepositoryTest extends AbstractManagementTest {
         updatedInstallation.getAdditionalInformation().remove("key1");
 
 
-        TestObserver<Installation> testObserver = installationRepository.update(updatedInstallation).test();
+        TestObserver<Installation> testObserver = RxJava2Adapter.monoToSingle(installationRepository.update_migrated(updatedInstallation)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -95,14 +95,14 @@ public class InstallationRepositoryTest extends AbstractManagementTest {
     public void testDelete() {
         // create idp
         Installation installation = buildInstallation();
-        Installation installationCreated = RxJava2Adapter.singleToMono(installationRepository.create(installation)).block();
+        Installation installationCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(installationRepository.create_migrated(installation))).block();
 
         // delete idp
-        TestObserver<Void> testObserver1 = installationRepository.delete(installationCreated.getId()).test();
+        TestObserver<Void> testObserver1 = RxJava2Adapter.monoToCompletable(installationRepository.delete_migrated(installationCreated.getId())).test();
         testObserver1.awaitTerminalEvent();
 
         // fetch idp
-        installationRepository.findById(installationCreated.getId()).test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(installationRepository.findById_migrated(installationCreated.getId())).test().assertEmpty();
     }
 
     private Installation buildInstallation() {

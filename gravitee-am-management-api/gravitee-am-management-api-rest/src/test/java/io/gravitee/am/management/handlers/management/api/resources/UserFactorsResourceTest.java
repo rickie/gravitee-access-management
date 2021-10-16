@@ -60,9 +60,9 @@ public class UserFactorsResourceTest extends JerseySpringTest {
         mockFactor.setFactorType(FactorType.OTP);
         mockFactor.setName("OTP");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockUser))).when(userService).findById(mockUser.getId());
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockFactor))).when(factorService).findById(enrolledFactor.getFactorId());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockUser)))).when(userService).findById_migrated(mockUser.getId());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockFactor)))).when(factorService).findById_migrated(enrolledFactor.getFactorId());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -78,7 +78,7 @@ public class UserFactorsResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetUserFactors_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs")))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs"))))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains")
                 .path(domainId)

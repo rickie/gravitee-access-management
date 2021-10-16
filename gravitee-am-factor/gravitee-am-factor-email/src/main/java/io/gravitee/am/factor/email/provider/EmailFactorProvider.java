@@ -66,7 +66,8 @@ public class EmailFactorProvider implements FactorProvider {
     @Autowired
     private EmailFactorConfiguration configuration;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.verify_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable verify(FactorContext context) {
  return RxJava2Adapter.monoToCompletable(verify_migrated(context));
@@ -95,7 +96,8 @@ public class EmailFactorProvider implements FactorProvider {
 
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enroll_migrated(account))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Enrollment> enroll(String account) {
  return RxJava2Adapter.monoToSingle(enroll_migrated(account));
@@ -135,7 +137,8 @@ public class EmailFactorProvider implements FactorProvider {
         return true;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.sendChallenge_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable sendChallenge(FactorContext context) {
  return RxJava2Adapter.monoToCompletable(sendChallenge_migrated(context));
@@ -148,7 +151,7 @@ public class EmailFactorProvider implements FactorProvider {
 
         if (provider instanceof EmailSenderProvider) {
 
-            return RxJava2Adapter.completableToMono(generateCodeAndSendEmail(context, (EmailSenderProvider) provider, enrolledFactor));
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(generateCodeAndSendEmail_migrated(context, (EmailSenderProvider) provider, enrolledFactor)));
 
         } else {
 
@@ -175,11 +178,11 @@ private Mono<Void> generateCodeAndSendEmail_migrated(FactorContext context, Emai
             final String recipient = enrolledFactor.getChannel().getTarget();
             EmailService.EmailWrapper emailWrapper = emailService.createEmail(Template.MFA_CHALLENGE, context.getClient(), asList(recipient), params);
 
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(provider.sendMessage(emailWrapper.getEmail())).then(Mono.just(enrolledFactor).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<EnrolledFactor, SingleSource<io.gravitee.am.model.User>>toJdkFunction(ef ->  {
+            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(provider.sendMessage_migrated(emailWrapper.getEmail()))).then(Mono.just(enrolledFactor).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<EnrolledFactor, SingleSource<io.gravitee.am.model.User>>toJdkFunction(ef ->  {
                                 ef.setPrimary(true);
                                 ef.setStatus(FactorStatus.ACTIVATED);
                                 ef.getSecurity().putData(FactorDataKeys.KEY_EXPIRE_AT, emailWrapper.getExpireAt());
-                                return userService.addFactor(context.getUser().getId(), ef, new DefaultUser(context.getUser()));
+                                return RxJava2Adapter.monoToSingle(userService.addFactor_migrated(context.getUser().getId(), ef, new DefaultUser(context.getUser())));
                             }).apply(v)))).then())));
 
         } catch (NoSuchAlgorithmException| InvalidKeyException e) {
@@ -200,7 +203,8 @@ private Mono<Void> generateCodeAndSendEmail_migrated(FactorContext context, Emai
         return true;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.changeVariableFactorSecurity_migrated(factor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<EnrolledFactor> changeVariableFactorSecurity(EnrolledFactor factor) {
  return RxJava2Adapter.monoToSingle(changeVariableFactorSecurity_migrated(factor));

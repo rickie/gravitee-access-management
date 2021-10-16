@@ -76,8 +76,8 @@ public class FactorServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(factorRepository.findById("my-factor")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Factor())));
-        TestObserver testObserver = factorService.findById("my-factor").test();
+        when(factorRepository.findById_migrated("my-factor")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Factor()))));
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(factorService.findById_migrated("my-factor")).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -87,8 +87,8 @@ public class FactorServiceTest {
 
     @Test
     public void shouldFindById_notExistingFactor() {
-        when(factorRepository.findById("my-factor")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver testObserver = factorService.findById("my-factor").test();
+        when(factorRepository.findById_migrated("my-factor")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(factorService.findById_migrated("my-factor")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertNoValues();
@@ -96,9 +96,9 @@ public class FactorServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(factorRepository.findById("my-factor")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(factorRepository.findById_migrated("my-factor")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
         TestObserver testObserver = new TestObserver();
-        factorService.findById("my-factor").subscribe(testObserver);
+        RxJava2Adapter.monoToMaybe(factorService.findById_migrated("my-factor")).subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -106,8 +106,8 @@ public class FactorServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(factorRepository.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Factor())));
-        TestSubscriber<Factor> testObserver = factorService.findByDomain(DOMAIN).test();
+        when(factorRepository.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Factor()))));
+        TestSubscriber<Factor> testObserver = RxJava2Adapter.fluxToFlowable(factorService.findByDomain_migrated(DOMAIN)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -117,9 +117,9 @@ public class FactorServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(factorRepository.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(factorRepository.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestSubscriber testSubscriber = factorService.findByDomain(DOMAIN).test();
+        TestSubscriber testSubscriber = RxJava2Adapter.fluxToFlowable(factorService.findByDomain_migrated(DOMAIN)).test();
 
         testSubscriber.assertError(TechnicalManagementException.class);
         testSubscriber.assertNotComplete();
@@ -129,17 +129,17 @@ public class FactorServiceTest {
     public void shouldCreate() {
         NewFactor newFactor = Mockito.mock(NewFactor.class);
         when(newFactor.getFactorType()).thenReturn(FactorType.OTP.getType());
-        when(factorRepository.create(any(Factor.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Factor())));
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(factorRepository.create_migrated(any(Factor.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Factor()))));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
 
-        TestObserver testObserver = factorService.create(DOMAIN, newFactor).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(factorService.create_migrated(DOMAIN, newFactor)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(eventService, times(1)).create(any());
-        verify(factorRepository, times(1)).create(any(Factor.class));
+        verify(eventService, times(1)).create_migrated(any());
+        verify(factorRepository, times(1)).create_migrated(any(Factor.class));
     }
 
     @Test
@@ -148,17 +148,17 @@ public class FactorServiceTest {
         when(newFactor.getFactorType()).thenReturn(FactorType.SMS.getType());
         when(newFactor.getType()).thenReturn("sms-am-factor");
         when(newFactor.getConfiguration()).thenReturn("{\"countryCodes\":\"fr, us\"}");
-        when(factorRepository.create(any(Factor.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Factor())));
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(factorRepository.create_migrated(any(Factor.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Factor()))));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
 
-        TestObserver testObserver = factorService.create(DOMAIN, newFactor).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(factorService.create_migrated(DOMAIN, newFactor)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(eventService, times(1)).create(any());
-        verify(factorRepository, times(1)).create(any(Factor.class));
+        verify(eventService, times(1)).create_migrated(any());
+        verify(factorRepository, times(1)).create_migrated(any(Factor.class));
     }
 
     @Test
@@ -168,124 +168,124 @@ public class FactorServiceTest {
         when(newFactor.getType()).thenReturn("sms-am-factor");
         when(newFactor.getConfiguration()).thenReturn("{\"countryCodes\":\"fr, g8\"}");
 
-        TestObserver testObserver = factorService.create(DOMAIN, newFactor).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(factorService.create_migrated(DOMAIN, newFactor)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(FactorConfigurationException.class);
 
-        verify(eventService, never()).create(any());
-        verify(factorRepository, never()).create(any(Factor.class));
+        verify(eventService, never()).create_migrated(any());
+        verify(factorRepository, never()).create_migrated(any(Factor.class));
     }
 
     @Test
     public void shouldCreate_technicalException() {
         NewFactor newFactor = Mockito.mock(NewFactor.class);
         when(newFactor.getFactorType()).thenReturn(FactorType.OTP.getType());
-        when(factorRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(factorRepository.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
         TestObserver<Factor> testObserver = new TestObserver<>();
-        factorService.create(DOMAIN, newFactor).subscribe(testObserver);
+        RxJava2Adapter.monoToSingle(factorService.create_migrated(DOMAIN, newFactor)).subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
 
-        verify(eventService, never()).create(any());
+        verify(eventService, never()).create_migrated(any());
     }
 
     @Test
     public void shouldCreate2_technicalException() {
         NewFactor newFactor = Mockito.mock(NewFactor.class);
         when(newFactor.getFactorType()).thenReturn(FactorType.OTP.getType());
-        when(factorRepository.create(any(Factor.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(factorRepository.create_migrated(any(Factor.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
         TestObserver<Factor> testObserver = new TestObserver<>();
-        factorService.create(DOMAIN, newFactor).subscribe(testObserver);
+        RxJava2Adapter.monoToSingle(factorService.create_migrated(DOMAIN, newFactor)).subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
 
-        verify(eventService, never()).create(any());
+        verify(eventService, never()).create_migrated(any());
     }
 
     @Test
     public void shouldUpdate() {
         UpdateFactor updateFactor = Mockito.mock(UpdateFactor.class);
         when(updateFactor.getName()).thenReturn("my-factor");
-        when(factorRepository.findById("my-factor")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Factor())));
-        when(factorRepository.update(any(Factor.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Factor())));
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(factorRepository.findById_migrated("my-factor")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Factor()))));
+        when(factorRepository.update_migrated(any(Factor.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Factor()))));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
 
-        TestObserver testObserver = factorService.update(DOMAIN, "my-factor", updateFactor).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(factorService.update_migrated(DOMAIN, "my-factor", updateFactor)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(factorRepository, times(1)).findById(anyString());
-        verify(factorRepository, times(1)).update(any(Factor.class));
+        verify(factorRepository, times(1)).findById_migrated(anyString());
+        verify(factorRepository, times(1)).update_migrated(any(Factor.class));
     }
 
     @Test
     public void shouldUpdate_technicalException() {
         UpdateFactor updateFactor = Mockito.mock(UpdateFactor.class);
-        when(factorRepository.findById("my-factor")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(factorRepository.findById_migrated("my-factor")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestObserver testObserver = factorService.update(DOMAIN, "my-factor", updateFactor).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(factorService.update_migrated(DOMAIN, "my-factor", updateFactor)).test();
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
 
-        verify(factorRepository, times(1)).findById(anyString());
-        verify(factorRepository, never()).update(any(Factor.class));
+        verify(factorRepository, times(1)).findById_migrated(anyString());
+        verify(factorRepository, never()).update_migrated(any(Factor.class));
     }
 
     @Test
     public void shouldUpdate2_technicalException() {
         UpdateFactor updateFactor = Mockito.mock(UpdateFactor.class);
         when(updateFactor.getName()).thenReturn("my-factor");
-        when(factorRepository.findById("my-factor")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Factor())));
-        when(factorRepository.update(any(Factor.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(factorRepository.findById_migrated("my-factor")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Factor()))));
+        when(factorRepository.update_migrated(any(Factor.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestObserver testObserver = factorService.update(DOMAIN, "my-factor", updateFactor).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(factorService.update_migrated(DOMAIN, "my-factor", updateFactor)).test();
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
 
-        verify(factorRepository, times(1)).findById(anyString());
-        verify(factorRepository, times(1)).update(any(Factor.class));
+        verify(factorRepository, times(1)).findById_migrated(anyString());
+        verify(factorRepository, times(1)).update_migrated(any(Factor.class));
     }
 
     @Test
     public void shouldDelete_notFactor() {
-        when(factorRepository.findById("my-factor")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(factorRepository.findById_migrated("my-factor")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver testObserver = factorService.delete(DOMAIN, "my-factor").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(factorService.delete_migrated(DOMAIN, "my-factor")).test();
 
         testObserver.assertError(FactorNotFoundException.class);
         testObserver.assertNotComplete();
 
-        verify(applicationService, never()).findByFactor(anyString());
-        verify(factorRepository, never()).delete(anyString());
+        verify(applicationService, never()).findByFactor_migrated(anyString());
+        verify(factorRepository, never()).delete_migrated(anyString());
     }
 
     @Test
     public void shouldNotDelete_factorWithClients() {
         Factor factor = new Factor();
         factor.setId("factor-id");
-        when(factorRepository.findById(factor.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(factor)));
-        when(applicationService.findByFactor(factor.getId())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Application())));
+        when(factorRepository.findById_migrated(factor.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(factor))));
+        when(applicationService.findByFactor_migrated(factor.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Application()))));
 
-        TestObserver testObserver = factorService.delete(DOMAIN, factor.getId()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(factorService.delete_migrated(DOMAIN, factor.getId())).test();
 
         testObserver.assertError(FactorWithApplicationsException.class);
         testObserver.assertNotComplete();
 
-        verify(factorRepository, never()).delete(anyString());
+        verify(factorRepository, never()).delete_migrated(anyString());
     }
 
     @Test
     public void shouldDelete_technicalException() {
-        when(factorRepository.findById("my-factor")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(factorRepository.findById_migrated("my-factor")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestObserver testObserver = factorService.delete(DOMAIN, "my-factor").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(factorService.delete_migrated(DOMAIN, "my-factor")).test();
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -295,17 +295,17 @@ public class FactorServiceTest {
     public void shouldDelete() {
         Factor factor = new Factor();
         factor.setId("factor-id");
-        when(factorRepository.findById(factor.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(factor)));
-        when(applicationService.findByFactor(factor.getId())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
-        when(factorRepository.delete(factor.getId())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(factorRepository.findById_migrated(factor.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(factor))));
+        when(applicationService.findByFactor_migrated(factor.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(factorRepository.delete_migrated(factor.getId())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
 
-        TestObserver testObserver = factorService.delete(DOMAIN, factor.getId()).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(factorService.delete_migrated(DOMAIN, factor.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(factorRepository, times(1)).delete(factor.getId());
+        verify(factorRepository, times(1)).delete_migrated(factor.getId());
     }
 }

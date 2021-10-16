@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.root.resources.endpoint.user.password;
 
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.FORGOT_PASSWORD_CONFIRM;
+
 import io.gravitee.am.common.exception.authentication.AccountStatusException;
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
@@ -31,11 +33,9 @@ import io.gravitee.am.service.exception.EnforceUserIdentityException;
 import io.gravitee.am.service.exception.UserNotFoundException;
 import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
 import java.util.HashMap;
 import java.util.Map;
-
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.FORGOT_PASSWORD_CONFIRM;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -61,7 +61,7 @@ public class ForgotPasswordSubmissionEndpoint extends UserRequestHandler {
         AccountSettings settings = AccountSettings.getInstance(domain, client);
 
         final ForgotPasswordParameters parameters = new ForgotPasswordParameters(email, username, settings != null && settings.isResetPasswordCustomForm(), settings != null && settings.isResetPasswordConfirmIdentity());
-        userService.forgotPassword(parameters, client, getAuthenticatedUser(context))
+        RxJava2Adapter.monoToCompletable(userService.forgotPassword_migrated(parameters, client, getAuthenticatedUser(context)))
                 .subscribe(
                         () -> {
                             queryParams.set(ConstantKeys.SUCCESS_PARAM_KEY, "forgot_password_completed");

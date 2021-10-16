@@ -83,7 +83,7 @@ public class ForgotPasswordSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.forgotPassword(argThat(p -> p.getEmail().equals("email@test.com")), eq(client), any(User.class))).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(userService.forgotPassword_migrated(argThat(p -> p.getEmail().equals("email@test.com")), eq(client), any(User.class))).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
         testRequest(
                 HttpMethod.POST, "/forgotPassword?client_id=client-id",
@@ -108,7 +108,7 @@ public class ForgotPasswordSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.forgotPassword(argThat(p -> p.getEmail().equals("email@test.com")), eq(client), any(User.class))).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(new UserNotFoundException("email@test.com"))));
+        when(userService.forgotPassword_migrated(argThat(p -> p.getEmail().equals("email@test.com")), eq(client), any(User.class))).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new UserNotFoundException("email@test.com")))));
 
         testRequest(
                 HttpMethod.POST, "/forgotPassword?client_id=client-id",
@@ -132,7 +132,7 @@ public class ForgotPasswordSubmissionEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(userService.forgotPassword(argThat(p -> p.getEmail().equals("email.test.com")), eq(client), any(User.class))).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(new EmailFormatInvalidException("email.test.com"))));
+        when(userService.forgotPassword_migrated(argThat(p -> p.getEmail().equals("email.test.com")), eq(client), any(User.class))).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new EmailFormatInvalidException("email.test.com")))));
 
         testRequest(
                 HttpMethod.POST, "/forgotPassword?client_id=client-id",
@@ -157,7 +157,7 @@ public class ForgotPasswordSubmissionEndpointTest extends RxWebTestBase {
         });
 
         when(accountSettings.isResetPasswordConfirmIdentity()).thenReturn(true);
-        when(userService.forgotPassword(argThat(p -> p.getEmail().equals("email@test.com")), eq(client), any(User.class))).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(new EnforceUserIdentityException())));
+        when(userService.forgotPassword_migrated(argThat(p -> p.getEmail().equals("email@test.com")), eq(client), any(User.class))).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new EnforceUserIdentityException()))));
 
         testRequest(
                 HttpMethod.POST, "/forgotPassword?client_id=client-id",
@@ -183,7 +183,7 @@ public class ForgotPasswordSubmissionEndpointTest extends RxWebTestBase {
         });
 
         when(accountSettings.isResetPasswordConfirmIdentity()).thenReturn(false);
-        when(userService.forgotPassword(argThat(p -> p.getEmail().equals("email@test.com")), eq(client), any(User.class))).thenReturn(RxJava2Adapter.monoToCompletable(Mono.error(new EnforceUserIdentityException())));
+        when(userService.forgotPassword_migrated(argThat(p -> p.getEmail().equals("email@test.com")), eq(client), any(User.class))).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new EnforceUserIdentityException()))));
 
         testRequest(
                 HttpMethod.POST, "/forgotPassword?client_id=client-id",

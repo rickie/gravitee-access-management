@@ -72,11 +72,11 @@ public class JWTServiceTest {
         when(defaultCertProvider.getJwtBuilder()).thenReturn(defaultJWTBuilder);
         when(noneAlgCertProvider.getJwtBuilder()).thenReturn(noneAlgBuilder);
 
-        when(certificateManager.findByAlgorithm("unknown")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(certificateManager.findByAlgorithm("RS512")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(rs512CertProvider)));
-        when(certificateManager.get(null)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(certificateManager.get("notExistingId")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(certificateManager.get("existingId")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(rs256CertProvider)));
+        when(certificateManager.findByAlgorithm_migrated("unknown")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(certificateManager.findByAlgorithm_migrated("RS512")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(rs512CertProvider))));
+        when(certificateManager.get_migrated(null)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(certificateManager.get_migrated("notExistingId")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(certificateManager.get_migrated("existingId")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(rs256CertProvider))));
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCertProvider);
         when(certificateManager.noneAlgorithmCertificateProvider()).thenReturn(noneAlgCertProvider);
     }
@@ -100,7 +100,7 @@ public class JWTServiceTest {
         Client client = new Client();
         client.setCertificate(clientCertificate);
 
-        TestObserver testObserver = jwtService.encode(new JWT(), client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(jwtService.encode_migrated(new JWT(), client)).test();
         testObserver.assertComplete();
         testObserver.assertValue(o -> o.equals(expectedResult));
     }
@@ -135,7 +135,7 @@ public class JWTServiceTest {
         client.setUserinfoSignedResponseAlg(algorithm);
         client.setCertificate(clientCertificate);
 
-        TestObserver testObserver = jwtService.encodeUserinfo(new JWT(), client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(jwtService.encodeUserinfo_migrated(new JWT(), client)).test();
         testObserver.assertComplete();
         testObserver.assertValue(o -> o.equals(expectedResult));
     }

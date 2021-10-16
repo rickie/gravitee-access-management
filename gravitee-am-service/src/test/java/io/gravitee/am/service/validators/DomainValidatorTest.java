@@ -15,17 +15,17 @@
  */
 package io.gravitee.am.service.validators;
 
-import io.gravitee.am.model.Domain;
-import io.gravitee.am.model.VirtualHost;
-import io.gravitee.am.service.exception.InvalidDomainException;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Collections;
-
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
+
+import io.gravitee.am.model.Domain;
+import io.gravitee.am.model.VirtualHost;
+import io.gravitee.am.service.exception.InvalidDomainException;
+import java.util.ArrayList;
+import java.util.Collections;
+import org.junit.Test;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -38,7 +38,7 @@ public class DomainValidatorTest {
 
         Domain domain = getValidDomain();
 
-        Throwable throwable = DomainValidator.validate(domain, emptyList()).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, emptyList())).blockingGet();
 
         assertNull(throwable);
     }
@@ -49,7 +49,7 @@ public class DomainValidatorTest {
         Domain domain = getValidDomain();
         domain.setPath("");
 
-        Throwable throwable = DomainValidator.validate(domain, emptyList()).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, emptyList())).blockingGet();
 
         // Empty path is replaced with '/' but '/' is not allowed in context-path mode.
         assertNotNull(throwable);
@@ -62,7 +62,7 @@ public class DomainValidatorTest {
         Domain domain = getValidDomain();
         domain.setPath(null);
 
-        Throwable throwable = DomainValidator.validate(domain, emptyList()).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, emptyList())).blockingGet();
 
         // Null path is replaced with '/' but '/' is not allowed in context-path mode.
         assertNotNull(throwable);
@@ -75,7 +75,7 @@ public class DomainValidatorTest {
         Domain domain = getValidDomain();
         domain.setPath("/////test////");
 
-        Throwable throwable = DomainValidator.validate(domain, emptyList()).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, emptyList())).blockingGet();
 
         // Multiple '/' in path should be removed.
         assertNull(throwable);
@@ -87,7 +87,7 @@ public class DomainValidatorTest {
         Domain domain = getValidDomain();
         domain.setPath("test");
 
-        Throwable throwable = DomainValidator.validate(domain, emptyList()).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, emptyList())).blockingGet();
 
         // '/' should be automatically append.
         assertNull(throwable);
@@ -99,7 +99,7 @@ public class DomainValidatorTest {
         Domain domain = getValidDomain();
         domain.setName("Invalid/Name");
 
-        Throwable throwable = DomainValidator.validate(domain, emptyList()).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, emptyList())).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidDomainException);
@@ -111,7 +111,7 @@ public class DomainValidatorTest {
         Domain domain = getValidDomain();
         domain.setVhostMode(false);
 
-        Throwable throwable = DomainValidator.validate(domain, singletonList("constraint.gravitee.io")).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, singletonList("constraint.gravitee.io"))).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidDomainException);
@@ -124,7 +124,7 @@ public class DomainValidatorTest {
         domain.setVhostMode(true);
         domain.setVhosts(emptyList());
 
-        Throwable throwable = DomainValidator.validate(domain, emptyList()).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, emptyList())).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidDomainException);
@@ -137,7 +137,7 @@ public class DomainValidatorTest {
         domain.setVhostMode(true);
         domain.setVhosts(null);
 
-        Throwable throwable = DomainValidator.validate(domain, emptyList()).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, emptyList())).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidDomainException);
@@ -154,7 +154,7 @@ public class DomainValidatorTest {
         vhost.setOverrideEntrypoint(true);
         domain.getVhosts().add(vhost);
 
-        Throwable throwable = DomainValidator.validate(domain, emptyList()).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, emptyList())).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidDomainException);
@@ -168,7 +168,7 @@ public class DomainValidatorTest {
         domain.setVhostMode(true);
         domain.getVhosts().get(0).setOverrideEntrypoint(false);
 
-        Throwable throwable = DomainValidator.validate(domain, emptyList()).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, emptyList())).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidDomainException);
@@ -180,7 +180,7 @@ public class DomainValidatorTest {
         Domain domain = getValidDomain();
         domain.setVhostMode(true);
 
-        Throwable throwable = DomainValidator.validate(domain, emptyList()).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(DomainValidator.validate_migrated(domain, emptyList())).blockingGet();
 
         assertNull(throwable);
     }

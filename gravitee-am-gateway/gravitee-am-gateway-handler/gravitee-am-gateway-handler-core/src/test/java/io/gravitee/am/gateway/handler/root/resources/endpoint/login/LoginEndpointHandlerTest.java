@@ -116,7 +116,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
         appClient.getLoginSettings().setIdentifierFirstEnabled(false);
         appClient.getLoginSettings().setHideForm(false);
         router.route(HttpMethod.GET, "/login").handler(get200AssertMockRoutingContextHandler(loginEndpoint, false, false));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
+        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(appClient))));
         testRequest(
                 HttpMethod.GET, "/login?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.OK_200, "OK");
@@ -133,7 +133,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY, Map.of(idp.getId(), "/some/provider/oauth/authorize"));
             routingContext.next();
         }).handler(get302AssertMockRoutingContextHandler(loginEndpoint, true, false));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
+        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(appClient))));
         testRequest(
                 HttpMethod.GET, "/login?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.FOUND_302, "Found");
@@ -149,7 +149,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY, Map.of(idp.getId(), "/some/provider/oauth/authorize"));
             routingContext.next();
         }).handler(get200AssertMockRoutingContextHandler(loginEndpoint, false, false));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
+        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(appClient))));
         testRequest(
                 HttpMethod.GET, "/login?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.OK_200, "OK");
@@ -167,7 +167,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY, Map.of(idp.getId(), "/some/provider/oauth/authorize"));
             routingContext.next();
         }).handler(get200AssertMockRoutingContextHandler(loginEndpoint, false, true));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
+        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(appClient))));
         testRequest(
                 HttpMethod.GET, "/login?username=username@domain.com&client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.OK_200, "OK");
@@ -185,7 +185,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY, Map.of(idp.getId(), "/some/provider/oauth/authorize"));
             routingContext.next();
         }).handler(get200AssertMockRoutingContextHandler(loginEndpoint, false, true));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
+        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(appClient))));
         testRequest(
                 HttpMethod.GET, "/login?username=username&client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.OK_200, "OK");
@@ -203,7 +203,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY, Map.of(idp.getId(), "/some/provider/oauth/authorize"));
             routingContext.next();
         }).handler(get302AssertMockRoutingContextHandler(loginEndpoint, false, true));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
+        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(appClient))));
         testRequest(
                 HttpMethod.GET, "/login?username=username@domain.com&client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.FOUND_302, "Found");
@@ -222,7 +222,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_AUTHORIZE_URL_CONTEXT_KEY, Map.of(idp.getId(), "/some/provider/oauth/authorize"));
             routingContext.next();
         }).handler(get302AssertMockRoutingContextHandler(loginEndpoint, false, true));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
+        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(appClient))));
         testRequest(
                 HttpMethod.GET, "/login?username=username@domain.com&client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.FOUND_302, "Found");
@@ -240,7 +240,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             routingContext.put(SOCIAL_PROVIDER_CONTEXT_KEY, List.of(idp1, idp2));
             routingContext.next();
         }).handler(get200AssertMockRoutingContextHandler(loginEndpoint, true, false));
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
+        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(appClient))));
         testRequest(
                 HttpMethod.GET, "/login?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.OK_200, "OK");
@@ -254,7 +254,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             context.next();
         });
         ;
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
+        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(appClient))));
         testRequest(
                 HttpMethod.GET, "/login?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com&username=",
                 HttpStatusCode.FOUND_302, "Found");
@@ -267,7 +267,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
             loginEndpoint.handle(context);
             context.next();
         });
-        when(clientSyncService.findByClientId(appClient.getClientId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(appClient)));
+        when(clientSyncService.findByClientId_migrated(appClient.getClientId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(appClient))));
         testRequest(
                 HttpMethod.GET, "/login?client_id=" + appClient.getClientId() + "&response_type=code&redirect_uri=somewhere.com",
                 HttpStatusCode.FOUND_302, "Found");
@@ -282,7 +282,7 @@ public class LoginEndpointHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeLoginEndpoint_noClient() throws Exception {
-        when(clientSyncService.findByClientId("test")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(clientSyncService.findByClientId_migrated("test")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
         testRequest(
                 HttpMethod.GET, "/login?client_id=test",

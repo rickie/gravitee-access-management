@@ -20,6 +20,7 @@ import static org.springframework.data.relational.core.query.Criteria.where;
 import static org.springframework.data.relational.core.query.CriteriaDefinition.from;
 import static reactor.adapter.rxjava.RxJava2Adapter.*;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcLoginAttempt;
@@ -55,7 +56,8 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
         return mapper.map(entity, JdbcAccessToken.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<AccessToken> findByToken(String token) {
  return RxJava2Adapter.monoToMaybe(findByToken_migrated(token));
@@ -63,10 +65,11 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
 @Override
     public Mono<AccessToken> findByToken_migrated(String token) {
         LOGGER.debug("findByToken({})", token);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(accessTokenRepository.findByToken(token, LocalDateTime.now(UTC))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve AccessToken", error)))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(accessTokenRepository.findByToken_migrated(token, LocalDateTime.now(UTC)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve AccessToken", error)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(accessToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<AccessToken> create(AccessToken accessToken) {
  return RxJava2Adapter.monoToSingle(create_migrated(accessToken));
@@ -84,7 +87,8 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(accessTokenRepository.findById(accessToken.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create accessToken with id {}", accessToken.getId(), error)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String token) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(token));
@@ -95,7 +99,8 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
         return RxJava2Adapter.completableToMono(Completable.fromMaybe(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(findByToken(token)).flatMap(z->dbClient.delete().from(JdbcAccessToken.class).matching(from(where("token").is(token))).fetch().rowsUpdated().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Integer i)->z))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete AccessToken", error))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(accessTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable bulkWrite(List<AccessToken> accessTokens) {
  return RxJava2Adapter.monoToCompletable(bulkWrite_migrated(accessTokens));
@@ -105,7 +110,8 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
         return RxJava2Adapter.completableToMono(Flux.fromIterable(accessTokens).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(create(accessToken)).flux()))).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to bulk load access tokens", error))).as(RxJava2Adapter::monoToCompletable));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToObservable(this.findByClientIdAndSubject_migrated(clientId, subject))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Observable<AccessToken> findByClientIdAndSubject(String clientId, String subject) {
  return RxJava2Adapter.fluxToObservable(findByClientIdAndSubject_migrated(clientId, subject));
@@ -113,13 +119,14 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
 @Override
     public Flux<AccessToken> findByClientIdAndSubject_migrated(String clientId, String subject) {
         LOGGER.debug("findByClientIdAndSubject({}, {})", clientId, subject);
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(accessTokenRepository.findByClientIdAndSubject(clientId, subject, LocalDateTime.now(UTC))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(accessTokenRepository.findByClientIdAndSubject_migrated(clientId, subject, LocalDateTime.now(UTC)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
                 .toObservable()
                 .doOnError(error -> LOGGER.error("Unable to retrieve access tokens with client {} and subject {}",
                         clientId, subject, error)), BackpressureStrategy.BUFFER);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToObservable(this.findByClientId_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Observable<AccessToken> findByClientId(String clientId) {
  return RxJava2Adapter.fluxToObservable(findByClientId_migrated(clientId));
@@ -127,13 +134,14 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
 @Override
     public Flux<AccessToken> findByClientId_migrated(String clientId) {
         LOGGER.debug("findByClientId({})", clientId);
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(accessTokenRepository.findByClientId(clientId, LocalDateTime.now(UTC))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(accessTokenRepository.findByClientId_migrated(clientId, LocalDateTime.now(UTC)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
                 .toObservable()
                 .doOnError(error -> LOGGER.error("Unable to retrieve access tokens with client {}",
                         clientId, error)), BackpressureStrategy.BUFFER);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToObservable(this.findByAuthorizationCode_migrated(authorizationCode))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Observable<AccessToken> findByAuthorizationCode(String authorizationCode) {
  return RxJava2Adapter.fluxToObservable(findByAuthorizationCode_migrated(authorizationCode));
@@ -141,23 +149,25 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
 @Override
     public Flux<AccessToken> findByAuthorizationCode_migrated(String authorizationCode) {
         LOGGER.debug("findByAuthorizationCode({})", authorizationCode);
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(accessTokenRepository.findByAuthorizationCode(authorizationCode, LocalDateTime.now(UTC))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(accessTokenRepository.findByAuthorizationCode_migrated(authorizationCode, LocalDateTime.now(UTC)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
                 .toObservable()
                 .doOnError(error -> LOGGER.error("Unable to retrieve access tokens with authorization code {}",
                         authorizationCode, error)), BackpressureStrategy.BUFFER);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByClientId_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Long> countByClientId(String clientId) {
  return RxJava2Adapter.monoToSingle(countByClientId_migrated(clientId));
 }
 @Override
     public Mono<Long> countByClientId_migrated(String clientId) {
-        return RxJava2Adapter.singleToMono(accessTokenRepository.countByClientId(clientId, LocalDateTime.now(UTC)));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accessTokenRepository.countByClientId_migrated(clientId, LocalDateTime.now(UTC))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable deleteByUserId(String userId) {
  return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(userId));
@@ -172,7 +182,8 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
                 userId, error))).as(RxJava2Adapter::monoToCompletable));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainIdClientIdAndUserId_migrated(domainId, clientId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable deleteByDomainIdClientIdAndUserId(String domainId, String clientId, String userId) {
  return RxJava2Adapter.monoToCompletable(deleteByDomainIdClientIdAndUserId_migrated(domainId, clientId, userId));
@@ -190,7 +201,8 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
                         domainId, clientId, userId, error))).as(RxJava2Adapter::monoToCompletable));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainIdAndUserId_migrated(domainId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable deleteByDomainIdAndUserId(String domainId, String userId) {
  return RxJava2Adapter.monoToCompletable(deleteByDomainIdAndUserId_migrated(domainId, userId));
@@ -207,7 +219,8 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
                         domainId, userId, error))).as(RxJava2Adapter::monoToCompletable));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 public Completable purgeExpiredData() {
  return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
 }

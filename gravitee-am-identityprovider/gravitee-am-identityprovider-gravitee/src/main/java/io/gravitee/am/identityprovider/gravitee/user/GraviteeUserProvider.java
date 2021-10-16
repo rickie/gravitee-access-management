@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.identityprovider.gravitee.user;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.identityprovider.api.UserProvider;
 import io.reactivex.Completable;
@@ -29,7 +30,8 @@ import reactor.core.publisher.Mono;
  */
 public class GraviteeUserProvider implements UserProvider {
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findByUsername(String username) {
  return RxJava2Adapter.monoToMaybe(findByUsername_migrated(username));
@@ -39,7 +41,8 @@ public class GraviteeUserProvider implements UserProvider {
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> create(User user) {
  return RxJava2Adapter.monoToSingle(create_migrated(user));
@@ -50,7 +53,8 @@ public class GraviteeUserProvider implements UserProvider {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(id, updateUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> update(String id, User updateUser) {
  return RxJava2Adapter.monoToSingle(update_migrated(id, updateUser));
@@ -61,7 +65,8 @@ public class GraviteeUserProvider implements UserProvider {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updateUser)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String id) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(id));

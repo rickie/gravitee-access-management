@@ -52,8 +52,8 @@ public class EventServiceTest {
 
     @Test
     public void shouldFindByTimeFrame() {
-        when(eventRepository.findByTimeFrame(0, 1)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Event())));
-        TestObserver testObserver = eventService.findByTimeFrame(0, 1).test();
+        when(eventRepository.findByTimeFrame_migrated(0, 1)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Event()))));
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(eventService.findByTimeFrame_migrated(0, 1)).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -63,8 +63,8 @@ public class EventServiceTest {
 
     @Test
     public void shouldFindByTimeFrame_technicalException() {
-        when(eventRepository.findByTimeFrame(0, 1)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
-        TestObserver testObserver = eventService.findByTimeFrame(0, 1).test();
+        when(eventRepository.findByTimeFrame_migrated(0, 1)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(eventService.findByTimeFrame_migrated(0, 1)).test();
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -73,23 +73,23 @@ public class EventServiceTest {
     @Test
     public void shouldCreate() {
         Event newEvent = Mockito.mock(Event.class);
-        when(eventRepository.create(any(Event.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(newEvent)));
+        when(eventRepository.create_migrated(any(Event.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(newEvent))));
 
-        TestObserver testObserver = eventService.create(newEvent).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(eventService.create_migrated(newEvent)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(eventRepository, times(1)).create(any(Event.class));
+        verify(eventRepository, times(1)).create_migrated(any(Event.class));
     }
 
     @Test
     public void shouldNotCreate_technicalException() {
         Event newEvent = Mockito.mock(Event.class);
-        when(eventRepository.create(any(Event.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(eventRepository.create_migrated(any(Event.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestObserver testObserver = eventService.create(newEvent).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(eventService.create_migrated(newEvent)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(TechnicalManagementException.class);

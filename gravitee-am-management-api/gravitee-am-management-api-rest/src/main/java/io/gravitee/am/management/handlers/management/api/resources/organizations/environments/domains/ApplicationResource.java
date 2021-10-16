@@ -97,8 +97,8 @@ public class ApplicationResource extends AbstractResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById(application).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))
-                        .flatMapSingle(app -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findAllPermissions(authenticatedUser, organizationId, environmentId, domain, application)).map(RxJavaReactorMigrationUtil.toJdkFunction(userPermissions -> filterApplicationInfos(app, userPermissions))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(application1 -> {
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.READ))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->RxJava2Adapter.monoToMaybe(applicationService.findById_migrated(application)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))
+                        .flatMapSingle(app -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domain, application))).map(RxJavaReactorMigrationUtil.toJdkFunction(userPermissions -> filterApplicationInfos(app, userPermissions))))))).map(RxJavaReactorMigrationUtil.toJdkFunction(application1 -> {
                     if (!application1.getDomain().equalsIgnoreCase(domain)) {
                         throw new BadRequestException("Application does not belong to domain");
                     }
@@ -172,7 +172,7 @@ public class ApplicationResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.UPDATE)).then(RxJava2Adapter.singleToMono(applicationService.updateType(domain, application, patchApplicationType.getType(), authenticatedUser))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.updateType_migrated(domain, application, patchApplicationType.getType(), authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -193,7 +193,7 @@ public class ApplicationResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.DELETE)).then(RxJava2Adapter.completableToMono(applicationService.delete(application, authenticatedUser))))
+        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION, Acl.DELETE))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(applicationService.delete_migrated(application, authenticatedUser)))))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
@@ -216,8 +216,8 @@ public class ApplicationResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, application, Permission.APPLICATION_OPENID, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(__ -> applicationService.renewClientSecret(domain, application, authenticatedUser)))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_OPENID, Acl.READ))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(applicationService.renewClientSecret_migrated(domain, application, authenticatedUser))))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -261,9 +261,9 @@ public class ApplicationResource extends AbstractResource {
             response.resume(new BadRequestException("You need to specify at least one value to update."));
         } else {
             RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(Completable.merge(patchApplication.getRequiredPermissions().stream()
-                    .map(permission -> checkAnyPermission(organizationId, environmentId, domain, application, permission, Acl.UPDATE))
-                    .collect(Collectors.toList()))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                            .flatMapSingle(patch -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(applicationService.patch(domain, application, patchApplication, authenticatedUser)).flatMap(updatedApplication->RxJava2Adapter.singleToMono(findAllPermissions(authenticatedUser, organizationId, environmentId, domain, application)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<io.gravitee.am.model.ReferenceType, java.util.Map<io.gravitee.am.model.permissions.Permission, java.util.Set<io.gravitee.am.model.Acl>>> userPermissions)->filterApplicationInfos(updatedApplication, userPermissions)))))))))
+                    .map(permission -> RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, application, permission, Acl.UPDATE)))
+                    .collect(Collectors.toList()))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                            .flatMapSingle(patch -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.patch_migrated(domain, application, patchApplication, authenticatedUser))).flatMap(updatedApplication->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domain, application))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<io.gravitee.am.model.ReferenceType, java.util.Map<io.gravitee.am.model.permissions.Permission, java.util.Set<io.gravitee.am.model.Acl>>> userPermissions)->filterApplicationInfos(updatedApplication, userPermissions)))))))))
                     .subscribe(response::resume, response::resume);
         }
     }

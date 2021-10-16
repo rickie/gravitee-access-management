@@ -15,19 +15,19 @@
  */
 package io.gravitee.am.management.service;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import io.gravitee.alert.api.trigger.TriggerProvider;
 import io.gravitee.plugin.alert.AlertTriggerProviderManager;
 import io.reactivex.observers.TestObserver;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Collections;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -50,7 +50,7 @@ public class AlertServiceTest {
     public void assertAlertIsAvailable() {
 
         when(triggerProviderManager.findAll()).thenReturn(Collections.singleton(mock(TriggerProvider.class)));
-        final TestObserver<Boolean> obs = cut.isAlertingAvailable().test();
+        final TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.isAlertingAvailable_migrated()).test();
 
         obs.awaitTerminalEvent();
         obs.assertValue(true);
@@ -60,7 +60,7 @@ public class AlertServiceTest {
     public void assertAlertIsNotAvailable() {
 
         when(triggerProviderManager.findAll()).thenReturn(Collections.emptyList());
-        final TestObserver<Boolean> obs = cut.isAlertingAvailable().test();
+        final TestObserver<Boolean> obs = RxJava2Adapter.monoToSingle(cut.isAlertingAvailable_migrated()).test();
 
         obs.awaitTerminalEvent();
         obs.assertValue(false);

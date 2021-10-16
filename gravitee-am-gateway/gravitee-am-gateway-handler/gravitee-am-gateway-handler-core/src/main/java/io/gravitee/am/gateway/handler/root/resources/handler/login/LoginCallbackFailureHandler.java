@@ -84,7 +84,7 @@ public class LoginCallbackFailureHandler implements Handler<RoutingContext> {
             // logout user if exists
             if (context.user() != null) {
                 // clear AuthenticationFlowContext. data of this context have a TTL so we can fire and forget in case on error.
-                authenticationFlowContextService.clearContext(context.session().get(ConstantKeys.TRANSACTION_ID_KEY)).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> logger.info("Deletion of some authentication flow data fails '{}'", error.getMessage()))).as(RxJava2Adapter::monoToCompletable)
+                RxJava2Adapter.monoToCompletable(authenticationFlowContextService.clearContext_migrated(context.session().get(ConstantKeys.TRANSACTION_ID_KEY))).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> logger.info("Deletion of some authentication flow data fails '{}'", error.getMessage()))).as(RxJava2Adapter::monoToCompletable)
                         .subscribe();
 
                 context.clearUser();

@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.identityprovider.gravitee.authentication;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.*;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.service.OrganizationUserService;
@@ -41,7 +42,8 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private OrganizationUserService userService;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
@@ -54,7 +56,7 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
         }
 
         String username = ((String) authentication.getPrincipal()).toLowerCase();
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userService.findByUsernameAndSource(ReferenceType.ORGANIZATION, (String)context.get(KEY_ORGANIZATION_ID), username, "gravitee")).filter(RxJavaReactorMigrationUtil.toJdkPredicate(user -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, (String)context.get(KEY_ORGANIZATION_ID), username, "gravitee"))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(user -> {
                     String presentedPassword = authentication.getCredentials().toString();
 
                     if (user.getPassword() == null) {
@@ -84,7 +86,8 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> loadUserByUsername(String username) {
  return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));

@@ -205,14 +205,14 @@ protected Maybe<User> profile(Token token, Authentication authentication) {
 protected Mono<User> profile_migrated(Token token, Authentication authentication) {
         // we only have the id_token, try to decode it and create the end-user
         if (TokenTypeHint.ID_TOKEN == token.getTypeHint()) {
-            return RxJava2Adapter.maybeToMono(retrieveUserFromIdToken(authentication.getContext(), token.getValue()));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(retrieveUserFromIdToken_migrated(authentication.getContext(), token.getValue())));
         }
 
         // if it's an access token but user ask for id token verification, try to decode it and create the end-user
         if (TokenTypeHint.ACCESS_TOKEN == token.getTypeHint() && getConfiguration().isUseIdTokenForUserInfo()) {
             if (authentication.getContext().get(ID_TOKEN_PARAMETER) != null) {
                 String idToken = String.valueOf(authentication.getContext().get(ID_TOKEN_PARAMETER));
-                return RxJava2Adapter.maybeToMono(retrieveUserFromIdToken(authentication.getContext(), idToken));
+                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(retrieveUserFromIdToken_migrated(authentication.getContext(), idToken)));
             } else {
                 // no suitable value to retrieve user
                 return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("No suitable value to retrieve user information"))));

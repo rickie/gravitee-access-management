@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.identityprovider.http.user;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import io.gravitee.am.identityprovider.api.DefaultUser;
@@ -32,9 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -59,7 +60,7 @@ public class HttpUserProviderTest {
                 .withRequestBody(matching(".*"))
                 .willReturn(okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
 
-        TestObserver<User> testObserver = userProvider.create(user).test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userProvider.create_migrated(user)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -76,7 +77,7 @@ public class HttpUserProviderTest {
                 .withRequestBody(matching(".*"))
                 .willReturn(okJson("{\"id\" : 80100, \"username\" : \"johndoe\"}")));
 
-        TestObserver<User> testObserver = userProvider.create(user).test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userProvider.create_migrated(user)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -93,7 +94,7 @@ public class HttpUserProviderTest {
                 .withRequestBody(matching(".*"))
                 .willReturn(badRequest()));
 
-        TestObserver<User> testObserver = userProvider.create(user).test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userProvider.create_migrated(user)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(UserAlreadyExistsException.class);
     }
@@ -104,7 +105,7 @@ public class HttpUserProviderTest {
                 .withQueryParam("username", new EqualToPattern("johndoe"))
                 .willReturn(okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
 
-        TestObserver<User> testObserver = userProvider.findByUsername("johndoe").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated("johndoe")).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -118,7 +119,7 @@ public class HttpUserProviderTest {
                 .withQueryParam("username", new EqualToPattern("johndoe"))
                 .willReturn(okJson("[{\"id\" : \"123456789\", \"username\" : \"johndoe\"}]")));
 
-        TestObserver<User> testObserver = userProvider.findByUsername("johndoe").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated("johndoe")).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -132,7 +133,7 @@ public class HttpUserProviderTest {
                 .withQueryParam("email", new EqualToPattern("johndoe@mail.com"))
                 .willReturn(okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
 
-        TestObserver<User> testObserver = userProvider.findByEmail("johndoe@mail.com").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(userProvider.findByEmail_migrated("johndoe@mail.com")).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -146,7 +147,7 @@ public class HttpUserProviderTest {
                 .withQueryParam("email", new EqualToPattern("johndoe@mail.com"))
                 .willReturn(okJson("[{\"id\" : \"123456789\", \"username\" : \"johndoe\"}]")));
 
-        TestObserver<User> testObserver = userProvider.findByEmail("johndoe@mail.com").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(userProvider.findByEmail_migrated("johndoe@mail.com")).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -163,7 +164,7 @@ public class HttpUserProviderTest {
                 .withRequestBody(matching(".*"))
                 .willReturn(okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
 
-        TestObserver<User> testObserver = userProvider.update("123456789", user).test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userProvider.update_migrated("123456789", user)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -180,7 +181,7 @@ public class HttpUserProviderTest {
                 .withRequestBody(matching(".*"))
                 .willReturn(notFound()));
 
-        TestObserver<User> testObserver = userProvider.update("123456789", user).test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userProvider.update_migrated("123456789", user)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertError(UserNotFoundException.class);
     }
@@ -190,7 +191,7 @@ public class HttpUserProviderTest {
         stubFor(delete(urlPathEqualTo("/api/users/123456789"))
                 .willReturn(ok()));
 
-        TestObserver testObserver = userProvider.delete("123456789").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userProvider.delete_migrated("123456789")).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -201,7 +202,7 @@ public class HttpUserProviderTest {
         stubFor(delete(urlPathEqualTo("/api/users/123456789"))
                 .willReturn(notFound()));
 
-        TestObserver testObserver = userProvider.delete("123456789").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userProvider.delete_migrated("123456789")).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNotComplete();
         testObserver.assertError(UserNotFoundException.class);

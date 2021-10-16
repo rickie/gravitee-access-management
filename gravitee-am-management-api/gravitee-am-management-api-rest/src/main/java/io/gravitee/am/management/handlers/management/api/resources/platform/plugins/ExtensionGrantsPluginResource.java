@@ -51,7 +51,7 @@ public class ExtensionGrantsPluginResource {
     @ApiOperation(value = "List extension grant plugins",
             notes = "There is no particular permission needed. User must be authenticated.")
     public void list(@Suspended final AsyncResponse response) {
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(extensionGrantPluginService.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPlugins -> extensionGrantPlugins.stream()
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(extensionGrantPluginService.findAll_migrated())).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrantPlugins -> extensionGrantPlugins.stream()
                         .sorted(Comparator.comparing(ExtensionGrantPlugin::getName))
                         .collect(Collectors.toList()))))
                 .subscribe(response::resume, response::resume);

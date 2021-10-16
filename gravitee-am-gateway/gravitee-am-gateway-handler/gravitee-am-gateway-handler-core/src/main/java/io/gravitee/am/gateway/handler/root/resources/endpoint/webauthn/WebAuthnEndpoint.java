@@ -27,6 +27,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.common.template.TemplateEngine;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -53,7 +54,7 @@ public abstract class WebAuthnEndpoint extends AbstractEndpoint implements Handl
      * @param handler Response handler
      */
     protected void checkUser(Client client, String username, Request request, Handler<AsyncResult<User>> handler) {
-        userAuthenticationManager.loadUserByUsername(client, username, request)
+        RxJava2Adapter.monoToMaybe(userAuthenticationManager.loadUserByUsername_migrated(client, username, request))
                 .subscribe(
                         user -> handler.handle(Future.succeededFuture(user)),
                         error -> handler.handle(Future.failedFuture(error)),

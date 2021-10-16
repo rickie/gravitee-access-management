@@ -57,7 +57,7 @@ public class GoodbyeCommandHandler implements CommandHandler<GoodbyeCommand, Goo
 
     @Override
     public Single<GoodbyeReply> handle(GoodbyeCommand command) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(installationService.addAdditionalInformation(Collections.singletonMap(COCKPIT_INSTALLATION_STATUS, DELETED_STATUS))).flatMap(installation->Mono.just(new GoodbyeReply(command.getId(), CommandStatus.SUCCEEDED))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(reply -> logger.info("Installation has been removed."))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Error occurred when deleting installation.", error))))
+        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(installationService.addAdditionalInformation_migrated(Collections.singletonMap(COCKPIT_INSTALLATION_STATUS, DELETED_STATUS)))).flatMap(installation->Mono.just(new GoodbyeReply(command.getId(), CommandStatus.SUCCEEDED))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(reply -> logger.info("Installation has been removed."))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Error occurred when deleting installation.", error))))
                 .onErrorReturn(throwable -> new GoodbyeReply(command.getId(), CommandStatus.ERROR));
     }
 }

@@ -41,7 +41,7 @@ public class ExtensionGrantPluginResourceTest extends JerseySpringTest {
         extensionGrantPlugin.setId(extensionGrantPluginId);
         extensionGrantPlugin.setName("extensionGrant-plugin-name");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(extensionGrantPlugin))).when(extensionGrantPluginService).findById(extensionGrantPluginId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(extensionGrantPlugin)))).when(extensionGrantPluginService).findById_migrated(extensionGrantPluginId);
 
         final Response response = target("platform")
                 .path("plugins")
@@ -54,7 +54,7 @@ public class ExtensionGrantPluginResourceTest extends JerseySpringTest {
     @Test
     public void shouldGet_technicalManagementException() {
         final String extensionGrantPluginId = "extensionGrant-plugin-id";
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("Error occurs")))).when(extensionGrantPluginService).findById(extensionGrantPluginId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("Error occurs"))))).when(extensionGrantPluginService).findById_migrated(extensionGrantPluginId);
 
         final Response response = target("platform")
                 .path("plugins")
@@ -73,8 +73,8 @@ public class ExtensionGrantPluginResourceTest extends JerseySpringTest {
 
         final String schema = "extensionGrant-plugin-schema";
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(extensionGrantPlugin))).when(extensionGrantPluginService).findById(extensionGrantPluginId);
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(schema))).when(extensionGrantPluginService).getSchema(extensionGrantPluginId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(extensionGrantPlugin)))).when(extensionGrantPluginService).findById_migrated(extensionGrantPluginId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(schema)))).when(extensionGrantPluginService).getSchema_migrated(extensionGrantPluginId);
 
         final Response response = target("platform")
                 .path("plugins")
@@ -91,7 +91,7 @@ public class ExtensionGrantPluginResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetSchema_technicalManagementException() {
         final String extensionGrantPluginId = "extensionGrant-plugin-id";
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("Error occurs")))).when(extensionGrantPluginService).findById(extensionGrantPluginId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("Error occurs"))))).when(extensionGrantPluginService).findById_migrated(extensionGrantPluginId);
 
         final Response response = target("platform")
                 .path("plugins")

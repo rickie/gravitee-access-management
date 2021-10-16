@@ -55,7 +55,8 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
         return mapper.map(entity, JdbcBotDetection.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<BotDetection> findAll() {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated());
@@ -69,7 +70,8 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<BotDetection> findByReference(ReferenceType referenceType, String referenceId) {
  return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
@@ -116,7 +118,7 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -132,7 +134,7 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
                 .table(JdbcBotDetection.class)
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(this.findById(item.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

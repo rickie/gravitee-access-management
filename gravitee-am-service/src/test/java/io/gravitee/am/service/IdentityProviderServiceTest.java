@@ -74,8 +74,8 @@ public class IdentityProviderServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(identityProviderRepository.findById("my-identity-provider")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new IdentityProvider())));
-        TestObserver testObserver = identityProviderService.findById("my-identity-provider").test();
+        when(identityProviderRepository.findById_migrated("my-identity-provider")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new IdentityProvider()))));
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated("my-identity-provider")).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -85,8 +85,8 @@ public class IdentityProviderServiceTest {
 
     @Test
     public void shouldFindById_notExistingIdentityProvider() {
-        when(identityProviderRepository.findById("my-identity-provider")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver testObserver = identityProviderService.findById("my-identity-provider").test();
+        when(identityProviderRepository.findById_migrated("my-identity-provider")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated("my-identity-provider")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertNoValues();
@@ -94,9 +94,9 @@ public class IdentityProviderServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(identityProviderRepository.findById("my-identity-provider")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(identityProviderRepository.findById_migrated("my-identity-provider")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
         TestObserver testObserver = new TestObserver();
-        identityProviderService.findById("my-identity-provider").subscribe(testObserver);
+        RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated("my-identity-provider")).subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -104,8 +104,8 @@ public class IdentityProviderServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(identityProviderRepository.findAll(eq(ReferenceType.DOMAIN), eq(DOMAIN))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new IdentityProvider())));
-        TestSubscriber<IdentityProvider> testObserver = identityProviderService.findByDomain(DOMAIN).test();
+        when(identityProviderRepository.findAll_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new IdentityProvider()))));
+        TestSubscriber<IdentityProvider> testObserver = RxJava2Adapter.fluxToFlowable(identityProviderService.findByDomain_migrated(DOMAIN)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -115,9 +115,9 @@ public class IdentityProviderServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(identityProviderRepository.findAll(eq(ReferenceType.DOMAIN), eq(DOMAIN))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(identityProviderRepository.findAll_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestSubscriber testSubscriber = identityProviderService.findByDomain(DOMAIN).test();
+        TestSubscriber testSubscriber = RxJava2Adapter.fluxToFlowable(identityProviderService.findByDomain_migrated(DOMAIN)).test();
 
         testSubscriber.assertError(TechnicalManagementException.class);
         testSubscriber.assertNotComplete();
@@ -127,9 +127,9 @@ public class IdentityProviderServiceTest {
     public void shouldFindAllByType() {
 
         IdentityProvider identityProvider = new IdentityProvider();
-        when(identityProviderRepository.findAll(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(identityProvider)));
+        when(identityProviderRepository.findAll_migrated(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(identityProvider))));
 
-        TestSubscriber<IdentityProvider> obs = identityProviderService.findAll(ReferenceType.ORGANIZATION).test();
+        TestSubscriber<IdentityProvider> obs = RxJava2Adapter.fluxToFlowable(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION)).test();
 
         obs.awaitTerminalEvent();
         obs.assertComplete();
@@ -139,9 +139,9 @@ public class IdentityProviderServiceTest {
     @Test
     public void shouldFindAllByType_noIdentityProvider() {
 
-        when(identityProviderRepository.findAll(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(identityProviderRepository.findAll_migrated(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
 
-        TestSubscriber<IdentityProvider> obs = identityProviderService.findAll(ReferenceType.ORGANIZATION).test();
+        TestSubscriber<IdentityProvider> obs = RxJava2Adapter.fluxToFlowable(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION)).test();
 
         obs.awaitTerminalEvent();
         obs.assertNoErrors();
@@ -152,9 +152,9 @@ public class IdentityProviderServiceTest {
     @Test
     public void shouldFindAllByType_TechnicalException() {
 
-        when(identityProviderRepository.findAll(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(identityProviderRepository.findAll_migrated(ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestSubscriber<IdentityProvider> obs = identityProviderService.findAll(ReferenceType.ORGANIZATION).test();
+        TestSubscriber<IdentityProvider> obs = RxJava2Adapter.fluxToFlowable(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION)).test();
 
         obs.awaitTerminalEvent();
         obs.assertError(TechnicalException.class);
@@ -166,26 +166,26 @@ public class IdentityProviderServiceTest {
         IdentityProvider idp = new IdentityProvider();
         idp.setReferenceType(ReferenceType.DOMAIN);
         idp.setReferenceId("domain#1");
-        when(identityProviderRepository.create(any(IdentityProvider.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idp)));
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(identityProviderRepository.create_migrated(any(IdentityProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idp))));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
 
-        TestObserver testObserver = identityProviderService.create(DOMAIN, newIdentityProvider).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(identityProviderService.create_migrated(DOMAIN, newIdentityProvider)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(identityProviderRepository, times(1)).create(any(IdentityProvider.class));
-        verify(eventService, times(1)).create(any());
+        verify(identityProviderRepository, times(1)).create_migrated(any(IdentityProvider.class));
+        verify(eventService, times(1)).create_migrated(any());
     }
 
     @Test
     public void shouldCreate_technicalException() {
         NewIdentityProvider newIdentityProvider = Mockito.mock(NewIdentityProvider.class);
-        when(identityProviderRepository.create(any(IdentityProvider.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(identityProviderRepository.create_migrated(any(IdentityProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
         TestObserver<IdentityProvider> testObserver = new TestObserver<>();
-        identityProviderService.create(DOMAIN, newIdentityProvider).subscribe(testObserver);
+        RxJava2Adapter.monoToSingle(identityProviderService.create_migrated(DOMAIN, newIdentityProvider)).subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -198,27 +198,27 @@ public class IdentityProviderServiceTest {
         idp.setReferenceType(ReferenceType.DOMAIN);
         idp.setReferenceId("domain#1");
 
-        when(identityProviderRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-identity-provider"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new IdentityProvider())));
-        when(identityProviderRepository.update(any(IdentityProvider.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idp)));
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(identityProviderRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-identity-provider"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new IdentityProvider()))));
+        when(identityProviderRepository.update_migrated(any(IdentityProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idp))));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
 
-        TestObserver testObserver = identityProviderService.update(DOMAIN, "my-identity-provider", updateIdentityProvider).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(identityProviderService.update_migrated(DOMAIN, "my-identity-provider", updateIdentityProvider)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(identityProviderRepository, times(1)).update(any(IdentityProvider.class));
-        verify(eventService, times(1)).create(any());
+        verify(identityProviderRepository, times(1)).update_migrated(any(IdentityProvider.class));
+        verify(eventService, times(1)).create_migrated(any());
     }
 
     @Test
     public void shouldUpdate_technicalException() {
         UpdateIdentityProvider updateIdentityProvider = Mockito.mock(UpdateIdentityProvider.class);
-        when(identityProviderRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-identity-provider"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(identityProviderRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-identity-provider"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
         TestObserver<IdentityProvider> testObserver = new TestObserver<>();
-        identityProviderService.update(DOMAIN, "my-identity-provider", updateIdentityProvider).subscribe(testObserver);
+        RxJava2Adapter.monoToSingle(identityProviderService.update_migrated(DOMAIN, "my-identity-provider", updateIdentityProvider)).subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -226,36 +226,36 @@ public class IdentityProviderServiceTest {
 
     @Test
     public void shouldDelete_notExistingIdentityProvider() {
-        when(identityProviderRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-identity-provider"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(identityProviderRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-identity-provider"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver testObserver = identityProviderService.delete(DOMAIN, "my-identity-provider").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(identityProviderService.delete_migrated(DOMAIN, "my-identity-provider")).test();
 
         testObserver.assertError(IdentityProviderNotFoundException.class);
         testObserver.assertNotComplete();
 
-        verify(applicationService, never()).findByIdentityProvider(anyString());
-        verify(identityProviderRepository, never()).delete(anyString());
+        verify(applicationService, never()).findByIdentityProvider_migrated(anyString());
+        verify(identityProviderRepository, never()).delete_migrated(anyString());
     }
 
     @Test
     public void shouldDelete_identitiesWithClients() {
-        when(identityProviderRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-identity-provider"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new IdentityProvider())));
-        when(applicationService.findByIdentityProvider("my-identity-provider")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Application())));
+        when(identityProviderRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-identity-provider"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new IdentityProvider()))));
+        when(applicationService.findByIdentityProvider_migrated("my-identity-provider")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Application()))));
 
-        TestObserver testObserver = identityProviderService.delete(DOMAIN, "my-identity-provider").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(identityProviderService.delete_migrated(DOMAIN, "my-identity-provider")).test();
 
         testObserver.assertError(IdentityProviderWithApplicationsException.class);
         testObserver.assertNotComplete();
 
-        verify(identityProviderRepository, never()).delete(anyString());
+        verify(identityProviderRepository, never()).delete_migrated(anyString());
     }
 
 
     @Test
     public void shouldDelete_technicalException() {
-        when(identityProviderRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-identity-provider"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new IdentityProvider())));
+        when(identityProviderRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-identity-provider"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new IdentityProvider()))));
 
-        TestObserver testObserver = identityProviderService.delete(DOMAIN, "my-identity-provider").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(identityProviderService.delete_migrated(DOMAIN, "my-identity-provider")).test();
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -264,18 +264,18 @@ public class IdentityProviderServiceTest {
     @Test
     public void shouldDelete() {
         IdentityProvider existingIdentityProvider = Mockito.mock(IdentityProvider.class);
-        when(identityProviderRepository.findById(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-identity-provider"))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingIdentityProvider)));
-        when(identityProviderRepository.delete("my-identity-provider")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(applicationService.findByIdentityProvider("my-identity-provider")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
-        when(eventService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Event())));
+        when(identityProviderRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("my-identity-provider"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingIdentityProvider))));
+        when(identityProviderRepository.delete_migrated("my-identity-provider")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(applicationService.findByIdentityProvider_migrated("my-identity-provider")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
 
-        TestObserver testObserver = identityProviderService.delete(DOMAIN, "my-identity-provider").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(identityProviderService.delete_migrated(DOMAIN, "my-identity-provider")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(identityProviderRepository, times(1)).delete("my-identity-provider");
-        verify(eventService, times(1)).create(any());
+        verify(identityProviderRepository, times(1)).delete_migrated("my-identity-provider");
+        verify(eventService, times(1)).create_migrated(any());
     }
 }

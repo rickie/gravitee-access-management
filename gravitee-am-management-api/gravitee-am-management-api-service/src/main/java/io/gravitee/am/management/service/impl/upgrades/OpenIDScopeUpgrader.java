@@ -57,9 +57,9 @@ public class OpenIDScopeUpgrader implements Upgrader, Ordered {
     @Override
     public boolean upgrade() {
         logger.info("Applying OIDC scope upgrade");
-        domainService.findAll()
+        RxJava2Adapter.monoToSingle(domainService.findAll_migrated())
                 .flatMapObservable(Observable::fromIterable)
-                .flatMapSingle(this::createOrUpdateSystemScopes)
+                .flatMapSingle((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.monoToSingle(createOrUpdateSystemScopes_migrated(ident)))
                 .subscribe();
         return true;
     }
@@ -71,7 +71,7 @@ private Single<Domain> createOrUpdateSystemScopes(Domain domain) {
 }
 private Mono<Domain> createOrUpdateSystemScopes_migrated(Domain domain) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromArray(io.gravitee.am.common.oidc.Scope.values())
-                .flatMapSingle(scope -> createSystemScope(domain.getId(), scope))
+                .flatMapSingle(scope -> RxJava2Adapter.monoToSingle(createSystemScope_migrated(domain.getId(), scope)))
                 .lastOrError()).map(RxJavaReactorMigrationUtil.toJdkFunction(scope -> domain))));
     }
 
@@ -81,7 +81,7 @@ private Single<Scope> createSystemScope(String domain, io.gravitee.am.common.oid
  return RxJava2Adapter.monoToSingle(createSystemScope_migrated(domain, systemScope));
 }
 private Mono<Scope> createSystemScope_migrated(String domain, io.gravitee.am.common.oidc.Scope systemScope) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeService.findByDomainAndKey(domain, systemScope.getKey())).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(scopeService.findByDomainAndKey_migrated(domain, systemScope.getKey()))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optScope -> {
                     if (!optScope.isPresent()) {
                         logger.info("Create a new system scope key[{}] for domain[{}]", systemScope.getKey(), domain);
@@ -91,7 +91,7 @@ private Mono<Scope> createSystemScope_migrated(String domain, io.gravitee.am.com
                         scope.setName(systemScope.getLabel());
                         scope.setDescription(systemScope.getDescription());
                         scope.setDiscovery(systemScope.isDiscovery());
-                        return scopeService.create(domain, scope);
+                        return RxJava2Adapter.monoToSingle(scopeService.create_migrated(domain, scope));
                     } else if (shouldUpdateSystemScope(optScope, systemScope)){
                         logger.info("Update a system scope key[{}] for domain[{}]", systemScope.getKey(), domain);
                         final Scope existingScope = optScope.get();
@@ -101,7 +101,7 @@ private Mono<Scope> createSystemScope_migrated(String domain, io.gravitee.am.com
                         scope.setClaims(systemScope.getClaims());
                         scope.setExpiresIn(existingScope.getExpiresIn());
                         scope.setDiscovery(systemScope.isDiscovery());
-                        return scopeService.update(domain, optScope.get().getId(), scope);
+                        return RxJava2Adapter.monoToSingle(scopeService.update_migrated(domain, optScope.get().getId(), scope));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(optScope.get()));
                 }));

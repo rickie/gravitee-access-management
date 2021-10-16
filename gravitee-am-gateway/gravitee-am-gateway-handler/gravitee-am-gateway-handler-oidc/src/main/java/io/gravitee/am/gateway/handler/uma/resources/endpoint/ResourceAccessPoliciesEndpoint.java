@@ -69,7 +69,7 @@ public class ResourceAccessPoliciesEndpoint {
         final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         final String resource = context.request().getParam(RESOURCE_ID);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(resourceService.findAccessPolicies(domain.getId(), client.getId(), accessToken.getSub(), resource)).map(RxJavaReactorMigrationUtil.toJdkFunction(AccessPolicy::getId)).collectList())
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(resourceService.findAccessPolicies_migrated(domain.getId(), client.getId(), accessToken.getSub(), resource))).map(RxJavaReactorMigrationUtil.toJdkFunction(AccessPolicy::getId)).collectList())
                 .subscribe(
                         response -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -91,7 +91,7 @@ public class ResourceAccessPoliciesEndpoint {
         AccessPolicy accessPolicy = extractRequest(context);
 
         // store the access policy
-        resourceService.createAccessPolicy(accessPolicy, domain.getId(), client.getId(), accessToken.getSub(), resource)
+        RxJava2Adapter.monoToSingle(resourceService.createAccessPolicy_migrated(accessPolicy, domain.getId(), client.getId(), accessToken.getSub(), resource))
                 .subscribe(
                         p ->
                             context.response()
@@ -111,7 +111,7 @@ public class ResourceAccessPoliciesEndpoint {
         final String resource = context.request().getParam(RESOURCE_ID);
         final String accessPolicyId = context.request().getParam(POLICY_ID);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(resourceService.findAccessPolicy(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId)).switchIfEmpty(Mono.error(new AccessPolicyNotFoundException(accessPolicyId))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(resourceService.findAccessPolicy_migrated(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId))).switchIfEmpty(Mono.error(new AccessPolicyNotFoundException(accessPolicyId))))
                 .subscribe(
                         response -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -132,7 +132,7 @@ public class ResourceAccessPoliciesEndpoint {
         AccessPolicy accessPolicy = extractRequest(context);
 
         // update the access policy
-        resourceService.updateAccessPolicy(accessPolicy, domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId)
+        RxJava2Adapter.monoToSingle(resourceService.updateAccessPolicy_migrated(accessPolicy, domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId))
                 .subscribe(
                         response -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -149,7 +149,7 @@ public class ResourceAccessPoliciesEndpoint {
         final String resource = context.request().getParam(RESOURCE_ID);
         final String accessPolicy = context.request().getParam(POLICY_ID);
 
-        resourceService.deleteAccessPolicy(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicy)
+        RxJava2Adapter.monoToCompletable(resourceService.deleteAccessPolicy_migrated(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicy))
                 .subscribe(
                         () -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")

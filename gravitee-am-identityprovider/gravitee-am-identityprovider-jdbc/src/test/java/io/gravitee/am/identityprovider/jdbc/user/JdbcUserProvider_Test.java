@@ -38,7 +38,7 @@ public abstract class JdbcUserProvider_Test {
 
     @Test
     public void shouldSelectUserByUsername() {
-        TestObserver<User> testObserver = userProvider.findByUsername("bob").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated("bob")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -48,7 +48,7 @@ public abstract class JdbcUserProvider_Test {
 
     @Test
     public void shouldSelectUserByEmail() {
-        TestObserver<User> testObserver = userProvider.findByEmail("user01@acme.com").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(userProvider.findByEmail_migrated("user01@acme.com")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -58,7 +58,7 @@ public abstract class JdbcUserProvider_Test {
 
     @Test
     public void shouldNotSelectUserByUsername_userNotFound() {
-        TestObserver<User> testObserver = userProvider.findByUsername("unknown").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated("unknown")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -67,7 +67,7 @@ public abstract class JdbcUserProvider_Test {
 
     @Test
     public void shouldNotSelectUserByEmail_userNotFound() {
-        TestObserver<User> testObserver = userProvider.findByEmail("unknown@acme.com").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(userProvider.findByEmail_migrated("unknown@acme.com")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -77,7 +77,7 @@ public abstract class JdbcUserProvider_Test {
     @Test
     public void shouldCreate() {
         DefaultUser user = new DefaultUser("username1");
-        TestObserver<User> testObserver = userProvider.create(user).test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userProvider.create_migrated(user)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -88,13 +88,13 @@ public abstract class JdbcUserProvider_Test {
     public void shouldUpdate() {
         DefaultUser user = new DefaultUser("userToUpdate");
         user.setCredentials("password");
-        User createdUser = RxJava2Adapter.singleToMono(userProvider.create(user)).block();
+        User createdUser = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userProvider.create_migrated(user))).block();
 
         DefaultUser updateUser = new DefaultUser("userToUpdate");
         updateUser.setCredentials("password2");
-        RxJava2Adapter.singleToMono(userProvider.update(createdUser.getId(), updateUser)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userProvider.update_migrated(createdUser.getId(), updateUser))).block();
 
-        TestObserver<User> testObserver = userProvider.findByUsername("userToUpdate").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated("userToUpdate")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -104,7 +104,7 @@ public abstract class JdbcUserProvider_Test {
     @Test
     public void shouldNotUpdate_userNotFound() {
         DefaultUser user = new DefaultUser("userToUpdate");
-        TestObserver testObserver = userProvider.update("unknown", user).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(userProvider.update_migrated("unknown", user)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(UserNotFoundException.class);
@@ -114,10 +114,10 @@ public abstract class JdbcUserProvider_Test {
     @Test
     public void shouldDelete() {
         DefaultUser user = new DefaultUser("userToDelete");
-        User createdUser = RxJava2Adapter.singleToMono(userProvider.create(user)).block();
-        userProvider.delete(createdUser.getId()).blockingGet();
+        User createdUser = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userProvider.create_migrated(user))).block();
+        RxJava2Adapter.monoToCompletable(userProvider.delete_migrated(createdUser.getId())).blockingGet();
 
-        TestObserver<User> testObserver = userProvider.findByUsername("userToDelete").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated("userToDelete")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -126,7 +126,7 @@ public abstract class JdbcUserProvider_Test {
 
     @Test
     public void shouldNotDelete_userNotFound() {
-        TestObserver testObserver = userProvider.delete("unknown").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userProvider.delete_migrated("unknown")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertError(UserNotFoundException.class);

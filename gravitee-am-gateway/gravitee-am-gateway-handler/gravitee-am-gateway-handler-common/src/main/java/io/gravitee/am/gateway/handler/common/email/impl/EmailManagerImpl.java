@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.common.email.impl;
 
+import static java.lang.String.format;
+
 import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Configuration;
 import io.gravitee.am.common.event.EmailEvent;
@@ -28,17 +30,15 @@ import io.gravitee.am.repository.management.api.EmailRepository;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Pattern;
-
-import static java.lang.String.format;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -75,7 +75,7 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing emails for domain {}", domain.getName());
-        emailRepository.findAll(ReferenceType.DOMAIN, domain.getId())
+        RxJava2Adapter.fluxToFlowable(emailRepository.findAll_migrated(ReferenceType.DOMAIN, domain.getId()))
                 .subscribe(
                         this::updateEmail,
                         error -> logger.error("Unable to initialize emails for domain {}", domain.getName(), error));
@@ -144,7 +144,7 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
     private void updateEmail(String emailId, EmailEvent emailEvent) {
         final String eventType = emailEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} email event for {}", domain.getName(), eventType, emailId);
-        emailRepository.findById(emailId)
+        RxJava2Adapter.monoToMaybe(emailRepository.findById_migrated(emailId))
                 .subscribe(
                         email -> {
                             // check if email has been disabled

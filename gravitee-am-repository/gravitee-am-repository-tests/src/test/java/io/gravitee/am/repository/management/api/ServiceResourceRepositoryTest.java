@@ -41,10 +41,10 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
         // create res
         ServiceResource resource = buildResource();
         resource.setReferenceId("testDomain");
-        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(serviceResourceRepository.create(resource)).block();
+        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceResourceRepository.create_migrated(resource))).block();
 
         // fetch factors
-        TestSubscriber<ServiceResource> testDomain = serviceResourceRepository.findByReference(ReferenceType.DOMAIN, "testDomain").test();
+        TestSubscriber<ServiceResource> testDomain = RxJava2Adapter.fluxToFlowable(serviceResourceRepository.findByReference_migrated(ReferenceType.DOMAIN, "testDomain")).test();
         testDomain.awaitTerminalEvent();
 
         testDomain.assertComplete();
@@ -74,10 +74,10 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create resource
         ServiceResource resource = buildResource();
-        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(serviceResourceRepository.create(resource)).block();
+        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceResourceRepository.create_migrated(resource))).block();
 
         // fetch resource
-        TestObserver<ServiceResource> testObserver = serviceResourceRepository.findById(resourceCreated.getId()).test();
+        TestObserver<ServiceResource> testObserver = RxJava2Adapter.monoToMaybe(serviceResourceRepository.findById_migrated(resourceCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -92,14 +92,14 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testNotFoundById() throws TechnicalException {
-        serviceResourceRepository.findById("test").test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(serviceResourceRepository.findById_migrated("test")).test().assertEmpty();
     }
 
     @Test
     public void testCreate() throws TechnicalException {
         ServiceResource resource = buildResource();
 
-        TestObserver<ServiceResource> testObserver = serviceResourceRepository.create(resource).test();
+        TestObserver<ServiceResource> testObserver = RxJava2Adapter.monoToSingle(serviceResourceRepository.create_migrated(resource)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -115,13 +115,13 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdate() throws TechnicalException {
         ServiceResource resource = buildResource();
-        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(serviceResourceRepository.create(resource)).block();
+        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceResourceRepository.create_migrated(resource))).block();
 
         ServiceResource updateResource = buildResource();
         updateResource.setId(resourceCreated.getId());
         updateResource.setName("testUpdatedName");
 
-        TestObserver<ServiceResource> testObserver = serviceResourceRepository.update(updateResource).test();
+        TestObserver<ServiceResource> testObserver = RxJava2Adapter.monoToSingle(serviceResourceRepository.update_migrated(updateResource)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -137,18 +137,18 @@ public class ServiceResourceRepositoryTest extends AbstractManagementTest {
     @Test
     public void testDelete() throws TechnicalException {
         ServiceResource resource = buildResource();
-        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(serviceResourceRepository.create(resource)).block();
+        ServiceResource resourceCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(serviceResourceRepository.create_migrated(resource))).block();
 
-        TestObserver<ServiceResource> testObserver = serviceResourceRepository.findById(resourceCreated.getId()).test();
+        TestObserver<ServiceResource> testObserver = RxJava2Adapter.monoToMaybe(serviceResourceRepository.findById_migrated(resourceCreated.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(f -> f.getName().equals(resourceCreated.getName()));
 
-        TestObserver testObserver1 = serviceResourceRepository.delete(resourceCreated.getId()).test();
+        TestObserver testObserver1 = RxJava2Adapter.monoToCompletable(serviceResourceRepository.delete_migrated(resourceCreated.getId())).test();
         testObserver1.awaitTerminalEvent();
 
-        serviceResourceRepository.findById(resourceCreated.getId()).test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(serviceResourceRepository.findById_migrated(resourceCreated.getId())).test().assertEmpty();
     }
 
 }

@@ -95,7 +95,7 @@ public class AuthorizationCodeTokenGranter extends AbstractTokenGranter {
             return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Missing parameter: code"))));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(super.parseRequest(tokenRequest, client)).flatMap(tokenRequest1->RxJava2Adapter.maybeToMono(authorizationCodeService.remove(code, client)).flatMap(z->RxJava2Adapter.maybeToMono(authenticationFlowContextService.removeContext(z.getTransactionId(), z.getContextVersion()).onErrorResumeNext((java.lang.Throwable error)->(exitOnError) ? RxJava2Adapter.monoToMaybe(Mono.error(error)) : RxJava2Adapter.monoToMaybe(Mono.just(new AuthenticationFlowContext())))).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.AuthenticationFlowContext ctx)->{
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(super.parseRequest_migrated(tokenRequest, client))).flatMap(tokenRequest1->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeService.remove_migrated(code, client))).flatMap(z->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticationFlowContextService.removeContext_migrated(z.getTransactionId(), z.getContextVersion())).onErrorResumeNext((java.lang.Throwable error)->(exitOnError) ? RxJava2Adapter.monoToMaybe(Mono.error(error)) : RxJava2Adapter.monoToMaybe(Mono.just(new AuthenticationFlowContext())))).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.AuthenticationFlowContext ctx)->{
 checkRedirectUris(tokenRequest1, z);
 checkPKCE(tokenRequest1, z);
 tokenRequest1.setSubject(z.getSubject());
@@ -120,7 +120,7 @@ return tokenRequest1;
 }
 @Override
     protected Mono<User> resolveResourceOwner_migrated(TokenRequest tokenRequest, Client client) {
-        return RxJava2Adapter.maybeToMono(userAuthenticationManager.loadPreAuthenticatedUser(tokenRequest.getSubject(), tokenRequest)
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userAuthenticationManager.loadPreAuthenticatedUser_migrated(tokenRequest.getSubject(), tokenRequest))
                 .onErrorResumeNext(ex -> { return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException())); }));
     }
 

@@ -41,10 +41,10 @@ public class TagRepositoryTest extends AbstractManagementTest {
         tag.setName("testName");
         tag.setDescription("Description");
         tag.setOrganizationId(ORGANIZATION_ID);
-        RxJava2Adapter.singleToMono(tagRepository.create(tag)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.create_migrated(tag))).block();
 
         // fetch domains
-        TestSubscriber<Tag> testObserver1 = tagRepository.findAll(ORGANIZATION_ID).test();
+        TestSubscriber<Tag> testObserver1 = RxJava2Adapter.fluxToFlowable(tagRepository.findAll_migrated(ORGANIZATION_ID)).test();
         testObserver1.awaitTerminalEvent();
 
         testObserver1.assertComplete();
@@ -57,10 +57,10 @@ public class TagRepositoryTest extends AbstractManagementTest {
         // create tag
         Tag tag = new Tag();
         tag.setName("testName");
-        Tag tagCreated = RxJava2Adapter.singleToMono(tagRepository.create(tag)).block();
+        Tag tagCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.create_migrated(tag))).block();
 
         // fetch domain
-        TestObserver<Tag> testObserver = tagRepository.findById(tagCreated.getId()).test();
+        TestObserver<Tag> testObserver = RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(tagCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -70,7 +70,7 @@ public class TagRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testNotFoundById() throws TechnicalException {
-        tagRepository.findById("test").test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated("test")).test().assertEmpty();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class TagRepositoryTest extends AbstractManagementTest {
         Tag tag = new Tag();
         tag.setName("testName");
 
-        TestObserver<Tag> testObserver = tagRepository.create(tag).test();
+        TestObserver<Tag> testObserver = RxJava2Adapter.monoToSingle(tagRepository.create_migrated(tag)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -92,14 +92,14 @@ public class TagRepositoryTest extends AbstractManagementTest {
         // create tag
         Tag tag = new Tag();
         tag.setName("testName");
-        Tag tagCreated = RxJava2Adapter.singleToMono(tagRepository.create(tag)).block();
+        Tag tagCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.create_migrated(tag))).block();
 
         // update tag
         Tag updatedTag = new Tag();
         updatedTag.setId(tagCreated.getId());
         updatedTag.setName("testUpdatedName");
 
-        TestObserver<Tag> testObserver = tagRepository.update(updatedTag).test();
+        TestObserver<Tag> testObserver = RxJava2Adapter.monoToSingle(tagRepository.update_migrated(updatedTag)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -113,21 +113,21 @@ public class TagRepositoryTest extends AbstractManagementTest {
         // create tag
         Tag tag = new Tag();
         tag.setName("testName");
-        Tag tagCreated = RxJava2Adapter.singleToMono(tagRepository.create(tag)).block();
+        Tag tagCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.create_migrated(tag))).block();
 
         // fetch tag
-        TestObserver<Tag> testObserver = tagRepository.findById(tagCreated.getId()).test();
+        TestObserver<Tag> testObserver = RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(tagCreated.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(t -> t.getName().equals(tag.getName()));
 
         // delete tag
-        TestObserver testObserver1 = tagRepository.delete(tagCreated.getId()).test();
+        TestObserver testObserver1 = RxJava2Adapter.monoToCompletable(tagRepository.delete_migrated(tagCreated.getId())).test();
         testObserver1.awaitTerminalEvent();
 
         // fetch tag
-        tagRepository.findById(tagCreated.getId()).test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(tagCreated.getId())).test().assertEmpty();
     }
 
 }

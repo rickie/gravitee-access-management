@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization;
 
+import static io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization.ParamUtils.getOAuthParameter;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.oidc.Parameters;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
@@ -26,13 +28,11 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.auth.User;
 import io.vertx.reactivex.ext.web.RoutingContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
 import java.util.List;
-
-import static io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization.ParamUtils.getOAuthParameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * Silent Re-authentication of subject with ID Token.
@@ -121,7 +121,7 @@ public class AuthorizationRequestParseIdTokenHintHandler implements Handler<Rout
     }
 
     private void extractUser(String idToken, Client client, Handler<AsyncResult<io.gravitee.am.model.User>> handler) {
-        idTokenService.extractUser(idToken, client)
+        RxJava2Adapter.monoToSingle(idTokenService.extractUser_migrated(idToken, client))
                 .subscribe(
                         user -> handler.handle(Future.succeededFuture(user)),
                         error -> handler.handle(Future.failedFuture(error))

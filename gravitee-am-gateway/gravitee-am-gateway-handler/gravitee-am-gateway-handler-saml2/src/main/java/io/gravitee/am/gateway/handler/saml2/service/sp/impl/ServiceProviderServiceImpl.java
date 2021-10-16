@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.saml2.service.sp.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.common.auth.idp.IdentityProviderManager;
 import io.gravitee.am.gateway.handler.saml2.service.sp.ServiceProviderService;
 import io.gravitee.am.identityprovider.api.Metadata;
@@ -39,14 +40,15 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
     @Autowired
     private IdentityProviderManager identityProviderManager;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.metadata_migrated(providerId, idpUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Metadata> metadata(String providerId, String idpUrl) {
  return RxJava2Adapter.monoToSingle(metadata_migrated(providerId, idpUrl));
 }
 @Override
     public Mono<Metadata> metadata_migrated(String providerId, String idpUrl) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(identityProviderManager.get(providerId)).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(providerId))).map(RxJavaReactorMigrationUtil.toJdkFunction(authenticationProvider -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.get_migrated(providerId))).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(providerId))).map(RxJavaReactorMigrationUtil.toJdkFunction(authenticationProvider -> {
                     Metadata metadata = authenticationProvider.metadata(idpUrl);
                     if (metadata == null) {
                         logger.debug("No metadata found for identity provider : {}", providerId);

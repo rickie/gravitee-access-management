@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization.consent;
 
+import static io.gravitee.am.gateway.handler.oauth2.service.utils.OAuth2Constants.SCOPE_PREFIX;
+import static io.gravitee.am.gateway.handler.oauth2.service.utils.OAuth2Constants.USER_OAUTH_APPROVAL;
+
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.utils.RequestUtils;
@@ -32,12 +35,9 @@ import io.vertx.reactivex.core.MultiMap;
 import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.Session;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static io.gravitee.am.gateway.handler.oauth2.service.utils.OAuth2Constants.SCOPE_PREFIX;
-import static io.gravitee.am.gateway.handler.oauth2.service.utils.OAuth2Constants.USER_OAUTH_APPROVAL;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -105,7 +105,7 @@ public class UserConsentProcessHandler implements Handler<RoutingContext> {
     }
 
     private void saveConsent(HttpServerRequest request, io.gravitee.am.model.User endUser, Client client, List<ScopeApproval> approvals, Handler<AsyncResult<List<ScopeApproval>>> handler) {
-        userConsentService.saveConsent(client, approvals, getAuthenticatedUser(request, endUser))
+        RxJava2Adapter.monoToSingle(userConsentService.saveConsent_migrated(client, approvals, getAuthenticatedUser(request, endUser)))
                 .subscribe(
                         approvals1 -> handler.handle(Future.succeededFuture(approvals1)),
                         error -> handler.handle(Future.failedFuture(error))

@@ -77,7 +77,8 @@ private Mono<AccessToken> findById_migrated(String id) {
                 .fromPublisher(accessTokenCollection.find(eq(FIELD_ID, id)).limit(1).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<AccessToken> findByToken(String token) {
  return RxJava2Adapter.monoToMaybe(findByToken_migrated(token));
@@ -88,7 +89,8 @@ private Mono<AccessToken> findById_migrated(String id) {
                 .fromPublisher(accessTokenCollection.find(eq(FIELD_TOKEN, token)).limit(1).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(accessToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<AccessToken> create(AccessToken accessToken) {
  return RxJava2Adapter.monoToSingle(create_migrated(accessToken));
@@ -96,10 +98,11 @@ private Mono<AccessToken> findById_migrated(String id) {
 @Override
     public Mono<AccessToken> create_migrated(AccessToken accessToken) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
-                .fromPublisher(accessTokenCollection.insertOne(convert(accessToken)))).flatMap(success->RxJava2Adapter.maybeToMono(findById(accessToken.getId())).single())));
+                .fromPublisher(accessTokenCollection.insertOne(convert(accessToken)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(accessToken.getId()))).single())));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(accessTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable bulkWrite(List<AccessToken> accessTokens) {
  return RxJava2Adapter.monoToCompletable(bulkWrite_migrated(accessTokens));
@@ -109,7 +112,8 @@ private Mono<AccessToken> findById_migrated(String id) {
         return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.bulkWrite(convert(accessTokens)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable delete(String token) {
  return RxJava2Adapter.monoToCompletable(delete_migrated(token));
@@ -119,7 +123,8 @@ private Mono<AccessToken> findById_migrated(String id) {
         return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.findOneAndDelete(eq(FIELD_TOKEN, token)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToObservable(this.findByClientIdAndSubject_migrated(clientId, subject))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Observable<AccessToken> findByClientIdAndSubject(String clientId, String subject) {
  return RxJava2Adapter.fluxToObservable(findByClientIdAndSubject_migrated(clientId, subject));
@@ -131,7 +136,8 @@ private Mono<AccessToken> findById_migrated(String id) {
                 .map(this::convert), BackpressureStrategy.BUFFER);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToObservable(this.findByClientId_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Observable<AccessToken> findByClientId(String clientId) {
  return RxJava2Adapter.fluxToObservable(findByClientId_migrated(clientId));
@@ -143,7 +149,8 @@ private Mono<AccessToken> findById_migrated(String id) {
                 .map(this::convert), BackpressureStrategy.BUFFER);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToObservable(this.findByAuthorizationCode_migrated(authorizationCode))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Observable<AccessToken> findByAuthorizationCode(String authorizationCode) {
  return RxJava2Adapter.fluxToObservable(findByAuthorizationCode_migrated(authorizationCode));
@@ -155,7 +162,8 @@ private Mono<AccessToken> findById_migrated(String id) {
                 .map(this::convert), BackpressureStrategy.BUFFER);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByClientId_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Long> countByClientId(String clientId) {
  return RxJava2Adapter.monoToSingle(countByClientId_migrated(clientId));
@@ -165,7 +173,8 @@ private Mono<AccessToken> findById_migrated(String id) {
         return RxJava2Adapter.singleToMono(Single.fromPublisher(accessTokenCollection.countDocuments(eq(FIELD_CLIENT, clientId))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable deleteByUserId(String userId) {
  return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(userId));
@@ -175,7 +184,8 @@ private Mono<AccessToken> findById_migrated(String id) {
         return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.deleteMany(eq(FIELD_SUBJECT, userId)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainIdClientIdAndUserId_migrated(domainId, clientId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable deleteByDomainIdClientIdAndUserId(String domainId, String clientId, String userId) {
  return RxJava2Adapter.monoToCompletable(deleteByDomainIdClientIdAndUserId_migrated(domainId, clientId, userId));
@@ -185,7 +195,8 @@ private Mono<AccessToken> findById_migrated(String id) {
         return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(accessTokenCollection.deleteMany(and(eq(FIELD_DOMAIN, domainId), eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, userId))))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainIdAndUserId_migrated(domainId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable deleteByDomainIdAndUserId(String domainId, String userId) {
  return RxJava2Adapter.monoToCompletable(deleteByDomainIdAndUserId_migrated(domainId, userId));

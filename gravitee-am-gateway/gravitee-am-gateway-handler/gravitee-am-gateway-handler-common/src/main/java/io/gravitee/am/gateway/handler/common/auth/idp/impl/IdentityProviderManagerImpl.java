@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.auth.idp.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.event.EventManager;
 import io.gravitee.am.common.event.IdentityProviderEvent;
 import io.gravitee.am.gateway.handler.common.auth.idp.IdentityProviderManager;
@@ -68,7 +69,8 @@ public class IdentityProviderManagerImpl extends AbstractService implements Iden
     private ConcurrentMap<String, IdentityProvider> identities = new ConcurrentHashMap<>();
     private ConcurrentMap<String, UserProvider> userProviders = new ConcurrentHashMap<>();
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.get_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<AuthenticationProvider> get(String id) {
  return RxJava2Adapter.monoToMaybe(get_migrated(id));
@@ -84,7 +86,8 @@ public class IdentityProviderManagerImpl extends AbstractService implements Iden
         return identities.get(id);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getUserProvider_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<UserProvider> getUserProvider(String id) {
  return RxJava2Adapter.monoToMaybe(getUserProvider_migrated(id));
@@ -100,7 +103,7 @@ public class IdentityProviderManagerImpl extends AbstractService implements Iden
         logger.info("Initializing identity providers for domain {}", domain.getName());
 
         try {
-            identityProviderRepository.findAll(ReferenceType.DOMAIN, domain.getId()).blockingForEach(this::updateAuthenticationProvider);
+            RxJava2Adapter.fluxToFlowable(identityProviderRepository.findAll_migrated(ReferenceType.DOMAIN, domain.getId())).blockingForEach(this::updateAuthenticationProvider);
             logger.info("Identity providers loaded for domain {}", domain.getName());
         } catch (Exception e) {
             logger.error("Unable to initialize identity providers for domain {}", domain.getName(), e);
@@ -142,7 +145,7 @@ public class IdentityProviderManagerImpl extends AbstractService implements Iden
     private void updateIdentityProvider(String identityProviderId, IdentityProviderEvent identityProviderEvent) {
         final String eventType = identityProviderEvent.toString().toLowerCase();
         logger.info("Domain {} has received {} identity provider event for {}", domain.getName(), eventType, identityProviderId);
-        identityProviderRepository.findById(identityProviderId)
+        RxJava2Adapter.monoToMaybe(identityProviderRepository.findById_migrated(identityProviderId))
                 .subscribe(
                         identityProvider -> {
                             updateAuthenticationProvider(identityProvider);

@@ -108,7 +108,7 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
 }
 @Override
     protected Mono<User> resolveResourceOwner_migrated(TokenRequest tokenRequest, Client client) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(extensionGrantProvider.grant(convert(tokenRequest)))
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(extensionGrantProvider.grant_migrated(convert(tokenRequest))))
                         .flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, MaybeSource<User>>toJdkFunction(endUser -> {
                     if (extensionGrant.isCreateUser()) {
                         Map<String, Object> additionalInformation = endUser.getAdditionalInformation() == null ? new HashMap<>() : new HashMap<>(endUser.getAdditionalInformation());
@@ -116,18 +116,17 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
                         additionalInformation.put("source", extensionGrant.getIdentityProvider() != null ? extensionGrant.getIdentityProvider() : extensionGrant.getId());
                         additionalInformation.put("client_id", client.getId());
                         ((DefaultUser) endUser).setAdditionalInformation(additionalInformation);
-                        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(userAuthenticationManager.connect(endUser, false)));
+                        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userAuthenticationManager.connect_migrated(endUser, false))));
                     } else {
                         // Check that the user is existing from the identity provider
                         if (extensionGrant.isUserExists()) {
                             if (extensionGrant.getIdentityProvider() == null) {
                                 return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException("No identity_provider provided")));
                             }
-                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(identityProviderManager
-                                    .get(extensionGrant.getIdentityProvider())).flatMap(t->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction((Function<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>)authProvider -> {
+                            return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.get_migrated(extensionGrant.getIdentityProvider()))).flatMap(t->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>toJdkFunction((Function<AuthenticationProvider, MaybeSource<io.gravitee.am.identityprovider.api.User>>)authProvider -> {
                                         SimpleAuthenticationContext authenticationContext = new SimpleAuthenticationContext(tokenRequest);
                                         final Authentication authentication = new EndUserAuthentication(convert(endUser), null, authenticationContext);
-                                        return authProvider.loadPreAuthenticatedUser(authentication);
+                                        return RxJava2Adapter.monoToMaybe(authProvider.loadPreAuthenticatedUser_migrated(authentication));
                                     }).apply(t)))).map(RxJavaReactorMigrationUtil.toJdkFunction(idpUser -> {
                                         User user = new User();
                                         user.setId(idpUser.getId());

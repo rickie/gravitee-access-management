@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.repository.management.api.EventRepository;
 import io.gravitee.am.service.EventService;
@@ -44,7 +45,8 @@ public class EventServiceImpl implements EventService {
     @Autowired
     private EventRepository eventRepository;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(event))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Event> create(Event event) {
  return RxJava2Adapter.monoToSingle(create_migrated(event));
@@ -55,7 +57,7 @@ public class EventServiceImpl implements EventService {
 
         event.setCreatedAt(new Date());
         event.setUpdatedAt(event.getCreatedAt());
-        return RxJava2Adapter.singleToMono(eventRepository.create(event)
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventRepository.create_migrated(event))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
@@ -65,7 +67,8 @@ public class EventServiceImpl implements EventService {
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByTimeFrame_migrated(from, to))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<Event>> findByTimeFrame(long from, long to) {
  return RxJava2Adapter.monoToSingle(findByTimeFrame_migrated(from, to));
@@ -73,7 +76,7 @@ public class EventServiceImpl implements EventService {
 @Override
     public Mono<List<Event>> findByTimeFrame_migrated(long from, long to) {
         LOGGER.debug("Find events with time frame {} and {}", from, to);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(eventRepository.findByTimeFrame(from, to)).collectList())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(eventRepository.findByTimeFrame_migrated(from, to))).collectList())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));

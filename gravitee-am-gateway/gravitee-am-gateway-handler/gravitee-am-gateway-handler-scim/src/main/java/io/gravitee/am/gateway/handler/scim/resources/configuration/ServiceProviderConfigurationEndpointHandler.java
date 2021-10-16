@@ -21,6 +21,7 @@ import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.MediaType;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * An HTTP GET to this endpoint will return a JSON structure that describes the SCIM specification features available on a service provider.
@@ -41,7 +42,7 @@ public class ServiceProviderConfigurationEndpointHandler implements Handler<Rout
 
     @Override
     public void handle(RoutingContext context) {
-        serviceProviderConfigService.get()
+        RxJava2Adapter.monoToSingle(serviceProviderConfigService.get_migrated())
                 .subscribe(
                         config -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")

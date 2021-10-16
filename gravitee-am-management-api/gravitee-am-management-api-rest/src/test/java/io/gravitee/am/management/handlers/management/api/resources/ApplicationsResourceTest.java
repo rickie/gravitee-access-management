@@ -64,8 +64,8 @@ public class ApplicationsResourceTest extends JerseySpringTest {
 
         final Page<Application> applicationPage = new Page(new HashSet<>(Arrays.asList(mockClient, mockClient2)), 0, 2);
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(applicationPage))).when(applicationService).findByDomain(domainId, 0, Integer.MAX_VALUE);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(applicationPage)))).when(applicationService).findByDomain_migrated(domainId, 0, Integer.MAX_VALUE);
 
         final Response response = target("domains").path(domainId).path("applications").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -77,7 +77,7 @@ public class ApplicationsResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetApplications_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("error occurs")))).when(applicationService).findByDomain(domainId);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("error occurs"))))).when(applicationService).findByDomain_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("applications").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -99,8 +99,8 @@ public class ApplicationsResourceTest extends JerseySpringTest {
         application.setName("name");
         application.setType(ApplicationType.SERVICE);
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(application))).when(applicationService).create(eq(domainId), any(NewApplication.class), any());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(application)))).when(applicationService).create_migrated(eq(domainId), any(NewApplication.class), any());
 
         final Response response = target("domains")
                 .path(domainId)

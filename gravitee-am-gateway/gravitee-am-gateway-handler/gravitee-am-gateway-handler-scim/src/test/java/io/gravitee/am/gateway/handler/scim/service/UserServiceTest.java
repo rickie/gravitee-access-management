@@ -100,10 +100,10 @@ public class UserServiceTest {
         when(newUser.getUserName()).thenReturn("username");
 
         when(domain.getId()).thenReturn(domainId);
-        when(userRepository.findByUsernameAndSource(eq(ReferenceType.DOMAIN), anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userRepository.findByUsernameAndSource_migrated(eq(ReferenceType.DOMAIN), anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(identityProviderManager.getUserProvider_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver<User> testObserver = userService.create(newUser, "/").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userService.create_migrated(newUser, "/")).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidValueException.class);
     }
@@ -118,10 +118,10 @@ public class UserServiceTest {
         when(newUser.getRoles()).thenReturn(Arrays.asList("role-wrong-1", "role-wrong-2"));
 
         when(domain.getId()).thenReturn(domainId);
-        when(userRepository.findByUsernameAndSource(eq(ReferenceType.DOMAIN), anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(roleService.findByIdIn(newUser.getRoles())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet())));
+        when(userRepository.findByUsernameAndSource_migrated(eq(ReferenceType.DOMAIN), anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(roleService.findByIdIn_migrated(newUser.getRoles())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet()))));
 
-        TestObserver<User> testObserver = userService.create(newUser, "/").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userService.create_migrated(newUser, "/")).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidValueException.class);
     }
@@ -138,7 +138,7 @@ public class UserServiceTest {
         io.gravitee.am.identityprovider.api.User idpUser = mock(io.gravitee.am.identityprovider.api.User.class);
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idpUser)));
+        when(userProvider.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idpUser))));
 
         io.gravitee.am.model.User createdUser = mock(io.gravitee.am.model.User.class);
 
@@ -151,12 +151,12 @@ public class UserServiceTest {
         roles.add(role2);
 
         when(domain.getId()).thenReturn(domainId);
-        when(userRepository.findByUsernameAndSource(eq(ReferenceType.DOMAIN), anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(userRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(createdUser)));
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
-        when(roleService.findByIdIn(newUser.getRoles())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(roles)));
+        when(userRepository.findByUsernameAndSource_migrated(eq(ReferenceType.DOMAIN), anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(userRepository.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(createdUser))));
+        when(identityProviderManager.getUserProvider_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
+        when(roleService.findByIdIn_migrated(newUser.getRoles())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(roles))));
 
-        TestObserver<User> testObserver = userService.create(newUser, "/").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userService.create_migrated(newUser, "/")).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
     }
@@ -175,7 +175,7 @@ public class UserServiceTest {
         io.gravitee.am.identityprovider.api.User idpUser = mock(io.gravitee.am.identityprovider.api.User.class);
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idpUser)));
+        when(userProvider.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idpUser))));
 
         Set<Role> roles = new HashSet<>();
         Role role1 = new Role();
@@ -185,18 +185,18 @@ public class UserServiceTest {
         roles.add(role1);
         roles.add(role2);
 
-        when(userRepository.findById(existingUser.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(existingUser)));
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
+        when(userRepository.findById_migrated(existingUser.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingUser))));
+        when(identityProviderManager.getUserProvider_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
         ArgumentCaptor<io.gravitee.am.model.User> userCaptor = ArgumentCaptor.forClass(io.gravitee.am.model.User.class);
-        when(userRepository.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(existingUser)));
-        when(groupService.findByMember(existingUser.getId())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(userRepository.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(existingUser))));
+        when(groupService.findByMember_migrated(existingUser.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
         when(passwordValidator.isValid("user-password")).thenReturn(true);
 
-        TestObserver<User> testObserver = userService.update(existingUser.getId(), scimUser, "/").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userService.update_migrated(existingUser.getId(), scimUser, "/")).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
 
-        verify(userRepository, times(1)).update(userCaptor.capture());
+        verify(userRepository, times(1)).update_migrated(userCaptor.capture());
         assertTrue(userCaptor.getValue().isEnabled());
     }
 
@@ -230,21 +230,21 @@ public class UserServiceTest {
 
         io.gravitee.am.identityprovider.api.User idpUser = mock(io.gravitee.am.identityprovider.api.User.class);
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idpUser)));
+        when(userProvider.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idpUser))));
 
         when(domain.getName()).thenReturn(domainName);
         when(objectMapper.convertValue(any(), eq(ObjectNode.class))).thenReturn(userNode);
         when(objectMapper.treeToValue(userNode, User.class)).thenReturn(patchUser);
-        when(groupService.findByMember(userId)).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
-        when(userRepository.findById(userId)).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(patchedUser)));
-        when(identityProviderManager.getUserProvider(anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
+        when(groupService.findByMember_migrated(userId)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(userRepository.findById_migrated(userId)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(patchedUser))));
+        when(identityProviderManager.getUserProvider_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
         doAnswer(invocation -> {
             io.gravitee.am.model.User userToUpdate = invocation.getArgument(0);
             Assert.assertTrue(userToUpdate.getDisplayName().equals("my user 2"));
-            return RxJava2Adapter.monoToSingle(Mono.just(userToUpdate));
-        }).when(userRepository).update(any());
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(userToUpdate)));
+        }).when(userRepository).update_migrated(any());
 
-        TestObserver<User> testObserver = userService.patch(userId, patchOp, "/").test();
+        TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userService.patch_migrated(userId, patchOp, "/")).test();
         testObserver.assertNoErrors();
         testObserver.assertComplete();
         testObserver.assertValue(g -> "my user 2".equals(g.getDisplayName()));

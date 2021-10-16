@@ -85,7 +85,7 @@ public class UserServiceTest {
 
         when(user.isInactive()).thenReturn(true);
 
-        TestObserver testObserver = userService.resetPassword(client, user).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(userService.resetPassword_migrated(client, user)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(AccountInactiveException.class);
     }
@@ -106,20 +106,20 @@ public class UserServiceTest {
         when(accountSettings.isCompleteRegistrationWhenResetPassword()).thenReturn(true);
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.findByUsername(user.getUsername())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(idpUser)));
-        when(userProvider.update(anyString(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idpUser)));
+        when(userProvider.findByUsername_migrated(user.getUsername())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(idpUser))));
+        when(userProvider.update_migrated(anyString(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idpUser))));
 
         when(domain.getAccountSettings()).thenReturn(accountSettings);
-        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
-        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(commonUserService.enhance(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(loginAttemptService.reset(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(identityProviderManager.getUserProvider_migrated(user.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
+        when(commonUserService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(commonUserService.enhance_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(loginAttemptService.reset_migrated(any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver testObserver = userService.resetPassword(client, user).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(userService.resetPassword_migrated(client, user)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(credentialService, never()).deleteByUserId(any(), any(), any());
+        verify(credentialService, never()).deleteByUserId_migrated(any(), any(), any());
     }
 
     @Test
@@ -135,19 +135,19 @@ public class UserServiceTest {
         when(idpUser.getId()).thenReturn("idp-id");
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.findByUsername(user.getUsername())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(idpUser)));
-        when(userProvider.update(anyString(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idpUser)));
+        when(userProvider.findByUsername_migrated(user.getUsername())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(idpUser))));
+        when(userProvider.update_migrated(anyString(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idpUser))));
 
-        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
-        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(commonUserService.enhance(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(loginAttemptService.reset(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(identityProviderManager.getUserProvider_migrated(user.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
+        when(commonUserService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(commonUserService.enhance_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(loginAttemptService.reset_migrated(any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver testObserver = userService.resetPassword(client, user).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(userService.resetPassword_migrated(client, user)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(credentialService, never()).deleteByUserId(any(), any(), any());
+        verify(credentialService, never()).deleteByUserId_migrated(any(), any(), any());
     }
 
     @Test
@@ -163,19 +163,19 @@ public class UserServiceTest {
         when(idpUser.getId()).thenReturn("idp-id");
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.findByUsername(user.getUsername())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(idpUser)));
-        when(userProvider.update(anyString(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idpUser)));
+        when(userProvider.findByUsername_migrated(user.getUsername())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(idpUser))));
+        when(userProvider.update_migrated(anyString(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idpUser))));
 
-        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
-        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(commonUserService.enhance(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(loginAttemptService.reset(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(identityProviderManager.getUserProvider_migrated(user.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
+        when(commonUserService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(commonUserService.enhance_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(loginAttemptService.reset_migrated(any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver testObserver = userService.resetPassword(client, user).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(userService.resetPassword_migrated(client, user)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(credentialService, never()).deleteByUserId(any(), any(), any());
+        verify(credentialService, never()).deleteByUserId_migrated(any(), any(), any());
     }
 
     @Test
@@ -191,19 +191,19 @@ public class UserServiceTest {
         when(idpUser.getId()).thenReturn("idp-id");
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.findByUsername(user.getUsername())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(userProvider.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idpUser)));
+        when(userProvider.findByUsername_migrated(user.getUsername())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(userProvider.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idpUser))));
 
-        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
-        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(commonUserService.enhance(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(loginAttemptService.reset(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(identityProviderManager.getUserProvider_migrated(user.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
+        when(commonUserService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(commonUserService.enhance_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(loginAttemptService.reset_migrated(any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver testObserver = userService.resetPassword(client, user).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(userService.resetPassword_migrated(client, user)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        verify(userProvider, times(1)).create(any());
-        verify(credentialService, never()).deleteByUserId(any(), any(), any());
+        verify(userProvider, times(1)).create_migrated(any());
+        verify(credentialService, never()).deleteByUserId_migrated(any(), any(), any());
     }
 
     @Test
@@ -219,14 +219,14 @@ public class UserServiceTest {
 
         UserProvider userProvider = mock(UserProvider.class);
 
-        when(commonUserService.findByDomainAndCriteria(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(user))));
-        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
+        when(commonUserService.findByDomainAndCriteria_migrated(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(user)))));
+        when(identityProviderManager.getUserProvider_migrated(user.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
 
-        TestObserver testObserver = userService.forgotPassword(user.getEmail(), client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.forgotPassword_migrated(user.getEmail(), client)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(AccountInactiveException.class);
 
-        verify(credentialService, never()).deleteByUserId(any(), any(), any());
+        verify(credentialService, never()).deleteByUserId_migrated(any(), any(), any());
     }
 
     @Test
@@ -239,10 +239,10 @@ public class UserServiceTest {
         when(user.getEmail()).thenReturn("test@test.com");
         when(user.getSource()).thenReturn("idp-id");
 
-        when(commonUserService.findByDomainAndCriteria(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(user))));
-        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(commonUserService.findByDomainAndCriteria_migrated(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(user)))));
+        when(identityProviderManager.getUserProvider_migrated(user.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver testObserver = userService.forgotPassword(user.getEmail(), client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.forgotPassword_migrated(user.getEmail(), client)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(UserInvalidException.class);
     }
@@ -265,16 +265,16 @@ public class UserServiceTest {
         when(domain.getId()).thenReturn("domain-id");
         when(domain.getAccountSettings()).thenReturn(accountSettings);
 
-        when(commonUserService.findByDomainAndCriteria(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(user))));
-        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
-        when(userProvider.findByUsername("username")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new DefaultUser("username"))));
-        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(commonUserService.findByDomainAndCriteria_migrated(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(user)))));
+        when(identityProviderManager.getUserProvider_migrated(user.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
+        when(userProvider.findByUsername_migrated("username")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new DefaultUser("username")))));
+        when(commonUserService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
 
-        TestObserver testObserver = userService.forgotPassword(user.getEmail(), client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.forgotPassword_migrated(user.getEmail(), client)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(credentialService, never()).deleteByUserId(any(), any(), any());
+        verify(credentialService, never()).deleteByUserId_migrated(any(), any(), any());
     }
 
     @Test
@@ -290,12 +290,12 @@ public class UserServiceTest {
         UserProvider userProvider = mock(UserProvider.class);
 
         when(domain.getId()).thenReturn("domain-id");
-        when(commonUserService.findByDomainAndCriteria(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(user))));
-        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
-        when(userProvider.findByUsername("username")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new DefaultUser("username"))));
-        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        when(commonUserService.findByDomainAndCriteria_migrated(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(user)))));
+        when(identityProviderManager.getUserProvider_migrated(user.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
+        when(userProvider.findByUsername_migrated("username")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new DefaultUser("username")))));
+        when(commonUserService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
 
-        TestObserver testObserver = userService.forgotPassword(user.getEmail(), client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.forgotPassword_migrated(user.getEmail(), client)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
     }
@@ -313,14 +313,14 @@ public class UserServiceTest {
         UserProvider userProvider = mock(UserProvider.class);
 
         when(domain.getId()).thenReturn("domain-id");
-        when(commonUserService.findByDomainAndCriteria(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(user))));
-        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
-        when(userProvider.findByUsername("username")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(commonUserService.findByDomainAndCriteria_migrated(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(user)))));
+        when(identityProviderManager.getUserProvider_migrated(user.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
+        when(userProvider.findByUsername_migrated("username")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver testObserver = userService.forgotPassword(user.getEmail(), client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.forgotPassword_migrated(user.getEmail(), client)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        verify(commonUserService, never()).update(any());
+        verify(commonUserService, never()).update_migrated(any());
 
     }
 
@@ -337,15 +337,12 @@ public class UserServiceTest {
         UserProvider userProvider = mock(UserProvider.class);
 
         when(domain.getId()).thenReturn("domain-id");
-        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
-        when(commonUserService.findByDomainAndCriteria(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Arrays.asList(user, user))));
-        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(userProvider.findByUsername("username")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new DefaultUser("username"))));
+        when(identityProviderManager.getUserProvider_migrated(user.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
+        when(commonUserService.findByDomainAndCriteria_migrated(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Arrays.asList(user, user)))));
+        when(commonUserService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(userProvider.findByUsername_migrated("username")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new DefaultUser("username")))));
 
-        TestObserver testObserver = userService.forgotPassword(
-                new ForgotPasswordParameters(user.getEmail(), false, false),
-                client,
-                mock(io.gravitee.am.identityprovider.api.User.class)).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.forgotPassword_migrated(new ForgotPasswordParameters(user.getEmail(), false, false), client, mock(io.gravitee.am.identityprovider.api.User.class))).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -360,12 +357,9 @@ public class UserServiceTest {
         when(user.getEmail()).thenReturn("test@test.com");
 
         when(domain.getId()).thenReturn("domain-id");
-        when(commonUserService.findByDomainAndCriteria(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Arrays.asList(user, user))));
+        when(commonUserService.findByDomainAndCriteria_migrated(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Arrays.asList(user, user)))));
 
-        TestObserver testObserver = userService.forgotPassword(
-                new ForgotPasswordParameters(user.getEmail(), true, true),
-                client,
-                mock(io.gravitee.am.identityprovider.api.User.class)).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.forgotPassword_migrated(new ForgotPasswordParameters(user.getEmail(), true, true), client, mock(io.gravitee.am.identityprovider.api.User.class))).test();
 
         testObserver.assertNotComplete();
         testObserver.assertError(EnforceUserIdentityException.class);
@@ -385,21 +379,21 @@ public class UserServiceTest {
         when(user.getEmail()).thenReturn("test@test.com");
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.findByEmail(user.getEmail())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(idpUser)));
+        when(userProvider.findByEmail_migrated(user.getEmail())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(idpUser))));
 
         when(domain.getId()).thenReturn("domain-id");
 
-        when(commonUserService.findByDomainAndCriteria(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
-        when(identityProviderManager.getUserProvider("idp-1")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
-        when(commonUserService.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(commonUserService.findByDomainAndExternalIdAndSource(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(commonUserService.findByDomainAndCriteria_migrated(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()))));
+        when(identityProviderManager.getUserProvider_migrated("idp-1")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
+        when(commonUserService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(commonUserService.findByDomainAndUsernameAndSource_migrated(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(commonUserService.findByDomainAndExternalIdAndSource_migrated(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver testObserver = userService.forgotPassword(user.getEmail(), client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.forgotPassword_migrated(user.getEmail(), client)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        verify(commonUserService, times(1)).create(any());
-        verify(commonUserService, never()).update(any());
+        verify(commonUserService, times(1)).create_migrated(any());
+        verify(commonUserService, never()).update_migrated(any());
     }
 
     @Test
@@ -415,21 +409,21 @@ public class UserServiceTest {
         when(user.getEmail()).thenReturn("test@test.com");
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.findByEmail(user.getEmail())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(idpUser)));
+        when(userProvider.findByEmail_migrated(user.getEmail())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(idpUser))));
 
         when(domain.getId()).thenReturn("domain-id");
 
-        when(commonUserService.findByDomainAndCriteria(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
-        when(identityProviderManager.getUserProvider("idp-1")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
-        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(commonUserService.findByDomainAndUsernameAndSource(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(commonUserService.findByDomainAndCriteria_migrated(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()))));
+        when(identityProviderManager.getUserProvider_migrated("idp-1")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
+        when(commonUserService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(commonUserService.findByDomainAndUsernameAndSource_migrated(anyString(), anyString(), anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
 
-        TestObserver testObserver = userService.forgotPassword(user.getEmail(), client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.forgotPassword_migrated(user.getEmail(), client)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
-        verify(commonUserService, never()).findByDomainAndExternalIdAndSource(anyString(), anyString(), anyString());
-        verify(commonUserService, never()).create(any());
-        verify(commonUserService, times(1)).update(any());
+        verify(commonUserService, never()).findByDomainAndExternalIdAndSource_migrated(anyString(), anyString(), anyString());
+        verify(commonUserService, never()).create_migrated(any());
+        verify(commonUserService, times(1)).update_migrated(any());
     }
 
     @Test
@@ -441,9 +435,9 @@ public class UserServiceTest {
         when(user.getEmail()).thenReturn("test@test.com");
 
         when(domain.getId()).thenReturn("domain-id");
-        when(commonUserService.findByDomainAndCriteria(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
+        when(commonUserService.findByDomainAndCriteria_migrated(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()))));
 
-        TestObserver testObserver = userService.forgotPassword(user.getEmail(), client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.forgotPassword_migrated(user.getEmail(), client)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(UserNotFoundException.class);
 
@@ -460,10 +454,10 @@ public class UserServiceTest {
 
         when(domain.getId()).thenReturn("domain-id");
 
-        when(commonUserService.findByDomainAndCriteria(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
-        when(identityProviderManager.getUserProvider("idp-1")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(commonUserService.findByDomainAndCriteria_migrated(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()))));
+        when(identityProviderManager.getUserProvider_migrated("idp-1")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver testObserver = userService.forgotPassword(user.getEmail(), client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.forgotPassword_migrated(user.getEmail(), client)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(UserNotFoundException.class);
 
@@ -478,14 +472,14 @@ public class UserServiceTest {
         when(user.getEmail()).thenReturn("test@test.com");
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.findByEmail(user.getEmail())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(userProvider.findByEmail_migrated(user.getEmail())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
         when(domain.getId()).thenReturn("domain-id");
 
-        when(commonUserService.findByDomainAndCriteria(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
-        when(identityProviderManager.getUserProvider("idp-1")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
+        when(commonUserService.findByDomainAndCriteria_migrated(eq(domain.getId()),any(FilterCriteria.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()))));
+        when(identityProviderManager.getUserProvider_migrated("idp-1")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
 
-        TestObserver testObserver = userService.forgotPassword(user.getEmail(), client).test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.forgotPassword_migrated(user.getEmail(), client)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(UserNotFoundException.class);
 
@@ -508,19 +502,19 @@ public class UserServiceTest {
         when(idpUser.getId()).thenReturn("idp-id");
 
         UserProvider userProvider = mock(UserProvider.class);
-        when(userProvider.findByUsername(user.getUsername())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(idpUser)));
-        when(userProvider.update(anyString(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idpUser)));
+        when(userProvider.findByUsername_migrated(user.getUsername())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(idpUser))));
+        when(userProvider.update_migrated(anyString(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idpUser))));
 
-        when(identityProviderManager.getUserProvider(user.getSource())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(userProvider)));
-        when(commonUserService.update(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(commonUserService.enhance(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(user)));
-        when(loginAttemptService.reset(any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(credentialService.deleteByUserId(any(), any(), any())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(identityProviderManager.getUserProvider_migrated(user.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userProvider))));
+        when(commonUserService.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(commonUserService.enhance_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(loginAttemptService.reset_migrated(any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(credentialService.deleteByUserId_migrated(any(), any(), any())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver testObserver = userService.resetPassword(client, user).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(userService.resetPassword_migrated(client, user)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(credentialService, times(1)).deleteByUserId(any(), any(), any());
+        verify(credentialService, times(1)).deleteByUserId_migrated(any(), any(), any());
     }
 }

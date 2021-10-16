@@ -76,7 +76,7 @@ public class CreateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeSCIMCreateUserEndpoint_invalid_password() throws Exception {
         router.route("/Users").handler(usersEndpoint::create);
-        when(userService.create(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("Field [password] is invalid"))));
+        when(userService.create_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("Field [password] is invalid")))));
 
         testRequest(
                 HttpMethod.POST,
@@ -98,7 +98,7 @@ public class CreateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldInvokeSCIMCreateUserEndpoint_valid_password() throws Exception {
         router.route("/Users").handler(usersEndpoint::create);
-        when(userService.create(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(getUser())));
+        when(userService.create_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(getUser()))));
 
         testRequest(
                 HttpMethod.POST,
@@ -117,7 +117,7 @@ public class CreateUserEndpointHandlerTest extends RxWebTestBase {
         user.setSource("unknown-idp");
 
         router.route("/Users").handler(usersEndpoint::create);
-        when(userService.create(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("User provider [unknown-idp] can not be found."))));
+        when(userService.create_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("User provider [unknown-idp] can not be found.")))));
 
         testRequest(
                 HttpMethod.POST,
@@ -139,7 +139,7 @@ public class CreateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldNotInvokeSCIMCreateUserEndpoint_invalid_roles() throws Exception {
         router.route("/Users").handler(usersEndpoint::create);
-        when(userService.create(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("Role [role-1] can not be found."))));
+        when(userService.create_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidValueException("Role [role-1] can not be found.")))));
 
         testRequest(
                 HttpMethod.POST,
@@ -161,7 +161,7 @@ public class CreateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturn409WhenUsernameAlreadyExists() throws Exception {
         router.route("/Users").handler(usersEndpoint::create);
-        when(userService.create(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new UniquenessException("Username already exists"))));
+        when(userService.create_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new UniquenessException("Username already exists")))));
 
         testRequest(
                 HttpMethod.POST,
@@ -183,7 +183,7 @@ public class CreateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturn400WhenInvalidUserException() throws Exception {
         router.route("/Users").handler(usersEndpoint::create);
-        when(userService.create(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new InvalidUserException("Invalid user infos"))));
+        when(userService.create_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidUserException("Invalid user infos")))));
 
         testRequest(
                 HttpMethod.POST,
@@ -205,7 +205,7 @@ public class CreateUserEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturn400WhenEmailFormatInvalidException() throws Exception {
         router.route("/Users").handler(usersEndpoint::create);
-        when(userService.create(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new EmailFormatInvalidException("Invalid email"))));
+        when(userService.create_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new EmailFormatInvalidException("Invalid email")))));
 
         testRequest(
                 HttpMethod.POST,

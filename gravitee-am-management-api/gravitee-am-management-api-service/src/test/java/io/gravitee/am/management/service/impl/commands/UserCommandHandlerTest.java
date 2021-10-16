@@ -82,7 +82,7 @@ public class UserCommandHandlerTest {
         additionalInformation.put("info2", "value2");
         userPayload.setAdditionalInformation(additionalInformation);
 
-        when(userService.createOrUpdate(eq(ReferenceType.ORGANIZATION), eq("orga#1"),
+        when(userService.createOrUpdate_migrated(eq(ReferenceType.ORGANIZATION), eq("orga#1"),
                 argThat(newUser -> newUser.getExternalId().equals(userPayload.getId())
                         && newUser.getSource().equals("cockpit")
                         && newUser.getFirstName().equals(userPayload.getFirstName())
@@ -91,7 +91,7 @@ public class UserCommandHandlerTest {
                         && newUser.getAdditionalInformation().get("info1").equals(additionalInformation.get("info1"))
                         && newUser.getAdditionalInformation().get("info2").equals(additionalInformation.get("info2"))
                         && newUser.getAdditionalInformation().get(StandardClaims.PICTURE).equals(userPayload.getPicture()))))
-                .thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
+                .thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new User()))));
 
         TestObserver<UserReply> obs = cut.handle(command).test();
 
@@ -108,8 +108,8 @@ public class UserCommandHandlerTest {
         userPayload.setId("user#1");
         userPayload.setOrganizationId("orga#1");
 
-        when(userService.createOrUpdate(eq(ReferenceType.ORGANIZATION), eq("orga#1"), any(NewUser.class)))
-                .thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException())));
+        when(userService.createOrUpdate_migrated(eq(ReferenceType.ORGANIZATION), eq("orga#1"), any(NewUser.class)))
+                .thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException()))));
 
         TestObserver<UserReply> obs = cut.handle(command).test();
 

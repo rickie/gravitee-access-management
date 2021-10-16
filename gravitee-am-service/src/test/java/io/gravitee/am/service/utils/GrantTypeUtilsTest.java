@@ -15,19 +15,19 @@
  */
 package io.gravitee.am.service.utils;
 
+import static org.junit.Assert.*;
+
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
 import io.gravitee.am.model.application.ApplicationSettings;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
 import io.reactivex.observers.TestObserver;
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.junit.Assert.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -38,7 +38,7 @@ public class GrantTypeUtilsTest {
 
     @Test
     public void validateGrantTypes_nullClient() {
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(null).test();
+        TestObserver<Application> testObserver = RxJava2Adapter.monoToSingle(GrantTypeUtils.validateGrantTypes_migrated(null)).test();
 
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -57,7 +57,7 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver = RxJava2Adapter.monoToSingle(GrantTypeUtils.validateGrantTypes_migrated(application)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
     }
@@ -74,7 +74,7 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver = RxJava2Adapter.monoToSingle(GrantTypeUtils.validateGrantTypes_migrated(application)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidClientMetadataException.class);
     }
@@ -91,7 +91,7 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver = RxJava2Adapter.monoToSingle(GrantTypeUtils.validateGrantTypes_migrated(application)).test();
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidClientMetadataException.class);
     }
@@ -109,7 +109,7 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver = RxJava2Adapter.monoToSingle(GrantTypeUtils.validateGrantTypes_migrated(application)).test();
 
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -128,7 +128,7 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver = RxJava2Adapter.monoToSingle(GrantTypeUtils.validateGrantTypes_migrated(application)).test();
 
         testObserver.assertNotComplete();
         testObserver.assertError(InvalidClientMetadataException.class);
@@ -147,7 +147,7 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver = RxJava2Adapter.monoToSingle(GrantTypeUtils.validateGrantTypes_migrated(application)).test();
 
         testObserver.assertError(InvalidClientMetadataException.class);
         testObserver.assertError(err -> ((Throwable)err).getMessage().startsWith("refresh_token grant type must be associated with"));
@@ -167,7 +167,7 @@ public class GrantTypeUtilsTest {
 
         application.setSettings(settings);
 
-        TestObserver<Application> testObserver = GrantTypeUtils.validateGrantTypes(application).test();
+        TestObserver<Application> testObserver = RxJava2Adapter.monoToSingle(GrantTypeUtils.validateGrantTypes_migrated(application)).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();

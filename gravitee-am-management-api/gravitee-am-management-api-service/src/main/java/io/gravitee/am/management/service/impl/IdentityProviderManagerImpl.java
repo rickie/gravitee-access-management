@@ -19,6 +19,7 @@ import static io.gravitee.am.management.service.impl.utils.InlineOrganizationPro
 import static io.gravitee.am.service.utils.BackendConfigurationUtils.getMongoDatabaseName;
 
 import com.google.common.io.BaseEncoding;
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.event.IdentityProviderEvent;
 import io.gravitee.am.identityprovider.api.UserProvider;
 import io.gravitee.am.management.service.IdentityProviderManager;
@@ -128,7 +129,7 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
 
         logger.info("Initializing user providers");
 
-        identityProviderService.findAll().blockingForEach(identityProvider -> {
+        RxJava2Adapter.fluxToFlowable(identityProviderService.findAll_migrated()).blockingForEach(identityProvider -> {
             logger.info("\tInitializing user provider: {} [{}]", identityProvider.getName(), identityProvider.getType());
             loadUserProvider(identityProvider);
         });
@@ -201,7 +202,8 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
         return provider;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getUserProvider_migrated(userProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<UserProvider> getUserProvider(String userProvider) {
  return RxJava2Adapter.monoToMaybe(getUserProvider_migrated(userProvider));
@@ -215,7 +217,8 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
         return RxJava2Adapter.maybeToMono((userProvider1 != null) ? RxJava2Adapter.monoToMaybe(Mono.just(userProvider1)) : RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<IdentityProvider> create(ReferenceType referenceType, String referenceId) {
  return RxJava2Adapter.monoToSingle(create_migrated(referenceType, referenceId));
@@ -283,7 +286,7 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
         } else {
             return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("Unable to create Default IdentityProvider with " + managementBackend + " backend"))));
         }
-        return RxJava2Adapter.singleToMono(identityProviderService.create(referenceType, referenceId, newIdentityProvider, null));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderService.create_migrated(referenceType, referenceId, newIdentityProvider, null)));
     }
 
     private Optional<String> getMongoServers() {
@@ -339,7 +342,8 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
         return "jdbc".equalsIgnoreCase(managementBackend);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<IdentityProvider> create(String domain) {
  return RxJava2Adapter.monoToSingle(create_migrated(domain));
@@ -356,7 +360,7 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
 
     private void deployUserProvider(String identityProviderId) {
         logger.info("Management API has received a deploy identity provider event for {}", identityProviderId);
-        identityProviderService.findById(identityProviderId)
+        RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(identityProviderId))
                 .subscribe(
                         this::loadUserProvider,
                         error -> logger.error("Unable to deploy user provider  {}", identityProviderId, error),

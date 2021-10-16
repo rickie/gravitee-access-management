@@ -14,6 +14,7 @@
 package io.gravitee.am.management.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.management.service.NewsletterService;
 import io.reactivex.Single;
 import io.vertx.reactivex.core.buffer.Buffer;
@@ -77,7 +78,8 @@ public class NewsletterServiceImpl implements NewsletterService, InitializingBea
         });
   }
 
-  @Deprecated
+  @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getTaglines_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
   public Single<List<String>> getTaglines() {
  return RxJava2Adapter.monoToSingle(getTaglines_migrated());

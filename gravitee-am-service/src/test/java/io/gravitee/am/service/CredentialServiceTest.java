@@ -59,8 +59,8 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(credentialRepository.findById("my-credential")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Credential())));
-        TestObserver testObserver = credentialService.findById("my-credential").test();
+        when(credentialRepository.findById_migrated("my-credential")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Credential()))));
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(credentialService.findById_migrated("my-credential")).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
@@ -70,8 +70,8 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindById_notExistingCredential() {
-        when(credentialRepository.findById("my-credential")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        TestObserver testObserver = credentialService.findById("my-credential").test();
+        when(credentialRepository.findById_migrated("my-credential")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToMaybe(credentialService.findById_migrated("my-credential")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertNoValues();
@@ -79,9 +79,9 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(credentialRepository.findById("my-credential")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(credentialRepository.findById_migrated("my-credential")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
         TestObserver testObserver = new TestObserver();
-        credentialService.findById("my-credential").subscribe(testObserver);
+        RxJava2Adapter.monoToMaybe(credentialService.findById_migrated("my-credential")).subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -89,8 +89,8 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindByUserId() {
-        when(credentialRepository.findByUserId(ReferenceType.DOMAIN, DOMAIN, "user-id")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Credential())));
-        TestSubscriber<Credential> testSubscriber = credentialService.findByUserId(ReferenceType.DOMAIN, DOMAIN, "user-id").test();
+        when(credentialRepository.findByUserId_migrated(ReferenceType.DOMAIN, DOMAIN, "user-id")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Credential()))));
+        TestSubscriber<Credential> testSubscriber = RxJava2Adapter.fluxToFlowable(credentialService.findByUserId_migrated(ReferenceType.DOMAIN, DOMAIN, "user-id")).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -100,9 +100,9 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindByUserId_technicalException() {
-        when(credentialRepository.findByUserId(ReferenceType.DOMAIN, DOMAIN, "user-id")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(credentialRepository.findByUserId_migrated(ReferenceType.DOMAIN, DOMAIN, "user-id")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestSubscriber testSubscriber = credentialService.findByUserId(ReferenceType.DOMAIN, DOMAIN, "user-id").test();
+        TestSubscriber testSubscriber = RxJava2Adapter.fluxToFlowable(credentialService.findByUserId_migrated(ReferenceType.DOMAIN, DOMAIN, "user-id")).test();
 
         testSubscriber.assertError(TechnicalManagementException.class);
         testSubscriber.assertNotComplete();
@@ -110,8 +110,8 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindByUsername() {
-        when(credentialRepository.findByUsername(ReferenceType.DOMAIN, DOMAIN, "username")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Credential())));
-        TestSubscriber<Credential> testObserver = credentialService.findByUsername(ReferenceType.DOMAIN, DOMAIN, "username").test();
+        when(credentialRepository.findByUsername_migrated(ReferenceType.DOMAIN, DOMAIN, "username")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Credential()))));
+        TestSubscriber<Credential> testObserver = RxJava2Adapter.fluxToFlowable(credentialService.findByUsername_migrated(ReferenceType.DOMAIN, DOMAIN, "username")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -121,9 +121,9 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindByUsername_technicalException() {
-        when(credentialRepository.findByUsername(ReferenceType.DOMAIN, DOMAIN, "username")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(credentialRepository.findByUsername_migrated(ReferenceType.DOMAIN, DOMAIN, "username")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestSubscriber testSubscriber = credentialService.findByUsername(ReferenceType.DOMAIN, DOMAIN, "username").test();
+        TestSubscriber testSubscriber = RxJava2Adapter.fluxToFlowable(credentialService.findByUsername_migrated(ReferenceType.DOMAIN, DOMAIN, "username")).test();
 
         testSubscriber.assertError(TechnicalManagementException.class);
         testSubscriber.assertNotComplete();
@@ -131,8 +131,8 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindByCredentialId() {
-        when(credentialRepository.findByCredentialId(ReferenceType.DOMAIN, DOMAIN, "credentialId")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(new Credential())));
-        TestSubscriber<Credential> testSubscriber = credentialService.findByCredentialId(ReferenceType.DOMAIN, DOMAIN, "credentialId").test();
+        when(credentialRepository.findByCredentialId_migrated(ReferenceType.DOMAIN, DOMAIN, "credentialId")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Credential()))));
+        TestSubscriber<Credential> testSubscriber = RxJava2Adapter.fluxToFlowable(credentialService.findByCredentialId_migrated(ReferenceType.DOMAIN, DOMAIN, "credentialId")).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -142,9 +142,9 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldFindByCredentialId_technicalException() {
-        when(credentialRepository.findByCredentialId(ReferenceType.DOMAIN, DOMAIN, "credentialId")).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(credentialRepository.findByCredentialId_migrated(ReferenceType.DOMAIN, DOMAIN, "credentialId")).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestSubscriber testSubscriber = credentialService.findByCredentialId(ReferenceType.DOMAIN, DOMAIN, "credentialId").test();
+        TestSubscriber testSubscriber = RxJava2Adapter.fluxToFlowable(credentialService.findByCredentialId_migrated(ReferenceType.DOMAIN, DOMAIN, "credentialId")).test();
 
         testSubscriber.assertError(TechnicalManagementException.class);
         testSubscriber.assertNotComplete();
@@ -153,24 +153,24 @@ public class CredentialServiceTest {
     @Test
     public void shouldCreate() {
         Credential newCredential = Mockito.mock(Credential.class);
-        when(credentialRepository.create(any(Credential.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Credential())));
+        when(credentialRepository.create_migrated(any(Credential.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Credential()))));
 
-        TestObserver testObserver = credentialService.create(newCredential).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(credentialService.create_migrated(newCredential)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(credentialRepository, times(1)).create(any(Credential.class));
+        verify(credentialRepository, times(1)).create_migrated(any(Credential.class));
     }
 
     @Test
     public void shouldCreate_technicalException() {
         Credential newCredential = Mockito.mock(Credential.class);
-        when(credentialRepository.create(any(Credential.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(credentialRepository.create_migrated(any(Credential.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
         TestObserver<Credential> testObserver = new TestObserver<>();
-        credentialService.create(newCredential).subscribe(testObserver);
+        RxJava2Adapter.monoToSingle(credentialService.create_migrated(newCredential)).subscribe(testObserver);
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -180,53 +180,53 @@ public class CredentialServiceTest {
     public void shouldUpdate() {
         Credential updateCredential = Mockito.mock(Credential.class);
         when(updateCredential.getId()).thenReturn("my-credential");
-        when(credentialRepository.findById("my-credential")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Credential())));
-        when(credentialRepository.update(any(Credential.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Credential())));
+        when(credentialRepository.findById_migrated("my-credential")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Credential()))));
+        when(credentialRepository.update_migrated(any(Credential.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Credential()))));
 
-        TestObserver testObserver = credentialService.update(updateCredential).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(credentialService.update_migrated(updateCredential)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(credentialRepository, times(1)).findById(anyString());
-        verify(credentialRepository, times(1)).update(any(Credential.class));
+        verify(credentialRepository, times(1)).findById_migrated(anyString());
+        verify(credentialRepository, times(1)).update_migrated(any(Credential.class));
     }
 
     @Test
     public void shouldUpdate_technicalException() {
         Credential updateCredential = Mockito.mock(Credential.class);
         when(updateCredential.getId()).thenReturn("my-credential");
-        when(credentialRepository.findById("my-credential")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(credentialRepository.findById_migrated("my-credential")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestObserver testObserver = credentialService.update(updateCredential).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(credentialService.update_migrated(updateCredential)).test();
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
 
-        verify(credentialRepository, times(1)).findById(anyString());
-        verify(credentialRepository, never()).update(any(Credential.class));
+        verify(credentialRepository, times(1)).findById_migrated(anyString());
+        verify(credentialRepository, never()).update_migrated(any(Credential.class));
     }
 
     @Test
     public void shouldUpdate2_technicalException() {
         Credential updateCredential = Mockito.mock(Credential.class);
         when(updateCredential.getId()).thenReturn("my-credential");
-        when(credentialRepository.findById("my-credential")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Credential())));
-        when(credentialRepository.update(any(Credential.class))).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(credentialRepository.findById_migrated("my-credential")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Credential()))));
+        when(credentialRepository.update_migrated(any(Credential.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestObserver testObserver = credentialService.update(updateCredential).test();
+        TestObserver testObserver = RxJava2Adapter.monoToSingle(credentialService.update_migrated(updateCredential)).test();
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
 
-        verify(credentialRepository, times(1)).findById(anyString());
-        verify(credentialRepository, times(1)).update(any(Credential.class));
+        verify(credentialRepository, times(1)).findById_migrated(anyString());
+        verify(credentialRepository, times(1)).update_migrated(any(Credential.class));
     }
 
     @Test
     public void shouldDelete_technicalException() {
-        when(credentialRepository.findById("my-credential")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(credentialRepository.findById_migrated("my-credential")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestObserver testObserver = credentialService.delete("my-credential").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(credentialService.delete_migrated("my-credential")).test();
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -234,25 +234,25 @@ public class CredentialServiceTest {
 
     @Test
     public void shouldDelete_unknownFactor() {
-        when(credentialRepository.findById("my-credential")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(credentialRepository.findById_migrated("my-credential")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
 
-        TestObserver testObserver = credentialService.delete("my-credential").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(credentialService.delete_migrated("my-credential")).test();
         testObserver.assertError(CredentialNotFoundException.class);
         testObserver.assertNotComplete();
 
-        verify(credentialRepository, never()).delete(anyString());
+        verify(credentialRepository, never()).delete_migrated(anyString());
     }
 
     @Test
     public void shouldDelete() {
-        when(credentialRepository.findById("my-credential")).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(new Credential())));
-        when(credentialRepository.delete("my-credential")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        TestObserver testObserver = credentialService.delete("my-credential").test();
+        when(credentialRepository.findById_migrated("my-credential")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Credential()))));
+        when(credentialRepository.delete_migrated("my-credential")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(credentialService.delete_migrated("my-credential")).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(credentialRepository, times(1)).delete("my-credential");
+        verify(credentialRepository, times(1)).delete_migrated("my-credential");
     }
 }

@@ -52,7 +52,8 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
 
   @Lazy @Autowired private RefreshTokenRepository refreshTokenRepository;
 
-  @Deprecated
+  @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(authorizationRequest, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
   public Single<AuthorizationCode> create(AuthorizationRequest authorizationRequest, User user) {
  return RxJava2Adapter.monoToSingle(create_migrated(authorizationRequest, user));
@@ -71,10 +72,11 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
     authorizationCode.setExpireAt(new Date(System.currentTimeMillis() + authorizationCodeValidity));
     authorizationCode.setCreatedAt(new Date());
 
-    return RxJava2Adapter.singleToMono(authorizationCodeRepository.create(authorizationCode));
+    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authorizationCodeRepository.create_migrated(authorizationCode)));
   }
 
-  @Deprecated
+  @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.remove_migrated(code, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
   public Maybe<AuthorizationCode> remove(String code, Client client) {
  return RxJava2Adapter.monoToMaybe(remove_migrated(code, client));
@@ -82,8 +84,7 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
 @Override
   public Mono<AuthorizationCode> remove_migrated(String code, Client client) {
     return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(
-        RxJava2Adapter.maybeToMono(authorizationCodeRepository
-                    .findByCode(code)).switchIfEmpty(RxJava2Adapter.maybeToMono(handleInvalidCode(code))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthorizationCode, MaybeSource<AuthorizationCode>>toJdkFunction(authorizationCode -> {
+        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(code))).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(handleInvalidCode_migrated(code)))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthorizationCode, MaybeSource<AuthorizationCode>>toJdkFunction(authorizationCode -> {
                           if (!authorizationCode.getClientId().equals(client.getClientId())) {
                             return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidGrantException(
                                     "The authorization code "
@@ -96,7 +97,7 @@ public class AuthorizationCodeServiceImpl implements AuthorizationCodeService {
                         }).apply(v))))
             .flatMap(
                 z ->
-                    authorizationCodeRepository.delete(z.getId()).as(RxJava2Adapter::maybeToMono))));
+                    RxJava2Adapter.monoToMaybe(authorizationCodeRepository.delete_migrated(z.getId())).as(RxJava2Adapter::maybeToMono))));
   }
 
   @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.handleInvalidCode_migrated(code))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -112,14 +113,13 @@ private Mono<AuthorizationCode> handleInvalidCode_migrated(String code) {
     // https://tools.ietf.org/html/rfc6749#section-4.1.2
     return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(
         RxJava2Adapter.completableToMono(
-                accessTokenRepository
-                    .findByAuthorizationCode(code)
+                RxJava2Adapter.fluxToObservable(accessTokenRepository.findByAuthorizationCode_migrated(code))
                     .flatMapCompletable(
                         accessToken -> {
                           Completable deleteAccessTokenAction =
-                              accessTokenRepository.delete(accessToken.getToken());
+                              RxJava2Adapter.monoToCompletable(accessTokenRepository.delete_migrated(accessToken.getToken()));
                           if (accessToken.getRefreshToken() != null) {
-                            RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(deleteAccessTokenAction).then(RxJava2Adapter.completableToMono(refreshTokenRepository.delete(accessToken.getRefreshToken()))));
+                            RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(deleteAccessTokenAction).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(refreshTokenRepository.delete_migrated(accessToken.getRefreshToken())))));
                           }
                           return deleteAccessTokenAction;
                         }))

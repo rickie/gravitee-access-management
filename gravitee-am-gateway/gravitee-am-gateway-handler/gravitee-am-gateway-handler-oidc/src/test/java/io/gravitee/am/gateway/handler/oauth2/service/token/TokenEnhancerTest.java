@@ -56,7 +56,7 @@ public class TokenEnhancerTest {
 
         Token accessToken = new AccessToken("token-id");
 
-        TestObserver<Token> testObserver = tokenEnhancer.enhance(accessToken, oAuth2Request, client, null, null).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(tokenEnhancer.enhance_migrated(accessToken, oAuth2Request, client, null, null)).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
@@ -75,14 +75,14 @@ public class TokenEnhancerTest {
 
         String idTokenPayload = "payload";
 
-        when(idTokenService.create(oAuth2Request, client, null, null)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(idTokenPayload)));
+        when(idTokenService.create_migrated(oAuth2Request, client, null, null)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idTokenPayload))));
 
-        TestObserver<Token> testObserver = tokenEnhancer.enhance(accessToken, oAuth2Request, client, null, null).test();
+        TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(tokenEnhancer.enhance_migrated(accessToken, oAuth2Request, client, null, null)).test();
 
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(accessToken1 -> accessToken1.getAdditionalInformation().containsKey("id_token"));
 
-        verify(idTokenService, times(1)).create(any(), any(), any(), any());
+        verify(idTokenService, times(1)).create_migrated(any(), any(), any(), any());
     }
 }

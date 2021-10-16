@@ -60,7 +60,7 @@ public class RepositoryCredentialStoreTest {
         query.setUserName("username");
 
         when(domain.getId()).thenReturn("domain-id");
-        when(credentialService.findByUsername(ReferenceType.DOMAIN, domain.getId(), query.getUserName())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(credentialService.findByUsername_migrated(ReferenceType.DOMAIN, domain.getId(), query.getUserName())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
         when(jwtBuilder.sign(any())).thenReturn("part1.part2.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
 
         List<Authenticator> authenticators = repositoryCredentialStore.fetch(query).result();
@@ -83,8 +83,8 @@ public class RepositoryCredentialStoreTest {
         query2.setUserName("username2");
 
         when(domain.getId()).thenReturn("domain-id");
-        when(credentialService.findByUsername(ReferenceType.DOMAIN, domain.getId(), query.getUserName())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
-        when(credentialService.findByUsername(ReferenceType.DOMAIN, domain.getId(), query2.getUserName())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+        when(credentialService.findByUsername_migrated(ReferenceType.DOMAIN, domain.getId(), query.getUserName())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(credentialService.findByUsername_migrated(ReferenceType.DOMAIN, domain.getId(), query2.getUserName())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
         when(jwtBuilder.sign(any())).thenReturn("part1.part2.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c").thenReturn("part1.part2.-sVkXqTOhFeJwQXyH3WhuNJfAfnRkVM6llEu6k46iqY");
 
         List<Authenticator> authenticators = repositoryCredentialStore.fetch(query).result();
@@ -108,7 +108,7 @@ public class RepositoryCredentialStoreTest {
         credential.setCredentialId("credID");
 
         when(domain.getId()).thenReturn("domain-id");
-        when(credentialService.findByUsername(ReferenceType.DOMAIN, domain.getId(), query.getUserName())).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.just(credential)));
+        when(credentialService.findByUsername_migrated(ReferenceType.DOMAIN, domain.getId(), query.getUserName())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(credential))));
         List<Authenticator> authenticators = repositoryCredentialStore.fetch(query).result();
 
         Assert.assertNotNull(authenticators);

@@ -59,15 +59,16 @@ public class AbstractTokenGranter implements TokenGranter {
         return this.grantType.equals(grantType);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.grant_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Token> grant(TokenRequest tokenRequest, Client client) {
  return RxJava2Adapter.monoToSingle(grant_migrated(tokenRequest, client));
 }
 @Override
     public Mono<Token> grant_migrated(TokenRequest tokenRequest, Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(parseRequest(tokenRequest, client)).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<TokenRequest, MaybeSource<User>>toJdkFunction(tokenRequest1 -> resolveResourceOwner(tokenRequest1, client)).apply(e)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
-                .flatMapSingle(user -> handleRequest(tokenRequest, client, user.orElse(null))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(parseRequest_migrated(tokenRequest, client))).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<TokenRequest, MaybeSource<User>>toJdkFunction(tokenRequest1 -> RxJava2Adapter.monoToMaybe(resolveResourceOwner_migrated(tokenRequest1, client))).apply(e)))).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
+                .flatMapSingle(user -> RxJava2Adapter.monoToSingle(handleRequest_migrated(tokenRequest, client, user.orElse(null)))));
     }
 
     /**
@@ -118,7 +119,7 @@ protected Single<TokenRequest> resolveRequest(TokenRequest tokenRequest, Client 
  return RxJava2Adapter.monoToSingle(resolveRequest_migrated(tokenRequest, client, endUser));
 }
 protected Mono<TokenRequest> resolveRequest_migrated(TokenRequest tokenRequest, Client client, User endUser) {
-        return RxJava2Adapter.singleToMono(tokenRequestResolver.resolve(tokenRequest, client, endUser));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tokenRequestResolver.resolve_migrated(tokenRequest, client, endUser)));
     }
 
     /**
@@ -135,7 +136,7 @@ private Single<Token> handleRequest(TokenRequest tokenRequest, Client client, Us
  return RxJava2Adapter.monoToSingle(handleRequest_migrated(tokenRequest, client, endUser));
 }
 private Mono<Token> handleRequest_migrated(TokenRequest tokenRequest, Client client, User endUser) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(resolveRequest(tokenRequest, client, endUser)).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(createOAuth2Request(tokenRequest1, client, endUser))).flatMap(oAuth2Request->RxJava2Adapter.singleToMono(createAccessToken(oAuth2Request, client, endUser)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(resolveRequest_migrated(tokenRequest, client, endUser))).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(createOAuth2Request_migrated(tokenRequest1, client, endUser)))).flatMap(oAuth2Request->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(createAccessToken_migrated(oAuth2Request, client, endUser))))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOAuth2Request_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -159,7 +160,7 @@ private Single<Token> createAccessToken(OAuth2Request oAuth2Request, Client clie
  return RxJava2Adapter.monoToSingle(createAccessToken_migrated(oAuth2Request, client, endUser));
 }
 private Mono<Token> createAccessToken_migrated(OAuth2Request oAuth2Request, Client client, User endUser) {
-        return RxJava2Adapter.singleToMono(tokenService.create(oAuth2Request, client, endUser));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tokenService.create_migrated(oAuth2Request, client, endUser)));
     }
 
     protected boolean isSupportRefreshToken(Client client) {

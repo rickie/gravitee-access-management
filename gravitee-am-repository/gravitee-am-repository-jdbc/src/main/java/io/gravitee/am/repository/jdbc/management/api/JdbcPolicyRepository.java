@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.repository.jdbc.management.api;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Policy;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
 import io.gravitee.am.repository.management.api.PolicyRepository;
@@ -35,7 +36,8 @@ import reactor.core.publisher.Mono;
 @Repository
 public class JdbcPolicyRepository extends AbstractJdbcRepository implements PolicyRepository {
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Policy> findAll() {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated());
@@ -45,7 +47,8 @@ public class JdbcPolicyRepository extends AbstractJdbcRepository implements Poli
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.collectionExists_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Boolean> collectionExists() {
  return RxJava2Adapter.monoToSingle(collectionExists_migrated());
@@ -55,7 +58,8 @@ public class JdbcPolicyRepository extends AbstractJdbcRepository implements Poli
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(false)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteCollection_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable deleteCollection() {
  return RxJava2Adapter.monoToCompletable(deleteCollection_migrated());

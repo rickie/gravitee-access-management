@@ -55,7 +55,7 @@ public class UsersResourceTest extends JerseySpringTest {
 
     @Before
     public void setUp() {
-        doReturn(RxJava2Adapter.monoToCompletable(Mono.empty())).when(userValidator).validate(any());
+        doReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()))).when(userValidator).validate_migrated(any());
     }
 
     @Test
@@ -79,8 +79,8 @@ public class UsersResourceTest extends JerseySpringTest {
         final Set<User> users = new HashSet<>(Arrays.asList(mockUser, mockUser2));
         final Page<User> pagedUsers = new Page<>(users, 0, 2);
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(pagedUsers))).when(userService).findAll(ReferenceType.DOMAIN, domainId, 0, 10);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(pagedUsers)))).when(userService).findAll_migrated(ReferenceType.DOMAIN, domainId, 0, 10);
 
         final Response response = target("domains")
                 .path(domainId)
@@ -113,8 +113,8 @@ public class UsersResourceTest extends JerseySpringTest {
         final Page<User> pagedUsers = new Page<>(users, 0, 2);
 
         final Map<Permission, Set<Acl>> permissions = Maps.<Permission, Set<Acl>>builder().put(Permission.ORGANIZATION_USER, Sets.newHashSet(Acl.LIST)).build();
-        when(permissionService.findAllPermissions(any(), eq(ReferenceType.ORGANIZATION), eq(organizationId))).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(permissions)));
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(pagedUsers))).when(organizationUserService).findAll(ReferenceType.ORGANIZATION, organizationId, 0, 10);
+        when(permissionService.findAllPermissions_migrated(any(), eq(ReferenceType.ORGANIZATION), eq(organizationId))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(permissions))));
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(pagedUsers)))).when(organizationUserService).findAll_migrated(ReferenceType.ORGANIZATION, organizationId, 0, 10);
 
         final Response response = target("organizations")
                 .path("DEFAULT")
@@ -133,7 +133,7 @@ public class UsersResourceTest extends JerseySpringTest {
         final Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains")
                 .path(domainId)
@@ -150,7 +150,7 @@ public class UsersResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetUsers_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs")))).when(domainService).findById(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs"))))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("users").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -168,8 +168,8 @@ public class UsersResourceTest extends JerseySpringTest {
         newUser.setEmail("test@test.com");
         newUser.setSource("unknown-source");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new UserProviderNotFoundException(newUser.getSource())))).when(userService).create(any(Domain.class), any(), any());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new UserProviderNotFoundException(newUser.getSource()))))).when(userService).create_migrated(any(Domain.class), any(), any());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -180,9 +180,9 @@ public class UsersResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldCreateOrganizationUser() {
-        when(permissionService.hasPermission(any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(true)));
-        when(organizationService.findById(ORGANIZATION_DEFAULT)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Organization())));
-        when(organizationUserService.createGraviteeUser(any(), any(), any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
+        when(permissionService.hasPermission_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true))));
+        when(organizationService.findById_migrated(ORGANIZATION_DEFAULT)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Organization()))));
+        when(organizationUserService.createGraviteeUser_migrated(any(), any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new User()))));
 
         final NewUser entity = new NewUser();
         entity.setUsername("test");
@@ -195,7 +195,7 @@ public class UsersResourceTest extends JerseySpringTest {
                 .post(Entity.entity(entity, MediaType.APPLICATION_JSON_TYPE));
 
         assertEquals(HttpStatusCode.CREATED_201, response.getStatus());
-        verify(organizationUserService).createGraviteeUser(any(), any(), any());
+        verify(organizationUserService).createGraviteeUser_migrated(any(), any(), any());
     }
 
     @Test
@@ -211,7 +211,7 @@ public class UsersResourceTest extends JerseySpringTest {
                 .post(Entity.entity(entity, MediaType.APPLICATION_JSON_TYPE));
 
         assertEquals(HttpStatusCode.BAD_REQUEST_400, response.getStatus());
-        verify(organizationUserService, never()).createGraviteeUser(any(), any(), any());
+        verify(organizationUserService, never()).createGraviteeUser_migrated(any(), any(), any());
     }
 
 }

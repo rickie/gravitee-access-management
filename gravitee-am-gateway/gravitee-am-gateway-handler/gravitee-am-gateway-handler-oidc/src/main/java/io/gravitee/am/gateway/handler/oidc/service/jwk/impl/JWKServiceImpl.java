@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.jwk.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.web.UriBuilder;
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.oidc.service.jwk.JWKService;
@@ -54,21 +55,23 @@ public class JWKServiceImpl implements JWKService {
     @Qualifier("oidcWebClient")
     public WebClient client;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getKeys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<JWKSet> getKeys() {
  return RxJava2Adapter.monoToSingle(getKeys_migrated());
 }
 @Override
     public Mono<JWKSet> getKeys_migrated() {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Flux.fromIterable(certificateManager.providers()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(certificateProvider -> certificateProvider.getProvider().keys())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Flux.fromIterable(certificateManager.providers()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(certificateProvider -> RxJava2Adapter.fluxToFlowable(certificateProvider.getProvider().keys_migrated()))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
                     JWKSet jwkSet = new JWKSet();
                     jwkSet.setKeys(keys);
                     return jwkSet;
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getKeys_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<JWKSet> getKeys(Client client) {
  return RxJava2Adapter.monoToMaybe(getKeys_migrated(client));
@@ -84,21 +87,23 @@ public class JWKServiceImpl implements JWKService {
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getDomainPrivateKeys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<JWKSet> getDomainPrivateKeys() {
  return RxJava2Adapter.monoToMaybe(getDomainPrivateKeys_migrated());
 }
 @Override
     public Mono<JWKSet> getDomainPrivateKeys_migrated() {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Flux.fromIterable(certificateManager.providers()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(provider -> provider.getProvider().privateKey())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Flux.fromIterable(certificateManager.providers()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(provider -> RxJava2Adapter.fluxToFlowable(provider.getProvider().privateKey_migrated()))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
                     JWKSet jwkSet = new JWKSet();
                     jwkSet.setKeys(keys);
                     return jwkSet;
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getKeys_migrated(jwksUri))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<JWKSet> getKeys(String jwksUri) {
  return RxJava2Adapter.monoToMaybe(getKeys_migrated(jwksUri));
@@ -123,7 +128,8 @@ public class JWKServiceImpl implements JWKService {
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getKey_migrated(jwkSet, kid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<JWK> getKey(JWKSet jwkSet, String kid) {
  return RxJava2Adapter.monoToMaybe(getKey_migrated(jwkSet, kid));
@@ -145,7 +151,8 @@ public class JWKServiceImpl implements JWKService {
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.filter_migrated(jwkSet, filter))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<JWK> filter(JWKSet jwkSet, Predicate<JWK> filter) {
  return RxJava2Adapter.monoToMaybe(filter_migrated(jwkSet, filter));

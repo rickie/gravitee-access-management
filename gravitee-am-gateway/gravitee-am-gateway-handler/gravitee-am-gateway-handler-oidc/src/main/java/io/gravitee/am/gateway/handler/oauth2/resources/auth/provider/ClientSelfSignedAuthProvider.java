@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.resources.auth.provider;
 
+import static io.gravitee.am.gateway.handler.oauth2.resources.auth.provider.CertificateUtils.getThumbprint;
+
 import io.gravitee.am.common.oidc.ClientAuthenticationMethod;
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidClientException;
 import io.gravitee.am.gateway.handler.oidc.service.jwk.JWKService;
@@ -23,12 +25,10 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.reactivex.ext.web.RoutingContext;
-
-import javax.net.ssl.SSLSession;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-
-import static io.gravitee.am.gateway.handler.oauth2.resources.auth.provider.CertificateUtils.getThumbprint;
+import javax.net.ssl.SSLSession;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * Client Authentication method : self_signed_tls_client_auth
@@ -68,7 +68,7 @@ public class ClientSelfSignedAuthProvider implements ClientAuthProvider {
             X509Certificate peerCertificate = (X509Certificate) peerCertificates[0];
             String thumbprint = getThumbprint(peerCertificate, "SHA-1");
             String thumbprint256 = getThumbprint(peerCertificate, "SHA-256");
-            jwkService.getKeys(client)
+            RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client))
                     .subscribe(
                             jwkSet -> {
                                 boolean match = jwkSet.getKeys()

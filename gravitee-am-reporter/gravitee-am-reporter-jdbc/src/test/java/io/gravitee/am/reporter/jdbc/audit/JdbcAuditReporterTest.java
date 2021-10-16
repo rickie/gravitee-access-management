@@ -15,6 +15,8 @@
  */
 package io.gravitee.am.reporter.jdbc.audit;
 
+import static org.junit.Assert.assertEquals;
+
 import io.gravitee.am.common.analytics.Type;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.Page;
@@ -27,6 +29,9 @@ import io.gravitee.am.reporter.api.audit.model.AuditOutcome;
 import io.gravitee.am.reporter.jdbc.JUnitConfiguration;
 import io.gravitee.am.reporter.jdbc.tool.DatabaseUrlProvider;
 import io.reactivex.observers.TestObserver;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,12 +41,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertEquals;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -113,7 +113,7 @@ public class JdbcAuditReporterTest {
                 .interval(60000)
                 .types(Arrays.asList("FIXED_TYPE"))
                 .build();
-        TestObserver<Map<Object, Object>> test = auditReporter.aggregate(ReferenceType.DOMAIN, "testReporter_aggregationHistogram", criteria, Type.DATE_HISTO).test();
+        TestObserver<Map<Object, Object>> test = RxJava2Adapter.monoToSingle(auditReporter.aggregate_migrated(ReferenceType.DOMAIN, "testReporter_aggregationHistogram", criteria, Type.DATE_HISTO)).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
 
@@ -153,7 +153,7 @@ public class JdbcAuditReporterTest {
                 .user(MY_USER)
                 .field("outcome.status")
                 .build();
-        TestObserver<Map<Object, Object>> test = auditReporter.aggregate(ReferenceType.DOMAIN, "testReporter_aggregationGroupBy", criteria, Type.GROUP_BY).test();
+        TestObserver<Map<Object, Object>> test = RxJava2Adapter.monoToSingle(auditReporter.aggregate_migrated(ReferenceType.DOMAIN, "testReporter_aggregationGroupBy", criteria, Type.GROUP_BY)).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
 
@@ -188,7 +188,7 @@ public class JdbcAuditReporterTest {
         waitBulkLoadFlush();
 
         AuditReportableCriteria criteria = new AuditReportableCriteria.Builder().user(MY_USER).build();
-        TestObserver<Map<Object, Object>> test = auditReporter.aggregate(ReferenceType.DOMAIN, "testReporter_aggregationCount", criteria, Type.COUNT).test();
+        TestObserver<Map<Object, Object>> test = RxJava2Adapter.monoToSingle(auditReporter.aggregate_migrated(ReferenceType.DOMAIN, "testReporter_aggregationCount", criteria, Type.COUNT)).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
         test.assertValue(map -> map.size() == 1);
@@ -216,7 +216,7 @@ public class JdbcAuditReporterTest {
         waitBulkLoadFlush();
 
         AuditReportableCriteria criteria = new AuditReportableCriteria.Builder().accessPointId(accessPointId).build();
-        TestObserver<Map<Object, Object>> test = auditReporter.aggregate(ReferenceType.DOMAIN, "testReporter_aggregationCount", criteria, Type.COUNT).test();
+        TestObserver<Map<Object, Object>> test = RxJava2Adapter.monoToSingle(auditReporter.aggregate_migrated(ReferenceType.DOMAIN, "testReporter_aggregationCount", criteria, Type.COUNT)).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
         test.assertValue(map -> map.size() == 1);
@@ -246,7 +246,7 @@ public class JdbcAuditReporterTest {
         waitBulkLoadFlush();
 
         AuditReportableCriteria criteria = new AuditReportableCriteria.Builder().user(MY_USER).build();
-        TestObserver<Page<Audit>> test = auditReporter.search(ReferenceType.DOMAIN, "testReporter_searchUser", criteria, 0, 20).test();
+        TestObserver<Page<Audit>> test = RxJava2Adapter.monoToSingle(auditReporter.search_migrated(ReferenceType.DOMAIN, "testReporter_searchUser", criteria, 0, 20)).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
         int expectedResult = acc;
@@ -271,7 +271,7 @@ public class JdbcAuditReporterTest {
         waitBulkLoadFlush();
 
         AuditReportableCriteria criteria = new AuditReportableCriteria.Builder().types(types).build();
-        TestObserver<Page<Audit>> test = auditReporter.search(ReferenceType.DOMAIN, "testReporter_searchUser", criteria, 0, 20).test();
+        TestObserver<Page<Audit>> test = RxJava2Adapter.monoToSingle(auditReporter.search_migrated(ReferenceType.DOMAIN, "testReporter_searchUser", criteria, 0, 20)).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
         test.assertValue(page -> page.getTotalCount() == types.size());
@@ -291,7 +291,7 @@ public class JdbcAuditReporterTest {
 
         waitBulkLoadFlush();
 
-        TestObserver<Page<Audit>> test = auditReporter.search(ReferenceType.DOMAIN, "testReporter_search", new AuditReportableCriteria.Builder().build(), 0, 20).test();
+        TestObserver<Page<Audit>> test = RxJava2Adapter.monoToSingle(auditReporter.search_migrated(ReferenceType.DOMAIN, "testReporter_search", new AuditReportableCriteria.Builder().build(), 0, 20)).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
         test.assertValue(page -> page.getTotalCount() == loop);
@@ -301,7 +301,7 @@ public class JdbcAuditReporterTest {
 
         List<Audit> readAudits = new ArrayList<>();
         // test paging - read first page
-        test = auditReporter.search(ReferenceType.DOMAIN, "testReporter_search", new AuditReportableCriteria.Builder().build(), 0, 5).test();
+        test = RxJava2Adapter.monoToSingle(auditReporter.search_migrated(ReferenceType.DOMAIN, "testReporter_search", new AuditReportableCriteria.Builder().build(), 0, 5)).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
         test.assertValue(page -> page.getTotalCount() == loop);
@@ -310,7 +310,7 @@ public class JdbcAuditReporterTest {
         test.assertValue(page -> page.getData().stream().map(Audit::getId).distinct().count() == 5);
         test.assertValue(page -> readAudits.addAll(page.getData()));
         // test paging - read second page
-        test = auditReporter.search(ReferenceType.DOMAIN, "testReporter_search", new AuditReportableCriteria.Builder().build(), 1, 5).test();
+        test = RxJava2Adapter.monoToSingle(auditReporter.search_migrated(ReferenceType.DOMAIN, "testReporter_search", new AuditReportableCriteria.Builder().build(), 1, 5)).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
         test.assertValue(page -> page.getTotalCount() == loop);
@@ -337,7 +337,7 @@ public class JdbcAuditReporterTest {
 
         Audit audit = reportables.get(new Random().nextInt(loop));
 
-        TestObserver<Audit> test = auditReporter.findById(audit.getReferenceType(), audit.getReferenceId(), audit.getId()).test();
+        TestObserver<Audit> test = RxJava2Adapter.monoToMaybe(auditReporter.findById_migrated(audit.getReferenceType(), audit.getReferenceId(), audit.getId())).test();
         test.awaitTerminalEvent();
         test.assertNoErrors();
         assertReportEqualsTo(audit, test);

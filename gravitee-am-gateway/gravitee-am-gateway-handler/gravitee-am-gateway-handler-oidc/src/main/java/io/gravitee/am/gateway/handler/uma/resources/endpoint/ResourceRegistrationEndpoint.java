@@ -70,7 +70,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
-        RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(this.resourceService.listByDomainAndClientAndUser(domain.getId(), client.getId(), accessToken.getSub())).map(RxJavaReactorMigrationUtil.toJdkFunction(Resource::getId)))
+        RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(this.resourceService.listByDomainAndClientAndUser_migrated(domain.getId(), client.getId(), accessToken.getSub()))).map(RxJavaReactorMigrationUtil.toJdkFunction(Resource::getId)))
                 .collect(JsonArray::new, JsonArray::add)
                 .subscribe(
                         buffer -> context.response()
@@ -88,7 +88,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String basePath = UriBuilderRequest.resolveProxyRequest(context);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.extractRequest(context)).flatMap(request->RxJava2Adapter.singleToMono(this.resourceService.create(request, domain.getId(), client.getId(), accessToken.getSub()))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context))).flatMap(request->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.resourceService.create_migrated(request, domain.getId(), client.getId(), accessToken.getSub())))))
                 .subscribe(
                         resource -> {
                             final String resourceLocation = resourceLocation(basePath, resource);
@@ -109,7 +109,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String resource_id = context.request().getParam(RESOURCE_ID);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(this.resourceService.findByDomainAndClientAndUserAndResource(domain.getId(), client.getId(), accessToken.getSub(), resource_id)).switchIfEmpty(Mono.error(new ResourceNotFoundException(resource_id))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.resourceService.findByDomainAndClientAndUserAndResource_migrated(domain.getId(), client.getId(), accessToken.getSub(), resource_id))).switchIfEmpty(Mono.error(new ResourceNotFoundException(resource_id))))
                 .subscribe(
                         resource -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -132,7 +132,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String resource_id = context.request().getParam(RESOURCE_ID);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.extractRequest(context)).flatMap(request->RxJava2Adapter.singleToMono(this.resourceService.update(request, domain.getId(), client.getId(), accessToken.getSub(), resource_id))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context))).flatMap(request->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.resourceService.update_migrated(request, domain.getId(), client.getId(), accessToken.getSub(), resource_id)))))
                 .subscribe(
                         resource -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -149,7 +149,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String resource_id = context.request().getParam(RESOURCE_ID);
 
-        this.resourceService.delete(domain.getId(), client.getId(), accessToken.getSub(), resource_id)
+        RxJava2Adapter.monoToCompletable(this.resourceService.delete_migrated(domain.getId(), client.getId(), accessToken.getSub(), resource_id))
                 .subscribe(
                         () -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -167,7 +167,7 @@ private Single<NewResource> extractRequest(RoutingContext context) {
  return RxJava2Adapter.monoToSingle(extractRequest_migrated(context));
 }
 private Mono<NewResource> extractRequest_migrated(RoutingContext context) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(context.getBodyAsJson()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JsonObject, SingleSource<JsonObject>>toJdkFunction(this::bodyValidation).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(context.getBodyAsJson()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<JsonObject, SingleSource<JsonObject>>toJdkFunction((io.vertx.core.json.JsonObject ident) -> RxJava2Adapter.monoToSingle(bodyValidation_migrated(ident))).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(body -> body.mapTo(NewResource.class)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.bodyValidation_migrated(body))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

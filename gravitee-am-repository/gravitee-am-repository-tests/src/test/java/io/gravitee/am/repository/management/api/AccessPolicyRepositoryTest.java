@@ -53,9 +53,9 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
         accessPolicy.setOrder(Integer.MAX_VALUE);
         accessPolicy.setResource("resource");
         accessPolicy.setType(AccessPolicyType.GROOVY);
-        AccessPolicy apCreated = RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
+        AccessPolicy apCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(accessPolicy))).block();
 
-        TestObserver<AccessPolicy> testObserver = repository.findById(apCreated.getId()).test();
+        TestObserver<AccessPolicy> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(apCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -74,13 +74,13 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
     public void update() throws TechnicalException {
         AccessPolicy accessPolicy = new AccessPolicy();
         accessPolicy.setName("accessPolicyName");
-        AccessPolicy apCreated = RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
+        AccessPolicy apCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(accessPolicy))).block();
 
         AccessPolicy toUpdate = new AccessPolicy();
         toUpdate.setId(apCreated.getId());
         toUpdate.setName("accessPolicyUpdatedName");
 
-        TestObserver<AccessPolicy> testObserver = repository.update(toUpdate).test();
+        TestObserver<AccessPolicy> testObserver = RxJava2Adapter.monoToSingle(repository.update_migrated(toUpdate)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -92,10 +92,10 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
     public void delete() throws TechnicalException {
         AccessPolicy accessPolicy = new AccessPolicy();
         accessPolicy.setName("accessPolicyName");
-        AccessPolicy apCreated = RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
+        AccessPolicy apCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(accessPolicy))).block();
 
         // fetch resource_set
-        TestObserver<Void> testObserver = repository.delete(apCreated.getId()).test();
+        TestObserver<Void> testObserver = RxJava2Adapter.monoToCompletable(repository.delete_migrated(apCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -109,14 +109,14 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
         accessPolicy.setName("accessPolicyName");
         final String DOMAIN_SINGLE = DOMAIN_ID + "single";
         accessPolicy.setDomain(DOMAIN_SINGLE);
-        RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(accessPolicy))).block();
 
         AccessPolicy accessPolicyOtherDomain = new AccessPolicy();
         accessPolicyOtherDomain.setName("accessPolicyName");
         accessPolicyOtherDomain.setDomain(DOMAIN_ID+"-other");
-        RxJava2Adapter.singleToMono(repository.create(accessPolicyOtherDomain)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(accessPolicyOtherDomain))).block();
 
-        TestObserver<Page<AccessPolicy>> testObserver = repository.findByDomain(DOMAIN_SINGLE, 0, 20).test();
+        TestObserver<Page<AccessPolicy>> testObserver = RxJava2Adapter.monoToSingle(repository.findByDomain_migrated(DOMAIN_SINGLE, 0, 20)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -135,17 +135,17 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
             accessPolicy.setCreatedAt(new Date());
             accessPolicy.setUpdatedAt(new Date());
 
-            RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(accessPolicy))).block();
             Thread.sleep(100l);
         }
 
         AccessPolicy accessPolicyOtherDomain = new AccessPolicy();
         accessPolicyOtherDomain.setName("accessPolicyName");
         accessPolicyOtherDomain.setDomain(DOMAIN_ID+"-other");
-        RxJava2Adapter.singleToMono(repository.create(accessPolicyOtherDomain)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(accessPolicyOtherDomain))).block();
 
         // list all in one page
-        TestObserver<Page<AccessPolicy>> testObserver = repository.findByDomain(DOMAIN10, 0, totalCount+1).test();
+        TestObserver<Page<AccessPolicy>> testObserver = RxJava2Adapter.monoToSingle(repository.findByDomain_migrated(DOMAIN10, 0, totalCount+1)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -154,7 +154,7 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
         testObserver.assertValue(p -> p.getCurrentPage() == 0);
         testObserver.assertValue(p -> p.getData().size() == totalCount);
 
-        testObserver = repository.findByDomain(DOMAIN10, 0, totalCount/2).test();
+        testObserver = RxJava2Adapter.monoToSingle(repository.findByDomain_migrated(DOMAIN10, 0, totalCount/2)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -165,7 +165,7 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
         // ordered by updated_at desc so last are returned first
         testObserver.assertValue(p -> p.getData().stream().map(AccessPolicy::getName).filter(name -> name.matches("accessPolicyName[56789]")).count() == totalCount/2);
 
-        testObserver = repository.findByDomain(DOMAIN10, 1, totalCount/2).test();
+        testObserver = RxJava2Adapter.monoToSingle(repository.findByDomain_migrated(DOMAIN10, 1, totalCount/2)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -183,21 +183,21 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
         accessPolicy.setName("accessPolicyName");
         accessPolicy.setDomain(DOMAIN_ID);
         accessPolicy.setResource(RESOURCE_ID);
-        RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(accessPolicy))).block();
 
         AccessPolicy accessPolicy2 = new AccessPolicy();
         accessPolicy2.setName("accessPolicyName");
         accessPolicy2.setDomain(DOMAIN_ID);
         accessPolicy2.setResource(RESOURCE_ID);
-        RxJava2Adapter.singleToMono(repository.create(accessPolicy2)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(accessPolicy2))).block();
 
         AccessPolicy accessPolicy3 = new AccessPolicy();
         accessPolicy3.setName("accessPolicyName");
         accessPolicy3.setDomain(DOMAIN_ID+"-other");
         accessPolicy3.setResource(RESOURCE_ID+"-other");
-        RxJava2Adapter.singleToMono(repository.create(accessPolicy3)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(accessPolicy3))).block();
 
-        TestObserver<List<AccessPolicy>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findByDomainAndResource(DOMAIN_ID, RESOURCE_ID)).collectList()).test();
+        TestObserver<List<AccessPolicy>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findByDomainAndResource_migrated(DOMAIN_ID, RESOURCE_ID))).collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -212,21 +212,21 @@ public class AccessPolicyRepositoryTest extends AbstractManagementTest {
         accessPolicy.setName("accessPolicyName");
         accessPolicy.setDomain(DOMAIN_ID);
         accessPolicy.setResource(RESOURCE_ID);
-        RxJava2Adapter.singleToMono(repository.create(accessPolicy)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(accessPolicy))).block();
 
         AccessPolicy accessPolicy2 = new AccessPolicy();
         accessPolicy2.setName("accessPolicyName");
         accessPolicy2.setDomain(DOMAIN_ID);
         accessPolicy2.setResource(RESOURCE_ID+"2");
-        RxJava2Adapter.singleToMono(repository.create(accessPolicy2)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(accessPolicy2))).block();
 
         AccessPolicy accessPolicy3 = new AccessPolicy();
         accessPolicy3.setName("accessPolicyName");
         accessPolicy3.setDomain(DOMAIN_ID+"-other");
         accessPolicy3.setResource(RESOURCE_ID+"-other");
-        RxJava2Adapter.singleToMono(repository.create(accessPolicy3)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(accessPolicy3))).block();
 
-        TestObserver<List<AccessPolicy>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(repository.findByResources(Arrays.asList(RESOURCE_ID, RESOURCE_ID+"2"))).collectList()).test();
+        TestObserver<List<AccessPolicy>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findByResources_migrated(Arrays.asList(RESOURCE_ID, RESOURCE_ID+"2")))).collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();

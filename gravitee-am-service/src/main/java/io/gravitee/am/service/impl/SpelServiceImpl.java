@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.service.SpelService;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.common.http.HttpHeaders;
@@ -67,7 +68,8 @@ public class SpelServiceImpl implements SpelService {
         }
     };
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getGrammar_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<JSONObject> getGrammar() {
  return RxJava2Adapter.monoToSingle(getGrammar_migrated());

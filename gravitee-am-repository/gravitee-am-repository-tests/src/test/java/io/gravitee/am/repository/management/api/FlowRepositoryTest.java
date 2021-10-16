@@ -50,10 +50,10 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         flow2.setReferenceType(ReferenceType.DOMAIN);
         flow2.setReferenceId("DOMAIN1");
 
-        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
-        Flow flow2Created = RxJava2Adapter.singleToMono(flowRepository.create(flow2)).block();
+        Flow flowCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow))).block();
+        Flow flow2Created = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow2))).block();
 
-        TestObserver<List<Flow>> obs = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(flowRepository.findAll(ReferenceType.DOMAIN, "DOMAIN1")).collectList()).test();
+        TestObserver<List<Flow>> obs = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(flowRepository.findAll_migrated(ReferenceType.DOMAIN, "DOMAIN1"))).collectList()).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -73,10 +73,10 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         flow2.setReferenceId("DOMAIN1");
         flow2.setApplication("APP1");
 
-        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
-        Flow flow2Created = RxJava2Adapter.singleToMono(flowRepository.create(flow2)).block();
+        Flow flowCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow))).block();
+        Flow flow2Created = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow2))).block();
 
-        TestObserver<List<Flow>> obs = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(flowRepository.findByApplication(ReferenceType.DOMAIN, "DOMAIN1", "APP1")).collectList()).test();
+        TestObserver<List<Flow>> obs = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(flowRepository.findByApplication_migrated(ReferenceType.DOMAIN, "DOMAIN1", "APP1"))).collectList()).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -91,9 +91,9 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         flow.setReferenceType(ReferenceType.DOMAIN);
         flow.setReferenceId("DOMAIN1");
 
-        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
+        Flow flowCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow))).block();
 
-        TestObserver<Flow> obs = flowRepository.findById(ReferenceType.DOMAIN, "DOMAIN1", flowCreated.getId()).test();
+        TestObserver<Flow> obs = RxJava2Adapter.monoToMaybe(flowRepository.findById_migrated(ReferenceType.DOMAIN, "DOMAIN1", flowCreated.getId())).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -140,9 +140,9 @@ public class FlowRepositoryTest extends AbstractManagementTest {
     public void testFindByWithStep() {
         Flow flow = buildFlow(1,1);
 
-        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
+        Flow flowCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow))).block();
 
-        TestObserver<Flow> obs = flowRepository.findById(flowCreated.getId()).test();
+        TestObserver<Flow> obs = RxJava2Adapter.monoToMaybe(flowRepository.findById_migrated(flowCreated.getId())).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -154,9 +154,9 @@ public class FlowRepositoryTest extends AbstractManagementTest {
     public void testFindByWithMultipleStep() {
         Flow flow = buildFlow(4,3);
 
-        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
+        Flow flowCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow))).block();
 
-        TestObserver<Flow> obs = flowRepository.findById(flowCreated.getId()).test();
+        TestObserver<Flow> obs = RxJava2Adapter.monoToMaybe(flowRepository.findById_migrated(flowCreated.getId())).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -170,9 +170,9 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         flow.setName("ROOT");
         flow.setOrder(5);
 
-        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
+        Flow flowCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow))).block();
 
-        TestObserver<Flow> obs = flowRepository.findById(flowCreated.getId()).test();
+        TestObserver<Flow> obs = RxJava2Adapter.monoToMaybe(flowRepository.findById_migrated(flowCreated.getId())).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -182,7 +182,7 @@ public class FlowRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testNotFoundById() {
-        flowRepository.findById("test").test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(flowRepository.findById_migrated("test")).test().assertEmpty();
     }
 
     @Test
@@ -191,7 +191,7 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         flow.setName("ROOT");
         flow.setOrder(5);
 
-        TestObserver<Flow> obs = flowRepository.create(flow).test();
+        TestObserver<Flow> obs = RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow)).test();
         obs.awaitTerminalEvent();
         obs.assertComplete();
         obs.assertNoErrors();
@@ -201,13 +201,13 @@ public class FlowRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdateWithStep() {
         Flow flow = buildFlow(1,1);
-        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
+        Flow flowCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow))).block();
 
         Flow flowUpdated = buildFlow(2,3);
         flowUpdated.setId(flowCreated.getId());
         flowUpdated.setName("testNameUpdated");
 
-        TestObserver<Flow> obs = flowRepository.update(flowUpdated).test();
+        TestObserver<Flow> obs = RxJava2Adapter.monoToSingle(flowRepository.update_migrated(flowUpdated)).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -220,13 +220,13 @@ public class FlowRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdateWithoutStep() {
         Flow flow = buildFlow(1,1);
-        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
+        Flow flowCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow))).block();
 
         Flow flowUpdated = buildFlow(0,0);
         flowUpdated.setId(flowCreated.getId());
         flowUpdated.setName("testNameUpdated");
 
-        TestObserver<Flow> obs = flowRepository.update(flowUpdated).test();
+        TestObserver<Flow> obs = RxJava2Adapter.monoToSingle(flowRepository.update_migrated(flowUpdated)).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -241,15 +241,15 @@ public class FlowRepositoryTest extends AbstractManagementTest {
         Flow flow = new Flow();
         flow.setName("ROOT");
         flow.setOrder(5);
-        Flow flowCreated = RxJava2Adapter.singleToMono(flowRepository.create(flow)).block();
+        Flow flowCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow))).block();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(flowRepository.findById(flowCreated.getId())).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(flowRepository.findById_migrated(flowCreated.getId()))).block());
 
-        TestObserver<Void> obs = flowRepository.delete(flowCreated.getId()).test();
+        TestObserver<Void> obs = RxJava2Adapter.monoToCompletable(flowRepository.delete_migrated(flowCreated.getId())).test();
         obs.awaitTerminalEvent();
         obs.assertNoValues();
 
-        assertNull(RxJava2Adapter.maybeToMono(flowRepository.findById(flowCreated.getId())).block());
+        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(flowRepository.findById_migrated(flowCreated.getId()))).block());
     }
 
     private Flow buildFlow(int nbPreSteps, int nbPostSteps) {

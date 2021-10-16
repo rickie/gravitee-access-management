@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.botdetection.google.recaptcha.provider;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.botdetection.api.BotDetectionContext;
 import io.gravitee.am.botdetection.api.BotDetectionProvider;
 import io.gravitee.am.botdetection.google.recaptcha.GoogleReCaptchaV3Configuration;
@@ -66,7 +67,8 @@ public class GoogleReCaptchaV3Provider implements BotDetectionProvider  {
         return this;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validate_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Boolean> validate(BotDetectionContext context) {
  return RxJava2Adapter.monoToSingle(validate_migrated(context));

@@ -84,9 +84,9 @@ public class SocialAuthenticationProviderTest {
 
         Client client = new Client();
 
-        when(userAuthenticationManager.connect(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new User())));
+        when(userAuthenticationManager.connect_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new User()))));
 
-        when(authenticationProvider.loadUserByUsername(any(EndUserAuthentication.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(user)));
+        when(authenticationProvider.loadUserByUsername_migrated(any(EndUserAuthentication.class))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
         when(routingContext.get("client")).thenReturn(client);
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.request()).thenReturn(httpServerRequest);
@@ -102,7 +102,7 @@ public class SocialAuthenticationProviderTest {
         });
 
         assertTrue(latch.await(10, TimeUnit.SECONDS));
-        verify(userAuthenticationManager, times(1)).connect(any());
+        verify(userAuthenticationManager, times(1)).connect_migrated(any());
         verify(eventManager).publishEvent(argThat(evt -> evt == AuthenticationEvent.SUCCESS), any());
     }
 
@@ -116,7 +116,7 @@ public class SocialAuthenticationProviderTest {
 
         Client client = new Client();
 
-        when(authenticationProvider.loadUserByUsername(any(EndUserAuthentication.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(BadCredentialsException::new))));
+        when(authenticationProvider.loadUserByUsername_migrated(any(EndUserAuthentication.class))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(BadCredentialsException::new)))));
         when(routingContext.get("client")).thenReturn(client);
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.request()).thenReturn(httpServerRequest);
@@ -133,7 +133,7 @@ public class SocialAuthenticationProviderTest {
         });
 
         assertTrue(latch.await(10, TimeUnit.SECONDS));
-        verify(userAuthenticationManager, never()).connect(any());
+        verify(userAuthenticationManager, never()).connect_migrated(any());
         verify(eventManager).publishEvent(argThat(evt -> evt == AuthenticationEvent.FAILURE), any());
     }
 
@@ -146,7 +146,7 @@ public class SocialAuthenticationProviderTest {
 
         Client client = new Client();
 
-        when(authenticationProvider.loadUserByUsername(any(EndUserAuthentication.class))).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        when(authenticationProvider.loadUserByUsername_migrated(any(EndUserAuthentication.class))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
         when(routingContext.get("client")).thenReturn(client);
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.request()).thenReturn(httpServerRequest);
@@ -163,7 +163,7 @@ public class SocialAuthenticationProviderTest {
         });
 
         assertTrue(latch.await(10, TimeUnit.SECONDS));
-        verify(userAuthenticationManager, never()).connect(any());
+        verify(userAuthenticationManager, never()).connect_migrated(any());
         verify(eventManager).publishEvent(argThat(evt -> evt == AuthenticationEvent.FAILURE), any());
     }
 

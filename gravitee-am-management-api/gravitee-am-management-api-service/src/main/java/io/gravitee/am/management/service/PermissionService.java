@@ -79,7 +79,7 @@ public Single<Map<Permission, Set<Acl>>> findAllPermissions(User user, Reference
 }
 public Mono<Map<Permission,Set<Acl>>> findAllPermissions_migrated(User user, ReferenceType referenceType, String referenceId) {
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findMembershipPermissions(user, Collections.singletonMap(referenceType, referenceId).entrySet().stream())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::aclsPerPermission))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findMembershipPermissions_migrated(user, Collections.singletonMap(referenceType, referenceId).entrySet().stream()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::aclsPerPermission))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.hasPermission_migrated(user, permissions))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -89,9 +89,9 @@ public Single<Boolean> hasPermission(User user, PermissionAcls permissions) {
 }
 public Mono<Boolean> hasPermission_migrated(User user, PermissionAcls permissions) {
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(haveConsistentReferenceIds(permissions)).flatMap(v->RxJava2Adapter.singleToMono((Single<Boolean>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<Boolean>>)consistent -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(haveConsistentReferenceIds_migrated(permissions))).flatMap(v->RxJava2Adapter.singleToMono((Single<Boolean>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<Boolean>>)consistent -> {
                     if (consistent) {
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findMembershipPermissions(user, permissions.referenceStream())).map(RxJavaReactorMigrationUtil.toJdkFunction(permissions::match)));
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findMembershipPermissions_migrated(user, permissions.referenceStream()))).map(RxJavaReactorMigrationUtil.toJdkFunction(permissions::match)));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(false));
                 }).apply(v)))));
@@ -128,15 +128,15 @@ protected Mono<Boolean> haveConsistentReferenceIds_migrated(PermissionAcls permi
             List<Single<Boolean>> obs = new ArrayList<>();
 
             if (applicationId != null) {
-                obs.add(isApplicationIdConsistent(applicationId, domainId, environmentId, organizationId));
+                obs.add(RxJava2Adapter.monoToSingle(isApplicationIdConsistent_migrated(applicationId, domainId, environmentId, organizationId)));
             }
 
             if (domainId != null) {
-                obs.add(isDomainIdConsistent(domainId, environmentId, organizationId));
+                obs.add(RxJava2Adapter.monoToSingle(isDomainIdConsistent_migrated(domainId, environmentId, organizationId)));
             }
 
             if (environmentId != null) {
-                obs.add(isEnvironmentIdConsistent(environmentId, organizationId));
+                obs.add(RxJava2Adapter.monoToSingle(isEnvironmentIdConsistent_migrated(environmentId, organizationId)));
             }
 
             return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Single.merge(obs)).all(RxJavaReactorMigrationUtil.toJdkPredicate(consistent -> consistent)))
@@ -157,13 +157,13 @@ private Mono<Boolean> isApplicationIdConsistent_migrated(String applicationId, S
             return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true)));
         }
 
-        return RxJava2Adapter.singleToMono(applicationService.findById(applicationId)
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(applicationService.findById_migrated(applicationId))
                 .flatMapSingle(application -> {
                     if (domainId != null) {
                         return RxJava2Adapter.monoToSingle(Mono.just(application.getDomain().equals(domainId)));
                     } else {
                         // Need to fetch the domain to check if it belongs to the environment / organization.
-                        return isDomainIdConsistent(application.getDomain(), environmentId, organizationId);
+                        return RxJava2Adapter.monoToSingle(isDomainIdConsistent_migrated(application.getDomain(), environmentId, organizationId));
                     }
                 }));
     }
@@ -179,13 +179,13 @@ private Mono<Boolean> isDomainIdConsistent_migrated(String domainId, String envi
             return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true)));
         }
 
-        return RxJava2Adapter.singleToMono(domainService.findById(domainId)
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domainId))
                 .flatMapSingle(domain -> {
                     if (environmentId != null) {
                         return RxJava2Adapter.monoToSingle(Mono.just(domain.getReferenceId().equals(environmentId) && domain.getReferenceType() == ReferenceType.ENVIRONMENT));
                     } else {
                         // Need to fetch the environment to check if it belongs to the organization.
-                        return isEnvironmentIdConsistent(domain.getReferenceId(), organizationId);
+                        return RxJava2Adapter.monoToSingle(isEnvironmentIdConsistent_migrated(domain.getReferenceId(), organizationId));
                     }
                 }));
     }
@@ -201,7 +201,7 @@ private Mono<Boolean> isEnvironmentIdConsistent_migrated(String environmentId, S
             return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true)));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(environmentService.findById(environmentId, organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(environment -> true)))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(environmentService.findById_migrated(environmentId, organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(environment -> true)))
                 .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(false))));
     }
 
@@ -216,21 +216,21 @@ private Mono<Map<Membership,Map<Permission,Set<Acl>>>> findMembershipPermissions
             return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidUserException("Specified user is invalid"))));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(groupService.findByMember(user.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(Group::getId)).collectList().flatMap(v->RxJava2Adapter.singleToMono((Single<Map<Membership, Map<Permission, Set<Acl>>>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<String>, Single<Map<Membership, Map<Permission, Set<Acl>>>>>)userGroupIds -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(groupService.findByMember_migrated(user.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(Group::getId)).collectList().flatMap(v->RxJava2Adapter.singleToMono((Single<Map<Membership, Map<Permission, Set<Acl>>>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<String>, Single<Map<Membership, Map<Permission, Set<Acl>>>>>)userGroupIds -> {
                     MembershipCriteria criteria = new MembershipCriteria();
                     criteria.setUserId(user.getId());
                     criteria.setGroupIds(userGroupIds.isEmpty() ? null : userGroupIds);
                     criteria.setLogicalOR(true);
 
                     // Get all user and group memberships.
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Flowable.merge(referenceStream.map(p -> membershipService.findByCriteria(p.getKey(), p.getValue(), criteria)).collect(Collectors.toList()))).collectList().flatMap(z->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<List<Membership>, SingleSource<Map<Membership, Map<Permission, Set<Acl>>>>>toJdkFunction(allMemberships -> {
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Flowable.merge(referenceStream.map(p -> RxJava2Adapter.fluxToFlowable(membershipService.findByCriteria_migrated(p.getKey(), p.getValue(), criteria))).collect(Collectors.toList()))).collectList().flatMap(z->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<List<Membership>, SingleSource<Map<Membership, Map<Permission, Set<Acl>>>>>toJdkFunction(allMemberships -> {
 
                                 if (allMemberships.isEmpty()) {
                                     return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap()));
                                 }
 
                                 // Get all roles.
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(roleService.findByIdIn(allMemberships.stream().map(Membership::getRoleId).collect(Collectors.toList()))).map(RxJavaReactorMigrationUtil.toJdkFunction(allRoles -> permissionsPerMembership(allMemberships, allRoles))));
+                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.findByIdIn_migrated(allMemberships.stream().map(Membership::getRoleId).collect(Collectors.toList())))).map(RxJavaReactorMigrationUtil.toJdkFunction(allRoles -> permissionsPerMembership(allMemberships, allRoles))));
                             }).apply(z)))));
                 }).apply(v)))));
     }

@@ -64,14 +64,14 @@ public static Mono<Void> validate_migrated(Domain domain, List<String> domainRes
             }
 
             chain.addAll(domain.getVhosts().stream()
-                    .map(vhost -> VirtualHostValidator.validate(vhost, domainRestrictions))
+                    .map(vhost -> RxJava2Adapter.monoToCompletable(VirtualHostValidator.validate_migrated(vhost, domainRestrictions)))
                     .collect(Collectors.toList()));
         } else {
             if("/".equals(domain.getPath())) {
                 return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("'/' path is not allowed in context-path mode"))));
             }
 
-            chain.add(PathValidator.validate(domain.getPath()));
+            chain.add(RxJava2Adapter.monoToCompletable(PathValidator.validate_migrated(domain.getPath())));
         }
 
         return RxJava2Adapter.completableToMono(Completable.merge(chain));

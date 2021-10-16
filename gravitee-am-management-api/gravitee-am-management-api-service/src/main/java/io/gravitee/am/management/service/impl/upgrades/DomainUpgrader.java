@@ -52,9 +52,9 @@ public class DomainUpgrader implements Upgrader, Ordered {
     @Override
     public boolean upgrade() {
         LOGGER.info("Applying domain upgrade");
-        domainService.findAll()
+        RxJava2Adapter.monoToSingle(domainService.findAll_migrated())
                 .flatMapObservable(Observable::fromIterable)
-                .flatMapSingle(this::upgradeDomain)
+                .flatMapSingle((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.monoToSingle(upgradeDomain_migrated(ident)))
                 .toList()
                 .subscribe();
         return true;

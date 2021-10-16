@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.oidc.resources.endpoint;
 
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
+import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+
 import io.gravitee.am.common.exception.oauth2.MethodNotAllowedException;
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidClientException;
@@ -31,9 +34,7 @@ import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.CLIENT_CONTEXT_KEY;
-import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * See <a href="https://openid.net/specs/openid-financial-api-part-2.html#request-object-endpoint">7.  Request object endpoint</a>
@@ -67,7 +68,7 @@ public class RequestObjectRegistrationEndpoint implements Handler<RoutingContext
         request.setRequest(context.getBodyAsString());
         request.setOrigin(extractOrigin(context));
 
-        requestObjectService.registerRequestObject(request, client)
+        RxJava2Adapter.monoToSingle(requestObjectService.registerRequestObject_migrated(request, client))
                 .subscribe(new Consumer<RequestObjectRegistrationResponse>() {
                     @Override
                     public void accept(RequestObjectRegistrationResponse response) throws Exception {

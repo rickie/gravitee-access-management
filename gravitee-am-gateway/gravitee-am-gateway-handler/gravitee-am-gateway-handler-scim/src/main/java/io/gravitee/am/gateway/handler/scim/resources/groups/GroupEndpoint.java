@@ -27,6 +27,7 @@ import io.gravitee.common.http.MediaType;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -40,8 +41,7 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
 
     public void get(RoutingContext context) {
         final String groupId = context.request().getParam("id");
-        groupService
-                .get(groupId, location(context.request()))
+        RxJava2Adapter.monoToMaybe(groupService.get_migrated(groupId, location(context.request())))
                 .subscribe(
                         group -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -110,7 +110,7 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
                 return;
             }
 
-            groupService.update(groupId, group, location(context.request()))
+            RxJava2Adapter.monoToSingle(groupService.update_migrated(groupId, group, location(context.request())))
                     .subscribe(
                             group1 -> context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -172,7 +172,7 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
                 return;
             }
 
-            groupService.patch(groupId, patchOp, location(context.request()))
+            RxJava2Adapter.monoToSingle(groupService.patch_migrated(groupId, patchOp, location(context.request())))
                     .subscribe(
                             group1 -> context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -206,7 +206,7 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
      */
     public void delete(RoutingContext context) {
         final String groupId = context.request().getParam("id");
-        groupService.delete(groupId)
+        RxJava2Adapter.monoToCompletable(groupService.delete_migrated(groupId))
                 .subscribe(
                         () -> context.response().setStatusCode(204).end(),
                         context::fail);

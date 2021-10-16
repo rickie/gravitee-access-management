@@ -25,6 +25,7 @@ import io.gravitee.common.http.MediaType;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -63,7 +64,7 @@ public class GroupsEndpoint extends AbstractGroupEndpoint {
         }
 
         // group service use 0-based index
-        groupService.list(page - 1, size, location(context.request()))
+        RxJava2Adapter.monoToSingle(groupService.list_migrated(page - 1, size, location(context.request())))
                 .subscribe(
                         groups -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -136,7 +137,7 @@ public class GroupsEndpoint extends AbstractGroupEndpoint {
                 return;
             }
 
-            groupService.create(group, location(context.request()))
+            RxJava2Adapter.monoToSingle(groupService.create_migrated(group, location(context.request())))
                     .subscribe(
                             group1 -> context.response()
                                     .setStatusCode(201)

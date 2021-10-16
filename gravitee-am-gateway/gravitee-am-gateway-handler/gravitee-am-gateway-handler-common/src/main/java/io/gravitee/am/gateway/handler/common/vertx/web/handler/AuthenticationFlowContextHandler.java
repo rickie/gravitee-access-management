@@ -15,6 +15,9 @@
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.handler;
 
+import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.AUTH_FLOW_CONTEXT_VERSION_KEY;
+import static java.util.Optional.ofNullable;
+
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.web.handler.impl.CookieSession;
 import io.gravitee.am.service.AuthenticationFlowContextService;
@@ -23,9 +26,7 @@ import io.vertx.reactivex.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
-
-import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.AUTH_FLOW_CONTEXT_VERSION_KEY;
-import static java.util.Optional.ofNullable;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -50,7 +51,7 @@ public class AuthenticationFlowContextHandler implements Handler<RoutingContext>
         if (session != null && !session.isDestroyed()) {
             final String transactionId = session.get(ConstantKeys.TRANSACTION_ID_KEY);
             final int version = ofNullable((Number) session.get(AUTH_FLOW_CONTEXT_VERSION_KEY)).map(Number::intValue).orElse(1);
-            authenticationFlowContextService.loadContext(transactionId, version)
+            RxJava2Adapter.monoToMaybe(authenticationFlowContextService.loadContext_migrated(transactionId, version))
                     .subscribe(
                             ctx ->  {
                                 // store the AuthenticationFlowContext in order to provide all related information about this context

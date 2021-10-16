@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.identityprovider.inline.authentication;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.identityprovider.api.*;
@@ -68,14 +69,15 @@ public class InlineAuthenticationProvider implements AuthenticationProvider, Ini
         }
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> loadUserByUsername(Authentication authentication) {
  return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userDetailsService.loadUserByUsername((String) authentication.getPrincipal())).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userDetailsService.loadUserByUsername_migrated((String) authentication.getPrincipal()))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
                     String presentedPassword = authentication.getCredentials().toString();
                     if (!passwordEncoder.matches(presentedPassword, user.getPassword())) {
                         LOGGER.debug("Authentication failed: password does not match stored value");
@@ -85,14 +87,15 @@ public class InlineAuthenticationProvider implements AuthenticationProvider, Ini
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> loadUserByUsername(String username) {
  return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(String username) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(userDetailsService.loadUserByUsername(username)).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> createUser(new SimpleAuthenticationContext(), user)))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userDetailsService.loadUserByUsername_migrated(username))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> createUser(new SimpleAuthenticationContext(), user)))));
     }
 
     private List<String> getUserRoles(AuthenticationContext authContext, io.gravitee.am.identityprovider.inline.model.User inlineUser) {

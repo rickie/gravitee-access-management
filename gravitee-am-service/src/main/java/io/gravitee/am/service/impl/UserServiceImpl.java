@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
@@ -75,7 +76,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         return this.userRepository;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<User> findByDomain(String domain) {
  return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
@@ -83,13 +85,14 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 @Override
     public Flux<User> findByDomain_migrated(String domain) {
         LOGGER.debug("Find users by domain: {}", domain);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(userRepository.findAll(ReferenceType.DOMAIN, domain)).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(userRepository.findAll_migrated(ReferenceType.DOMAIN, domain))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find users by domain {}", domain, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error occurs while trying to find users by domain %s", domain), ex)));
                 }))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomain_migrated(domain, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Page<User>> findByDomain(String domain, int page, int size) {
  return RxJava2Adapter.monoToSingle(findByDomain_migrated(domain, page, size));
@@ -99,7 +102,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         return RxJava2Adapter.singleToMono(findAll(ReferenceType.DOMAIN, domain, page, size));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -107,7 +111,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 @Override
     public Mono<User> findById_migrated(String id) {
         LOGGER.debug("Find user by id : {}", id);
-        return RxJava2Adapter.maybeToMono(userRepository.findById(id)
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userRepository.findById_migrated(id))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a user using its ID {}", id, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
@@ -115,7 +119,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndUsername_migrated(domain, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findByDomainAndUsername(String domain, String username) {
  return RxJava2Adapter.monoToMaybe(findByDomainAndUsername_migrated(domain, username));
@@ -123,7 +128,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
 @Override
     public Mono<User> findByDomainAndUsername_migrated(String domain, String username) {
         LOGGER.debug("Find user by username and domain: {} {}", username, domain);
-        return RxJava2Adapter.maybeToMono(userRepository.findByUsernameAndDomain(domain, username)
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userRepository.findByUsernameAndDomain_migrated(domain, username))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a user using its ID: {} for the domain {}", username, domain, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
@@ -131,7 +136,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndUsernameAndSource_migrated(domain, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findByDomainAndUsernameAndSource(String domain, String username, String source) {
  return RxJava2Adapter.monoToMaybe(findByDomainAndUsernameAndSource_migrated(domain, username, source));
@@ -141,7 +147,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         return RxJava2Adapter.maybeToMono(findByUsernameAndSource(ReferenceType.DOMAIN, domain, username, source));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, newUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> create(String domain, NewUser newUser) {
  return RxJava2Adapter.monoToSingle(create_migrated(domain, newUser));
@@ -153,7 +160,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
     }
 
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> update(String domain, String id, UpdateUser updateUser) {
  return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateUser));
@@ -163,7 +171,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         return RxJava2Adapter.singleToMono(update(ReferenceType.DOMAIN, domain, id, updateUser));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> update(User user) {
  return RxJava2Adapter.monoToSingle(update_migrated(user));
@@ -173,10 +182,10 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         LOGGER.debug("Update a user {}", user);
         // updated date
         user.setUpdatedAt(new Date());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(userValidator.validate(user)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(getUserRepository().update(user)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getUserRepository().update_migrated(user))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user1 -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user1.getId(), user1.getReferenceType(), user1.getReferenceId(), Action.UPDATE));
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(eventService.create(event)).flatMap(__->Mono.just(user1)));
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(user1)));
                 }).apply(v)))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -187,7 +196,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                 })))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Long> countByDomain(String domain) {
  return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
@@ -196,7 +206,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
     public Mono<Long> countByDomain_migrated(String domain) {
         LOGGER.debug("Count user by domain {}", domain);
 
-        return RxJava2Adapter.singleToMono(userRepository.countByReference(ReferenceType.DOMAIN, domain)
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userRepository.countByReference_migrated(ReferenceType.DOMAIN, domain))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
@@ -207,7 +217,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByApplication_migrated(domain, application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Long> countByApplication(String domain, String application) {
  return RxJava2Adapter.monoToSingle(countByApplication_migrated(domain, application));
@@ -216,7 +227,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
     public Mono<Long> countByApplication_migrated(String domain, String application) {
         LOGGER.debug("Count user by application {}", application);
 
-        return RxJava2Adapter.singleToMono(userRepository.countByApplication(domain, application).onErrorResumeNext(ex -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userRepository.countByApplication_migrated(domain, application)).onErrorResumeNext(ex -> {
             if (ex instanceof AbstractManagementException) {
                 return RxJava2Adapter.monoToSingle(Mono.error(ex));
             }
@@ -226,7 +237,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.statistics_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Map<Object, Object>> statistics(AnalyticsQuery query) {
  return RxJava2Adapter.monoToSingle(statistics_migrated(query));
@@ -235,7 +247,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
     public Mono<Map<Object,Object>> statistics_migrated(AnalyticsQuery query) {
         LOGGER.debug("Get user collection analytics {}", query);
 
-        return RxJava2Adapter.singleToMono(userRepository.statistics(query)
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userRepository.statistics_migrated(query))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
@@ -246,7 +258,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.upsertFactor_migrated(userId, enrolledFactor, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<User> upsertFactor(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
  return RxJava2Adapter.monoToSingle(upsertFactor_migrated(userId, enrolledFactor, principal));
@@ -332,7 +345,8 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                 }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.removeFactor_migrated(userId, factorId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable removeFactor(String userId, String factorId, io.gravitee.am.identityprovider.api.User principal) {
  return RxJava2Adapter.monoToCompletable(removeFactor_migrated(userId, factorId, principal));

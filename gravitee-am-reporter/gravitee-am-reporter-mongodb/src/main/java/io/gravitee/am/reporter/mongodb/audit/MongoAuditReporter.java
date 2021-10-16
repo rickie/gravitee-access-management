@@ -131,11 +131,11 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         Bson query = query(referenceType, referenceId, criteria);
         switch (analyticsType) {
             case DATE_HISTO:
-                return RxJava2Adapter.singleToMono(executeHistogram(criteria, query));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(executeHistogram_migrated(criteria, query)));
             case GROUP_BY:
-                return RxJava2Adapter.singleToMono(executeGroupBy(criteria, query));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(executeGroupBy_migrated(criteria, query)));
             case COUNT:
-                return RxJava2Adapter.singleToMono(executeCount(query));
+                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(executeCount_migrated(query)));
             default:
                 return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated"))));
         }
@@ -167,7 +167,7 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         disposable = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(bulkProcessor.buffer(
                 configuration.getFlushInterval(),
                 TimeUnit.SECONDS,
-                configuration.getBulkActions())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(this::bulk)))
+                configuration.getBulkActions())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.reporter.api.audit.model.Audit> ident) -> RxJava2Adapter.fluxToFlowable(bulk_migrated(ident)))))
                 .doOnError(throwable -> logger.error("An error occurs while indexing data into MongoDB", throwable))
                 .subscribe();
     }

@@ -58,7 +58,8 @@ public class JdbcAlertNotifierRepository extends AbstractJdbcRepository implemen
         return mapper.map(entity, JdbcAlertNotifier.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<AlertNotifier> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
@@ -117,7 +118,8 @@ public class JdbcAlertNotifierRepository extends AbstractJdbcRepository implemen
         return RxJava2Adapter.completableToMono(this.alertNotifierRepository.deleteById(id));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<AlertNotifier> findAll(ReferenceType referenceType, String referenceId) {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
@@ -127,7 +129,8 @@ public class JdbcAlertNotifierRepository extends AbstractJdbcRepository implemen
         return RxJava2Adapter.flowableToFlux(findByCriteria(referenceType, referenceId, new AlertNotifierCriteria()));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<AlertNotifier> findByCriteria(ReferenceType referenceType, String referenceId, AlertNotifierCriteria criteria) {
  return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));

@@ -70,16 +70,16 @@ public class ApplicationScopeSettingsUpgrader implements Upgrader, Ordered {
     @Override
     public boolean upgrade() {
         final String instanceOperationId = UUID.randomUUID().toString();
-        boolean upgraded = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(systemTaskRepository.findById(TASK_ID)).switchIfEmpty(Mono.defer(()->RxJava2Adapter.singleToMono(createSystemTask(instanceOperationId)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<SystemTask, SingleSource<Boolean>>toJdkFunction(task -> {
+        boolean upgraded = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(systemTaskRepository.findById_migrated(TASK_ID))).switchIfEmpty(Mono.defer(()->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(createSystemTask_migrated(instanceOperationId))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<SystemTask, SingleSource<Boolean>>toJdkFunction(task -> {
                     switch (SystemTaskStatus.valueOf(task.getStatus())) {
                         case INITIALIZED:
-                            return processUpgrade(instanceOperationId, task, instanceOperationId);
+                            return RxJava2Adapter.monoToSingle(processUpgrade_migrated(instanceOperationId, task, instanceOperationId));
                         case FAILURE:
                             // In Failure case, we use the operationId of the read task otherwise update will always fail
                             // force the task.operationId to assign the task to the instance
                             String previousOperationId = task.getOperationId();
                             task.setOperationId(instanceOperationId);
-                            return processUpgrade(instanceOperationId, task, previousOperationId);
+                            return RxJava2Adapter.monoToSingle(processUpgrade_migrated(instanceOperationId, task, previousOperationId));
                         case ONGOING:
                             // wait until status change
                             return RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("ONGOING task " + TASK_ID + " : trigger a retry")));
@@ -102,9 +102,9 @@ private Single<Boolean> processUpgrade(String instanceOperationId, SystemTask ta
  return RxJava2Adapter.monoToSingle(processUpgrade_migrated(instanceOperationId, task, conditionalOperationId));
 }
 private Mono<Boolean> processUpgrade_migrated(String instanceOperationId, SystemTask task, String conditionalOperationId) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(updateSystemTask(task, (SystemTaskStatus.ONGOING), conditionalOperationId)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<SystemTask, SingleSource<Boolean>>toJdkFunction(updatedTask -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateSystemTask_migrated(task, (SystemTaskStatus.ONGOING), conditionalOperationId))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<SystemTask, SingleSource<Boolean>>toJdkFunction(updatedTask -> {
                     if (updatedTask.getOperationId().equals(instanceOperationId)) {
-                        return migrateScopeSettings(updatedTask);
+                        return RxJava2Adapter.monoToSingle(migrateScopeSettings_migrated(updatedTask));
                     } else {
                         return RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("Task " + TASK_ID + " already processed by another instance : trigger a retry")));
                     }
@@ -124,10 +124,10 @@ private Mono<SystemTask> createSystemTask_migrated(String operationId) {
         systemTask.setCreatedAt(new Date());
         systemTask.setUpdatedAt(systemTask.getCreatedAt());
         systemTask.setOperationId(operationId);
-        return RxJava2Adapter.singleToMono(systemTaskRepository.create(systemTask).onErrorResumeNext(err -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(systemTaskRepository.create_migrated(systemTask)).onErrorResumeNext(err -> {
             logger.warn("SystemTask {} can't be created due to '{}'", TASK_ID, err.getMessage());
             // if the creation fails, try to find the task, this will allow to manage the retry properly
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(systemTaskRepository.findById(systemTask.getId())).single());
+            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(systemTaskRepository.findById_migrated(systemTask.getId()))).single());
         }));
     }
 
@@ -139,7 +139,7 @@ private Single<SystemTask>  updateSystemTask(SystemTask task, SystemTaskStatus s
 private Mono<SystemTask>  updateSystemTask_migrated(SystemTask task, SystemTaskStatus status, String operationId) {
         task.setUpdatedAt(new Date());
         task.setStatus(status.name());
-        return RxJava2Adapter.singleToMono(systemTaskRepository.updateIf(task, operationId));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(systemTaskRepository.updateIf_migrated(task, operationId)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.migrateScopeSettings_migrated(task))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -148,7 +148,7 @@ private Single<Boolean> migrateScopeSettings(SystemTask task) {
  return RxJava2Adapter.monoToSingle(migrateScopeSettings_migrated(task));
 }
 private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(applicationRepository.findAll().flatMapSingle(app -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findAll_migrated()).flatMapSingle(app -> {
                     logger.debug("Process application '{}'", app.getId());
                     if (app.getSettings() != null && app.getSettings().getOauth() != null) {
                         final ApplicationOAuthSettings oauthSettings = app.getSettings().getOauth();
@@ -173,7 +173,7 @@ private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
                             oauthSettings.setScopeApprovals(null);
 
                             logger.debug("Update settings for application '{}'", app.getId());
-                            return applicationRepository.update(app);
+                            return RxJava2Adapter.monoToSingle(applicationRepository.update_migrated(app));
                         } else {
                             logger.debug("No scope to process for application '{}'", app.getId());
                         }
@@ -181,7 +181,7 @@ private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
                         logger.debug("No scope to process for application '{}'", app.getId());
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(app));
-                })).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> updateSystemTask(task, (SystemTaskStatus.FAILURE), task.getOperationId()).subscribe())).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(updateSystemTask(task, SystemTaskStatus.SUCCESS, task.getOperationId())).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> true)))
+                })).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> RxJava2Adapter.monoToSingle(updateSystemTask_migrated(task, (SystemTaskStatus.FAILURE), task.getOperationId())).subscribe())).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateSystemTask_migrated(task, SystemTaskStatus.SUCCESS, task.getOperationId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> true)))
                         .onErrorResumeNext((err) -> {
                             logger.error("Unable to update status for migrate scope options task: {}", err.getMessage());
                             return RxJava2Adapter.monoToSingle(Mono.just(false));

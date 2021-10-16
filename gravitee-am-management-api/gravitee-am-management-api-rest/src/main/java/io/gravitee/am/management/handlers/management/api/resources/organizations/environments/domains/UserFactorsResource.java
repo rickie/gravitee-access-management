@@ -85,14 +85,14 @@ public class UserFactorsResource extends AbstractResource {
             @PathParam("user") String user,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(domainService.findById(domain)).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->userService.findById(user).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new UserNotFoundException(user))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->RxJava2Adapter.monoToMaybe(userService.findById_migrated(user)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new UserNotFoundException(user))))
                         .flatMapSingle(user1 -> {
                             if (user1.getFactors() == null) {
                                 return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()));
                             }
                             return Observable.fromIterable(user1.getFactors())
                                     .flatMapMaybe(enrolledFactor ->
-                                            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(factorService.findById(enrolledFactor.getFactorId())).map(RxJavaReactorMigrationUtil.toJdkFunction(factor -> {
+                                            RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(factorService.findById_migrated(enrolledFactor.getFactorId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(factor -> {
                                                         EnrolledFactorEntity enrolledFactorEntity = new EnrolledFactorEntity(enrolledFactor);
                                                         enrolledFactorEntity.setType(factor.getType());
                                                         enrolledFactorEntity.setName(factor.getName());

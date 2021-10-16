@@ -28,6 +28,7 @@ import io.gravitee.am.repository.oauth2.api.AuthorizationCodeRepository;
 import io.gravitee.am.repository.oauth2.api.RefreshTokenRepository;
 import io.gravitee.am.repository.oauth2.model.AccessToken;
 import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -71,13 +72,13 @@ public class AuthorizationCodeServiceTest {
         User user = new User();
         user.setUsername("my-username-id");
 
-        when(authorizationCodeRepository.create(any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new AuthorizationCode())));
+        when(authorizationCodeRepository.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new AuthorizationCode()))));
 
-        TestObserver<AuthorizationCode> testObserver = authorizationCodeService.create(authorizationRequest, user).test();
+        TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToSingle(authorizationCodeService.create_migrated(authorizationRequest, user)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(authorizationCodeRepository, times(1)).create(any());
+        verify(authorizationCodeRepository, times(1)).create_migrated(any());
     }
 
 
@@ -94,19 +95,19 @@ public class AuthorizationCodeServiceTest {
         authorizationCode.setCode("my-code");
         authorizationCode.setClientId("my-client-id");
 
-        when(authorizationCodeRepository.findByCode(authorizationCode.getCode())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(authorizationCode)));
-        when(authorizationCodeRepository.delete(authorizationCode.getId())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.just(authorizationCode)));
-        when(accessTokenRepository.findByAuthorizationCode(authorizationCode.getCode())).thenReturn(RxJava2Adapter.fluxToObservable(Flux.empty()));
+        when(authorizationCodeRepository.findByCode_migrated(authorizationCode.getCode())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(authorizationCode))));
+        when(authorizationCodeRepository.delete_migrated(authorizationCode.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(authorizationCode))));
+        when(accessTokenRepository.findByAuthorizationCode_migrated(authorizationCode.getCode())).thenReturn(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.empty()), BackpressureStrategy.BUFFER));
 
-        TestObserver<AuthorizationCode> testObserver = authorizationCodeService.remove(authorizationCode.getCode(), client).test();
+        TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToMaybe(authorizationCodeService.remove_migrated(authorizationCode.getCode(), client)).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
 
-        verify(authorizationCodeRepository, times(1)).findByCode(any());
-        verify(authorizationCodeRepository, times(1)).delete(any());
-        verify(accessTokenRepository, times(1)).findByAuthorizationCode(anyString());
-        verify(accessTokenRepository, never()).delete(anyString());
-        verify(refreshTokenRepository, never()).delete(anyString());
+        verify(authorizationCodeRepository, times(1)).findByCode_migrated(any());
+        verify(authorizationCodeRepository, times(1)).delete_migrated(any());
+        verify(accessTokenRepository, times(1)).findByAuthorizationCode_migrated(anyString());
+        verify(accessTokenRepository, never()).delete_migrated(anyString());
+        verify(refreshTokenRepository, never()).delete_migrated(anyString());
     }
 
     @Test
@@ -131,18 +132,18 @@ public class AuthorizationCodeServiceTest {
 
         List<AccessToken> tokens = Arrays.asList(accessToken, accessToken2);
 
-        when(authorizationCodeRepository.findByCode(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(accessTokenRepository.findByAuthorizationCode(anyString())).thenReturn(Observable.fromIterable(tokens));
-        when(accessTokenRepository.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(authorizationCodeRepository.findByCode_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(accessTokenRepository.findByAuthorizationCode_migrated(anyString())).thenReturn(RxJava2Adapter.observableToFlux(Observable.fromIterable(tokens), BackpressureStrategy.BUFFER));
+        when(accessTokenRepository.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver<AuthorizationCode> testObserver = authorizationCodeService.remove(authorizationCode.getCode(), client).test();
+        TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToMaybe(authorizationCodeService.remove_migrated(authorizationCode.getCode(), client)).test();
         testObserver.assertError(InvalidGrantException.class);
 
-        verify(authorizationCodeRepository, times(1)).findByCode(any());
-        verify(accessTokenRepository, times(1)).findByAuthorizationCode(anyString());
-        verify(accessTokenRepository, times(2)).delete(anyString());
-        verify(authorizationCodeRepository, never()).delete(any());
-        verify(refreshTokenRepository, never()).delete(anyString());
+        verify(authorizationCodeRepository, times(1)).findByCode_migrated(any());
+        verify(accessTokenRepository, times(1)).findByAuthorizationCode_migrated(anyString());
+        verify(accessTokenRepository, times(2)).delete_migrated(anyString());
+        verify(authorizationCodeRepository, never()).delete_migrated(any());
+        verify(refreshTokenRepository, never()).delete_migrated(anyString());
     }
 
     @Test
@@ -169,18 +170,18 @@ public class AuthorizationCodeServiceTest {
 
         List<AccessToken> tokens = Arrays.asList(accessToken, accessToken2);
 
-        when(authorizationCodeRepository.findByCode(any())).thenReturn(RxJava2Adapter.monoToMaybe(Mono.empty()));
-        when(accessTokenRepository.findByAuthorizationCode(anyString())).thenReturn(Observable.fromIterable(tokens));
-        when(accessTokenRepository.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(refreshTokenRepository.delete(anyString())).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(authorizationCodeRepository.findByCode_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(accessTokenRepository.findByAuthorizationCode_migrated(anyString())).thenReturn(RxJava2Adapter.observableToFlux(Observable.fromIterable(tokens), BackpressureStrategy.BUFFER));
+        when(accessTokenRepository.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(refreshTokenRepository.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver<AuthorizationCode> testObserver = authorizationCodeService.remove(authorizationCode.getCode(), client).test();
+        TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToMaybe(authorizationCodeService.remove_migrated(authorizationCode.getCode(), client)).test();
         testObserver.assertError(InvalidGrantException.class);
 
-        verify(authorizationCodeRepository, times(1)).findByCode(any());
-        verify(accessTokenRepository, times(1)).findByAuthorizationCode(anyString());
-        verify(accessTokenRepository, times(2)).delete(anyString());
-        verify(refreshTokenRepository, times(2)).delete(anyString());
-        verify(authorizationCodeRepository, never()).delete(any());
+        verify(authorizationCodeRepository, times(1)).findByCode_migrated(any());
+        verify(accessTokenRepository, times(1)).findByAuthorizationCode_migrated(anyString());
+        verify(accessTokenRepository, times(2)).delete_migrated(anyString());
+        verify(refreshTokenRepository, times(2)).delete_migrated(anyString());
+        verify(authorizationCodeRepository, never()).delete_migrated(any());
     }
 }

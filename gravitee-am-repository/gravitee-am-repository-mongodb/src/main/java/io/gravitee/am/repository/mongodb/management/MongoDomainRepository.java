@@ -76,7 +76,8 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
         super.createIndex(domainsCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_HRID, 1));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Domain> findAll() {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated());
@@ -97,7 +98,8 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(domainsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByHrid_migrated(referenceType, referenceId, hrid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Domain> findByHrid(ReferenceType referenceType, String referenceId, String hrid) {
  return RxJava2Adapter.monoToMaybe(findByHrid_migrated(referenceType, referenceId, hrid));
@@ -114,7 +116,8 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
                 )), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Domain> findByIdIn(Collection<String> ids) {
  return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
@@ -124,7 +127,8 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(in(FIELD_ID, ids))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByReferenceId_migrated(environmentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Domain> findAllByReferenceId(String environmentId) {
  return RxJava2Adapter.fluxToFlowable(findAllByReferenceId_migrated(environmentId));
@@ -137,7 +141,8 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(mongoQuery)).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.search_migrated(environmentId, query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Domain> search(String environmentId, String query) {
  return RxJava2Adapter.fluxToFlowable(search_migrated(environmentId, query));
@@ -161,7 +166,8 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(mongoQuery)).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Domain> findAllByCriteria(DomainCriteria criteria) {
  return RxJava2Adapter.fluxToFlowable(findAllByCriteria_migrated(criteria));
@@ -171,7 +177,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
 
         Bson eqAlertEnabled = toBsonFilter("alertEnabled", criteria.isAlertEnabled());
 
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(toBsonFilter(criteria.isLogicalOR(), eqAlertEnabled)).switchIfEmpty(Mono.just(new BsonDocument())).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(filter))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(toBsonFilter_migrated(criteria.isLogicalOR(), eqAlertEnabled))).switchIfEmpty(Mono.just(new BsonDocument())).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(filter -> RxJava2Adapter.fluxToFlowable(Flux.from(domainsCollection.find(filter))))).map(RxJavaReactorMigrationUtil.toJdkFunction(MongoDomainRepository::convert))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -184,7 +190,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
     public Mono<Domain> create_migrated(Domain item) {
         DomainMongo domain = convert(item);
         domain.setId(domain.getId() == null ? RandomString.generate() : domain.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(domainsCollection.insertOne(domain))).flatMap(success->RxJava2Adapter.maybeToMono(findById(domain.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(domainsCollection.insertOne(domain))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(domain.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -196,7 +202,7 @@ public class MongoDomainRepository extends AbstractManagementMongoRepository imp
 @Override
     public Mono<Domain> update_migrated(Domain item) {
         DomainMongo domain = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(domainsCollection.replaceOne(eq(FIELD_ID, domain.getId()), domain))).flatMap(updateResult->RxJava2Adapter.maybeToMono(findById(domain.getId())).single())));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(domainsCollection.replaceOne(eq(FIELD_ID, domain.getId()), domain))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(domain.getId()))).single())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

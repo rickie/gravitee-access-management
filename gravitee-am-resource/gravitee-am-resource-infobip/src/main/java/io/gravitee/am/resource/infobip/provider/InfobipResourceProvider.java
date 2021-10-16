@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.resource.infobip.provider;
 
+import com.google.errorprone.annotations.InlineMe;
 import com.infobip.ApiClient;
 import com.infobip.ApiException;
 import com.infobip.api.TfaApi;
@@ -67,7 +68,8 @@ public class InfobipResourceProvider implements MFAResourceProvider {
         return this;
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.send_migrated(target))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable send(MFALink target) {
  return RxJava2Adapter.monoToCompletable(send_migrated(target));
@@ -106,7 +108,8 @@ public class InfobipResourceProvider implements MFAResourceProvider {
         }));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.verify_migrated(challenge))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable verify(MFAChallenge challenge) {
  return RxJava2Adapter.monoToCompletable(verify_migrated(challenge));

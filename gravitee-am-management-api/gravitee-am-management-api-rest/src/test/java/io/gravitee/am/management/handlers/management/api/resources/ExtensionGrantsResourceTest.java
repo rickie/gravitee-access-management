@@ -62,8 +62,8 @@ public class ExtensionGrantsResourceTest extends JerseySpringTest {
         mockExtensionGrant2.setDomain(domainId);
 
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.fluxToFlowable(Flux.just(mockExtensionGrant, mockExtensionGrant2))).when(extensionGrantService).findByDomain(domainId);
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(mockExtensionGrant, mockExtensionGrant2)))).when(extensionGrantService).findByDomain_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("extensionGrants").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -75,7 +75,7 @@ public class ExtensionGrantsResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetExtensionGrants_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs")))).when(extensionGrantService).findByDomain(domainId);
+        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs"))))).when(extensionGrantService).findByDomain_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("extensionGrants").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -97,8 +97,8 @@ public class ExtensionGrantsResourceTest extends JerseySpringTest {
         extensionGrant.setId("extensionGrant-id");
         extensionGrant.setName("extensionGrant-name");
 
-        doReturn(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain))).when(domainService).findById(domainId);
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(extensionGrant))).when(extensionGrantService).create(eq(domainId), any(), any());
+        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(extensionGrant)))).when(extensionGrantService).create_migrated(eq(domainId), any(), any());
 
         final Response response = target("domains")
                 .path(domainId)

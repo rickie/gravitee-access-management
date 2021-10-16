@@ -15,12 +15,17 @@
  */
 package io.gravitee.am.identityprovider.http.authentication;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.exception.authentication.UsernameNotFoundException;
 import io.gravitee.am.identityprovider.api.*;
 import io.gravitee.am.identityprovider.http.authentication.spring.HttpAuthenticationProviderConfiguration;
 import io.reactivex.observers.TestObserver;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,12 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -61,7 +61,7 @@ public class HttpAuthenticationProviderTest {
                 .withRequestBody(matching(".*"))
                 .willReturn(okJson("{\"sub\" : \"123456789\", \"preferred_username\" : \"johndoe\"}")));
 
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "johndoe";
@@ -76,7 +76,7 @@ public class HttpAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return new SimpleAuthenticationContext(new DummyRequest());
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
 
@@ -92,7 +92,7 @@ public class HttpAuthenticationProviderTest {
                 .withRequestBody(matching(".*"))
                 .willReturn(unauthorized()));
 
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "johndoe";
@@ -107,7 +107,7 @@ public class HttpAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return new SimpleAuthenticationContext(new DummyRequest());
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertError(BadCredentialsException.class);
@@ -119,7 +119,7 @@ public class HttpAuthenticationProviderTest {
                 .withRequestBody(matching(".*"))
                 .willReturn(notFound()));
 
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "johndoe";
@@ -134,7 +134,7 @@ public class HttpAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return new SimpleAuthenticationContext(new DummyRequest());
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
         testObserver.assertError(UsernameNotFoundException.class);
@@ -152,7 +152,7 @@ public class HttpAuthenticationProviderTest {
                 .withRequestBody(matching(".*"))
                 .willReturn(okJson("{\"id\" : \"123456789\", \"username\" : \"johndoe\"}")));
 
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "johndoe";
@@ -167,7 +167,7 @@ public class HttpAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return new SimpleAuthenticationContext(new DummyRequest());
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
 
@@ -189,7 +189,7 @@ public class HttpAuthenticationProviderTest {
                 .withRequestBody(matching(".*"))
                 .willReturn(okJson("{\"sub\" : \"123456789\", \"preferred_username\" : \"johndoe\"}")));
 
-        TestObserver<User> testObserver = authenticationProvider.loadUserByUsername(new Authentication() {
+        TestObserver<User> testObserver = RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(new Authentication() {
             @Override
             public Object getCredentials() {
                 return "johndoe";
@@ -204,7 +204,7 @@ public class HttpAuthenticationProviderTest {
             public AuthenticationContext getContext() {
                 return new SimpleAuthenticationContext(new DummyRequest());
             }
-        }).test();
+        })).test();
 
         testObserver.awaitTerminalEvent();
 

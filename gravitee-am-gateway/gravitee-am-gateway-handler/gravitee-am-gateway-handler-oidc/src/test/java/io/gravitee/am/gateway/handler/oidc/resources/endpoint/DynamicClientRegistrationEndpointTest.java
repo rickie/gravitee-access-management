@@ -97,7 +97,7 @@ public class DynamicClientRegistrationEndpointTest {
         //Context
         HttpServerRequest serverRequest = Mockito.mock(HttpServerRequest.class);
         when(routingContext.request()).thenReturn(serverRequest);
-        when(dcrService.create(any(),any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new Exception())));
+        when(dcrService.create_migrated(any(),any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new Exception()))));
 
         //Test
         endpoint.handle(routingContext);
@@ -120,7 +120,7 @@ public class DynamicClientRegistrationEndpointTest {
         when(serverResponse.putHeader(anyString(),anyString())).thenReturn(serverResponse);
         when(serverResponse.setStatusCode(201)).thenReturn(serverResponse);
 
-        when(dcrService.create(any(),any())).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(new Client())));
+        when(dcrService.create_migrated(any(),any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Client()))));
         when(clientSyncService.addDynamicClientRegistred(any())).thenReturn(new Client());
 
         //Test

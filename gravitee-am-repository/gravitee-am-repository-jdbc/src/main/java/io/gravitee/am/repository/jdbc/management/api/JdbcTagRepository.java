@@ -53,7 +53,8 @@ public class JdbcTagRepository extends AbstractJdbcRepository implements TagRepo
         return mapper.map(entity, JdbcTag.class);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Tag> findById(String id, String organizationId) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id, organizationId));
@@ -61,10 +62,11 @@ public class JdbcTagRepository extends AbstractJdbcRepository implements TagRepo
 @Override
     public Mono<Tag> findById_migrated(String id, String organizationId) {
         LOGGER.debug("findById({}, {})", id, organizationId);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(tagRepository.findById(id, organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(id, organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Flowable<Tag> findAll(String organizationId) {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
@@ -72,10 +74,11 @@ public class JdbcTagRepository extends AbstractJdbcRepository implements TagRepo
 @Override
     public Flux<Tag> findAll_migrated(String organizationId) {
         LOGGER.debug("findAll({})", organizationId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(tagRepository.findByOrganization(organizationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(tagRepository.findByOrganization_migrated(organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<Tag> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));

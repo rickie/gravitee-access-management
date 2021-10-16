@@ -15,12 +15,13 @@
  */
 package io.gravitee.am.service.validators;
 
+import static org.junit.Assert.*;
+
 import io.gravitee.am.model.User;
 import io.gravitee.am.service.exception.EmailFormatInvalidException;
 import io.gravitee.am.service.exception.InvalidUserException;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -35,7 +36,7 @@ public class UserValidatorTest {
 
         User user = getValidUser();
 
-        Throwable throwable = userValidator.validate(user).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user)).blockingGet();
 
         assertNull(throwable);
     }
@@ -46,7 +47,7 @@ public class UserValidatorTest {
         User user = getValidUser();
         user.setUsername("user.valid+1-test@gravitee.io");
 
-        Throwable throwable = userValidator.validate(user).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user)).blockingGet();
 
         assertNull(throwable);
     }
@@ -57,7 +58,7 @@ public class UserValidatorTest {
         User user = getValidUser();
         user.setDisplayName("user.valid+1-test@gravitee.io");
 
-        Throwable throwable = userValidator.validate(user).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user)).blockingGet();
 
         assertNull(throwable);
     }
@@ -68,7 +69,7 @@ public class UserValidatorTest {
         User user = getValidUser();
         user.setUsername("user#gravitee.io");
 
-        Throwable throwable = userValidator.validate(user).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user)).blockingGet();
 
         assertNull(throwable);
     }
@@ -79,7 +80,7 @@ public class UserValidatorTest {
         User user = getValidUser();
         user.setEmail("invalid");
 
-        Throwable throwable = userValidator.validate(user).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user)).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof EmailFormatInvalidException);
@@ -91,7 +92,7 @@ public class UserValidatorTest {
         User user = getValidUser();
         user.setFirstName("$¨¨^invalid");
 
-        Throwable throwable = userValidator.validate(user).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user)).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidUserException);
@@ -103,7 +104,7 @@ public class UserValidatorTest {
         User user = getValidUser();
         user.setLastName("$¨¨^invalid");
 
-        Throwable throwable = userValidator.validate(user).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user)).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidUserException);
@@ -115,7 +116,7 @@ public class UserValidatorTest {
         User user = getValidUser();
         user.setNickName("$¨¨^invalid");
 
-        Throwable throwable = userValidator.validate(user).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user)).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidUserException);
@@ -127,7 +128,7 @@ public class UserValidatorTest {
         User user = getValidUser();
         user.setDisplayName("$¨¨^invalid");
 
-        Throwable throwable = userValidator.validate(user).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user)).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidUserException);
@@ -139,7 +140,7 @@ public class UserValidatorTest {
         User user = getValidUser();
         user.setUsername("$¨¨^invalid");
 
-        Throwable throwable = userValidator.validate(user).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user)).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidUserException);

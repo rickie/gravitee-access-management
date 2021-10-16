@@ -75,8 +75,8 @@ public class InstallationCommandHandlerTest extends TestCase {
         installationPayload.setId(INSTALLATION_ID);
         installationPayload.setStatus("ACCEPTED");
 
-        when(installationService.getOrInitialize()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(installation)));
-        when(installationService.setAdditionalInformation(anyMap())).thenAnswer(i -> RxJava2Adapter.monoToSingle(Mono.just(installation)));
+        when(installationService.getOrInitialize_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(installation))));
+        when(installationService.setAdditionalInformation_migrated(anyMap())).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(installation))));
 
         TestObserver<InstallationReply> obs = cut.handle(command).test();
 
@@ -86,7 +86,7 @@ public class InstallationCommandHandlerTest extends TestCase {
         final HashMap<String, String> expectedAdditionalInfos = new HashMap<>();
         expectedAdditionalInfos.put(CUSTOM_KEY, CUSTOM_VALUE);
         expectedAdditionalInfos.put(Installation.COCKPIT_INSTALLATION_STATUS, "ACCEPTED");
-        verify(installationService, times(1)).setAdditionalInformation(expectedAdditionalInfos);
+        verify(installationService, times(1)).setAdditionalInformation_migrated(expectedAdditionalInfos);
     }
 
     @Test
@@ -101,8 +101,8 @@ public class InstallationCommandHandlerTest extends TestCase {
         installationPayload.setId(INSTALLATION_ID);
         installationPayload.setStatus("ACCEPTED");
 
-        when(installationService.getOrInitialize()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(installation)));
-        when(installationService.setAdditionalInformation(anyMap())).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException())));
+        when(installationService.getOrInitialize_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(installation))));
+        when(installationService.setAdditionalInformation_migrated(anyMap())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException()))));
 
         TestObserver<InstallationReply> obs = cut.handle(command).test();
 

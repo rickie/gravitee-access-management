@@ -63,7 +63,7 @@ public class ClientManagerImpl extends AbstractService implements ClientManager,
     @Override
     public void afterPropertiesSet() throws Exception {
         logger.info("Initializing applications for domain {}", domain.getName());
-        Flowable<Application> applicationsSource = domain.isMaster() ? applicationRepository.findAll() : applicationRepository.findByDomain(domain.getId());
+        Flowable<Application> applicationsSource = domain.isMaster() ? RxJava2Adapter.fluxToFlowable(applicationRepository.findAll_migrated()) : RxJava2Adapter.fluxToFlowable(applicationRepository.findByDomain_migrated(domain.getId()));
         RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(applicationsSource).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)))
                 .subscribeOn(Schedulers.io())
                 .subscribe(
@@ -144,7 +144,7 @@ public class ClientManagerImpl extends AbstractService implements ClientManager,
 
     private void deployClient(String applicationId) {
         logger.info("Deploying application {} for domain {}", applicationId, domain.getName());
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationRepository.findById(applicationId)).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)))
+        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationRepository.findById_migrated(applicationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(Application::toClient)))
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         client -> {

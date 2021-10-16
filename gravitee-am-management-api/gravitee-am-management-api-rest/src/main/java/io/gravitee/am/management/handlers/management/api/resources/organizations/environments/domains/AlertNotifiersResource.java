@@ -66,7 +66,7 @@ public class AlertNotifiersResource extends AbstractResource {
             @PathParam("domain") String domainId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST)).thenMany(alertNotifierService.findByDomainAndCriteria(domainId, new AlertNotifierCriteria())).sort(Comparator.comparing(AlertNotifier::getCreatedAt)).collectList())
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.LIST))).thenMany(RxJava2Adapter.fluxToFlowable(alertNotifierService.findByDomainAndCriteria_migrated(domainId, new AlertNotifierCriteria()))).sort(Comparator.comparing(AlertNotifier::getCreatedAt)).collectList())
                 .subscribe(response::resume, response::resume);
     }
 
@@ -89,7 +89,7 @@ public class AlertNotifiersResource extends AbstractResource {
 
         final User authenticatedUser = this.getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(checkAnyPermission(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.CREATE)).then(RxJava2Adapter.singleToMono(alertNotifierService.create(ReferenceType.DOMAIN, domainId, newAlertNotifier, authenticatedUser))))
+        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT_NOTIFIER, Acl.CREATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(alertNotifierService.create_migrated(ReferenceType.DOMAIN, domainId, newAlertNotifier, authenticatedUser)))))
                 .subscribe(response::resume, response::resume);
     }
 

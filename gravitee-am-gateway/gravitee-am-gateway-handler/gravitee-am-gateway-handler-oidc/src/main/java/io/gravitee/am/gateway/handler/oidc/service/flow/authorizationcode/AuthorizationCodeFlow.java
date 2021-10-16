@@ -76,7 +76,7 @@ public class AuthorizationCodeFlow extends AbstractFlow {
 }
 @Override
     protected Mono<AuthorizationResponse> prepareResponse_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(authorizationCodeService.create(authorizationRequest, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(code -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authorizationCodeService.create_migrated(authorizationRequest, endUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(code -> {
                     AuthorizationCodeResponse response = new AuthorizationCodeResponse();
                     response.setRedirectUri(authorizationRequest.getRedirectUri());
                     response.setCode(code.getCode());

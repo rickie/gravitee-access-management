@@ -28,6 +28,7 @@ import io.gravitee.common.http.MediaType;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -77,7 +78,7 @@ public class UsersEndpoint extends AbstractUserEndpoint {
         }
 
         // user service use 0-based index
-        userService.list(filter, page - 1, size, location(context.request()))
+        RxJava2Adapter.monoToSingle(userService.list_migrated(filter, page - 1, size, location(context.request())))
                 .subscribe(
                         users -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -149,7 +150,7 @@ public class UsersEndpoint extends AbstractUserEndpoint {
                 return;
             }
 
-            userService.create(user, location(context.request()))
+            RxJava2Adapter.monoToSingle(userService.create_migrated(user, location(context.request())))
                     .subscribe(
                             user1 -> context.response()
                                     .setStatusCode(201)

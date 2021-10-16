@@ -15,6 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.users.service.impl;
 
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.users.service.UserService;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.User;
@@ -45,74 +46,81 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ScopeApprovalService scopeApprovalService;
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<User> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
 @Override
     public Mono<User> findById_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(userService.findById(id));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(id)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.consents_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Set<ScopeApproval>> consents(String userId) {
  return RxJava2Adapter.monoToSingle(consents_migrated(userId));
 }
 @Override
     public Mono<Set<ScopeApproval>> consents_migrated(String userId) {
-        return RxJava2Adapter.singleToMono(scopeApprovalService.findByDomainAndUser(domain.getId(), userId).collect(HashSet::new, Set::add));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUser_migrated(domain.getId(), userId)).collect(HashSet::new, Set::add));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.consents_migrated(userId, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<Set<ScopeApproval>> consents(String userId, String clientId) {
  return RxJava2Adapter.monoToSingle(consents_migrated(userId, clientId));
 }
 @Override
     public Mono<Set<ScopeApproval>> consents_migrated(String userId, String clientId) {
-        return RxJava2Adapter.singleToMono(scopeApprovalService.findByDomainAndUserAndClient(domain.getId(), userId, clientId).collect(HashSet::new, Set::add));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUserAndClient_migrated(domain.getId(), userId, clientId)).collect(HashSet::new, Set::add));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.consent_migrated(consentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Maybe<ScopeApproval> consent(String consentId) {
  return RxJava2Adapter.monoToMaybe(consent_migrated(consentId));
 }
 @Override
     public Mono<ScopeApproval> consent_migrated(String consentId) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(scopeApprovalService.findById(consentId)).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consentId)))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(scopeApprovalService.findById_migrated(consentId))).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consentId)))));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeConsent_migrated(userId, consentId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable revokeConsent(String userId, String consentId, io.gravitee.am.identityprovider.api.User principal) {
  return RxJava2Adapter.monoToCompletable(revokeConsent_migrated(userId, consentId, principal));
 }
 @Override
     public Mono<Void> revokeConsent_migrated(String userId, String consentId, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.completableToMono(scopeApprovalService.revokeByConsent(domain.getId(), userId, consentId, principal));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(scopeApprovalService.revokeByConsent_migrated(domain.getId(), userId, consentId, principal)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeConsents_migrated(userId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable revokeConsents(String userId, io.gravitee.am.identityprovider.api.User principal) {
  return RxJava2Adapter.monoToCompletable(revokeConsents_migrated(userId, principal));
 }
 @Override
     public Mono<Void> revokeConsents_migrated(String userId, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.completableToMono(scopeApprovalService.revokeByUser(domain.getId(), userId, principal));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(scopeApprovalService.revokeByUser_migrated(domain.getId(), userId, principal)));
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revokeConsents_migrated(userId, clientId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Completable revokeConsents(String userId, String clientId, io.gravitee.am.identityprovider.api.User principal) {
  return RxJava2Adapter.monoToCompletable(revokeConsents_migrated(userId, clientId, principal));
 }
 @Override
     public Mono<Void> revokeConsents_migrated(String userId, String clientId, io.gravitee.am.identityprovider.api.User principal) {
-        return RxJava2Adapter.completableToMono(scopeApprovalService.revokeByUserAndClient(domain.getId(), userId, clientId, principal));
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(scopeApprovalService.revokeByUserAndClient_migrated(domain.getId(), userId, clientId, principal)));
     }
 
 }

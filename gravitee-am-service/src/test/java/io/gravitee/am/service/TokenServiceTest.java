@@ -82,11 +82,11 @@ public class TokenServiceTest {
 
         Set<Application> applications = new HashSet<>(Arrays.asList(app1, app2));
 
-        when(applicationService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(applications)));
-        when(accessTokenRepository.countByClientId("app1")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(2l)));
-        when(accessTokenRepository.countByClientId("app2")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(1l)));
+        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(applications))));
+        when(accessTokenRepository.countByClientId_migrated("app1")).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(2l))));
+        when(accessTokenRepository.countByClientId_migrated("app2")).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(1l))));
 
-        TestObserver<TotalToken> testObserver = tokenService.findTotalTokensByDomain(DOMAIN).test();
+        TestObserver<TotalToken> testObserver = RxJava2Adapter.monoToSingle(tokenService.findTotalTokensByDomain_migrated(DOMAIN)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertNoErrors();
@@ -96,9 +96,9 @@ public class TokenServiceTest {
 
     @Test
     public void shouldFindTotalTokensByDomain_technicalException() {
-        when(applicationService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestObserver<TotalToken> testObserver = tokenService.findTotalTokensByDomain(DOMAIN).test();
+        TestObserver<TotalToken> testObserver = RxJava2Adapter.monoToSingle(tokenService.findTotalTokensByDomain_migrated(DOMAIN)).test();
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -123,9 +123,9 @@ public class TokenServiceTest {
         app2.setSettings(app2Settings);
 
         Set<Application> applications = new HashSet<>(Arrays.asList(app1, app2));
-        when(applicationService.findByDomain(DOMAIN)).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(applications)));
+        when(applicationService.findByDomain_migrated(DOMAIN)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(applications))));
 
-        TestObserver<TotalToken> testObserver = tokenService.findTotalTokensByDomain(DOMAIN).test();
+        TestObserver<TotalToken> testObserver = RxJava2Adapter.monoToSingle(tokenService.findTotalTokensByDomain_migrated(DOMAIN)).test();
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
     }
@@ -150,11 +150,11 @@ public class TokenServiceTest {
 
         Set<Application> applications = new HashSet<>(Arrays.asList(app1, app2));
 
-        when(applicationService.findAll()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(applications)));
-        when(accessTokenRepository.countByClientId("app1")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(2l)));
-        when(accessTokenRepository.countByClientId("app2")).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(1l)));
+        when(applicationService.findAll_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(applications))));
+        when(accessTokenRepository.countByClientId_migrated("app1")).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(2l))));
+        when(accessTokenRepository.countByClientId_migrated("app2")).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(1l))));
 
-        TestObserver<TotalToken> testObserver = tokenService.findTotalTokens().test();
+        TestObserver<TotalToken> testObserver = RxJava2Adapter.monoToSingle(tokenService.findTotalTokens_migrated()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertNoErrors();
@@ -164,9 +164,9 @@ public class TokenServiceTest {
 
     @Test
     public void shouldFindTotalTokens_technicalException() {
-        when(applicationService.findAll()).thenReturn(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new))));
+        when(applicationService.findAll_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
 
-        TestObserver<TotalToken> testObserver = tokenService.findTotalTokens().test();
+        TestObserver<TotalToken> testObserver = RxJava2Adapter.monoToSingle(tokenService.findTotalTokens_migrated()).test();
 
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
@@ -191,19 +191,19 @@ public class TokenServiceTest {
         app2.setSettings(app2Settings);
 
         Set<Application> applications = new HashSet<>(Arrays.asList(app1, app2));
-        when(applicationService.findAll()).thenReturn(RxJava2Adapter.monoToSingle(Mono.just(applications)));
+        when(applicationService.findAll_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(applications))));
 
-        TestObserver<TotalToken> testObserver = tokenService.findTotalTokens().test();
+        TestObserver<TotalToken> testObserver = RxJava2Adapter.monoToSingle(tokenService.findTotalTokens_migrated()).test();
         testObserver.assertError(TechnicalManagementException.class);
         testObserver.assertNotComplete();
     }
 
     @Test
     public void shouldDeleteTokensByUser() {
-        when(accessTokenRepository.deleteByUserId("userId")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
-        when(refreshTokenRepository.deleteByUserId("userId")).thenReturn(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        when(accessTokenRepository.deleteByUserId_migrated("userId")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(refreshTokenRepository.deleteByUserId_migrated("userId")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
 
-        TestObserver testObserver = tokenService.deleteByUserId("userId").test();
+        TestObserver testObserver = RxJava2Adapter.monoToCompletable(tokenService.deleteByUserId_migrated("userId")).test();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
     }

@@ -55,15 +55,13 @@ public class JdbcNodeMonitoringRepository extends AbstractJdbcRepository impleme
     @Override
     public Maybe<Monitoring> findByNodeIdAndType(String nodeId, String type) {
         LOGGER.debug("findByNodeIdAndType({}, {})", nodeId, type);
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(nodeMonitoringRepository.findByNodeIdAndType(nodeId, type)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(nodeMonitoringRepository.findByNodeIdAndType_migrated(nodeId, type))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override
     public Flowable<Monitoring> findByTypeAndTimeFrame(String type, long from, long to) {
         LOGGER.debug("findByTypeAndTimeFrame({}, {}, {})", type, from, to);
-        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(nodeMonitoringRepository.findByTypeAndTimeFrame(type,
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(from), UTC),
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(to), UTC))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
+        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(nodeMonitoringRepository.findByTypeAndTimeFrame_migrated(type, LocalDateTime.ofInstant(Instant.ofEpochMilli(from), UTC), LocalDateTime.ofInstant(Instant.ofEpochMilli(to), UTC)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)));
     }
 
     @Override

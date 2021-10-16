@@ -39,10 +39,10 @@ public class FactorRepositoryTest extends AbstractManagementTest {
         // create factor
         Factor factor = buildFactor();
         factor.setDomain("testDomain");
-        RxJava2Adapter.singleToMono(factorRepository.create(factor)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(factorRepository.create_migrated(factor))).block();
 
         // fetch factors
-        TestSubscriber<Factor> testSubscriber = factorRepository.findByDomain("testDomain").test();
+        TestSubscriber<Factor> testSubscriber = RxJava2Adapter.fluxToFlowable(factorRepository.findByDomain_migrated("testDomain")).test();
         testSubscriber.awaitTerminalEvent();
 
         testSubscriber.assertComplete();
@@ -67,10 +67,10 @@ public class FactorRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create factor
         Factor factor = buildFactor();
-        Factor factorCreated = RxJava2Adapter.singleToMono(factorRepository.create(factor)).block();
+        Factor factorCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(factorRepository.create_migrated(factor))).block();
 
         // fetch factor
-        TestObserver<Factor> testObserver = factorRepository.findById(factorCreated.getId()).test();
+        TestObserver<Factor> testObserver = RxJava2Adapter.monoToMaybe(factorRepository.findById_migrated(factorCreated.getId())).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -85,14 +85,14 @@ public class FactorRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testNotFoundById() throws TechnicalException {
-        factorRepository.findById("test").test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(factorRepository.findById_migrated("test")).test().assertEmpty();
     }
 
     @Test
     public void testCreate() throws TechnicalException {
         Factor factor = buildFactor();
 
-        TestObserver<Factor> testObserver = factorRepository.create(factor).test();
+        TestObserver<Factor> testObserver = RxJava2Adapter.monoToSingle(factorRepository.create_migrated(factor)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -109,14 +109,14 @@ public class FactorRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create factor
         Factor factor = buildFactor();
-        Factor factorCreated = RxJava2Adapter.singleToMono(factorRepository.create(factor)).block();
+        Factor factorCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(factorRepository.create_migrated(factor))).block();
 
         // update factor
         Factor updateFactor = buildFactor();
         updateFactor.setId(factorCreated.getId());
         updateFactor.setName("testUpdatedName");
 
-        TestObserver<Factor> testObserver = factorRepository.update(updateFactor).test();
+        TestObserver<Factor> testObserver = RxJava2Adapter.monoToSingle(factorRepository.update_migrated(updateFactor)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -133,21 +133,21 @@ public class FactorRepositoryTest extends AbstractManagementTest {
     public void testDelete() throws TechnicalException {
         // create factor
         Factor factor = buildFactor();
-        Factor factorCreated = RxJava2Adapter.singleToMono(factorRepository.create(factor)).block();
+        Factor factorCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(factorRepository.create_migrated(factor))).block();
 
         // fetch factor
-        TestObserver<Factor> testObserver = factorRepository.findById(factorCreated.getId()).test();
+        TestObserver<Factor> testObserver = RxJava2Adapter.monoToMaybe(factorRepository.findById_migrated(factorCreated.getId())).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertComplete();
         testObserver.assertNoErrors();
         testObserver.assertValue(f -> f.getName().equals(factorCreated.getName()));
 
         // delete factor
-        TestObserver testObserver1 = factorRepository.delete(factorCreated.getId()).test();
+        TestObserver testObserver1 = RxJava2Adapter.monoToCompletable(factorRepository.delete_migrated(factorCreated.getId())).test();
         testObserver1.awaitTerminalEvent();
 
         // fetch factor
-        factorRepository.findById(factorCreated.getId()).test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(factorRepository.findById_migrated(factorCreated.getId())).test().assertEmpty();
     }
 
 }

@@ -48,9 +48,9 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
         Environment environment = buildEnv();
 
         // TODO: find another way to inject data in DB. Avoid to rely on class under test for that.
-        Environment envCreated = RxJava2Adapter.singleToMono(environmentRepository.create(environment)).block();
+        Environment envCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(environmentRepository.create_migrated(environment))).block();
 
-        TestObserver<Environment> obs = environmentRepository.findById(envCreated.getId()).test();
+        TestObserver<Environment> obs = RxJava2Adapter.monoToMaybe(environmentRepository.findById_migrated(envCreated.getId())).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -65,7 +65,7 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
 
     @Test
     public void testNotFoundById() {
-        environmentRepository.findById("unknown").test().assertEmpty();
+        RxJava2Adapter.monoToMaybe(environmentRepository.findById_migrated("unknown")).test().assertEmpty();
     }
 
     @Test
@@ -74,7 +74,7 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
         env.setOrganizationId(UUID.randomUUID().toString());
         env.setName("testName");
 
-        TestObserver<Environment> obs = environmentRepository.create(env).test();
+        TestObserver<Environment> obs = RxJava2Adapter.monoToSingle(environmentRepository.create_migrated(env)).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -92,7 +92,7 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
     public void testUpdate() {
         Environment env = buildEnv();
 
-        Environment envCreated = RxJava2Adapter.singleToMono(environmentRepository.create(env)).block();
+        Environment envCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(environmentRepository.create_migrated(env))).block();
 
         Environment envUpdated = new Environment();
         envUpdated.setId(envCreated.getId());
@@ -101,7 +101,7 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
         envUpdated.setDomainRestrictions(Arrays.asList("ValueDom2", "ValueDom3", "ValueDom4"));
         envUpdated.setHrids(Arrays.asList("Hrid2", "Hrid3", "Hrid4"));
 
-        TestObserver<Environment> obs = environmentRepository.update(envUpdated).test();
+        TestObserver<Environment> obs = RxJava2Adapter.monoToSingle(environmentRepository.update_migrated(envUpdated)).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -122,15 +122,15 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
         env.setDomainRestrictions(Arrays.asList("ValueDom1", "ValueDom2"));
         env.setHrids(Arrays.asList("Hrid1", "Hrid2"));
 
-        Environment envCreated = RxJava2Adapter.singleToMono(environmentRepository.create(env)).block();
+        Environment envCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(environmentRepository.create_migrated(env))).block();
 
-        assertNotNull(RxJava2Adapter.maybeToMono(environmentRepository.findById(envCreated.getId())).block());
+        assertNotNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(environmentRepository.findById_migrated(envCreated.getId()))).block());
 
-        TestObserver<Void> obs = environmentRepository.delete(envCreated.getId()).test();
+        TestObserver<Void> obs = RxJava2Adapter.monoToCompletable(environmentRepository.delete_migrated(envCreated.getId())).test();
         obs.awaitTerminalEvent();
         obs.assertNoValues();
 
-        assertNull(RxJava2Adapter.maybeToMono(environmentRepository.findById(envCreated.getId())).block());
+        assertNull(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(environmentRepository.findById_migrated(envCreated.getId()))).block());
     }
 
     @Test
@@ -139,15 +139,15 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
         for (int i = 0; i < loop; i++) {
             final Environment environment = buildEnv();
             environment.setOrganizationId(FIXED_REF_ID);
-            RxJava2Adapter.singleToMono(environmentRepository.create(environment)).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(environmentRepository.create_migrated(environment))).block();
         }
 
         for (int i = 0; i < loop; i++) {
             // random ref id
-            RxJava2Adapter.singleToMono(environmentRepository.create(buildEnv())).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(environmentRepository.create_migrated(buildEnv()))).block();
         }
 
-        TestObserver<List<Environment>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(environmentRepository.findAll(FIXED_REF_ID)).collectList()).test();
+        TestObserver<List<Environment>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(environmentRepository.findAll_migrated(FIXED_REF_ID))).collectList()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(l -> l.size() == loop);
@@ -159,10 +159,10 @@ public class EnvironmentRepositoryTest extends AbstractManagementTest {
         final int loop = 10;
         for (int i = 0; i < loop; i++) {
             // random ref id
-            RxJava2Adapter.singleToMono(environmentRepository.create(buildEnv())).block();
+            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(environmentRepository.create_migrated(buildEnv()))).block();
         }
 
-        TestObserver<List<Environment>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(environmentRepository.findAll()).collectList()).test();
+        TestObserver<List<Environment>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(environmentRepository.findAll_migrated())).collectList()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue(l -> l.size() == loop);

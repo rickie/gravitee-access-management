@@ -42,7 +42,7 @@ public class ExtensionGrantsPluginResourceTest extends JerseySpringTest {
         extensionGrantPlugin.setId("extensionGrant-plugin-id");
         extensionGrantPlugin.setName("extensionGrant-plugin-name");
 
-        doReturn(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Arrays.asList(extensionGrantPlugin))))).when(extensionGrantPluginService).findAll();
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Arrays.asList(extensionGrantPlugin)))))).when(extensionGrantPluginService).findAll_migrated();
 
         final Response response = target("platform").path("plugins").path("extensionGrants").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -50,7 +50,7 @@ public class ExtensionGrantsPluginResourceTest extends JerseySpringTest {
 
     @Test
     public void shouldList_technicalManagementException() {
-        doReturn(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("Error occurs")))).when(extensionGrantPluginService).findAll();
+        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("Error occurs"))))).when(extensionGrantPluginService).findAll_migrated();
 
         final Response response = target("platform").path("plugins").path("extensionGrants").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());

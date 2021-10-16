@@ -39,9 +39,9 @@ public class AuthorizationCodeRepositoryTest extends AbstractOAuthTest {
         authorizationCode.setCode(code);
         authorizationCode.setContextVersion(1);
 
-        RxJava2Adapter.singleToMono(authorizationCodeRepository.create(authorizationCode)).block();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authorizationCodeRepository.create_migrated(authorizationCode))).block();
 
-        TestObserver<AuthorizationCode> testObserver = authorizationCodeRepository.findByCode(code).test();
+        TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(code)).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -53,7 +53,7 @@ public class AuthorizationCodeRepositoryTest extends AbstractOAuthTest {
     @Test
     public void shouldNotFindCode() {
         String code = "unknownCode";
-        TestObserver<AuthorizationCode> test = authorizationCodeRepository.findByCode(code).test();
+        TestObserver<AuthorizationCode> test = RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(code)).test();
         test.awaitTerminalEvent();
         //test.assertEmpty();
         test.assertNoValues();
@@ -66,9 +66,8 @@ public class AuthorizationCodeRepositoryTest extends AbstractOAuthTest {
         authorizationCode.setId(code);
         authorizationCode.setCode(code);
 
-        TestObserver<AuthorizationCode> testObserver = authorizationCodeRepository
-                .create(authorizationCode)
-                .toCompletable().as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(authorizationCodeRepository.delete(code))).as(RxJava2Adapter::monoToMaybe)
+        TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToSingle(authorizationCodeRepository.create_migrated(authorizationCode))
+                .toCompletable().as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.delete_migrated(code)))).as(RxJava2Adapter::monoToMaybe)
                 .test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();

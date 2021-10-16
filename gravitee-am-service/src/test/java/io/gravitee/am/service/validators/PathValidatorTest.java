@@ -15,10 +15,11 @@
  */
 package io.gravitee.am.service.validators;
 
+import static org.junit.Assert.*;
+
 import io.gravitee.am.service.exception.InvalidPathException;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
+import reactor.adapter.rxjava.RxJava2Adapter;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -29,7 +30,7 @@ public class PathValidatorTest {
     @Test
     public void validate() {
 
-        Throwable throwable = PathValidator.validate("/test").blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(PathValidator.validate_migrated("/test")).blockingGet();
 
         assertNull(throwable);
     }
@@ -37,7 +38,7 @@ public class PathValidatorTest {
     @Test
     public void validateSpecialCharacters() {
 
-        Throwable throwable = PathValidator.validate("/test/subpath/subpath2_with-and.dot/AND_UPPERCASE").blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(PathValidator.validate_migrated("/test/subpath/subpath2_with-and.dot/AND_UPPERCASE")).blockingGet();
 
         assertNull(throwable);
     }
@@ -45,7 +46,7 @@ public class PathValidatorTest {
     @Test
     public void validate_invalidEmptyPath() {
 
-        Throwable throwable = PathValidator.validate("").blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(PathValidator.validate_migrated("")).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidPathException);
@@ -54,7 +55,7 @@ public class PathValidatorTest {
     @Test
     public void validate_nullPath() {
 
-        Throwable throwable = PathValidator.validate(null).blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(PathValidator.validate_migrated(null)).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidPathException);
@@ -63,7 +64,7 @@ public class PathValidatorTest {
     @Test
     public void validate_multipleSlashesPath() {
 
-        Throwable throwable = PathValidator.validate("/////test////").blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(PathValidator.validate_migrated("/////test////")).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidPathException);
@@ -72,7 +73,7 @@ public class PathValidatorTest {
     @Test
     public void validate_invalidCharacters() {
 
-        Throwable throwable = PathValidator.validate("/test$:\\;,+").blockingGet();
+        Throwable throwable = RxJava2Adapter.monoToCompletable(PathValidator.validate_migrated("/test$:\\;,+")).blockingGet();
 
         assertNotNull(throwable);
         assertTrue(throwable instanceof InvalidPathException);

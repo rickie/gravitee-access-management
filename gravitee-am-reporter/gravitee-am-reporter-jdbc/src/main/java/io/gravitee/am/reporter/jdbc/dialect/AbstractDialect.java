@@ -18,6 +18,7 @@ package io.gravitee.am.reporter.jdbc.dialect;
 import static reactor.adapter.rxjava.RxJava2Adapter.fluxToFlowable;
 
 import com.google.common.base.CaseFormat;
+import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
 import io.reactivex.Single;
@@ -237,7 +238,8 @@ public abstract class AbstractDialect implements DialectHelper {
         return " ORDER BY a.timestamp DESC LIMIT " + size + " OFFSET " + (page * size);
     }
 
-    @Deprecated
+    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.buildAndProcessHistogram_migrated(dbClient, referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
+@Deprecated
 @Override
     public Single<List<Map<String, Object>>> buildAndProcessHistogram(DatabaseClient dbClient, ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
  return RxJava2Adapter.monoToSingle(buildAndProcessHistogram_migrated(dbClient, referenceType, referenceId, criteria));
