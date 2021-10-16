@@ -94,11 +94,11 @@ public class ClientAssertionServiceImpl implements ClientAssertionService {
         InvalidClientException unsupportedAssertionType = new InvalidClientException("Unknown or unsupported assertion_type");
 
         if (assertionType == null || assertionType.isEmpty()) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(unsupportedAssertionType)));
+            return Mono.error(unsupportedAssertionType);
         }
 
         if (JWT_BEARER.equals(assertionType)) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.validateJWT_migrated(assertion, basePath))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(new Function<JWT, MaybeSource<Client>>() {
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.validateJWT_migrated(assertion, basePath))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<Client>>toJdkFunction(new Function<JWT, MaybeSource<Client>>() {
                         @Override
                         public MaybeSource<Client> apply(JWT jwt) throws Exception {
                             // Handle client_secret_key client authentication
@@ -109,10 +109,10 @@ public class ClientAssertionServiceImpl implements ClientAssertionService {
                                 return RxJava2Adapter.monoToMaybe(validateSignatureWithPublicKey_migrated(jwt));
                             }
                         }
-                    }).apply(v))))));
+                    }).apply(v))));
         }
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(unsupportedAssertionType)));
+        return Mono.error(unsupportedAssertionType);
     }
 
     /**
@@ -136,17 +136,17 @@ private Mono<JWT> validateJWT_migrated(String assertion, String basePath) {
             Date exp = jwt.getJWTClaimsSet().getExpirationTime();
 
             if  (iss == null || iss.isEmpty() || sub == null || sub.isEmpty() || aud == null || aud.isEmpty() || exp == null) {
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(NOT_VALID)));
+                return Mono.error(NOT_VALID);
             }
 
             if (exp.before(Date.from(Instant.now()))) {
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientException("assertion has expired"))));
+                return Mono.error(new InvalidClientException("assertion has expired"));
             }
 
             //Check audience, here we expect to have absolute token endpoint path.
             OpenIDProviderMetadata discovery = openIDDiscoveryService.getConfiguration(basePath);
             if (discovery == null || discovery.getTokenEndpoint() == null) {
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new ServerErrorException("Unable to retrieve discovery token endpoint."))));
+                return Mono.error(new ServerErrorException("Unable to retrieve discovery token endpoint."));
             }
 
             // OIDC specifies that "The Audience SHOULD be the URL of the Authorization Server's Token Endpoint."
@@ -156,16 +156,16 @@ private Mono<JWT> validateJWT_migrated(String assertion, String basePath) {
             if (aud.stream().filter(discovery.getTokenEndpoint()::equals).count() == 0 &&
                     (discovery.getIssuer() != null && aud.stream().filter(discovery.getIssuer()::equals).count() == 0) &&
                     (discovery.getParEndpoint() != null && aud.stream().filter(discovery.getParEndpoint()::equals).count() == 0)) {
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(NOT_VALID)));
+                return Mono.error(NOT_VALID);
             }
 
             if (this.domain.usePlainFapiProfile() && !isSignAlgCompliantWithFapi(jwt.getHeader().getAlgorithm().getName())) {
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientException("JWT Assertion must be signed with PS256"))));
+                return Mono.error(new InvalidClientException("JWT Assertion must be signed with PS256"));
             }
 
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(jwt)));
+            return Mono.just(jwt);
         } catch (ParseException pe) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(NOT_VALID)));
+            return Mono.error(NOT_VALID);
         }
     }
 
@@ -179,7 +179,7 @@ private Mono<Client> validateSignatureWithPublicKey_migrated(JWT jwt) {
             String clientId = jwt.getJWTClaimsSet().getSubject();
             SignedJWT signedJWT = (SignedJWT) jwt;
 
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.clientSyncService.findByClientId_migrated(clientId))).switchIfEmpty(Mono.error(new InvalidClientException("Missing or invalid client"))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client -> {
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.clientSyncService.findByClientId_migrated(clientId))).switchIfEmpty(Mono.error(new InvalidClientException("Missing or invalid client"))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client -> {
                         if (client.getTokenEndpointAuthMethod() == null ||
                                 ClientAuthenticationMethod.PRIVATE_KEY_JWT.equalsIgnoreCase(client.getTokenEndpointAuthMethod())) {
                             return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.getClientJwkSet_migrated(client))).switchIfEmpty(Mono.error(new InvalidClientException("No jwk keys available on client"))).flatMap(z->RxJava2Adapter.monoToMaybe(jwkService.getKey_migrated(z, signedJWT.getHeader().getKeyID())).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new InvalidClientException("Unable to validate client, no matching key."))).flatMap(t->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWK, MaybeSource<Client>>toJdkFunction(jwk -> {
@@ -191,13 +191,13 @@ private Mono<Client> validateSignatureWithPublicKey_migrated(JWT jwt) {
                         } else {
                             return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientException("Invalid client: missing or unsupported authentication method")));
                         }
-                    }).apply(v))))));
+                    }).apply(v))));
         } catch (ClassCastException | ParseException ex) {
             LOGGER.error(ex.getMessage(),ex);
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(NOT_VALID)));
+            return Mono.error(NOT_VALID);
         }
         catch (IllegalArgumentException ex) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientException(ex.getMessage()))));
+            return Mono.error(new InvalidClientException(ex.getMessage()));
         }
     }
 
@@ -213,10 +213,10 @@ private Mono<Client> validateSignatureWithHMAC_migrated(JWT jwt) {
             if (algorithm instanceof JWSAlgorithm) {
                 JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(jwt.getHeader().getAlgorithm().getName());
                 if (jwsAlgorithm != JWSAlgorithm.HS256 && jwsAlgorithm != JWSAlgorithm.HS384 && jwsAlgorithm != JWSAlgorithm.HS512) {
-                    return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientException("Unable to validate client, assertion signature is not valid."))));
+                    return Mono.error(new InvalidClientException("Unable to validate client, assertion signature is not valid."));
                 }
             } else {
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientException("Unable to validate client, assertion signature is not valid."))));
+                return Mono.error(new InvalidClientException("Unable to validate client, assertion signature is not valid."));
             }
 
             String clientId = jwt.getJWTClaimsSet().getSubject();
@@ -224,7 +224,7 @@ private Mono<Client> validateSignatureWithHMAC_migrated(JWT jwt) {
 
 
 
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.clientSyncService.findByClientId_migrated(clientId))).switchIfEmpty(Mono.error(new InvalidClientException("Missing or invalid client"))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client -> {
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.clientSyncService.findByClientId_migrated(clientId))).switchIfEmpty(Mono.error(new InvalidClientException("Missing or invalid client"))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client -> {
                         try {
                             // Ensure to validate JWT using client_secret_key only if client is authorized to use this auth method
                             if (client.getTokenEndpointAuthMethod() == null ||
@@ -240,13 +240,13 @@ private Mono<Client> validateSignatureWithHMAC_migrated(JWT jwt) {
                         }
 
                         return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientException("Unable to validate client, assertion signature is not valid.")));
-                    }).apply(v))))));
+                    }).apply(v))));
         } catch (ClassCastException | ParseException ex) {
             LOGGER.error(ex.getMessage(),ex);
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(NOT_VALID)));
+            return Mono.error(NOT_VALID);
         }
         catch (IllegalArgumentException ex) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientException(ex.getMessage()))));
+            return Mono.error(new InvalidClientException(ex.getMessage()));
         }
     }
 
@@ -257,11 +257,11 @@ private Maybe<JWKSet> getClientJwkSet(Client client) {
 }
 private Mono<JWKSet> getClientJwkSet_migrated(Client client) {
         if(client.getJwksUri()!=null && !client.getJwksUri().trim().isEmpty()) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(jwkService.getKeys_migrated(client.getJwksUri())));
+            return jwkService.getKeys_migrated(client.getJwksUri());
         }
         else if(client.getJwks()!=null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client.getJwks())));
+            return Mono.just(client.getJwks());
         }
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        return Mono.empty();
     }
 }

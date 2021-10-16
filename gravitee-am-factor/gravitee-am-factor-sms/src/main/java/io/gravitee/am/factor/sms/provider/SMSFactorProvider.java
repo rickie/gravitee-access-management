@@ -67,9 +67,9 @@ public class SMSFactorProvider implements FactorProvider {
         if (provider instanceof MFAResourceProvider) {
             MFAResourceProvider mfaProvider = (MFAResourceProvider)provider;
             MFAChallenge challenge = new MFAChallenge(enrolledFactor.getChannel().getTarget(), code);
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(mfaProvider.verify_migrated(challenge)));
+            return mfaProvider.verify_migrated(challenge);
         } else {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS"))));
+            return Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS"));
         }
     }
 
@@ -81,7 +81,7 @@ public class SMSFactorProvider implements FactorProvider {
 }
 @Override
     public Mono<Enrollment> enroll_migrated(String account) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Enrollment(this.configuration.countries()))));
+        return Mono.just(new Enrollment(this.configuration.countries()));
     }
 
     @Override
@@ -103,9 +103,9 @@ public class SMSFactorProvider implements FactorProvider {
         if (provider instanceof MFAResourceProvider) {
             MFAResourceProvider mfaProvider = (MFAResourceProvider)provider;
             MFALink link = new MFALink(MFAType.SMS, enrolledFactor.getChannel().getTarget());
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(mfaProvider.send_migrated(link)));
+            return mfaProvider.send_migrated(link);
         } else {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS"))));
+            return Mono.error(new TechnicalException("Resource referenced can't be used for MultiFactor Authentication  with type SMS"));
         }
     }
 

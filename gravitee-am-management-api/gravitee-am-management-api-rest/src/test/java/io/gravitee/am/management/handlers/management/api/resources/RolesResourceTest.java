@@ -66,8 +66,8 @@ public class RolesResourceTest extends JerseySpringTest {
         final Set<Role> roles = new HashSet<>(Arrays.asList(mockRole, mockRole2));
         final Page<Role> pagedRoles = new Page<>(roles, 0, 2);
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(pagedRoles)))).when(roleService).findByDomain_migrated(domainId, 0, 50);
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(pagedRoles)).when(roleService).findByDomain_migrated(domainId, 0, 50);
 
         final Response response = target("domains").path(domainId).path("roles").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -94,9 +94,9 @@ public class RolesResourceTest extends JerseySpringTest {
         final Set<Role> roles = new HashSet<>(Arrays.asList(mockRole, mockRole2));
         final Page<Role> pagedRoles = new Page<>(roles, 0, 2);
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(roles)))).when(roleService).findByDomain_migrated(domainId);
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(pagedRoles)))).when(roleService).searchByDomain_migrated(domainId, "*role-2-name*", 0, 50);
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(roles)).when(roleService).findByDomain_migrated(domainId);
+        doReturn(Mono.just(pagedRoles)).when(roleService).searchByDomain_migrated(domainId, "*role-2-name*", 0, 50);
 
         final Response response = target("domains").path(domainId).path("roles").queryParam("q", "*role-2-name*").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -107,7 +107,7 @@ public class RolesResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetRoles_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("error occurs"))))).when(roleService).findByDomain_migrated(domainId);
+        doReturn(Mono.error(new TechnicalManagementException("error occurs"))).when(roleService).findByDomain_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("roles").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -126,8 +126,8 @@ public class RolesResourceTest extends JerseySpringTest {
         role.setId("role-id");
         role.setName("role-name");
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(role)))).when(roleService).create_migrated(eq(domainId), any(), any());
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(role)).when(roleService).create_migrated(eq(domainId), any(), any());
 
         final Response response = target("domains")
                 .path(domainId)

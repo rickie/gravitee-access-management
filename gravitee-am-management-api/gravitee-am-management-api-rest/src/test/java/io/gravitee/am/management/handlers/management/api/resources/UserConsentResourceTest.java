@@ -64,10 +64,10 @@ public class UserConsentResourceTest extends JerseySpringTest {
         scopeApproval.setDomain(domainId);
 
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockClient)))).when(applicationService).findByDomainAndClientId_migrated(domainId, scopeApproval.getClientId());
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockScope)))).when(scopeService).findByDomainAndKey_migrated(domainId, scopeApproval.getScope());
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(scopeApproval)))).when(scopeApprovalService).findById_migrated(scopeApproval.getId());
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(mockClient)).when(applicationService).findByDomainAndClientId_migrated(domainId, scopeApproval.getClientId());
+        doReturn(Mono.just(mockScope)).when(scopeService).findByDomainAndKey_migrated(domainId, scopeApproval.getScope());
+        doReturn(Mono.just(scopeApproval)).when(scopeApprovalService).findById_migrated(scopeApproval.getId());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -84,7 +84,7 @@ public class UserConsentResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetUserConsent_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs"))))).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.error(new TechnicalManagementException("error occurs"))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains")
                 .path(domainId)
@@ -105,8 +105,8 @@ public class UserConsentResourceTest extends JerseySpringTest {
         final User mockUser = new User();
         mockUser.setId("user-id-1");
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()))).when(scopeApprovalService).revokeByConsent_migrated(eq(domainId), eq(mockUser.getId()), eq("consent1"), any());
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.empty()).when(scopeApprovalService).revokeByConsent_migrated(eq(domainId), eq(mockUser.getId()), eq("consent1"), any());
 
         final Response response = target("domains")
                 .path(domainId)

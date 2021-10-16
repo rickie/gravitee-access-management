@@ -66,11 +66,11 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
 @Override
     public Mono<SystemTask> findById_migrated(String id) {
         LOGGER.debug("findById({}, {}, {})", id);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(dbClient.select()
+        return dbClient.select()
                 .from(JdbcSystemTask.class)
                 .project("*")
                 .matching(from(where("id").is(id)))
-                .as(JdbcSystemTask.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+                .as(JdbcSystemTask.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
 
     }
 
@@ -94,7 +94,7 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
         insertSpec = addQuotedField(insertSpec, "updated_at", dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
+        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -105,7 +105,7 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
 }
 @Override
     public Mono<SystemTask> update_migrated(SystemTask item) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("SystemTask can't be updated without control on the operationId"))));
+        return Mono.error(new IllegalStateException("SystemTask can't be updated without control on the operationId"));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateIf_migrated(item, operationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -132,7 +132,7 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
                 .fetch()
                 .rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
+        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -146,6 +146,6 @@ public class JdbcSystemTaskRepository extends AbstractJdbcRepository implements 
         LOGGER.debug("Delete SystemTask with id {}", id);
         Mono<Integer> delete = dbClient.delete().from(JdbcSystemTask.class)
                 .matching(from(where("id").is(id))).fetch().rowsUpdated();
-        return RxJava2Adapter.completableToMono(monoToCompletable(delete));
+        return delete;
     }
 }

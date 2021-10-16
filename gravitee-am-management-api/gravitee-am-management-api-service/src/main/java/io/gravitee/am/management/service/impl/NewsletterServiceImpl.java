@@ -87,7 +87,7 @@ public class NewsletterServiceImpl implements NewsletterService, InitializingBea
 @Override
   public Mono<List<String>> getTaglines_migrated() {
     if (!newsletterEnabled) {
-      return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
+      return Mono.just(Collections.emptyList());
     }
 
     String taglinesPath = "taglines";
@@ -95,8 +95,7 @@ public class NewsletterServiceImpl implements NewsletterService, InitializingBea
       taglinesPath = "/" + taglinesPath;
     }
 
-    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(
-        RxJava2Adapter.singleToMono(client.getAbs(newsletterURI + taglinesPath).rxSend())
+    return RxJava2Adapter.singleToMono(client.getAbs(newsletterURI + taglinesPath).rxSend())
             .map(
                 RxJavaReactorMigrationUtil.<HttpResponse<Buffer>, List<String>>toJdkFunction(
                     res -> {
@@ -107,7 +106,7 @@ public class NewsletterServiceImpl implements NewsletterService, InitializingBea
                         return Collections.emptyList();
                       }
                       return mapper.readValue(res.bodyAsString(), List.class);
-                    }))));
+                    }));
   }
 
   @Override

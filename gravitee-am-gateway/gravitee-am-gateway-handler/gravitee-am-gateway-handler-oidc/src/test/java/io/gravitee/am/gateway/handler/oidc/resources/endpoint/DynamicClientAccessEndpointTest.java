@@ -66,8 +66,8 @@ public class DynamicClientAccessEndpointTest extends RxWebTestBase {
         client.setId("my-test-client_id");
         client.setClientId("my-test-client_id");
 
-        when(clientSyncService.findByClientId_migrated("my-test-client_id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
-        when(clientSyncService.findByClientId_migrated("unknown")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(clientSyncService.findByClientId_migrated("my-test-client_id")).thenReturn(Mono.just(client));
+        when(clientSyncService.findByClientId_migrated("unknown")).thenReturn(Mono.empty());
     }
 
     @Test
@@ -86,7 +86,7 @@ public class DynamicClientAccessEndpointTest extends RxWebTestBase {
 
     @Test
     public void delete() throws Exception{
-        when(dcrService.delete_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Client()))));
+        when(dcrService.delete_migrated(any())).thenReturn(Mono.just(new Client()));
         when(clientSyncService.removeDynamicClientRegistred(any())).thenReturn(new Client());
 
         testRequest(
@@ -103,7 +103,7 @@ public class DynamicClientAccessEndpointTest extends RxWebTestBase {
 
     @Test
     public void renewClientSecret() throws Exception{
-        when(dcrService.renewSecret_migrated(any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Client()))));
+        when(dcrService.renewSecret_migrated(any(), any())).thenReturn(Mono.just(new Client()));
         when(clientSyncService.addDynamicClientRegistred(any())).thenReturn(new Client());
 
         testRequest(

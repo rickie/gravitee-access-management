@@ -70,10 +70,10 @@ public class RefreshTokenGranter extends AbstractTokenGranter {
         String refreshToken = tokenRequest.parameters().getFirst(Parameters.REFRESH_TOKEN);
 
         if (refreshToken == null || refreshToken.isEmpty()) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("A refresh token must be supplied."))));
+            return Mono.error(new InvalidRequestException("A refresh token must be supplied."));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(super.parseRequest_migrated(tokenRequest, client))).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getTokenService().refresh_migrated(refreshToken, tokenRequest, client))).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.gateway.handler.oauth2.service.token.Token refreshToken1)->{
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(super.parseRequest_migrated(tokenRequest, client))).flatMap(tokenRequest1->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getTokenService().refresh_migrated(refreshToken, tokenRequest, client))).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.gateway.handler.oauth2.service.token.Token refreshToken1)->{
 if (refreshToken1.getSubject() != null) {
 tokenRequest1.setSubject(refreshToken1.getSubject());
 }
@@ -87,7 +87,7 @@ tokenRequest1.setScopes(filteredScopes);
 }
 tokenRequest1.setRefreshToken(refreshToken1.getAdditionalInformation());
 return tokenRequest1;
-})))));
+})));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.resolveResourceOwner_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -101,7 +101,7 @@ return tokenRequest1;
         final String subject = tokenRequest.getSubject();
 
         if (subject == null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
 
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userAuthenticationManager.loadPreAuthenticatedUser_migrated(subject, tokenRequest))
@@ -117,6 +117,6 @@ return tokenRequest1;
 @Override
     protected Mono<TokenRequest> resolveRequest_migrated(TokenRequest tokenRequest, Client client, User endUser) {
         // request has already been resolved during parse request step
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(tokenRequest)));
+        return Mono.just(tokenRequest);
     }
 }

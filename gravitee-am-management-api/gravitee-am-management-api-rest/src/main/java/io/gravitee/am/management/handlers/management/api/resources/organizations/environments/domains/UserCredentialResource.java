@@ -73,7 +73,7 @@ public class UserCredentialResource extends AbstractResource {
             @PathParam("credential") String credential,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->RxJava2Adapter.monoToMaybe(credentialService.findById_migrated(credential)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new CredentialNotFoundException(credential)))).as(RxJava2Adapter::monoToMaybe)
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->credentialService.findById_migrated(credential)).switchIfEmpty(Mono.error(new CredentialNotFoundException(credential)))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -92,7 +92,7 @@ public class UserCredentialResource extends AbstractResource {
             @PathParam("user") String user,
             @PathParam("credential") String credential,
             @Suspended final AsyncResponse response) {
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE))).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(__->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(credentialService.delete_migrated(credential)))).then()))
+        RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(__->credentialService.delete_migrated(credential)).then()))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

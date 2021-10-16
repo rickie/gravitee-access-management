@@ -112,6 +112,6 @@ private Mono<AuthenticationFlowContext> enrichAuthFlowContext_migrated(Execution
         authContext.setCreatedAt(new Date(now.toEpochMilli()));
         authContext.setExpireAt(new Date(now.plus(expiration, ChronoUnit.SECONDS).toEpochMilli()));
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(authContextRepository.create_migrated(authContext)));
+        return authContextRepository.create_migrated(authContext);
     }
 }

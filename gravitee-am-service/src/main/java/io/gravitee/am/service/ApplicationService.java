@@ -235,7 +235,7 @@ default reactor.core.publisher.Mono<java.util.Set<io.gravitee.am.service.model.T
 default io.reactivex.Single<java.util.Set<io.gravitee.am.model.Application>> findAll() {
     return RxJava2Adapter.monoToSingle(findAll_migrated());
 }default Mono<Set<Application>> findAll_migrated() {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findAll(0, Integer.MAX_VALUE)).map(RxJavaReactorMigrationUtil.toJdkFunction(pagedApplications -> (pagedApplications.getData() == null) ? Collections.emptySet() : new HashSet<>(pagedApplications.getData())))));
+        return RxJava2Adapter.singleToMono(findAll(0, Integer.MAX_VALUE)).map(RxJavaReactorMigrationUtil.toJdkFunction(pagedApplications -> (pagedApplications.getData() == null) ? Collections.emptySet() : new HashSet<>(pagedApplications.getData())));
     }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -243,7 +243,7 @@ default io.reactivex.Single<java.util.Set<io.gravitee.am.model.Application>> fin
 default io.reactivex.Single<java.util.Set<io.gravitee.am.model.Application>> findByDomain(java.lang.String domain) {
     return RxJava2Adapter.monoToSingle(findByDomain_migrated(domain));
 }default Mono<Set<Application>> findByDomain_migrated(String domain) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(findByDomain(domain, 0, Integer.MAX_VALUE)).map(RxJavaReactorMigrationUtil.toJdkFunction(pagedApplications -> (pagedApplications.getData() == null) ? Collections.emptySet() : new HashSet<>(pagedApplications.getData())))));
+        return RxJava2Adapter.singleToMono(findByDomain(domain, 0, Integer.MAX_VALUE)).map(RxJavaReactorMigrationUtil.toJdkFunction(pagedApplications -> (pagedApplications.getData() == null) ? Collections.emptySet() : new HashSet<>(pagedApplications.getData())));
     }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, newApplication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

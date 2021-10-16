@@ -106,7 +106,7 @@ public class UserConsentsEndpointHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldListConsents() throws Exception {
-        when(userService.consents_migrated(anyString())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(new ScopeApproval())))));
+        when(userService.consents_migrated(anyString())).thenReturn(Mono.just(Collections.singleton(new ScopeApproval())));
 
         router.route("/users/:userId/consents")
                 .handler(userConsentsEndpointHandler::list)
@@ -122,8 +122,8 @@ public class UserConsentsEndpointHandlerTest extends RxWebTestBase {
 
     @Test
     public void shouldRevokeConsents() throws Exception {
-        when(userService.findById_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.model.User()))));
-        when(userService.revokeConsents_migrated(anyString(), any(User.class))).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(userService.findById_migrated(anyString())).thenReturn(Mono.just(new io.gravitee.am.model.User()));
+        when(userService.revokeConsents_migrated(anyString(), any(User.class))).thenReturn(Mono.empty());
 
         router.route("/users/:userId/consents")
                 .handler(rc -> {

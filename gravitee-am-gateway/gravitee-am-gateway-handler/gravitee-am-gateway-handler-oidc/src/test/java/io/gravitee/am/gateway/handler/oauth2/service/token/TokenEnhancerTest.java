@@ -75,7 +75,7 @@ public class TokenEnhancerTest {
 
         String idTokenPayload = "payload";
 
-        when(idTokenService.create_migrated(oAuth2Request, client, null, null)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idTokenPayload))));
+        when(idTokenService.create_migrated(oAuth2Request, client, null, null)).thenReturn(Mono.just(idTokenPayload));
 
         TestObserver<Token> testObserver = RxJava2Adapter.monoToSingle(tokenEnhancer.enhance_migrated(accessToken, oAuth2Request, client, null, null)).test();
 

@@ -59,7 +59,7 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
 }
 @Override
     public Mono<List<IdentityProviderPlugin>> findAll_migrated(List<String> expand) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.findAll_migrated(false, null)));
+        return this.findAll_migrated(false, null);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(external))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -70,7 +70,7 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
 }
 @Override
     public Mono<List<IdentityProviderPlugin>> findAll_migrated(Boolean external) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.findAll_migrated(external, null)));
+        return this.findAll_migrated(external, null);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(external, expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

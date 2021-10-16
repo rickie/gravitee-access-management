@@ -43,24 +43,24 @@ public static Mono<Void> validate_migrated(Domain domain, List<String> domainRes
         List<Completable> chain = new ArrayList<>();
 
         if (domain.getName().contains("/")) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("Domain name cannot contain '/' character"))));
+            return Mono.error(new InvalidDomainException("Domain name cannot contain '/' character"));
         }
 
         if(!CollectionUtils.isEmpty(domainRestrictions) && !domain.isVhostMode()) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("Domain can only work in vhost mode"))));
+            return Mono.error(new InvalidDomainException("Domain can only work in vhost mode"));
         }
 
         if (domain.isVhostMode()) {
             if (domain.getVhosts() == null || domain.getVhosts().isEmpty()) {
-                return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("VHost mode requires at least one VHost"))));
+                return Mono.error(new InvalidDomainException("VHost mode requires at least one VHost"));
             }
 
             // Check at there is only one vhost flagged with override entrypoint.
             long count = domain.getVhosts().stream().filter(VirtualHost::isOverrideEntrypoint).count();
             if(count > 1) {
-                return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("Only one vhost can be used to override entrypoint"))));
+                return Mono.error(new InvalidDomainException("Only one vhost can be used to override entrypoint"));
             } else if(count == 0) {
-                return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("You must select one vhost to override entrypoint"))));
+                return Mono.error(new InvalidDomainException("You must select one vhost to override entrypoint"));
             }
 
             chain.addAll(domain.getVhosts().stream()
@@ -68,7 +68,7 @@ public static Mono<Void> validate_migrated(Domain domain, List<String> domainRes
                     .collect(Collectors.toList()));
         } else {
             if("/".equals(domain.getPath())) {
-                return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidDomainException("'/' path is not allowed in context-path mode"))));
+                return Mono.error(new InvalidDomainException("'/' path is not allowed in context-path mode"));
             }
 
             chain.add(RxJava2Adapter.monoToCompletable(PathValidator.validate_migrated(domain.getPath())));

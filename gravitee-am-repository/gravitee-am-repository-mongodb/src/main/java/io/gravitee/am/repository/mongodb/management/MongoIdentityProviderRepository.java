@@ -73,7 +73,7 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
 }
 @Override
     public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType, String referenceId) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(identitiesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(identitiesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -84,7 +84,7 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
 }
 @Override
     public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(identitiesCollection.find(eq(FIELD_REFERENCE_TYPE, referenceType.name()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(identitiesCollection.find(eq(FIELD_REFERENCE_TYPE, referenceType.name()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -95,7 +95,7 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
 }
 @Override
     public Flux<IdentityProvider> findAll_migrated() {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(identitiesCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(identitiesCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(identityProviderId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -106,7 +106,7 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
 }
 @Override
     public Mono<IdentityProvider> findById_migrated(String identityProviderId) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(identitiesCollection.find(eq(FIELD_ID, identityProviderId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(identitiesCollection.find(eq(FIELD_ID, identityProviderId)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, identityProviderId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -117,7 +117,7 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
 }
 @Override
     public Mono<IdentityProvider> findById_migrated(ReferenceType referenceType, String referenceId, String identityProviderId) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(identitiesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, identityProviderId))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(identitiesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, identityProviderId))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -133,9 +133,9 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
             var identityProvider = optionalIdp.get();
             final String id = identityProvider.getId() == null ? RandomString.generate() : identityProvider.getId();
             identityProvider.setId(id);
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(identitiesCollection.insertOne(identityProvider))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(identityProvider.getId()))).single())));
+            return RxJava2Adapter.singleToMono(Single.fromPublisher(identitiesCollection.insertOne(identityProvider))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(identityProvider.getId()))).single());
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException("Identity provider must be present for create"))));
+        return Mono.error(new TechnicalException("Identity provider must be present for create"));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -149,9 +149,9 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
         Optional<IdentityProviderMongo> optionalIdp = convert(item);
         if (optionalIdp.isPresent()) {
             var identityProvider = optionalIdp.get();
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(identitiesCollection.replaceOne(eq(FIELD_ID, identityProvider.getId()), identityProvider))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(identityProvider.getId()))).single())));
+            return RxJava2Adapter.singleToMono(Single.fromPublisher(identitiesCollection.replaceOne(eq(FIELD_ID, identityProvider.getId()), identityProvider))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(identityProvider.getId()))).single());
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException("Identity provider must be present for update"))));
+        return Mono.error(new TechnicalException("Identity provider must be present for update"));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -162,7 +162,7 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(identitiesCollection.deleteOne(eq(FIELD_ID, id)))));
+        return Mono.from(identitiesCollection.deleteOne(eq(FIELD_ID, id)));
     }
 
     private IdentityProvider convert(IdentityProviderMongo identityProviderMongo) {

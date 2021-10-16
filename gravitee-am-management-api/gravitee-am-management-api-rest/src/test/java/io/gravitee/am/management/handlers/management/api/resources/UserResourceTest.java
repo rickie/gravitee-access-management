@@ -49,8 +49,8 @@ public class UserResourceTest extends JerseySpringTest {
         mockUser.setReferenceType(ReferenceType.DOMAIN);
         mockUser.setReferenceId(domainId);
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockUser)))).when(userService).findById_migrated(userId);
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(mockUser)).when(userService).findById_migrated(userId);
 
         final Response response = target("domains").path(domainId).path("users").path(userId).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -63,7 +63,7 @@ public class UserResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetUser_notFound() {
         final String domainId = "domain-id";
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.empty()).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains/" + domainId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -72,7 +72,7 @@ public class UserResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetUser_technicalManagementException() {
         final String domainId = "domain-id";
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs"))))).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.error(new TechnicalManagementException("error occurs"))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains").path(domainId).request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());

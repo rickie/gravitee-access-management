@@ -84,9 +84,9 @@ public class SocialAuthenticationProviderTest {
 
         Client client = new Client();
 
-        when(userAuthenticationManager.connect_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new User()))));
+        when(userAuthenticationManager.connect_migrated(any())).thenReturn(Mono.just(new User()));
 
-        when(authenticationProvider.loadUserByUsername_migrated(any(EndUserAuthentication.class))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
+        when(authenticationProvider.loadUserByUsername_migrated(any(EndUserAuthentication.class))).thenReturn(Mono.just(user));
         when(routingContext.get("client")).thenReturn(client);
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.request()).thenReturn(httpServerRequest);
@@ -116,7 +116,7 @@ public class SocialAuthenticationProviderTest {
 
         Client client = new Client();
 
-        when(authenticationProvider.loadUserByUsername_migrated(any(EndUserAuthentication.class))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(BadCredentialsException::new)))));
+        when(authenticationProvider.loadUserByUsername_migrated(any(EndUserAuthentication.class))).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(BadCredentialsException::new)));
         when(routingContext.get("client")).thenReturn(client);
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.request()).thenReturn(httpServerRequest);
@@ -146,7 +146,7 @@ public class SocialAuthenticationProviderTest {
 
         Client client = new Client();
 
-        when(authenticationProvider.loadUserByUsername_migrated(any(EndUserAuthentication.class))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(authenticationProvider.loadUserByUsername_migrated(any(EndUserAuthentication.class))).thenReturn(Mono.empty());
         when(routingContext.get("client")).thenReturn(client);
         when(routingContext.get("provider")).thenReturn(authenticationProvider);
         when(routingContext.request()).thenReturn(httpServerRequest);

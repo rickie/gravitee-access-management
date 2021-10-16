@@ -118,7 +118,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
                 RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(reporter.getDomain()))
                         .flatMapSingle(domain -> {
                             if (ReferenceType.ENVIRONMENT == domain.getReferenceType()) {
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))));
+                                return RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))));
                             } else {
                                 // currently domain is only linked to domainEnv
                                 return RxJava2Adapter.monoToSingle(Mono.error(new EnvironmentNotFoundException("Domain " + reporter.getDomain() +" should be lined to an Environment")));
@@ -206,7 +206,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
         // to propagate across the cluster so if there are at least one reporter for the domain, return the NoOpReporter to avoid
         // too long waiting time that may lead to unexpected even on the UI.
         try {
-            List<io.gravitee.am.model.Reporter> reporters = RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(reporterService.findByDomain_migrated(domain))).collectList().block();
+            List<io.gravitee.am.model.Reporter> reporters = reporterService.findByDomain_migrated(domain).collectList().block();
             if (reporters.isEmpty()) {
                 throw new ReporterNotFoundForDomainException(domain);
             }
@@ -273,7 +273,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
         RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(reporter.getDomain()))
                 .flatMapSingle(domain -> {
                     if (ReferenceType.ENVIRONMENT == domain.getReferenceType()) {
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))));
+                        return RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))));
                     } else {
                         // currently domain is only linked to domainEnv
                         return RxJava2Adapter.monoToSingle(Mono.error(new EnvironmentNotFoundException("Domain " + reporter.getDomain() +" should be lined to an Environment")));

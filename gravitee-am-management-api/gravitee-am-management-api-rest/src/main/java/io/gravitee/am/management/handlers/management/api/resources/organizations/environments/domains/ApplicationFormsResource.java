@@ -88,7 +88,7 @@ public class ApplicationFormsResource extends AbstractResource {
             @NotNull @QueryParam("template") Template emailTemplate,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_FORM, Acl.READ))).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(formService.findByDomainAndClientAndTemplate_migrated(domain, application, emailTemplate.template())))).map(RxJavaReactorMigrationUtil.toJdkFunction(form -> Response.ok(form).build())).defaultIfEmpty(Response.ok(new Form(false, emailTemplate.template())).build()))
+        RxJava2Adapter.monoToMaybe(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_FORM, Acl.READ).then(formService.findByDomainAndClientAndTemplate_migrated(domain, application, emailTemplate.template())).map(RxJavaReactorMigrationUtil.toJdkFunction(form -> Response.ok(form).build())).defaultIfEmpty(Response.ok(new Form(false, emailTemplate.template())).build()))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -113,7 +113,7 @@ public class ApplicationFormsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_FORM, Acl.CREATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->RxJava2Adapter.monoToMaybe(applicationService.findById_migrated(application)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_FORM, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))
                         .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(formService.create_migrated(domain, application, newForm, authenticatedUser)))).map(RxJavaReactorMigrationUtil.toJdkFunction(form -> Response
                                 .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/applications/" + application + "/forms/" + form.getId()))
                                 .entity(form)

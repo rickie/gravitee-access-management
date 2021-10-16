@@ -43,7 +43,7 @@ public class MemberResourceTest extends JerseySpringTest {
 
         final String organizationId = "orga-1";
 
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new OrganizationNotFoundException(organizationId))))).when(organizationService).findById_migrated(organizationId);
+        doReturn(Mono.error(new OrganizationNotFoundException(organizationId))).when(organizationService).findById_migrated(organizationId);
 
         final Response response = target("/organizations")
                 .path(organizationId)
@@ -62,8 +62,8 @@ public class MemberResourceTest extends JerseySpringTest {
         Organization organization = new Organization();
         organization.setId(Organization.DEFAULT);
 
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(organization)))).when(organizationService).findById_migrated(organization.getId());
-        doReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()))).when(membershipService).delete_migrated(eq(membershipId), any(User.class));
+        doReturn(Mono.just(organization)).when(organizationService).findById_migrated(organization.getId());
+        doReturn(Mono.empty()).when(membershipService).delete_migrated(eq(membershipId), any(User.class));
 
         final Response response = target("/organizations")
                 .path(organization.getId())

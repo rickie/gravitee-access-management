@@ -88,7 +88,7 @@ public class LogoutCallbackParseHandler implements Handler<RoutingContext> {
             return;
         }
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(state, certificateManager.defaultCertificateProvider()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(stateJwt -> {
+        RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(state, certificateManager.defaultCertificateProvider()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(stateJwt -> {
                     final MultiMap initialQueryParams = RequestUtils.getQueryParams((String) stateJwt.getOrDefault("q", ""), false);
                     context.put(ConstantKeys.PARAM_CONTEXT_KEY, initialQueryParams);
                     context.put(ConstantKeys.PROVIDER_ID_PARAM_KEY, stateJwt.get("p"));

@@ -48,7 +48,7 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindById() {
         Reporter reporter = buildReporter();
-        Reporter createdReporter = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(reporter))).block();
+        Reporter createdReporter = repository.create_migrated(reporter).block();
 
         TestObserver<Reporter> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdReporter.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -60,7 +60,7 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldUpdate() {
         Reporter reporter = buildReporter();
-        Reporter createdReporter = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(reporter))).block();
+        Reporter createdReporter = repository.create_migrated(reporter).block();
 
         TestObserver<Reporter> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdReporter.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -70,7 +70,7 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
 
         Reporter updatableReporter = buildReporter();
         updatableReporter.setId(createdReporter.getId());
-        Reporter updatedReporter = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.update_migrated(updatableReporter))).block();
+        Reporter updatedReporter = repository.update_migrated(updatableReporter).block();
 
         testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdReporter.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -82,7 +82,7 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldDelete() {
         Reporter reporter = buildReporter();
-        Reporter createdReporter = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(reporter))).block();
+        Reporter createdReporter = repository.create_migrated(reporter).block();
 
         TestObserver<Reporter> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdReporter.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -104,10 +104,10 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
         final int loop = 10;
         for (int i =0; i < loop; ++i) {
             Reporter reporter = buildReporter();
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(reporter))).block();
+            repository.create_migrated(reporter).block();
         }
 
-        TestObserver<List<Reporter>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findAll_migrated())).collectList()).test();
+        TestObserver<List<Reporter>> testObserver = RxJava2Adapter.monoToSingle(repository.findAll_migrated().collectList()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue( p -> p.size() == loop);
@@ -121,10 +121,10 @@ public class RepositoryRepositoryTest extends AbstractManagementTest {
         for (int i =0; i < loop; ++i) {
             Reporter reporter = buildReporter();
             if (i % 2 == 0) reporter.setDomain(domain);
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(reporter))).block();
+            repository.create_migrated(reporter).block();
         }
 
-        TestObserver<List<Reporter>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(repository.findByDomain_migrated(domain))).collectList()).test();
+        TestObserver<List<Reporter>> testObserver = RxJava2Adapter.monoToSingle(repository.findByDomain_migrated(domain).collectList()).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();
         testObserver.assertValue( p -> p.size() == loop/2);

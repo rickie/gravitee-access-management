@@ -59,7 +59,7 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
 }
 @Override
     public Flux<ServiceResource> findByReference_migrated(ReferenceType referenceType, String referenceId) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(resourceCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(resourceCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -70,7 +70,7 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
 }
 @Override
     public Mono<ServiceResource> findById_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(resourceCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(resourceCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -83,7 +83,7 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
     public Mono<ServiceResource> create_migrated(ServiceResource item) {
         ServiceResourceMongo res = convert(item);
         res.setId(res.getId() == null ? RandomString.generate() : res.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.insertOne(res))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(res.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.insertOne(res))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(res.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -95,7 +95,7 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
 @Override
     public Mono<ServiceResource> update_migrated(ServiceResource item) {
         ServiceResourceMongo authenticator = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.replaceOne(eq(FIELD_ID, authenticator.getId()), authenticator))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(authenticator.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(resourceCollection.replaceOne(eq(FIELD_ID, authenticator.getId()), authenticator))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(authenticator.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -106,7 +106,7 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(resourceCollection.deleteOne(eq(FIELD_ID, id)))));
+        return Mono.from(resourceCollection.deleteOne(eq(FIELD_ID, id)));
     }
 
     private ServiceResource convert(ServiceResourceMongo resMongo) {

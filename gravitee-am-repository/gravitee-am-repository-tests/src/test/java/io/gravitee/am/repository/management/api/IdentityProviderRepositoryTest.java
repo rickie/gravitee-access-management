@@ -42,17 +42,17 @@ public class IdentityProviderRepositoryTest extends AbstractManagementTest {
         // create idp
         IdentityProvider identityProvider = buildIdentityProvider();
         identityProvider.setReferenceId("testDomain");
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderRepository.create_migrated(identityProvider))).block();
+        identityProviderRepository.create_migrated(identityProvider).block();
 
         IdentityProvider identityProvider2 = buildIdentityProvider();
         identityProvider2.setReferenceId("testDomain");
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderRepository.create_migrated(identityProvider2))).block();
+        identityProviderRepository.create_migrated(identityProvider2).block();
 
         IdentityProvider identityProvider3 = buildIdentityProvider();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderRepository.create_migrated(identityProvider3))).block();
+        identityProviderRepository.create_migrated(identityProvider3).block();
 
         // fetch idps
-        TestObserver<List<IdentityProvider>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(identityProviderRepository.findAll_migrated(ReferenceType.DOMAIN, "testDomain"))).collectList()).test();
+        TestObserver<List<IdentityProvider>> testObserver = RxJava2Adapter.monoToSingle(identityProviderRepository.findAll_migrated(ReferenceType.DOMAIN, "testDomain").collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -92,7 +92,7 @@ public class IdentityProviderRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create idp
         IdentityProvider identityProvider = buildIdentityProvider();
-        IdentityProvider identityProviderCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderRepository.create_migrated(identityProvider))).block();
+        IdentityProvider identityProviderCreated = identityProviderRepository.create_migrated(identityProvider).block();
 
         // fetch idp
         TestObserver<IdentityProvider> testObserver = RxJava2Adapter.monoToMaybe(identityProviderRepository.findById_migrated(identityProviderCreated.getId())).test();
@@ -122,7 +122,7 @@ public class IdentityProviderRepositoryTest extends AbstractManagementTest {
         IdentityProvider identityProvider = buildIdentityProvider();
         identityProvider.setReferenceType(ReferenceType.ORGANIZATION);
         identityProvider.setReferenceId(ORGANIZATION_ID);
-        IdentityProvider identityProviderCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderRepository.create_migrated(identityProvider))).block();
+        IdentityProvider identityProviderCreated = identityProviderRepository.create_migrated(identityProvider).block();
 
         // fetch idp
         TestObserver<IdentityProvider> testObserver = RxJava2Adapter.monoToMaybe(identityProviderRepository.findById_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, identityProviderCreated.getId())).test();
@@ -158,7 +158,7 @@ public class IdentityProviderRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create idp
         IdentityProvider identityProvider = buildIdentityProvider();
-        IdentityProvider identityProviderCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderRepository.create_migrated(identityProvider))).block();
+        IdentityProvider identityProviderCreated = identityProviderRepository.create_migrated(identityProvider).block();
 
         // update idp
         IdentityProvider updatedIdentityProvider = buildIdentityProvider();
@@ -177,7 +177,7 @@ public class IdentityProviderRepositoryTest extends AbstractManagementTest {
     public void testDelete() throws TechnicalException {
         // create idp
         IdentityProvider identityProvider = buildIdentityProvider();
-        IdentityProvider identityProviderCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderRepository.create_migrated(identityProvider))).block();
+        IdentityProvider identityProviderCreated = identityProviderRepository.create_migrated(identityProvider).block();
 
         // fetch idp
         TestObserver<IdentityProvider> testObserver = RxJava2Adapter.monoToMaybe(identityProviderRepository.findById_migrated(identityProviderCreated.getId())).test();

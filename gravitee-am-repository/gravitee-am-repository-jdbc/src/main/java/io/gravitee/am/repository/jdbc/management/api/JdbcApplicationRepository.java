@@ -86,7 +86,7 @@ private Single<Application> completeApplication(Application entity) {
  return RxJava2Adapter.monoToSingle(completeApplication_migrated(entity));
 }
 private Mono<Application> completeApplication_migrated(Application entity) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(entity).flatMap(app->RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(identityRepository.findAllByApplicationId_migrated(app.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Identity::getIdentity)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> idps)->{
+        return Mono.just(entity).flatMap(app->RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(identityRepository.findAllByApplicationId_migrated(app.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Identity::getIdentity)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> idps)->{
 app.setIdentities(new HashSet<>(idps));
 return app;
 }))).flatMap(app->RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(factorRepository.findAllByApplicationId_migrated(app.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Factor::getFactor)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> factors)->{
@@ -97,7 +97,7 @@ if (app.getSettings() != null && app.getSettings().getOauth() != null) {
 app.getSettings().getOauth().setScopeSettings(scopeSettings);
 }
 return app;
-})))));// do not read grant tables, information already present into the settings object
+})));// do not read grant tables, information already present into the settings object
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -109,7 +109,7 @@ return app;
 @Override
     public Flux<Application> findAll_migrated() {
         LOGGER.debug("findAll()");
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(applicationRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())))));
+        return RxJava2Adapter.flowableToFlux(applicationRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -121,12 +121,12 @@ return app;
 @Override
     public Mono<Page<Application>> findAll_migrated(int page, int size) {
         LOGGER.debug("findAll({}, {})", page, size);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.select()
                 .from(JdbcApplication.class)
                 .page(PageRequest.of(page, size, Sort.by("id")))
                 .as(JdbcApplication.class)
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
-                .flatMap(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux()), MAX_CONCURRENCY)).collectList().flatMap(data->RxJava2Adapter.singleToMono(applicationRepository.count()).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications (page={}/size={})", page, size, error)))));
+                .flatMap(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux()), MAX_CONCURRENCY)).collectList().flatMap(data->RxJava2Adapter.singleToMono(applicationRepository.count()).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications (page={}/size={})", page, size, error)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -138,7 +138,7 @@ return app;
 @Override
     public Flux<Application> findByDomain_migrated(String domain) {
         LOGGER.debug("findByDomain({})",domain);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomain_migrated(domain, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -150,13 +150,13 @@ return app;
 @Override
     public Mono<Page<Application>> findByDomain_migrated(String domain, int page, int size) {
         LOGGER.debug("findByDomain({}, {}, {})", domain, page, size);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.select()
                 .from(JdbcApplication.class)
                 .matching(from(where("domain").is(domain)))
                 .page(PageRequest.of(page, size, Sort.by("id")))
                 .as(JdbcApplication.class)
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
-                .flatMap(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux()), MAX_CONCURRENCY)).collectList().flatMap(data->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.countByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error)))));
+                .flatMap(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux()), MAX_CONCURRENCY)).collectList().flatMap(data->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.countByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -175,12 +175,12 @@ return app;
         String search = databaseDialectHelper.buildSearchApplicationsQuery(wildcardMatch, page, size);
         String count = databaseDialectHelper.buildCountApplicationsQuery(wildcardMatch);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(dbClient.execute(search)
+        return dbClient.execute(search)
                 .bind("domain", domain)
                 .bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase())
                 .as(JdbcApplication.class)
                 .fetch()
-                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error)))));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCertificate_migrated(certificate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -192,7 +192,7 @@ return app;
 @Override
     public Flux<Application> findByCertificate_migrated(String certificate) {
         LOGGER.debug("findByCertificate({})", certificate);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findByCertificate_migrated(certificate))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findByCertificate_migrated(certificate))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdentityProvider_migrated(identityProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -206,9 +206,9 @@ return app;
         LOGGER.debug("findByIdentityProvider({})", identityProvider);
 
         // identity is a keyword with mssql
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.execute("SELECT a.* FROM applications a INNER JOIN application_identities i ON a.id = i.application_id where i." +
+        return dbClient.execute("SELECT a.* FROM applications a INNER JOIN application_identities i ON a.id = i.application_id where i." +
                 databaseDialectHelper.toSql(SqlIdentifier.quoted("identity")) + " = :identity")
-                .bind("identity", identityProvider).as(JdbcApplication.class).fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())))));
+                .bind("identity", identityProvider).as(JdbcApplication.class).fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByFactor_migrated(factor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -220,7 +220,7 @@ return app;
 @Override
     public Flux<Application> findByFactor_migrated(String factor) {
         LOGGER.debug("findByFactor({})", factor);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findAllByFactor_migrated(factor))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findAllByFactor_migrated(factor))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndExtensionGrant_migrated(domain, extensionGrant))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -232,7 +232,7 @@ return app;
 @Override
     public Flux<Application> findByDomainAndExtensionGrant_migrated(String domain, String extensionGrant) {
         LOGGER.debug("findByDomainAndExtensionGrant({}, {})", domain, extensionGrant);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findAllByDomainAndGrant_migrated(domain, extensionGrant))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findAllByDomainAndGrant_migrated(domain, extensionGrant))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -245,9 +245,9 @@ return app;
     public Flux<Application> findByIdIn_migrated(List<String> ids) {
         LOGGER.debug("findByIdIn({})", ids);
         if (ids == null || ids.isEmpty()) {
-            return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+            return Flux.empty();
         }
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findByIdIn_migrated(ids))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findByIdIn_migrated(ids))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux())));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -269,7 +269,7 @@ return app;
 }
 @Override
     public Mono<Long> countByDomain_migrated(String domain) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.countByDomain_migrated(domain)));
+        return applicationRepository.countByDomain_migrated(domain);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientId_migrated(domain, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -281,12 +281,12 @@ return app;
 @Override
     public Mono<Application> findByDomainAndClientId_migrated(String domain, String clientId) {
         LOGGER.debug("findByDomainAndClientId({}, {})", domain, clientId);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(dbClient.execute(databaseDialectHelper.buildFindApplicationByDomainAndClient())
+        return dbClient.execute(databaseDialectHelper.buildFindApplicationByDomainAndClient())
                 .bind("domain", domain)
                 .bind("clientId", clientId)
                 .as(JdbcApplication.class)
                 .fetch()
-                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux()))).next()));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(app))).flux()))).next();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -298,7 +298,7 @@ return app;
 @Override
     public Mono<Application> findById_migrated(String id) {
         LOGGER.debug("findById({}", id);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(applicationRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(z))))));
+        return RxJava2Adapter.maybeToMono(applicationRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(completeApplication_migrated(z))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -333,7 +333,7 @@ return app;
 
         insertAction = persistChildEntities(insertAction, item);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
+        return insertAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -369,7 +369,7 @@ return app;
         updateAction = deleteChildEntities(item.getId()).then(updateAction);
         updateAction = persistChildEntities(updateAction, item);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
+        return updateAction.as(trx::transactional).flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -383,7 +383,7 @@ return app;
         LOGGER.debug("delete({})", id);
         TransactionalOperator trx = TransactionalOperator.create(tm);
         Mono<Integer> delete = dbClient.delete().from(JdbcApplication.class).matching(from(where("id").is(id))).fetch().rowsUpdated();
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(delete.then(deleteChildEntities(id)).as(trx::transactional).then(RxJava2Adapter.completableToMono(applicationRepository.deleteById(id)))));
+        return delete.then(deleteChildEntities(id)).as(trx::transactional).then(RxJava2Adapter.completableToMono(applicationRepository.deleteById(id)));
     }
 
     private Mono<Integer> deleteChildEntities(String appId) {

@@ -80,7 +80,7 @@ public class EnvironmentCommandHandlerTest {
                         && newEnvironment.getDescription().equals(environmentPayload.getDescription())
                         && newEnvironment.getName().equals(environmentPayload.getName())
                         && newEnvironment.getDomainRestrictions().equals(environmentPayload.getDomainRestrictions())),
-                isNull())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Environment()))));
+                isNull())).thenReturn(Mono.just(new Environment()));
 
         TestObserver<EnvironmentReply> obs = cut.handle(command).test();
 
@@ -100,7 +100,7 @@ public class EnvironmentCommandHandlerTest {
         environmentPayload.setName("Environment name");
         environmentPayload.setDomainRestrictions(Arrays.asList("domain.restriction1.io", "domain.restriction2.io"));
 
-        when(environmentService.createOrUpdate_migrated(eq("orga#1"), eq("env#1"), any(NewEnvironment.class), isNull())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalException()))));
+        when(environmentService.createOrUpdate_migrated(eq("orga#1"), eq("env#1"), any(NewEnvironment.class), isNull())).thenReturn(Mono.error(new TechnicalException()));
 
         TestObserver<EnvironmentReply> obs = cut.handle(command).test();
 

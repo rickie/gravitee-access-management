@@ -64,8 +64,8 @@ public class IdentityProvidersResourceTest extends JerseySpringTest {
         mockIdentityProvider2.setReferenceType(ReferenceType.DOMAIN);
         mockIdentityProvider2.setReferenceId(domainId);
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(mockIdentityProvider, mockIdentityProvider2)))).when(identityProviderService).findByDomain_migrated(domainId);
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Flux.just(mockIdentityProvider, mockIdentityProvider2)).when(identityProviderService).findByDomain_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("identities").request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -77,7 +77,7 @@ public class IdentityProvidersResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetIdentityProviders_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("error occurs"))))).when(identityProviderService).findByDomain_migrated(domainId);
+        doReturn(Flux.error(new TechnicalManagementException("error occurs"))).when(identityProviderService).findByDomain_migrated(domainId);
 
         final Response response = target("domains").path(domainId).path("identities").request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -100,8 +100,8 @@ public class IdentityProvidersResourceTest extends JerseySpringTest {
         identityProvider.setName("identityProvider-name");
         identityProvider.setDomainWhitelist(List.of());
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(identityProvider)))).when(identityProviderService).create_migrated(eq(domainId), any(), any());
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(identityProvider)).when(identityProviderService).create_migrated(eq(domainId), any(), any());
 
         final Response response = target("domains")
                 .path(domainId)

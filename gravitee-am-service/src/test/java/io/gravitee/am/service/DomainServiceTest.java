@@ -202,7 +202,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(domainRepository.findById_migrated("my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Domain()))));
+        when(domainRepository.findById_migrated("my-domain")).thenReturn(Mono.just(new Domain()));
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(domainService.findById_migrated("my-domain")).test();
 
         testObserver.awaitTerminalEvent();
@@ -213,7 +213,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindById_notExistingDomain() {
-        when(domainRepository.findById_migrated("my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(domainRepository.findById_migrated("my-domain")).thenReturn(Mono.empty());
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(domainService.findById_migrated("my-domain")).test();
         testObserver.awaitTerminalEvent();
 
@@ -222,7 +222,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(domainRepository.findById_migrated("my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(domainRepository.findById_migrated("my-domain")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToMaybe(domainService.findById_migrated("my-domain")).subscribe(testObserver);
 
@@ -232,7 +232,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindAll() {
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Domain()))));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.just(new Domain()));
         TestObserver<List<Domain>> testObserver = RxJava2Adapter.monoToSingle(domainService.findAll_migrated()).test();
         testObserver.awaitTerminalEvent();
 
@@ -243,7 +243,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindAll_technicalException() {
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = new TestObserver<>();
         RxJava2Adapter.monoToSingle(domainService.findAll_migrated()).subscribe(testObserver);
@@ -254,7 +254,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindByIdsIn() {
-        when(domainRepository.findByIdIn_migrated(Arrays.asList("1", "2"))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Domain()))));
+        when(domainRepository.findByIdIn_migrated(Arrays.asList("1", "2"))).thenReturn(Flux.just(new Domain()));
         TestSubscriber<Domain> testSubscriber = RxJava2Adapter.fluxToFlowable(domainService.findByIdIn_migrated(Arrays.asList("1", "2"))).test();
         testSubscriber.awaitTerminalEvent();
 
@@ -265,7 +265,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldFindByIdsIn_technicalException() {
-        when(domainRepository.findByIdIn_migrated(Arrays.asList("1", "2"))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(domainRepository.findByIdIn_migrated(Arrays.asList("1", "2"))).thenReturn(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestSubscriber testSubscriber = RxJava2Adapter.fluxToFlowable(domainService.findByIdIn_migrated(Arrays.asList("1", "2"))).test();
 
@@ -277,19 +277,19 @@ public class DomainServiceTest {
     public void shouldCreate() {
         NewDomain newDomain = Mockito.mock(NewDomain.class);
         when(newDomain.getName()).thenReturn("my-domain");
-        when(environmentService.findById_migrated(ENVIRONMENT_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Environment()))));
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(environmentService.findById_migrated(ENVIRONMENT_ID)).thenReturn(Mono.just(new Environment()));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.empty());
         Domain domain = new Domain();
         domain.setReferenceType(ReferenceType.ENVIRONMENT);
         domain.setReferenceId(ENVIRONMENT_ID);
         domain.setId("domain-id");
-        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(domainRepository.create_migrated(any(Domain.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(domain))));
-        when(scopeService.create_migrated(anyString(), any(NewSystemScope.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
-        when(certificateService.create_migrated(eq(domain.getId()))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Certificate()))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
-        when(membershipService.addOrUpdate_migrated(eq(ORGANIZATION_ID), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Membership()))));
-        when(roleService.findSystemRole_migrated(SystemRole.DOMAIN_PRIMARY_OWNER, ReferenceType.DOMAIN)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Role()))));
+        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(Mono.empty());
+        when(domainRepository.create_migrated(any(Domain.class))).thenReturn(Mono.just(domain));
+        when(scopeService.create_migrated(anyString(), any(NewSystemScope.class))).thenReturn(Mono.just(new Scope()));
+        when(certificateService.create_migrated(eq(domain.getId()))).thenReturn(Mono.just(new Certificate()));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
+        when(membershipService.addOrUpdate_migrated(eq(ORGANIZATION_ID), any())).thenReturn(Mono.just(new Membership()));
+        when(roleService.findSystemRole_migrated(SystemRole.DOMAIN_PRIMARY_OWNER, ReferenceType.DOMAIN)).thenReturn(Mono.just(new Role()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(domainService.create_migrated(ORGANIZATION_ID, ENVIRONMENT_ID, newDomain, new DefaultUser("username"))).test();
         testObserver.awaitTerminalEvent();
@@ -309,7 +309,7 @@ public class DomainServiceTest {
     public void shouldCreate_technicalException() {
         NewDomain newDomain = Mockito.mock(NewDomain.class);
         when(newDomain.getName()).thenReturn("my-domain");
-        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver<Domain> testObserver = new TestObserver<>();
         RxJava2Adapter.monoToSingle(domainService.create_migrated(ORGANIZATION_ID, ENVIRONMENT_ID, newDomain)).subscribe(testObserver);
@@ -324,10 +324,10 @@ public class DomainServiceTest {
     public void shouldCreate2_technicalException() {
         NewDomain newDomain = Mockito.mock(NewDomain.class);
         when(newDomain.getName()).thenReturn("my-domain");
-        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(environmentService.findById_migrated(ENVIRONMENT_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Environment()))));
+        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(Mono.empty());
+        when(environmentService.findById_migrated(ENVIRONMENT_ID)).thenReturn(Mono.just(new Environment()));
         when((RxJava2Adapter.fluxToFlowable(domainRepository.findAll_migrated()))).thenReturn(RxJava2Adapter.fluxToFlowable(Flux.empty()));
-        when(domainRepository.create_migrated(any(Domain.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(domainRepository.create_migrated(any(Domain.class))).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver<Domain> testObserver = new TestObserver<>();
         RxJava2Adapter.monoToSingle(domainService.create_migrated(ORGANIZATION_ID, ENVIRONMENT_ID, newDomain)).subscribe(testObserver);
@@ -342,7 +342,7 @@ public class DomainServiceTest {
     public void shouldCreate_existingDomain() {
         NewDomain newDomain = Mockito.mock(NewDomain.class);
         when(newDomain.getName()).thenReturn("my-domain");
-        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Domain()))));
+        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, "my-domain")).thenReturn(Mono.just(new Domain()));
 
         TestObserver<Domain> testObserver = new TestObserver<>();
         RxJava2Adapter.monoToSingle(domainService.create_migrated(ORGANIZATION_ID, ENVIRONMENT_ID, newDomain)).subscribe(testObserver);
@@ -356,7 +356,7 @@ public class DomainServiceTest {
     @Test
     public void shouldPatch_domainNotFound() {
         PatchDomain patchDomain = Mockito.mock(PatchDomain.class);
-        when(domainRepository.findById_migrated("my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(domainRepository.findById_migrated("my-domain")).thenReturn(Mono.empty());
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(domainService.patch_migrated("my-patchDomain", patchDomain)).test();
         testObserver.assertError(DomainNotFoundException.class);
@@ -377,12 +377,12 @@ public class DomainServiceTest {
         domain.setName("my-domain");
         domain.setPath("/test");
         when(patchDomain.patch(any())).thenReturn(domain);
-        when(domainRepository.findById_migrated("my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(environmentService.findById_migrated(ENVIRONMENT_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Environment()))));
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(domainRepository.update_migrated(any(Domain.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(domain))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(domainRepository.findById_migrated("my-domain")).thenReturn(Mono.just(domain));
+        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(Mono.just(domain));
+        when(environmentService.findById_migrated(ENVIRONMENT_ID)).thenReturn(Mono.just(new Environment()));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.empty());
+        when(domainRepository.update_migrated(any(Domain.class))).thenReturn(Mono.just(domain));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(domainService.patch_migrated("my-patchDomain", patchDomain)).test();
         testObserver.awaitTerminalEvent();
@@ -409,12 +409,12 @@ public class DomainServiceTest {
         accountSettings.setResetPasswordCustomForm(false);
         domain.setAccountSettings(accountSettings);
         when(patchDomain.patch(any())).thenReturn(domain);
-        when(domainRepository.findById_migrated("my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(environmentService.findById_migrated(ENVIRONMENT_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Environment()))));
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(domainRepository.update_migrated(any(Domain.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(domain))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(domainRepository.findById_migrated("my-domain")).thenReturn(Mono.just(domain));
+        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(Mono.just(domain));
+        when(environmentService.findById_migrated(ENVIRONMENT_ID)).thenReturn(Mono.just(new Environment()));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.empty());
+        when(domainRepository.update_migrated(any(Domain.class))).thenReturn(Mono.just(domain));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(domainService.patch_migrated("my-patchDomain", patchDomain)).test();
         testObserver.awaitTerminalEvent();
@@ -444,12 +444,12 @@ public class DomainServiceTest {
         accountSettings.setResetPasswordCustomForm(true);
         domain.setAccountSettings(accountSettings);
         when(patchDomain.patch(any())).thenReturn(domain);
-        when(domainRepository.findById_migrated("my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(environmentService.findById_migrated(ENVIRONMENT_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Environment()))));
-        when(domainRepository.findAll_migrated()).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(domainRepository.update_migrated(any(Domain.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(domain))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(domainRepository.findById_migrated("my-domain")).thenReturn(Mono.just(domain));
+        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(Mono.just(domain));
+        when(environmentService.findById_migrated(ENVIRONMENT_ID)).thenReturn(Mono.just(new Environment()));
+        when(domainRepository.findAll_migrated()).thenReturn(Flux.empty());
+        when(domainRepository.update_migrated(any(Domain.class))).thenReturn(Mono.just(domain));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(domainService.patch_migrated("my-patchDomain", patchDomain)).test();
         testObserver.awaitTerminalEvent();
@@ -479,7 +479,7 @@ public class DomainServiceTest {
         accountSettings.setResetPasswordCustomForm(true);
         domain.setAccountSettings(accountSettings);
         when(patchDomain.patch(any())).thenReturn(domain);
-        when(domainRepository.findById_migrated("my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
+        when(domainRepository.findById_migrated("my-domain")).thenReturn(Mono.just(domain));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(domainService.patch_migrated("my-patchDomain", patchDomain)).test();
         testObserver.awaitTerminalEvent();
@@ -513,8 +513,8 @@ public class DomainServiceTest {
         otherDomain.setReferenceId(ENVIRONMENT_ID);
 
         when(patchDomain.patch(any())).thenReturn(domain);
-        when(domainRepository.findById_migrated("my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(otherDomain))));
+        when(domainRepository.findById_migrated("my-domain")).thenReturn(Mono.just(domain));
+        when(domainRepository.findByHrid_migrated(ReferenceType.ENVIRONMENT, ENVIRONMENT_ID, domain.getHrid())).thenReturn(Mono.just(otherDomain));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(domainService.patch_migrated("my-patchDomain", patchDomain)).test();
         testObserver.assertError(DomainAlreadyExistsException.class);
@@ -528,7 +528,7 @@ public class DomainServiceTest {
     @Test
     public void shouldPatch_technicalException() {
         PatchDomain patchDomain = Mockito.mock(PatchDomain.class);
-        when(domainRepository.findById_migrated("my-domain")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(domainRepository.findById_migrated("my-domain")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(domainService.patch_migrated("my-patchDomain", patchDomain)).test();
         testObserver.assertError(TechnicalManagementException.class);
@@ -560,56 +560,56 @@ public class DomainServiceTest {
         alertNotifier.setReferenceType(ReferenceType.DOMAIN);
         alertNotifier.setReferenceId(DOMAIN_ID);
 
-        when(domainRepository.findById_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(domainRepository.delete_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(applicationService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(mockApplications))));
-        when(applicationService.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(domainRepository.findById_migrated(DOMAIN_ID)).thenReturn(Mono.just(domain));
+        when(domainRepository.delete_migrated(DOMAIN_ID)).thenReturn(Mono.empty());
+        when(applicationService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Mono.just(mockApplications));
+        when(applicationService.delete_migrated(anyString())).thenReturn(Mono.empty());
         when(certificate.getId()).thenReturn(CERTIFICATE_ID);
-        when(certificateService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(certificate))));
-        when(certificateService.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(certificateService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.just(certificate));
+        when(certificateService.delete_migrated(anyString())).thenReturn(Mono.empty());
         when(identityProvider.getId()).thenReturn(IDP_ID);
-        when(identityProviderService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(identityProvider))));
-        when(identityProviderService.delete_migrated(eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(identityProviderService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.just(identityProvider));
+        when(identityProviderService.delete_migrated(eq(DOMAIN_ID), anyString())).thenReturn(Mono.empty());
         when(extensionGrant.getId()).thenReturn(EXTENSION_GRANT_ID);
-        when(extensionGrantService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(extensionGrant))));
-        when(extensionGrantService.delete_migrated(eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(extensionGrantService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.just(extensionGrant));
+        when(extensionGrantService.delete_migrated(eq(DOMAIN_ID), anyString())).thenReturn(Mono.empty());
         when(role.getId()).thenReturn(ROLE_ID);
-        when(roleService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(role)))));
-        when(roleService.delete_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(roleService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Mono.just(Collections.singleton(role)));
+        when(roleService.delete_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), anyString())).thenReturn(Mono.empty());
         when(user.getId()).thenReturn(USER_ID);
-        when(userService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(user))));
-        when(userService.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(userService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.just(user));
+        when(userService.delete_migrated(anyString())).thenReturn(Mono.empty());
         when(scope.getId()).thenReturn(SCOPE_ID);
-        when(scopeService.findByDomain_migrated(DOMAIN_ID, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(scope),0,1)))));
-        when(scopeService.delete_migrated(SCOPE_ID, true)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(scopeService.findByDomain_migrated(DOMAIN_ID, 0, Integer.MAX_VALUE)).thenReturn(Mono.just(new Page<>(Collections.singleton(scope),0,1)));
+        when(scopeService.delete_migrated(SCOPE_ID, true)).thenReturn(Mono.empty());
         when(group.getId()).thenReturn(GROUP_ID);
-        when(groupService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(group))));
-        when(groupService.delete_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(groupService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.just(group));
+        when(groupService.delete_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), anyString())).thenReturn(Mono.empty());
         when(form.getId()).thenReturn(FORM_ID);
-        when(formService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(form))));
-        when(formService.delete_migrated(eq(DOMAIN_ID), anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(formService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.just(form));
+        when(formService.delete_migrated(eq(DOMAIN_ID), anyString())).thenReturn(Mono.empty());
         when(email.getId()).thenReturn(EMAIL_ID);
-        when(emailTemplateService.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(email))));
-        when(emailTemplateService.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(emailTemplateService.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(Flux.just(email));
+        when(emailTemplateService.delete_migrated(anyString())).thenReturn(Mono.empty());
         when(reporter.getId()).thenReturn(REPORTER_ID);
-        when(reporterService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(reporter))));
-        when(reporterService.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(reporterService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.just(reporter));
+        when(reporterService.delete_migrated(anyString())).thenReturn(Mono.empty());
         when(flow.getId()).thenReturn(FLOW_ID);
-        when(flowService.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(flow))));
-        when(flowService.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(flowService.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(Flux.just(flow));
+        when(flowService.delete_migrated(anyString())).thenReturn(Mono.empty());
         when(membership.getId()).thenReturn(MEMBERSHIP_ID);
-        when(membershipService.findByReference_migrated(DOMAIN_ID, ReferenceType.DOMAIN)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(membership))));
-        when(membershipService.delete_migrated(anyString())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(membershipService.findByReference_migrated(DOMAIN_ID, ReferenceType.DOMAIN)).thenReturn(Flux.just(membership));
+        when(membershipService.delete_migrated(anyString())).thenReturn(Mono.empty());
         when(factor.getId()).thenReturn(FACTOR_ID);
-        when(factorService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(factor))));
-        when(factorService.delete_migrated(DOMAIN_ID, FACTOR_ID)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(resourceService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new HashSet<>(Collections.singletonList(resource))))));
-        when(resourceService.delete_migrated(resource)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(alertTriggerService.findByDomainAndCriteria_migrated(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(alertTrigger))));
-        when(alertTriggerService.delete_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(ALERT_TRIGGER_ID), isNull())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(alertNotifierService.findByDomainAndCriteria_migrated(DOMAIN_ID, new AlertNotifierCriteria())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(alertNotifier))));
-        when(alertNotifierService.delete_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(ALERT_NOTIFIER_ID), isNull())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(factorService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.just(factor));
+        when(factorService.delete_migrated(DOMAIN_ID, FACTOR_ID)).thenReturn(Mono.empty());
+        when(resourceService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Mono.just(new HashSet<>(Collections.singletonList(resource))));
+        when(resourceService.delete_migrated(resource)).thenReturn(Mono.empty());
+        when(alertTriggerService.findByDomainAndCriteria_migrated(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(Flux.just(alertTrigger));
+        when(alertTriggerService.delete_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(ALERT_TRIGGER_ID), isNull())).thenReturn(Mono.empty());
+        when(alertNotifierService.findByDomainAndCriteria_migrated(DOMAIN_ID, new AlertNotifierCriteria())).thenReturn(Flux.just(alertNotifier));
+        when(alertNotifierService.delete_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN_ID), eq(ALERT_NOTIFIER_ID), isNull())).thenReturn(Mono.empty());
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(domainService.delete_migrated(DOMAIN_ID)).test();
         testObserver.awaitTerminalEvent();
@@ -636,26 +636,26 @@ public class DomainServiceTest {
 
     @Test
     public void shouldDeleteWithoutRelatedData() {
-        when(domainRepository.findById_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(domainRepository.delete_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(applicationService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet()))));
-        when(certificateService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(identityProviderService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(extensionGrantService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(roleService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet()))));
-        when(userService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(scopeService.findByDomain_migrated(DOMAIN_ID, 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptySet(),0,1)))));
-        when(groupService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(formService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(emailTemplateService.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(reporterService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(flowService.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(membershipService.findByReference_migrated(DOMAIN_ID, ReferenceType.DOMAIN)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(factorService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(resourceService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet()))));
-        when(alertTriggerService.findByDomainAndCriteria_migrated(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(alertNotifierService.findByDomainAndCriteria_migrated(DOMAIN_ID, new AlertNotifierCriteria())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(domainRepository.findById_migrated(DOMAIN_ID)).thenReturn(Mono.just(domain));
+        when(domainRepository.delete_migrated(DOMAIN_ID)).thenReturn(Mono.empty());
+        when(applicationService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Mono.just(Collections.emptySet()));
+        when(certificateService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.empty());
+        when(identityProviderService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.empty());
+        when(extensionGrantService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.empty());
+        when(roleService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Mono.just(Collections.emptySet()));
+        when(userService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.empty());
+        when(scopeService.findByDomain_migrated(DOMAIN_ID, 0, Integer.MAX_VALUE)).thenReturn(Mono.just(new Page<>(Collections.emptySet(),0,1)));
+        when(groupService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.empty());
+        when(formService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.empty());
+        when(emailTemplateService.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(Flux.empty());
+        when(reporterService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.empty());
+        when(flowService.findAll_migrated(ReferenceType.DOMAIN, DOMAIN_ID)).thenReturn(Flux.empty());
+        when(membershipService.findByReference_migrated(DOMAIN_ID, ReferenceType.DOMAIN)).thenReturn(Flux.empty());
+        when(factorService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Flux.empty());
+        when(resourceService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Mono.just(Collections.emptySet()));
+        when(alertTriggerService.findByDomainAndCriteria_migrated(DOMAIN_ID, new AlertTriggerCriteria())).thenReturn(Flux.empty());
+        when(alertNotifierService.findByDomainAndCriteria_migrated(DOMAIN_ID, new AlertNotifierCriteria())).thenReturn(Flux.empty());
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(domainService.delete_migrated(DOMAIN_ID)).test();
         testObserver.awaitTerminalEvent();
@@ -683,7 +683,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldNotDeleteBecauseDoesntExist() {
-        when(domainRepository.findById_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(domainRepository.findById_migrated(DOMAIN_ID)).thenReturn(Mono.empty());
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(domainService.delete_migrated(DOMAIN_ID)).test();
         testObserver.assertError(DomainNotFoundException.class);
@@ -692,7 +692,7 @@ public class DomainServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(domainRepository.findById_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(domainRepository.findById_migrated(DOMAIN_ID)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(domainService.delete_migrated(DOMAIN_ID)).test();
 
@@ -702,8 +702,8 @@ public class DomainServiceTest {
 
     @Test
     public void shouldDelete2_technicalException() {
-        when(domainRepository.findById_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(domain))));
-        when(applicationService.findByDomain_migrated(DOMAIN_ID)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(domainRepository.findById_migrated(DOMAIN_ID)).thenReturn(Mono.just(domain));
+        when(applicationService.findByDomain_migrated(DOMAIN_ID)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(domainService.delete_migrated(DOMAIN_ID)).test();
 
@@ -781,7 +781,7 @@ public class DomainServiceTest {
         final DomainCriteria criteria = new DomainCriteria();
         final Domain domain = new Domain();
 
-        when(domainRepository.findAllByCriteria_migrated(eq(criteria))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(domain))));
+        when(domainRepository.findAllByCriteria_migrated(eq(criteria))).thenReturn(Flux.just(domain));
 
         final TestSubscriber<Domain> obs = RxJava2Adapter.fluxToFlowable(domainService.findAllByCriteria_migrated(criteria)).test();
 

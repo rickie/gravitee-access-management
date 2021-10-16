@@ -63,11 +63,11 @@ public class JWKServiceImpl implements JWKService {
 }
 @Override
     public Mono<JWKSet> getKeys_migrated() {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Flux.fromIterable(certificateManager.providers()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(certificateProvider -> RxJava2Adapter.fluxToFlowable(certificateProvider.getProvider().keys_migrated()))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
+        return Flux.fromIterable(certificateManager.providers()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(certificateProvider -> RxJava2Adapter.fluxToFlowable(certificateProvider.getProvider().keys_migrated()))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
                     JWKSet jwkSet = new JWKSet();
                     jwkSet.setKeys(keys);
                     return jwkSet;
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getKeys_migrated(client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -79,12 +79,12 @@ public class JWKServiceImpl implements JWKService {
 @Override
     public Mono<JWKSet> getKeys_migrated(Client client) {
         if(client.getJwks()!=null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client.getJwks())));
+            return Mono.just(client.getJwks());
         }
         else if(client.getJwksUri()!=null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getKeys_migrated(client.getJwksUri())));
+            return getKeys_migrated(client.getJwksUri());
         }
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        return Mono.empty();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getDomainPrivateKeys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -95,11 +95,11 @@ public class JWKServiceImpl implements JWKService {
 }
 @Override
     public Mono<JWKSet> getDomainPrivateKeys_migrated() {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Flux.fromIterable(certificateManager.providers()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(provider -> RxJava2Adapter.fluxToFlowable(provider.getProvider().privateKey_migrated()))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
+        return Flux.fromIterable(certificateManager.providers()).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(provider -> RxJava2Adapter.fluxToFlowable(provider.getProvider().privateKey_migrated()))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(keys -> {
                     JWKSet jwkSet = new JWKSet();
                     jwkSet.setKeys(keys);
                     return jwkSet;
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getKeys_migrated(jwksUri))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -121,10 +121,10 @@ public class JWKServiceImpl implements JWKService {
                     .onErrorResumeNext(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientMetadataException("Unable to parse jwks from : " + jwksUri)))));
         }
         catch(IllegalArgumentException | URISyntaxException ex) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientMetadataException(jwksUri+" is not valid."))));
+            return Mono.error(new InvalidClientMetadataException(jwksUri+" is not valid."));
         }
         catch(InvalidClientMetadataException ex) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(ex)));
+            return Mono.error(ex);
         }
     }
 
@@ -138,17 +138,17 @@ public class JWKServiceImpl implements JWKService {
     public Mono<JWK> getKey_migrated(JWKSet jwkSet, String kid) {
 
         if(jwkSet==null || jwkSet.getKeys().isEmpty() || kid==null || kid.trim().isEmpty()) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
 
         //Else return matching key
         Optional<JWK> jwk = jwkSet.getKeys().stream().filter(key -> kid.equals(key.getKid())).findFirst();
         if(jwk.isPresent()) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(jwk.get())));
+            return Mono.just(jwk.get());
         }
 
         //No matching key found in JWKs...
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        return Mono.empty();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.filter_migrated(jwkSet, filter))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -160,7 +160,7 @@ public class JWKServiceImpl implements JWKService {
 @Override
     public Mono<JWK> filter_migrated(JWKSet jwkSet, Predicate<JWK> filter) {
         if(jwkSet==null || jwkSet.getKeys()==null || jwkSet.getKeys().isEmpty()) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
 
         Optional<JWK> jwk = jwkSet.getKeys()
@@ -169,8 +169,8 @@ public class JWKServiceImpl implements JWKService {
                 .findFirst();
 
         if(jwk.isPresent()) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(jwk.get())));
+            return Mono.just(jwk.get());
         }
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        return Mono.empty();
     }
 }

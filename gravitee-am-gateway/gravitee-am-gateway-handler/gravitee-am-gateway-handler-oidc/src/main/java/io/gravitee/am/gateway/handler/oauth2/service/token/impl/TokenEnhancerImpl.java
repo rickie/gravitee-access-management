@@ -53,9 +53,9 @@ public class TokenEnhancerImpl implements TokenEnhancer {
     public Mono<Token> enhance_migrated(Token accessToken, OAuth2Request oAuth2Request, Client client, User endUser, ExecutionContext executionContext) {
         // enhance token with ID token
         if (oAuth2Request.shouldGenerateIDToken()) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(enhanceIDToken_migrated(accessToken, client, endUser, oAuth2Request, executionContext)));
+            return enhanceIDToken_migrated(accessToken, client, endUser, oAuth2Request, executionContext);
         } else {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(accessToken)));
+            return Mono.just(accessToken);
         }
     }
 
@@ -68,11 +68,11 @@ private Mono<Token> enhanceIDToken_migrated(Token accessToken, Client client, Us
         if (oAuth2Request.isSupportAtHashValue()) {
             oAuth2Request.getContext().put(Claims.at_hash, accessToken.getValue());
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, user, executionContext))).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<Token>>)idToken -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, user, executionContext))).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<String, Single<Token>>)idToken -> {
                     Map<String, Object> additionalInformation = new HashMap<>(accessToken.getAdditionalInformation());
                     additionalInformation.put(ResponseType.ID_TOKEN, idToken);
                     accessToken.setAdditionalInformation(additionalInformation);
                     return RxJava2Adapter.monoToSingle(Mono.just(accessToken));
-                }).apply(v)))));
+                }).apply(v)));
     }
 }

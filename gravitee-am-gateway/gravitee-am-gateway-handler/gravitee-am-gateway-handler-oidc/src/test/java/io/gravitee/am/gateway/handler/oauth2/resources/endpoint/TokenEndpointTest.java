@@ -190,7 +190,7 @@ public class TokenEndpointTest extends RxWebTestBase {
         // Jackson is unable to generate a JSON from a mocked interface.
         Token accessToken = new AccessToken("my-token");
 
-        when(tokenGranter.grant_migrated(any(TokenRequest.class), any(Client.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(accessToken))));
+        when(tokenGranter.grant_migrated(any(TokenRequest.class), any(Client.class))).thenReturn(Mono.just(accessToken));
 
         testRequest(
                 HttpMethod.POST, "/oauth/token?client_id=my-client&client_secret=my-secret&grant_type=client_credentials",
@@ -213,7 +213,7 @@ public class TokenEndpointTest extends RxWebTestBase {
             }
         });
 
-        when(tokenGranter.grant_migrated(any(TokenRequest.class), any(Client.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new Exception()))));
+        when(tokenGranter.grant_migrated(any(TokenRequest.class), any(Client.class))).thenReturn(Mono.error(new Exception()));
 
         testRequest(
                 HttpMethod.POST, "/oauth/token?client_id=my-client&client_secret=my-secret&grant_type=client_credentials",
@@ -250,7 +250,7 @@ public class TokenEndpointTest extends RxWebTestBase {
             routingContext.next();
         });
 
-        when(tokenGranter.grant_migrated(any(TokenRequest.class), any(Client.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(UmaException.requestDeniedBuilder().build()))));
+        when(tokenGranter.grant_migrated(any(TokenRequest.class), any(Client.class))).thenReturn(Mono.error(UmaException.requestDeniedBuilder().build()));
 
         testRequest(
                 HttpMethod.POST, "/oauth/token?client_id=my-client&client_secret=my-secret&grant_type=urn:ietf:params:oauth:grant-type:uma-ticket",

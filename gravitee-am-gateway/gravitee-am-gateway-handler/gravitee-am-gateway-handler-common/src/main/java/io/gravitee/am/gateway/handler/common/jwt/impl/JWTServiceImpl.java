@@ -60,7 +60,7 @@ public class JWTServiceImpl implements JWTService {
 @Override
     public Mono<String> encode_migrated(JWT jwt, CertificateProvider certificateProvider) {
         Objects.requireNonNull(certificateProvider, "Certificate provider is required to sign JWT");
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(sign_migrated(certificateProvider, jwt)));
+        return sign_migrated(certificateProvider, jwt);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encode_migrated(jwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -71,7 +71,7 @@ public class JWTServiceImpl implements JWTService {
 }
 @Override
     public Mono<String> encode_migrated(JWT jwt, Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateManager.get_migrated(client.getCertificate()))).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(certificateManager.get_migrated(client.getCertificate()).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
                 .flatMapSingle(certificateProvider -> RxJava2Adapter.monoToSingle(encode_migrated(jwt, certificateProvider))));
     }
 
@@ -85,10 +85,10 @@ public class JWTServiceImpl implements JWTService {
     public Mono<String> encodeUserinfo_migrated(JWT jwt, Client client) {
         //Userinfo may not be signed but only encrypted
         if(client.getUserinfoSignedResponseAlg()==null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(encode_migrated(jwt, certificateManager.noneAlgorithmCertificateProvider())));
+            return encode_migrated(jwt, certificateManager.noneAlgorithmCertificateProvider());
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateManager.findByAlgorithm_migrated(client.getUserinfoSignedResponseAlg()))).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateManager.get_migrated(client.getCertificate())))).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(certificateManager.findByAlgorithm_migrated(client.getUserinfoSignedResponseAlg()).switchIfEmpty(certificateManager.get_migrated(client.getCertificate())).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
                 .flatMapSingle(certificateProvider -> RxJava2Adapter.monoToSingle(encode_migrated(jwt, certificateProvider))));
     }
 
@@ -110,7 +110,7 @@ public class JWTServiceImpl implements JWTService {
             signedResponseAlg = JWSAlgorithm.RS256.getName();
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateManager.findByAlgorithm_migrated(signedResponseAlg))).switchIfEmpty(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateManager.get_migrated(client.getCertificate())))).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(certificateManager.findByAlgorithm_migrated(signedResponseAlg).switchIfEmpty(certificateManager.get_migrated(client.getCertificate())).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
                 .flatMapSingle(certificateProvider -> RxJava2Adapter.monoToSingle(encode_migrated(jwt, certificateProvider))));
     }
 
@@ -122,7 +122,7 @@ public class JWTServiceImpl implements JWTService {
 }
 @Override
     public Mono<JWT> decodeAndVerify_migrated(String jwt, Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateManager.get_migrated(client.getCertificate()))).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(certificateManager.get_migrated(client.getCertificate()).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
                 .flatMapSingle(certificateProvider -> RxJava2Adapter.monoToSingle(decodeAndVerify_migrated(jwt, certificateProvider))));
     }
 
@@ -134,7 +134,7 @@ public class JWTServiceImpl implements JWTService {
 }
 @Override
     public Mono<JWT> decodeAndVerify_migrated(String jwt, CertificateProvider certificateProvider) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(decode_migrated(certificateProvider, jwt))).map(RxJavaReactorMigrationUtil.toJdkFunction(JWT::new))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(decode_migrated(certificateProvider, jwt))).map(RxJavaReactorMigrationUtil.toJdkFunction(JWT::new));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decode_migrated(jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

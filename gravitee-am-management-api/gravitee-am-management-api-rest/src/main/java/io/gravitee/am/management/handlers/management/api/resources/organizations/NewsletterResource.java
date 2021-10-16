@@ -76,7 +76,7 @@ public class NewsletterResource extends AbstractResource {
         // Get the organization the current user is logged on.
         String organizationId = (String) authenticatedUser.getAdditionalInformation().getOrDefault(Claims.organization, Organization.DEFAULT);
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, authenticatedUser.getId()))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
+        RxJava2Adapter.monoToSingle(userService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, authenticatedUser.getId()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
                     user.setEmail(emailValue.getEmail());
                     user.setNewsletter(true);
                     return RxJava2Adapter.monoToSingle(userService.update_migrated(user));

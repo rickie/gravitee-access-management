@@ -83,7 +83,7 @@ public class GroupServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(groupRepository.findById_migrated("my-group")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Group()))));
+        when(groupRepository.findById_migrated("my-group")).thenReturn(Mono.just(new Group()));
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(groupService.findById_migrated("my-group")).test();
 
         testObserver.awaitTerminalEvent();
@@ -94,7 +94,7 @@ public class GroupServiceTest {
 
     @Test
     public void shouldFindById_groupNotFound() {
-        when(groupRepository.findById_migrated("my-group")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(groupRepository.findById_migrated("my-group")).thenReturn(Mono.empty());
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(groupService.findById_migrated("my-group")).test();
         testObserver.awaitTerminalEvent();
 
@@ -103,7 +103,7 @@ public class GroupServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(groupRepository.findById_migrated("my-group")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(groupRepository.findById_migrated("my-group")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToMaybe(groupService.findById_migrated("my-group")).subscribe(testObserver);
 
@@ -114,8 +114,8 @@ public class GroupServiceTest {
 
     @Test
     public void shouldFindByDomain() {
-        when(groupRepository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Group()))));
-        TestObserver<List<Group>> testObserver = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(groupService.findByDomain_migrated(DOMAIN))).collectList()).test();
+        when(groupRepository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flux.just(new Group()));
+        TestObserver<List<Group>> testObserver = RxJava2Adapter.monoToSingle(groupService.findByDomain_migrated(DOMAIN).collectList()).test();
         testObserver.awaitTerminalEvent();
 
         testObserver.assertComplete();
@@ -125,7 +125,7 @@ public class GroupServiceTest {
 
     @Test
     public void shouldFindByDomain_technicalException() {
-        when(groupRepository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(groupRepository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN)).thenReturn(Flux.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestSubscriber testSubscriber = RxJava2Adapter.fluxToFlowable(groupService.findByDomain_migrated(DOMAIN)).test();
 
@@ -136,7 +136,7 @@ public class GroupServiceTest {
     @Test
     public void shouldFindByDomainPagination() {
         Page pagedGroups = new Page(Collections.singleton(new Group()), 1, 1);
-        when(groupRepository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN, 1, 1)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(pagedGroups))));
+        when(groupRepository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN, 1, 1)).thenReturn(Mono.just(pagedGroups));
         TestObserver<Page<Group>> testObserver = RxJava2Adapter.monoToSingle(groupService.findByDomain_migrated(DOMAIN, 1, 1)).test();
         testObserver.awaitTerminalEvent();
 
@@ -147,7 +147,7 @@ public class GroupServiceTest {
 
     @Test
     public void shouldFindByDomainPagination_technicalException() {
-        when(groupRepository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN, 1, 1)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(groupRepository.findAll_migrated(ReferenceType.DOMAIN, DOMAIN, 1, 1)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = new TestObserver<>();
         RxJava2Adapter.monoToSingle(groupService.findByDomain_migrated(DOMAIN, 1, 1)).subscribe(testObserver);
@@ -164,9 +164,9 @@ public class GroupServiceTest {
         group.setReferenceId(DOMAIN);
 
         when(newGroup.getName()).thenReturn("name");
-        when(groupRepository.findByName_migrated(ReferenceType.DOMAIN, DOMAIN, newGroup.getName())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(groupRepository.create_migrated(any(Group.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(group))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(groupRepository.findByName_migrated(ReferenceType.DOMAIN, DOMAIN, newGroup.getName())).thenReturn(Mono.empty());
+        when(groupRepository.create_migrated(any(Group.class))).thenReturn(Mono.just(group));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(groupService.create_migrated(DOMAIN, newGroup)).test();
         testObserver.awaitTerminalEvent();
@@ -181,8 +181,8 @@ public class GroupServiceTest {
     public void shouldCreate_technicalException() {
         NewGroup newGroup = Mockito.mock(NewGroup.class);
         when(newGroup.getName()).thenReturn("name");
-        when(groupRepository.findByName_migrated(ReferenceType.DOMAIN, DOMAIN, newGroup.getName())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(groupRepository.create_migrated(any(Group.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(groupRepository.findByName_migrated(ReferenceType.DOMAIN, DOMAIN, newGroup.getName())).thenReturn(Mono.empty());
+        when(groupRepository.create_migrated(any(Group.class))).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(groupService.create_migrated(DOMAIN, newGroup)).subscribe(testObserver);
@@ -195,7 +195,7 @@ public class GroupServiceTest {
     public void shouldCreate_alreadyExists() {
         NewGroup newGroup = Mockito.mock(NewGroup.class);
         when(newGroup.getName()).thenReturn("names");
-        when(groupRepository.findByName_migrated(ReferenceType.DOMAIN, DOMAIN, newGroup.getName())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Group()))));
+        when(groupRepository.findByName_migrated(ReferenceType.DOMAIN, DOMAIN, newGroup.getName())).thenReturn(Mono.just(new Group()));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(groupService.create_migrated(DOMAIN, newGroup)).subscribe(testObserver);
@@ -212,10 +212,10 @@ public class GroupServiceTest {
         group.setReferenceId(DOMAIN);
 
         when(updateGroup.getName()).thenReturn("name");
-        when(groupRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(group))));
-        when(groupRepository.findByName_migrated(ReferenceType.DOMAIN, DOMAIN, updateGroup.getName())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(groupRepository.update_migrated(any(Group.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(group))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(groupRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).thenReturn(Mono.just(group));
+        when(groupRepository.findByName_migrated(ReferenceType.DOMAIN, DOMAIN, updateGroup.getName())).thenReturn(Mono.empty());
+        when(groupRepository.update_migrated(any(Group.class))).thenReturn(Mono.just(group));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(groupService.update_migrated(DOMAIN, "my-updateGroup", updateGroup)).test();
         testObserver.awaitTerminalEvent();
@@ -230,7 +230,7 @@ public class GroupServiceTest {
     @Test
     public void shouldUpdate_technicalException() {
         UpdateGroup updateGroup = Mockito.mock(UpdateGroup.class);
-        when(groupRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Group()))));
+        when(groupRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).thenReturn(Mono.just(new Group()));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(groupService.update_migrated(DOMAIN, "my-updateGroup", updateGroup)).subscribe(testObserver);
@@ -242,7 +242,7 @@ public class GroupServiceTest {
     @Test
     public void shouldUpdate_groupNotFound() {
         UpdateGroup updateGroup = Mockito.mock(UpdateGroup.class);
-        when(groupRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(groupRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).thenReturn(Mono.empty());
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(groupService.update_migrated(DOMAIN, "my-updateGroup", updateGroup)).subscribe(testObserver);
@@ -253,9 +253,9 @@ public class GroupServiceTest {
 
     @Test
     public void shouldDelete() {
-        when(groupRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Group()))));
-        when(groupRepository.delete_migrated("my-group")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(groupRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).thenReturn(Mono.just(new Group()));
+        when(groupRepository.delete_migrated("my-group")).thenReturn(Mono.empty());
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(groupService.delete_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).test();
         testObserver.awaitTerminalEvent();
@@ -268,9 +268,9 @@ public class GroupServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(groupRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Group()))));
-        when(groupRepository.delete_migrated("my-group")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(TechnicalException::new))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(groupRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).thenReturn(Mono.just(new Group()));
+        when(groupRepository.delete_migrated("my-group")).thenReturn(Mono.error(TechnicalException::new));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToCompletable(groupService.delete_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).subscribe(testObserver);
@@ -281,7 +281,7 @@ public class GroupServiceTest {
 
     @Test
     public void shouldDelete_groupNotFound() {
-        when(groupRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(groupRepository.findById_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).thenReturn(Mono.empty());
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToCompletable(groupService.delete_migrated(ReferenceType.DOMAIN, DOMAIN, "my-group")).subscribe(testObserver);
@@ -307,9 +307,9 @@ public class GroupServiceTest {
         roles.add(role1);
         roles.add(role2);
 
-        when(groupRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("group-id"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(group))));
-        when(roleService.findByIdIn_migrated(rolesIds)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(roles))));
-        when(groupRepository.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Group()))));
+        when(groupRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("group-id"))).thenReturn(Mono.just(group));
+        when(roleService.findByIdIn_migrated(rolesIds)).thenReturn(Mono.just(roles));
+        when(groupRepository.update_migrated(any())).thenReturn(Mono.just(new Group()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(groupService.assignRoles_migrated(ReferenceType.DOMAIN, DOMAIN, group.getId(), rolesIds)).test();
         testObserver.assertComplete();
@@ -332,8 +332,8 @@ public class GroupServiceTest {
         roles.add(role1);
         roles.add(role2);
 
-        when(groupRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("group-id"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(group))));
-        when(roleService.findByIdIn_migrated(rolesIds)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet()))));
+        when(groupRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("group-id"))).thenReturn(Mono.just(group));
+        when(roleService.findByIdIn_migrated(rolesIds)).thenReturn(Mono.just(Collections.emptySet()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(groupService.assignRoles_migrated(ReferenceType.DOMAIN, DOMAIN, group.getId(), rolesIds)).test();
         testObserver.assertNotComplete();
@@ -356,9 +356,9 @@ public class GroupServiceTest {
         roles.add(role1);
         roles.add(role2);
 
-        when(groupRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("group-id"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(group))));
-        when(roleService.findByIdIn_migrated(rolesIds)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(roles))));
-        when(groupRepository.update_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Group()))));
+        when(groupRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("group-id"))).thenReturn(Mono.just(group));
+        when(roleService.findByIdIn_migrated(rolesIds)).thenReturn(Mono.just(roles));
+        when(groupRepository.update_migrated(any())).thenReturn(Mono.just(new Group()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(groupService.revokeRoles_migrated(ReferenceType.DOMAIN, DOMAIN, group.getId(), rolesIds)).test();
         testObserver.assertComplete();
@@ -381,8 +381,8 @@ public class GroupServiceTest {
         roles.add(role1);
         roles.add(role2);
 
-        when(groupRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("group-id"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(group))));
-        when(roleService.findByIdIn_migrated(rolesIds)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet()))));
+        when(groupRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("group-id"))).thenReturn(Mono.just(group));
+        when(roleService.findByIdIn_migrated(rolesIds)).thenReturn(Mono.just(Collections.emptySet()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(groupService.revokeRoles_migrated(ReferenceType.DOMAIN, DOMAIN, group.getId(), rolesIds)).test();
         testObserver.assertNotComplete();
@@ -396,8 +396,8 @@ public class GroupServiceTest {
         when(group.getReferenceType()).thenReturn(ReferenceType.DOMAIN);
         when(group.getMembers()).thenReturn(Arrays.asList("userid"));
 
-        when(groupRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("group-id"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(group))));
-        when(userService.findByIdIn_migrated(any())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new User()))));
+        when(groupRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("group-id"))).thenReturn(Mono.just(group));
+        when(userService.findByIdIn_migrated(any())).thenReturn(Flux.just(new User()));
 
         final TestObserver<Page<User>> observer = RxJava2Adapter.monoToSingle(groupService.findMembers_migrated(ReferenceType.DOMAIN, DOMAIN, "group-id", 0, 0)).test();
         observer.awaitTerminalEvent();
@@ -412,8 +412,8 @@ public class GroupServiceTest {
         when(group.getReferenceType()).thenReturn(ReferenceType.ORGANIZATION);
         when(group.getMembers()).thenReturn(Arrays.asList("userid"));
 
-        when(groupRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("group-id"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(group))));
-        when(organizationUserService.findByIdIn_migrated(any())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new User()))));
+        when(groupRepository.findById_migrated(eq(ReferenceType.DOMAIN), eq(DOMAIN), eq("group-id"))).thenReturn(Mono.just(group));
+        when(organizationUserService.findByIdIn_migrated(any())).thenReturn(Flux.just(new User()));
 
         final TestObserver<Page<User>> observer = RxJava2Adapter.monoToSingle(groupService.findMembers_migrated(ReferenceType.DOMAIN, DOMAIN, "group-id", 0, 0)).test();
         observer.awaitTerminalEvent();

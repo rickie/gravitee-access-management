@@ -189,7 +189,7 @@ public class TwilioVerifyResourceProvider implements MFAResourceProvider {
                 channel = "email";
                 break;
             default:
-                return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new IllegalArgumentException("Unsupported verification channel '" + target.getChannel() + "'"))));
+                return Mono.error(new IllegalArgumentException("Unsupported verification channel '" + target.getChannel() + "'"));
         }
 
         return RxJava2Adapter.completableToMono(Completable.create((emitter) -> {

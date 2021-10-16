@@ -38,7 +38,7 @@ public class GraviteeUserProvider implements UserProvider {
 }
 @Override
     public Mono<User> findByUsername_migrated(String username) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        return Mono.empty();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -50,7 +50,7 @@ public class GraviteeUserProvider implements UserProvider {
 @Override
     public Mono<User> create_migrated(User user) {
         // create will be performed by the repository layer called by the OrganizationUserService
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user)));
+        return Mono.just(user);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(id, updateUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -62,7 +62,7 @@ public class GraviteeUserProvider implements UserProvider {
 @Override
     public Mono<User> update_migrated(String id, User updateUser) {
         // update will be performed by the repository layer called by the OrganizationUserService
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(updateUser)));
+        return Mono.just(updateUser);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -74,6 +74,6 @@ public class GraviteeUserProvider implements UserProvider {
 @Override
     public Mono<Void> delete_migrated(String id) {
         // delete will be performed by the repository layer called by the OrganizationUserService
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        return Mono.empty();
     }
 }

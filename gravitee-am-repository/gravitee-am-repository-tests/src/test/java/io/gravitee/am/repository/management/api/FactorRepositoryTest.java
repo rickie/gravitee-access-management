@@ -39,7 +39,7 @@ public class FactorRepositoryTest extends AbstractManagementTest {
         // create factor
         Factor factor = buildFactor();
         factor.setDomain("testDomain");
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(factorRepository.create_migrated(factor))).block();
+        factorRepository.create_migrated(factor).block();
 
         // fetch factors
         TestSubscriber<Factor> testSubscriber = RxJava2Adapter.fluxToFlowable(factorRepository.findByDomain_migrated("testDomain")).test();
@@ -67,7 +67,7 @@ public class FactorRepositoryTest extends AbstractManagementTest {
     public void testFindById() throws TechnicalException {
         // create factor
         Factor factor = buildFactor();
-        Factor factorCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(factorRepository.create_migrated(factor))).block();
+        Factor factorCreated = factorRepository.create_migrated(factor).block();
 
         // fetch factor
         TestObserver<Factor> testObserver = RxJava2Adapter.monoToMaybe(factorRepository.findById_migrated(factorCreated.getId())).test();
@@ -109,7 +109,7 @@ public class FactorRepositoryTest extends AbstractManagementTest {
     public void testUpdate() throws TechnicalException {
         // create factor
         Factor factor = buildFactor();
-        Factor factorCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(factorRepository.create_migrated(factor))).block();
+        Factor factorCreated = factorRepository.create_migrated(factor).block();
 
         // update factor
         Factor updateFactor = buildFactor();
@@ -133,7 +133,7 @@ public class FactorRepositoryTest extends AbstractManagementTest {
     public void testDelete() throws TechnicalException {
         // create factor
         Factor factor = buildFactor();
-        Factor factorCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(factorRepository.create_migrated(factor))).block();
+        Factor factorCreated = factorRepository.create_migrated(factor).block();
 
         // fetch factor
         TestObserver<Factor> testObserver = RxJava2Adapter.monoToMaybe(factorRepository.findById_migrated(factorCreated.getId())).test();

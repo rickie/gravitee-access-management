@@ -43,7 +43,7 @@ public class BotDetectionsPluginResourceTest extends JerseySpringTest {
         botDetectionPlugin.setDescription("desc");
         botDetectionPlugin.setVersion("1");
 
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(botDetectionPlugin))))).when(botDetectionPluginService).findAll_migrated();
+        doReturn(Mono.just(Collections.singletonList(botDetectionPlugin))).when(botDetectionPluginService).findAll_migrated();
 
         final Response response = target("platform")
                 .path("plugins")

@@ -53,7 +53,7 @@ default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.User> loadPreAuth
     return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(authentication));
 }default Mono<User> loadPreAuthenticatedUser_migrated(Authentication authentication) {
         io.gravitee.am.model.User user = (io.gravitee.am.model.User) authentication.getPrincipal();
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(user.getUsername())));
+        return loadUserByUsername_migrated(user.getUsername());
     }
 
     default Metadata metadata(String idpUrl) {

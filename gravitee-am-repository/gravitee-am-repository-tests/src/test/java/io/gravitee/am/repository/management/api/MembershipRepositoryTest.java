@@ -47,7 +47,7 @@ public class MembershipRepositoryTest extends AbstractManagementTest {
         membership.setMemberType(MemberType.USER);
         membership.setMemberId("user#1");
 
-        Membership createdMembership = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership))).block();
+        Membership createdMembership = membershipRepository.create_migrated(membership).block();
 
         TestObserver<Membership> obs = RxJava2Adapter.monoToMaybe(membershipRepository.findById_migrated(createdMembership.getId())).test();
 
@@ -71,9 +71,9 @@ public class MembershipRepositoryTest extends AbstractManagementTest {
         membership.setMemberType(MemberType.USER);
         membership.setMemberId("user#1");
 
-        Membership createdMembership = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership))).block();
+        Membership createdMembership = membershipRepository.create_migrated(membership).block();
 
-        TestObserver<List<Membership>> obs = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(membershipRepository.findByReference_migrated(ORGANIZATION_ID, ReferenceType.ORGANIZATION))).collectList()).test();
+        TestObserver<List<Membership>> obs = RxJava2Adapter.monoToSingle(membershipRepository.findByReference_migrated(ORGANIZATION_ID, ReferenceType.ORGANIZATION).collectList()).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -90,9 +90,9 @@ public class MembershipRepositoryTest extends AbstractManagementTest {
         membership.setMemberType(MemberType.USER);
         membership.setMemberId("user#1");
 
-        Membership createdMembership = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership))).block();
+        Membership createdMembership = membershipRepository.create_migrated(membership).block();
 
-        TestObserver<List<Membership>> obs = RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(membershipRepository.findByMember_migrated("user#1", MemberType.USER))).collectList()).test();
+        TestObserver<List<Membership>> obs = RxJava2Adapter.monoToSingle(membershipRepository.findByMember_migrated("user#1", MemberType.USER).collectList()).test();
         obs.awaitTerminalEvent();
 
         obs.assertComplete();
@@ -109,7 +109,7 @@ public class MembershipRepositoryTest extends AbstractManagementTest {
         membership.setMemberType(MemberType.USER);
         membership.setMemberId("user#1");
 
-        Membership createdMembership = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership))).block();
+        Membership createdMembership = membershipRepository.create_migrated(membership).block();
 
         TestObserver<Membership> obs = RxJava2Adapter.monoToMaybe(membershipRepository.findByReferenceAndMember_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, membership.getMemberType(), membership.getMemberId())).test();
         obs.awaitTerminalEvent();
@@ -135,8 +135,8 @@ public class MembershipRepositoryTest extends AbstractManagementTest {
         groupMembership.setMemberType(MemberType.GROUP);
         groupMembership.setMemberId("group#1");
 
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(membership))).block();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipRepository.create_migrated(groupMembership))).block();
+        membershipRepository.create_migrated(membership).block();
+        membershipRepository.create_migrated(groupMembership).block();
 
         MembershipCriteria criteria = new MembershipCriteria();
         TestSubscriber<Membership> obs = RxJava2Adapter.fluxToFlowable(membershipRepository.findByCriteria_migrated(ReferenceType.ORGANIZATION, ORGANIZATION_ID, criteria)).test();

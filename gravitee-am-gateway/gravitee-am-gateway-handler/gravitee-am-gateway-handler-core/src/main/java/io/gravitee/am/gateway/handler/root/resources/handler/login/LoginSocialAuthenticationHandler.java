@@ -152,7 +152,7 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
                     // get social identity provider type (currently use for display purpose (logo, description, ...)
                     identityProvider.setType(socialProviders.getOrDefault(identityProvider.getType(), identityProvider.getType()));
                     // get social sign in url
-                    return RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getAuthorizeUrl_migrated(identityProvider.getId(), context))).map(RxJavaReactorMigrationUtil.toJdkFunction(authorizeUrl -> new SocialProviderData(identityProvider, authorizeUrl))).defaultIfEmpty(new SocialProviderData(identityProvider, null)));
+                    return RxJava2Adapter.monoToMaybe(getAuthorizeUrl_migrated(identityProvider.getId(), context).map(RxJavaReactorMigrationUtil.toJdkFunction(authorizeUrl -> new SocialProviderData(identityProvider, authorizeUrl))).defaultIfEmpty(new SocialProviderData(identityProvider, null)));
                 })
                 .toList()
                 .subscribe(socialProviderData -> resultHandler.handle(Future.succeededFuture(socialProviderData)),
@@ -165,7 +165,7 @@ private Maybe<String> getAuthorizeUrl(String identityProviderId, RoutingContext 
  return RxJava2Adapter.monoToMaybe(getAuthorizeUrl_migrated(identityProviderId, context));
 }
 private Mono<String> getAuthorizeUrl_migrated(String identityProviderId, RoutingContext context) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.get_migrated(identityProviderId))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<String>>toJdkFunction(authenticationProvider -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.get_migrated(identityProviderId))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<AuthenticationProvider, MaybeSource<String>>toJdkFunction(authenticationProvider -> {
                     // Generate a state containing provider id and current query parameter string. This state will be sent back to AM after social authentication.
                     final JWT stateJwt = new JWT();
                     stateJwt.put("p", identityProviderId);
@@ -186,7 +186,7 @@ private Mono<String> getAuthorizeUrl_migrated(String identityProviderId, Routing
                                     }
                                 })));
                             }).apply(e)))));
-                }).apply(v))))));
+                }).apply(v))));
     }
 
     private static class SocialProviderData {

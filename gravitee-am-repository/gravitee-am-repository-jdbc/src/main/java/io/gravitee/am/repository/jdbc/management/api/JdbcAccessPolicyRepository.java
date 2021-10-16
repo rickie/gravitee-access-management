@@ -76,13 +76,13 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
 @Override
     public Mono<Page<AccessPolicy>> findByDomain_migrated(String domain, int page, int size) {
         LOGGER.debug("findByDomain(domain:{}, page:{}, size:{})", domain, page, size);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(dbClient.select()
+        return dbClient.select()
                 .from(JdbcAccessPolicy.class)
                 .project("*") // required for mssql to work with to order column name
                 .matching(from(where("domain").is(domain)))
                 .orderBy(Sort.Order.desc("updated_at"))
                 .page(PageRequest.of(page, size))
-                .as(JdbcAccessPolicy.class).all().collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(content -> content.stream().map(this::toAccessPolicy).collect(Collectors.toList()))).flatMap(content->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accessPolicyRepository.countByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<AccessPolicy>(content, page, count))))));
+                .as(JdbcAccessPolicy.class).all().collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(content -> content.stream().map(this::toAccessPolicy).collect(Collectors.toList()))).flatMap(content->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accessPolicyRepository.countByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<AccessPolicy>(content, page, count))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndResource_migrated(domain, resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -94,7 +94,7 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
 @Override
     public Flux<AccessPolicy> findByDomainAndResource_migrated(String domain, String resource) {
         LOGGER.debug("findByDomainAndResource(domain:{}, resources:{})", domain, resource);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(accessPolicyRepository.findByDomainAndResource_migrated(domain, resource))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(accessPolicyRepository.findByDomainAndResource_migrated(domain, resource))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByResources_migrated(resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -106,7 +106,7 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
 @Override
     public Flux<AccessPolicy> findByResources_migrated(List<String> resources) {
         LOGGER.debug("findByResources({})", resources);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(accessPolicyRepository.findByResourceIn_migrated(resources))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(accessPolicyRepository.findByResourceIn_migrated(resources))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByResource_migrated(resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -118,7 +118,7 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
 @Override
     public Mono<Long> countByResource_migrated(String resource) {
         LOGGER.debug("countByResource({})", resource);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(accessPolicyRepository.countByResource_migrated(resource)));
+        return accessPolicyRepository.countByResource_migrated(resource);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -130,7 +130,7 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
 @Override
     public Mono<AccessPolicy> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(accessPolicyRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy))));
+        return RxJava2Adapter.maybeToMono(accessPolicyRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toAccessPolicy));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -160,7 +160,7 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
+        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -189,7 +189,7 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
         updateFields = addQuotedField(updateFields,"updated_at", dateConverter.convertTo(item.getUpdatedAt(), null), LocalDateTime.class);
         Mono<Integer> action = updateSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single())));
+        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

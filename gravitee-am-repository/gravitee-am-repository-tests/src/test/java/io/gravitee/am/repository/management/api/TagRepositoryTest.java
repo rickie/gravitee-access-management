@@ -41,7 +41,7 @@ public class TagRepositoryTest extends AbstractManagementTest {
         tag.setName("testName");
         tag.setDescription("Description");
         tag.setOrganizationId(ORGANIZATION_ID);
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.create_migrated(tag))).block();
+        tagRepository.create_migrated(tag).block();
 
         // fetch domains
         TestSubscriber<Tag> testObserver1 = RxJava2Adapter.fluxToFlowable(tagRepository.findAll_migrated(ORGANIZATION_ID)).test();
@@ -57,7 +57,7 @@ public class TagRepositoryTest extends AbstractManagementTest {
         // create tag
         Tag tag = new Tag();
         tag.setName("testName");
-        Tag tagCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.create_migrated(tag))).block();
+        Tag tagCreated = tagRepository.create_migrated(tag).block();
 
         // fetch domain
         TestObserver<Tag> testObserver = RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(tagCreated.getId())).test();
@@ -92,7 +92,7 @@ public class TagRepositoryTest extends AbstractManagementTest {
         // create tag
         Tag tag = new Tag();
         tag.setName("testName");
-        Tag tagCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.create_migrated(tag))).block();
+        Tag tagCreated = tagRepository.create_migrated(tag).block();
 
         // update tag
         Tag updatedTag = new Tag();
@@ -113,7 +113,7 @@ public class TagRepositoryTest extends AbstractManagementTest {
         // create tag
         Tag tag = new Tag();
         tag.setName("testName");
-        Tag tagCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.create_migrated(tag))).block();
+        Tag tagCreated = tagRepository.create_migrated(tag).block();
 
         // fetch tag
         TestObserver<Tag> testObserver = RxJava2Adapter.monoToMaybe(tagRepository.findById_migrated(tagCreated.getId())).test();

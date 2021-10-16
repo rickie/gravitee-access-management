@@ -52,11 +52,11 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
         final AuthenticationContext context = authentication.getContext();
         if (context == null || context.get(KEY_ORGANIZATION_ID) == null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
 
         String username = ((String) authentication.getPrincipal()).toLowerCase();
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, (String)context.get(KEY_ORGANIZATION_ID), username, "gravitee"))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(user -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, (String)context.get(KEY_ORGANIZATION_ID), username, "gravitee"))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(user -> {
                     String presentedPassword = authentication.getCredentials().toString();
 
                     if (user.getPassword() == null) {
@@ -83,7 +83,7 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
                     idpUser.setEnabled(user.isEnabled());
                     idpUser.setUpdatedAt(user.getUpdatedAt());
                     return idpUser;
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -95,6 +95,6 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
 @Override
     public Mono<User> loadUserByUsername_migrated(String username) {
         // not relevant for Organization users
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        return Mono.empty();
     }
 }

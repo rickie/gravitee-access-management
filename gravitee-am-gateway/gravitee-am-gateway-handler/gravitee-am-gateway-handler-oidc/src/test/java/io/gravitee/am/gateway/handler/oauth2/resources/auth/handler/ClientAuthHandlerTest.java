@@ -89,7 +89,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         final String clientId = "client-id";
         Client client = mock(Client.class);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
-        when(clientSyncService.findByClientId_migrated(clientId)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(clientId)).thenReturn(Mono.just(client));
 
         testRequest(
                 HttpMethod.POST,
@@ -106,7 +106,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         when(client.getClientId()).thenReturn(clientId);
         when(client.getClientSecret()).thenReturn(clientSecret);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.CLIENT_SECRET_POST);
-        when(clientSyncService.findByClientId_migrated(clientId)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(clientId)).thenReturn(Mono.just(client));
 
         testRequest(
                 HttpMethod.POST,
@@ -122,7 +122,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         when(client.getClientId()).thenReturn(clientId);
         when(client.getClientSecret()).thenReturn(clientSecret);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
-        when(clientSyncService.findByClientId_migrated(clientId)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(clientId)).thenReturn(Mono.just(client));
 
         testRequest(
                 HttpMethod.POST,
@@ -139,7 +139,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         when(client.getClientId()).thenReturn(clientId);
         when(client.getClientSecret()).thenReturn(clientSecret);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
-        when(clientSyncService.findByClientId_migrated(clientId)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(clientId)).thenReturn(Mono.just(client));
 
         testRequest(
                 HttpMethod.POST,
@@ -156,7 +156,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
     public void shouldInvoke_clientCredentials_privateJWT_privateJWTTokenAuthMethod() throws Exception {
         final String clientId = "client-id";
         Client client = mock(Client.class);
-        when(clientAssertionService.assertClient_migrated(eq("type"), eq("myToken"), anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientAssertionService.assertClient_migrated(eq("type"), eq("myToken"), anyString())).thenReturn(Mono.just(client));
 
         testRequest(
                 HttpMethod.POST,
@@ -171,7 +171,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         Client client = mock(Client.class);
         when(client.isTlsClientCertificateBoundAccessTokens()).thenReturn(true);
 
-        when(clientAssertionService.assertClient_migrated(eq("type"), eq("myToken"), anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientAssertionService.assertClient_migrated(eq("type"), eq("myToken"), anyString())).thenReturn(Mono.just(client));
 
         testRequest(
                 HttpMethod.POST,
@@ -183,7 +183,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
     public void shouldInvoke_clientCredentials_clientSecret_clientSecretJWTTokenAuthMethod() throws Exception {
         final String clientId = "client-id";
         Client client = mock(Client.class);
-        when(clientAssertionService.assertClient_migrated(eq("type"), eq("myToken"), anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientAssertionService.assertClient_migrated(eq("type"), eq("myToken"), anyString())).thenReturn(Mono.just(client));
 
         testRequest(
                 HttpMethod.POST,
@@ -196,7 +196,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         final String clientId = "public-client-id";
         Client client = mock(Client.class);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.NONE);
-        when(clientSyncService.findByClientId_migrated(clientId)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(clientId)).thenReturn(Mono.just(client));
 
         testRequest(
                 HttpMethod.POST,
@@ -209,7 +209,7 @@ public class ClientAuthHandlerTest extends RxWebTestBase {
         final String clientId = "public-client-id";
         Client client = mock(Client.class);
         when(client.getTokenEndpointAuthMethod()).thenReturn(ClientAuthenticationMethod.NONE);
-        when(clientSyncService.findByClientId_migrated(clientId)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(client))));
+        when(clientSyncService.findByClientId_migrated(clientId)).thenReturn(Mono.just(client));
         testRequest(
                 HttpMethod.POST,
                 "/oauth/token?client_id=public-client-id",

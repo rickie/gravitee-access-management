@@ -111,6 +111,6 @@ public class SmtpResourceProvider implements EmailSenderProvider {
                 LOGGER.error("Message emission fails", e);
             }
         });
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        return Mono.empty();
     }
 }

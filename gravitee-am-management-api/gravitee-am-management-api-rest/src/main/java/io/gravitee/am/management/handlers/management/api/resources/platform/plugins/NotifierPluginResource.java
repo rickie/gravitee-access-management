@@ -61,7 +61,7 @@ public class NotifierPluginResource {
             @PathParam("notifierId") String notifierId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(notifierPluginService.findById_migrated(notifierId))).map(RxJavaReactorMigrationUtil.toJdkFunction(notifierPlugin -> Response.ok(notifierPlugin).build())))
+        RxJava2Adapter.monoToSingle(notifierPluginService.findById_migrated(notifierId).map(RxJavaReactorMigrationUtil.toJdkFunction(notifierPlugin -> Response.ok(notifierPlugin).build())))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -78,7 +78,7 @@ public class NotifierPluginResource {
             @PathParam("notifierId") String notifierId,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(notifierPluginService.findById_migrated(notifierId))).flatMap(notifierPlugin->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(notifierPluginService.getSchema_migrated(notifierPlugin.getId())))).map(RxJavaReactorMigrationUtil.toJdkFunction(notifierPluginSchema -> Response.ok(notifierPluginSchema).build())))
+        RxJava2Adapter.monoToSingle(notifierPluginService.findById_migrated(notifierId).flatMap(notifierPlugin->notifierPluginService.getSchema_migrated(notifierPlugin.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(notifierPluginSchema -> Response.ok(notifierPluginSchema).build())))
                 .subscribe(response::resume, response::resume);
     }
 }

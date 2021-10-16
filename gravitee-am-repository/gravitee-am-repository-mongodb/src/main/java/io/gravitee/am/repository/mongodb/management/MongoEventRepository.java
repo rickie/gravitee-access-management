@@ -70,7 +70,7 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
         if (to > from) {
             filters.add(lte(FIELD_UPDATED_AT, new Date(to)));
         }
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(eventsCollection.find(and(filters))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(eventsCollection.find(and(filters))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -81,7 +81,7 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Event> findById_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(eventsCollection.find(eq(FIELD_ID, id)).first()).map(this::convert), BackpressureStrategy.BUFFER).next()));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(eventsCollection.find(eq(FIELD_ID, id)).first()).map(this::convert), BackpressureStrategy.BUFFER).next();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -94,7 +94,7 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
     public Mono<Event> create_migrated(Event item) {
         EventMongo event = convert(item);
         event.setId(event.getId() == null ? RandomString.generate() : event.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(eventsCollection.insertOne(event))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(event.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(eventsCollection.insertOne(event))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(event.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -106,7 +106,7 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
 @Override
     public Mono<Event> update_migrated(Event item) {
         EventMongo event = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(eventsCollection.replaceOne(eq(FIELD_ID, event.getId()), event))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(event.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(eventsCollection.replaceOne(eq(FIELD_ID, event.getId()), event))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(event.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -117,7 +117,7 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(eventsCollection.deleteOne(eq(FIELD_ID, id)))));
+        return Mono.from(eventsCollection.deleteOne(eq(FIELD_ID, id)));
     }
 
     private EventMongo convert(Event event) {

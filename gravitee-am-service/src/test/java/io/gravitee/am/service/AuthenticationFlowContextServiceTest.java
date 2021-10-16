@@ -50,7 +50,7 @@ public class AuthenticationFlowContextServiceTest {
     @Test
     public void testLoadContext_UnknownSessionId() {
         // if sessionId is unknown load default Context
-        when(authFlowContextRepository.findLastByTransactionId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(authFlowContextRepository.findLastByTransactionId_migrated(any())).thenReturn(Mono.empty());
 
         TestObserver<AuthenticationFlowContext> testObserver = RxJava2Adapter.monoToMaybe(service.loadContext_migrated(SESSION_ID, 1)).test();
         testObserver.awaitTerminalEvent();
@@ -66,7 +66,7 @@ public class AuthenticationFlowContextServiceTest {
         context.setTransactionId(SESSION_ID);
 
         // if sessionId is unknown load default Context
-        when(authFlowContextRepository.findLastByTransactionId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(context))));
+        when(authFlowContextRepository.findLastByTransactionId_migrated(any())).thenReturn(Mono.just(context));
 
         TestObserver<AuthenticationFlowContext> testObserver = RxJava2Adapter.monoToMaybe(service.loadContext_migrated(SESSION_ID, 1)).test();
         testObserver.awaitTerminalEvent();
@@ -83,7 +83,7 @@ public class AuthenticationFlowContextServiceTest {
         context.setTransactionId(SESSION_ID);
 
         // if sessionId is unknown load default Context
-        when(authFlowContextRepository.findLastByTransactionId_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(context))));
+        when(authFlowContextRepository.findLastByTransactionId_migrated(any())).thenReturn(Mono.just(context));
 
         TestObserver<AuthenticationFlowContext> testObserver = RxJava2Adapter.monoToMaybe(service.loadContext_migrated(SESSION_ID, 2)).test();
         testObserver.awaitTerminalEvent();
@@ -93,7 +93,7 @@ public class AuthenticationFlowContextServiceTest {
 
     @Test
     public void testClearContext() {
-        when(authFlowContextRepository.delete_migrated(SESSION_ID)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(authFlowContextRepository.delete_migrated(SESSION_ID)).thenReturn(Mono.empty());
         TestObserver<Void> testObserver = RxJava2Adapter.monoToCompletable(service.clearContext_migrated(SESSION_ID)).test();
         testObserver.awaitTerminalEvent();
         testObserver.assertNoErrors();

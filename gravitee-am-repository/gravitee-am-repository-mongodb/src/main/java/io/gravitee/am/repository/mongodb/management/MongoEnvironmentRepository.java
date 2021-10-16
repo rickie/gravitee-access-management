@@ -59,7 +59,7 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
 @Override
     public Flux<Environment> findAll_migrated() {
 
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(collection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(collection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -71,7 +71,7 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
 @Override
     public Flux<Environment> findAll_migrated(String organizationId) {
 
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(collection.find(eq(FIELD_ORGANIZATION_ID, organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(collection.find(eq(FIELD_ORGANIZATION_ID, organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -83,7 +83,7 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
 @Override
     public Mono<Environment> findById_migrated(String id, String organizationId) {
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(and(eq(FIELD_ID, id), eq(FIELD_ORGANIZATION_ID, organizationId))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(and(eq(FIELD_ID, id), eq(FIELD_ORGANIZATION_ID, organizationId))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
 
@@ -96,7 +96,7 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
 @Override
     public Mono<Environment> findById_migrated(String id) {
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(environment))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -110,7 +110,7 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
 
         environment.setId(environment.getId() == null ? RandomString.generate() : environment.getId());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(environment)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(environment.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(environment)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(environment.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(environment))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -122,7 +122,7 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
 @Override
     public Mono<Environment> update_migrated(Environment environment) {
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, environment.getId()), convert(environment)))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(environment.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, environment.getId()), convert(environment)))).flatMap(updateResult->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(environment.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -133,7 +133,7 @@ public class MongoEnvironmentRepository extends AbstractManagementMongoRepositor
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(collection.deleteOne(eq(FIELD_ID, id)))));
+        return Mono.from(collection.deleteOne(eq(FIELD_ID, id)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")

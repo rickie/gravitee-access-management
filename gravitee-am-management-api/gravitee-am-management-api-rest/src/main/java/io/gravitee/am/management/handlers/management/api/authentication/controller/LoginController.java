@@ -87,7 +87,7 @@ public class LoginController {
         // fetch domain social identity providers
         List<IdentityProvider> socialProviders = null;
         try {
-            socialProviders = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(organizationService.findById_migrated(organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(org -> Optional.ofNullable(org.getIdentities()).orElse(emptyList()))).block()
+            socialProviders = organizationService.findById_migrated(organizationId).map(RxJavaReactorMigrationUtil.toJdkFunction(org -> Optional.ofNullable(org.getIdentities()).orElse(emptyList()))).block()
                     .stream()
                     .map(identityProviderManager::getIdentityProvider)
                     .filter(Objects::nonNull)

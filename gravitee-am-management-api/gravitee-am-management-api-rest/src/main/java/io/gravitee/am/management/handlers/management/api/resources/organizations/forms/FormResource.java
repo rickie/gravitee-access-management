@@ -68,7 +68,7 @@ public class FormResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(formService.update_migrated(ReferenceType.ORGANIZATION, organizationId, form, updateForm, authenticatedUser)))))
+        RxJava2Adapter.monoToSingle(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.UPDATE).then(formService.update_migrated(ReferenceType.ORGANIZATION, organizationId, form, updateForm, authenticatedUser)))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -84,7 +84,7 @@ public class FormResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.DELETE))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(formService.delete_migrated(ReferenceType.ORGANIZATION, organizationId, form, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_FORM, Acl.DELETE).then(formService.delete_migrated(ReferenceType.ORGANIZATION, organizationId, form, authenticatedUser)))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 }

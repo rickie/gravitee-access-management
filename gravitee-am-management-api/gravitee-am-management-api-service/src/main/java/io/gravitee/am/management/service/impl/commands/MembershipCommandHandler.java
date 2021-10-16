@@ -83,7 +83,7 @@ public class MembershipCommandHandler implements CommandHandler<MembershipComman
             return RxJava2Adapter.monoToSingle(Mono.just(new MembershipReply(command.getId(), CommandStatus.ERROR)));
         }
 
-        Single<String> userObs = RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findByExternalIdAndSource_migrated(ReferenceType.ORGANIZATION, membershipPayload.getOrganizationId(), membershipPayload.getUserId(), COCKPIT_SOURCE))).map(RxJavaReactorMigrationUtil.toJdkFunction(User::getId)).single());
+        Single<String> userObs = RxJava2Adapter.monoToSingle(userService.findByExternalIdAndSource_migrated(ReferenceType.ORGANIZATION, membershipPayload.getOrganizationId(), membershipPayload.getUserId(), COCKPIT_SOURCE).map(RxJavaReactorMigrationUtil.toJdkFunction(User::getId)).single());
         Single<Role> roleObs = RxJava2Adapter.monoToSingle(findRole_migrated(membershipPayload.getRole(), membershipPayload.getOrganizationId(), assignableType));
 
 
@@ -97,7 +97,7 @@ public class MembershipCommandHandler implements CommandHandler<MembershipComman
                     membership.setRoleId(role.getId());
 
                     return membership;
-                })).flatMap(membership->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(membershipService.addOrUpdate_migrated(membershipPayload.getOrganizationId(), membership)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(membership -> logger.info("Role [{}] assigned on {} [{}] for user [{}] and organization [{}].", membershipPayload.getRole(), membershipPayload.getReferenceType(), membershipPayload.getReferenceId(), membership.getMemberId(), membershipPayload.getOrganizationId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> new MembershipReply(command.getId(), CommandStatus.SUCCEEDED))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Error occurred when trying to assign role [{}] on {} [{}] for cockpit user [{}] and organization [{}].", membershipPayload.getRole(), membershipPayload.getReferenceType(), membershipPayload.getReferenceId(), membershipPayload.getUserId(), membershipPayload.getOrganizationId(), error))))
+                })).flatMap(membership->membershipService.addOrUpdate_migrated(membershipPayload.getOrganizationId(), membership)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(membership -> logger.info("Role [{}] assigned on {} [{}] for user [{}] and organization [{}].", membershipPayload.getRole(), membershipPayload.getReferenceType(), membershipPayload.getReferenceId(), membership.getMemberId(), membershipPayload.getOrganizationId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> new MembershipReply(command.getId(), CommandStatus.SUCCEEDED))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Error occurred when trying to assign role [{}] on {} [{}] for cockpit user [{}] and organization [{}].", membershipPayload.getRole(), membershipPayload.getReferenceType(), membershipPayload.getReferenceId(), membershipPayload.getUserId(), membershipPayload.getOrganizationId(), error))))
                 .onErrorReturn(throwable -> new MembershipReply(command.getId(), CommandStatus.ERROR));
     }
 
@@ -113,16 +113,16 @@ private Mono<Role> findRole_migrated(String roleName, String organizationId, Ref
 
         // First try to map to a system role.
         if (systemRole != null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleService.findSystemRole_migrated(systemRole, assignableType))).single()));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleService.findSystemRole_migrated(systemRole, assignableType))).single();
         } else {
             // Then try to find a default role.
             DefaultRole defaultRole = DefaultRole.fromName(roleName);
 
             if (defaultRole != null) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleService.findDefaultRole_migrated(organizationId, defaultRole, assignableType))).single()));
+                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(roleService.findDefaultRole_migrated(organizationId, defaultRole, assignableType))).single();
             }
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRoleException(String.format("Unable to find role [%s] for organization [%s].", roleName, organizationId)))));
+        return Mono.error(new InvalidRoleException(String.format("Unable to find role [%s] for organization [%s].", roleName, organizationId)));
     }
 }

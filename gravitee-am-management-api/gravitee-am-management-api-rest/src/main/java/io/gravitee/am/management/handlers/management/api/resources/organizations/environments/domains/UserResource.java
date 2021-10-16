@@ -102,13 +102,13 @@ public class UserResource extends AbstractResource {
             @PathParam("user") String user,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ)).as(RxJava2Adapter::completableToMono).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->RxJava2Adapter.monoToMaybe(userService.findById_migrated(user)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new UserNotFoundException(user))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, MaybeSource<io.gravitee.am.management.handlers.management.api.model.UserEntity>>toJdkFunction(user1 -> {
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->userService.findById_migrated(user)).switchIfEmpty(Mono.error(new UserNotFoundException(user))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, MaybeSource<io.gravitee.am.management.handlers.management.api.model.UserEntity>>toJdkFunction(user1 -> {
                             if (user1.getReferenceType() == ReferenceType.DOMAIN
                                     && !user1.getReferenceId().equalsIgnoreCase(domain)) {
                                 throw new BadRequestException("User does not belong to domain");
                             }
                             return RxJava2Adapter.monoToMaybe(Mono.just(new UserEntity(user1)));
-                        }).apply(v)))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.management.handlers.management.api.model.UserEntity, MaybeSource<io.gravitee.am.management.handlers.management.api.model.UserEntity>>toJdkFunction((io.gravitee.am.management.handlers.management.api.model.UserEntity ident) -> RxJava2Adapter.monoToMaybe(enhanceIdentityProvider_migrated(ident))).apply(v)))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.management.handlers.management.api.model.UserEntity, MaybeSource<io.gravitee.am.management.handlers.management.api.model.UserEntity>>toJdkFunction((io.gravitee.am.management.handlers.management.api.model.UserEntity ident) -> RxJava2Adapter.monoToMaybe(enhanceClient_migrated(ident))).apply(v))))).as(RxJava2Adapter::monoToMaybe)
+                        }).apply(v)))).flatMap(v->enhanceIdentityProvider_migrated(v)).flatMap(v->enhanceClient_migrated(v))).as(RxJava2Adapter::monoToMaybe)
                 .subscribe(response::resume, response::resume);
     }
 
@@ -131,7 +131,7 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(userService.update_migrated(ReferenceType.DOMAIN, domain, user, updateUser, authenticatedUser))))))
                 .subscribe(response::resume, response::resume);
     }
@@ -156,7 +156,7 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(userService.updateStatus_migrated(ReferenceType.DOMAIN, domain, user, status.isEnabled(), authenticatedUser))))))
                 .subscribe(response::resume, response::resume);
     }
@@ -177,7 +177,7 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.DELETE))).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(irrelevant->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userService.delete_migrated(ReferenceType.DOMAIN, domain, user, authenticatedUser)))).then()))
+        RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.DELETE).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(irrelevant->userService.delete_migrated(ReferenceType.DOMAIN, domain, user, authenticatedUser)).then()))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
@@ -199,7 +199,7 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domainId, Permission.DOMAIN_USER, Acl.UPDATE))).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domainId))).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))).flatMap(domain->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userService.resetPassword_migrated(domain, user, password.getPassword(), authenticatedUser)))).then()))
+        RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domainId, Permission.DOMAIN_USER, Acl.UPDATE).then(domainService.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))).flatMap(domain->userService.resetPassword_migrated(domain, user, password.getPassword(), authenticatedUser)).then()))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
 
     }
@@ -221,7 +221,7 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE))).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userService.sendRegistrationConfirmation_migrated(domain, user, authenticatedUser)))))
+        RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE).then(userService.sendRegistrationConfirmation_migrated(domain, user, authenticatedUser)))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
@@ -242,7 +242,7 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE))).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(irrelevant->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userService.unlock_migrated(ReferenceType.DOMAIN, domain, user, authenticatedUser)))).then()))
+        RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(irrelevant->userService.unlock_migrated(ReferenceType.DOMAIN, domain, user, authenticatedUser)).then()))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
 
     }
@@ -274,12 +274,12 @@ private Maybe<UserEntity> enhanceIdentityProvider(UserEntity userEntity) {
 }
 private Mono<UserEntity> enhanceIdentityProvider_migrated(UserEntity userEntity) {
         if (userEntity.getSource() != null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(userEntity.getSource()))).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderService.findById_migrated(userEntity.getSource()))).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {
                         userEntity.setSource(idP.getName());
                         return userEntity;
-                    })).defaultIfEmpty(userEntity)));
+                    })).defaultIfEmpty(userEntity);
         }
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userEntity)));
+        return Mono.just(userEntity);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.enhanceClient_migrated(userEntity))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -289,11 +289,11 @@ private Maybe<UserEntity> enhanceClient(UserEntity userEntity) {
 }
 private Mono<UserEntity> enhanceClient_migrated(UserEntity userEntity) {
         if (userEntity.getClient() != null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationService.findById_migrated(userEntity.getClient()))).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationService.findByDomainAndClientId_migrated(userEntity.getReferenceId(), userEntity.getClient()))))).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> {
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationService.findById_migrated(userEntity.getClient()))).switchIfEmpty(Mono.defer(()->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationService.findByDomainAndClientId_migrated(userEntity.getReferenceId(), userEntity.getClient()))))).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> {
                         userEntity.setApplicationEntity(new ApplicationEntity(application));
                         return userEntity;
-                    })).defaultIfEmpty(userEntity)));
+                    })).defaultIfEmpty(userEntity);
         }
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(userEntity)));
+        return Mono.just(userEntity);
     }
 }

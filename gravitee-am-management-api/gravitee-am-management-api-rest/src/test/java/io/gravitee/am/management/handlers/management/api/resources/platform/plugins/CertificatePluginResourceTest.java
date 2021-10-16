@@ -41,7 +41,7 @@ public class CertificatePluginResourceTest extends JerseySpringTest {
         certificatePlugin.setId(certificatePluginId);
         certificatePlugin.setName("certificate-plugin-name");
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(certificatePlugin)))).when(certificatePluginService).findById_migrated(certificatePluginId);
+        doReturn(Mono.just(certificatePlugin)).when(certificatePluginService).findById_migrated(certificatePluginId);
 
         final Response response = target("platform")
                 .path("plugins")
@@ -54,7 +54,7 @@ public class CertificatePluginResourceTest extends JerseySpringTest {
     @Test
     public void shouldGet_technicalManagementException() {
         final String certificatePluginId = "certificate-plugin-id";
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("Error occurs"))))).when(certificatePluginService).findById_migrated(certificatePluginId);
+        doReturn(Mono.error(new TechnicalManagementException("Error occurs"))).when(certificatePluginService).findById_migrated(certificatePluginId);
 
         final Response response = target("platform")
                 .path("plugins")
@@ -73,8 +73,8 @@ public class CertificatePluginResourceTest extends JerseySpringTest {
 
         final String schema = "certificate-plugin-schema";
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(certificatePlugin)))).when(certificatePluginService).findById_migrated(certificatePluginId);
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(schema)))).when(certificatePluginService).getSchema_migrated(certificatePluginId);
+        doReturn(Mono.just(certificatePlugin)).when(certificatePluginService).findById_migrated(certificatePluginId);
+        doReturn(Mono.just(schema)).when(certificatePluginService).getSchema_migrated(certificatePluginId);
 
         final Response response = target("platform")
                 .path("plugins")
@@ -91,7 +91,7 @@ public class CertificatePluginResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetSchema_technicalManagementException() {
         final String certificatePluginId = "certificate-plugin-id";
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("Error occurs"))))).when(certificatePluginService).findById_migrated(certificatePluginId);
+        doReturn(Mono.error(new TechnicalManagementException("Error occurs"))).when(certificatePluginService).findById_migrated(certificatePluginId);
 
         final Response response = target("platform")
                 .path("plugins")

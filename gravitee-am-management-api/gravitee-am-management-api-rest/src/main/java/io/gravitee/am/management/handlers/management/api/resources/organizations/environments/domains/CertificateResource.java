@@ -83,19 +83,14 @@ public class CertificateResource extends AbstractResource {
       @PathParam("certificate") String certificate,
       @Suspended final AsyncResponse response) {
 
-    RxJava2Adapter.monoToCompletable(
-            checkAnyPermission_migrated(
-                organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.READ))
-        .as(RxJava2Adapter::completableToMono)
+    checkAnyPermission_migrated(
+                organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.READ)
         .then(
-            RxJava2Adapter.maybeToMono(
-                    RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain)))
+            domainService.findById_migrated(domain)
                 .switchIfEmpty(Mono.error(new DomainNotFoundException(domain)))
                 .flatMap(
                     z ->
-                        RxJava2Adapter.monoToMaybe(
-                                certificateService.findById_migrated(certificate))
-                            .as(RxJava2Adapter::maybeToMono))
+                        certificateService.findById_migrated(certificate))
                 .switchIfEmpty(Mono.error(new CertificateNotFoundException(certificate)))
                 .map(
                     RxJavaReactorMigrationUtil.toJdkFunction(
@@ -133,14 +128,10 @@ public class CertificateResource extends AbstractResource {
 
     // FIXME: should we create a DOMAIN_CERTIFICATE_KEY permission instead ?
     RxJava2Adapter.monoToSingle(
-            RxJava2Adapter.completableToMono(
-                    RxJava2Adapter.monoToCompletable(
-                        checkAnyPermission_migrated(
-                            organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)))
+            checkAnyPermission_migrated(
+                            organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)
                 .then(
-                    RxJava2Adapter.maybeToMono(
-                            RxJava2Adapter.monoToMaybe(
-                                certificateManager.getCertificateProvider_migrated(certificate)))
+                    certificateManager.getCertificateProvider_migrated(certificate)
                         .switchIfEmpty(
                             Mono.error(
                                 new BadRequestException(
@@ -176,14 +167,10 @@ public class CertificateResource extends AbstractResource {
 
     // FIXME: should we create a DOMAIN_CERTIFICATE_KEY permission instead ?
     RxJava2Adapter.monoToSingle(
-            RxJava2Adapter.completableToMono(
-                    RxJava2Adapter.monoToCompletable(
-                        checkAnyPermission_migrated(
-                            organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)))
+            checkAnyPermission_migrated(
+                            organizationId, environmentId, domain, Permission.DOMAIN, Acl.READ)
                 .then(
-                    RxJava2Adapter.maybeToMono(
-                            RxJava2Adapter.monoToMaybe(
-                                certificateManager.getCertificateProvider_migrated(certificate)))
+                    certificateManager.getCertificateProvider_migrated(certificate)
                         .switchIfEmpty(
                             Mono.error(
                                 new BadRequestException(
@@ -221,20 +208,16 @@ public class CertificateResource extends AbstractResource {
     final User authenticatedUser = getAuthenticatedUser();
 
     RxJava2Adapter.monoToSingle(
-            RxJava2Adapter.completableToMono(
-                    RxJava2Adapter.monoToCompletable(
-                        checkAnyPermission_migrated(
+            checkAnyPermission_migrated(
                             organizationId,
                             environmentId,
                             domain,
                             Permission.DOMAIN_CERTIFICATE,
-                            Acl.UPDATE)))
+                            Acl.UPDATE)
                 .then(
                     RxJava2Adapter.singleToMono(
                             RxJava2Adapter.monoToMaybe(
-                                    RxJava2Adapter.maybeToMono(
-                                            RxJava2Adapter.monoToMaybe(
-                                                domainService.findById_migrated(domain)))
+                                    domainService.findById_migrated(domain)
                                         .switchIfEmpty(
                                             Mono.error(new DomainNotFoundException(domain))))
                                 .flatMapSingle(
@@ -272,18 +255,14 @@ public class CertificateResource extends AbstractResource {
     final User authenticatedUser = getAuthenticatedUser();
 
     RxJava2Adapter.monoToCompletable(
-            RxJava2Adapter.completableToMono(
-                    RxJava2Adapter.monoToCompletable(
-                        checkAnyPermission_migrated(
+            checkAnyPermission_migrated(
                             organizationId,
                             environmentId,
                             domain,
                             Permission.DOMAIN_CERTIFICATE,
-                            Acl.DELETE)))
+                            Acl.DELETE)
                 .then(
-                    RxJava2Adapter.completableToMono(
-                        RxJava2Adapter.monoToCompletable(
-                            certificateService.delete_migrated(certificate, authenticatedUser)))))
+                    certificateService.delete_migrated(certificate, authenticatedUser)))
         .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
   }
 }

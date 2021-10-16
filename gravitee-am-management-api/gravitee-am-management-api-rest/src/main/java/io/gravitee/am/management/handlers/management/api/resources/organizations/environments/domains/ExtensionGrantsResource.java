@@ -74,8 +74,8 @@ public class ExtensionGrantsResource extends AbstractResource {
             @PathParam("domain") String domain,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_EXTENSION_GRANT, Acl.LIST))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(extensionGrantService.findByDomain_migrated(domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterExtensionGrantInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList()))).map(RxJavaReactorMigrationUtil.toJdkFunction(sortedExtensionGrants -> Response.ok(sortedExtensionGrants).build()))))
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_EXTENSION_GRANT, Acl.LIST).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(extensionGrantService.findByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterExtensionGrantInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList()))).map(RxJavaReactorMigrationUtil.toJdkFunction(sortedExtensionGrants -> Response.ok(sortedExtensionGrants).build()))))
                 .subscribe(response::resume, response::resume);
     }
 
@@ -98,8 +98,8 @@ public class ExtensionGrantsResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_EXTENSION_GRANT, Acl.CREATE))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(extensionGrantService.create_migrated(domain, newExtensionGrant, authenticatedUser))).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrant -> Response
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_EXTENSION_GRANT, Acl.CREATE).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(extensionGrantService.create_migrated(domain, newExtensionGrant, authenticatedUser).map(RxJavaReactorMigrationUtil.toJdkFunction(extensionGrant -> Response
                                         .created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain + "/extensionGrants/" + extensionGrant.getId()))
                                         .entity(extensionGrant)
                                         .build())))))))

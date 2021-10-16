@@ -79,7 +79,7 @@ public class MFAChallengeAlternativesEndpointTest extends RxWebTestBase {
         domain.setId(UUID.randomUUID().toString());
         domain.setPath("/");
 
-        when(clientSyncService.findByClientId_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Client()))));
+        when(clientSyncService.findByClientId_migrated(anyString())).thenReturn(Mono.just(new Client()));
 
         router.route(HttpMethod.GET, "/mfa/challenge/alternatives")
                 .handler(clientRequestParseHandler)

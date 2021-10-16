@@ -138,7 +138,7 @@ public class AzureADAuthenticationProviderTest {
         when(configuration.getTenantId()).thenReturn(TEST_TENANT_ID);
 
         final String state = RandomString.generate();
-        Request request = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(provider.asyncSignInUrl_migrated("https://gravitee.io", state))).block();
+        Request request = provider.asyncSignInUrl_migrated("https://gravitee.io", state).block();
 
         Assert.assertNotNull(request);
         assertEquals(HttpMethod.GET, request.getMethod());

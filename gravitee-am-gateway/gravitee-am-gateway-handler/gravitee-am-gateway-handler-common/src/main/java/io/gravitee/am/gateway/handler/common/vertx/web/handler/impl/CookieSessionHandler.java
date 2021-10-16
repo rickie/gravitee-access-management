@@ -97,11 +97,11 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
         Single<CookieSession> sessionObs = RxJava2Adapter.monoToSingle(Mono.just(session));
 
         if (sessionCookie != null) {
-            sessionObs = RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(session.setValue_migrated(sessionCookie.getValue()))).flatMap(v->RxJava2Adapter.singleToMono((Single<CookieSession>)RxJavaReactorMigrationUtil.toJdkFunction((Function<CookieSession, Single<CookieSession>>)currentSession -> {
+            sessionObs = RxJava2Adapter.monoToSingle(session.setValue_migrated(sessionCookie.getValue()).flatMap(v->RxJava2Adapter.singleToMono((Single<CookieSession>)RxJavaReactorMigrationUtil.toJdkFunction((Function<CookieSession, Single<CookieSession>>)currentSession -> {
                         String userId = currentSession.get(USER_ID_KEY);
                         if (!StringUtils.isEmpty(userId)) {
                             // Load the user and put it back in the context.
-                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(userId))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> context.getDelegate().setUser(new User(user)))).flatMap(z->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.enhance_migrated(z)))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> currentSession)).switchIfEmpty(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(cleanupSession_migrated(currentSession)))))
+                            return RxJava2Adapter.monoToSingle(userService.findById_migrated(userId).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> context.getDelegate().setUser(new User(user)))).flatMap(z->userService.enhance_migrated(z)).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> currentSession)).switchIfEmpty(cleanupSession_migrated(currentSession)))
                                     .onErrorResumeNext(RxJava2Adapter.monoToSingle(cleanupSession_migrated(currentSession)));
                         } else {
                             return RxJava2Adapter.monoToSingle(Mono.just(currentSession));

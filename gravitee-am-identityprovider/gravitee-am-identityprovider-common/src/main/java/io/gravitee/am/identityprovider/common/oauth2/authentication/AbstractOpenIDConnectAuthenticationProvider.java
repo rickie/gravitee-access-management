@@ -96,10 +96,10 @@ protected Maybe<User> retrieveUserFromIdToken(AuthenticationContext authContext,
  return RxJava2Adapter.monoToMaybe(retrieveUserFromIdToken_migrated(authContext, idToken));
 }
 protected Mono<User> retrieveUserFromIdToken_migrated(AuthenticationContext authContext, String idToken) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> jwtProcessor.process(idToken, null))))
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> jwtProcessor.process(idToken, null))))
                 .onErrorResumeNext(ex -> {
                     return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException(ex.getMessage())));
-                })).map(RxJavaReactorMigrationUtil.toJdkFunction(jwtClaimsSet -> createUser(authContext, jwtClaimsSet.getClaims())))));
+                })).map(RxJavaReactorMigrationUtil.toJdkFunction(jwtClaimsSet -> createUser(authContext, jwtClaimsSet.getClaims())));
     }
 
     @Override
@@ -150,7 +150,7 @@ protected Mono<Token> authenticate_migrated(Authentication authentication) {
                 String accessToken = hashValues.get(ACCESS_TOKEN_PARAMETER);
                 // put the id_token in context for later use
                 authentication.getContext().set(ID_TOKEN_PARAMETER, hashValues.get(ID_TOKEN_PARAMETER));
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Token(accessToken, TokenTypeHint.ACCESS_TOKEN))));
+                return Mono.just(new Token(accessToken, TokenTypeHint.ACCESS_TOKEN));
             }
 
             // implicit flow was used with response_type=id_token, id token is already fetched, continue
@@ -158,7 +158,7 @@ protected Mono<Token> authenticate_migrated(Authentication authentication) {
                 String idToken = hashValues.get(ID_TOKEN_PARAMETER);
                 // put the id_token in context for later use
                 authentication.getContext().set(ID_TOKEN_PARAMETER, idToken);
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Token(idToken, TokenTypeHint.ID_TOKEN))));
+                return Mono.just(new Token(idToken, TokenTypeHint.ID_TOKEN));
             }
         }
 
@@ -167,7 +167,7 @@ protected Mono<Token> authenticate_migrated(Authentication authentication) {
         final String authorizationCode = authentication.getContext().request().parameters().getFirst(getConfiguration().getCodeParameter());
         if (authorizationCode == null || authorizationCode.isEmpty()) {
             LOGGER.debug("Authorization code is missing, skip authentication");
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Missing authorization code"))));
+            return Mono.error(new BadCredentialsException("Missing authorization code"));
         }
 
         List<NameValuePair> urlParameters = new ArrayList<>();
@@ -178,7 +178,7 @@ protected Mono<Token> authenticate_migrated(Authentication authentication) {
         urlParameters.add(new BasicNameValuePair(Parameters.GRANT_TYPE, "authorization_code"));
         String bodyRequest = URLEncodedUtils.format(urlParameters);
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(getClient().postAbs(getConfiguration().getAccessTokenUri())
+        return RxJava2Adapter.singleToMono(getClient().postAbs(getConfiguration().getAccessTokenUri())
                 .putHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(bodyRequest.length()))
                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
                 .rxSendBuffer(Buffer.buffer(bodyRequest))).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
@@ -193,7 +193,7 @@ protected Mono<Token> authenticate_migrated(Authentication authentication) {
                         authentication.getContext().set(ID_TOKEN_PARAMETER, idToken);
                     }
                     return new Token(accessToken, TokenTypeHint.ACCESS_TOKEN);
-                }))));
+                }));
 
     }
 
@@ -205,29 +205,29 @@ protected Maybe<User> profile(Token token, Authentication authentication) {
 protected Mono<User> profile_migrated(Token token, Authentication authentication) {
         // we only have the id_token, try to decode it and create the end-user
         if (TokenTypeHint.ID_TOKEN == token.getTypeHint()) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(retrieveUserFromIdToken_migrated(authentication.getContext(), token.getValue())));
+            return retrieveUserFromIdToken_migrated(authentication.getContext(), token.getValue());
         }
 
         // if it's an access token but user ask for id token verification, try to decode it and create the end-user
         if (TokenTypeHint.ACCESS_TOKEN == token.getTypeHint() && getConfiguration().isUseIdTokenForUserInfo()) {
             if (authentication.getContext().get(ID_TOKEN_PARAMETER) != null) {
                 String idToken = String.valueOf(authentication.getContext().get(ID_TOKEN_PARAMETER));
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(retrieveUserFromIdToken_migrated(authentication.getContext(), idToken)));
+                return retrieveUserFromIdToken_migrated(authentication.getContext(), idToken);
             } else {
                 // no suitable value to retrieve user
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("No suitable value to retrieve user information"))));
+                return Mono.error(new BadCredentialsException("No suitable value to retrieve user information"));
             }
         }
 
         // retrieve user claims from the UserInfo Endpoint
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(getClient().getAbs(getConfiguration().getUserProfileUri())
+        return RxJava2Adapter.singleToMono(getClient().getAbs(getConfiguration().getUserProfileUri())
                 .putHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token.getValue())
                 .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(httpClientResponse -> {
                     if (httpClientResponse.statusCode() != 200) {
                         throw new BadCredentialsException(httpClientResponse.statusMessage());
                     }
                     return createUser(authentication.getContext(), httpClientResponse.bodyAsJsonObject().getMap());
-                }))));
+                }));
     }
 
     protected User createUser(AuthenticationContext authContext, Map<String, Object> attributes) {

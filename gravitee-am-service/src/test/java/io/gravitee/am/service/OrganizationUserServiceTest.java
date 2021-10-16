@@ -79,9 +79,9 @@ public class OrganizationUserServiceTest {
 
         when(newUser.getUsername()).thenReturn("username");
         when(newUser.getSource()).thenReturn("source");
-        when(userRepository.create_migrated(any(User.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
-        when(userRepository.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, ORG, newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(userRepository.create_migrated(any(User.class))).thenReturn(Mono.just(user));
+        when(userRepository.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, ORG, newUser.getUsername(), newUser.getSource())).thenReturn(Mono.empty());
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(userService.create_migrated(ReferenceType.ORGANIZATION, ORG, newUser)).test();
         testObserver.awaitTerminalEvent();
@@ -101,8 +101,8 @@ public class OrganizationUserServiceTest {
 
         NewUser newUser = new NewUser();
         newUser.setEmail("invalid");
-        when(userRepository.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, ORG, newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(userRepository.create_migrated(any(User.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(userRepository.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, ORG, newUser.getUsername(), newUser.getSource())).thenReturn(Mono.empty());
+        when(userRepository.create_migrated(any(User.class))).thenReturn(Mono.just(user));
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userService.create_migrated(ReferenceType.ORGANIZATION, ORG, newUser)).test();
         testObserver.awaitTerminalEvent();
@@ -120,8 +120,8 @@ public class OrganizationUserServiceTest {
 
         NewUser newUser = new NewUser();
         newUser.setUsername("##&##");
-        when(userRepository.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, ORG, newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(userRepository.create_migrated(any(User.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
+        when(userRepository.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, ORG, newUser.getUsername(), newUser.getSource())).thenReturn(Mono.empty());
+        when(userRepository.create_migrated(any(User.class))).thenReturn(Mono.just(user));
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userService.create_migrated(ReferenceType.ORGANIZATION, ORG, newUser)).test();
         testObserver.awaitTerminalEvent();
@@ -136,8 +136,8 @@ public class OrganizationUserServiceTest {
         NewUser newUser = Mockito.mock(NewUser.class);
         when(newUser.getUsername()).thenReturn("username");
         when(newUser.getSource()).thenReturn("source");
-        when(userRepository.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, ORG, newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(userRepository.create_migrated(any(User.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(userRepository.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, ORG, newUser.getUsername(), newUser.getSource())).thenReturn(Mono.empty());
+        when(userRepository.create_migrated(any(User.class))).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(userService.create_migrated(ReferenceType.ORGANIZATION, ORG, newUser)).subscribe(testObserver);
@@ -151,7 +151,7 @@ public class OrganizationUserServiceTest {
         NewUser newUser = Mockito.mock(NewUser.class);
         when(newUser.getUsername()).thenReturn("username");
         when(newUser.getSource()).thenReturn("source");
-        when(userRepository.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, ORG, newUser.getUsername(), newUser.getSource())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new User()))));
+        when(userRepository.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, ORG, newUser.getUsername(), newUser.getSource())).thenReturn(Mono.just(new User()));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(userService.create_migrated(ReferenceType.ORGANIZATION, ORG, newUser)).subscribe(testObserver);
@@ -167,10 +167,10 @@ public class OrganizationUserServiceTest {
         user.setReferenceType(ReferenceType.ORGANIZATION);
         user.setReferenceId(ORG);
 
-        when(userRepository.findById_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), eq("my-user"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
-        when(userRepository.findByUsernameAndSource_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
-        when(userRepository.update_migrated(any(User.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(user))));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
+        when(userRepository.findById_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), eq("my-user"))).thenReturn(Mono.just(user));
+        when(userRepository.findByUsernameAndSource_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), any(), any())).thenReturn(Mono.just(user));
+        when(userRepository.update_migrated(any(User.class))).thenReturn(Mono.just(user));
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(userService.update_migrated(ReferenceType.ORGANIZATION, ORG, "my-user", updateUser)).test();
         testObserver.awaitTerminalEvent();
@@ -191,8 +191,8 @@ public class OrganizationUserServiceTest {
 
         UpdateUser updateUser = new UpdateUser();
         updateUser.setEmail("invalid");
-        when(userRepository.findByUsernameAndSource_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
-        when(userRepository.findById_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), eq("my-user"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
+        when(userRepository.findByUsernameAndSource_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), any(), any())).thenReturn(Mono.just(user));
+        when(userRepository.findById_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), eq("my-user"))).thenReturn(Mono.just(user));
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userService.update_migrated(ReferenceType.ORGANIZATION, ORG, "my-user", updateUser)).test();
         testObserver.awaitTerminalEvent();
@@ -210,8 +210,8 @@ public class OrganizationUserServiceTest {
 
         UpdateUser updateUser = new UpdateUser();
         updateUser.setFirstName("$$^^^^¨¨¨)");
-        when(userRepository.findByUsernameAndSource_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), any(), any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
-        when(userRepository.findById_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), eq("my-user"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
+        when(userRepository.findByUsernameAndSource_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), any(), any())).thenReturn(Mono.just(user));
+        when(userRepository.findById_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), eq("my-user"))).thenReturn(Mono.just(user));
 
         TestObserver<User> testObserver = RxJava2Adapter.monoToSingle(userService.update_migrated(ReferenceType.ORGANIZATION, ORG, "my-user", updateUser)).test();
         testObserver.awaitTerminalEvent();
@@ -224,7 +224,7 @@ public class OrganizationUserServiceTest {
     @Test
     public void shouldUpdate_technicalException() {
         UpdateUser updateUser = Mockito.mock(UpdateUser.class);
-        when(userRepository.findById_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), eq("my-user"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new User()))));
+        when(userRepository.findById_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), eq("my-user"))).thenReturn(Mono.just(new User()));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(userService.update_migrated(ReferenceType.ORGANIZATION, ORG, "my-user", updateUser)).subscribe(testObserver);
@@ -236,7 +236,7 @@ public class OrganizationUserServiceTest {
     @Test
     public void shouldUpdate_userNotFound() {
         UpdateUser updateUser = Mockito.mock(UpdateUser.class);
-        when(userRepository.findById_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), eq("my-user"))).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(userRepository.findById_migrated(eq(ReferenceType.ORGANIZATION), eq(ORG), eq("my-user"))).thenReturn(Mono.empty());
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(userService.update_migrated(ReferenceType.ORGANIZATION, ORG, "my-user", updateUser)).subscribe(testObserver);
@@ -252,10 +252,10 @@ public class OrganizationUserServiceTest {
         user.setReferenceType(ReferenceType.ORGANIZATION);
         user.setReferenceId(ORG);
 
-        when(userRepository.findById_migrated("my-user")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
-        when(userRepository.delete_migrated("my-user")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
-        when(credentialService.findByUserId_migrated(user.getReferenceType(), user.getReferenceId(), user.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(userRepository.findById_migrated("my-user")).thenReturn(Mono.just(user));
+        when(userRepository.delete_migrated("my-user")).thenReturn(Mono.empty());
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
+        when(credentialService.findByUserId_migrated(user.getReferenceType(), user.getReferenceId(), user.getId())).thenReturn(Flux.empty());
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.delete_migrated("my-user")).test();
         testObserver.awaitTerminalEvent();
@@ -278,11 +278,11 @@ public class OrganizationUserServiceTest {
         Credential credential = new Credential();
         credential.setId("credential-id");
 
-        when(userRepository.findById_migrated("my-user")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(user))));
-        when(userRepository.delete_migrated("my-user")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(eventService.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Event()))));
-        when(credentialService.findByUserId_migrated(user.getReferenceType(), user.getReferenceId(), user.getId())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(credential))));
-        when(credentialService.delete_migrated(credential.getId())).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(userRepository.findById_migrated("my-user")).thenReturn(Mono.just(user));
+        when(userRepository.delete_migrated("my-user")).thenReturn(Mono.empty());
+        when(eventService.create_migrated(any())).thenReturn(Mono.just(new Event()));
+        when(credentialService.findByUserId_migrated(user.getReferenceType(), user.getReferenceId(), user.getId())).thenReturn(Flux.just(credential));
+        when(credentialService.delete_migrated(credential.getId())).thenReturn(Mono.empty());
 
         TestObserver testObserver = RxJava2Adapter.monoToCompletable(userService.delete_migrated("my-user")).test();
         testObserver.awaitTerminalEvent();
@@ -297,7 +297,7 @@ public class OrganizationUserServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(userRepository.findById_migrated("my-user")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(userRepository.findById_migrated("my-user")).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToCompletable(userService.delete_migrated("my-user")).subscribe(testObserver);
@@ -308,7 +308,7 @@ public class OrganizationUserServiceTest {
 
     @Test
     public void shouldDelete_userNotFound() {
-        when(userRepository.findById_migrated("my-user")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(userRepository.findById_migrated("my-user")).thenReturn(Mono.empty());
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToCompletable(userService.delete_migrated("my-user")).subscribe(testObserver);

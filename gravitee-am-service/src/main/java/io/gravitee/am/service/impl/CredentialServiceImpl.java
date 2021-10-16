@@ -79,11 +79,11 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Flux<Credential> findByUserId_migrated(ReferenceType referenceType, String referenceId, String userId) {
         LOGGER.debug("Find credentials by {} {} and user id: {}", referenceType, referenceId, userId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByUserId_migrated(referenceType, referenceId, userId))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByUserId_migrated(referenceType, referenceId, userId))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a credential using {} {} and user id: {}", referenceType, referenceId, userId, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a credential using %s %s and user id: %s", referenceType, referenceId, userId), ex)));
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUsername_migrated(referenceType, referenceId, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -95,11 +95,11 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Flux<Credential> findByUsername_migrated(ReferenceType referenceType, String referenceId, String username) {
         LOGGER.debug("Find credentials by {} {} and username: {}", referenceType, referenceId, username);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByUsername_migrated(referenceType, referenceId, username))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByUsername_migrated(referenceType, referenceId, username))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a credential using {} {} and username: {}", referenceType, referenceId, username, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a credential using %s %s and username: %s", referenceType, referenceId, username), ex)));
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCredentialId_migrated(referenceType, referenceId, credentialId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -111,11 +111,11 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Flux<Credential> findByCredentialId_migrated(ReferenceType referenceType, String referenceId, String credentialId) {
         LOGGER.debug("Find credentials by {} {} and credential ID: {}", referenceType, referenceId, credentialId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByCredentialId_migrated(referenceType, referenceId, credentialId))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByCredentialId_migrated(referenceType, referenceId, credentialId))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find a credential using {} {} and credential ID: {}", referenceType, referenceId, credentialId, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a credential using %s %s and credential ID: %s", referenceType, referenceId, credentialId), ex)));
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(credential))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -146,7 +146,7 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Mono<Credential> update_migrated(Credential credential) {
         LOGGER.debug("Update a credential {}", credential);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(credentialRepository.findById_migrated(credential.getId()))).switchIfEmpty(Mono.error(new CredentialNotFoundException(credential.getId()))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(credentialRepository.findById_migrated(credential.getId()).switchIfEmpty(Mono.error(new CredentialNotFoundException(credential.getId()))))
                 .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(credentialRepository.update_migrated(credential)))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -166,7 +166,7 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Mono<Void> update_migrated(ReferenceType referenceType, String referenceId, String credentialId, Credential credential) {
         LOGGER.debug("Update a credential {}", credentialId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByCredentialId_migrated(referenceType, referenceId, credentialId))
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByCredentialId_migrated(referenceType, referenceId, credentialId))
                 .flatMapSingle(credentialToUpdate -> {
                     // update only business values (i.e not set via the vert.x authenticator object)
                     credentialToUpdate.setUserId(credential.getUserId());
@@ -175,7 +175,7 @@ public class CredentialServiceImpl implements CredentialService {
                     credentialToUpdate.setUpdatedAt(new Date());
                     credentialToUpdate.setAccessedAt(credentialToUpdate.getUpdatedAt());
                     return RxJava2Adapter.monoToSingle(credentialRepository.update_migrated(credentialToUpdate));
-                })).ignoreElements().then()));
+                })).ignoreElements().then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -187,7 +187,7 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("Delete credential {}", id);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(credentialRepository.findById_migrated(id))).switchIfEmpty(Mono.error(new CredentialNotFoundException(id))).flatMap(email->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(credentialRepository.delete_migrated(id)))).then())
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(credentialRepository.findById_migrated(id).switchIfEmpty(Mono.error(new CredentialNotFoundException(id))).flatMap(email->credentialRepository.delete_migrated(id)).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));

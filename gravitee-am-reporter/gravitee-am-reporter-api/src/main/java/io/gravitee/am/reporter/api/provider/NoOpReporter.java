@@ -52,7 +52,7 @@ public class NoOpReporter implements AuditReporter {
 @Override
     public Mono<Page<Audit>> search_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
         LOGGER.debug("NoOp Reporter call, real reporter not yet bootstrapped");
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptyList(), page, size))));
+        return Mono.just(new Page<>(Collections.emptyList(), page, size));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(referenceType, referenceId, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -72,13 +72,13 @@ public class NoOpReporter implements AuditReporter {
                 Map<Object, Object> result = new HashMap<>();
                 result.put(fieldSuccess, new ArrayList<>(Collections.nCopies(25, 0l)));
                 result.put(fieldFailure, new ArrayList<>(Collections.nCopies(25, 0l)));
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(result)));
+                return Mono.just(result);
             case GROUP_BY:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap())));
+                return Mono.just(Collections.emptyMap());
             case COUNT:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonMap("data", 0l))));
+                return Mono.just(Collections.singletonMap("data", 0l));
             default:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated"))));
+                return Mono.error(new IllegalArgumentException("Analytics [" + analyticsType + "] cannot be calculated"));
         }
     }
 
@@ -91,7 +91,7 @@ public class NoOpReporter implements AuditReporter {
 @Override
     public Mono<Audit> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("NoOp Reporter call, real reporter not yet bootstrapped");
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+        return Mono.empty();
     }
 
     @Override

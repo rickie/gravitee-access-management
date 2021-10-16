@@ -182,7 +182,7 @@ public abstract class JerseySpringTest {
 
     @Before
     public void init() {
-        when(permissionService.hasPermission_migrated(any(User.class), any(PermissionAcls.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true))));
+        when(permissionService.hasPermission_migrated(any(User.class), any(PermissionAcls.class))).thenReturn(Mono.just(true));
     }
 
     @Configuration

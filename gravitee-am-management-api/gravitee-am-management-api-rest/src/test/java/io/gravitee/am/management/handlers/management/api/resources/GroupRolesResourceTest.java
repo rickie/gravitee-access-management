@@ -47,9 +47,9 @@ public class GroupRolesResourceTest extends JerseySpringTest {
         mockGroup.setId("group-id-1");
         mockGroup.setRoles(Collections.singletonList("role-1"));
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockGroup)))).when(groupService).findById_migrated(mockGroup.getId());
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton("role-1"))))).when(roleService).findByIdIn_migrated(mockGroup.getRoles());
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(mockGroup)).when(groupService).findById_migrated(mockGroup.getId());
+        doReturn(Mono.just(Collections.singleton("role-1"))).when(roleService).findByIdIn_migrated(mockGroup.getRoles());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -65,7 +65,7 @@ public class GroupRolesResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetUserRoles_technicalManagementException() {
         final String domainId = "domain-1";
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs"))))).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.error(new TechnicalManagementException("error occurs"))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains")
                 .path(domainId)

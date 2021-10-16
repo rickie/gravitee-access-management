@@ -90,10 +90,10 @@ public class FlowServiceImpl implements FlowService {
 @Override
     public Flux<Flow> findAll_migrated(ReferenceType referenceType, String referenceId, boolean excludeApps) {
         LOGGER.debug("Find all flows for {} {}", referenceType, referenceId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(flowRepository.findAll_migrated(referenceType, referenceId))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(f -> (!excludeApps) ? true : f.getApplication() == null)).sort(getFlowComparator()).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(defaultFlows(referenceType, referenceId)))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(flowRepository.findAll_migrated(referenceType, referenceId))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(f -> (!excludeApps) ? true : f.getApplication() == null)).sort(getFlowComparator()).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(defaultFlows(referenceType, referenceId)))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                 LOGGER.error("An error has occurred while trying to find all flows for {} {}", referenceType, referenceId, ex);
                 return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error has occurred while trying to find a all flows for %s %s", referenceType, referenceId), ex)));
-            }))));
+            }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByApplication_migrated(referenceType, referenceId, application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -105,13 +105,13 @@ public class FlowServiceImpl implements FlowService {
 @Override
     public Flux<Flow> findByApplication_migrated(ReferenceType referenceType, String referenceId, String application) {
         LOGGER.debug("Find all flows for {} {} and application {}", referenceType, referenceId, application);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(flowRepository.findByApplication_migrated(referenceType, referenceId, application))).sort(getFlowComparator()).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(defaultFlows(referenceType, referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(flow -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(flowRepository.findByApplication_migrated(referenceType, referenceId, application))).sort(getFlowComparator()).switchIfEmpty(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(defaultFlows(referenceType, referenceId)).map(RxJavaReactorMigrationUtil.toJdkFunction(flow -> {
                             flow.setApplication(application);
                             return flow;
                         })))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error has occurred while trying to find all flows for {} {} and application {}", referenceType, referenceId, application, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error has occurred while trying to find a all flows for %s %s and application %s", referenceType, referenceId, application), ex)));
-                }))));
+                }));
     }
 
     @Override
@@ -135,7 +135,7 @@ public class FlowServiceImpl implements FlowService {
         LOGGER.debug("Find flow by referenceType {}, referenceId {} and id {}", referenceType, referenceId, id);
         if (id == null) {
             // flow id may be null for default flows
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(flowRepository.findById_migrated(referenceType, referenceId, id))
             .onErrorResumeNext(ex -> {
@@ -156,7 +156,7 @@ public class FlowServiceImpl implements FlowService {
         LOGGER.debug("Find flow by id {}", id);
         if (id == null) {
             // flow id may be null for default flows
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(flowRepository.findById_migrated(id))
             .onErrorResumeNext(ex -> {
@@ -175,7 +175,7 @@ public class FlowServiceImpl implements FlowService {
 @Override
     public Mono<Flow> create_migrated(ReferenceType referenceType, String referenceId, Flow flow, User principal) {
         LOGGER.debug("Create a new flow {} for referenceType {} and referenceId", flow, referenceType, referenceId);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(create0_migrated(referenceType, referenceId, null, flow, principal)));
+        return create0_migrated(referenceType, referenceId, null, flow, principal);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId, application, flow, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -187,7 +187,7 @@ public class FlowServiceImpl implements FlowService {
 @Override
     public Mono<Flow> create_migrated(ReferenceType referenceType, String referenceId, String application, Flow flow, User principal) {
         LOGGER.debug("Create a new flow {} for referenceType {}, referenceId {} and application {}", flow, referenceType, referenceId, application);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(create0_migrated(referenceType, referenceId, application, flow, principal)));
+        return create0_migrated(referenceType, referenceId, application, flow, principal);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(referenceType, referenceId, id, flow, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -200,7 +200,7 @@ public class FlowServiceImpl implements FlowService {
     public Mono<Flow> update_migrated(ReferenceType referenceType, String referenceId, String id, Flow flow, User principal) {
         LOGGER.debug("Update a flow {} ", flow);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(flowRepository.findById_migrated(referenceType, referenceId, id))).switchIfEmpty(Mono.error(new FlowNotFoundException(id))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(flowRepository.findById_migrated(referenceType, referenceId, id).switchIfEmpty(Mono.error(new FlowNotFoundException(id))))
             .flatMapSingle(oldFlow -> {
 
                 // if type isn't define, continue as the oldFlow will contains the right value
@@ -224,14 +224,14 @@ public class FlowServiceImpl implements FlowService {
                     // force the ROOT post with emptyList to avoid UI issue
                     flowToUpdate.setPost(emptyList());
                 }
-                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.update_migrated(flowToUpdate))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Flow, SingleSource<Flow>>toJdkFunction(flow1 -> {
+                return RxJava2Adapter.monoToSingle(flowRepository.update_migrated(flowToUpdate).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Flow, SingleSource<Flow>>toJdkFunction(flow1 -> {
                         Event event = new Event(io.gravitee.am.common.event.Type.FLOW, new Payload(flow1.getId(), flow1.getReferenceType(), flow1.getReferenceId(), Action.UPDATE));
                         if (Type.ROOT == flow1.getType()) {
                             // Pre or Post steps are not supposed to be null in the UI-Component
                             // force the ROOT post with emptyList to avoid UI issue
                             flow1.setPost(emptyList());
                         }
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(flow1)));
+                        return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(flow1)));
                     }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(flow1 -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_UPDATED).oldValue(oldFlow).flow(flow1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_UPDATED).throwable(throwable)))));
 
             })
@@ -253,7 +253,7 @@ public class FlowServiceImpl implements FlowService {
 @Override
     public Mono<List<Flow>> createOrUpdate_migrated(ReferenceType referenceType, String referenceId, List<Flow> flows, User principal) {
         LOGGER.debug("Create or update flows {} for domain {}", flows, referenceId);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(createOrUpdate0_migrated(referenceType, referenceId, null, flows, principal)));
+        return createOrUpdate0_migrated(referenceType, referenceId, null, flows, principal);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOrUpdate_migrated(referenceType, referenceId, application, flows, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -265,7 +265,7 @@ public class FlowServiceImpl implements FlowService {
 @Override
     public Mono<List<Flow>> createOrUpdate_migrated(ReferenceType referenceType, String referenceId, String application, List<Flow> flows, User principal) {
         LOGGER.debug("Create or update flows {} for domain {} and application {}", flows, referenceId, application);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(createOrUpdate0_migrated(referenceType, referenceId, application, flows, principal)));
+        return createOrUpdate0_migrated(referenceType, referenceId, application, flows, principal);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -279,12 +279,12 @@ public class FlowServiceImpl implements FlowService {
         LOGGER.debug("Delete flow {}", id);
         if (id == null) {
             // flow id may be null for default flows
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
+            return Mono.empty();
         }
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(flowRepository.findById_migrated(id))).switchIfEmpty(Mono.error(new FlowNotFoundException(id))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Flow, CompletableSource>)flow -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(flowRepository.findById_migrated(id).switchIfEmpty(Mono.error(new FlowNotFoundException(id))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Flow, CompletableSource>)flow -> {
                     // create event for sync process
                     Event event = new Event(io.gravitee.am.common.event.Type.FLOW, new Payload(flow.getId(), flow.getReferenceType(), flow.getReferenceId(), Action.DELETE));
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(flowRepository.delete_migrated(id))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event)))).then())
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(flowRepository.delete_migrated(id).then(eventService.create_migrated(event)).then())
                             .doOnComplete(() -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_DELETED).flow(flow)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_DELETED).throwable(throwable)))));
                 }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
@@ -330,10 +330,10 @@ private Mono<List<Flow>> createOrUpdate0_migrated(ReferenceType referenceType, S
         final long deduplicateIds = flows.stream().filter(flow -> flow.getId() != null).distinct().count();
 
         if (ids != deduplicateIds) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidParameterException("Multiple flows have the same Id"))));
+            return Mono.error(new InvalidParameterException("Multiple flows have the same Id"));
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(flowRepository.findAll_migrated(referenceType, referenceId))).collectList().flatMap(v->RxJava2Adapter.singleToMono((Single<List<Flow>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Flow>, Single<List<Flow>>>)existingFlows -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.findAll_migrated(referenceType, referenceId).collectList().flatMap(v->RxJava2Adapter.singleToMono((Single<List<Flow>>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Flow>, Single<List<Flow>>>)existingFlows -> {
 
                     final Map<String, Flow> mapOfExistingFlows = existingFlows.stream()
                             .filter(f -> (application == null && f.getApplication() == null) || (application != null && application.equals(f.getApplication())))
@@ -415,7 +415,7 @@ private Mono<Flow> create0_migrated(ReferenceType referenceType, String referenc
         flow.setCreatedAt(new Date());
         flow.setUpdatedAt(flow.getCreatedAt());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Flow, SingleSource<Flow>>toJdkFunction(flow1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(flowRepository.create_migrated(flow))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Flow, SingleSource<Flow>>toJdkFunction(flow1 -> {
                     // create event for sync process
                     Event event = new Event(io.gravitee.am.common.event.Type.FLOW, new Payload(flow1.getId(), referenceType, referenceId, Action.CREATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(flow1)));
@@ -423,7 +423,7 @@ private Mono<Flow> create0_migrated(ReferenceType referenceType, String referenc
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error has occurred while trying to create a flow", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error has occurred while trying to create a flow", ex)));
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(flow1 -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_CREATED).flow(flow1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_CREATED).throwable(throwable))))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(flow1 -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_CREATED).flow(flow1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(FlowAuditBuilder.class).principal(principal).type(EventType.FLOW_CREATED).throwable(throwable))));
     }
 
     private Flow buildFlow(Type type, ReferenceType referenceType, String referenceId) {

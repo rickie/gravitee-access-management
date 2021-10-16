@@ -72,7 +72,7 @@ public class PermissionTicketServiceTest {
         //Prepare request & resource
         List<PermissionRequest> request = Arrays.asList(new PermissionRequest().setResourceId("one").setResourceScopes(Arrays.asList("a","b")));
 
-        when(resourceService.findByDomainAndClientAndResources_migrated(DOMAIN_ID, CLIENT_ID, Arrays.asList("one"))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(resourceService.findByDomainAndClientAndResources_migrated(DOMAIN_ID, CLIENT_ID, Arrays.asList("one"))).thenReturn(Flux.empty());
         TestObserver<PermissionTicket> testObserver = RxJava2Adapter.monoToSingle(service.create_migrated(request, DOMAIN_ID, CLIENT_ID)).test();
 
         testObserver.assertNotComplete();
@@ -85,7 +85,7 @@ public class PermissionTicketServiceTest {
         //Prepare request & resource
         List<PermissionRequest> request = Arrays.asList(new PermissionRequest().setResourceId("one").setResourceScopes(Arrays.asList("a","b")));
 
-        when(resourceService.findByDomainAndClientAndResources_migrated(DOMAIN_ID, CLIENT_ID, Arrays.asList("one"))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Resource().setId("one").setResourceScopes(Arrays.asList("not","same"))))));
+        when(resourceService.findByDomainAndClientAndResources_migrated(DOMAIN_ID, CLIENT_ID, Arrays.asList("one"))).thenReturn(Flux.just(new Resource().setId("one").setResourceScopes(Arrays.asList("not","same"))));
         TestObserver<PermissionTicket> testObserver = RxJava2Adapter.monoToSingle(service.create_migrated(request, DOMAIN_ID, CLIENT_ID)).test();
 
         testObserver.assertNotComplete();
@@ -98,8 +98,8 @@ public class PermissionTicketServiceTest {
         //Prepare request & resource
         List<PermissionRequest> request = Arrays.asList(new PermissionRequest().setResourceId("one").setResourceScopes(Arrays.asList("a","b")));
 
-        when(resourceService.findByDomainAndClientAndResources_migrated(DOMAIN_ID, CLIENT_ID, Arrays.asList("one"))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Resource().setId("one").setResourceScopes(Arrays.asList("a","b"))))));
-        when(repository.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new PermissionTicket().setId("success")))));
+        when(resourceService.findByDomainAndClientAndResources_migrated(DOMAIN_ID, CLIENT_ID, Arrays.asList("one"))).thenReturn(Flux.just(new Resource().setId("one").setResourceScopes(Arrays.asList("a","b"))));
+        when(repository.create_migrated(any())).thenReturn(Mono.just(new PermissionTicket().setId("success")));
 
         TestObserver<PermissionTicket> testObserver = RxJava2Adapter.monoToSingle(service.create_migrated(request, DOMAIN_ID, CLIENT_ID)).test();
 
@@ -176,7 +176,7 @@ public class PermissionTicketServiceTest {
         Flowable<Resource> found = RxJava2Adapter.fluxToFlowable(Flux.fromIterable(request).map(RxJavaReactorMigrationUtil.toJdkFunction(s -> new Resource().setId(s.getResourceId()).setResourceScopes(s.getResourceScopes()))));
 
         when(resourceService.findByDomainAndClientAndResources_migrated(DOMAIN_ID, CLIENT_ID, Arrays.asList("one","two"))).thenReturn(RxJava2Adapter.flowableToFlux(found));
-        when(repository.create_migrated(any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new PermissionTicket().setId("success")))));
+        when(repository.create_migrated(any())).thenReturn(Mono.just(new PermissionTicket().setId("success")));
 
         TestObserver<PermissionTicket> testObserver = RxJava2Adapter.monoToSingle(service.create_migrated(request, DOMAIN_ID, CLIENT_ID)).test();
 
@@ -199,7 +199,7 @@ public class PermissionTicketServiceTest {
         ArgumentCaptor<PermissionTicket> permissionTicketArgumentCaptor = ArgumentCaptor.forClass(PermissionTicket.class);
 
         when(resourceService.findByDomainAndClientAndResources_migrated(DOMAIN_ID, CLIENT_ID, Arrays.asList("one","two"))).thenReturn(RxJava2Adapter.flowableToFlux(found));
-        when(repository.create_migrated(permissionTicketArgumentCaptor.capture())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new PermissionTicket().setId("success")))));
+        when(repository.create_migrated(permissionTicketArgumentCaptor.capture())).thenReturn(Mono.just(new PermissionTicket().setId("success")));
 
         TestObserver<PermissionTicket> testObserver = RxJava2Adapter.monoToSingle(service.create_migrated(request, DOMAIN_ID, CLIENT_ID)).test();
 
@@ -221,22 +221,22 @@ public class PermissionTicketServiceTest {
 
     @Test
     public void findById() {
-        when(repository.findById_migrated("id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new PermissionTicket()))));
+        when(repository.findById_migrated("id")).thenReturn(Mono.just(new PermissionTicket()));
         TestObserver<PermissionTicket> testObserver = RxJava2Adapter.monoToMaybe(service.findById_migrated("id")).test();
         testObserver.assertComplete().assertNoErrors().assertValue(Objects::nonNull);
     }
 
     @Test
     public void remove_invalidPermissionTicket() {
-        when(repository.findById_migrated("id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(repository.findById_migrated("id")).thenReturn(Mono.empty());
         TestObserver<PermissionTicket> testObserver = RxJava2Adapter.monoToSingle(service.remove_migrated("id")).test();
         testObserver.assertNotComplete().assertError(InvalidPermissionTicketException.class);
     }
 
     @Test
     public void remove() {
-        when(repository.findById_migrated("id")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new PermissionTicket().setId("id")))));
-        when(repository.delete_migrated("id")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(repository.findById_migrated("id")).thenReturn(Mono.just(new PermissionTicket().setId("id")));
+        when(repository.delete_migrated("id")).thenReturn(Mono.empty());
         TestObserver<PermissionTicket> testObserver = RxJava2Adapter.monoToSingle(service.remove_migrated("id")).test();
         testObserver.assertComplete().assertNoErrors().assertValue(Objects::nonNull);
     }

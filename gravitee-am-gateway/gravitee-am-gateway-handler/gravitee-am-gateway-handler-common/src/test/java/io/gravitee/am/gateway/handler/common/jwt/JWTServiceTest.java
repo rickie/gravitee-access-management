@@ -72,11 +72,11 @@ public class JWTServiceTest {
         when(defaultCertProvider.getJwtBuilder()).thenReturn(defaultJWTBuilder);
         when(noneAlgCertProvider.getJwtBuilder()).thenReturn(noneAlgBuilder);
 
-        when(certificateManager.findByAlgorithm_migrated("unknown")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(certificateManager.findByAlgorithm_migrated("RS512")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(rs512CertProvider))));
-        when(certificateManager.get_migrated(null)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(certificateManager.get_migrated("notExistingId")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(certificateManager.get_migrated("existingId")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(rs256CertProvider))));
+        when(certificateManager.findByAlgorithm_migrated("unknown")).thenReturn(Mono.empty());
+        when(certificateManager.findByAlgorithm_migrated("RS512")).thenReturn(Mono.just(rs512CertProvider));
+        when(certificateManager.get_migrated(null)).thenReturn(Mono.empty());
+        when(certificateManager.get_migrated("notExistingId")).thenReturn(Mono.empty());
+        when(certificateManager.get_migrated("existingId")).thenReturn(Mono.just(rs256CertProvider));
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCertProvider);
         when(certificateManager.noneAlgorithmCertificateProvider()).thenReturn(noneAlgCertProvider);
     }

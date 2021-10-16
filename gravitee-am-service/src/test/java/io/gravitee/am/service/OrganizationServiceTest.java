@@ -85,7 +85,7 @@ public class OrganizationServiceTest {
     public void shouldFindById() {
 
         Organization organization = new Organization();
-        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(organization))));
+        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.just(organization));
 
         TestObserver<Organization> obs = RxJava2Adapter.monoToSingle(cut.findById_migrated(ORGANIZATION_ID)).test();
 
@@ -97,7 +97,7 @@ public class OrganizationServiceTest {
     @Test
     public void shouldFindById_notExistingOrganization() {
 
-        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.empty());
 
         TestObserver<Organization> obs = RxJava2Adapter.monoToSingle(cut.findById_migrated(ORGANIZATION_ID)).test();
 
@@ -108,7 +108,7 @@ public class OrganizationServiceTest {
     @Test
     public void shouldFindById_technicalException() {
 
-        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver<Organization> obs = RxJava2Adapter.monoToSingle(cut.findById_migrated(ORGANIZATION_ID)).test();
 
@@ -122,10 +122,10 @@ public class OrganizationServiceTest {
         Organization defaultOrganization = new Organization();
         defaultOrganization.setId("DEFAULT");
 
-        when(organizationRepository.count_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(0L))));
-        when(organizationRepository.create_migrated(argThat(organization -> organization.getId().equals(Organization.DEFAULT)))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(defaultOrganization))));
-        when(roleService.createDefaultRoles_migrated("DEFAULT")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(entrypointService.createDefaults_migrated(defaultOrganization)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Entrypoint()))));
+        when(organizationRepository.count_migrated()).thenReturn(Mono.just(0L));
+        when(organizationRepository.create_migrated(argThat(organization -> organization.getId().equals(Organization.DEFAULT)))).thenReturn(Mono.just(defaultOrganization));
+        when(roleService.createDefaultRoles_migrated("DEFAULT")).thenReturn(Mono.empty());
+        when(entrypointService.createDefaults_migrated(defaultOrganization)).thenReturn(Flux.just(new Entrypoint()));
 
         TestObserver<Organization> obs = RxJava2Adapter.monoToMaybe(cut.createDefault_migrated()).test();
 
@@ -148,7 +148,7 @@ public class OrganizationServiceTest {
         Organization defaultOrganization = new Organization();
         defaultOrganization.setId(Organization.DEFAULT);
 
-        when(organizationRepository.count_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(1L))));
+        when(organizationRepository.count_migrated()).thenReturn(Mono.just(1L));
 
         TestObserver<Organization> obs = RxJava2Adapter.monoToMaybe(cut.createDefault_migrated()).test();
 
@@ -167,8 +167,8 @@ public class OrganizationServiceTest {
         Organization defaultOrganization = new Organization();
         defaultOrganization.setId("DEFAULT");
 
-        when(organizationRepository.count_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(0L))));
-        when(organizationRepository.create_migrated(argThat(organization -> organization.getId().equals(Organization.DEFAULT)))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException()))));
+        when(organizationRepository.count_migrated()).thenReturn(Mono.just(0L));
+        when(organizationRepository.create_migrated(argThat(organization -> organization.getId().equals(Organization.DEFAULT)))).thenReturn(Mono.error(new TechnicalManagementException()));
 
         TestObserver<Organization> obs = RxJava2Adapter.monoToMaybe(cut.createDefault_migrated()).test();
 
@@ -189,10 +189,10 @@ public class OrganizationServiceTest {
     @Test
     public void shouldCreate() {
 
-        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(organizationRepository.create_migrated(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
-        when(roleService.createDefaultRoles_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
-        when(entrypointService.createDefaults_migrated(any(Organization.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Entrypoint()))));
+        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.empty());
+        when(organizationRepository.create_migrated(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenAnswer(i -> Mono.just(i.getArgument(0)));
+        when(roleService.createDefaultRoles_migrated(ORGANIZATION_ID)).thenReturn(Mono.empty());
+        when(entrypointService.createDefaults_migrated(any(Organization.class))).thenReturn(Flux.just(new Entrypoint()));
 
         NewOrganization newOrganization = new NewOrganization();
         newOrganization.setName("TestName");
@@ -231,8 +231,8 @@ public class OrganizationServiceTest {
     @Test
     public void shouldCreate_error() {
 
-        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(organizationRepository.create_migrated(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException()))));
+        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.empty());
+        when(organizationRepository.create_migrated(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenReturn(Mono.error(new TechnicalManagementException()));
 
         NewOrganization newOrganization = new NewOrganization();
         newOrganization.setName("TestName");
@@ -265,8 +265,8 @@ public class OrganizationServiceTest {
         Organization existingOrganization = new Organization();
         existingOrganization.setId(ORGANIZATION_ID);
 
-        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingOrganization))));
-        when(organizationRepository.update_migrated(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.just(existingOrganization));
+        when(organizationRepository.update_migrated(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenAnswer(i -> Mono.just(i.getArgument(0)));
 
         NewOrganization newOrganization = new NewOrganization();
         newOrganization.setName("TestName");
@@ -308,8 +308,8 @@ public class OrganizationServiceTest {
         Organization existingOrganization = new Organization();
         existingOrganization.setId(ORGANIZATION_ID);
 
-        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingOrganization))));
-        when(organizationRepository.update_migrated(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException()))));
+        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.just(existingOrganization));
+        when(organizationRepository.update_migrated(argThat(organization -> organization.getId().equals(ORGANIZATION_ID)))).thenReturn(Mono.error(new TechnicalManagementException()));
 
         NewOrganization newOrganization = new NewOrganization();
         newOrganization.setName("TestName");
@@ -342,8 +342,8 @@ public class OrganizationServiceTest {
         Organization existingOrganization = new Organization();
         existingOrganization.setId(ORGANIZATION_ID);
 
-        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(existingOrganization))));
-        when(organizationRepository.update_migrated(argThat(toUpdate -> toUpdate.getIdentities() != null))).thenAnswer(i -> RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(i.getArgument(0)))));
+        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.just(existingOrganization));
+        when(organizationRepository.update_migrated(argThat(toUpdate -> toUpdate.getIdentities() != null))).thenAnswer(i -> Mono.just(i.getArgument(0)));
 
         PatchOrganization patchOrganization = new PatchOrganization();
         List<String> identities = Collections.singletonList("test");
@@ -358,7 +358,7 @@ public class OrganizationServiceTest {
     @Test
     public void shouldUpdate_notExistingOrganization() {
 
-        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(organizationRepository.findById_migrated(ORGANIZATION_ID)).thenReturn(Mono.empty());
 
         PatchOrganization patchOrganization = new PatchOrganization();
         patchOrganization.setIdentities(Collections.singletonList("test"));

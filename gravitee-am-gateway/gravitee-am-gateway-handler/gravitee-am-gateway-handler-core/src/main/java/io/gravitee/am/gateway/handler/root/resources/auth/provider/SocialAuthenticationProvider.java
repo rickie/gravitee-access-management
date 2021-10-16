@@ -90,7 +90,7 @@ public class SocialAuthenticationProvider implements UserAuthProvider {
         endUserAuthentication.getContext().set(Claims.user_agent, RequestUtils.userAgent(context.request()));
 
         // authenticate the user via the social provider
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(endUserAuthentication))).switchIfEmpty(Mono.error(new BadCredentialsException("Unable to authenticate social provider, authentication provider has returned empty value"))))
+        RxJava2Adapter.monoToMaybe(authenticationProvider.loadUserByUsername_migrated(endUserAuthentication).switchIfEmpty(Mono.error(new BadCredentialsException("Unable to authenticate social provider, authentication provider has returned empty value"))))
                 .flatMapSingle(user -> {
                     // set source and client for the current authenticated end-user
                     Map<String, Object> additionalInformation = user.getAdditionalInformation() == null ? new HashMap<>() : new HashMap<>(user.getAdditionalInformation());

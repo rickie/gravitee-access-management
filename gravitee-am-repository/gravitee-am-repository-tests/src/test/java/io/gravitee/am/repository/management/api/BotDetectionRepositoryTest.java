@@ -41,7 +41,7 @@ public class BotDetectionRepositoryTest extends AbstractManagementTest {
         BotDetection botDetection = buildBotDetection();
         botDetection.setReferenceId("testDomain");
         botDetection.setReferenceType(ReferenceType.DOMAIN);
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(botDetection))).block();
+        repository.create_migrated(botDetection).block();
 
         TestSubscriber<BotDetection> testSubscriber = RxJava2Adapter.fluxToFlowable(repository.findByReference_migrated(ReferenceType.DOMAIN, "testDomain")).test();
         testSubscriber.awaitTerminalEvent();
@@ -68,7 +68,7 @@ public class BotDetectionRepositoryTest extends AbstractManagementTest {
     @Test
     public void testFindById() throws TechnicalException {
         BotDetection bdectection = buildBotDetection();
-        BotDetection bdetectionCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(bdectection))).block();
+        BotDetection bdetectionCreated = repository.create_migrated(bdectection).block();
 
         TestObserver<BotDetection> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(bdetectionCreated.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -106,7 +106,7 @@ public class BotDetectionRepositoryTest extends AbstractManagementTest {
     @Test
     public void testUpdate() throws TechnicalException {
         BotDetection botDetection = buildBotDetection();
-        BotDetection botDetectionCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(botDetection))).block();
+        BotDetection botDetectionCreated = repository.create_migrated(botDetection).block();
 
         BotDetection bDetection = buildBotDetection();
         bDetection.setId(botDetectionCreated.getId());
@@ -127,7 +127,7 @@ public class BotDetectionRepositoryTest extends AbstractManagementTest {
     @Test
     public void testDelete() throws TechnicalException {
         BotDetection botDetection = buildBotDetection();
-        BotDetection botDetectionCreated = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(botDetection))).block();
+        BotDetection botDetectionCreated = repository.create_migrated(botDetection).block();
 
         TestObserver<BotDetection> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(botDetectionCreated.getId())).test();
         testObserver.awaitTerminalEvent();

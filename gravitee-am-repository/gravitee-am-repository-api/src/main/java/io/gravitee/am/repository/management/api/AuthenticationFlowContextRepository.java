@@ -115,6 +115,6 @@ default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String trans
 default io.reactivex.Completable purgeExpiredData() {
     return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
 }default Mono<Void> purgeExpiredData_migrated() {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        return Mono.empty();
     }
 }

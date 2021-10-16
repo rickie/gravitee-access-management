@@ -87,7 +87,7 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
                 eq(FIELD_REFERENCE_ID, domain),
                 or(emailQuery, emailClaimQuery));
 
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(usersCollection.find(mongoQuery)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(usersCollection.find(mongoQuery)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsernameAndDomain_migrated(domain, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -98,11 +98,11 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
 }
 @Override
     public Mono<User> findByUsernameAndDomain_migrated(String domain, String username) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(
                 usersCollection
                         .find(and(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, domain), eq(FIELD_USERNAME, username)))
                         .limit(1)
-                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -137,12 +137,12 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
     public Mono<Map<Object,Object>> statistics_migrated(AnalyticsQuery query) {
         switch (query.getField()) {
             case Field.USER_STATUS:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(usersStatusRepartition_migrated(query)));
+                return usersStatusRepartition_migrated(query);
             case Field.USER_REGISTRATION:
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(registrationsStatusRepartition_migrated(query)));
+                return registrationsStatusRepartition_migrated(query);
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyMap())));
+        return Mono.just(Collections.emptyMap());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.usersStatusRepartition_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

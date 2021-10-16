@@ -95,18 +95,18 @@ public class DefaultOrganizationUpgraderTest {
         adminUser.setId("admin-id");
 
         final Organization organization = new Organization();
-        when(organizationService.createDefault_migrated()).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(organization))));
-        when(identityProviderService.create_migrated(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(NewIdentityProvider.class), isNull())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idp))));
-        when(organizationService.update_migrated(eq(Organization.DEFAULT), any(PatchOrganization.class), isNull())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(organization))));
+        when(organizationService.createDefault_migrated()).thenReturn(Mono.just(organization));
+        when(identityProviderService.create_migrated(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(NewIdentityProvider.class), isNull())).thenReturn(Mono.just(idp));
+        when(organizationService.update_migrated(eq(Organization.DEFAULT), any(PatchOrganization.class), isNull())).thenReturn(Mono.just(organization));
         when(userService.create_migrated(argThat(user -> !user.isInternal()
                 && user.getUsername().equals("admin")
                 && user.getSource().equals(idp.getId())
                 && user.getReferenceType() == ReferenceType.ORGANIZATION
-                && user.getReferenceId().equals(Organization.DEFAULT)))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(adminUser))));
-        when(domainService.findById_migrated("admin")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+                && user.getReferenceId().equals(Organization.DEFAULT)))).thenReturn(Mono.just(adminUser));
+        when(domainService.findById_migrated("admin")).thenReturn(Mono.empty());
         doNothing().when(membershipHelper).setOrganizationPrimaryOwnerRole(argThat(user -> user.getId().equals(adminUser.getId())));
-        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(organization))));
-        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(Mono.just(organization));
+        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(Flux.empty());
 
         assertTrue(cut.upgrade());
         verify(membershipHelper, times(1)).setPlatformAdminRole();
@@ -123,10 +123,10 @@ public class DefaultOrganizationUpgraderTest {
         defaultOrganization.setId(Organization.DEFAULT);
         defaultOrganization.setIdentities(Arrays.asList("test"));
 
-        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(defaultOrganization))));
-        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(idp))));
+        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(Mono.just(defaultOrganization));
+        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(Flux.just(idp));
 
-        when(organizationService.createDefault_migrated()).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(organizationService.createDefault_migrated()).thenReturn(Mono.empty());
         assertTrue(cut.upgrade());
         verify(membershipHelper, times(1)).setPlatformAdminRole();
     }
@@ -145,10 +145,10 @@ public class DefaultOrganizationUpgraderTest {
         defaultOrganization.setId(Organization.DEFAULT);
         defaultOrganization.setIdentities(Arrays.asList("inlineIdpId"));
 
-        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(defaultOrganization))));
-        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(idp))));
+        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(Mono.just(defaultOrganization));
+        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(Flux.just(idp));
 
-        when(organizationService.createDefault_migrated()).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(organizationService.createDefault_migrated()).thenReturn(Mono.empty());
         assertTrue(cut.upgrade());
         verify(membershipHelper, times(1)).setPlatformAdminRole();
     }
@@ -170,10 +170,10 @@ public class DefaultOrganizationUpgraderTest {
         defaultOrganization.setId(Organization.DEFAULT);
         defaultOrganization.setIdentities(Arrays.asList("inlineIdpId"));
 
-        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(defaultOrganization))));
-        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(idp))));
+        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(Mono.just(defaultOrganization));
+        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(Flux.just(idp));
 
-        when(organizationService.createDefault_migrated()).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(organizationService.createDefault_migrated()).thenReturn(Mono.empty());
         assertTrue(cut.upgrade());
         verify(membershipHelper, times(1)).setPlatformAdminRole();
     }
@@ -195,13 +195,13 @@ public class DefaultOrganizationUpgraderTest {
         defaultOrganization.setId(Organization.DEFAULT);
         defaultOrganization.setIdentities(Arrays.asList("inlineIdpId"));
 
-        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(defaultOrganization))));
-        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(idp))));
-        when(userService.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT, "admin", idp.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(userService.create_migrated(any(User.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(adminUser))));
+        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(Mono.just(defaultOrganization));
+        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(Flux.just(idp));
+        when(userService.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT, "admin", idp.getId())).thenReturn(Mono.empty());
+        when(userService.create_migrated(any(User.class))).thenReturn(Mono.just(adminUser));
         doNothing().when(membershipHelper).setOrganizationPrimaryOwnerRole(argThat(user -> user.getId().equals(adminUser.getId())));
 
-        when(organizationService.createDefault_migrated()).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(organizationService.createDefault_migrated()).thenReturn(Mono.empty());
         assertTrue(cut.upgrade());
         verify(membershipHelper, times(1)).setPlatformAdminRole();
     }
@@ -226,10 +226,10 @@ public class DefaultOrganizationUpgraderTest {
         defaultOrganization.setId(Organization.DEFAULT);
         defaultOrganization.setIdentities(Arrays.asList("inlineIdpId"));
 
-        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(defaultOrganization))));
-        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(idp))));
-        when(userService.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT, "admin", idp.getId())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(adminUser)))); // Admin already exists.
-        when(organizationService.createDefault_migrated()).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(Mono.just(defaultOrganization));
+        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(Flux.just(idp));
+        when(userService.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT, "admin", idp.getId())).thenReturn(Mono.just(adminUser)); // Admin already exists.
+        when(organizationService.createDefault_migrated()).thenReturn(Mono.empty());
 
         assertTrue(cut.upgrade());
         verify(membershipHelper, times(1)).setPlatformAdminRole();
@@ -238,7 +238,7 @@ public class DefaultOrganizationUpgraderTest {
     @Test
     public void shouldCreateDefaultOrganization_technicalError() {
 
-        when(organizationService.createDefault_migrated()).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(organizationService.createDefault_migrated()).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         assertFalse(cut.upgrade());
     }
@@ -260,27 +260,27 @@ public class DefaultOrganizationUpgraderTest {
         List<User> users = Stream.iterate(0, i -> i++).limit(10).map(i -> user)
                 .collect(Collectors.toList());
 
-        when(organizationService.createDefault_migrated()).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(organization))));
-        when(organizationService.update_migrated(any(), any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(organization))));
-        when(domainService.findById_migrated("admin")).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Domain()))));
-        when(domainService.delete_migrated("admin")).thenReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty())));
+        when(organizationService.createDefault_migrated()).thenReturn(Mono.just(organization));
+        when(organizationService.update_migrated(any(), any(), any())).thenReturn(Mono.just(organization));
+        when(domainService.findById_migrated("admin")).thenReturn(Mono.just(new Domain()));
+        when(domainService.delete_migrated("admin")).thenReturn(Mono.empty());
 
         when(roleService.findDefaultRole_migrated(Organization.DEFAULT, DefaultRole.ORGANIZATION_OWNER, ReferenceType.ORGANIZATION))
-                .thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(adminRole)))); // Role has been created.
+                .thenReturn(Mono.just(adminRole)); // Role has been created.
 
         when(userService.findAll_migrated(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), eq(0), anyInt()))
-                .thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(users, 0, totalUsers)))));
+                .thenReturn(Mono.just(new Page<>(users, 0, totalUsers)));
 
         when(userService.findAll_migrated(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), eq(1), anyInt()))
-                .thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(users, 1, totalUsers)))));
+                .thenReturn(Mono.just(new Page<>(users, 1, totalUsers)));
 
         when(userService.findAll_migrated(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), eq(2), anyInt()))
-                .thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Arrays.asList(user, user), 2, totalUsers)))));
+                .thenReturn(Mono.just(new Page<>(Arrays.asList(user, user), 2, totalUsers)));
 
         doNothing().when(membershipHelper).setOrganizationRole(eq(user), eq(adminRole));
 
-        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(organization))));
-        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(organizationService.findById_migrated(Organization.DEFAULT)).thenReturn(Mono.just(organization));
+        when(identityProviderService.findAll_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT)).thenReturn(Flux.empty());
 
         cut.upgrade();
 

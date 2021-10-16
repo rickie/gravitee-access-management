@@ -172,7 +172,7 @@ public class CertificateProviderManagerTest {
 }
 @Override
             public Mono<io.gravitee.am.certificate.api.Key> key_migrated() {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(certificateKey)));
+                return Mono.just(certificateKey);
             }
 
             @InlineMe(replacement = "RxJava2Adapter.monoToSingle(publicKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")

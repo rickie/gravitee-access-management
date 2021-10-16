@@ -108,10 +108,10 @@ public class BotDetectionServiceImpl implements BotDetectionService {
 @Override
     public Flux<BotDetection> findByDomain_migrated(String domain) {
         LOGGER.debug("Find bot detections by domain: {}", domain);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(botDetectionRepository.findByReference_migrated(ReferenceType.DOMAIN, domain))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(botDetectionRepository.findByReference_migrated(ReferenceType.DOMAIN, domain))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find bot detections by domain", ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to find bot detections by domain", ex)));
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, newBotDetection, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -135,7 +135,7 @@ public class BotDetectionServiceImpl implements BotDetectionService {
         botDetection.setCreatedAt(new Date());
         botDetection.setUpdatedAt(botDetection.getCreatedAt());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(botDetectionRepository.create_migrated(botDetection))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<BotDetection, SingleSource<BotDetection>>toJdkFunction(detection -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(botDetectionRepository.create_migrated(botDetection))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<BotDetection, SingleSource<BotDetection>>toJdkFunction(detection -> {
                     // create event for sync process
                     Event event = new Event(Type.BOT_DETECTION, new Payload(detection.getId(), detection.getReferenceType(), detection.getReferenceId(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(detection)));
@@ -147,7 +147,7 @@ public class BotDetectionServiceImpl implements BotDetectionService {
 
                     LOGGER.error("An error occurs while trying to create a detection", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a detection", ex)));
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(detection -> auditService.report(AuditBuilder.builder(BotDetectionAuditBuilder.class).principal(principal).type(EventType.BOT_DETECTION_CREATED).botDetection(detection)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(BotDetectionAuditBuilder.class).principal(principal).type(EventType.BOT_DETECTION_CREATED).throwable(throwable))))));
+                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(detection -> auditService.report(AuditBuilder.builder(BotDetectionAuditBuilder.class).principal(principal).type(EventType.BOT_DETECTION_CREATED).botDetection(detection)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(BotDetectionAuditBuilder.class).principal(principal).type(EventType.BOT_DETECTION_CREATED).throwable(throwable))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateBotDetection, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -160,17 +160,17 @@ public class BotDetectionServiceImpl implements BotDetectionService {
     public Mono<BotDetection> update_migrated(String domain, String id, UpdateBotDetection updateBotDetection, User principal) {
         LOGGER.debug("Update bot detection {} for domain {}", id, domain);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(botDetectionRepository.findById_migrated(id))).switchIfEmpty(Mono.error(new BotDetectionNotFoundException(id))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(botDetectionRepository.findById_migrated(id).switchIfEmpty(Mono.error(new BotDetectionNotFoundException(id))))
                 .flatMapSingle(oldBotDetection -> {
                     BotDetection botDetectionToUpdate = new BotDetection(oldBotDetection);
                     botDetectionToUpdate.setName(updateBotDetection.getName());
                     botDetectionToUpdate.setConfiguration(updateBotDetection.getConfiguration());
                     botDetectionToUpdate.setUpdatedAt(new Date());
 
-                    return  RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(botDetectionRepository.update_migrated(botDetectionToUpdate))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<BotDetection, SingleSource<BotDetection>>toJdkFunction(detection -> {
+                    return  RxJava2Adapter.monoToSingle(botDetectionRepository.update_migrated(botDetectionToUpdate).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<BotDetection, SingleSource<BotDetection>>toJdkFunction(detection -> {
                                 // create event for sync process
                                 Event event = new Event(Type.BOT_DETECTION, new Payload(detection.getId(), detection.getReferenceType(), detection.getReferenceId(), Action.UPDATE));
-                                return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(detection)));
+                                return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(detection)));
                             }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(detection -> auditService.report(AuditBuilder.builder(BotDetectionAuditBuilder.class).principal(principal).type(EventType.BOT_DETECTION_UPDATED).oldValue(oldBotDetection).botDetection(detection)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(BotDetectionAuditBuilder.class).principal(principal).type(EventType.BOT_DETECTION_UPDATED).throwable(throwable)))));
                 })
                 .onErrorResumeNext(ex -> {
@@ -193,11 +193,11 @@ public class BotDetectionServiceImpl implements BotDetectionService {
     public Mono<Void> delete_migrated(String domainId, String botDetectionId, User principal) {
         LOGGER.debug("Delete bot detection {}", botDetectionId);
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(botDetectionRepository.findById_migrated(botDetectionId))).switchIfEmpty(Mono.error(new BotDetectionNotFoundException(botDetectionId))))
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(botDetectionRepository.findById_migrated(botDetectionId).switchIfEmpty(Mono.error(new BotDetectionNotFoundException(botDetectionId))))
                 .flatMapSingle(checkBotDetectionReleasedByDomain(domainId, botDetectionId))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<BotDetection, SingleSource<? extends BotDetection>>toJdkFunction(checkBotDetectionReleasedByApp(domainId, botDetectionId)).apply(v)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<BotDetection, CompletableSource>)botDetection -> {
                     // create event for sync process
                     Event event = new Event(Type.BOT_DETECTION, new Payload(botDetectionId, ReferenceType.DOMAIN, domainId, Action.DELETE));
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(botDetectionRepository.delete_migrated(botDetectionId))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event)))))
+                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(botDetectionRepository.delete_migrated(botDetectionId).then(eventService.create_migrated(event)))
                             .toCompletable()
                             .doOnComplete(() -> auditService.report(AuditBuilder.builder(BotDetectionAuditBuilder.class).principal(principal).type(EventType.BOT_DETECTION_DELETED).botDetection(botDetection)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(BotDetectionAuditBuilder.class).principal(principal).type(EventType.BOT_DETECTION_DELETED).throwable(throwable)))));
                 }).apply(y)))).then())
@@ -213,7 +213,7 @@ public class BotDetectionServiceImpl implements BotDetectionService {
     }
 
     private Function<BotDetection, SingleSource<? extends BotDetection>> checkBotDetectionReleasedByApp(String domainId, String botDetectionId) {
-        return botDetection -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.findByDomain_migrated(domainId))).flatMap(v->RxJava2Adapter.singleToMono((Single<BotDetection>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Set<Application>, Single<BotDetection>>)applications -> {
+        return botDetection -> RxJava2Adapter.monoToSingle(applicationService.findByDomain_migrated(domainId).flatMap(v->RxJava2Adapter.singleToMono((Single<BotDetection>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Set<Application>, Single<BotDetection>>)applications -> {
                     if (applications.stream().filter(app -> app.getSettings() != null &&
                             app.getSettings().getAccount() != null &&
                             botDetectionId.equals(app.getSettings().getAccount().getBotDetectionPlugin())).count() > 0) {

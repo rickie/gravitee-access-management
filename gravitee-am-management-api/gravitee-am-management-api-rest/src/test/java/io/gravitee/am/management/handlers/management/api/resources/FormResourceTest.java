@@ -54,8 +54,8 @@ public class FormResourceTest extends JerseySpringTest {
         UpdateForm updateForm = new UpdateForm();
         updateForm.setContent("content");
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Form())))).when(formService).update_migrated(eq(domainId), eq(formId), any(), any(User.class));
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(new Form())).when(formService).update_migrated(eq(domainId), eq(formId), any(), any(User.class));
 
         final Response response = target("domains")
                 .path(domainId)
@@ -72,7 +72,7 @@ public class FormResourceTest extends JerseySpringTest {
         final Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        doReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()))).when(formService).delete_migrated(eq(domainId), eq(formId), any());
+        doReturn(Mono.empty()).when(formService).delete_migrated(eq(domainId), eq(formId), any());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -89,7 +89,7 @@ public class FormResourceTest extends JerseySpringTest {
         final Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        doReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new FormNotFoundException(formId))))).when(formService).delete_migrated(eq(domainId), eq(formId), any());
+        doReturn(Mono.error(new FormNotFoundException(formId))).when(formService).delete_migrated(eq(domainId), eq(formId), any());
 
         final Response response = target("domains")
                 .path(domainId)

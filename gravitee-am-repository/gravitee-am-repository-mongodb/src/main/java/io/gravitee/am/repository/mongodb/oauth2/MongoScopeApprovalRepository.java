@@ -74,7 +74,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 }
 @Override
     public Flux<ScopeApproval> findByDomainAndUserAndClient_migrated(String domain, String userId, String clientId) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(scopeApprovalsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, clientId), eq(FIELD_USER_ID, userId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(scopeApprovalsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, clientId), eq(FIELD_USER_ID, userId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUser_migrated(domain, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -85,7 +85,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 }
 @Override
     public Flux<ScopeApproval> findByDomainAndUser_migrated(String domain, String user) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(scopeApprovalsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(scopeApprovalsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -96,7 +96,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 }
 @Override
     public Mono<ScopeApproval> findById_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(scopeApprovalsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(scopeApprovalsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(scopeApproval))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -109,7 +109,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
     public Mono<ScopeApproval> create_migrated(ScopeApproval scopeApproval) {
         ScopeApprovalMongo scopeApprovalMongo = convert(scopeApproval);
         scopeApprovalMongo.setId(scopeApprovalMongo.getId() == null ? RandomString.generate() : scopeApprovalMongo.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.insertOne(scopeApprovalMongo))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(_findById_migrated(scopeApprovalMongo.getId()))))));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.insertOne(scopeApprovalMongo))).flatMap(success->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(_findById_migrated(scopeApprovalMongo.getId()))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(scopeApproval))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -122,12 +122,12 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
     public Mono<ScopeApproval> update_migrated(ScopeApproval scopeApproval) {
         ScopeApprovalMongo scopeApprovalMongo = convert(scopeApproval);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.replaceOne(
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.replaceOne(
                 and(eq(FIELD_DOMAIN, scopeApproval.getDomain()),
                         eq(FIELD_CLIENT_ID, scopeApproval.getClientId()),
                         eq(FIELD_USER_ID, scopeApproval.getUserId()),
                         eq(FIELD_SCOPE, scopeApproval.getScope()))
-                , scopeApprovalMongo))).flatMap(updateResult->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(_findById_migrated(scopeApprovalMongo.getId()))))));
+                , scopeApprovalMongo))).flatMap(updateResult->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(_findById_migrated(scopeApprovalMongo.getId()))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.upsert_migrated(scopeApproval))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -164,8 +164,8 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 }
 @Override
     public Mono<Void> deleteByDomainAndScopeKey_migrated(String domain, String scope) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(scopeApprovalsCollection.deleteMany(
-                and(eq(FIELD_DOMAIN, domain), eq(FIELD_SCOPE, scope))))));
+        return Mono.from(scopeApprovalsCollection.deleteMany(
+                and(eq(FIELD_DOMAIN, domain), eq(FIELD_SCOPE, scope))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -176,7 +176,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 }
 @Override
     public Mono<Void> delete_migrated(String id) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(scopeApprovalsCollection.deleteOne(eq(FIELD_ID, id)))));
+        return Mono.from(scopeApprovalsCollection.deleteOne(eq(FIELD_ID, id)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainAndUserAndClient_migrated(domain, user, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -187,8 +187,8 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 }
 @Override
     public Mono<Void> deleteByDomainAndUserAndClient_migrated(String domain, String user, String client) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(scopeApprovalsCollection.deleteMany(
-                and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user), eq(FIELD_CLIENT_ID, client))))));
+        return Mono.from(scopeApprovalsCollection.deleteMany(
+                and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user), eq(FIELD_CLIENT_ID, client))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainAndUser_migrated(domain, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -199,8 +199,8 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 }
 @Override
     public Mono<Void> deleteByDomainAndUser_migrated(String domain, String user) {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(scopeApprovalsCollection.deleteMany(
-                and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user))))));
+        return Mono.from(scopeApprovalsCollection.deleteMany(
+                and(eq(FIELD_DOMAIN, domain), eq(FIELD_USER_ID, user))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this._findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -209,7 +209,7 @@ private Single<ScopeApproval> _findById(String id) {
  return RxJava2Adapter.monoToSingle(_findById_migrated(id));
 }
 private Mono<ScopeApproval> _findById_migrated(String id) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.find(eq(FIELD_ID, id)).first())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.find(eq(FIELD_ID, id)).first())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     private ScopeApproval convert(ScopeApprovalMongo scopeApprovalMongo) {

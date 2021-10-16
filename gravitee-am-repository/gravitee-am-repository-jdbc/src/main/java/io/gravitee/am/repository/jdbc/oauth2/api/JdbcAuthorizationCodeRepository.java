@@ -85,7 +85,7 @@ public class JdbcAuthorizationCodeRepository extends AbstractJdbcRepository impl
 
         Mono<Integer> insertAction = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.flatMap(i->RxJava2Adapter.maybeToMono(authorizationCodeRepository.findById(authorizationCode.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create authorizationCode with id {}", authorizationCode.getId(), error)))));
+        return insertAction.flatMap(i->RxJava2Adapter.maybeToMono(authorizationCodeRepository.findById(authorizationCode.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create authorizationCode with id {}", authorizationCode.getId(), error)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -97,7 +97,7 @@ public class JdbcAuthorizationCodeRepository extends AbstractJdbcRepository impl
 @Override
     public Mono<AuthorizationCode> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(authorizationCodeRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->dbClient.delete().from(JdbcAuthorizationCode.class).matching(from(where("id").is(id))).fetch().rowsUpdated().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Integer i)->z)))));
+        return RxJava2Adapter.maybeToMono(authorizationCodeRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->dbClient.delete().from(JdbcAuthorizationCode.class).matching(from(where("id").is(id))).fetch().rowsUpdated().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Integer i)->z)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCode_migrated(code))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -109,7 +109,7 @@ public class JdbcAuthorizationCodeRepository extends AbstractJdbcRepository impl
 @Override
     public Mono<AuthorizationCode> findByCode_migrated(String code) {
         LOGGER.debug("findByCode({})", code);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(code, LocalDateTime.now(UTC)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve AuthorizationCode with code {}", code)))));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authorizationCodeRepository.findByCode_migrated(code, LocalDateTime.now(UTC)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve AuthorizationCode with code {}", code)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -120,6 +120,6 @@ public Completable purgeExpiredData() {
 public Mono<Void> purgeExpiredData_migrated() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);
-        return RxJava2Adapter.completableToMono(dbClient.delete().from(JdbcAuthorizationCode.class).matching(where("expire_at").lessThan(now)).then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to purge authorization tokens", error))).as(RxJava2Adapter::monoToCompletable));
+        return dbClient.delete().from(JdbcAuthorizationCode.class).matching(where("expire_at").lessThan(now)).then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to purge authorization tokens", error)));
     }
 }

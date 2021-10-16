@@ -75,7 +75,7 @@ public class PolicyChainHandlerTest {
 
     @Test
     public void shouldNotInvoke_noPolicies() {
-        when(flowManager.findByExtensionPoint_migrated(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()))));
+        when(flowManager.findByExtensionPoint_migrated(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(Mono.just(Collections.emptyList()));
         when(delegateRequest.method()).thenReturn(HttpMethod.GET);
         when(request.getDelegate()).thenReturn(delegateRequest);
         when(routingContext.request()).thenReturn(request);
@@ -94,7 +94,7 @@ public class PolicyChainHandlerTest {
 
     @Test
     public void shouldInvoke_onePolicy() {
-        when(flowManager.findByExtensionPoint_migrated(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(policy)))));
+        when(flowManager.findByExtensionPoint_migrated(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(Mono.just(Collections.singletonList(policy)));
         when(delegateRequest.method()).thenReturn(HttpMethod.GET);
         when(request.getDelegate()).thenReturn(delegateRequest);
         when(routingContext.request()).thenReturn(request);
@@ -115,7 +115,7 @@ public class PolicyChainHandlerTest {
 
     @Test
     public void shouldInvoke_manyPolicies() {
-        when(flowManager.findByExtensionPoint_migrated(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Arrays.asList(policy, policy)))));
+        when(flowManager.findByExtensionPoint_migrated(eq(ExtensionPoint.PRE_CONSENT), eq(null), any(FlowPredicate.class))).thenReturn(Mono.just(Arrays.asList(policy, policy)));
         when(delegateRequest.method()).thenReturn(HttpMethod.GET);
         when(request.getDelegate()).thenReturn(delegateRequest);
         when(routingContext.request()).thenReturn(request);

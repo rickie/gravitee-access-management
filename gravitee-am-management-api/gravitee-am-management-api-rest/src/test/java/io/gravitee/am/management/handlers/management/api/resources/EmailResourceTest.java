@@ -57,8 +57,8 @@ public class EmailResourceTest extends JerseySpringTest {
         updateEmail.setContent("content");
         updateEmail.setExpiresAfter(1000);
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Email())))).when(emailTemplateService).update_migrated(eq(domainId), eq(emailId), any(), any(User.class));
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(new Email())).when(emailTemplateService).update_migrated(eq(domainId), eq(emailId), any(), any(User.class));
 
         final Response response = target("domains")
                 .path(domainId)
@@ -75,8 +75,8 @@ public class EmailResourceTest extends JerseySpringTest {
         final Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()))).when(emailTemplateService).delete_migrated(eq(emailId), any());
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.empty()).when(emailTemplateService).delete_migrated(eq(emailId), any());
 
         final Response response = target("domains")
                 .path(domainId)
@@ -93,8 +93,8 @@ public class EmailResourceTest extends JerseySpringTest {
         final Domain mockDomain = new Domain();
         mockDomain.setId(domainId);
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new EmailNotFoundException(emailId))))).when(emailTemplateService).delete_migrated(eq(emailId), any());
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.error(new EmailNotFoundException(emailId))).when(emailTemplateService).delete_migrated(eq(emailId), any());
 
         final Response response = target("domains")
                 .path(domainId)

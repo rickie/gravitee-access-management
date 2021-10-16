@@ -60,12 +60,12 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
     public Mono<AuthenticationFlowContext> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
         if (id == null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(dbClient.select()
+        return dbClient.select()
                 .from(JdbcAuthenticationFlowContext.class)
                 .matching(from(where("id").is(id)))
-                .as(JdbcAuthenticationFlowContext.class).one().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+                .as(JdbcAuthenticationFlowContext.class).one().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findLastByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -78,15 +78,15 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
     public Mono<AuthenticationFlowContext> findLastByTransactionId_migrated(String transactionId) {
         LOGGER.debug("findLastByTransactionId({})", transactionId);
         if (transactionId == null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
         
         LocalDateTime now = LocalDateTime.now(UTC);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(dbClient.select()
+        return dbClient.select()
                 .from(JdbcAuthenticationFlowContext.class)
                 .matching(from(where("transaction_id").is(transactionId).and(where("expire_at").greaterThan(now))))
                 .orderBy(Sort.Order.desc("version"))
-                .as(JdbcAuthenticationFlowContext.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+                .as(JdbcAuthenticationFlowContext.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -99,15 +99,15 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
     public Flux<AuthenticationFlowContext> findByTransactionId_migrated(String transactionId) {
         LOGGER.debug("findByTransactionId({})", transactionId);
         if (transactionId == null) {
-            return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty()));
+            return Flux.empty();
         }
 
         LocalDateTime now = LocalDateTime.now(UTC);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.select()
+        return dbClient.select()
                 .from(JdbcAuthenticationFlowContext.class)
                 .matching(from(where("transaction_id").is(transactionId).and(where("expire_at").greaterThan(now))))
                 .orderBy(Sort.Order.desc("version"))
-                .as(JdbcAuthenticationFlowContext.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+                .as(JdbcAuthenticationFlowContext.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -133,7 +133,7 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
 
         Mono<Integer> insertAction = insertSpec.fetch().rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(insertAction.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(id))).single())));
+        return insertAction.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(id))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -145,9 +145,9 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
 @Override
     public Mono<Void> delete_migrated(String transactionId) {
         LOGGER.debug("delete({})", transactionId);
-        return RxJava2Adapter.completableToMono(monoToCompletable(dbClient.delete()
+        return dbClient.delete()
                 .from(JdbcAuthenticationFlowContext.class)
-                .matching(from(where("transaction_id").is(transactionId))).fetch().rowsUpdated()));
+                .matching(from(where("transaction_id").is(transactionId))).fetch().rowsUpdated();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(transactionId, version))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -159,9 +159,9 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
 @Override
     public Mono<Void> delete_migrated(String transactionId, int version) {
         LOGGER.debug("delete({}, {})", transactionId, version);
-        return RxJava2Adapter.completableToMono(monoToCompletable(dbClient.delete()
+        return dbClient.delete()
                 .from(JdbcAuthenticationFlowContext.class)
-                .matching(from(where("transaction_id").is(transactionId).and(where("version").is(version)))).fetch().rowsUpdated()));
+                .matching(from(where("transaction_id").is(transactionId).and(where("version").is(version)))).fetch().rowsUpdated();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -174,6 +174,6 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
     public Mono<Void> purgeExpiredData_migrated() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);
-        return RxJava2Adapter.completableToMono(dbClient.delete().from(JdbcAuthenticationFlowContext.class).matching(where("expire_at").lessThan(now)).then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to purge authentication contexts", error))).as(RxJava2Adapter::monoToCompletable));
+        return dbClient.delete().from(JdbcAuthenticationFlowContext.class).matching(where("expire_at").lessThan(now)).then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to purge authentication contexts", error)));
     }
 }

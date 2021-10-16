@@ -58,7 +58,7 @@ public class TagServiceTest {
 
     @Test
     public void shouldFindById() {
-        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Tag()))));
+        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(Mono.just(new Tag()));
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(tagService.findById_migrated("my-tag", Organization.DEFAULT)).test();
 
         testObserver.awaitTerminalEvent();
@@ -69,7 +69,7 @@ public class TagServiceTest {
 
     @Test
     public void shouldFindById_notExistingScope() {
-        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(Mono.empty());
         TestObserver testObserver = RxJava2Adapter.monoToMaybe(tagService.findById_migrated("my-tag", Organization.DEFAULT)).test();
         testObserver.awaitTerminalEvent();
 
@@ -78,7 +78,7 @@ public class TagServiceTest {
 
     @Test
     public void shouldFindById_technicalException() {
-        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToMaybe(tagService.findById_migrated("my-tag", Organization.DEFAULT)).subscribe(testObserver);
 
@@ -90,8 +90,8 @@ public class TagServiceTest {
     public void shouldCreate() {
         NewTag newTag = Mockito.mock(NewTag.class);
         when(newTag.getName()).thenReturn("my-tag");
-        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(tagRepository.create_migrated(any(Tag.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Tag()))));
+        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(Mono.empty());
+        when(tagRepository.create_migrated(any(Tag.class))).thenReturn(Mono.just(new Tag()));
 
         TestObserver testObserver = RxJava2Adapter.monoToSingle(tagService.create_migrated(newTag, Organization.DEFAULT, null)).test();
         testObserver.awaitTerminalEvent();
@@ -107,7 +107,7 @@ public class TagServiceTest {
     public void shouldCreate_tagAlreadyExists() {
         NewTag newTag = Mockito.mock(NewTag.class);
         when(newTag.getName()).thenReturn("my-tag");
-        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new Tag()))));
+        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(Mono.just(new Tag()));
 
         TestObserver<Tag> testObserver = new TestObserver<>();
         RxJava2Adapter.monoToSingle(tagService.create_migrated(newTag, Organization.DEFAULT, null)).subscribe(testObserver);
@@ -123,7 +123,7 @@ public class TagServiceTest {
     public void shouldNotCreate_technicalException() {
         NewTag newTag = Mockito.mock(NewTag.class);
         when(newTag.getName()).thenReturn("my-tag");
-        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToSingle(tagService.create_migrated(newTag, Organization.DEFAULT, null)).subscribe(testObserver);
@@ -136,7 +136,7 @@ public class TagServiceTest {
 
     @Test
     public void shouldDelete_notExistingTag() {
-        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(Mono.empty());
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToCompletable(tagService.delete_migrated("my-tag", Organization.DEFAULT, null)).subscribe(testObserver);
@@ -147,7 +147,7 @@ public class TagServiceTest {
 
     @Test
     public void shouldDelete_technicalException() {
-        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)))));
+        when(tagRepository.findById_migrated("my-tag", Organization.DEFAULT)).thenReturn(Mono.error(RxJavaReactorMigrationUtil.callableAsSupplier(TechnicalException::new)));
 
         TestObserver testObserver = new TestObserver();
         RxJava2Adapter.monoToCompletable(tagService.delete_migrated("my-tag", Organization.DEFAULT, null)).subscribe(testObserver);

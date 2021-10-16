@@ -128,7 +128,7 @@ protected Single<User> enrichProfile(ExecutionContext context) {
 protected Mono<User> enrichProfile_migrated(ExecutionContext context) {
         UserRepository userRepository = context.getComponent(UserRepository.class);
         User user = (User)context.getAttribute("user");
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userRepository.update_migrated(user)));
+        return userRepository.update_migrated(user);
     }
 
 }

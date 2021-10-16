@@ -60,7 +60,7 @@ public class ServiceProviderMetadataEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeEndpoint_invalidProvider() throws Exception {
-        when(serviceProviderService.metadata_migrated(eq("unknown-provider"), anyString())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IdentityProviderNotFoundException("unknown-provider")))));
+        when(serviceProviderService.metadata_migrated(eq("unknown-provider"), anyString())).thenReturn(Mono.error(new IdentityProviderNotFoundException("unknown-provider")));
 
         testRequest(
                 HttpMethod.GET, "/sp/metadata/unknown-provider",
@@ -69,7 +69,7 @@ public class ServiceProviderMetadataEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldNotInvokeEndpoint_invalidMetadata() throws Exception {
-        when(serviceProviderService.metadata_migrated(eq("unknown-provider"), anyString())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IdentityProviderMetadataNotFoundException("unknown-provider")))));
+        when(serviceProviderService.metadata_migrated(eq("unknown-provider"), anyString())).thenReturn(Mono.error(new IdentityProviderMetadataNotFoundException("unknown-provider")));
 
         testRequest(
                 HttpMethod.GET, "/sp/metadata/unknown-provider",
@@ -83,7 +83,7 @@ public class ServiceProviderMetadataEndpointTest extends RxWebTestBase {
         Metadata metadata = mock(Metadata.class);
         when(metadata.getHeaders()).thenReturn(httpHeaders);
         when(metadata.getBody()).thenReturn("<xml></xml>");
-        when(serviceProviderService.metadata_migrated(eq("provider-id"), anyString())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(metadata))));
+        when(serviceProviderService.metadata_migrated(eq("provider-id"), anyString())).thenReturn(Mono.just(metadata));
 
         testRequest(
                 HttpMethod.GET,

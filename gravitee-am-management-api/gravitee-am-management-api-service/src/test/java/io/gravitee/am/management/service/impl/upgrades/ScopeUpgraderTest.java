@@ -93,12 +93,12 @@ public class ScopeUpgraderTest {
         role.setId("role-id");
         role.setOauthScopes(Collections.singletonList(roleScope.getKey()));
 
-        when(domainService.findAll_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(domain)))));
-        when(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptySet(),0 ,0)))))
-                .thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(domainScope),0, 1)))));
-        when(applicationService.findByDomain_migrated(domain.getId())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(app)))));
-        when(roleService.findByDomain_migrated(domain.getId())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(role)))));
-        when(scopeService.create_migrated(any(String.class), any(NewScope.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Scope()))));
+        when(domainService.findAll_migrated()).thenReturn(Mono.just(Collections.singletonList(domain)));
+        when(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(Mono.just(new Page<>(Collections.emptySet(),0 ,0)))
+                .thenReturn(Mono.just(new Page<>(Collections.singleton(domainScope),0, 1)));
+        when(applicationService.findByDomain_migrated(domain.getId())).thenReturn(Mono.just(Collections.singleton(app)));
+        when(roleService.findByDomain_migrated(domain.getId())).thenReturn(Mono.just(Collections.singleton(role)));
+        when(scopeService.create_migrated(any(String.class), any(NewScope.class))).thenReturn(Mono.just(new Scope()));
 
         scopeUpgrader.upgrade();
 
@@ -121,8 +121,8 @@ public class ScopeUpgraderTest {
         domain.setId(domainId);
         domain.setName(domainName);
 
-        when(domainService.findAll_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(domain)))));
-        when(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(domainScope), 0, 1)))));
+        when(domainService.findAll_migrated()).thenReturn(Mono.just(Collections.singletonList(domain)));
+        when(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(Mono.just(new Page<>(Collections.singleton(domainScope), 0, 1)));
 
         scopeUpgrader.upgrade();
 
@@ -147,11 +147,11 @@ public class ScopeUpgraderTest {
         domain.setId(domainId);
         domain.setName(domainName);
 
-        when(domainService.findAll_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(domain)))));
-        when(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptySet(), 0, 0)))))
-                .thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(domainScope), 0, 0)))));
-        when(applicationService.findByDomain_migrated(domain.getId())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet()))));
-        when(roleService.findByDomain_migrated(domain.getId())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptySet()))));
+        when(domainService.findAll_migrated()).thenReturn(Mono.just(Collections.singletonList(domain)));
+        when(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(Mono.just(new Page<>(Collections.emptySet(), 0, 0)))
+                .thenReturn(Mono.just(new Page<>(Collections.singleton(domainScope), 0, 0)));
+        when(applicationService.findByDomain_migrated(domain.getId())).thenReturn(Mono.just(Collections.emptySet()));
+        when(roleService.findByDomain_migrated(domain.getId())).thenReturn(Mono.just(Collections.emptySet()));
 
         scopeUpgrader.upgrade();
 
@@ -182,10 +182,10 @@ public class ScopeUpgraderTest {
         role.setId("role-id");
         role.setPermissionAcls(null);
 
-        when(domainService.findAll_migrated()).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singletonList(domain)))));
-        when(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.emptySet(),0, Integer.MAX_VALUE))))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Page<>(Collections.singleton(domainScope), 0, Integer.MAX_VALUE)))));
-        when(applicationService.findByDomain_migrated(domain.getId())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(app)))));
-        when(roleService.findByDomain_migrated(domain.getId())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.singleton(role)))));
+        when(domainService.findAll_migrated()).thenReturn(Mono.just(Collections.singletonList(domain)));
+        when(scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE)).thenReturn(Mono.just(new Page<>(Collections.emptySet(),0, Integer.MAX_VALUE))).thenReturn(Mono.just(new Page<>(Collections.singleton(domainScope), 0, Integer.MAX_VALUE)));
+        when(applicationService.findByDomain_migrated(domain.getId())).thenReturn(Mono.just(Collections.singleton(app)));
+        when(roleService.findByDomain_migrated(domain.getId())).thenReturn(Mono.just(Collections.singleton(role)));
 
         scopeUpgrader.upgrade();
 

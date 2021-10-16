@@ -52,7 +52,7 @@ public class MongoPolicyRepository extends AbstractManagementMongoRepository imp
 @Override
     public Flux<Policy> findAll_migrated() {
         MongoCollection<PolicyMongo> policiesCollection = mongoOperations.getCollection(COLLECTION_NAME, PolicyMongo.class);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.from(policiesCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return Flux.from(policiesCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.collectionExists_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -63,8 +63,8 @@ public class MongoPolicyRepository extends AbstractManagementMongoRepository imp
 }
 @Override
     public Mono<Boolean> collectionExists_migrated() {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromPublisher(mongoOperations.listCollectionNames()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(collectionName -> collectionName.equalsIgnoreCase(COLLECTION_NAME))))
-                .isEmpty()).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> !isEmpty))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromPublisher(mongoOperations.listCollectionNames()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(collectionName -> collectionName.equalsIgnoreCase(COLLECTION_NAME))))
+                .isEmpty()).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> !isEmpty));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteCollection_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -75,7 +75,7 @@ public class MongoPolicyRepository extends AbstractManagementMongoRepository imp
 }
 @Override
     public Mono<Void> deleteCollection_migrated() {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.from(mongoOperations.getCollection(COLLECTION_NAME).drop())));
+        return Mono.from(mongoOperations.getCollection(COLLECTION_NAME).drop());
     }
 
     private Policy convert(PolicyMongo policyMongo) {

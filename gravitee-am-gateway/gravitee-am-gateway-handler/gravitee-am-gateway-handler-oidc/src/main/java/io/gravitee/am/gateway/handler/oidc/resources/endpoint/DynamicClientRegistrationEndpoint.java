@@ -68,7 +68,7 @@ public class DynamicClientRegistrationEndpoint implements Handler<RoutingContext
     public void handle(RoutingContext context) {
         LOGGER.debug("Dynamic client registration CREATE endpoint");
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context))).flatMap(request->RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(dcrService.create_migrated(request, UriBuilderRequest.resolveProxyRequest(context))))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred)))
+        RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context).flatMap(request->dcrService.create_migrated(request, UriBuilderRequest.resolveProxyRequest(context))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientSyncService::addDynamicClientRegistred)))
                 .subscribe(
                         client -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
@@ -90,17 +90,17 @@ protected Mono<DynamicClientRegistrationRequest> extractRequest_migrated(Routing
             if(context.getBodyAsJson()==null) {
                 throw new InvalidClientMetadataException("no content");
             }
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(context.getBodyAsJson().mapTo(DynamicClientRegistrationRequest.class))));
+            return Mono.just(context.getBodyAsJson().mapTo(DynamicClientRegistrationRequest.class));
         }catch (Exception ex) {
             if(ex instanceof DecodeException) {
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException(ex.getMessage()))));
+                return Mono.error(new InvalidClientMetadataException(ex.getMessage()));
             }
             //Jackson mapper Replace Customs exception by an IllegalArgumentException
             if(ex instanceof IllegalArgumentException && ex.getMessage().startsWith(JWKSetDeserializer.PARSE_ERROR_MESSAGE)) {
                 String sanitizedMessage = ex.getMessage().substring(0,ex.getMessage().indexOf(" (through reference chain:"));
-                return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException(sanitizedMessage))));
+                return Mono.error(new InvalidClientMetadataException(sanitizedMessage));
             }
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(ex)));
+            return Mono.error(ex);
         }
     }
 }

@@ -57,7 +57,7 @@ public class DefaultRulesEngine implements RulesEngine {
     public Mono<Void> fire_migrated(List<Rule> rules, ExecutionContext executionContext) {
         if (rules.isEmpty()) {
             LOGGER.debug("No rules registered!");
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
+            return Mono.empty();
         }
 
         return RxJava2Adapter.completableToMono(Completable.create(emitter -> {

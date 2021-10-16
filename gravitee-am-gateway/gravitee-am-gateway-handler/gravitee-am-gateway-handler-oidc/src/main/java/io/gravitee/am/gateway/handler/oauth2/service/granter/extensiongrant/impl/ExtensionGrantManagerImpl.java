@@ -162,7 +162,7 @@ public class ExtensionGrantManagerImpl extends AbstractService implements Extens
             AuthenticationProvider authenticationProvider = null;
             if (extensionGrant.getIdentityProvider() != null) {
                 logger.info("\tLooking for extension grant identity provider: {}", extensionGrant.getIdentityProvider());
-                authenticationProvider = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.get_migrated(extensionGrant.getIdentityProvider()))).block();
+                authenticationProvider = identityProviderManager.get_migrated(extensionGrant.getIdentityProvider()).block();
                 if (authenticationProvider != null) {
                     logger.info("\tExtension grant identity provider: {}, loaded", extensionGrant.getIdentityProvider());
                 }

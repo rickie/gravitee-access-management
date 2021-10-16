@@ -65,7 +65,7 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
 @Override
     public Flux<Credential> findByUserId_migrated(ReferenceType referenceType, String referenceId, String userId) {
         LOGGER.debug("findByUserId({},{},{})", referenceType, referenceId, userId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByUserId_migrated(referenceType.name(), referenceId, userId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByUserId_migrated(referenceType.name(), referenceId, userId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUsername_migrated(referenceType, referenceId, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -77,7 +77,7 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
 @Override
     public Flux<Credential> findByUsername_migrated(ReferenceType referenceType, String referenceId, String username) {
         LOGGER.debug("findByUsername({},{},{})", referenceType, referenceId, username);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByUsername_migrated(referenceType.name(), referenceId, username))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByUsername_migrated(referenceType.name(), referenceId, username))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCredentialId_migrated(referenceType, referenceId, credentialId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -89,7 +89,7 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
 @Override
     public Flux<Credential> findByCredentialId_migrated(ReferenceType referenceType, String referenceId, String credentialId) {
         LOGGER.debug("findByCredentialId({},{},{})", referenceType, referenceId, credentialId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByCredentialId_migrated(referenceType.name(), referenceId, credentialId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity))));
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByCredentialId_migrated(referenceType.name(), referenceId, credentialId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
 
     }
 
@@ -102,7 +102,7 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
 @Override
     public Mono<Credential> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(credentialRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve credential for Id {}", id, error)))));
+        return RxJava2Adapter.maybeToMono(credentialRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve credential for Id {}", id, error)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -121,7 +121,7 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
                 .using(toJdbcEntity(item))
                 .fetch().rowsUpdated();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create credential with id {}", item.getId(), error)))));
+        return action.flatMap(i->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(this.findById_migrated(item.getId()))).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create credential with id {}", item.getId(), error)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -133,7 +133,7 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
 @Override
     public Mono<Credential> update_migrated(Credential item) {
         LOGGER.debug("update credential with id {}", item.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(this.credentialRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create credential with id {}", item.getId(), error)))));
+        return RxJava2Adapter.singleToMono(this.credentialRepository.save(toJdbcEntity(item))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create credential with id {}", item.getId(), error)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -145,7 +145,7 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
 @Override
     public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return RxJava2Adapter.completableToMono(credentialRepository.deleteById(id).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete credential for Id {}", id, error))).as(RxJava2Adapter::monoToCompletable));
+        return credentialRepository.deleteById(id).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete credential for Id {}", id, error)));
 
     }
 
@@ -158,13 +158,13 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
 @Override
     public Mono<Void> deleteByUserId_migrated(ReferenceType referenceType, String referenceId, String userId) {
         LOGGER.debug("deleteByUserId({})", userId);
-        return RxJava2Adapter.completableToMono(dbClient.delete()
+        return dbClient.delete()
                 .from(JdbcCredential.class)
                 .matching(from(
                         where("reference_type").is(referenceType.name())
                                 .and(where("reference_id").is(referenceId))
                                 .and(where("user_id").is(userId))))
-                .then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete credential for userId {}", userId, error))).as(RxJava2Adapter::monoToCompletable));
+                .then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete credential for userId {}", userId, error)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByAaguid_migrated(referenceType, referenceId, aaguid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -176,12 +176,12 @@ public class JdbcCredentialRepository extends AbstractJdbcRepository implements 
 @Override
     public Mono<Void> deleteByAaguid_migrated(ReferenceType referenceType, String referenceId, String aaguid) {
         LOGGER.debug("deleteByAaguid({})", aaguid);
-        return RxJava2Adapter.completableToMono(dbClient.delete()
+        return dbClient.delete()
                 .from(JdbcCredential.class)
                 .matching(from(
                         where("reference_type").is(referenceType.name())
                                 .and(where("reference_id").is(referenceId))
                                 .and(where("aaguid").is(aaguid))))
-                .then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete credential for aaguid {}", aaguid, error))).as(RxJava2Adapter::monoToCompletable));
+                .then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete credential for aaguid {}", aaguid, error)));
     }
 }

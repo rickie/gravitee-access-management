@@ -68,8 +68,8 @@ private Maybe<AuthorizationCode> findById(String id) {
  return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
 private Mono<AuthorizationCode> findById_migrated(String id) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(authorizationCodeCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable
+                .fromPublisher(authorizationCodeCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(authorizationCode))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -84,8 +84,8 @@ private Mono<AuthorizationCode> findById_migrated(String id) {
             authorizationCode.setId(RandomString.generate());
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single
-                .fromPublisher(authorizationCodeCollection.insertOne(convert(authorizationCode)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(authorizationCode.getId()))).single())));
+        return RxJava2Adapter.singleToMono(Single
+                .fromPublisher(authorizationCodeCollection.insertOne(convert(authorizationCode)))).flatMap(success->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(findById_migrated(authorizationCode.getId()))).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.delete_migrated(code))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -96,7 +96,7 @@ private Mono<AuthorizationCode> findById_migrated(String id) {
 }
 @Override
     public Mono<AuthorizationCode> delete_migrated(String code) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(authorizationCodeCollection.findOneAndDelete(eq(FIELD_ID, code))), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(authorizationCodeCollection.findOneAndDelete(eq(FIELD_ID, code))), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCode_migrated(code))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -107,7 +107,7 @@ private Mono<AuthorizationCode> findById_migrated(String id) {
 }
 @Override
     public Mono<AuthorizationCode> findByCode_migrated(String code) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(authorizationCodeCollection.find(eq(FIELD_CODE, code)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert))));
+        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(authorizationCodeCollection.find(eq(FIELD_CODE, code)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     private AuthorizationCode convert(AuthorizationCodeMongo authorizationCodeMongo) {

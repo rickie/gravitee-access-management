@@ -73,9 +73,9 @@ public class DomainResourceTest extends JerseySpringTest {
 
         final Domain mockDomain = buildDomainMock();
 
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true)))).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Permission.allPermissionAcls(ReferenceType.DOMAIN))))).when(permissionService).findAllPermissions_migrated(any(User.class), any(ReferenceType.class), anyString());
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(mockDomain.getId());
+        doReturn(Mono.just(true)).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
+        doReturn(Mono.just(Permission.allPermissionAcls(ReferenceType.DOMAIN))).when(permissionService).findAllPermissions_migrated(any(User.class), any(ReferenceType.class), anyString());
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(mockDomain.getId());
 
         final Response response = target("domains").path(mockDomain.getId()).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -102,9 +102,9 @@ public class DomainResourceTest extends JerseySpringTest {
 
         final Domain mockDomain = buildDomainMock();
 
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true)))).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Permission.of(Permission.DOMAIN, Acl.READ))))).when(permissionService).findAllPermissions_migrated(any(User.class), any(ReferenceType.class), anyString()); // only domain read permission
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(mockDomain.getId());
+        doReturn(Mono.just(true)).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
+        doReturn(Mono.just(Permission.of(Permission.DOMAIN, Acl.READ))).when(permissionService).findAllPermissions_migrated(any(User.class), any(ReferenceType.class), anyString()); // only domain read permission
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(mockDomain.getId());
 
         final Response response = target("domains").path(mockDomain.getId()).request().get();
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -129,7 +129,7 @@ public class DomainResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetDomain_notFound() {
         final String domainId = "domain-id";
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.empty()).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains").path(domainId).request().get();
         assertEquals(HttpStatusCode.NOT_FOUND_404, response.getStatus());
@@ -139,8 +139,8 @@ public class DomainResourceTest extends JerseySpringTest {
     public void shouldGetDomain_forbidden() {
         final String domainId = "domain-id";
 
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(false)))).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()))).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(false)).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
+        doReturn(Mono.empty()).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains").path(domainId).request().get();
         assertEquals(HttpStatusCode.FORBIDDEN_403, response.getStatus());
@@ -149,7 +149,7 @@ public class DomainResourceTest extends JerseySpringTest {
     @Test
     public void shouldGetDomain_technicalManagementException() {
         final String domainId = "domain-id";
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException("error occurs"))))).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.error(new TechnicalManagementException("error occurs"))).when(domainService).findById_migrated(domainId);
 
         final Response response = target("domains").path(domainId).request().get();
         assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR_500, response.getStatus());
@@ -162,9 +162,9 @@ public class DomainResourceTest extends JerseySpringTest {
         PatchDomain patchDomain = new PatchDomain();
         patchDomain.setDescription(Optional.of("New description"));
 
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true)))).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Permission.allPermissionAcls(ReferenceType.DOMAIN))))).when(permissionService).findAllPermissions_migrated(any(User.class), any(ReferenceType.class), anyString());
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(mockDomain)))).when(domainService).patch_migrated(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
+        doReturn(Mono.just(true)).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
+        doReturn(Mono.just(Permission.allPermissionAcls(ReferenceType.DOMAIN))).when(permissionService).findAllPermissions_migrated(any(User.class), any(ReferenceType.class), anyString());
+        doReturn(Mono.just(mockDomain)).when(domainService).patch_migrated(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
 
         final Response response = put(target("domains").path(mockDomain.getId()), patchDomain);
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -203,9 +203,9 @@ public class DomainResourceTest extends JerseySpringTest {
         patchDomain.setVhostMode(Optional.of(true));
         patchDomain.setVhosts(Optional.of(vhosts));
 
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true)))).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Permission.allPermissionAcls(ReferenceType.DOMAIN))))).when(permissionService).findAllPermissions_migrated(any(User.class), any(ReferenceType.class), anyString());
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(mockDomain)))).when(domainService).patch_migrated(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
+        doReturn(Mono.just(true)).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
+        doReturn(Mono.just(Permission.allPermissionAcls(ReferenceType.DOMAIN))).when(permissionService).findAllPermissions_migrated(any(User.class), any(ReferenceType.class), anyString());
+        doReturn(Mono.just(mockDomain)).when(domainService).patch_migrated(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
 
         final Response response = put(target("domains").path(mockDomain.getId()), patchDomain);
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -237,9 +237,9 @@ public class DomainResourceTest extends JerseySpringTest {
         PatchDomain patchDomain = new PatchDomain();
         patchDomain.setDescription(Optional.of("New description"));
 
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(true)))).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Permission.of(Permission.DOMAIN, Acl.READ))))).when(permissionService).findAllPermissions_migrated(any(User.class), any(ReferenceType.class), anyString()); // only domain read permission
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(mockDomain)))).when(domainService).patch_migrated(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
+        doReturn(Mono.just(true)).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
+        doReturn(Mono.just(Permission.of(Permission.DOMAIN, Acl.READ))).when(permissionService).findAllPermissions_migrated(any(User.class), any(ReferenceType.class), anyString()); // only domain read permission
+        doReturn(Mono.just(mockDomain)).when(domainService).patch_migrated(eq(mockDomain.getId()), any(PatchDomain.class), any(User.class));
 
         final Response response = put(target("domains").path(mockDomain.getId()), patchDomain);
         assertEquals(HttpStatusCode.OK_200, response.getStatus());
@@ -268,8 +268,8 @@ public class DomainResourceTest extends JerseySpringTest {
         PatchDomain patchDomain = new PatchDomain();
         patchDomain.setDescription(Optional.of("New description"));
 
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(false)))).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Domain())))).when(domainService).patch_migrated(anyString(), any(PatchDomain.class), any(User.class));
+        doReturn(Mono.just(false)).when(permissionService).hasPermission_migrated(any(User.class), any(PermissionAcls.class));
+        doReturn(Mono.just(new Domain())).when(domainService).patch_migrated(anyString(), any(PatchDomain.class), any(User.class));
 
         final Response response = put(target("domains").path(domainId), patchDomain);
         assertEquals(HttpStatusCode.FORBIDDEN_403, response.getStatus());
@@ -311,8 +311,8 @@ public class DomainResourceTest extends JerseySpringTest {
         mockDomain.setId(DOMAIN_ID);
         mockDomain.setTags(new HashSet<>(Arrays.asList(TAG_ID1, TAG_ID2)));
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(mockDomain.getId());
-        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(entrypoint, entrypoint2, defaultEntrypoint)))).when(entrypointService).findAll_migrated(ORGANIZATION_ID);
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(mockDomain.getId());
+        doReturn(Flux.just(entrypoint, entrypoint2, defaultEntrypoint)).when(entrypointService).findAll_migrated(ORGANIZATION_ID);
 
         final Response response = target("organizations")
                 .path(ORGANIZATION_ID)
@@ -355,8 +355,8 @@ public class DomainResourceTest extends JerseySpringTest {
         mockDomain.setId(DOMAIN_ID);
         mockDomain.setTags(new HashSet<>());
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(mockDomain.getId());
-        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(entrypoint, entrypoint2, defaultEntrypoint)))).when(entrypointService).findAll_migrated(ORGANIZATION_ID);
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(mockDomain.getId());
+        doReturn(Flux.just(entrypoint, entrypoint2, defaultEntrypoint)).when(entrypointService).findAll_migrated(ORGANIZATION_ID);
 
         final Response response = target("organizations")
                 .path(ORGANIZATION_ID)
@@ -399,8 +399,8 @@ public class DomainResourceTest extends JerseySpringTest {
         mockDomain.setId(DOMAIN_ID);
         mockDomain.setTags(new HashSet<>(Arrays.asList(TAG_ID1, TAG_ID2)));
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(mockDomain.getId());
-        doReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(entrypoint, entrypoint2, defaultEntrypoint)))).when(entrypointService).findAll_migrated(ORGANIZATION_ID);
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(mockDomain.getId());
+        doReturn(Flux.just(entrypoint, entrypoint2, defaultEntrypoint)).when(entrypointService).findAll_migrated(ORGANIZATION_ID);
 
         final Response response = target("organizations")
                 .path(ORGANIZATION_ID)

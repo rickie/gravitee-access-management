@@ -56,10 +56,10 @@ public class AuditServiceImpl implements AuditService {
 @Override
     public Mono<Page<Audit>> search_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
         try {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getReporter(referenceType, referenceId).search_migrated(referenceType, referenceId, criteria, page, size)));
+            return getReporter(referenceType, referenceId).search_migrated(referenceType, referenceId, criteria, page, size);
         } catch (Exception ex) {
             logger.error("An error occurs during audits search for {}}: {}", referenceType, referenceId, ex);
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(ex)));
+            return Mono.error(ex);
         }
     }
 
@@ -72,7 +72,7 @@ public class AuditServiceImpl implements AuditService {
 @Override
     public Mono<Page<Audit>> search_migrated(String domain, AuditReportableCriteria criteria, int page, int size) {
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(search_migrated(ReferenceType.DOMAIN, domain, criteria, page, size)));
+        return search_migrated(ReferenceType.DOMAIN, domain, criteria, page, size);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(domain, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -84,10 +84,10 @@ public class AuditServiceImpl implements AuditService {
 @Override
     public Mono<Map<Object,Object>> aggregate_migrated(String domain, AuditReportableCriteria criteria, Type analyticsType) {
         try {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getReporter(domain).aggregate_migrated(ReferenceType.DOMAIN, domain, criteria, analyticsType)));
+            return getReporter(domain).aggregate_migrated(ReferenceType.DOMAIN, domain, criteria, analyticsType);
         } catch (Exception ex) {
             logger.error("An error occurs during audits aggregation for domain: {}", domain, ex);
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(ex)));
+            return Mono.error(ex);
         }
     }
 
@@ -100,10 +100,10 @@ public class AuditServiceImpl implements AuditService {
 @Override
     public Mono<Audit> findById_migrated(ReferenceType referenceType, String referenceId, String auditId) {
         try {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getReporter(referenceType, referenceId).findById_migrated(referenceType, referenceId, auditId))).switchIfEmpty(Mono.error(new AuditNotFoundException(auditId)))));
+            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getReporter(referenceType, referenceId).findById_migrated(referenceType, referenceId, auditId))).switchIfEmpty(Mono.error(new AuditNotFoundException(auditId)));
         } catch (Exception ex) {
             logger.error("An error occurs while trying to find audit by id: {} and for the {}}: {}", auditId, referenceType, referenceId, ex);
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(ex)));
+            return Mono.error(ex);
         }
     }
 
@@ -115,7 +115,7 @@ public class AuditServiceImpl implements AuditService {
 }
 @Override
     public Mono<Audit> findById_migrated(String domain, String auditId) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findById_migrated(ReferenceType.DOMAIN, domain, auditId)))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(findById_migrated(ReferenceType.DOMAIN, domain, auditId)));
     }
 
     private Reporter getReporter(String domain) {

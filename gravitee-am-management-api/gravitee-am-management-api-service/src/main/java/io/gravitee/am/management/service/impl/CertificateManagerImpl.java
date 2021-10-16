@@ -92,7 +92,7 @@ public class CertificateManagerImpl extends AbstractService<CertificateManager> 
 }
 @Override
     public Mono<CertificateProvider> getCertificateProvider_migrated(String certificateId) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(doGetCertificateProvider_migrated(certificateId, System.currentTimeMillis())));
+        return doGetCertificateProvider_migrated(certificateId, System.currentTimeMillis());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.doGetCertificateProvider_migrated(certificateId, startTime))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -104,16 +104,16 @@ private Mono<CertificateProvider> doGetCertificateProvider_migrated(String certi
         CertificateProvider certificateProvider = certificateProviders.get(certificateId);
 
         if (certificateProvider != null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(certificateProvider)));
+            return Mono.just(certificateProvider);
         }
 
         // certificate can be missing as it can take sometime for the reporter events
         // to propagate across the cluster so if the next call comes
         // in quickly at a different node there is a possibility it isn't available yet.
         try {
-            Certificate certificate = RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(certificateService.findById_migrated(certificateId))).block();
+            Certificate certificate = certificateService.findById_migrated(certificateId).block();
             if (certificate == null) {
-                return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+                return Mono.empty();
             }
             // retry
             while (certificateProvider == null && System.currentTimeMillis() - startTime < retryTimeout) {

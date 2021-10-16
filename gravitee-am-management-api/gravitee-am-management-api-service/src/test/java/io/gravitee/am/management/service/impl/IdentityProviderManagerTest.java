@@ -74,7 +74,7 @@ public class IdentityProviderManagerTest {
         role.setId("roleid");
         role.setName("ORGANIZATION_PRIMARY_OWNER");
 
-        when(roleService.findRolesByName_migrated(any(), any(), any(), any())).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(role))));
+        when(roleService.findRolesByName_migrated(any(), any(), any(), any())).thenReturn(Flux.just(role));
         when(idpPluginManager.create(eq("gravitee-am-idp"), any())).thenReturn(mock(UserProvider.class));
 
         cut.loadIdentityProviders();

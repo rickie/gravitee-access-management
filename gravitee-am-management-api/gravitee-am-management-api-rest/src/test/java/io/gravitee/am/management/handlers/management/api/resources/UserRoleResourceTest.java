@@ -48,8 +48,8 @@ public class UserRoleResourceTest extends JerseySpringTest {
         final User mockUser = new User();
         mockUser.setId("user-id-1");
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(mockUser)))).when(userService).revokeRoles_migrated(eq(ReferenceType.DOMAIN), eq(domainId), eq(mockUser.getId()), eq(Collections.singletonList("role-1")), any());
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(mockUser)).when(userService).revokeRoles_migrated(eq(ReferenceType.DOMAIN), eq(domainId), eq(mockUser.getId()), eq(Collections.singletonList("role-1")), any());
 
         final Response response = target("domains")
                 .path(domainId)

@@ -48,8 +48,8 @@ public class UserCredentialResourceTest extends JerseySpringTest {
         final User mockUser = new User();
         mockUser.setId("user-id");
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockCredential)))).when(credentialService).findById_migrated("credential-id");
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(mockCredential)).when(credentialService).findById_migrated("credential-id");
 
         final Response response = target("domains")
                 .path(domainId)
@@ -72,8 +72,8 @@ public class UserCredentialResourceTest extends JerseySpringTest {
         final User mockUser = new User();
         mockUser.setId("user-id");
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()))).when(credentialService).delete_migrated("credential-id");
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.empty()).when(credentialService).delete_migrated("credential-id");
 
         final Response response = target("domains")
                 .path(domainId)

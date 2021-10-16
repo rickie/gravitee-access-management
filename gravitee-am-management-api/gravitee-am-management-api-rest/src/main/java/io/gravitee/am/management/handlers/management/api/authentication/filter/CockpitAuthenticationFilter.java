@@ -125,7 +125,7 @@ public class CockpitAuthenticationFilter extends GenericFilterBean {
                     UsernamePasswordAuthenticationToken authentication = convertToAuthentication(jwt);
                     User principal = authenticationService.onAuthenticationSuccess(authentication);
 
-                    final Environment environment = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(environmentService.findById_migrated((String) jwt.get(Claims.environment), (String) jwt.get(Claims.organization)))).block();
+                    final Environment environment = environmentService.findById_migrated((String) jwt.get(Claims.environment), (String) jwt.get(Claims.organization)).block();
                     String redirectPath = "";
 
                     if(environment != null) {

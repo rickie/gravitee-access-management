@@ -94,7 +94,7 @@ public class ClientAssertionAuthProvider implements ClientAuthProvider {
         String clientId = request.getParam(Parameters.CLIENT_ID);
         String basePath = UriBuilderRequest.resolveProxyRequest(context);
 
-        RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(clientAssertionType, clientAssertion, basePath))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client1 -> {
+        RxJava2Adapter.monoToMaybe(clientAssertionService.assertClient_migrated(clientAssertionType, clientAssertion, basePath).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<Client, MaybeSource<Client>>toJdkFunction(client1 -> {
                     // clientId is optional, but if provided we must ensure it is the same than the logged client.
                     if(clientId != null && !clientId.equals(client1.getClientId())) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientException("client_id parameter does not match with assertion")));

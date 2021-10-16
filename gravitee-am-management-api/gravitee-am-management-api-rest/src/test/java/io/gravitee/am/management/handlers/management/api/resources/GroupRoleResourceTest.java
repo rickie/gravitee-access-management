@@ -48,8 +48,8 @@ public class GroupRoleResourceTest extends JerseySpringTest {
         final Group mockGroup = new Group();
         mockGroup.setId("group-id-1");
 
-        doReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(mockDomain)))).when(domainService).findById_migrated(domainId);
-        doReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(mockGroup)))).when(groupService).revokeRoles_migrated(eq(ReferenceType.DOMAIN), eq("domain-1"), eq(mockGroup.getId()), eq(Collections.singletonList("role-1")), any());
+        doReturn(Mono.just(mockDomain)).when(domainService).findById_migrated(domainId);
+        doReturn(Mono.just(mockGroup)).when(groupService).revokeRoles_migrated(eq(ReferenceType.DOMAIN), eq("domain-1"), eq(mockGroup.getId()), eq(Collections.singletonList("role-1")), any());
 
         final Response response = target("domains")
                 .path(domainId)

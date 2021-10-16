@@ -60,7 +60,7 @@ public class RequestObjectServiceTest {
         String request = "request-object";
         PlainJWT plainJWT = mock(PlainJWT.class);;
 
-        when(jweService.decrypt_migrated(request, false)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(plainJWT))));
+        when(jweService.decrypt_migrated(request, false)).thenReturn(Mono.just(plainJWT));
 
         TestObserver<JWT> testObserver = RxJava2Adapter.monoToSingle(requestObjectService.readRequestObject_migrated(request, client, false)).test();
         testObserver.assertNotComplete();
@@ -75,7 +75,7 @@ public class RequestObjectServiceTest {
         JSONObject jsonObject = new JSONObject();
         SignedJWT signedJWT = new SignedJWT(jwsHeader,  JWTClaimsSet.parse(jsonObject));
 
-        when(jweService.decrypt_migrated(request, false)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(signedJWT))));
+        when(jweService.decrypt_migrated(request, false)).thenReturn(Mono.just(signedJWT));
 
         TestObserver<JWT> testObserver = RxJava2Adapter.monoToSingle(requestObjectService.readRequestObject_migrated(request, client, false)).test();
         testObserver.assertNotComplete();

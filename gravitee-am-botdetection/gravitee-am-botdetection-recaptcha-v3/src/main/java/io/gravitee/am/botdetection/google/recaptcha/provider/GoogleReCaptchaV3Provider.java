@@ -79,7 +79,7 @@ public class GoogleReCaptchaV3Provider implements BotDetectionProvider  {
 
         if (token == null || "".equals(token.trim())) {
             LOGGER.debug("Recaptcha token is empty");
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(false)));
+            return Mono.just(false);
         }
 
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(client.post(URI.create(configuration.getServiceUrl()).toString())

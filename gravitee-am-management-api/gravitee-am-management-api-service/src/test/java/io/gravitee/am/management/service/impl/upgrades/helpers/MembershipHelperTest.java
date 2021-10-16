@@ -66,9 +66,9 @@ public class MembershipHelperTest {
         final Role primaryOwnerRole = new Role();
         primaryOwnerRole.setId("role-id");
 
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty()))); // user has no role yet.
-        when(roleService.findSystemRole_migrated(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(primaryOwnerRole))));
-        when(membershipService.addOrUpdate_migrated(eq(Organization.DEFAULT), any(Membership.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Membership()))));
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(Flux.empty()); // user has no role yet.
+        when(roleService.findSystemRole_migrated(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(Mono.just(primaryOwnerRole));
+        when(membershipService.addOrUpdate_migrated(eq(Organization.DEFAULT), any(Membership.class))).thenReturn(Mono.just(new Membership()));
 
         cut.setOrganizationPrimaryOwnerRole(user);
     }
@@ -82,8 +82,8 @@ public class MembershipHelperTest {
         final Role adminRole = new Role();
         adminRole.setId("role-id");
 
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(new Membership()))));
-        when(roleService.findSystemRole_migrated(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(adminRole))));
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(Flux.just(new Membership()));
+        when(roleService.findSystemRole_migrated(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(Mono.just(adminRole));
 
         cut.setOrganizationPrimaryOwnerRole(user);
     }
@@ -100,9 +100,9 @@ public class MembershipHelperTest {
         membership.setMemberId(userId);
         membership.setMemberType(MemberType.USER);
 
-        when(roleService.findSystemRole_migrated(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(organizationPrimaryOwner))));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(membership))));
-        when(membershipService.setPlatformAdmin_migrated(userId)).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new Membership()))));
+        when(roleService.findSystemRole_migrated(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(Mono.just(organizationPrimaryOwner));
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(Flux.just(membership));
+        when(membershipService.setPlatformAdmin_migrated(userId)).thenReturn(Mono.just(new Membership()));
 
         cut.setPlatformAdminRole();
 
@@ -121,8 +121,8 @@ public class MembershipHelperTest {
         membership.setMemberId(userId);
         membership.setMemberType(MemberType.USER);
 
-        when(roleService.findSystemRole_migrated(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(organizationPrimaryOwner))));
-        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.empty())));
+        when(roleService.findSystemRole_migrated(SystemRole.ORGANIZATION_PRIMARY_OWNER, ReferenceType.ORGANIZATION)).thenReturn(Mono.just(organizationPrimaryOwner));
+        when(membershipService.findByCriteria_migrated(eq(ReferenceType.ORGANIZATION), eq(Organization.DEFAULT), any(MembershipCriteria.class))).thenReturn(Flux.empty());
 
         cut.setPlatformAdminRole();
 

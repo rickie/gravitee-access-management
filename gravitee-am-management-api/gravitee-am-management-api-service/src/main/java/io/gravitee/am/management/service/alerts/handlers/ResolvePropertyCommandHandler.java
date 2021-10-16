@@ -81,14 +81,14 @@ private Mono<Map<String,Map<String,Object>>> resolveProperties_migrated(ResolveP
         if (commandProperties != null) {
             commandProperties.forEach((key, value) -> {
                 if (RESOLVE_DOMAIN_PROPERTIES_KEY.equals(key)) {
-                    obs.add(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(resolveDomainProperties_migrated(value))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(domainProperties -> values.put(key, domainProperties)))));
+                    obs.add(RxJava2Adapter.monoToSingle(resolveDomainProperties_migrated(value).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(domainProperties -> values.put(key, domainProperties)))));
                 } else if (RESOLVE_APPLICATION_PROPERTIES_KEY.equals(key)) {
-                    obs.add(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(resolveApplicationProperties_migrated(value))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(appProperties -> values.put(key, appProperties)))));
+                    obs.add(RxJava2Adapter.monoToSingle(resolveApplicationProperties_migrated(value).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(appProperties -> values.put(key, appProperties)))));
                 }
             });
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Single.merge(obs)).ignoreElements().then().then(Mono.just(values))));
+        return RxJava2Adapter.flowableToFlux(Single.merge(obs)).ignoreElements().then().then(Mono.just(values));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolveDomainProperties_migrated(domainId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

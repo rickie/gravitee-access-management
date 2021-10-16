@@ -75,7 +75,7 @@ public class UpdateGroupEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldInvokeSCIMUpdateGroupEndpoint() throws Exception {
         router.route("/Groups").handler(groupEndpoint::update);
-        when(groupService.update_migrated(any(), any(), any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(getGroup()))));
+        when(groupService.update_migrated(any(), any(), any())).thenReturn(Mono.just(getGroup()));
 
         testRequest(
                 HttpMethod.PUT,
@@ -91,7 +91,7 @@ public class UpdateGroupEndpointHandlerTest extends RxWebTestBase {
     @Test
     public void shouldReturn400WhenInvalidGroupException() throws Exception {
         router.route("/Groups").handler(groupEndpoint::update);
-        when(groupService.update_migrated(any(), any(), anyString())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidGroupException("Invalid group infos")))));
+        when(groupService.update_migrated(any(), any(), anyString())).thenReturn(Mono.error(new InvalidGroupException("Invalid group infos")));
 
         testRequest(
                 HttpMethod.PUT,

@@ -85,8 +85,8 @@ public class UserConsentResource extends AbstractResource {
             @PathParam("consent") String consent,
             @Suspended final AsyncResponse response) {
 
-        RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->RxJava2Adapter.monoToMaybe(scopeApprovalService.findById_migrated(consent)).as(RxJava2Adapter::maybeToMono)).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consent))))
-                        .flatMapSingle(scopeApproval -> RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getClient_migrated(scopeApproval.getDomain(), scopeApproval.getClientId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(clientEntity -> {
+        RxJava2Adapter.monoToSingle(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->scopeApprovalService.findById_migrated(consent)).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consent))))
+                        .flatMapSingle(scopeApproval -> RxJava2Adapter.monoToSingle(getClient_migrated(scopeApproval.getDomain(), scopeApproval.getClientId()).map(RxJavaReactorMigrationUtil.toJdkFunction(clientEntity -> {
                                     ScopeApprovalEntity scopeApprovalEntity = new ScopeApprovalEntity(scopeApproval);
                                     scopeApprovalEntity.setClientEntity(clientEntity);
                                     return scopeApprovalEntity;
@@ -111,7 +111,7 @@ public class UserConsentResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE))).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain))).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(__->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(scopeApprovalService.revokeByConsent_migrated(domain, user, consent, authenticatedUser)))).then()))
+        RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.UPDATE).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(__->scopeApprovalService.revokeByConsent_migrated(domain, user, consent, authenticatedUser)).then()))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
     }
 
@@ -122,6 +122,6 @@ private Single<ApplicationEntity> getClient(String domain, String clientId) {
  return RxJava2Adapter.monoToSingle(getClient_migrated(domain, clientId));
 }
 private Mono<ApplicationEntity> getClient_migrated(String domain, String clientId) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationService.findByDomainAndClientId_migrated(domain, clientId))).map(RxJavaReactorMigrationUtil.toJdkFunction(ApplicationEntity::new)).defaultIfEmpty(new ApplicationEntity("unknown-id", clientId, "unknown-client-name")).single()));
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(applicationService.findByDomainAndClientId_migrated(domain, clientId))).map(RxJavaReactorMigrationUtil.toJdkFunction(ApplicationEntity::new)).defaultIfEmpty(new ApplicationEntity("unknown-id", clientId, "unknown-client-name")).single();
     }
 }

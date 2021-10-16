@@ -44,7 +44,7 @@ public class MFAMockProvider implements MFAResourceProvider {
 @Override
     public Mono<Void> send_migrated(MFALink target) {
         System.out.println("MFAMockProvider: SEND CODE " + configuration.getCode());
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        return Mono.empty();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.verify_migrated(challenge))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -57,8 +57,8 @@ public class MFAMockProvider implements MFAResourceProvider {
     public Mono<Void> verify_migrated(MFAChallenge challenge) {
         System.out.println("MFAMockProvider: VERIFY CODE " + configuration.getCode());
         if (!configuration.getCode().equals(challenge.getCode())) {
-            return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.error(new InvalidCodeException("Invalid 2FA code"))));
+            return Mono.error(new InvalidCodeException("Invalid 2FA code"));
         }
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        return Mono.empty();
     }
 }

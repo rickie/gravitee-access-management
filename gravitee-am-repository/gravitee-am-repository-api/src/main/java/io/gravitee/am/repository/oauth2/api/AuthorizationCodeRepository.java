@@ -78,6 +78,6 @@ default reactor.core.publisher.Mono<io.gravitee.am.repository.oauth2.model.Autho
 default io.reactivex.Completable purgeExpiredData() {
     return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
 }default Mono<Void> purgeExpiredData_migrated() {
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(Mono.empty()));
+        return Mono.empty();
     }
 }

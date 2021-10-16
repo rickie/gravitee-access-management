@@ -103,10 +103,10 @@ public class IDTokenServiceTest {
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
-        when(certificateManager.findByAlgorithm_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(idTokenCert))));
-        when(certificateManager.get_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(clientCert))));
+        when(certificateManager.findByAlgorithm_migrated(any())).thenReturn(Mono.just(idTokenCert));
+        when(certificateManager.get_migrated(anyString())).thenReturn(Mono.just(clientCert));
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCert);
-        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idTokenPayload))));
+        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Mono.just(idTokenPayload));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
         TestObserver<String> testObserver = RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, null)).test();
@@ -136,10 +136,10 @@ public class IDTokenServiceTest {
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
-        when(certificateManager.findByAlgorithm_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(certificateManager.get_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(clientCert))));
+        when(certificateManager.findByAlgorithm_migrated(any())).thenReturn(Mono.empty());
+        when(certificateManager.get_migrated(anyString())).thenReturn(Mono.just(clientCert));
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCert);
-        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idTokenPayload))));
+        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Mono.just(idTokenPayload));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
         TestObserver<String> testObserver = RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, null)).test();
@@ -168,10 +168,10 @@ public class IDTokenServiceTest {
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
-        when(certificateManager.findByAlgorithm_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(certificateManager.get_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(certificateManager.findByAlgorithm_migrated(any())).thenReturn(Mono.empty());
+        when(certificateManager.get_migrated(any())).thenReturn(Mono.empty());
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCert);
-        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idTokenPayload))));
+        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Mono.just(idTokenPayload));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
         TestObserver<String> testObserver = RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, null)).test();
@@ -210,9 +210,9 @@ public class IDTokenServiceTest {
         io.gravitee.am.gateway.certificate.CertificateProvider defaultCert = new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider);
 
         ArgumentCaptor<JWT> jwtCaptor = ArgumentCaptor.forClass(JWT.class);
-        when(jwtService.encode_migrated(jwtCaptor.capture(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idTokenPayload))));
-        when(certificateManager.findByAlgorithm_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(certificateManager.get_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(jwtService.encode_migrated(jwtCaptor.capture(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Mono.just(idTokenPayload));
+        when(certificateManager.findByAlgorithm_migrated(any())).thenReturn(Mono.empty());
+        when(certificateManager.get_migrated(any())).thenReturn(Mono.empty());
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCert);
 
         TestObserver<String> testObserver = RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, null, executionContext)).test();
@@ -244,11 +244,11 @@ public class IDTokenServiceTest {
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
-        when(certificateManager.findByAlgorithm_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(certificateManager.get_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(certificateManager.findByAlgorithm_migrated(any())).thenReturn(Mono.empty());
+        when(certificateManager.get_migrated(any())).thenReturn(Mono.empty());
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCert);
-        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(idTokenPayload))));
-        when(jweService.encryptIdToken_migrated(anyString(),any())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("encryptedToken"))));
+        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Mono.just(idTokenPayload));
+        when(jweService.encryptIdToken_migrated(anyString(),any())).thenReturn(Mono.just("encryptedToken"));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
 
         TestObserver<String> testObserver = RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, null)).test();
@@ -288,8 +288,8 @@ public class IDTokenServiceTest {
         expectedJwt.setExp(expectedJwt.getIat() + 14400);
 
         when(certificateManager.defaultCertificateProvider()).thenReturn(new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider));
-        when(certificateManager.get_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)))));
-        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("test"))));
+        when(certificateManager.get_migrated(anyString())).thenReturn(Mono.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
+        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Mono.just("test"));
         ((IDTokenServiceImpl) idTokenService).setObjectMapper(objectMapper);
 
         TestObserver<String> testObserver = RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, user)).test();
@@ -318,10 +318,10 @@ public class IDTokenServiceTest {
 
         ExecutionContext executionContext = mock(ExecutionContext.class);
 
-        when(certificateManager.findByAlgorithm_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
-        when(certificateManager.get_migrated(any())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty())));
+        when(certificateManager.findByAlgorithm_migrated(any())).thenReturn(Mono.empty());
+        when(certificateManager.get_migrated(any())).thenReturn(Mono.empty());
         when(certificateManager.defaultCertificateProvider()).thenReturn(defaultCert);
-        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("test"))));
+        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Mono.just("test"));
         when(executionContextFactory.create(any())).thenReturn(executionContext);
         ((IDTokenServiceImpl) idTokenService).setObjectMapper(objectMapper);
 
@@ -370,8 +370,8 @@ public class IDTokenServiceTest {
         expectedJwt.put(StandardClaims.FAMILY_NAME, user.getAdditionalInformation().get(StandardClaims.FAMILY_NAME));
 
         when(certificateManager.defaultCertificateProvider()).thenReturn(new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider));
-        when(certificateManager.get_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)))));
-        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("test"))));
+        when(certificateManager.get_migrated(anyString())).thenReturn(Mono.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
+        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Mono.just("test"));
 
         TestObserver<String> testObserver = RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, user)).test();
 
@@ -405,8 +405,8 @@ public class IDTokenServiceTest {
         expectedJwt.put(StandardClaims.EMAIL, user.getAdditionalInformation().get(StandardClaims.EMAIL));
 
         when(certificateManager.defaultCertificateProvider()).thenReturn(new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider));
-        when(certificateManager.get_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)))));
-        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("test"))));
+        when(certificateManager.get_migrated(anyString())).thenReturn(Mono.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
+        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Mono.just("test"));
 
         TestObserver<String> testObserver = RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, user)).test();
 
@@ -441,8 +441,8 @@ public class IDTokenServiceTest {
         expectedJwt.put(StandardClaims.EMAIL, user.getAdditionalInformation().get(StandardClaims.EMAIL));
 
         when(certificateManager.defaultCertificateProvider()).thenReturn(new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider));
-        when(certificateManager.get_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)))));
-        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("test"))));
+        when(certificateManager.get_migrated(anyString())).thenReturn(Mono.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
+        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Mono.just("test"));
 
         TestObserver<String> testObserver = RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, user)).test();
 
@@ -481,8 +481,8 @@ public class IDTokenServiceTest {
         expectedJwt.put(StandardClaims.EMAIL, user.getAdditionalInformation().get(StandardClaims.EMAIL));
 
         when(certificateManager.defaultCertificateProvider()).thenReturn(new io.gravitee.am.gateway.certificate.CertificateProvider(defaultCertificateProvider));
-        when(certificateManager.get_migrated(anyString())).thenReturn(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)))));
-        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just("test"))));
+        when(certificateManager.get_migrated(anyString())).thenReturn(Mono.just(new io.gravitee.am.gateway.certificate.CertificateProvider(certificateProvider)));
+        when(jwtService.encode_migrated(any(), any(io.gravitee.am.gateway.certificate.CertificateProvider.class))).thenReturn(Mono.just("test"));
         ((IDTokenServiceImpl) idTokenService).setObjectMapper(objectMapper);
 
         TestObserver<String> testObserver = RxJava2Adapter.monoToSingle(idTokenService.create_migrated(oAuth2Request, client, user)).test();

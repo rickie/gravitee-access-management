@@ -45,11 +45,11 @@ public class PermissionTicketRepositoryPurgeTest extends AbstractManagementTest 
     public void testPurge() throws TechnicalException {
         // create permission_ticket
         PermissionTicket permissionTicketNoExpireAt = new PermissionTicket().setPermissionRequest(Arrays.asList(permission));
-        PermissionTicket ptValid = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(permissionTicketNoExpireAt))).block();
+        PermissionTicket ptValid = repository.create_migrated(permissionTicketNoExpireAt).block();
         PermissionTicket permissionTicket = new PermissionTicket().setPermissionRequest(Arrays.asList(permission));
         Instant now = Instant.now();
         permissionTicket.setExpireAt(new Date(now.plus(10, ChronoUnit.MINUTES).toEpochMilli()));
-        PermissionTicket ptValid2 = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(permissionTicket))).block();
+        PermissionTicket ptValid2 = repository.create_migrated(permissionTicket).block();
         PermissionTicket permissionTicketExpired = new PermissionTicket().setPermissionRequest(Arrays.asList(permission));
         permissionTicketExpired.setExpireAt(new Date(now.minus(10, ChronoUnit.MINUTES).toEpochMilli()));
         TestObserver<PermissionTicket> test = RxJava2Adapter.monoToSingle(repository.create_migrated(permissionTicketExpired)).test();

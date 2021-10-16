@@ -86,10 +86,10 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
     public Flux<User> findByIdIn_migrated(List<String> ids) {
         String userIds = String.join(",", ids);
         LOGGER.debug("Find users by ids: {}", userIds);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(getUserRepository().findByIdIn_migrated(ids))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(getUserRepository().findByIdIn_migrated(ids))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find users by ids {}", userIds, ex);
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException(String.format("An error occurs while trying to find users by ids %s", userIds), ex)));
-                }))));
+                }));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -152,12 +152,12 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
 @Override
     public Mono<User> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
         LOGGER.debug("Find user by id : {}", id);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getUserRepository().findById_migrated(referenceType, referenceId, id))
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getUserRepository().findById_migrated(referenceType, referenceId, id))
                 .onErrorResumeNext(ex -> {
                     LOGGER.error("An error occurs while trying to find a user using its ID {}", id, ex);
                     return RxJava2Adapter.monoToMaybe(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find a user using its ID: %s", id), ex)));
-                })).switchIfEmpty(Mono.error(new UserNotFoundException(id)))));
+                })).switchIfEmpty(Mono.error(new UserNotFoundException(id)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsernameAndSource_migrated(referenceType, referenceId, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -204,7 +204,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
 @Override
     public Mono<User> create_migrated(ReferenceType referenceType, String referenceId, NewUser newUser) {
         LOGGER.debug("Create a new user {} for {} {}", newUser, referenceType, referenceId);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getUserRepository().findByUsernameAndSource_migrated(referenceType, referenceId, newUser.getUsername(), newUser.getSource()))).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getUserRepository().findByUsernameAndSource_migrated(referenceType, referenceId, newUser.getUsername(), newUser.getSource()).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
                     if (!isEmpty) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new UserAlreadyExistsException(newUser.getUsername())));
                     } else {
@@ -256,10 +256,10 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
         user.setCreatedAt(new Date());
         user.setUpdatedAt(user.getCreatedAt());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(userValidator.validate_migrated(user))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getUserRepository().create_migrated(user)))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)user1 -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userValidator.validate_migrated(user).then(getUserRepository().create_migrated(user)).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)user1 -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user1.getId(), user1.getReferenceType(), user1.getReferenceId(), Action.CREATE));
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).flatMap(__->Mono.just(user1)));
+                    return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(user1)));
                 }).apply(v))))
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -280,7 +280,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
     public Mono<User> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser) {
         LOGGER.debug("Update a user {} for {} {}", id, referenceType, referenceId);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getUserRepository().findById_migrated(referenceType, referenceId, id))).switchIfEmpty(Mono.error(new UserNotFoundException(id))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(getUserRepository().findById_migrated(referenceType, referenceId, id).switchIfEmpty(Mono.error(new UserNotFoundException(id))))
                 .flatMapSingle(oldUser -> {
                     User tmpUser = new User();
                     tmpUser.setEmail(updateUser.getEmail());
@@ -321,11 +321,11 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
     public Mono<Void> delete_migrated(String userId) {
         LOGGER.debug("Delete user {}", userId);
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(getUserRepository().findById_migrated(userId))).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)user -> {
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(getUserRepository().findById_migrated(userId).switchIfEmpty(Mono.error(new UserNotFoundException(userId))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<User, CompletableSource>)user -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user.getId(), user.getReferenceType(), user.getReferenceId(), Action.DELETE));
                     /// delete WebAuthn credentials
-                    return RxJava2Adapter.monoToCompletable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialService.findByUserId_migrated(user.getReferenceType(), user.getReferenceId(), user.getId()))).flatMap(z->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.<Credential, CompletableSource>toJdkFunction(credential -> RxJava2Adapter.monoToCompletable(credentialService.delete_migrated(credential.getId()))).apply(z)))).then().then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(getUserRepository().delete_migrated(userId)))).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event))).then()));
+                    return RxJava2Adapter.monoToCompletable(credentialService.findByUserId_migrated(user.getReferenceType(), user.getReferenceId(), user.getId()).flatMap(v->credentialService.delete_migrated(v.getId())).then().then(getUserRepository().delete_migrated(userId)).then(eventService.create_migrated(event).then()));
                 }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -349,7 +349,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
         LOGGER.debug("Enhance user {}", user.getId());
 
         // fetch user groups
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(groupService.findByMember_migrated(user.getId()))).collectList().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Group>, Single<User>>)groups -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(groupService.findByMember_migrated(user.getId()).collectList().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Group>, Single<User>>)groups -> {
                     Set<String> roles = new HashSet<>();
                     if (groups != null && !groups.isEmpty()) {
                         // set groups
@@ -367,7 +367,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                     }
                     // fetch roles information and enhance user data
                     if (!roles.isEmpty()) {
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(roleService.findByIdIn_migrated(new ArrayList<>(roles)))).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
+                        return RxJava2Adapter.monoToSingle(roleService.findByIdIn_migrated(new ArrayList<>(roles)).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
                                     user.setRolesPermissions(roles1);
                                     return user;
                                 })));

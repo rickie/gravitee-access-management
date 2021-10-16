@@ -48,7 +48,7 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindById() {
         LoginAttempt attempt = buildLoginAttempt();
-        LoginAttempt createdAttempt = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(attempt))).block();
+        LoginAttempt createdAttempt = repository.create_migrated(attempt).block();
 
         TestObserver<LoginAttempt> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdAttempt.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -60,10 +60,10 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldFindByCriteria() {
         LoginAttempt attempt = buildLoginAttempt();
-        LoginAttempt createdAttempt = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(attempt))).block();
+        LoginAttempt createdAttempt = repository.create_migrated(attempt).block();
 
         LoginAttempt unexpectedAttempt = buildLoginAttempt();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(unexpectedAttempt))).block();
+        repository.create_migrated(unexpectedAttempt).block();
 
         TestObserver<LoginAttempt> testObserver = RxJava2Adapter.monoToMaybe(repository.findByCriteria_migrated(new LoginAttemptCriteria.Builder()
                 .client(attempt.getClient())
@@ -81,7 +81,7 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldNotFindByCriteria_invalidDomain() {
         LoginAttempt attempt = buildLoginAttempt();
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(attempt))).block();
+        repository.create_migrated(attempt).block();
 
         TestObserver<LoginAttempt> testObserver = RxJava2Adapter.monoToMaybe(repository.findByCriteria_migrated(new LoginAttemptCriteria.Builder()
                 .client(attempt.getClient())
@@ -99,7 +99,7 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
     public void shouldDeleteByCriteria() {
         // should be deleted
         LoginAttempt attempt = buildLoginAttempt();
-        LoginAttempt createdAttempt = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(attempt))).block();
+        LoginAttempt createdAttempt = repository.create_migrated(attempt).block();
 
         TestObserver<LoginAttempt> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdAttempt.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -108,7 +108,7 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
 
         // shouldn't be deleted
         LoginAttempt unexpectedAttempt = buildLoginAttempt();
-        LoginAttempt createdUnexpectedAttempt = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(unexpectedAttempt))).block();
+        LoginAttempt createdUnexpectedAttempt = repository.create_migrated(unexpectedAttempt).block();
 
         testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdUnexpectedAttempt.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -142,7 +142,7 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldDeleteById() {
         LoginAttempt attempt = buildLoginAttempt();
-        LoginAttempt createdAttempt = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(attempt))).block();
+        LoginAttempt createdAttempt = repository.create_migrated(attempt).block();
 
         TestObserver<LoginAttempt> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdAttempt.getId())).test();
         testObserver.awaitTerminalEvent();
@@ -162,7 +162,7 @@ public class LoginAttemptRepositoryTest extends AbstractManagementTest {
     @Test
     public void shouldUpdate() {
         LoginAttempt attempt = buildLoginAttempt();
-        LoginAttempt createdAttempt = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(repository.create_migrated(attempt))).block();
+        LoginAttempt createdAttempt = repository.create_migrated(attempt).block();
 
         TestObserver<LoginAttempt> testObserver = RxJava2Adapter.monoToMaybe(repository.findById_migrated(createdAttempt.getId())).test();
         testObserver.awaitTerminalEvent();

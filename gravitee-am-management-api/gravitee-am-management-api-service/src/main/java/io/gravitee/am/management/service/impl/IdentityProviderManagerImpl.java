@@ -211,7 +211,7 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
 @Override
     public Mono<UserProvider> getUserProvider_migrated(String userProvider) {
         if (userProvider == null) {
-            return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(Mono.empty()));
+            return Mono.empty();
         }
         UserProvider userProvider1 = userProviders.get(userProvider);
         return RxJava2Adapter.maybeToMono((userProvider1 != null) ? RxJava2Adapter.monoToMaybe(Mono.just(userProvider1)) : RxJava2Adapter.monoToMaybe(Mono.empty()));
@@ -284,9 +284,9 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
                     "\"passwordEncoder\":\"BCrypt\"}";
             newIdentityProvider.setConfiguration(providerConfig);
         } else {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new IllegalStateException("Unable to create Default IdentityProvider with " + managementBackend + " backend"))));
+            return Mono.error(new IllegalStateException("Unable to create Default IdentityProvider with " + managementBackend + " backend"));
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(identityProviderService.create_migrated(referenceType, referenceId, newIdentityProvider, null)));
+        return identityProviderService.create_migrated(referenceType, referenceId, newIdentityProvider, null);
     }
 
     private Optional<String> getMongoServers() {
@@ -350,7 +350,7 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
 }
 @Override
     public Mono<IdentityProvider> create_migrated(String domain) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(create_migrated(ReferenceType.DOMAIN, domain)));
+        return create_migrated(ReferenceType.DOMAIN, domain);
     }
 
     @Override

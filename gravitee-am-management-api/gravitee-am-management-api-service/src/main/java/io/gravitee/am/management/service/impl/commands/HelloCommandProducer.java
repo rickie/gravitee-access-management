@@ -66,7 +66,7 @@ public class HelloCommandProducer implements CommandProducer<HelloCommand, Hello
     @Override
     public Single<HelloCommand> prepare(HelloCommand command) {
 
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(installationService.getOrInitialize_migrated())).map(RxJavaReactorMigrationUtil.toJdkFunction(installation -> {
+        return RxJava2Adapter.monoToSingle(installationService.getOrInitialize_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(installation -> {
             command.getPayload().getNode().setInstallationId(installation.getId());
             command.getPayload().getNode().setHostname(node.hostname());
             command.getPayload().getAdditionalInformation().putAll(installation.getAdditionalInformation());
@@ -83,7 +83,7 @@ public class HelloCommandProducer implements CommandProducer<HelloCommand, Hello
     public Single<HelloReply> handleReply(HelloReply reply) {
 
         if (reply.getCommandStatus() == CommandStatus.SUCCEEDED) {
-            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(installationService.get_migrated())).map(RxJavaReactorMigrationUtil.toJdkFunction(Installation::getAdditionalInformation)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(infos -> infos.put(Installation.COCKPIT_INSTALLATION_ID, reply.getInstallationId()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(infos -> infos.put(Installation.COCKPIT_INSTALLATION_STATUS, reply.getInstallationStatus()))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Map<String, String>, SingleSource<Installation>>toJdkFunction((java.util.Map<java.lang.String,java.lang.String> ident) -> RxJava2Adapter.monoToSingle(installationService.setAdditionalInformation_migrated(ident))).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(installation -> reply)));
+            return RxJava2Adapter.monoToSingle(installationService.get_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(Installation::getAdditionalInformation)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(infos -> infos.put(Installation.COCKPIT_INSTALLATION_ID, reply.getInstallationId()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(infos -> infos.put(Installation.COCKPIT_INSTALLATION_STATUS, reply.getInstallationStatus()))).flatMap(v->installationService.setAdditionalInformation_migrated(v)).map(RxJavaReactorMigrationUtil.toJdkFunction(installation -> reply)));
         }
 
         return RxJava2Adapter.monoToSingle(Mono.just(reply));

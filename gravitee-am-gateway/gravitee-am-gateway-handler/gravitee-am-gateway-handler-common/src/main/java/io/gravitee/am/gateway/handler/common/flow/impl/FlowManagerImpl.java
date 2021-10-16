@@ -135,7 +135,7 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
         Set<ExecutionFlow> executionFlows = policies.get(extensionPoint);
         // if no flow, returns empty list
         if (executionFlows == null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList())));
+            return Mono.just(Collections.emptyList());
         }
 
         // get domain policies
@@ -143,7 +143,7 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
 
         // if client is null, executes only security domain flows
         if (client == null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(domainExecutionPolicies)));
+            return Mono.just(domainExecutionPolicies);
         }
 
         // get application policies
@@ -151,13 +151,13 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
 
         // if client does not inherit domain flows, executes only application flows
         if (!client.isFlowsInherited()) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(applicationExecutionPolicies)));
+            return Mono.just(applicationExecutionPolicies);
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(Stream.concat(
+        return Mono.just(Stream.concat(
                         domainExecutionPolicies.stream(),
                         applicationExecutionPolicies.stream()
-                ).collect(Collectors.toList()))));
+                ).collect(Collectors.toList()));
     }
 
     private void updateFlow(String flowId, FlowEvent flowEvent) {

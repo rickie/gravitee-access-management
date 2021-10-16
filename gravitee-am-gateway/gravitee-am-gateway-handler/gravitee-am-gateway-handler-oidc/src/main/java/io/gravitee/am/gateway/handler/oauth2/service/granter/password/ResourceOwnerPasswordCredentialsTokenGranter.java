@@ -73,18 +73,18 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         String password = parameters.getFirst(PASSWORD);
 
         if (username == null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Missing parameter: username"))));
+            return Mono.error(new InvalidRequestException("Missing parameter: username"));
         }
 
         if (password == null) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.error(new InvalidRequestException("Missing parameter: password"))));
+            return Mono.error(new InvalidRequestException("Missing parameter: password"));
         }
 
         // set required parameters
         tokenRequest.setUsername(username);
         tokenRequest.setPassword(password);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(super.parseRequest_migrated(tokenRequest, client)));
+        return super.parseRequest_migrated(tokenRequest, client);
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.resolveResourceOwner_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -98,8 +98,8 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         String username = tokenRequest.getUsername();
         String password = tokenRequest.getPassword();
 
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userAuthenticationManager.authenticate_migrated(client, new EndUserAuthentication(username, password, new SimpleAuthenticationContext(tokenRequest))))
-                .onErrorResumeNext(ex -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException(ex.getMessage())))))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userAuthenticationManager.authenticate_migrated(client, new EndUserAuthentication(username, password, new SimpleAuthenticationContext(tokenRequest))))
+                .onErrorResumeNext(ex -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException(ex.getMessage())))));
     }
 
     public void setUserAuthenticationManager(UserAuthenticationManager userAuthenticationManager) {

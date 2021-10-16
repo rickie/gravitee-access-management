@@ -68,7 +68,7 @@ public class GroupsEndpointTest extends RxWebTestBase {
 
     @Test
     public void shouldListGroups() throws Exception {
-        when(groupService.list_migrated(eq(0), eq(100), anyString())).thenReturn(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.just(new ListResponse<>()))));
+        when(groupService.list_migrated(eq(0), eq(100), anyString())).thenReturn(Mono.just(new ListResponse<>()));
         testRequest(
                 HttpMethod.GET,
                 "/Groups",
