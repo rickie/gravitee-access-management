@@ -1260,7 +1260,10 @@ public class AuthorizationEndpointTest extends RxWebTestBase {
 
         when(jwtService.encodeAuthorization_migrated(any(JWT.class), eq(client))).thenReturn(Mono.just("my-jwt"));
         when(jweService.encryptAuthorization_migrated(anyString(), eq(client))).then(new Answer<Single<String>>() {
-            
+            @Override
+            public Single<String> answer(InvocationOnMock invocation) throws Throwable {
+                return RxJava2Adapter.monoToSingle(Mono.just((String)invocation.getArguments()[0]));
+            }
         });
 
         when(clientSyncService.findByClientId_migrated("client-id")).thenReturn(Mono.just(client));

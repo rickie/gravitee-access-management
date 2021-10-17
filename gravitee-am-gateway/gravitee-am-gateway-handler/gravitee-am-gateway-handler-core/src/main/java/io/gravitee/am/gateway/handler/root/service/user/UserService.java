@@ -53,15 +53,21 @@ Mono<Void> forgotPassword_migrated(ForgotPasswordParameters inputParameters, Cli
       
 Mono<io.gravitee.am.model.User> addFactor_migrated(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal);
 
-      Mono<RegistrationResponse> register_migrated(Client client, User user);
+      default Mono<RegistrationResponse> register_migrated(Client client, User user) {
+          return register_migrated(client, user, null);
+      }
 
-      Mono<ResetPasswordResponse> resetPassword_migrated(Client client, User user);
+     default Mono<ResetPasswordResponse> resetPassword_migrated(Client client, User user) {
+          return resetPassword_migrated(client, user, null);
+     }
 
       default Mono<Void> forgotPassword_migrated(String email, Client client) {
         ForgotPasswordParameters params = new ForgotPasswordParameters(email, false, false);
-        return RxJava2Adapter.completableToMono(forgotPassword(params, client, null));
+        return forgotPassword_migrated(params, client, null);
     }
 
-      Mono<RegistrationResponse> confirmRegistration_migrated(Client client, User user);
+      default Mono<RegistrationResponse> confirmRegistration_migrated(Client client, User user) {
+          return confirmRegistration_migrated(client, user, null);
+      }
 
 }

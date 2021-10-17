@@ -21,14 +21,17 @@ import io.gravitee.am.common.oauth2.ResponseType;
 import io.gravitee.am.common.oidc.Scope;
 
 
+import io.gravitee.am.identityprovider.api.Authentication;
 import io.gravitee.am.identityprovider.api.IdentityProviderMapper;
 import io.gravitee.am.identityprovider.api.IdentityProviderRoleMapper;
+import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.identityprovider.api.oidc.OpenIDConnectIdentityProviderConfiguration;
 import io.gravitee.am.identityprovider.common.oauth2.authentication.AbstractOpenIDConnectAuthenticationProvider;
 import io.gravitee.am.identityprovider.common.oauth2.jwt.jwks.remote.RemoteJWKSourceResolver;
 import io.gravitee.am.identityprovider.common.oauth2.jwt.processor.JWKSKeyProcessor;
 import io.gravitee.am.identityprovider.google.GoogleIdentityProviderConfiguration;
 import io.gravitee.am.identityprovider.google.authentication.spring.GoogleAuthenticationProviderConfiguration;
+import io.reactivex.Maybe;
 import io.vertx.reactivex.ext.web.client.WebClient;
 import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +66,16 @@ public class GoogleAuthenticationProvider extends AbstractOpenIDConnectAuthentic
     @Override
     protected WebClient getClient() {
         return this.client;
+    }
+
+    @Override
+    protected Maybe<Token> authenticate(Authentication authentication) {
+        return null;
+    }
+
+    @Override
+    protected Maybe<User> profile(Token token, Authentication authentication) {
+        return null;
     }
 
     public void setJwtProcessor(JWTProcessor jwtProcessor) {

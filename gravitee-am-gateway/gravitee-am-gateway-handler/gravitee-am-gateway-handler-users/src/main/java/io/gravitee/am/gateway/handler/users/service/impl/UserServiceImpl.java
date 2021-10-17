@@ -93,4 +93,19 @@ public class UserServiceImpl implements UserService {
         return scopeApprovalService.revokeByUserAndClient_migrated(domain.getId(), userId, clientId, principal);
     }
 
+    @Override
+    public Mono<Void> revokeConsent_migrated(String userId, String consentId) {
+        return revokeConsent_migrated(userId, consentId, null);
+    }
+
+    @Override
+    public Mono<Void> revokeConsents_migrated(String userId) {
+        return revokeConsents_migrated(userId, "", null);
+    }
+
+    @Override
+    public Mono<Void> revokeConsents_migrated(String userId, String clientId) {
+        return revokeConsents_migrated(userId, clientId, null);
+    }
+
 }

@@ -85,7 +85,7 @@ public class GroupServiceImpl implements GroupService {
     @Autowired
     private EventService eventService;
 
-    
+
 @Override
     public Mono<Page<Group>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
         LOGGER.debug("Find groups by {}: {}", referenceType, referenceId);
@@ -106,7 +106,7 @@ public class GroupServiceImpl implements GroupService {
         return findAll_migrated(ReferenceType.DOMAIN, domain, page, size);
     }
 
-    
+
 @Override
     public Flux<Group> findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("Find groups by {}: {}", referenceType, referenceId);
@@ -127,7 +127,7 @@ public class GroupServiceImpl implements GroupService {
         return findAll_migrated(ReferenceType.DOMAIN, domain);
     }
 
-    
+
 @Override
     public Mono<Group> findByName_migrated(ReferenceType referenceType, String referenceId, String groupName) {
         LOGGER.debug("Find group by {} and name: {} {}", referenceType, referenceId, groupName);
@@ -139,7 +139,7 @@ public class GroupServiceImpl implements GroupService {
                 }));
     }
 
-    
+
 @Override
     public Flux<Group> findByMember_migrated(String memberId) {
         LOGGER.debug("Find groups by member : {}", memberId);
@@ -187,7 +187,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
 
-    
+
 @Override
     public Mono<Page<User>> findMembers_migrated(ReferenceType referenceType, String referenceId, String groupId, int page, int size) {
         LOGGER.debug("Find members for group : {}", groupId);
@@ -204,7 +204,7 @@ public class GroupServiceImpl implements GroupService {
                 }).apply(v)));
     }
 
-    
+
 @Override
     public Flux<Group> findByIdIn_migrated(List<String> ids) {
         LOGGER.debug("Find groups for ids : {}", ids);
@@ -337,7 +337,7 @@ return e;
                 }));
     }
 
-    
+
 @Override
     public Mono<Group> assignRoles_migrated(ReferenceType referenceType, String referenceId, String groupId, List<String> roles, io.gravitee.am.identityprovider.api.User principal) {
         return assignRoles0_migrated(referenceType, referenceId, groupId, roles, principal, false);
@@ -354,8 +354,13 @@ return e;
         return assignRoles0_migrated(referenceType, referenceId, groupId, roles, principal, true);
     }
 
-    
-private Mono<Group> assignRoles0_migrated(ReferenceType referenceType, String referenceId, String groupId, List<String> roles, io.gravitee.am.identityprovider.api.User principal, boolean revoke) {
+    @Override
+    public Mono<Group> assignRoles_migrated(ReferenceType referenceType, String referenceId, String groupId, List<String> roles) {
+        return assignRoles0_migrated(referenceType, referenceId, groupId, roles, null, true);
+    }
+
+
+    private Mono<Group> assignRoles0_migrated(ReferenceType referenceType, String referenceId, String groupId, List<String> roles, io.gravitee.am.identityprovider.api.User principal, boolean revoke) {
         return findById_migrated(referenceType, referenceId, groupId).flatMap(v->RxJava2Adapter.singleToMono((Single<Group>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Group, Single<Group>>)oldGroup -> {
                     Group groupToUpdate = new Group(oldGroup);
                     // remove existing roles from the group
@@ -371,7 +376,7 @@ private Mono<Group> assignRoles0_migrated(ReferenceType referenceType, String re
                 }).apply(v)));
     }
 
-    
+
 private Mono<Group> setMembers_migrated(Group group) {
         List<String> userMembers = group.getMembers() != null ? group.getMembers().stream().filter(Objects::nonNull).distinct().collect(Collectors.toList()) : null;
         if (userMembers != null && !userMembers.isEmpty()) {
@@ -384,7 +389,7 @@ private Mono<Group> setMembers_migrated(Group group) {
         return Mono.just(group);
     }
 
-    
+
 private Mono<Void> checkRoles_migrated(List<String> roles) {
         return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(roleService.findByIdIn_migrated(roles).map(RxJavaReactorMigrationUtil.toJdkFunction(roles1 -> {
                     if (roles1.size() != roles.size()) {
