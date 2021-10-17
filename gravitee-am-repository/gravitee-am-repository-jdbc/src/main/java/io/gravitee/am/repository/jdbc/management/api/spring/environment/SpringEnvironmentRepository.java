@@ -17,12 +17,13 @@ package io.gravitee.am.repository.jdbc.management.api.spring.environment;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment;
-
-
-
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -32,19 +33,19 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringEnvironmentRepository extends RxJava2CrudRepository<JdbcEnvironment, String> {
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByIdAndOrganization_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment> findByIdAndOrganization(java.lang.String id, java.lang.String organizationId) {
+default Maybe<JdbcEnvironment> findByIdAndOrganization(String id, String organizationId) {
     return RxJava2Adapter.monoToMaybe(findByIdAndOrganization_migrated(id, organizationId));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment> findByIdAndOrganization_migrated(String id, String organizationId) {
+default Mono<JdbcEnvironment> findByIdAndOrganization_migrated(String id, String organizationId) {
     return RxJava2Adapter.maybeToMono(findByIdAndOrganization(id, organizationId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByOrganization_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment> findByOrganization(java.lang.String organizationId) {
+default Flowable<JdbcEnvironment> findByOrganization(String organizationId) {
     return RxJava2Adapter.fluxToFlowable(findByOrganization_migrated(organizationId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcEnvironment> findByOrganization_migrated(String organizationId) {
+default Flux<JdbcEnvironment> findByOrganization_migrated(String organizationId) {
     return RxJava2Adapter.flowableToFlux(findByOrganization(organizationId));
 }
 }

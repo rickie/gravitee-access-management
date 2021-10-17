@@ -18,6 +18,7 @@ package io.gravitee.am.service.impl;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.identityprovider.api.User;
+import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Tag;
 import io.gravitee.am.repository.management.api.TagRepository;
 import io.gravitee.am.service.AuditService;
@@ -33,14 +34,11 @@ import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.TagAuditBuilder;
 import io.reactivex.*;
 import io.reactivex.Completable;
-
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
-
 import java.text.Normalizer;
 import java.util.Date;
-
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,13 +172,13 @@ public class TagServiceImpl implements TagService {
 @Override
     public Mono<Void> delete_migrated(String tagId, String orgaizationId, User principal) {
         LOGGER.debug("Delete tag {}", tagId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(tagRepository.findById_migrated(tagId, orgaizationId).switchIfEmpty(Mono.error(new TagNotFoundException(tagId))).flatMap(tag->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(tagRepository.delete_migrated(tagId).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(domainService.findAll_migrated()).flatMapObservable(Observable::fromIterable).flatMapCompletable((io.gravitee.am.model.Domain domain)->{
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(tagRepository.findById_migrated(tagId, orgaizationId).switchIfEmpty(Mono.error(new TagNotFoundException(tagId))).flatMap(tag->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(tagRepository.delete_migrated(tagId).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(domainService.findAll_migrated()).flatMapObservable(Observable::fromIterable).flatMapCompletable((Domain domain)->{
 if (domain.getTags() != null) {
 domain.getTags().remove(tagId);
 return RxJava2Adapter.monoToSingle(domainService.update_migrated(domain.getId(), domain)).toCompletable();
 }
 return RxJava2Adapter.monoToCompletable(Mono.empty());
-})))).doOnComplete(()->auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_DELETED).tag(tag)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_DELETED).throwable(throwable))))).then())
+})))).doOnComplete(()->auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_DELETED).tag(tag)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((Throwable throwable)->auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_DELETED).throwable(throwable))))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));

@@ -24,13 +24,13 @@ import io.gravitee.am.jwt.JWTBuilder;
 import io.gravitee.am.management.service.EmailService;
 import io.gravitee.am.management.service.UserService;
 import io.gravitee.am.model.*;
+import io.gravitee.am.model.Application;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Email;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.account.AccountSettings;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.factor.EnrolledFactor;
-
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
 import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
 import io.gravitee.am.service.*;
@@ -47,6 +47,7 @@ import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.time.Instant;
 import java.util.*;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -232,7 +233,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
                                                             } else {
                                                                 return RxJava2Adapter.monoToSingle(Mono.error(ex));
                                                             }
-                                                        }).apply(err))).flatMap(x->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.service.model.NewUser, SingleSource<io.gravitee.am.model.User>>toJdkFunction(newUser1 -> {
+                                                        }).apply(err))).flatMap(x->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<NewUser, SingleSource<io.gravitee.am.model.User>>toJdkFunction(newUser1 -> {
                                                             User user = transform(newUser1);
                                                             AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
                                                             if (newUser.isPreRegistration() && accountSettings != null && accountSettings.isDynamicUserRegistration()) {
@@ -349,7 +350,7 @@ return RxJava2Adapter.monoToCompletable(Mono.error(new UserInvalidException("Pre
 if (user.isPreRegistration() && user.isRegistrationCompleted()) {
 return RxJava2Adapter.monoToCompletable(Mono.error(new UserInvalidException("Registration is completed for the user " + userId)));
 }
-return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(checkClientFunction().apply(user.getReferenceId(), user.getClient())).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer((java.util.Optional<io.gravitee.am.model.Application> optClient)->new Thread(()->emailService.send(domain1, optClient.orElse(null), Template.REGISTRATION_CONFIRMATION, user)).start())).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer((java.util.Optional<io.gravitee.am.model.Application> __)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.REGISTRATION_CONFIRMATION_REQUESTED).user(user)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((java.lang.Throwable throwable)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.REGISTRATION_CONFIRMATION_REQUESTED).throwable(throwable)))).then());
+return RxJava2Adapter.monoToCompletable(RxJava2Adapter.maybeToMono(checkClientFunction().apply(user.getReferenceId(), user.getClient())).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer((Optional<Application> optClient)->new Thread(()->emailService.send(domain1, optClient.orElse(null), Template.REGISTRATION_CONFIRMATION, user)).start())).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer((Optional<Application> __)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.REGISTRATION_CONFIRMATION_REQUESTED).user(user)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((Throwable throwable)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.REGISTRATION_CONFIRMATION_REQUESTED).throwable(throwable)))).then());
 }).apply(y)))).then()).then();
     }
 

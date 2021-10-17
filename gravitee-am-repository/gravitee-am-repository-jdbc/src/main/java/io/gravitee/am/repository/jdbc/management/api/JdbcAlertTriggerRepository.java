@@ -218,7 +218,7 @@ public class JdbcAlertTriggerRepository extends AbstractJdbcRepository implement
 
         return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(execute
                 .as(String.class)
-                .fetch().all().flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<String, MaybeSource<AlertTrigger>>toJdkFunction((java.lang.String ident) -> RxJava2Adapter.monoToMaybe(findById_migrated(ident))).apply(e)))))
+                .fetch().all().flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<String, MaybeSource<AlertTrigger>>toJdkFunction((String ident) -> RxJava2Adapter.monoToMaybe(findById_migrated(ident))).apply(e)))))
                 .doOnError(error -> LOGGER.error("Unable to retrieve AlertTrigger with referenceId {}, referenceType {} and criteria {}",
                         referenceId, referenceType, criteria, error)));
     }

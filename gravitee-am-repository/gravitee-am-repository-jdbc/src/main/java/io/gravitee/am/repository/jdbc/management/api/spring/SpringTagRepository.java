@@ -17,12 +17,13 @@ package io.gravitee.am.repository.jdbc.management.api.spring;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcTag;
-
-
-
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -31,23 +32,23 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringTagRepository extends RxJava2CrudRepository<JdbcTag, String> {
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByOrganization_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcTag> findByOrganization(@org.springframework.data.repository.query.Param(value = "orgId")
-java.lang.String organizationId) {
+default Flowable<JdbcTag> findByOrganization(@Param(value = "orgId")
+String organizationId) {
     return RxJava2Adapter.fluxToFlowable(findByOrganization_migrated(organizationId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcTag> findByOrganization_migrated(@Param(value = "orgId")
+default Flux<JdbcTag> findByOrganization_migrated(@Param(value = "orgId")
 String organizationId) {
     return RxJava2Adapter.flowableToFlux(findByOrganization(organizationId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcTag> findById(@org.springframework.data.repository.query.Param(value = "tid")
-java.lang.String id, @org.springframework.data.repository.query.Param(value = "orgId")
-java.lang.String organizationId) {
+default Maybe<JdbcTag> findById(@Param(value = "tid")
+String id, @Param(value = "orgId")
+String organizationId) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id, organizationId));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcTag> findById_migrated(@Param(value = "tid")
+default Mono<JdbcTag> findById_migrated(@Param(value = "tid")
 String id, @Param(value = "orgId")
 String organizationId) {
     return RxJava2Adapter.maybeToMono(findById(id, organizationId));

@@ -22,7 +22,6 @@ import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.Application;
-
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.ApplicationService;
@@ -30,12 +29,10 @@ import io.gravitee.am.service.DomainService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.NewApplication;
 import io.gravitee.common.http.MediaType;
-
 import io.reactivex.Maybe;
-
 import io.swagger.annotations.*;
 import java.net.URI;
-
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -99,7 +96,7 @@ public class ApplicationsResource extends AbstractResource {
                             } else {
                                 return RxJava2Adapter.monoToSingle(applicationService.findByDomain_migrated(domain, 0, Integer.MAX_VALUE));
                             }
-                        })).flatMap(pagedApplications->RxJava2Adapter.flowableToFlux(Maybe.concat(pagedApplications.getData().stream().map((io.gravitee.am.model.Application application)->RxJava2Adapter.monoToMaybe(hasAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain, application.getId(), Permission.APPLICATION, Acl.READ).filter(RxJavaReactorMigrationUtil.toJdkPredicate(Boolean::booleanValue)).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Boolean __)->filterApplicationInfos(application))))).collect(Collectors.toList()))).sort((io.gravitee.am.model.Application a1, io.gravitee.am.model.Application a2)->a2.getUpdatedAt().compareTo(a1.getUpdatedAt())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.Application> applications)->new Page<>(applications.stream().skip(page * size).limit(size).collect(Collectors.toList()), page, applications.size()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        })).flatMap(pagedApplications->RxJava2Adapter.flowableToFlux(Maybe.concat(pagedApplications.getData().stream().map((Application application)->RxJava2Adapter.monoToMaybe(hasAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain, application.getId(), Permission.APPLICATION, Acl.READ).filter(RxJavaReactorMigrationUtil.toJdkPredicate(Boolean::booleanValue)).map(RxJavaReactorMigrationUtil.toJdkFunction((Boolean __)->filterApplicationInfos(application))))).collect(Collectors.toList()))).sort((Application a1, Application a2)->a2.getUpdatedAt().compareTo(a1.getUpdatedAt())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((List<Application> applications)->new Page<>(applications.stream().skip(page * size).limit(size).collect(Collectors.toList()), page, applications.size()))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST

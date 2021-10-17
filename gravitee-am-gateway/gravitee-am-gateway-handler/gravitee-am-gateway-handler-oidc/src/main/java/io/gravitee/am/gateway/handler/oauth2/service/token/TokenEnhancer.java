@@ -17,11 +17,13 @@ package io.gravitee.am.gateway.handler.oauth2.service.token;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.oauth2.service.request.OAuth2Request;
+import io.gravitee.am.gateway.handler.oauth2.service.token.Token;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.gateway.api.ExecutionContext;
-
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -31,10 +33,10 @@ public interface TokenEnhancer {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enhance_migrated(accessToken, oAuth2Request, client, endUser, executionContext))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.gateway.handler.oauth2.service.token.Token> enhance(io.gravitee.am.gateway.handler.oauth2.service.token.Token accessToken, io.gravitee.am.gateway.handler.oauth2.service.request.OAuth2Request oAuth2Request, io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User endUser, io.gravitee.gateway.api.ExecutionContext executionContext) {
+default Single<Token> enhance(Token accessToken, OAuth2Request oAuth2Request, Client client, User endUser, ExecutionContext executionContext) {
     return RxJava2Adapter.monoToSingle(enhance_migrated(accessToken, oAuth2Request, client, endUser, executionContext));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.oauth2.service.token.Token> enhance_migrated(Token accessToken, OAuth2Request oAuth2Request, Client client, User endUser, ExecutionContext executionContext) {
+default Mono<Token> enhance_migrated(Token accessToken, OAuth2Request oAuth2Request, Client client, User endUser, ExecutionContext executionContext) {
     return RxJava2Adapter.singleToMono(enhance(accessToken, oAuth2Request, client, endUser, executionContext));
 }
 }

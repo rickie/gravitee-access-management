@@ -16,13 +16,14 @@
 package io.gravitee.am.management.service;
 
 import com.google.errorprone.annotations.InlineMe;
-
-
+import io.gravitee.am.identityprovider.api.UserProvider;
+import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.common.service.Service;
-
-
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -32,28 +33,28 @@ public interface IdentityProviderManager extends Service<IdentityProviderManager
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getUserProvider_migrated(userProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.UserProvider> getUserProvider(java.lang.String userProvider) {
+default Maybe<UserProvider> getUserProvider(String userProvider) {
     return RxJava2Adapter.monoToMaybe(getUserProvider_migrated(userProvider));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.UserProvider> getUserProvider_migrated(String userProvider) {
+default Mono<UserProvider> getUserProvider_migrated(String userProvider) {
     return RxJava2Adapter.maybeToMono(getUserProvider(userProvider));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.IdentityProvider> create(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+default Single<IdentityProvider> create(ReferenceType referenceType, String referenceId) {
     return RxJava2Adapter.monoToSingle(create_migrated(referenceType, referenceId));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.IdentityProvider> create_migrated(ReferenceType referenceType, String referenceId) {
+default Mono<IdentityProvider> create_migrated(ReferenceType referenceType, String referenceId) {
     return RxJava2Adapter.singleToMono(create(referenceType, referenceId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.IdentityProvider> create(java.lang.String domain) {
+default Single<IdentityProvider> create(String domain) {
     return RxJava2Adapter.monoToSingle(create_migrated(domain));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.IdentityProvider> create_migrated(String domain) {
+default Mono<IdentityProvider> create_migrated(String domain) {
     return RxJava2Adapter.singleToMono(create(domain));
 }
 

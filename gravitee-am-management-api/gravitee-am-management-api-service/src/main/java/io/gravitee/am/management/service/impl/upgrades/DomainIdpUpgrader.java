@@ -61,7 +61,7 @@ public class DomainIdpUpgrader implements Upgrader, Ordered {
         logger.info("Applying domain idp upgrade");
         RxJava2Adapter.monoToSingle(domainService.findAll_migrated())
                 .flatMapObservable(Observable::fromIterable)
-                .flatMapSingle((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.monoToSingle(updateDefaultIdp_migrated(ident)))
+                .flatMapSingle((Domain ident) -> RxJava2Adapter.monoToSingle(updateDefaultIdp_migrated(ident)))
                 .subscribe();
         return true;
     }

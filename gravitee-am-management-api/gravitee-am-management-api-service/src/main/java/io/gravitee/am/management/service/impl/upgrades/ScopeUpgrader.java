@@ -72,7 +72,7 @@ public class ScopeUpgrader implements Upgrader, Ordered {
         logger.info("Applying scope upgrade");
         RxJava2Adapter.monoToSingle(domainService.findAll_migrated())
                 .flatMapObservable(Observable::fromIterable)
-                .flatMapSingle((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.monoToSingle(upgradeDomain_migrated(ident)))
+                .flatMapSingle((Domain ident) -> RxJava2Adapter.monoToSingle(upgradeDomain_migrated(ident)))
                 .subscribe();
         return true;
     }

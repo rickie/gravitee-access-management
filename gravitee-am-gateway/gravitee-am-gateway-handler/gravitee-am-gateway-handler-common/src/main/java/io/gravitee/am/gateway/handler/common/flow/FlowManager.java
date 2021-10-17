@@ -17,13 +17,14 @@ package io.gravitee.am.gateway.handler.common.flow;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.common.policy.ExtensionPoint;
-
+import io.gravitee.am.gateway.handler.common.flow.FlowPredicate;
+import io.gravitee.am.gateway.policy.Policy;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.service.Service;
-
-
-
+import io.reactivex.Single;
+import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -33,10 +34,10 @@ public interface FlowManager extends Service {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByExtensionPoint_migrated(extensionPoint, client, filter))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.util.List<io.gravitee.am.gateway.policy.Policy>> findByExtensionPoint(io.gravitee.am.common.policy.ExtensionPoint extensionPoint, io.gravitee.am.model.oidc.Client client, io.gravitee.am.gateway.handler.common.flow.FlowPredicate filter) {
+default Single<List<Policy>> findByExtensionPoint(ExtensionPoint extensionPoint, Client client, FlowPredicate filter) {
     return RxJava2Adapter.monoToSingle(findByExtensionPoint_migrated(extensionPoint, client, filter));
 }
-default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.gateway.policy.Policy>> findByExtensionPoint_migrated(ExtensionPoint extensionPoint, Client client, FlowPredicate filter) {
+default Mono<List<Policy>> findByExtensionPoint_migrated(ExtensionPoint extensionPoint, Client client, FlowPredicate filter) {
     return RxJava2Adapter.singleToMono(findByExtensionPoint(extensionPoint, client, filter));
 }
 

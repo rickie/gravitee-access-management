@@ -156,7 +156,7 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
                 .concatMap(this::fillWithActor)
                 .concatMap(this::fillWithTarget)
                 .concatMap(this::fillWithAccessPoint)
-                .concatMap(this::fillWithOutcomes).collectList().flatMap(content->total.map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long value)->new Page<Audit>(content, page, value)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve reports for referenceType {} and referenceId {}",
+                .concatMap(this::fillWithOutcomes).collectList().flatMap(content->total.map(RxJavaReactorMigrationUtil.toJdkFunction((Long value)->new Page<Audit>(content, page, value)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve reports for referenceType {} and referenceId {}",
                         referenceType, referenceId, error)));
     }
 
@@ -535,7 +535,7 @@ private Flux<Audit> bulk_migrated(List<Audit> audits) {
             disposable = RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(bulkProcessor.buffer(
                     configuration.getFlushInterval(),
                     TimeUnit.SECONDS,
-                    configuration.getBulkActions())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.reporter.api.audit.model.Audit> ident) -> RxJava2Adapter.fluxToFlowable(JdbcAuditReporter.this.bulk_migrated(ident)))))
+                    configuration.getBulkActions())).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((List<Audit> ident) -> RxJava2Adapter.fluxToFlowable(JdbcAuditReporter.this.bulk_migrated(ident)))))
                     .doOnError(error -> LOGGER.error("An error occurs while indexing data into report_audits_{} table of {} database",
                             configuration.getTableSuffix(), configuration.getDatabase(), error))).subscribe();
 

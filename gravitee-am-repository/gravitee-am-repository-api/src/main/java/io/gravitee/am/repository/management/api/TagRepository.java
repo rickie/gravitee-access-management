@@ -18,11 +18,11 @@ package io.gravitee.am.repository.management.api;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Tag;
 import io.gravitee.am.repository.common.CrudRepository;
-
-
-
-
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -32,19 +32,19 @@ public interface TagRepository extends CrudRepository<Tag, String> {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.Tag> findById(java.lang.String id, java.lang.String organizationId) {
+default Maybe<Tag> findById(String id, String organizationId) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id, organizationId));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Tag> findById_migrated(String id, String organizationId) {
+default Mono<Tag> findById_migrated(String id, String organizationId) {
     return RxJava2Adapter.maybeToMono(findById(id, organizationId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Tag> findAll(java.lang.String organizationId) {
+default Flowable<Tag> findAll(String organizationId) {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Tag> findAll_migrated(String organizationId) {
+default Flux<Tag> findAll_migrated(String organizationId) {
     return RxJava2Adapter.flowableToFlux(findAll(organizationId));
 }
 }

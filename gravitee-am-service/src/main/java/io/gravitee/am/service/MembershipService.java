@@ -22,13 +22,14 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.membership.MemberType;
 import io.gravitee.am.repository.management.api.search.MembershipCriteria;
 import io.gravitee.am.service.model.NewMembership;
-
-
-
-
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.util.List;
-
+import java.util.Map;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -39,79 +40,79 @@ public interface MembershipService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.Membership> findById(java.lang.String id) {
+default Maybe<Membership> findById(String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Membership> findById_migrated(String id) {
+default Mono<Membership> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Membership> findByCriteria(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.repository.management.api.search.MembershipCriteria criteria) {
+default Flowable<Membership> findByCriteria(ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
     return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Membership> findByCriteria_migrated(ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
+default Flux<Membership> findByCriteria_migrated(ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
     return RxJava2Adapter.flowableToFlux(findByCriteria(referenceType, referenceId, criteria));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceId, referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Membership> findByReference(java.lang.String referenceId, io.gravitee.am.model.ReferenceType referenceType) {
+default Flowable<Membership> findByReference(String referenceId, ReferenceType referenceType) {
     return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceId, referenceType));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Membership> findByReference_migrated(String referenceId, ReferenceType referenceType) {
+default Flux<Membership> findByReference_migrated(String referenceId, ReferenceType referenceType) {
     return RxJava2Adapter.flowableToFlux(findByReference(referenceId, referenceType));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Membership> findByMember(java.lang.String memberId, io.gravitee.am.model.membership.MemberType memberType) {
+default Flowable<Membership> findByMember(String memberId, MemberType memberType) {
     return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId, memberType));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Membership> findByMember_migrated(String memberId, MemberType memberType) {
+default Flux<Membership> findByMember_migrated(String memberId, MemberType memberType) {
     return RxJava2Adapter.flowableToFlux(findByMember(memberId, memberType));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addOrUpdate_migrated(organizationId, membership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Membership> addOrUpdate(java.lang.String organizationId, io.gravitee.am.model.Membership membership, io.gravitee.am.identityprovider.api.User principal) {
+default Single<Membership> addOrUpdate(String organizationId, Membership membership, User principal) {
     return RxJava2Adapter.monoToSingle(addOrUpdate_migrated(organizationId, membership, principal));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Membership> addOrUpdate_migrated(String organizationId, Membership membership, User principal) {
+default Mono<Membership> addOrUpdate_migrated(String organizationId, Membership membership, User principal) {
     return RxJava2Adapter.singleToMono(addOrUpdate(organizationId, membership, principal));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setPlatformAdmin_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Membership> setPlatformAdmin(java.lang.String userId) {
+default Single<Membership> setPlatformAdmin(String userId) {
     return RxJava2Adapter.monoToSingle(setPlatformAdmin_migrated(userId));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Membership> setPlatformAdmin_migrated(String userId) {
+default Mono<Membership> setPlatformAdmin_migrated(String userId) {
     return RxJava2Adapter.singleToMono(setPlatformAdmin(userId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getMetadata_migrated(memberships))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.Object>>> getMetadata(java.util.List<io.gravitee.am.model.Membership> memberships) {
+default Single<Map<String, Map<String, Object>>> getMetadata(List<Membership> memberships) {
     return RxJava2Adapter.monoToSingle(getMetadata_migrated(memberships));
 }
-default reactor.core.publisher.Mono<java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.Object>>> getMetadata_migrated(List<Membership> memberships) {
+default Mono<Map<String, Map<String, Object>>> getMetadata_migrated(List<Membership> memberships) {
     return RxJava2Adapter.singleToMono(getMetadata(memberships));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(membershipId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String membershipId, io.gravitee.am.identityprovider.api.User principal) {
+default Completable delete(String membershipId, User principal) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(membershipId, principal));
 }
-default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String membershipId, User principal) {
+default Mono<Void> delete_migrated(String membershipId, User principal) {
     return RxJava2Adapter.completableToMono(delete(membershipId, principal));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addOrUpdate_migrated(organizationId, membership))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Membership> addOrUpdate(java.lang.String organizationId, io.gravitee.am.model.Membership membership) {
+default Single<Membership> addOrUpdate(String organizationId, Membership membership) {
     return RxJava2Adapter.monoToSingle(addOrUpdate_migrated(organizationId, membership));
 }default Mono<Membership> addOrUpdate_migrated(String organizationId, Membership membership) {
         return RxJava2Adapter.singleToMono(addOrUpdate(organizationId, membership, null));
@@ -119,7 +120,7 @@ default io.reactivex.Single<io.gravitee.am.model.Membership> addOrUpdate(java.la
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(membershipId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String membershipId) {
+default Completable delete(String membershipId) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(membershipId));
 }default Mono<Void> delete_migrated(String membershipId) {
         return RxJava2Adapter.completableToMono(delete(membershipId, null));
@@ -136,10 +137,10 @@ default io.reactivex.Completable delete(java.lang.String membershipId) {
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.addDomainUserRoleIfNecessary_migrated(organizationId, environmentId, domainId, newMembership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable addDomainUserRoleIfNecessary(java.lang.String organizationId, java.lang.String environmentId, java.lang.String domainId, io.gravitee.am.service.model.NewMembership newMembership, io.gravitee.am.identityprovider.api.User principal) {
+default Completable addDomainUserRoleIfNecessary(String organizationId, String environmentId, String domainId, NewMembership newMembership, User principal) {
     return RxJava2Adapter.monoToCompletable(addDomainUserRoleIfNecessary_migrated(organizationId, environmentId, domainId, newMembership, principal));
 }
-default reactor.core.publisher.Mono<java.lang.Void> addDomainUserRoleIfNecessary_migrated(String organizationId, String environmentId, String domainId, NewMembership newMembership, User principal) {
+default Mono<Void> addDomainUserRoleIfNecessary_migrated(String organizationId, String environmentId, String domainId, NewMembership newMembership, User principal) {
     return RxJava2Adapter.completableToMono(addDomainUserRoleIfNecessary(organizationId, environmentId, domainId, newMembership, principal));
 }
 
@@ -152,10 +153,10 @@ default reactor.core.publisher.Mono<java.lang.Void> addDomainUserRoleIfNecessary
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable addEnvironmentUserRoleIfNecessary(java.lang.String organizationId, java.lang.String environmentId, io.gravitee.am.service.model.NewMembership newMembership, io.gravitee.am.identityprovider.api.User principal) {
+default Completable addEnvironmentUserRoleIfNecessary(String organizationId, String environmentId, NewMembership newMembership, User principal) {
     return RxJava2Adapter.monoToCompletable(addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal));
 }
-default reactor.core.publisher.Mono<java.lang.Void> addEnvironmentUserRoleIfNecessary_migrated(String organizationId, String environmentId, NewMembership newMembership, User principal) {
+default Mono<Void> addEnvironmentUserRoleIfNecessary_migrated(String organizationId, String environmentId, NewMembership newMembership, User principal) {
     return RxJava2Adapter.completableToMono(addEnvironmentUserRoleIfNecessary(organizationId, environmentId, newMembership, principal));
 }
 }

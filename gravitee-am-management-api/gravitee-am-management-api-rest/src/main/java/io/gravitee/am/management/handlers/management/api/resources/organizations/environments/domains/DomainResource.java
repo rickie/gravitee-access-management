@@ -19,20 +19,19 @@ import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.Entrypoint;
+import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.EntrypointService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.PatchDomain;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Completable;
-
-
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -73,7 +72,7 @@ public class DomainResource extends AbstractDomainResource {
 
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission_migrated(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ).then(domainService.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))).flatMap(y->findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domainId).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<io.gravitee.am.model.ReferenceType, java.util.Map<io.gravitee.am.model.permissions.Permission, java.util.Set<io.gravitee.am.model.Acl>>> userPermissions)->filterDomainInfos(y, userPermissions))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domainId, Permission.DOMAIN, Acl.READ).then(domainService.findById_migrated(domainId).switchIfEmpty(Mono.error(new DomainNotFoundException(domainId))).flatMap(y->findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domainId).map(RxJavaReactorMigrationUtil.toJdkFunction((Map<ReferenceType, Map<Permission, Set<Acl>>> userPermissions)->filterDomainInfos(y, userPermissions))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @PUT
@@ -261,7 +260,7 @@ public class DomainResource extends AbstractDomainResource {
         } else {
             RxJava2Adapter.completableToMono(Completable.merge(requiredPermissions.stream()
                     .map(permission -> RxJava2Adapter.monoToCompletable(checkAnyPermission_migrated(organizationId, environmentId, domainId, permission, Acl.UPDATE)))
-                    .collect(Collectors.toList()))).then(domainService.patch_migrated(domainId, patchDomain, authenticatedUser).flatMap(v->findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domainId).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<io.gravitee.am.model.ReferenceType, java.util.Map<io.gravitee.am.model.permissions.Permission, java.util.Set<io.gravitee.am.model.Acl>>> userPermissions)->filterDomainInfos(v, userPermissions))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                    .collect(Collectors.toList()))).then(domainService.patch_migrated(domainId, patchDomain, authenticatedUser).flatMap(v->findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domainId).map(RxJavaReactorMigrationUtil.toJdkFunction((Map<ReferenceType, Map<Permission, Set<Acl>>> userPermissions)->filterDomainInfos(v, userPermissions))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
         }
     }
 

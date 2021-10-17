@@ -22,7 +22,9 @@ import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.service.IdentityProviderManager;
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.Domain;
+import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.am.model.ReferenceType;
+import io.gravitee.am.model.Reporter;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.ReporterService;
@@ -30,9 +32,10 @@ import io.gravitee.am.service.model.NewDomain;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
-
 import io.swagger.annotations.*;
 import java.net.URI;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -107,7 +110,7 @@ public class DomainsResource extends AbstractDomainResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN, Acl.CREATE).then(domainService.create_migrated(organizationId, environmentId, newDomain, authenticatedUser).flatMap(domain->identityProviderManager.create_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.IdentityProvider __)->domain))).flatMap(domain->reporterService.createDefault_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Reporter __)->domain)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(domain -> response.resume(Response.created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain.getId()))
+        checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN, Acl.CREATE).then(domainService.create_migrated(organizationId, environmentId, newDomain, authenticatedUser).flatMap(domain->identityProviderManager.create_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((IdentityProvider __)->domain))).flatMap(domain->reporterService.createDefault_migrated(domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((Reporter __)->domain)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(domain -> response.resume(Response.created(URI.create("/organizations/" + organizationId + "/environments/" + environmentId + "/domains/" + domain.getId()))
                         .entity(domain).build())), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
@@ -127,7 +130,7 @@ public class DomainsResource extends AbstractDomainResource {
                     @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        domainService.findByHrid_migrated(environmentId, hrid).flatMap(domain->checkAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain.getId(), Permission.DOMAIN, Acl.READ).then(Mono.defer(()->findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<io.gravitee.am.model.ReferenceType, java.util.Map<io.gravitee.am.model.permissions.Permission, java.util.Set<io.gravitee.am.model.Acl>>> userPermissions)->filterDomainInfos(domain, userPermissions)))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        domainService.findByHrid_migrated(environmentId, hrid).flatMap(domain->checkAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain.getId(), Permission.DOMAIN, Acl.READ).then(Mono.defer(()->findAllPermissions_migrated(authenticatedUser, organizationId, environmentId, domain.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((Map<ReferenceType, Map<Permission, Set<Acl>>> userPermissions)->filterDomainInfos(domain, userPermissions)))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
 

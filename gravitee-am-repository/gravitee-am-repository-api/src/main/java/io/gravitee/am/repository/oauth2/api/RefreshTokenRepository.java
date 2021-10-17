@@ -17,9 +17,9 @@ package io.gravitee.am.repository.oauth2.api;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.oauth2.model.RefreshToken;
-
-
-
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
@@ -32,70 +32,70 @@ public interface RefreshTokenRepository {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.oauth2.model.RefreshToken> findByToken(java.lang.String token) {
+default Maybe<RefreshToken> findByToken(String token) {
     return RxJava2Adapter.monoToMaybe(findByToken_migrated(token));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.oauth2.model.RefreshToken> findByToken_migrated(String token) {
+default Mono<RefreshToken> findByToken_migrated(String token) {
     return RxJava2Adapter.maybeToMono(findByToken(token));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(refreshToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.repository.oauth2.model.RefreshToken> create(io.gravitee.am.repository.oauth2.model.RefreshToken refreshToken) {
+default Single<RefreshToken> create(RefreshToken refreshToken) {
     return RxJava2Adapter.monoToSingle(create_migrated(refreshToken));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.oauth2.model.RefreshToken> create_migrated(RefreshToken refreshToken) {
+default Mono<RefreshToken> create_migrated(RefreshToken refreshToken) {
     return RxJava2Adapter.singleToMono(create(refreshToken));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(refreshTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable bulkWrite(java.util.List<io.gravitee.am.repository.oauth2.model.RefreshToken> refreshTokens) {
+default Completable bulkWrite(List<RefreshToken> refreshTokens) {
     return RxJava2Adapter.monoToCompletable(bulkWrite_migrated(refreshTokens));
 }
-default reactor.core.publisher.Mono<java.lang.Void> bulkWrite_migrated(List<RefreshToken> refreshTokens) {
+default Mono<Void> bulkWrite_migrated(List<RefreshToken> refreshTokens) {
     return RxJava2Adapter.completableToMono(bulkWrite(refreshTokens));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String token) {
+default Completable delete(String token) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(token));
 }
-default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String token) {
+default Mono<Void> delete_migrated(String token) {
     return RxJava2Adapter.completableToMono(delete(token));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable deleteByUserId(java.lang.String userId) {
+default Completable deleteByUserId(String userId) {
     return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(userId));
 }
-default reactor.core.publisher.Mono<java.lang.Void> deleteByUserId_migrated(String userId) {
+default Mono<Void> deleteByUserId_migrated(String userId) {
     return RxJava2Adapter.completableToMono(deleteByUserId(userId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainIdClientIdAndUserId_migrated(domainId, clientId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable deleteByDomainIdClientIdAndUserId(java.lang.String domainId, java.lang.String clientId, java.lang.String userId) {
+default Completable deleteByDomainIdClientIdAndUserId(String domainId, String clientId, String userId) {
     return RxJava2Adapter.monoToCompletable(deleteByDomainIdClientIdAndUserId_migrated(domainId, clientId, userId));
 }
-default reactor.core.publisher.Mono<java.lang.Void> deleteByDomainIdClientIdAndUserId_migrated(String domainId, String clientId, String userId) {
+default Mono<Void> deleteByDomainIdClientIdAndUserId_migrated(String domainId, String clientId, String userId) {
     return RxJava2Adapter.completableToMono(deleteByDomainIdClientIdAndUserId(domainId, clientId, userId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainIdAndUserId_migrated(domainId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable deleteByDomainIdAndUserId(java.lang.String domainId, java.lang.String userId) {
+default Completable deleteByDomainIdAndUserId(String domainId, String userId) {
     return RxJava2Adapter.monoToCompletable(deleteByDomainIdAndUserId_migrated(domainId, userId));
 }
-default reactor.core.publisher.Mono<java.lang.Void> deleteByDomainIdAndUserId_migrated(String domainId, String userId) {
+default Mono<Void> deleteByDomainIdAndUserId_migrated(String domainId, String userId) {
     return RxJava2Adapter.completableToMono(deleteByDomainIdAndUserId(domainId, userId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable purgeExpiredData() {
+default Completable purgeExpiredData() {
     return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
 }default Mono<Void> purgeExpiredData_migrated() {
         return Mono.empty();

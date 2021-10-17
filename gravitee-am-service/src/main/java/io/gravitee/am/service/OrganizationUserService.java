@@ -16,20 +16,10 @@
 package io.gravitee.am.service;
 
 import com.google.errorprone.annotations.InlineMe;
-
 import io.gravitee.am.model.User;
-
-
-
-
-
-
-
-
-
-
-
+import io.reactivex.Completable;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -45,10 +35,10 @@ public interface OrganizationUserService extends CommonUserService {
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.setRoles_migrated(principal, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable setRoles(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
+default Completable setRoles(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToCompletable(setRoles_migrated(principal, user));
 }
-default reactor.core.publisher.Mono<java.lang.Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
+default Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
     return RxJava2Adapter.completableToMono(setRoles(principal, user));
 }
 
@@ -59,10 +49,10 @@ default reactor.core.publisher.Mono<java.lang.Void> setRoles_migrated(io.gravite
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.setRoles_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable setRoles(io.gravitee.am.model.User user) {
+default Completable setRoles(io.gravitee.am.model.User user) {
     return RxJava2Adapter.monoToCompletable(setRoles_migrated(user));
 }
-default reactor.core.publisher.Mono<java.lang.Void> setRoles_migrated(io.gravitee.am.model.User user) {
+default Mono<Void> setRoles_migrated(io.gravitee.am.model.User user) {
     return RxJava2Adapter.completableToMono(setRoles(user));
 }
 }

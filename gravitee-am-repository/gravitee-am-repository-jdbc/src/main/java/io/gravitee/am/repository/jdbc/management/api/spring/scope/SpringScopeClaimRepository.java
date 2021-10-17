@@ -17,12 +17,13 @@ package io.gravitee.am.repository.jdbc.management.api.spring.scope;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcScope;
-
-
+import io.gravitee.am.repository.jdbc.management.api.model.JdbcScope.Claims;
+import io.reactivex.Flowable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -33,11 +34,11 @@ public interface SpringScopeClaimRepository extends RxJava2CrudRepository<JdbcSc
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByScopeId_migrated(scope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcScope.Claims> findByScopeId(@org.springframework.data.repository.query.Param(value = "scope")
-java.lang.String scope) {
+default Flowable<Claims> findByScopeId(@Param(value = "scope")
+String scope) {
     return RxJava2Adapter.fluxToFlowable(findByScopeId_migrated(scope));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcScope.Claims> findByScopeId_migrated(@Param(value = "scope")
+default Flux<Claims> findByScopeId_migrated(@Param(value = "scope")
 String scope) {
     return RxJava2Adapter.flowableToFlux(findByScopeId(scope));
 }

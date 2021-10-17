@@ -82,7 +82,7 @@ public class JdbcAccessPolicyRepository extends AbstractJdbcRepository implement
                 .matching(from(where("domain").is(domain)))
                 .orderBy(Sort.Order.desc("updated_at"))
                 .page(PageRequest.of(page, size))
-                .as(JdbcAccessPolicy.class).all().collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(content -> content.stream().map(this::toAccessPolicy).collect(Collectors.toList()))).flatMap(content->accessPolicyRepository.countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<AccessPolicy>(content, page, count))));
+                .as(JdbcAccessPolicy.class).all().collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(content -> content.stream().map(this::toAccessPolicy).collect(Collectors.toList()))).flatMap(content->accessPolicyRepository.countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((Long count)->new Page<AccessPolicy>(content, page, count))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndResource_migrated(domain, resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -75,8 +75,8 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository implements
         LOGGER.debug("findAll()");
 
         final Flowable<Environment> result = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(environmentRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEnvironment)))
-                .flatMapSingle((io.gravitee.am.model.Environment ident) -> RxJava2Adapter.monoToSingle(retrieveDomainRestrictions_migrated(ident)))
-                .flatMapSingle((io.gravitee.am.model.Environment ident) -> RxJava2Adapter.monoToSingle(retrieveHrids_migrated(ident)));
+                .flatMapSingle((Environment ident) -> RxJava2Adapter.monoToSingle(retrieveDomainRestrictions_migrated(ident)))
+                .flatMapSingle((Environment ident) -> RxJava2Adapter.monoToSingle(retrieveHrids_migrated(ident)));
 
         return RxJava2Adapter.flowableToFlux(result.doOnError((error) -> LOGGER.error("unable to retrieve all environments", error)));
     }
@@ -92,8 +92,8 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository implements
         LOGGER.debug("findAll({})", organizationId);
 
         final Flowable<Environment> result = RxJava2Adapter.fluxToFlowable(environmentRepository.findByOrganization_migrated(organizationId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEnvironment)))
-                .flatMapSingle((io.gravitee.am.model.Environment ident) -> RxJava2Adapter.monoToSingle(retrieveDomainRestrictions_migrated(ident)))
-                .flatMapSingle((io.gravitee.am.model.Environment ident) -> RxJava2Adapter.monoToSingle(retrieveHrids_migrated(ident)));
+                .flatMapSingle((Environment ident) -> RxJava2Adapter.monoToSingle(retrieveDomainRestrictions_migrated(ident)))
+                .flatMapSingle((Environment ident) -> RxJava2Adapter.monoToSingle(retrieveHrids_migrated(ident)));
 
         return RxJava2Adapter.flowableToFlux(result.doOnError((error) -> LOGGER.error("unable to retrieve Environments with organizationId {}", organizationId, error)));
     }

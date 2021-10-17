@@ -17,11 +17,12 @@ package io.gravitee.am.repository.management.api;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.AuthenticationFlowContext;
-
-
-
-
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -32,10 +33,10 @@ import reactor.core.publisher.Mono;
 public interface AuthenticationFlowContextRepository {
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.AuthenticationFlowContext> findById(java.lang.String id) {
+default Maybe<AuthenticationFlowContext> findById(String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.AuthenticationFlowContext> findById_migrated(String id) {
+default Mono<AuthenticationFlowContext> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
     /**
@@ -46,10 +47,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.AuthenticationFlowConte
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findLastByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.AuthenticationFlowContext> findLastByTransactionId(java.lang.String transactionId) {
+default Maybe<AuthenticationFlowContext> findLastByTransactionId(String transactionId) {
     return RxJava2Adapter.monoToMaybe(findLastByTransactionId_migrated(transactionId));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.AuthenticationFlowContext> findLastByTransactionId_migrated(String transactionId) {
+default Mono<AuthenticationFlowContext> findLastByTransactionId_migrated(String transactionId) {
     return RxJava2Adapter.maybeToMono(findLastByTransactionId(transactionId));
 }
     /**
@@ -60,10 +61,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.AuthenticationFlowConte
      */
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.AuthenticationFlowContext> findByTransactionId(java.lang.String transactionId) {
+default Flowable<AuthenticationFlowContext> findByTransactionId(String transactionId) {
     return RxJava2Adapter.fluxToFlowable(findByTransactionId_migrated(transactionId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.AuthenticationFlowContext> findByTransactionId_migrated(String transactionId) {
+default Flux<AuthenticationFlowContext> findByTransactionId_migrated(String transactionId) {
     return RxJava2Adapter.flowableToFlux(findByTransactionId(transactionId));
 }
 
@@ -74,10 +75,10 @@ default reactor.core.publisher.Flux<io.gravitee.am.model.AuthenticationFlowConte
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.AuthenticationFlowContext> create(io.gravitee.am.model.AuthenticationFlowContext context) {
+default Single<AuthenticationFlowContext> create(AuthenticationFlowContext context) {
     return RxJava2Adapter.monoToSingle(create_migrated(context));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.AuthenticationFlowContext> create_migrated(AuthenticationFlowContext context) {
+default Mono<AuthenticationFlowContext> create_migrated(AuthenticationFlowContext context) {
     return RxJava2Adapter.singleToMono(create(context));
 }
 
@@ -88,10 +89,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.AuthenticationFlowConte
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String transactionId) {
+default Completable delete(String transactionId) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(transactionId));
 }
-default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String transactionId) {
+default Mono<Void> delete_migrated(String transactionId) {
     return RxJava2Adapter.completableToMono(delete(transactionId));
 }
 
@@ -103,16 +104,16 @@ default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String trans
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(transactionId, version))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String transactionId, int version) {
+default Completable delete(String transactionId, int version) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(transactionId, version));
 }
-default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String transactionId, int version) {
+default Mono<Void> delete_migrated(String transactionId, int version) {
     return RxJava2Adapter.completableToMono(delete(transactionId, version));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable purgeExpiredData() {
+default Completable purgeExpiredData() {
     return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
 }default Mono<Void> purgeExpiredData_migrated() {
         return Mono.empty();

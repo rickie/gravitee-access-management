@@ -39,7 +39,6 @@ import io.gravitee.common.event.EventManager;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Single;
 import io.reactivex.functions.BiConsumer;
-
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
 import java.util.Collection;
@@ -55,6 +54,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -123,7 +123,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
                                 // currently domain is only linked to domainEnv
                                 return RxJava2Adapter.monoToSingle(Mono.error(new EnvironmentNotFoundException("Domain " + reporter.getDomain() +" should be lined to an Environment")));
                             }
-                        })).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))
+                        })).subscribeOn(Schedulers.boundedElastic()))
                         .subscribe(launcher);
             } catch (Exception ex) {
                 logger.error("An error has occurred while loading audit reporter: {} [{}]", reporter.getName(), reporter.getType(), ex);
@@ -270,7 +270,7 @@ public class AuditReporterManagerImpl extends AbstractService<AuditReporterManag
                         // currently domain is only linked to domainEnv
                         return RxJava2Adapter.monoToSingle(Mono.error(new EnvironmentNotFoundException("Domain " + reporter.getDomain() +" should be lined to an Environment")));
                     }
-                })).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()))
+                })).subscribeOn(Schedulers.boundedElastic()))
                 .subscribe(launcher);
     }
 

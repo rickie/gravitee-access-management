@@ -17,14 +17,16 @@ package io.gravitee.am.service;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.identityprovider.api.User;
-
+import io.gravitee.am.model.Entrypoint;
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.service.model.NewEntrypoint;
 import io.gravitee.am.service.model.UpdateEntrypoint;
-
-
-
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -34,55 +36,55 @@ public interface EntrypointService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findById_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Entrypoint> findById(java.lang.String id, java.lang.String organizationId) {
+default Single<Entrypoint> findById(String id, String organizationId) {
     return RxJava2Adapter.monoToSingle(findById_migrated(id, organizationId));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Entrypoint> findById_migrated(String id, String organizationId) {
+default Mono<Entrypoint> findById_migrated(String id, String organizationId) {
     return RxJava2Adapter.singleToMono(findById(id, organizationId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Entrypoint> findAll(java.lang.String organizationId) {
+default Flowable<Entrypoint> findAll(String organizationId) {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Entrypoint> findAll_migrated(String organizationId) {
+default Flux<Entrypoint> findAll_migrated(String organizationId) {
     return RxJava2Adapter.flowableToFlux(findAll(organizationId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(organizationId, entrypoint, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Entrypoint> create(java.lang.String organizationId, io.gravitee.am.service.model.NewEntrypoint entrypoint, io.gravitee.am.identityprovider.api.User principal) {
+default Single<Entrypoint> create(String organizationId, NewEntrypoint entrypoint, User principal) {
     return RxJava2Adapter.monoToSingle(create_migrated(organizationId, entrypoint, principal));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Entrypoint> create_migrated(String organizationId, NewEntrypoint entrypoint, User principal) {
+default Mono<Entrypoint> create_migrated(String organizationId, NewEntrypoint entrypoint, User principal) {
     return RxJava2Adapter.singleToMono(create(organizationId, entrypoint, principal));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.createDefaults_migrated(organization))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Entrypoint> createDefaults(io.gravitee.am.model.Organization organization) {
+default Flowable<Entrypoint> createDefaults(Organization organization) {
     return RxJava2Adapter.fluxToFlowable(createDefaults_migrated(organization));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Entrypoint> createDefaults_migrated(Organization organization) {
+default Flux<Entrypoint> createDefaults_migrated(Organization organization) {
     return RxJava2Adapter.flowableToFlux(createDefaults(organization));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(entrypointId, organizationId, entrypoint, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Entrypoint> update(java.lang.String entrypointId, java.lang.String organizationId, io.gravitee.am.service.model.UpdateEntrypoint entrypoint, io.gravitee.am.identityprovider.api.User principal) {
+default Single<Entrypoint> update(String entrypointId, String organizationId, UpdateEntrypoint entrypoint, User principal) {
     return RxJava2Adapter.monoToSingle(update_migrated(entrypointId, organizationId, entrypoint, principal));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Entrypoint> update_migrated(String entrypointId, String organizationId, UpdateEntrypoint entrypoint, User principal) {
+default Mono<Entrypoint> update_migrated(String entrypointId, String organizationId, UpdateEntrypoint entrypoint, User principal) {
     return RxJava2Adapter.singleToMono(update(entrypointId, organizationId, entrypoint, principal));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(entrypointId, organizationId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String entrypointId, java.lang.String organizationId, io.gravitee.am.identityprovider.api.User principal) {
+default Completable delete(String entrypointId, String organizationId, User principal) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(entrypointId, organizationId, principal));
 }
-default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String entrypointId, String organizationId, User principal) {
+default Mono<Void> delete_migrated(String entrypointId, String organizationId, User principal) {
     return RxJava2Adapter.completableToMono(delete(entrypointId, organizationId, principal));
 }
 }

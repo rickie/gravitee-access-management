@@ -87,7 +87,7 @@ public class AuditsResource extends AbstractResource {
 
         User authenticatedUser = getAuthenticatedUser();
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_AUDIT, Acl.LIST).then(auditService.search_migrated(domain, queryBuilder.build(), param.getPage(), param.getSize()).flatMap(auditPage->hasPermission_migrated(authenticatedUser, ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_AUDIT, Acl.READ).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Boolean hasPermission)->{
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_AUDIT, Acl.LIST).then(auditService.search_migrated(domain, queryBuilder.build(), param.getPage(), param.getSize()).flatMap(auditPage->hasPermission_migrated(authenticatedUser, ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_AUDIT, Acl.READ).map(RxJavaReactorMigrationUtil.toJdkFunction((Boolean hasPermission)->{
 if (hasPermission) {
 return auditPage;
 } else {

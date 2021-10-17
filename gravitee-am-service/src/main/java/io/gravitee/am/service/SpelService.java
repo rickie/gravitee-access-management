@@ -16,9 +16,10 @@
 package io.gravitee.am.service;
 
 import com.google.errorprone.annotations.InlineMe;
-
-
+import io.reactivex.Single;
+import net.minidev.json.JSONObject;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Guillaume CUSNIEUX (guillaume.cusnieux at graviteesource.com)
@@ -27,10 +28,10 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpelService {
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getGrammar_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<net.minidev.json.JSONObject> getGrammar() {
+default Single<JSONObject> getGrammar() {
     return RxJava2Adapter.monoToSingle(getGrammar_migrated());
 }
-default reactor.core.publisher.Mono<net.minidev.json.JSONObject> getGrammar_migrated() {
+default Mono<JSONObject> getGrammar_migrated() {
     return RxJava2Adapter.singleToMono(getGrammar());
 }
 }

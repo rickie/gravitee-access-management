@@ -16,10 +16,11 @@
 package io.gravitee.am.service;
 
 import com.google.errorprone.annotations.InlineMe;
-
-
-
+import io.gravitee.am.model.AuthenticationFlowContext;
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -29,28 +30,28 @@ public interface AuthenticationFlowContextService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadContext_migrated(transactionId, expectedVersion))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.AuthenticationFlowContext> loadContext(final java.lang.String transactionId, final int expectedVersion) {
+default Maybe<AuthenticationFlowContext> loadContext(final String transactionId, final int expectedVersion) {
     return RxJava2Adapter.monoToMaybe(loadContext_migrated(transactionId, expectedVersion));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.AuthenticationFlowContext> loadContext_migrated(final String transactionId, final int expectedVersion) {
+default Mono<AuthenticationFlowContext> loadContext_migrated(final String transactionId, final int expectedVersion) {
     return RxJava2Adapter.maybeToMono(loadContext(transactionId, expectedVersion));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.removeContext_migrated(transactionId, expectedVersion))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.AuthenticationFlowContext> removeContext(final java.lang.String transactionId, final int expectedVersion) {
+default Maybe<AuthenticationFlowContext> removeContext(final String transactionId, final int expectedVersion) {
     return RxJava2Adapter.monoToMaybe(removeContext_migrated(transactionId, expectedVersion));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.AuthenticationFlowContext> removeContext_migrated(final String transactionId, final int expectedVersion) {
+default Mono<AuthenticationFlowContext> removeContext_migrated(final String transactionId, final int expectedVersion) {
     return RxJava2Adapter.maybeToMono(removeContext(transactionId, expectedVersion));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.clearContext_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable clearContext(final java.lang.String transactionId) {
+default Completable clearContext(final String transactionId) {
     return RxJava2Adapter.monoToCompletable(clearContext_migrated(transactionId));
 }
-default reactor.core.publisher.Mono<java.lang.Void> clearContext_migrated(final String transactionId) {
+default Mono<Void> clearContext_migrated(final String transactionId) {
     return RxJava2Adapter.completableToMono(clearContext(transactionId));
 }
 }

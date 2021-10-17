@@ -19,6 +19,7 @@ import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.management.service.UserService;
 import io.gravitee.am.model.Acl;
+import io.gravitee.am.model.Group;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.GroupService;
@@ -71,7 +72,7 @@ public class GroupMemberResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE).then(groupService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, group).flatMap(group1->userService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, userId).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.Group>>toJdkFunction((io.gravitee.am.model.User user)->{
+        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE).then(groupService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, group).flatMap(group1->userService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, userId).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<Group>>toJdkFunction((io.gravitee.am.model.User user)->{
 if (group1.getMembers() != null && group1.getMembers().contains(userId)) {
 return RxJava2Adapter.monoToSingle(Mono.error(new MemberAlreadyExistsException(userId)));
 }
@@ -101,7 +102,7 @@ return RxJava2Adapter.monoToSingle(groupService.update_migrated(ReferenceType.OR
             @Suspended final AsyncResponse response) {
         final User authenticatedUser = getAuthenticatedUser();
 
-        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE).then(groupService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, group).flatMap(group1->userService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, userId).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.Group>>toJdkFunction((io.gravitee.am.model.User user)->{
+        checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_GROUP, Acl.UPDATE).then(groupService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, group).flatMap(group1->userService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, userId).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<Group>>toJdkFunction((io.gravitee.am.model.User user)->{
 if (group1.getMembers() == null || !group1.getMembers().contains(userId)) {
 return RxJava2Adapter.monoToSingle(Mono.error(new MemberNotFoundException(userId)));
 }

@@ -271,7 +271,7 @@ public class IdentityProviderServiceImpl implements IdentityProviderService {
     public Mono<Void> delete_migrated(ReferenceType referenceType, String referenceId, String identityProviderId, User principal) {
         LOGGER.debug("Delete identity provider {}", identityProviderId);
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(identityProviderRepository.findById_migrated(referenceType, referenceId, identityProviderId).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(identityProviderId))).flatMap(y->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByIdentityProvider_migrated(identityProviderId)).count()).flatMap((java.lang.Long v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long applications)->{
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(identityProviderRepository.findById_migrated(referenceType, referenceId, identityProviderId).switchIfEmpty(Mono.error(new IdentityProviderNotFoundException(identityProviderId))).flatMap(y->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(applicationService.findByIdentityProvider_migrated(identityProviderId)).count()).flatMap((Long v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((Long applications)->{
 if (applications > 0) {
 throw new IdentityProviderWithApplicationsException();
 }

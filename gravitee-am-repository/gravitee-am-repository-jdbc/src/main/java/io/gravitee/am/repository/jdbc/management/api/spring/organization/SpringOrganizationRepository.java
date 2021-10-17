@@ -17,13 +17,13 @@ package io.gravitee.am.repository.jdbc.management.api.spring.organization;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization;
-
+import io.reactivex.Flowable;
 import java.util.List;
-
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -34,11 +34,11 @@ public interface SpringOrganizationRepository extends RxJava2CrudRepository<Jdbc
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByHrids_migrated(hrids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization> findByHrids(@org.springframework.data.repository.query.Param(value = "hrids")
-java.util.List<java.lang.String> hrids) {
+default Flowable<JdbcOrganization> findByHrids(@Param(value = "hrids")
+List<String> hrids) {
     return RxJava2Adapter.fluxToFlowable(findByHrids_migrated(hrids));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcOrganization> findByHrids_migrated(@Param(value = "hrids")
+default Flux<JdbcOrganization> findByHrids_migrated(@Param(value = "hrids")
 List<String> hrids) {
     return RxJava2Adapter.flowableToFlux(findByHrids(hrids));
 }

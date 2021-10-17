@@ -17,12 +17,13 @@ package io.gravitee.am.repository.jdbc.management.api.spring.group;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcGroup;
-
-
+import io.gravitee.am.repository.jdbc.management.api.model.JdbcGroup.JdbcMember;
+import io.reactivex.Flowable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -32,11 +33,11 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringGroupMemberRepository extends RxJava2CrudRepository<JdbcGroup.JdbcMember, String> {
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByGroup_migrated(group))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcGroup.JdbcMember> findAllByGroup(@org.springframework.data.repository.query.Param(value = "gid")
-java.lang.String group) {
+default Flowable<JdbcMember> findAllByGroup(@Param(value = "gid")
+String group) {
     return RxJava2Adapter.fluxToFlowable(findAllByGroup_migrated(group));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcGroup.JdbcMember> findAllByGroup_migrated(@Param(value = "gid")
+default Flux<JdbcMember> findAllByGroup_migrated(@Param(value = "gid")
 String group) {
     return RxJava2Adapter.flowableToFlux(findAllByGroup(group));
 }

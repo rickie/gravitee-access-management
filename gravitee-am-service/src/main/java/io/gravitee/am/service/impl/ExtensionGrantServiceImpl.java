@@ -21,7 +21,7 @@ import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.identityprovider.api.User;
-
+import io.gravitee.am.model.Application;
 import io.gravitee.am.model.ExtensionGrant;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.event.Event;
@@ -45,8 +45,9 @@ import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
-
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,7 +171,7 @@ public class ExtensionGrantServiceImpl implements ExtensionGrantService {
     public Mono<ExtensionGrant> update_migrated(String domain, String id, UpdateExtensionGrant updateExtensionGrant, User principal) {
         LOGGER.debug("Update a extension grant {} for domain {}", id, domain);
 
-        return extensionGrantRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(id))).flatMap(y->extensionGrantRepository.findByDomainAndName_migrated(domain, updateExtensionGrant.getName()).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).single().flatMap((java.util.Optional<io.gravitee.am.model.ExtensionGrant> v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Optional<io.gravitee.am.model.ExtensionGrant> existingTokenGranter)->{
+        return extensionGrantRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(id))).flatMap(y->extensionGrantRepository.findByDomainAndName_migrated(domain, updateExtensionGrant.getName()).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).single().flatMap((Optional<ExtensionGrant> v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((Optional<ExtensionGrant> existingTokenGranter)->{
 if (existingTokenGranter.isPresent() && !existingTokenGranter.get().getId().equals(id)) {
 throw new ExtensionGrantAlreadyExistsException("Extension grant with the same name already exists");
 }
@@ -209,11 +210,11 @@ return RxJava2Adapter.monoToSingle(Mono.just(y));
 @Override
     public Mono<Void> delete_migrated(String domain, String extensionGrantId, User principal) {
         LOGGER.debug("Delete extension grant {}", extensionGrantId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(extensionGrantRepository.findById_migrated(extensionGrantId).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(extensionGrantId))).flatMap(y->applicationService.findByDomainAndExtensionGrant_migrated(domain, y.getGrantType() + "~" + y.getId()).flatMap((java.util.Set<io.gravitee.am.model.Application> v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Set<io.gravitee.am.model.Application> applications)->{
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(extensionGrantRepository.findById_migrated(extensionGrantId).switchIfEmpty(Mono.error(new ExtensionGrantNotFoundException(extensionGrantId))).flatMap(y->applicationService.findByDomainAndExtensionGrant_migrated(domain, y.getGrantType() + "~" + y.getId()).flatMap((Set<Application> v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((Set<Application> applications)->{
 if (applications.size() > 0) {
 throw new ExtensionGrantWithApplicationsException();
 }
-return Single.zip(RxJava2Adapter.monoToSingle(applicationService.findByDomainAndExtensionGrant_migrated(domain, y.getGrantType())), RxJava2Adapter.monoToSingle(findByDomain_migrated(domain).collectList()), (java.util.Set<io.gravitee.am.model.Application> clients1, java.util.List<io.gravitee.am.model.ExtensionGrant> extensionGrants)->{
+return Single.zip(RxJava2Adapter.monoToSingle(applicationService.findByDomainAndExtensionGrant_migrated(domain, y.getGrantType())), RxJava2Adapter.monoToSingle(findByDomain_migrated(domain).collectList()), (Set<Application> clients1, List<ExtensionGrant> extensionGrants)->{
 if (clients1.size() == 0) {
 return y;
 }

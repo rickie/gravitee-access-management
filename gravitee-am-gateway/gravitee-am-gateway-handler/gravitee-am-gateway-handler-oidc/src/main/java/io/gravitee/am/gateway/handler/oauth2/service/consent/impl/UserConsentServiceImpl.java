@@ -31,6 +31,7 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.ScopeApprovalService;
 import io.reactivex.Single;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,7 +87,7 @@ public class UserConsentServiceImpl implements UserConsentService {
         final Map<String, ApplicationScopeSettings> scopeApprovals = client.getScopeSettings()
                 .stream()
                 .filter(s -> s.getScopeApproval() != null)
-                .collect(Collectors.toMap(ApplicationScopeSettings::getScope, java.util.function.Function.identity()));
+                .collect(Collectors.toMap(ApplicationScopeSettings::getScope, Function.identity()));
         final List<String> parameterizedScopes = client.getScopeSettings().stream().map(ApplicationScopeSettings::getScope).filter(scopeManager::isParameterizedScope).collect(Collectors.toList());
 
         approvals.forEach(a -> a.setExpiresAt(computeExpiry(scopeApprovals, a.getScope(), parameterizedScopes)));

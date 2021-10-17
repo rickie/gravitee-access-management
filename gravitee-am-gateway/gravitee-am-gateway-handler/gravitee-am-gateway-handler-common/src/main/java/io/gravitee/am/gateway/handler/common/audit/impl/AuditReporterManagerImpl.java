@@ -20,6 +20,7 @@ import io.gravitee.am.common.event.ReporterEvent;
 import io.gravitee.am.common.utils.GraviteeContext;
 import io.gravitee.am.gateway.handler.common.audit.AuditReporterManager;
 import io.gravitee.am.model.Domain;
+import io.gravitee.am.model.Environment;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.Reporter;
 import io.gravitee.am.model.common.event.Payload;
@@ -32,7 +33,6 @@ import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
 import io.reactivex.Single;
-
 import io.vertx.reactivex.core.RxHelper;
 import io.vertx.reactivex.core.Vertx;
 import java.util.Map.Entry;
@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuples;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -86,7 +87,7 @@ public class AuditReporterManagerImpl extends AbstractService implements AuditRe
             deploymentId = id;
 
             // Start reporters
-            reporterRepository.findByDomain_migrated(domain.getId()).collectList().flatMap(reporters->environmentService.findById_migrated(domain.getReferenceId()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Environment env)->new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.common.utils.GraviteeContext ctx)->Tuples.of(reporters, ctx)))).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(tupleReportersContext -> {
+            reporterRepository.findByDomain_migrated(domain.getId()).collectList().flatMap(reporters->environmentService.findById_migrated(domain.getReferenceId()).map(RxJavaReactorMigrationUtil.toJdkFunction((Environment env)->new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction((GraviteeContext ctx)->Tuples.of(reporters, ctx)))).subscribeOn(Schedulers.boundedElastic()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(tupleReportersContext -> {
                                 if (!tupleReportersContext.getT1().isEmpty()) {
                                     tupleReportersContext.getT1().forEach(reporter -> {
                                         startReporterProvider(reporter, tupleReportersContext.getT2());
@@ -155,7 +156,7 @@ public class AuditReporterManagerImpl extends AbstractService implements AuditRe
         logger.info("Domain {} has received {} reporter event for {}", domain.getName(), eventType, reporterId);
         RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(reporterRepository.findById_migrated(reporterId))
                 .flatMapSingle(reporter ->
-                        RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(ctx -> Tuples.of(reporter, ctx)))))).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(tupleReporterContext -> {
+                        RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(ctx -> Tuples.of(reporter, ctx)))))).subscribeOn(Schedulers.boundedElastic()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(tupleReporterContext -> {
                             updateReporterProvider(tupleReporterContext.getT1(), tupleReporterContext.getT2());
                             logger.info("Reporter {} {}d for domain {}", reporterId, eventType, domain.getName());
                         }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} reporter for domain {}", eventType, domain.getName(), error)));
@@ -166,7 +167,7 @@ public class AuditReporterManagerImpl extends AbstractService implements AuditRe
         logger.info("Domain {} has received {} reporter event for {}", domain.getName(), eventType, reporterId);
         RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(reporterRepository.findById_migrated(reporterId))
                 .flatMapSingle(reporter ->
-                        RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(ctx -> Tuples.of(reporter, ctx)))))).subscribeOn(reactor.core.scheduler.Schedulers.boundedElastic()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(tupleReporterContext -> {
+                        RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(ctx -> Tuples.of(reporter, ctx)))))).subscribeOn(Schedulers.boundedElastic()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(tupleReporterContext -> {
                             if (reporters.containsKey(reporterId)) {
                                 updateReporterProvider(tupleReporterContext.getT1(), tupleReporterContext.getT2());
                             } else {

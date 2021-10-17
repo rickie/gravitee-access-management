@@ -17,12 +17,13 @@ package io.gravitee.am.repository.jdbc.management.api.spring.application;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication;
-
-
+import io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication.ScopeSettings;
+import io.reactivex.Flowable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -33,11 +34,11 @@ public interface SpringApplicationScopeRepository extends RxJava2CrudRepository<
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByApplicationId_migrated(applicationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication.ScopeSettings> findAllByApplicationId(@org.springframework.data.repository.query.Param(value = "appId")
-java.lang.String applicationId) {
+default Flowable<ScopeSettings> findAllByApplicationId(@Param(value = "appId")
+String applicationId) {
     return RxJava2Adapter.fluxToFlowable(findAllByApplicationId_migrated(applicationId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication.ScopeSettings> findAllByApplicationId_migrated(@Param(value = "appId")
+default Flux<ScopeSettings> findAllByApplicationId_migrated(@Param(value = "appId")
 String applicationId) {
     return RxJava2Adapter.flowableToFlux(findAllByApplicationId(applicationId));
 }

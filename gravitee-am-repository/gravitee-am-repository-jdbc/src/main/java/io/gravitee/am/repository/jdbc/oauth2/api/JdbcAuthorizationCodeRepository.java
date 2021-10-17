@@ -97,7 +97,7 @@ public class JdbcAuthorizationCodeRepository extends AbstractJdbcRepository impl
 @Override
     public Mono<AuthorizationCode> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return RxJava2Adapter.maybeToMono(authorizationCodeRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->dbClient.delete().from(JdbcAuthorizationCode.class).matching(from(where("id").is(id))).fetch().rowsUpdated().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Integer i)->z)));
+        return RxJava2Adapter.maybeToMono(authorizationCodeRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->dbClient.delete().from(JdbcAuthorizationCode.class).matching(from(where("id").is(id))).fetch().rowsUpdated().map(RxJavaReactorMigrationUtil.toJdkFunction((Integer i)->z)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCode_migrated(code))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

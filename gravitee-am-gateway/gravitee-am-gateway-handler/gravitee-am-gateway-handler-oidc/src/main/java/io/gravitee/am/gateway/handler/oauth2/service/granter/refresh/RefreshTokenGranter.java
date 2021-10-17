@@ -24,6 +24,7 @@ import io.gravitee.am.gateway.handler.oauth2.exception.InvalidGrantException;
 import io.gravitee.am.gateway.handler.oauth2.service.granter.AbstractTokenGranter;
 import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequestResolver;
+import io.gravitee.am.gateway.handler.oauth2.service.token.Token;
 import io.gravitee.am.gateway.handler.oauth2.service.token.TokenService;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
@@ -73,7 +74,7 @@ public class RefreshTokenGranter extends AbstractTokenGranter {
             return Mono.error(new InvalidRequestException("A refresh token must be supplied."));
         }
 
-        return super.parseRequest_migrated(tokenRequest, client).flatMap(tokenRequest1->getTokenService().refresh_migrated(refreshToken, tokenRequest, client).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.gateway.handler.oauth2.service.token.Token refreshToken1)->{
+        return super.parseRequest_migrated(tokenRequest, client).flatMap(tokenRequest1->getTokenService().refresh_migrated(refreshToken, tokenRequest, client).map(RxJavaReactorMigrationUtil.toJdkFunction((Token refreshToken1)->{
 if (refreshToken1.getSubject() != null) {
 tokenRequest1.setSubject(refreshToken1.getSubject());
 }

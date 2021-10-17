@@ -27,9 +27,7 @@ import io.gravitee.am.service.IdentityProviderService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.NewUser;
 import io.gravitee.common.http.MediaType;
-
 import io.reactivex.Observable;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -37,6 +35,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.net.URI;
 import java.util.Comparator;
+import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -97,7 +96,7 @@ public class UsersResource extends AbstractUsersResource {
         io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.LIST).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(searchUsers_migrated(ReferenceType.DOMAIN, domain, query, filter, page, size)))).flatMap(pagedUsers->hasAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).flatMap(hasPermission->RxJava2Adapter.singleToMono(Observable.fromIterable(pagedUsers.getData()).flatMapSingle((io.gravitee.am.model.User user)->RxJava2Adapter.monoToSingle(filterUserInfos_migrated(hasPermission, user))).toSortedList(Comparator.comparing(User::getUsername))).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.User> users)->new Page<>(users, pagedUsers.getCurrentPage(), pagedUsers.getTotalCount())))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        .flatMapSingle(__ -> RxJava2Adapter.monoToSingle(searchUsers_migrated(ReferenceType.DOMAIN, domain, query, filter, page, size)))).flatMap(pagedUsers->hasAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).flatMap(hasPermission->RxJava2Adapter.singleToMono(Observable.fromIterable(pagedUsers.getData()).flatMapSingle((io.gravitee.am.model.User user)->RxJava2Adapter.monoToSingle(filterUserInfos_migrated(hasPermission, user))).toSortedList(Comparator.comparing(User::getUsername))).map(RxJavaReactorMigrationUtil.toJdkFunction((List<io.gravitee.am.model.User> users)->new Page<>(users, pagedUsers.getCurrentPage(), pagedUsers.getTotalCount())))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST

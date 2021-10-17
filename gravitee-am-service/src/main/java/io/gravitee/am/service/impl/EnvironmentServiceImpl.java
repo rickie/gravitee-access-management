@@ -140,7 +140,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
                     environment.setHrids(newEnvironment.getHrids());
 
                     return RxJava2Adapter.monoToMaybe(updateInternal_migrated(environment, byUser));
-                }).apply(v)))).switchIfEmpty(Mono.defer(()->organizationService.findById_migrated(organizationId).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Organization organization)->{
+                }).apply(v)))).switchIfEmpty(Mono.defer(()->organizationService.findById_migrated(organizationId).map(RxJavaReactorMigrationUtil.toJdkFunction((Organization organization)->{
 Environment toCreate = new Environment();
 toCreate.setId(environmentId);
 toCreate.setHrids(newEnvironment.getHrids());

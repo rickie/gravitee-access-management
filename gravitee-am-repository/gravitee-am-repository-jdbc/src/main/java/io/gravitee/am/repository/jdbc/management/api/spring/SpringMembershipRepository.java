@@ -17,13 +17,14 @@ package io.gravitee.am.repository.jdbc.management.api.spring;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcMembership;
-
-
-
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -34,12 +35,12 @@ public interface SpringMembershipRepository extends RxJava2CrudRepository<JdbcMe
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceId, referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcMembership> findByReference(@org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String referenceType) {
+default Flowable<JdbcMembership> findByReference(@Param(value = "refId")
+String referenceId, @Param(value = "refType")
+String referenceType) {
     return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceId, referenceType));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcMembership> findByReference_migrated(@Param(value = "refId")
+default Flux<JdbcMembership> findByReference_migrated(@Param(value = "refId")
 String referenceId, @Param(value = "refType")
 String referenceType) {
     return RxJava2Adapter.flowableToFlux(findByReference(referenceId, referenceType));
@@ -47,12 +48,12 @@ String referenceType) {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcMembership> findByMember(@org.springframework.data.repository.query.Param(value = "mid")
-java.lang.String memberId, @org.springframework.data.repository.query.Param(value = "mtype")
-java.lang.String memberType) {
+default Flowable<JdbcMembership> findByMember(@Param(value = "mid")
+String memberId, @Param(value = "mtype")
+String memberType) {
     return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId, memberType));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcMembership> findByMember_migrated(@Param(value = "mid")
+default Flux<JdbcMembership> findByMember_migrated(@Param(value = "mid")
 String memberId, @Param(value = "mtype")
 String memberType) {
     return RxJava2Adapter.flowableToFlux(findByMember(memberId, memberType));
@@ -60,14 +61,14 @@ String memberType) {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByReferenceAndMember_migrated(referenceId, referenceType, memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.repository.jdbc.management.api.model.JdbcMembership> findByReferenceAndMember(@org.springframework.data.repository.query.Param(value = "refId")
-java.lang.String referenceId, @org.springframework.data.repository.query.Param(value = "refType")
-java.lang.String referenceType, @org.springframework.data.repository.query.Param(value = "mid")
-java.lang.String memberId, @org.springframework.data.repository.query.Param(value = "mtype")
-java.lang.String memberType) {
+default Maybe<JdbcMembership> findByReferenceAndMember(@Param(value = "refId")
+String referenceId, @Param(value = "refType")
+String referenceType, @Param(value = "mid")
+String memberId, @Param(value = "mtype")
+String memberType) {
     return RxJava2Adapter.monoToMaybe(findByReferenceAndMember_migrated(referenceId, referenceType, memberId, memberType));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.repository.jdbc.management.api.model.JdbcMembership> findByReferenceAndMember_migrated(@Param(value = "refId")
+default Mono<JdbcMembership> findByReferenceAndMember_migrated(@Param(value = "refId")
 String referenceId, @Param(value = "refType")
 String referenceType, @Param(value = "mid")
 String memberId, @Param(value = "mtype")

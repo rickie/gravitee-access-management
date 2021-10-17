@@ -19,10 +19,9 @@ import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.BotDetection;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.repository.common.CrudRepository;
-
-
-
+import io.reactivex.Flowable;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -32,19 +31,19 @@ public interface BotDetectionRepository extends CrudRepository<BotDetection, Str
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.BotDetection> findAll() {
+default Flowable<BotDetection> findAll() {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated());
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.BotDetection> findAll_migrated() {
+default Flux<BotDetection> findAll_migrated() {
     return RxJava2Adapter.flowableToFlux(findAll());
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.BotDetection> findByReference(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId) {
+default Flowable<BotDetection> findByReference(ReferenceType referenceType, String referenceId) {
     return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.BotDetection> findByReference_migrated(ReferenceType referenceType, String referenceId) {
+default Flux<BotDetection> findByReference_migrated(ReferenceType referenceType, String referenceId) {
     return RxJava2Adapter.flowableToFlux(findByReference(referenceType, referenceId));
 }
 

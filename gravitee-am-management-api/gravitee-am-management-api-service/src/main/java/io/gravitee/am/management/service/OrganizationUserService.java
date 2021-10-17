@@ -20,9 +20,10 @@ import io.gravitee.am.model.Organization;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.User;
 import io.gravitee.am.service.model.NewUser;
-
-
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -32,28 +33,28 @@ public interface OrganizationUserService extends CommonUserService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOrUpdate_migrated(referenceType, referenceId, newUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.User> createOrUpdate(io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.service.model.NewUser newUser) {
+default Single<io.gravitee.am.model.User> createOrUpdate(ReferenceType referenceType, String referenceId, NewUser newUser) {
     return RxJava2Adapter.monoToSingle(createOrUpdate_migrated(referenceType, referenceId, newUser));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.User> createOrUpdate_migrated(ReferenceType referenceType, String referenceId, NewUser newUser) {
+default Mono<io.gravitee.am.model.User> createOrUpdate_migrated(ReferenceType referenceType, String referenceId, NewUser newUser) {
     return RxJava2Adapter.singleToMono(createOrUpdate(referenceType, referenceId, newUser));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createGraviteeUser_migrated(organization, newUser, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.User> createGraviteeUser(io.gravitee.am.model.Organization organization, io.gravitee.am.service.model.NewUser newUser, io.gravitee.am.identityprovider.api.User principal) {
+default Single<io.gravitee.am.model.User> createGraviteeUser(Organization organization, NewUser newUser, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToSingle(createGraviteeUser_migrated(organization, newUser, principal));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.User> createGraviteeUser_migrated(Organization organization, NewUser newUser, io.gravitee.am.identityprovider.api.User principal) {
+default Mono<io.gravitee.am.model.User> createGraviteeUser_migrated(Organization organization, NewUser newUser, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.singleToMono(createGraviteeUser(organization, newUser, principal));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.resetPassword_migrated(organizationId, user, password, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable resetPassword(java.lang.String organizationId, io.gravitee.am.model.User user, java.lang.String password, io.gravitee.am.identityprovider.api.User principal) {
+default Completable resetPassword(String organizationId, io.gravitee.am.model.User user, String password, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.monoToCompletable(resetPassword_migrated(organizationId, user, password, principal));
 }
-default reactor.core.publisher.Mono<java.lang.Void> resetPassword_migrated(String organizationId, User user, String password, io.gravitee.am.identityprovider.api.User principal) {
+default Mono<Void> resetPassword_migrated(String organizationId, User user, String password, io.gravitee.am.identityprovider.api.User principal) {
     return RxJava2Adapter.completableToMono(resetPassword(organizationId, user, password, principal));
 }
 }

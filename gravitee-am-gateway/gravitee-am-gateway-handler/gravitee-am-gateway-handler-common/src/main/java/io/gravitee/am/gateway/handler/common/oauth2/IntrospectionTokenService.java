@@ -16,9 +16,10 @@
 package io.gravitee.am.gateway.handler.common.oauth2;
 
 import com.google.errorprone.annotations.InlineMe;
-
-
+import io.gravitee.am.common.jwt.JWT;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -28,10 +29,10 @@ public interface IntrospectionTokenService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.introspect_migrated(token, offlineVerification))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.common.jwt.JWT> introspect(java.lang.String token, boolean offlineVerification) {
+default Single<JWT> introspect(String token, boolean offlineVerification) {
     return RxJava2Adapter.monoToSingle(introspect_migrated(token, offlineVerification));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.common.jwt.JWT> introspect_migrated(String token, boolean offlineVerification) {
+default Mono<JWT> introspect_migrated(String token, boolean offlineVerification) {
     return RxJava2Adapter.singleToMono(introspect(token, offlineVerification));
 }
 }

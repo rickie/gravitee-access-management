@@ -16,8 +16,9 @@
 package io.gravitee.am.service;
 
 import com.google.errorprone.annotations.InlineMe;
-
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -27,10 +28,10 @@ public interface ReCaptchaService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isValid_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.lang.Boolean> isValid(java.lang.String token) {
+default Single<Boolean> isValid(String token) {
     return RxJava2Adapter.monoToSingle(isValid_migrated(token));
 }
-default reactor.core.publisher.Mono<java.lang.Boolean> isValid_migrated(String token) {
+default Mono<Boolean> isValid_migrated(String token) {
     return RxJava2Adapter.singleToMono(isValid(token));
 }
 

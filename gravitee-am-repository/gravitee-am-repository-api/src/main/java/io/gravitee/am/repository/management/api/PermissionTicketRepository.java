@@ -18,8 +18,7 @@ package io.gravitee.am.repository.management.api;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.uma.PermissionTicket;
 import io.gravitee.am.repository.common.CrudRepository;
-
-
+import io.reactivex.Completable;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
 
@@ -31,7 +30,7 @@ public interface PermissionTicketRepository  extends CrudRepository<PermissionTi
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable purgeExpiredData() {
+default Completable purgeExpiredData() {
     return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
 }default Mono<Void> purgeExpiredData_migrated() {
         return Mono.empty();

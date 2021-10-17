@@ -27,13 +27,12 @@ import io.gravitee.am.service.MembershipService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.model.NewMembership;
 import io.gravitee.common.http.MediaType;
-
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -78,7 +77,7 @@ public class MembersResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
 
         checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_MEMBER, Acl.LIST).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(domain1 -> RxJava2Adapter.monoToSingle(membershipService.findByReference_migrated(domain1.getId(), ReferenceType.DOMAIN).collectList()))).flatMap(memberships->membershipService.getMetadata_migrated(memberships).map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.Object>> metadata)->new MembershipListItem(memberships, metadata))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        .flatMapSingle(domain1 -> RxJava2Adapter.monoToSingle(membershipService.findByReference_migrated(domain1.getId(), ReferenceType.DOMAIN).collectList()))).flatMap(memberships->membershipService.getMetadata_migrated(memberships).map(RxJavaReactorMigrationUtil.toJdkFunction((Map<String, Map<String, Object>> metadata)->new MembershipListItem(memberships, metadata))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST

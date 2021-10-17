@@ -16,9 +16,10 @@
 package io.gravitee.am.management.service;
 
 import com.google.errorprone.annotations.InlineMe;
-
-
+import io.reactivex.Single;
+import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -38,10 +39,10 @@ public interface NewsletterService {
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getTaglines_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.util.List<java.lang.String>> getTaglines() {
+default Single<List<String>> getTaglines() {
     return RxJava2Adapter.monoToSingle(getTaglines_migrated());
 }
-default reactor.core.publisher.Mono<java.util.List<java.lang.String>> getTaglines_migrated() {
+default Mono<List<String>> getTaglines_migrated() {
     return RxJava2Adapter.singleToMono(getTaglines());
 }
 }

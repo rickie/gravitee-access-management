@@ -91,7 +91,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
     public Flux<Domain> findAll_migrated() {
         LOGGER.debug("findAll()");
         Flowable<Domain> domains = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(domainRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)));
-        return RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
+        return RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -116,7 +116,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
                 .from(JdbcDomain.class)
                 .matching(from(whereClause))
                 .as(JdbcDomain.class)
-                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -132,7 +132,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
             return Flux.empty();
         }
         Flowable<Domain> domains = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(domainRepository.findAllById(ids)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)));
-        return RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
+        return RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByReferenceId_migrated(environmentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -145,7 +145,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
     public Flux<Domain> findAllByReferenceId_migrated(String environmentId) {
         LOGGER.debug("findAllByReferenceId({})", environmentId);
         Flowable<Domain> domains = RxJava2Adapter.fluxToFlowable(domainRepository.findAllByReferenceId_migrated(environmentId, ReferenceType.ENVIRONMENT.name()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)));
-        return RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
+        return RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -158,7 +158,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
     public Mono<Domain> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
         Flowable<Domain> domains = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.maybeToMono(domainRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flux());
-        return RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident)))).next();
+        return RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident)))).next();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByHrid_migrated(referenceType, referenceId, hrid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -171,7 +171,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
     public Mono<Domain> findByHrid_migrated(ReferenceType referenceType, String referenceId, String hrid) {
         LOGGER.debug("findByHrid({})", hrid);
         Flowable<Domain> domains = RxJava2Adapter.fluxToFlowable(domainRepository.findByHrid_migrated(referenceId, referenceType.name(), hrid).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flux());
-        return RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident)))).next();
+        return RxJava2Adapter.flowableToFlux(domains).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident)))).next();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -265,7 +265,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
                 .bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase())
                 .as(JdbcDomain.class)
                 .fetch()
-                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toDomain)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction((Domain ident) -> RxJava2Adapter.fluxToFlowable(completeDomain_migrated(ident))));
     }
 
     

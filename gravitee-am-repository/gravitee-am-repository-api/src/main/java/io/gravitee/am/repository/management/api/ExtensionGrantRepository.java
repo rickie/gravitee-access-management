@@ -18,11 +18,11 @@ package io.gravitee.am.repository.management.api;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ExtensionGrant;
 import io.gravitee.am.repository.common.CrudRepository;
-
-
-
-
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -32,19 +32,19 @@ public interface ExtensionGrantRepository extends CrudRepository<ExtensionGrant,
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.ExtensionGrant> findByDomain(java.lang.String domain) {
+default Flowable<ExtensionGrant> findByDomain(String domain) {
     return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.ExtensionGrant> findByDomain_migrated(String domain) {
+default Flux<ExtensionGrant> findByDomain_migrated(String domain) {
     return RxJava2Adapter.flowableToFlux(findByDomain(domain));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndName_migrated(domain, name))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.ExtensionGrant> findByDomainAndName(java.lang.String domain, java.lang.String name) {
+default Maybe<ExtensionGrant> findByDomainAndName(String domain, String name) {
     return RxJava2Adapter.monoToMaybe(findByDomainAndName_migrated(domain, name));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.ExtensionGrant> findByDomainAndName_migrated(String domain, String name) {
+default Mono<ExtensionGrant> findByDomainAndName_migrated(String domain, String name) {
     return RxJava2Adapter.maybeToMono(findByDomainAndName(domain, name));
 }
 }

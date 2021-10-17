@@ -16,9 +16,10 @@
 package io.gravitee.am.gateway.handler.saml2.service.sp;
 
 import com.google.errorprone.annotations.InlineMe;
-
-
+import io.gravitee.am.identityprovider.api.Metadata;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -28,10 +29,10 @@ public interface ServiceProviderService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.metadata_migrated(providerId, idpUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.identityprovider.api.Metadata> metadata(java.lang.String providerId, java.lang.String idpUrl) {
+default Single<Metadata> metadata(String providerId, String idpUrl) {
     return RxJava2Adapter.monoToSingle(metadata_migrated(providerId, idpUrl));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.Metadata> metadata_migrated(String providerId, String idpUrl) {
+default Mono<Metadata> metadata_migrated(String providerId, String idpUrl) {
     return RxJava2Adapter.singleToMono(metadata(providerId, idpUrl));
 }
 }

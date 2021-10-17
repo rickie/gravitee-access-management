@@ -20,12 +20,12 @@ import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.BotDetection;
 import io.gravitee.am.service.model.NewBotDetection;
 import io.gravitee.am.service.model.UpdateBotDetection;
-
-
-
-
-
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -36,52 +36,52 @@ public interface BotDetectionService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.BotDetection> findById(java.lang.String id) {
+default Maybe<BotDetection> findById(String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.BotDetection> findById_migrated(String id) {
+default Mono<BotDetection> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.BotDetection> findByDomain(java.lang.String domain) {
+default Flowable<BotDetection> findByDomain(String domain) {
     return RxJava2Adapter.fluxToFlowable(findByDomain_migrated(domain));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.BotDetection> findByDomain_migrated(String domain) {
+default Flux<BotDetection> findByDomain_migrated(String domain) {
     return RxJava2Adapter.flowableToFlux(findByDomain(domain));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, botDetection, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.BotDetection> create(java.lang.String domain, io.gravitee.am.service.model.NewBotDetection botDetection, io.gravitee.am.identityprovider.api.User principal) {
+default Single<BotDetection> create(String domain, NewBotDetection botDetection, User principal) {
     return RxJava2Adapter.monoToSingle(create_migrated(domain, botDetection, principal));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.BotDetection> create_migrated(String domain, NewBotDetection botDetection, User principal) {
+default Mono<BotDetection> create_migrated(String domain, NewBotDetection botDetection, User principal) {
     return RxJava2Adapter.singleToMono(create(domain, botDetection, principal));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateBotDetection, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.BotDetection> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateBotDetection updateBotDetection, io.gravitee.am.identityprovider.api.User principal) {
+default Single<BotDetection> update(String domain, String id, UpdateBotDetection updateBotDetection, User principal) {
     return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateBotDetection, principal));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.BotDetection> update_migrated(String domain, String id, UpdateBotDetection updateBotDetection, User principal) {
+default Mono<BotDetection> update_migrated(String domain, String id, UpdateBotDetection updateBotDetection, User principal) {
     return RxJava2Adapter.singleToMono(update(domain, id, updateBotDetection, principal));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(domain, botDetectionId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String domain, java.lang.String botDetectionId, io.gravitee.am.identityprovider.api.User principal) {
+default Completable delete(String domain, String botDetectionId, User principal) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(domain, botDetectionId, principal));
 }
-default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String domain, String botDetectionId, User principal) {
+default Mono<Void> delete_migrated(String domain, String botDetectionId, User principal) {
     return RxJava2Adapter.completableToMono(delete(domain, botDetectionId, principal));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, botDetection))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.BotDetection> create(java.lang.String domain, io.gravitee.am.service.model.NewBotDetection botDetection) {
+default Single<BotDetection> create(String domain, NewBotDetection botDetection) {
     return RxJava2Adapter.monoToSingle(create_migrated(domain, botDetection));
 }default Mono<BotDetection> create_migrated(String domain, NewBotDetection botDetection) {
         return RxJava2Adapter.singleToMono(create(domain, botDetection, null));
@@ -89,7 +89,7 @@ default io.reactivex.Single<io.gravitee.am.model.BotDetection> create(java.lang.
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateBotDetection))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.BotDetection> update(java.lang.String domain, java.lang.String id, io.gravitee.am.service.model.UpdateBotDetection updateBotDetection) {
+default Single<BotDetection> update(String domain, String id, UpdateBotDetection updateBotDetection) {
     return RxJava2Adapter.monoToSingle(update_migrated(domain, id, updateBotDetection));
 }default Mono<BotDetection> update_migrated(String domain, String id, UpdateBotDetection updateBotDetection) {
         return RxJava2Adapter.singleToMono(update(domain, id, updateBotDetection, null));
@@ -97,7 +97,7 @@ default io.reactivex.Single<io.gravitee.am.model.BotDetection> update(java.lang.
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(domain, botDetectionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String domain, java.lang.String botDetectionId) {
+default Completable delete(String domain, String botDetectionId) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(domain, botDetectionId));
 }default Mono<Void> delete_migrated(String domain, String botDetectionId) {
         return RxJava2Adapter.completableToMono(delete(domain, botDetectionId, null));

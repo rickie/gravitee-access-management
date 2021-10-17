@@ -16,9 +16,11 @@
 package io.gravitee.am.gateway.handler.oidc.service.clientregistration;
 
 import com.google.errorprone.annotations.InlineMe;
+import io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest;
 import io.gravitee.am.model.oidc.Client;
-
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Alexandre FARIA (contact at alexandrefaria.net)
@@ -28,46 +30,46 @@ public interface DynamicClientRegistrationService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(request, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.oidc.Client> create(io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest request, java.lang.String basePath) {
+default Single<Client> create(DynamicClientRegistrationRequest request, String basePath) {
     return RxJava2Adapter.monoToSingle(create_migrated(request, basePath));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> create_migrated(DynamicClientRegistrationRequest request, String basePath) {
+default Mono<Client> create_migrated(DynamicClientRegistrationRequest request, String basePath) {
     return RxJava2Adapter.singleToMono(create(request, basePath));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.patch_migrated(toPatch, request, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.oidc.Client> patch(io.gravitee.am.model.oidc.Client toPatch, io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest request, java.lang.String basePath) {
+default Single<Client> patch(Client toPatch, DynamicClientRegistrationRequest request, String basePath) {
     return RxJava2Adapter.monoToSingle(patch_migrated(toPatch, request, basePath));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> patch_migrated(Client toPatch, DynamicClientRegistrationRequest request, String basePath) {
+default Mono<Client> patch_migrated(Client toPatch, DynamicClientRegistrationRequest request, String basePath) {
     return RxJava2Adapter.singleToMono(patch(toPatch, request, basePath));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(toUpdate, request, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.oidc.Client> update(io.gravitee.am.model.oidc.Client toUpdate, io.gravitee.am.gateway.handler.oidc.service.clientregistration.DynamicClientRegistrationRequest request, java.lang.String basePath) {
+default Single<Client> update(Client toUpdate, DynamicClientRegistrationRequest request, String basePath) {
     return RxJava2Adapter.monoToSingle(update_migrated(toUpdate, request, basePath));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> update_migrated(Client toUpdate, DynamicClientRegistrationRequest request, String basePath) {
+default Mono<Client> update_migrated(Client toUpdate, DynamicClientRegistrationRequest request, String basePath) {
     return RxJava2Adapter.singleToMono(update(toUpdate, request, basePath));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.delete_migrated(toDelete))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.oidc.Client> delete(io.gravitee.am.model.oidc.Client toDelete) {
+default Single<Client> delete(Client toDelete) {
     return RxJava2Adapter.monoToSingle(delete_migrated(toDelete));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> delete_migrated(Client toDelete) {
+default Mono<Client> delete_migrated(Client toDelete) {
     return RxJava2Adapter.singleToMono(delete(toDelete));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.renewSecret_migrated(toRenew, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.oidc.Client> renewSecret(io.gravitee.am.model.oidc.Client toRenew, java.lang.String basePath) {
+default Single<Client> renewSecret(Client toRenew, String basePath) {
     return RxJava2Adapter.monoToSingle(renewSecret_migrated(toRenew, basePath));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.oidc.Client> renewSecret_migrated(Client toRenew, String basePath) {
+default Mono<Client> renewSecret_migrated(Client toRenew, String basePath) {
     return RxJava2Adapter.singleToMono(renewSecret(toRenew, basePath));
 }
 }

@@ -16,12 +16,13 @@
 package io.gravitee.am.gateway.handler.common.auth.idp;
 
 import com.google.errorprone.annotations.InlineMe;
-
-
+import io.gravitee.am.identityprovider.api.AuthenticationProvider;
+import io.gravitee.am.identityprovider.api.UserProvider;
 import io.gravitee.am.model.IdentityProvider;
 import io.gravitee.common.service.Service;
-
+import io.reactivex.Maybe;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -32,10 +33,10 @@ public interface IdentityProviderManager extends Service {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.get_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.AuthenticationProvider> get(java.lang.String id) {
+default Maybe<AuthenticationProvider> get(String id) {
     return RxJava2Adapter.monoToMaybe(get_migrated(id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.AuthenticationProvider> get_migrated(String id) {
+default Mono<AuthenticationProvider> get_migrated(String id) {
     return RxJava2Adapter.maybeToMono(get(id));
 }
 
@@ -43,10 +44,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.Authenti
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getUserProvider_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.identityprovider.api.UserProvider> getUserProvider(java.lang.String id) {
+default Maybe<UserProvider> getUserProvider(String id) {
     return RxJava2Adapter.monoToMaybe(getUserProvider_migrated(id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.identityprovider.api.UserProvider> getUserProvider_migrated(String id) {
+default Mono<UserProvider> getUserProvider_migrated(String id) {
     return RxJava2Adapter.maybeToMono(getUserProvider(id));
 }
 }

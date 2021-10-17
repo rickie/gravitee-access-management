@@ -21,14 +21,14 @@ import io.gravitee.am.model.Domain;
 import io.gravitee.am.repository.management.api.search.DomainCriteria;
 import io.gravitee.am.service.model.NewDomain;
 import io.gravitee.am.service.model.PatchDomain;
-
-
-
-
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import java.util.Collection;
-
-
+import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -40,106 +40,106 @@ public interface DomainService {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByEnvironment_migrated(organizationId, environment))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Domain> findAllByEnvironment(java.lang.String organizationId, java.lang.String environment) {
+default Flowable<Domain> findAllByEnvironment(String organizationId, String environment) {
     return RxJava2Adapter.fluxToFlowable(findAllByEnvironment_migrated(organizationId, environment));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Domain> findAllByEnvironment_migrated(String organizationId, String environment) {
+default Flux<Domain> findAllByEnvironment_migrated(String organizationId, String environment) {
     return RxJava2Adapter.flowableToFlux(findAllByEnvironment(organizationId, environment));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.search_migrated(organizationId, environmentId, query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Domain> search(java.lang.String organizationId, java.lang.String environmentId, java.lang.String query) {
+default Flowable<Domain> search(String organizationId, String environmentId, String query) {
     return RxJava2Adapter.fluxToFlowable(search_migrated(organizationId, environmentId, query));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Domain> search_migrated(String organizationId, String environmentId, String query) {
+default Flux<Domain> search_migrated(String organizationId, String environmentId, String query) {
     return RxJava2Adapter.flowableToFlux(search(organizationId, environmentId, query));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.Domain> findById(java.lang.String id) {
+default Maybe<Domain> findById(String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Domain> findById_migrated(String id) {
+default Mono<Domain> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByHrid_migrated(environmentId, hrid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Domain> findByHrid(java.lang.String environmentId, java.lang.String hrid) {
+default Single<Domain> findByHrid(String environmentId, String hrid) {
     return RxJava2Adapter.monoToSingle(findByHrid_migrated(environmentId, hrid));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Domain> findByHrid_migrated(String environmentId, String hrid) {
+default Mono<Domain> findByHrid_migrated(String environmentId, String hrid) {
     return RxJava2Adapter.singleToMono(findByHrid(environmentId, hrid));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.util.List<io.gravitee.am.model.Domain>> findAll() {
+default Single<List<Domain>> findAll() {
     return RxJava2Adapter.monoToSingle(findAll_migrated());
 }
-default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.model.Domain>> findAll_migrated() {
+default Mono<List<Domain>> findAll_migrated() {
     return RxJava2Adapter.singleToMono(findAll());
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Domain> findAllByCriteria(io.gravitee.am.repository.management.api.search.DomainCriteria criteria) {
+default Flowable<Domain> findAllByCriteria(DomainCriteria criteria) {
     return RxJava2Adapter.fluxToFlowable(findAllByCriteria_migrated(criteria));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Domain> findAllByCriteria_migrated(DomainCriteria criteria) {
+default Flux<Domain> findAllByCriteria_migrated(DomainCriteria criteria) {
     return RxJava2Adapter.flowableToFlux(findAllByCriteria(criteria));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Domain> findByIdIn(java.util.Collection<java.lang.String> ids) {
+default Flowable<Domain> findByIdIn(Collection<String> ids) {
     return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Domain> findByIdIn_migrated(Collection<String> ids) {
+default Flux<Domain> findByIdIn_migrated(Collection<String> ids) {
     return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(organizationId, environmentId, domain, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Domain> create(java.lang.String organizationId, java.lang.String environmentId, io.gravitee.am.service.model.NewDomain domain, io.gravitee.am.identityprovider.api.User principal) {
+default Single<Domain> create(String organizationId, String environmentId, NewDomain domain, User principal) {
     return RxJava2Adapter.monoToSingle(create_migrated(organizationId, environmentId, domain, principal));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Domain> create_migrated(String organizationId, String environmentId, NewDomain domain, User principal) {
+default Mono<Domain> create_migrated(String organizationId, String environmentId, NewDomain domain, User principal) {
     return RxJava2Adapter.singleToMono(create(organizationId, environmentId, domain, principal));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domainId, domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Domain> update(java.lang.String domainId, io.gravitee.am.model.Domain domain) {
+default Single<Domain> update(String domainId, Domain domain) {
     return RxJava2Adapter.monoToSingle(update_migrated(domainId, domain));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Domain> update_migrated(String domainId, Domain domain) {
+default Mono<Domain> update_migrated(String domainId, Domain domain) {
     return RxJava2Adapter.singleToMono(update(domainId, domain));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.patch_migrated(domainId, domain, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Domain> patch(java.lang.String domainId, io.gravitee.am.service.model.PatchDomain domain, io.gravitee.am.identityprovider.api.User principal) {
+default Single<Domain> patch(String domainId, PatchDomain domain, User principal) {
     return RxJava2Adapter.monoToSingle(patch_migrated(domainId, domain, principal));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Domain> patch_migrated(String domainId, PatchDomain domain, User principal) {
+default Mono<Domain> patch_migrated(String domainId, PatchDomain domain, User principal) {
     return RxJava2Adapter.singleToMono(patch(domainId, domain, principal));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(domain, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String domain, io.gravitee.am.identityprovider.api.User principal) {
+default Completable delete(String domain, User principal) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(domain, principal));
 }
-default reactor.core.publisher.Mono<java.lang.Void> delete_migrated(String domain, User principal) {
+default Mono<Void> delete_migrated(String domain, User principal) {
     return RxJava2Adapter.completableToMono(delete(domain, principal));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(organizationId, environmentId, domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Domain> create(java.lang.String organizationId, java.lang.String environmentId, io.gravitee.am.service.model.NewDomain domain) {
+default Single<Domain> create(String organizationId, String environmentId, NewDomain domain) {
     return RxJava2Adapter.monoToSingle(create_migrated(organizationId, environmentId, domain));
 }default Mono<Domain> create_migrated(String organizationId, String environmentId, NewDomain domain) {
         return RxJava2Adapter.singleToMono(create(organizationId, environmentId, domain, null));
@@ -147,7 +147,7 @@ default io.reactivex.Single<io.gravitee.am.model.Domain> create(java.lang.String
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.patch_migrated(domainId, domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Domain> patch(java.lang.String domainId, io.gravitee.am.service.model.PatchDomain domain) {
+default Single<Domain> patch(String domainId, PatchDomain domain) {
     return RxJava2Adapter.monoToSingle(patch_migrated(domainId, domain));
 }default Mono<Domain> patch_migrated(String domainId, PatchDomain domain) {
         return RxJava2Adapter.singleToMono(patch(domainId, domain, null));
@@ -155,7 +155,7 @@ default io.reactivex.Single<io.gravitee.am.model.Domain> patch(java.lang.String 
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete(java.lang.String domain) {
+default Completable delete(String domain) {
     return RxJava2Adapter.monoToCompletable(delete_migrated(domain));
 }default Mono<Void> delete_migrated(String domain) {
         return RxJava2Adapter.completableToMono(delete(domain, null));

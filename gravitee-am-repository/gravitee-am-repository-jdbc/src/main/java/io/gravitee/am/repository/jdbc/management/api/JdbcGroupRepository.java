@@ -142,7 +142,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
                 .orderBy(Sort.Order.asc("id"))
                 .page(PageRequest.of(page, size))
                 .as(JdbcGroup.class).fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
-                .flatMap(group -> completeWithMembersAndRole_migrated(RxJava2Adapter.monoToMaybe(Mono.just(group)), group.getId()).flux(), CONCURRENT_FLATMAP)).collectList().flatMap(content->RxJava2Adapter.singleToMono(counter).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long count)->new Page<Group>(content, page, count))));
+                .flatMap(group -> completeWithMembersAndRole_migrated(RxJava2Adapter.monoToMaybe(Mono.just(group)), group.getId()).flux(), CONCURRENT_FLATMAP)).collectList().flatMap(content->RxJava2Adapter.singleToMono(counter).map(RxJavaReactorMigrationUtil.toJdkFunction((Long count)->new Page<Group>(content, page, count))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -20,7 +20,7 @@ import io.gravitee.am.gateway.handler.oauth2.service.request.OAuth2Request;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.gateway.api.ExecutionContext;
-
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
 
@@ -32,7 +32,7 @@ public interface IDTokenService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(oAuth2Request, client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.lang.String> create(io.gravitee.am.gateway.handler.oauth2.service.request.OAuth2Request oAuth2Request, io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User user) {
+default Single<String> create(OAuth2Request oAuth2Request, Client client, User user) {
     return RxJava2Adapter.monoToSingle(create_migrated(oAuth2Request, client, user));
 }default Mono<String>  create_migrated(OAuth2Request oAuth2Request, Client client, User user) {
         return RxJava2Adapter.singleToMono(create(oAuth2Request, client, user, null));
@@ -40,19 +40,19 @@ default io.reactivex.Single<java.lang.String> create(io.gravitee.am.gateway.hand
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(oAuth2Request, client, user, executionContext))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.lang.String> create(io.gravitee.am.gateway.handler.oauth2.service.request.OAuth2Request oAuth2Request, io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User user, io.gravitee.gateway.api.ExecutionContext executionContext) {
+default Single<String> create(OAuth2Request oAuth2Request, Client client, User user, ExecutionContext executionContext) {
     return RxJava2Adapter.monoToSingle(create_migrated(oAuth2Request, client, user, executionContext));
 }
-default reactor.core.publisher.Mono<java.lang.String> create_migrated(OAuth2Request oAuth2Request, Client client, User user, ExecutionContext executionContext) {
+default Mono<String> create_migrated(OAuth2Request oAuth2Request, Client client, User user, ExecutionContext executionContext) {
     return RxJava2Adapter.singleToMono(create(oAuth2Request, client, user, executionContext));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.extractUser_migrated(idToken, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.User> extractUser(java.lang.String idToken, io.gravitee.am.model.oidc.Client client) {
+default Single<User> extractUser(String idToken, Client client) {
     return RxJava2Adapter.monoToSingle(extractUser_migrated(idToken, client));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.User> extractUser_migrated(String idToken, Client client) {
+default Mono<User> extractUser_migrated(String idToken, Client client) {
     return RxJava2Adapter.singleToMono(extractUser(idToken, client));
 }
 }

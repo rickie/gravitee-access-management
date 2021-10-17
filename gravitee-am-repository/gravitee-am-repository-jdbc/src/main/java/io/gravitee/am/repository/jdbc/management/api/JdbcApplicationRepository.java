@@ -28,6 +28,7 @@ import io.gravitee.am.model.application.ApplicationSettings;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication;
+import io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication.ScopeSettings;
 import io.gravitee.am.repository.jdbc.management.api.spring.application.SpringApplicationFactorRepository;
 import io.gravitee.am.repository.jdbc.management.api.spring.application.SpringApplicationIdentityRepository;
 import io.gravitee.am.repository.jdbc.management.api.spring.application.SpringApplicationRepository;
@@ -39,6 +40,7 @@ import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -82,13 +84,13 @@ public class JdbcApplicationRepository extends AbstractJdbcRepository implements
 
     
 private Mono<Application> completeApplication_migrated(Application entity) {
-        return Mono.just(entity).flatMap(app->identityRepository.findAllByApplicationId_migrated(app.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Identity::getIdentity)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> idps)->{
+        return Mono.just(entity).flatMap(app->identityRepository.findAllByApplicationId_migrated(app.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Identity::getIdentity)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((List<String> idps)->{
 app.setIdentities(new HashSet<>(idps));
 return app;
-}))).flatMap(app->factorRepository.findAllByApplicationId_migrated(app.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Factor::getFactor)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<java.lang.String> factors)->{
+}))).flatMap(app->factorRepository.findAllByApplicationId_migrated(app.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcApplication.Factor::getFactor)).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((List<String> factors)->{
 app.setFactors(new HashSet<>(factors));
 return app;
-}))).flatMap(app->scopeRepository.findAllByApplicationId_migrated(app.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.jdbc.management.api.model.JdbcApplication.ScopeSettings jdbcScopeSettings)->mapper.map(jdbcScopeSettings, ApplicationScopeSettings.class))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.application.ApplicationScopeSettings> scopeSettings)->{
+}))).flatMap(app->scopeRepository.findAllByApplicationId_migrated(app.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction((ScopeSettings jdbcScopeSettings)->mapper.map(jdbcScopeSettings, ApplicationScopeSettings.class))).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction((List<ApplicationScopeSettings> scopeSettings)->{
 if (app.getSettings() != null && app.getSettings().getOauth() != null) {
 app.getSettings().getOauth().setScopeSettings(scopeSettings);
 }
@@ -122,7 +124,7 @@ return app;
                 .page(PageRequest.of(page, size, Sort.by("id")))
                 .as(JdbcApplication.class)
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
-                .flatMap(app -> completeApplication_migrated(app).flux(), MAX_CONCURRENCY)).collectList().flatMap(data->RxJava2Adapter.singleToMono(applicationRepository.count()).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications (page={}/size={})", page, size, error)));
+                .flatMap(app -> completeApplication_migrated(app).flux(), MAX_CONCURRENCY)).collectList().flatMap(data->RxJava2Adapter.singleToMono(applicationRepository.count()).map(RxJavaReactorMigrationUtil.toJdkFunction((Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications (page={}/size={})", page, size, error)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -152,7 +154,7 @@ return app;
                 .page(PageRequest.of(page, size, Sort.by("id")))
                 .as(JdbcApplication.class)
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))
-                .flatMap(app -> completeApplication_migrated(app).flux(), MAX_CONCURRENCY)).collectList().flatMap(data->applicationRepository.countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error)));
+                .flatMap(app -> completeApplication_migrated(app).flux(), MAX_CONCURRENCY)).collectList().flatMap(data->applicationRepository.countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -176,7 +178,7 @@ return app;
                 .bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase())
                 .as(JdbcApplication.class)
                 .fetch()
-                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(completeApplication_migrated(app).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error)));
+                .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(completeApplication_migrated(app).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((Long total)->new Page<Application>(data, page, total)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCertificate_migrated(certificate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -17,12 +17,12 @@ package io.gravitee.am.repository.jdbc.management.api.spring;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcEvent;
-
+import io.reactivex.Flowable;
 import java.time.LocalDateTime;
-
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -31,12 +31,12 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringEventRepository extends RxJava2CrudRepository<JdbcEvent, String> {
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTimeFrame_migrated(from, to))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEvent> findByTimeFrame(@org.springframework.data.repository.query.Param(value = "from")
-java.time.LocalDateTime from, @org.springframework.data.repository.query.Param(value = "to")
-java.time.LocalDateTime to) {
+default Flowable<JdbcEvent> findByTimeFrame(@Param(value = "from")
+LocalDateTime from, @Param(value = "to")
+LocalDateTime to) {
     return RxJava2Adapter.fluxToFlowable(findByTimeFrame_migrated(from, to));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcEvent> findByTimeFrame_migrated(@Param(value = "from")
+default Flux<JdbcEvent> findByTimeFrame_migrated(@Param(value = "from")
 LocalDateTime from, @Param(value = "to")
 LocalDateTime to) {
     return RxJava2Adapter.flowableToFlux(findByTimeFrame(from, to));

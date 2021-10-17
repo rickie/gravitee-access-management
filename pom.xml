@@ -503,7 +503,7 @@
                             <!-- Cleanup normally. -->
                             -Xep:InvalidThrows:ERROR
                             -Xep:UnusedMethod:ERROR
-                            -Xep:UnnecessarilyFullyQualified:OFF
+                            -Xep:UnnecessarilyFullyQualified:ERROR
                             -Xep:RemoveUnusedImports:ERROR
 
                             <!-- Don't start migration just yet -->

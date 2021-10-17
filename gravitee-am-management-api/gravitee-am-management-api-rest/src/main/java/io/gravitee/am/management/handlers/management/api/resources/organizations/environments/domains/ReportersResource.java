@@ -85,7 +85,7 @@ public class ReportersResource extends AbstractResource {
         User authenticatedUser = getAuthenticatedUser();
 
         checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.LIST).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(reporterService.findByDomain_migrated(domain).collectList())))).flatMap(reporters->hasAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ).map(RxJavaReactorMigrationUtil.toJdkFunction((java.lang.Boolean hasPermission)->{
+                        .flatMapSingle(irrelevant -> RxJava2Adapter.monoToSingle(reporterService.findByDomain_migrated(domain).collectList())))).flatMap(reporters->hasAnyPermission_migrated(authenticatedUser, organizationId, environmentId, domain, Permission.DOMAIN_REPORTER, Acl.READ).map(RxJavaReactorMigrationUtil.toJdkFunction((Boolean hasPermission)->{
 if (hasPermission) {
 return reporters;
 }

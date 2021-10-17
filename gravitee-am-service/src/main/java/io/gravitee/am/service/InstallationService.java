@@ -16,11 +16,12 @@
 package io.gravitee.am.service;
 
 import com.google.errorprone.annotations.InlineMe;
-
-
-
+import io.gravitee.am.model.Installation;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import java.util.Map;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -35,10 +36,10 @@ public interface InstallationService {
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.get_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Installation> get() {
+default Single<Installation> get() {
     return RxJava2Adapter.monoToSingle(get_migrated());
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> get_migrated() {
+default Mono<Installation> get_migrated() {
     return RxJava2Adapter.singleToMono(get());
 }
 
@@ -50,10 +51,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> get_migra
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getOrInitialize_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Installation> getOrInitialize() {
+default Single<Installation> getOrInitialize() {
     return RxJava2Adapter.monoToSingle(getOrInitialize_migrated());
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> getOrInitialize_migrated() {
+default Mono<Installation> getOrInitialize_migrated() {
     return RxJava2Adapter.singleToMono(getOrInitialize());
 }
 
@@ -66,10 +67,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> getOrInit
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setAdditionalInformation_migrated(additionalInformation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Installation> setAdditionalInformation(java.util.Map<java.lang.String, java.lang.String> additionalInformation) {
+default Single<Installation> setAdditionalInformation(Map<String, String> additionalInformation) {
     return RxJava2Adapter.monoToSingle(setAdditionalInformation_migrated(additionalInformation));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> setAdditionalInformation_migrated(Map<String, String> additionalInformation) {
+default Mono<Installation> setAdditionalInformation_migrated(Map<String, String> additionalInformation) {
     return RxJava2Adapter.singleToMono(setAdditionalInformation(additionalInformation));
 }
 
@@ -82,10 +83,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> setAdditi
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addAdditionalInformation_migrated(additionalInformation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.Installation> addAdditionalInformation(java.util.Map<java.lang.String, java.lang.String> additionalInformation) {
+default Single<Installation> addAdditionalInformation(Map<String, String> additionalInformation) {
     return RxJava2Adapter.monoToSingle(addAdditionalInformation_migrated(additionalInformation));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> addAdditionalInformation_migrated(Map<String, String> additionalInformation) {
+default Mono<Installation> addAdditionalInformation_migrated(Map<String, String> additionalInformation) {
     return RxJava2Adapter.singleToMono(addAdditionalInformation(additionalInformation));
 }
 
@@ -96,10 +97,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.model.Installation> addAdditi
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable delete() {
+default Completable delete() {
     return RxJava2Adapter.monoToCompletable(delete_migrated());
 }
-default reactor.core.publisher.Mono<java.lang.Void> delete_migrated() {
+default Mono<Void> delete_migrated() {
     return RxJava2Adapter.completableToMono(delete());
 }
 }

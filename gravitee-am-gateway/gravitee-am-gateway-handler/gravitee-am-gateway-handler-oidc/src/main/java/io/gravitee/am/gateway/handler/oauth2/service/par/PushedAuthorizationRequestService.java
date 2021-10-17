@@ -16,13 +16,15 @@
 package io.gravitee.am.gateway.handler.oauth2.service.par;
 
 import com.google.errorprone.annotations.InlineMe;
-
+import com.nimbusds.jwt.JWT;
+import io.gravitee.am.gateway.handler.oauth2.service.par.PushedAuthorizationRequestResponse;
 import io.gravitee.am.gateway.handler.oidc.service.discovery.OpenIDProviderMetadata;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest;
-
-
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -46,10 +48,10 @@ public interface PushedAuthorizationRequestService {
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.readFromURI_migrated(requestUri, client, oidcMetadata))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<com.nimbusds.jwt.JWT> readFromURI(java.lang.String requestUri, io.gravitee.am.model.oidc.Client client, io.gravitee.am.gateway.handler.oidc.service.discovery.OpenIDProviderMetadata oidcMetadata) {
+default Single<JWT> readFromURI(String requestUri, Client client, OpenIDProviderMetadata oidcMetadata) {
     return RxJava2Adapter.monoToSingle(readFromURI_migrated(requestUri, client, oidcMetadata));
 }
-default reactor.core.publisher.Mono<com.nimbusds.jwt.JWT> readFromURI_migrated(String requestUri, Client client, OpenIDProviderMetadata oidcMetadata) {
+default Mono<JWT> readFromURI_migrated(String requestUri, Client client, OpenIDProviderMetadata oidcMetadata) {
     return RxJava2Adapter.singleToMono(readFromURI(requestUri, client, oidcMetadata));
 }
 
@@ -59,10 +61,10 @@ default reactor.core.publisher.Mono<com.nimbusds.jwt.JWT> readFromURI_migrated(S
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.registerParameters_migrated(par, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.gateway.handler.oauth2.service.par.PushedAuthorizationRequestResponse> registerParameters(io.gravitee.am.repository.oauth2.model.PushedAuthorizationRequest par, io.gravitee.am.model.oidc.Client client) {
+default Single<PushedAuthorizationRequestResponse> registerParameters(PushedAuthorizationRequest par, Client client) {
     return RxJava2Adapter.monoToSingle(registerParameters_migrated(par, client));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.oauth2.service.par.PushedAuthorizationRequestResponse> registerParameters_migrated(PushedAuthorizationRequest par, Client client) {
+default Mono<PushedAuthorizationRequestResponse> registerParameters_migrated(PushedAuthorizationRequest par, Client client) {
     return RxJava2Adapter.singleToMono(registerParameters(par, client));
 }
 
@@ -74,10 +76,10 @@ default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.oauth2.servic
      */
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteRequestUri_migrated(uriIdentifier))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable deleteRequestUri(java.lang.String uriIdentifier) {
+default Completable deleteRequestUri(String uriIdentifier) {
     return RxJava2Adapter.monoToCompletable(deleteRequestUri_migrated(uriIdentifier));
 }
-default reactor.core.publisher.Mono<java.lang.Void> deleteRequestUri_migrated(String uriIdentifier) {
+default Mono<Void> deleteRequestUri_migrated(String uriIdentifier) {
     return RxJava2Adapter.completableToMono(deleteRequestUri(uriIdentifier));
 }
 }

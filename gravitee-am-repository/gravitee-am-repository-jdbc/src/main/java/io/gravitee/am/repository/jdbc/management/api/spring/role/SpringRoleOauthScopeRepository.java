@@ -17,12 +17,13 @@ package io.gravitee.am.repository.jdbc.management.api.spring.role;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcRole;
-
-
+import io.gravitee.am.repository.jdbc.management.api.model.JdbcRole.OAuthScope;
+import io.reactivex.Flowable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -32,11 +33,11 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringRoleOauthScopeRepository extends RxJava2CrudRepository<JdbcRole.OAuthScope, String> {
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByRole_migrated(roleId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole.OAuthScope> findAllByRole(@org.springframework.data.repository.query.Param(value = "roleId")
-java.lang.String roleId) {
+default Flowable<OAuthScope> findAllByRole(@Param(value = "roleId")
+String roleId) {
     return RxJava2Adapter.fluxToFlowable(findAllByRole_migrated(roleId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcRole.OAuthScope> findAllByRole_migrated(@Param(value = "roleId")
+default Flux<OAuthScope> findAllByRole_migrated(@Param(value = "roleId")
 String roleId) {
     return RxJava2Adapter.flowableToFlux(findAllByRole(roleId));
 }

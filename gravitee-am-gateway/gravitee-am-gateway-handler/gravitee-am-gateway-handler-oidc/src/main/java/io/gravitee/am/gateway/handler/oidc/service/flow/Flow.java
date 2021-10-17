@@ -17,12 +17,12 @@ package io.gravitee.am.gateway.handler.oidc.service.flow;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
-
-
+import io.gravitee.am.gateway.handler.oauth2.service.response.AuthorizationResponse;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
-
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * OpenID Connect performs authentication to log in the End-User or to determine that the End-User is already logged in.
@@ -47,10 +47,10 @@ public interface Flow {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.run_migrated(authorizationRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.gateway.handler.oauth2.service.response.AuthorizationResponse> run(io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest authorizationRequest, io.gravitee.am.model.oidc.Client client, io.gravitee.am.model.User endUser) {
+default Single<AuthorizationResponse> run(AuthorizationRequest authorizationRequest, Client client, User endUser) {
     return RxJava2Adapter.monoToSingle(run_migrated(authorizationRequest, client, endUser));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.gateway.handler.oauth2.service.response.AuthorizationResponse> run_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
+default Mono<AuthorizationResponse> run_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
     return RxJava2Adapter.singleToMono(run(authorizationRequest, client, endUser));
 }
 }

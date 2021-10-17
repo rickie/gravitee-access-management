@@ -16,13 +16,14 @@
 package io.gravitee.am.service;
 
 import com.google.errorprone.annotations.InlineMe;
-
+import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.model.account.AccountSettings;
 import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
-
-
-
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -32,46 +33,46 @@ public interface LoginAttemptService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.loginSucceeded_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable loginSucceeded(io.gravitee.am.repository.management.api.search.LoginAttemptCriteria criteria) {
+default Completable loginSucceeded(LoginAttemptCriteria criteria) {
     return RxJava2Adapter.monoToCompletable(loginSucceeded_migrated(criteria));
 }
-default reactor.core.publisher.Mono<java.lang.Void> loginSucceeded_migrated(LoginAttemptCriteria criteria) {
+default Mono<Void> loginSucceeded_migrated(LoginAttemptCriteria criteria) {
     return RxJava2Adapter.completableToMono(loginSucceeded(criteria));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.loginFailed_migrated(criteria, accountSettings))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<io.gravitee.am.model.LoginAttempt> loginFailed(io.gravitee.am.repository.management.api.search.LoginAttemptCriteria criteria, io.gravitee.am.model.account.AccountSettings accountSettings) {
+default Single<LoginAttempt> loginFailed(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
     return RxJava2Adapter.monoToSingle(loginFailed_migrated(criteria, accountSettings));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.LoginAttempt> loginFailed_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
+default Mono<LoginAttempt> loginFailed_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
     return RxJava2Adapter.singleToMono(loginFailed(criteria, accountSettings));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.reset_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable reset(io.gravitee.am.repository.management.api.search.LoginAttemptCriteria criteria) {
+default Completable reset(LoginAttemptCriteria criteria) {
     return RxJava2Adapter.monoToCompletable(reset_migrated(criteria));
 }
-default reactor.core.publisher.Mono<java.lang.Void> reset_migrated(LoginAttemptCriteria criteria) {
+default Mono<Void> reset_migrated(LoginAttemptCriteria criteria) {
     return RxJava2Adapter.completableToMono(reset(criteria));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.checkAccount_migrated(criteria, accountSettings))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.LoginAttempt> checkAccount(io.gravitee.am.repository.management.api.search.LoginAttemptCriteria criteria, io.gravitee.am.model.account.AccountSettings accountSettings) {
+default Maybe<LoginAttempt> checkAccount(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
     return RxJava2Adapter.monoToMaybe(checkAccount_migrated(criteria, accountSettings));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.LoginAttempt> checkAccount_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
+default Mono<LoginAttempt> checkAccount_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
     return RxJava2Adapter.maybeToMono(checkAccount(criteria, accountSettings));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.model.LoginAttempt> findById(java.lang.String id) {
+default Maybe<LoginAttempt> findById(String id) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(id));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.model.LoginAttempt> findById_migrated(String id) {
+default Mono<LoginAttempt> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 

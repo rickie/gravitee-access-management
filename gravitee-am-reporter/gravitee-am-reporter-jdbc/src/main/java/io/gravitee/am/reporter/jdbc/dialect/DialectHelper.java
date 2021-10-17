@@ -18,12 +18,12 @@ package io.gravitee.am.reporter.jdbc.dialect;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
-
-
-
-
+import io.reactivex.Single;
+import java.util.List;
+import java.util.Map;
 import org.springframework.data.r2dbc.core.DatabaseClient;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -33,10 +33,10 @@ public interface DialectHelper {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.buildAndProcessHistogram_migrated(dbClient, referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.util.List<java.util.Map<java.lang.String, java.lang.Object>>> buildAndProcessHistogram(org.springframework.data.r2dbc.core.DatabaseClient dbClient, io.gravitee.am.model.ReferenceType referenceType, java.lang.String referenceId, io.gravitee.am.reporter.api.audit.AuditReportableCriteria criteria) {
+default Single<List<Map<String, Object>>> buildAndProcessHistogram(DatabaseClient dbClient, ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
     return RxJava2Adapter.monoToSingle(buildAndProcessHistogram_migrated(dbClient, referenceType, referenceId, criteria));
 }
-default reactor.core.publisher.Mono<java.util.List<java.util.Map<java.lang.String, java.lang.Object>>> buildAndProcessHistogram_migrated(DatabaseClient dbClient, ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
+default Mono<List<Map<String, Object>>> buildAndProcessHistogram_migrated(DatabaseClient dbClient, ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
     return RxJava2Adapter.singleToMono(buildAndProcessHistogram(dbClient, referenceType, referenceId, criteria));
 }
 

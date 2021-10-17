@@ -21,7 +21,7 @@ import io.gravitee.am.common.event.Action;
 import io.gravitee.am.common.event.Type;
 import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.identityprovider.api.User;
-
+import io.gravitee.am.model.Factor;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.model.common.event.Payload;
@@ -47,7 +47,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
 import java.util.Date;
-
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -188,7 +188,7 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
 @Override
     public Mono<Void> delete_migrated(String domain, String resourceId, User principal) {
         LOGGER.debug("Delete resource {}", resourceId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(serviceResourceRepository.findById_migrated(resourceId).switchIfEmpty(Mono.error(new ServiceResourceNotFoundException(resourceId))).flatMap(y->factorService.findByDomain_migrated(domain).filter(RxJavaReactorMigrationUtil.toJdkPredicate((io.gravitee.am.model.Factor factor)->factor.getConfiguration() != null && factor.getConfiguration().contains("\"" + resourceId + "\""))).collectList().flatMap((java.util.List<io.gravitee.am.model.Factor> v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((java.util.List<io.gravitee.am.model.Factor> factors)->{
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(serviceResourceRepository.findById_migrated(resourceId).switchIfEmpty(Mono.error(new ServiceResourceNotFoundException(resourceId))).flatMap(y->factorService.findByDomain_migrated(domain).filter(RxJavaReactorMigrationUtil.toJdkPredicate((Factor factor)->factor.getConfiguration() != null && factor.getConfiguration().contains("\"" + resourceId + "\""))).collectList().flatMap((List<Factor> v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((List<Factor> factors)->{
 if (factors.isEmpty()) {
 return RxJava2Adapter.monoToSingle(Mono.just(y));
 } else {

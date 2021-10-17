@@ -16,11 +16,12 @@
 package io.gravitee.am.management.service;
 
 import com.google.errorprone.annotations.InlineMe;
-
-
-
-
+import io.gravitee.am.service.model.plugin.ReporterPlugin;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -30,28 +31,28 @@ public interface ReporterPluginService {
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.util.List<io.gravitee.am.service.model.plugin.ReporterPlugin>> findAll() {
+default Single<List<ReporterPlugin>> findAll() {
     return RxJava2Adapter.monoToSingle(findAll_migrated());
 }
-default reactor.core.publisher.Mono<java.util.List<io.gravitee.am.service.model.plugin.ReporterPlugin>> findAll_migrated() {
+default Mono<List<ReporterPlugin>> findAll_migrated() {
     return RxJava2Adapter.singleToMono(findAll());
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(reporterId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<io.gravitee.am.service.model.plugin.ReporterPlugin> findById(java.lang.String reporterId) {
+default Maybe<ReporterPlugin> findById(String reporterId) {
     return RxJava2Adapter.monoToMaybe(findById_migrated(reporterId));
 }
-default reactor.core.publisher.Mono<io.gravitee.am.service.model.plugin.ReporterPlugin> findById_migrated(String reporterId) {
+default Mono<ReporterPlugin> findById_migrated(String reporterId) {
     return RxJava2Adapter.maybeToMono(findById(reporterId));
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(reporterId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Maybe<java.lang.String> getSchema(java.lang.String reporterId) {
+default Maybe<String> getSchema(String reporterId) {
     return RxJava2Adapter.monoToMaybe(getSchema_migrated(reporterId));
 }
-default reactor.core.publisher.Mono<java.lang.String> getSchema_migrated(String reporterId) {
+default Mono<String> getSchema_migrated(String reporterId) {
     return RxJava2Adapter.maybeToMono(getSchema(reporterId));
 }
 }

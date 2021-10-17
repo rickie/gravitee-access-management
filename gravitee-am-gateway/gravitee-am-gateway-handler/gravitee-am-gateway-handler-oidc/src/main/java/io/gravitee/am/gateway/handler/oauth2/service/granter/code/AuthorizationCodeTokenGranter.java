@@ -30,7 +30,6 @@ import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.request.TokenRequestResolver;
 import io.gravitee.am.gateway.handler.oauth2.service.token.TokenService;
 import io.gravitee.am.model.AuthenticationFlowContext;
-
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
@@ -39,6 +38,7 @@ import io.gravitee.common.util.MultiValueMap;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,13 +95,13 @@ public class AuthorizationCodeTokenGranter extends AbstractTokenGranter {
             return Mono.error(new InvalidRequestException("Missing parameter: code"));
         }
 
-        return super.parseRequest_migrated(tokenRequest, client).flatMap(tokenRequest1->authorizationCodeService.remove_migrated(code, client).flatMap(z->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticationFlowContextService.removeContext_migrated(z.getTransactionId(), z.getContextVersion())).onErrorResumeNext((java.lang.Throwable error)->(exitOnError) ? RxJava2Adapter.monoToMaybe(Mono.error(error)) : RxJava2Adapter.monoToMaybe(Mono.just(new AuthenticationFlowContext())))).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.model.AuthenticationFlowContext ctx)->{
+        return super.parseRequest_migrated(tokenRequest, client).flatMap(tokenRequest1->authorizationCodeService.remove_migrated(code, client).flatMap(z->RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authenticationFlowContextService.removeContext_migrated(z.getTransactionId(), z.getContextVersion())).onErrorResumeNext((Throwable error)->(exitOnError) ? RxJava2Adapter.monoToMaybe(Mono.error(error)) : RxJava2Adapter.monoToMaybe(Mono.just(new AuthenticationFlowContext())))).map(RxJavaReactorMigrationUtil.toJdkFunction((AuthenticationFlowContext ctx)->{
 checkRedirectUris(tokenRequest1, z);
 checkPKCE(tokenRequest1, z);
 tokenRequest1.setSubject(z.getSubject());
 tokenRequest1.setScopes(z.getScopes());
 if (z.getRequestParameters() != null) {
-z.getRequestParameters().forEach((java.lang.String key, java.util.List<java.lang.String> value)->tokenRequest1.parameters().putIfAbsent(key, value));
+z.getRequestParameters().forEach((String key, List<String> value)->tokenRequest1.parameters().putIfAbsent(key, value));
 }
 Map<String, Object> decodedAuthorizationCode = new HashMap<>();
 decodedAuthorizationCode.put("code", z.getCode());

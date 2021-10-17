@@ -16,13 +16,13 @@
 package io.gravitee.am.repository.management.api;
 
 import com.google.errorprone.annotations.InlineMe;
-
-
-
-
-
-
+import io.gravitee.am.model.Policy;
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * NOTE: only use for the PoliciesToFlowsUpgrader Upgrader
@@ -36,28 +36,28 @@ public interface PolicyRepository {
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.model.Policy> findAll() {
+default Flowable<Policy> findAll() {
     return RxJava2Adapter.fluxToFlowable(findAll_migrated());
 }
-default reactor.core.publisher.Flux<io.gravitee.am.model.Policy> findAll_migrated() {
+default Flux<Policy> findAll_migrated() {
     return RxJava2Adapter.flowableToFlux(findAll());
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.collectionExists_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Single<java.lang.Boolean> collectionExists() {
+default Single<Boolean> collectionExists() {
     return RxJava2Adapter.monoToSingle(collectionExists_migrated());
 }
-default reactor.core.publisher.Mono<java.lang.Boolean> collectionExists_migrated() {
+default Mono<Boolean> collectionExists_migrated() {
     return RxJava2Adapter.singleToMono(collectionExists());
 }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteCollection_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Completable deleteCollection() {
+default Completable deleteCollection() {
     return RxJava2Adapter.monoToCompletable(deleteCollection_migrated());
 }
-default reactor.core.publisher.Mono<java.lang.Void> deleteCollection_migrated() {
+default Mono<Void> deleteCollection_migrated() {
     return RxJava2Adapter.completableToMono(deleteCollection());
 }
 }

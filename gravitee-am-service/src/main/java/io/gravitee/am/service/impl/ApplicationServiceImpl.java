@@ -670,7 +670,7 @@ private Mono<Application> validateApplicationMetadata_migrated(Application appli
         if (application.getSettings().getOauth() == null) {
             return Mono.just(application);
         }
-        return GrantTypeUtils.validateGrantTypes_migrated(application).flatMap(this::validateRedirectUris_migrated).flatMap(this::validateScopes_migrated).flatMap(this::validateTokenEndpointAuthMethod_migrated).flatMap(v->RxJava2Adapter.singleToMono((Single<Application>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Application, Single<Application>>)(io.gravitee.am.model.Application ident) -> RxJava2Adapter.monoToSingle(validateTlsClientAuth_migrated(ident))).apply(v)));
+        return GrantTypeUtils.validateGrantTypes_migrated(application).flatMap(this::validateRedirectUris_migrated).flatMap(this::validateScopes_migrated).flatMap(this::validateTokenEndpointAuthMethod_migrated).flatMap(v->RxJava2Adapter.singleToMono((Single<Application>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Application, Single<Application>>)(Application ident) -> RxJava2Adapter.monoToSingle(validateTlsClientAuth_migrated(ident))).apply(v)));
     }
 
     

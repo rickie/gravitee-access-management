@@ -17,12 +17,13 @@ package io.gravitee.am.repository.jdbc.management.api.spring.entrypoint;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcEntrypoint;
-
-
+import io.gravitee.am.repository.jdbc.management.api.model.JdbcEntrypoint.Tag;
+import io.reactivex.Flowable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)
@@ -32,11 +33,11 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 public interface SpringEntrypointTagRepository extends RxJava2CrudRepository<JdbcEntrypoint.Tag, String> {
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByEntrypoint_migrated(entrypointId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
-default io.reactivex.Flowable<io.gravitee.am.repository.jdbc.management.api.model.JdbcEntrypoint.Tag> findAllByEntrypoint(@org.springframework.data.repository.query.Param(value = "epi")
-java.lang.String entrypointId) {
+default Flowable<Tag> findAllByEntrypoint(@Param(value = "epi")
+String entrypointId) {
     return RxJava2Adapter.fluxToFlowable(findAllByEntrypoint_migrated(entrypointId));
 }
-default reactor.core.publisher.Flux<io.gravitee.am.repository.jdbc.management.api.model.JdbcEntrypoint.Tag> findAllByEntrypoint_migrated(@Param(value = "epi")
+default Flux<Tag> findAllByEntrypoint_migrated(@Param(value = "epi")
 String entrypointId) {
     return RxJava2Adapter.flowableToFlux(findAllByEntrypoint(entrypointId));
 }
