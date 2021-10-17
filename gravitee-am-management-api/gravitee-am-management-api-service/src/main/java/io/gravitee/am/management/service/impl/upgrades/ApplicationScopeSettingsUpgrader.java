@@ -132,7 +132,7 @@ private Mono<SystemTask>  updateSystemTask_migrated(SystemTask task, SystemTaskS
 
     
 private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findAll_migrated())).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Application, Single<Application>>toJdkFunction(app -> {
+        return applicationRepository.findAll_migrated().flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Application, Single<Application>>toJdkFunction(app -> {
                     logger.debug("Process application '{}'", app.getId());
                     if (app.getSettings() != null && app.getSettings().getOauth() != null) {
                         final ApplicationOAuthSettings oauthSettings = app.getSettings().getOauth();

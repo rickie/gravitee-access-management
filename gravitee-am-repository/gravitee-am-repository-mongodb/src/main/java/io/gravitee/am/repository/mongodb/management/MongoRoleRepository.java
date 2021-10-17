@@ -29,7 +29,7 @@ import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.repository.management.api.RoleRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.RoleMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 
 import java.util.*;
 import java.util.regex.Pattern;

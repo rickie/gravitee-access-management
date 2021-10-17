@@ -35,7 +35,7 @@ import io.gravitee.am.repository.mongodb.management.internal.model.scim.AddressM
 import io.gravitee.am.repository.mongodb.management.internal.model.scim.AttributeMongo;
 import io.gravitee.am.repository.mongodb.management.internal.model.scim.CertificateMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;

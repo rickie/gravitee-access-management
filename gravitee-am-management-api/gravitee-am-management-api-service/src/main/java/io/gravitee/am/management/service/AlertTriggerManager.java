@@ -131,7 +131,7 @@ public class AlertTriggerManager extends AbstractService<CertificateManager> {
         alertTriggerCriteria.setAlertNotifierIds(Collections.singletonList(payload.getId()));
 
         RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(payload.getReferenceId()).filter(domain -> domain.isEnabled() && domain.isAlertEnabled()))
-                .flatMapPublisher(domain -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(this.alertTriggerService.findByDomainAndCriteria_migrated(domain.getId(), alertTriggerCriteria))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<AlertTrigger, Single<Trigger>>toJdkFunction(alertTrigger -> RxJava2Adapter.monoToSingle(prepareAETrigger_migrated(domain, alertTrigger))).apply(e))))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Trigger, Single<Trigger>>toJdkFunction((Trigger ident) -> RxJava2Adapter.monoToSingle(registerAETrigger_migrated(ident))).apply(e)))))
+                .flatMapPublisher(domain -> RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(this.alertTriggerService.findByDomainAndCriteria_migrated(domain.getId(), alertTriggerCriteria))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<AlertTrigger, Single<Trigger>>toJdkFunction(alertTrigger -> RxJava2Adapter.monoToSingle(prepareAETrigger_migrated(domain, alertTrigger))).apply(e))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Trigger, Single<Trigger>>toJdkFunction((Trigger ident) -> RxJava2Adapter.monoToSingle(registerAETrigger_migrated(ident))).apply(e)))))
                 .count()).subscribe(count -> LOGGER.info("{} alert triggers synchronized with the alerting system for domain [{}] after the update of alert notifier [{}].", count, payload.getReferenceId(), payload.getId()), throwable -> LOGGER.error("An error occurred when trying to synchronize alert triggers with alerting system for domain [{}] after the alert notifier {} event [{}].", payload.getReferenceId(), event.type().name().toLowerCase(), payload.getId(), throwable));
     }
 
@@ -146,7 +146,7 @@ private Mono<Trigger> registerAETrigger_migrated(Trigger trigger) {
 
     
 private Flux<Trigger> prepareAETriggers_migrated(Domain domain) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(alertTriggerService.findByDomainAndCriteria_migrated(domain.getId(), new AlertTriggerCriteria()))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<AlertTrigger, Single<Trigger>>toJdkFunction(alertTrigger -> RxJava2Adapter.monoToSingle(this.prepareAETrigger_migrated(domain, alertTrigger))).apply(e)));
+        return alertTriggerService.findByDomainAndCriteria_migrated(domain.getId(), new AlertTriggerCriteria()).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<AlertTrigger, Single<Trigger>>toJdkFunction(alertTrigger -> RxJava2Adapter.monoToSingle(this.prepareAETrigger_migrated(domain, alertTrigger))).apply(e)));
     }
 
     

@@ -25,7 +25,7 @@ import io.gravitee.am.model.Entrypoint;
 import io.gravitee.am.repository.management.api.EntrypointRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.EntrypointMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;

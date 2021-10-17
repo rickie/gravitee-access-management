@@ -27,7 +27,7 @@ import io.gravitee.am.gateway.handler.oidc.service.flow.implicit.ImplicitFlow;
 import io.gravitee.am.gateway.handler.oidc.service.idtoken.IDTokenService;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import java.util.ArrayList;

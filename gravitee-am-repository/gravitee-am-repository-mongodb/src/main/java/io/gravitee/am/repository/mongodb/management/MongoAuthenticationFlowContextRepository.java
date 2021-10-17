@@ -25,7 +25,7 @@ import io.gravitee.am.model.AuthenticationFlowContext;
 import io.gravitee.am.repository.management.api.AuthenticationFlowContextRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.AuthenticationFlowContextMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;

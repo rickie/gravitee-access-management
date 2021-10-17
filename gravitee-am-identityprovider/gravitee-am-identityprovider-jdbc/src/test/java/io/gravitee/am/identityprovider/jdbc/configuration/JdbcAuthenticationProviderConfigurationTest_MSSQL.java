@@ -18,7 +18,7 @@ package io.gravitee.am.identityprovider.jdbc.configuration;
 import io.r2dbc.spi.Connection;
 
 import org.springframework.context.annotation.Configuration;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

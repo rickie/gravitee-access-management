@@ -21,7 +21,7 @@ import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.repository.mongodb.management.internal.model.MonitoringMongo;
 import io.gravitee.node.api.Monitoring;
 import io.gravitee.node.api.NodeMonitoringRepository;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 

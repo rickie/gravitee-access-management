@@ -26,7 +26,7 @@ import io.gravitee.am.model.resource.ServiceResource;
 import io.gravitee.am.repository.management.api.ServiceResourceRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.ServiceResourceMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;

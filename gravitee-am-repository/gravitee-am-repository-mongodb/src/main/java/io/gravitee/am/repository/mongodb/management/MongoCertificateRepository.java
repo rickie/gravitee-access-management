@@ -24,7 +24,7 @@ import io.gravitee.am.model.Certificate;
 import io.gravitee.am.repository.management.api.CertificateRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.CertificateMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;

@@ -44,7 +44,7 @@ import io.gravitee.am.repository.mongodb.management.internal.model.oidc.OIDCSett
 import io.gravitee.am.repository.mongodb.management.internal.model.oidc.SecurityProfileSettingsMongo;
 import io.gravitee.am.repository.mongodb.management.internal.model.uma.UMASettingsMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Single;
 import java.util.Collection;
 import java.util.regex.Pattern;

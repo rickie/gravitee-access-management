@@ -34,7 +34,7 @@ import io.gravitee.am.repository.mongodb.management.internal.model.UserMongo;
 import io.gravitee.am.repository.mongodb.management.internal.model.scim.AddressMongo;
 import io.gravitee.am.repository.mongodb.management.internal.model.scim.AttributeMongo;
 import io.gravitee.am.repository.mongodb.management.internal.model.scim.CertificateMongo;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 

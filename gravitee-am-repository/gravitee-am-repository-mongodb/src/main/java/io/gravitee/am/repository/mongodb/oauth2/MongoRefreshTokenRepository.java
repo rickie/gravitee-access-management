@@ -27,7 +27,7 @@ import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.repository.mongodb.oauth2.internal.model.RefreshTokenMongo;
 import io.gravitee.am.repository.oauth2.api.RefreshTokenRepository;
 import io.gravitee.am.repository.oauth2.model.RefreshToken;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 

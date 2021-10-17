@@ -26,7 +26,7 @@ import io.gravitee.am.repository.oauth2.api.AuthorizationCodeRepository;
 import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
 import io.gravitee.common.util.LinkedMultiValueMap;
 import io.gravitee.common.util.MultiValueMap;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Maybe;
 
 import io.reactivex.Single;

@@ -24,7 +24,7 @@ import io.gravitee.am.model.Factor;
 import io.gravitee.am.repository.management.api.FactorRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.FactorMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;

@@ -50,7 +50,7 @@ import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.utils.GrantTypeUtils;
 import io.gravitee.am.service.utils.ResponseTypeUtils;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
