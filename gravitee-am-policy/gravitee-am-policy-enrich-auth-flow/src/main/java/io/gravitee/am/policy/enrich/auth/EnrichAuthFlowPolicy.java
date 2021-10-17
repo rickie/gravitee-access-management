@@ -71,7 +71,7 @@ public class EnrichAuthFlowPolicy {
 
             } else {
 
-                enrichAuthFlowContext_migrated(context).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(success -> policyChain.doNext(request, response)), RxJavaReactorMigrationUtil.toJdkConsumer(error -> policyChain.failWith(PolicyResult.failure(GATEWAY_POLICY_ENRICH_AUTH_FLOW_ERROR_KEY, error.getMessage()))));
+                enrichAuthFlowContext_migrated(context).subscribe(success -> policyChain.doNext(request, response), error -> policyChain.failWith(PolicyResult.failure(GATEWAY_POLICY_ENRICH_AUTH_FLOW_ERROR_KEY, error.getMessage())));
             }
         } else {
 

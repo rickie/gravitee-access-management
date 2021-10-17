@@ -26,6 +26,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -41,9 +43,9 @@ public class MongoAuthenticationProviderTestConfiguration implements Initializin
     public void afterPropertiesSet() throws Exception {
         MongoCollection<Document> collection = mongoDatabase.getCollection("users");
         Document doc = new Document("username", "bob").append("password", "bobspassword");
-        Observable.fromPublisher(collection.insertOne(doc)).blockingFirst();
+        RxJava2Adapter.fluxToObservable(Flux.from(collection.insertOne(doc))).blockingFirst();
         Document doc2 = new Document("username", "user01").append("email", "user01@acme.com").append("password", "user01");
-        Observable.fromPublisher(collection.insertOne(doc2)).blockingFirst();
+        RxJava2Adapter.fluxToObservable(Flux.from(collection.insertOne(doc2))).blockingFirst();
     }
 
     @Bean

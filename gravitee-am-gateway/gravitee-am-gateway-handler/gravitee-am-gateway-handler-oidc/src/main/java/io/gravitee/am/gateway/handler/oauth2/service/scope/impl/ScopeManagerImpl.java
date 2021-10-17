@@ -64,7 +64,7 @@ public class ScopeManagerImpl extends AbstractService implements ScopeManager, I
         scopeService.findByDomain_migrated(domain.getId(), 0, Integer.MAX_VALUE).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scopes -> {
                             updateScopes(scopes);
                             logger.info("Scopes loaded for domain {}", domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize scopes for domain {}", domain.getName(), error)));
+                        }), error -> logger.error("Unable to initialize scopes for domain {}", domain.getName(), error));
 
         logger.info("Register event listener for scopes events for domain {}", domain.getName());
         eventManager.subscribeForEvents(this, ScopeEvent.class, domain.getId());
@@ -128,7 +128,7 @@ public class ScopeManagerImpl extends AbstractService implements ScopeManager, I
         scopeService.findById_migrated(scopeId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scope -> {
                             updateScopes(Collections.singleton(scope));
                             logger.info("Scope {} {}d for domain {}", scopeId, eventType, domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} scope for domain {}", eventType, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No scope found with id {}", scopeId)));
+                        }), error -> logger.error("Unable to {} scope for domain {}", eventType, domain.getName(), error), () -> logger.error("No scope found with id {}", scopeId));
     }
 
     private void removeScope(String scopeId) {

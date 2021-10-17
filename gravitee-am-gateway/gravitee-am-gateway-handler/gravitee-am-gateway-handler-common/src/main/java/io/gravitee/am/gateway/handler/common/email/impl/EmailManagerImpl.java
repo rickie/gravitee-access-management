@@ -76,7 +76,7 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing emails for domain {}", domain.getName());
-        emailRepository.findAll_migrated(ReferenceType.DOMAIN, domain.getId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::updateEmail), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize emails for domain {}", domain.getName(), error)));
+        emailRepository.findAll_migrated(ReferenceType.DOMAIN, domain.getId()).subscribe(this::updateEmail, error -> logger.error("Unable to initialize emails for domain {}", domain.getName(), error));
     }
 
     @Override
@@ -150,7 +150,7 @@ public class EmailManagerImpl extends AbstractService implements EmailManager, I
                                 updateEmail(email);
                             }
                             logger.info("Email {} {}d for domain {}", emailId, eventType, domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} email for domain {}", eventType, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No email found with id {}", emailId)));
+                        }), error -> logger.error("Unable to {} email for domain {}", eventType, domain.getName(), error), () -> logger.error("No email found with id {}", emailId));
     }
 
     private void removeEmail(String emailId) {

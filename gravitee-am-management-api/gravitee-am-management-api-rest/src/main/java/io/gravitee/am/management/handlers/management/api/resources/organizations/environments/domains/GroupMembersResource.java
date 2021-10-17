@@ -29,7 +29,6 @@ import io.gravitee.am.service.GroupService;
 import io.gravitee.am.service.IdentityProviderService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.common.http.MediaType;
-
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
@@ -42,9 +41,9 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -92,7 +91,7 @@ public class GroupMembersResource extends AbstractResource {
                             if (pagedMembers.getData() == null) {
                                 return RxJava2Adapter.monoToSingle(Mono.just(pagedMembers));
                             }
-                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(pagedMembers.getData())
+                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(pagedMembers.getData()))
                                     .flatMapSingle(member -> {
                                         if (member.getSource() != null) {
                                             return RxJava2Adapter.monoToSingle(identityProviderService.findById_migrated(member.getSource()).map(RxJavaReactorMigrationUtil.toJdkFunction(idP -> {

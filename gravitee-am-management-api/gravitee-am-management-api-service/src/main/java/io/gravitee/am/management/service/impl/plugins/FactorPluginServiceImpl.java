@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -53,7 +54,7 @@ public class FactorPluginServiceImpl implements FactorPluginService {
 @Override
     public Mono<List<FactorPlugin>> findAll_migrated() {
         LOGGER.debug("List all factor plugins");
-        return RxJava2Adapter.singleToMono(Observable.fromIterable(factorPluginManager.getAll())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(factorPluginManager.getAll()))
                 .map(this::convert)
                 .toList());
     }

@@ -47,7 +47,7 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .putHeader(HttpHeaders.LOCATION, group.getMeta().getLocation())
-                                .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail), RxJavaReactorMigrationUtil.toRunnable(() -> context.fail(new GroupNotFoundException(groupId))));
+                                .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group))), context::fail, () -> context.fail(new GroupNotFoundException(groupId)));
     }
 
     /**
@@ -112,7 +112,7 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(HttpHeaders.LOCATION, group1.getMeta().getLocation())
-                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group1))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group1))), context::fail);
         } catch (DecodeException ex) {
             context.fail(new InvalidSyntaxException("Unable to parse body message", ex));
         }
@@ -171,7 +171,7 @@ public class GroupEndpoint extends AbstractGroupEndpoint {
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(HttpHeaders.LOCATION, group1.getMeta().getLocation())
-                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group1))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(group1))), context::fail);
         } catch (DecodeException ex) {
             context.fail(new InvalidSyntaxException("Unable to parse body message", ex));
         }

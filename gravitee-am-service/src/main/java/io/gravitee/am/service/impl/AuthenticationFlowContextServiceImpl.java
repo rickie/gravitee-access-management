@@ -79,13 +79,13 @@ public class AuthenticationFlowContextServiceImpl implements AuthenticationFlowC
 }
 @Override
     public Mono<AuthenticationFlowContext> loadContext_migrated(final String transactionId, final int expectedVersion) {
-        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authContextRepository.findLastByTransactionId_migrated(transactionId).switchIfEmpty(Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
+        return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(authContextRepository.findLastByTransactionId_migrated(transactionId).switchIfEmpty(Mono.fromSupplier(() -> {
             AuthenticationFlowContext context = new AuthenticationFlowContext();
             context.setTransactionId(transactionId);
             context.setVersion(0);
             context.setCreatedAt(new Date());
             return context;
-        }))).map(RxJavaReactorMigrationUtil.toJdkFunction(context -> {
+        })).map(RxJavaReactorMigrationUtil.toJdkFunction(context -> {
             if (context.getVersion() > 0 && context.getVersion() < expectedVersion) {
                 LOGGER.debug("Authentication Flow Context read with version '{}' but '{}' was expected", context.getVersion(), expectedVersion);
                 throw new AuthenticationFlowConsistencyException();

@@ -46,11 +46,11 @@ public class DynamicClientRegistrationTemplateEndpoint implements Handler<Routin
     public void handle(RoutingContext context) {
         LOGGER.debug("Dynamic client registration TEMPLATE endpoint");
 
-        this.clientSyncService.findTemplates_migrated().subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(templates -> context.response()
+        this.clientSyncService.findTemplates_migrated().subscribe(templates -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(DynamicClientRegistrationTemplate.from(templates)))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                .end(Json.encodePrettily(DynamicClientRegistrationTemplate.from(templates))), context::fail);
     }
 }

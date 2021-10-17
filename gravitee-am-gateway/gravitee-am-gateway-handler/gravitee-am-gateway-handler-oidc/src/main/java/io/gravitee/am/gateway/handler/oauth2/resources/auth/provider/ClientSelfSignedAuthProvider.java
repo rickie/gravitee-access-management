@@ -78,7 +78,7 @@ public class ClientSelfSignedAuthProvider implements ClientAuthProvider {
                                 } else {
                                     handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: invalid self-signed certificate")));
                                 }
-                            }), RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: invalid self-signed certificate")))), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: missing or unsupported JWK Set")))));
+                            }), throwable -> handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: invalid self-signed certificate"))), () -> handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: missing or unsupported JWK Set"))));
         } catch (Exception ex) {
             handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: missing or unsupported self-signed certificate")));
         }

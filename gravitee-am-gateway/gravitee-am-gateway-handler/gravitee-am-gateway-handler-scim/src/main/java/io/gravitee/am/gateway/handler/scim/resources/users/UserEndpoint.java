@@ -48,7 +48,7 @@ public class UserEndpoint extends AbstractUserEndpoint {
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .putHeader(HttpHeaders.LOCATION, user.getMeta().getLocation())
-                                .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail), RxJavaReactorMigrationUtil.toRunnable(() -> context.fail(new UserNotFoundException(userId))));
+                                .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user))), context::fail, () -> context.fail(new UserNotFoundException(userId)));
     }
 
     /**
@@ -114,7 +114,7 @@ public class UserEndpoint extends AbstractUserEndpoint {
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(HttpHeaders.LOCATION, user1.getMeta().getLocation())
-                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user1))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user1))), context::fail);
         } catch (DecodeException ex) {
             context.fail(new InvalidSyntaxException("Unable to parse body message", ex));
         }
@@ -173,7 +173,7 @@ public class UserEndpoint extends AbstractUserEndpoint {
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(HttpHeaders.LOCATION, user1.getMeta().getLocation())
-                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user1))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user1))), context::fail);
         } catch (DecodeException ex) {
             context.fail(new InvalidSyntaxException("Unable to parse body message", ex));
         }

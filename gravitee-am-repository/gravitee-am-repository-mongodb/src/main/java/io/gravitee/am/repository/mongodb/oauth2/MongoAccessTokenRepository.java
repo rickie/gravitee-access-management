@@ -69,8 +69,7 @@ public class MongoAccessTokenRepository extends AbstractOAuth2MongoRepository im
 
     
 private Mono<AccessToken> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(accessTokenCollection.find(eq(FIELD_ID, id)).limit(1).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(accessTokenCollection.find(eq(FIELD_ID, id)).limit(1).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -81,8 +80,7 @@ private Mono<AccessToken> findById_migrated(String id) {
 }
 @Override
     public Mono<AccessToken> findByToken_migrated(String token) {
-        return RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(accessTokenCollection.find(eq(FIELD_TOKEN, token)).limit(1).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(accessTokenCollection.find(eq(FIELD_TOKEN, token)).limit(1).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(accessToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -93,8 +91,7 @@ private Mono<AccessToken> findById_migrated(String id) {
 }
 @Override
     public Mono<AccessToken> create_migrated(AccessToken accessToken) {
-        return RxJava2Adapter.singleToMono(Single
-                .fromPublisher(accessTokenCollection.insertOne(convert(accessToken)))).flatMap(success->findById_migrated(accessToken.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(accessTokenCollection.insertOne(convert(accessToken))))).flatMap(success->findById_migrated(accessToken.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(accessTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -127,8 +124,7 @@ private Mono<AccessToken> findById_migrated(String id) {
 }
 @Override
     public Flux<AccessToken> findByClientIdAndSubject_migrated(String clientId, String subject) {
-        return RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(accessTokenCollection.find(and(eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, subject))))
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(accessTokenCollection.find(and(eq(FIELD_CLIENT, clientId), eq(FIELD_SUBJECT, subject)))))
                 .map(this::convert), BackpressureStrategy.BUFFER);
     }
 
@@ -140,8 +136,7 @@ private Mono<AccessToken> findById_migrated(String id) {
 }
 @Override
     public Flux<AccessToken> findByClientId_migrated(String clientId) {
-        return RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(accessTokenCollection.find(eq(FIELD_CLIENT, clientId)))
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(accessTokenCollection.find(eq(FIELD_CLIENT, clientId))))
                 .map(this::convert), BackpressureStrategy.BUFFER);
     }
 
@@ -153,8 +148,7 @@ private Mono<AccessToken> findById_migrated(String id) {
 }
 @Override
     public Flux<AccessToken> findByAuthorizationCode_migrated(String authorizationCode) {
-        return RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(accessTokenCollection.find(eq(FIELD_AUTHORIZATION_CODE, authorizationCode)))
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(accessTokenCollection.find(eq(FIELD_AUTHORIZATION_CODE, authorizationCode))))
                 .map(this::convert), BackpressureStrategy.BUFFER);
     }
 
@@ -166,7 +160,7 @@ private Mono<AccessToken> findById_migrated(String id) {
 }
 @Override
     public Mono<Long> countByClientId_migrated(String clientId) {
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(accessTokenCollection.countDocuments(eq(FIELD_CLIENT, clientId))));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(accessTokenCollection.countDocuments(eq(FIELD_CLIENT, clientId)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

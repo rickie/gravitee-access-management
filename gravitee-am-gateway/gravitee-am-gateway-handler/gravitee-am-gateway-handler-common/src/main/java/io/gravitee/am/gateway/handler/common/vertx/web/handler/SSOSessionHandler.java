@@ -78,7 +78,7 @@ public class SSOSessionHandler implements Handler<RoutingContext> {
                     // user has been disabled, invalidate session
 
                     // clear AuthenticationFlowContext. data of this context have a TTL so we can fire and forget in case on error.
-                    authenticationFlowContextService.clearContext_migrated(context.session().get(ConstantKeys.TRANSACTION_ID_KEY)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.info("Deletion of some authentication flow data fails '{}'", error.getMessage()))).as(RxJava2Adapter::monoToCompletable)
+                    authenticationFlowContextService.clearContext_migrated(context.session().get(ConstantKeys.TRANSACTION_ID_KEY)).doOnError((error) -> LOGGER.info("Deletion of some authentication flow data fails '{}'", error.getMessage())).as(RxJava2Adapter::monoToCompletable)
                             .subscribe();
 
                     context.clearUser();
@@ -176,7 +176,7 @@ public class SSOSessionHandler implements Handler<RoutingContext> {
 
             // throw error
             throw new InvalidRequestException("User is not on a shared identity provider");
-        })).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(__ -> handler.handle(Future.succeededFuture())), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+        })).subscribe(__ -> handler.handle(Future.succeededFuture()), error -> handler.handle(Future.failedFuture(error)));
 
     }
 

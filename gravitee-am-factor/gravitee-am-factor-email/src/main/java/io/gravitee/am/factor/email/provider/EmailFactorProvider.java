@@ -105,7 +105,7 @@ public class EmailFactorProvider implements FactorProvider {
 }
 @Override
     public Mono<Enrollment> enroll_migrated(String account) {
-        return Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> new Enrollment(SharedSecret.generate())));
+        return Mono.fromSupplier(() -> new Enrollment(SharedSecret.generate()));
     }
 
     @Override
@@ -208,11 +208,11 @@ private Mono<Void> generateCodeAndSendEmail_migrated(FactorContext context, Emai
 }
 @Override
     public Mono<EnrolledFactor> changeVariableFactorSecurity_migrated(EnrolledFactor factor) {
-        return Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
+        return Mono.fromSupplier(() -> {
             int counter = factor.getSecurity().getData(FactorDataKeys.KEY_MOVING_FACTOR, Integer.class);
             factor.getSecurity().putData(FactorDataKeys.KEY_MOVING_FACTOR, counter + 1);
             factor.getSecurity().removeData(FactorDataKeys.KEY_EXPIRE_AT);
             return factor;
-        }));
+        });
     }
 }

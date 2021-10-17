@@ -43,7 +43,7 @@ public class AccountWebAuthnCredentialsEndpointHandler {
      */
     public void listEnrolledWebAuthnCredentials(RoutingContext routingContext) {
         final User user = routingContext.get(ConstantKeys.USER_CONTEXT_KEY);
-        accountService.getWebAuthnCredentials_migrated(user).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(enrolledCredentials -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledCredentials)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
+        accountService.getWebAuthnCredentials_migrated(user).subscribe(enrolledCredentials -> AccountResponseHandler.handleDefaultResponse(routingContext, enrolledCredentials), routingContext::fail);
     }
 
     /**
@@ -54,6 +54,6 @@ public class AccountWebAuthnCredentialsEndpointHandler {
     public void getEnrolledWebAuthnCredential(RoutingContext routingContext) {
         final String credentialId = routingContext.request().getParam("credentialId");
 
-        accountService.getWebAuthnCredential_migrated(credentialId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(credential -> AccountResponseHandler.handleDefaultResponse(routingContext, credential)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
+        accountService.getWebAuthnCredential_migrated(credentialId).subscribe(credential -> AccountResponseHandler.handleDefaultResponse(routingContext, credential), routingContext::fail);
     }
 }

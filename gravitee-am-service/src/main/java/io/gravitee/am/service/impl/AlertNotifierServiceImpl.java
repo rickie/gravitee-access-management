@@ -87,7 +87,7 @@ public class AlertNotifierServiceImpl implements AlertNotifierService {
     public Mono<AlertNotifier> getById_migrated(ReferenceType referenceType, String referenceId, String notifierId) {
         LOGGER.debug("Find alert notifier by id {}", notifierId);
 
-        return this.alertNotifierRepository.findById_migrated(notifierId).filter(RxJavaReactorMigrationUtil.toJdkPredicate(alertNotifier -> alertNotifier.getReferenceType() == referenceType && alertNotifier.getReferenceId().equals(referenceId))).switchIfEmpty(Mono.error(new AlertNotifierNotFoundException(notifierId)));
+        return this.alertNotifierRepository.findById_migrated(notifierId).filter(alertNotifier -> alertNotifier.getReferenceType() == referenceType && alertNotifier.getReferenceId().equals(referenceId)).switchIfEmpty(Mono.error(new AlertNotifierNotFoundException(notifierId)));
     }
 
     /**
@@ -213,7 +213,7 @@ private Mono<AlertNotifier> createInternal_migrated(AlertNotifier toCreate, User
         toCreate.setCreatedAt(now);
         toCreate.setUpdatedAt(now);
 
-        return alertNotifierRepository.create_migrated(toCreate).flatMap(updated->eventService.create_migrated(new Event(Type.ALERT_NOTIFIER, new Payload(updated.getId(), updated.getReferenceType(), updated.getReferenceId(), Action.CREATE))).then().then(Mono.just(updated))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(alertTrigger -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_CREATED).alertNotifier(alertTrigger).principal(byUser)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_CREATED).alertNotifier(toCreate).principal(byUser).throwable(throwable))));
+        return alertNotifierRepository.create_migrated(toCreate).flatMap(updated->eventService.create_migrated(new Event(Type.ALERT_NOTIFIER, new Payload(updated.getId(), updated.getReferenceType(), updated.getReferenceId(), Action.CREATE))).then().then(Mono.just(updated))).doOnSuccess(alertTrigger -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_CREATED).alertNotifier(alertTrigger).principal(byUser))).doOnError(throwable -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_CREATED).alertNotifier(toCreate).principal(byUser).throwable(throwable)));
     }
 
     
@@ -221,12 +221,12 @@ private Mono<AlertNotifier> updateInternal_migrated(AlertNotifier alertNotifier,
 
         alertNotifier.setUpdatedAt(new Date());
 
-        return alertNotifierRepository.update_migrated(alertNotifier).flatMap(updated->eventService.create_migrated(new Event(Type.ALERT_NOTIFIER, new Payload(updated.getId(), updated.getReferenceType(), updated.getReferenceId(), Action.UPDATE))).then().then(Mono.just(updated))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(updated -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_UPDATED).alertNotifier(updated).principal(updatedBy).oldValue(previous)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_UPDATED).alertNotifier(previous).principal(updatedBy).throwable(throwable))));
+        return alertNotifierRepository.update_migrated(alertNotifier).flatMap(updated->eventService.create_migrated(new Event(Type.ALERT_NOTIFIER, new Payload(updated.getId(), updated.getReferenceType(), updated.getReferenceId(), Action.UPDATE))).then().then(Mono.just(updated))).doOnSuccess(updated -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_UPDATED).alertNotifier(updated).principal(updatedBy).oldValue(previous))).doOnError(throwable -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_UPDATED).alertNotifier(previous).principal(updatedBy).throwable(throwable)));
     }
 
     
 private Mono<Void> deleteInternal_migrated(AlertNotifier alertNotifier, User deletedBy) {
         return RxJava2Adapter.monoToCompletable(alertNotifierRepository.delete_migrated(alertNotifier.getId()).then(eventService.create_migrated(new Event(Type.ALERT_NOTIFIER, new Payload(alertNotifier.getId(), alertNotifier.getReferenceType(), alertNotifier.getReferenceId(), Action.DELETE))).then()))
-                .doOnComplete(() -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_DELETED).alertNotifier(alertNotifier).principal(deletedBy))).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_DELETED).alertNotifier(alertNotifier).principal(deletedBy).throwable(throwable))));
+                .doOnComplete(() -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_DELETED).alertNotifier(alertNotifier).principal(deletedBy))).as(RxJava2Adapter::completableToMono).doOnError(throwable -> auditService.report(AuditBuilder.builder(AlertNotifierAuditBuilder.class).type(EventType.ALERT_NOTIFIER_DELETED).alertNotifier(alertNotifier).principal(deletedBy).throwable(throwable)));
     }
 }

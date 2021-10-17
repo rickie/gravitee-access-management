@@ -74,9 +74,8 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository implements
     public Flux<Environment> findAll_migrated() {
         LOGGER.debug("findAll()");
 
-        final Flowable<Environment> result = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(environmentRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEnvironment)))
-                .flatMapSingle((Environment ident) -> RxJava2Adapter.monoToSingle(retrieveDomainRestrictions_migrated(ident)))
-                .flatMapSingle((Environment ident) -> RxJava2Adapter.monoToSingle(retrieveHrids_migrated(ident)));
+        final Flowable<Environment> result = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(environmentRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEnvironment)))
+                .flatMapSingle((Environment ident) -> RxJava2Adapter.monoToSingle(retrieveDomainRestrictions_migrated(ident)))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Environment, Single<Environment>>toJdkFunction((Environment ident) -> RxJava2Adapter.monoToSingle(retrieveHrids_migrated(ident))).apply(e))));
 
         return RxJava2Adapter.flowableToFlux(result.doOnError((error) -> LOGGER.error("unable to retrieve all environments", error)));
     }
@@ -91,9 +90,8 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository implements
     public Flux<Environment> findAll_migrated(String organizationId) {
         LOGGER.debug("findAll({})", organizationId);
 
-        final Flowable<Environment> result = RxJava2Adapter.fluxToFlowable(environmentRepository.findByOrganization_migrated(organizationId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEnvironment)))
-                .flatMapSingle((Environment ident) -> RxJava2Adapter.monoToSingle(retrieveDomainRestrictions_migrated(ident)))
-                .flatMapSingle((Environment ident) -> RxJava2Adapter.monoToSingle(retrieveHrids_migrated(ident)));
+        final Flowable<Environment> result = RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(environmentRepository.findByOrganization_migrated(organizationId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEnvironment)))
+                .flatMapSingle((Environment ident) -> RxJava2Adapter.monoToSingle(retrieveDomainRestrictions_migrated(ident)))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Environment, Single<Environment>>toJdkFunction((Environment ident) -> RxJava2Adapter.monoToSingle(retrieveHrids_migrated(ident))).apply(e))));
 
         return RxJava2Adapter.flowableToFlux(result.doOnError((error) -> LOGGER.error("unable to retrieve Environments with organizationId {}", organizationId, error)));
     }
@@ -135,7 +133,7 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository implements
 
         Maybe<Environment> result = RxJava2Adapter.monoToMaybe(RxJava2Adapter.maybeToMono(environmentRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEnvironment)).flatMap(this::retrieveDomainRestrictions_migrated).flatMap(this::retrieveHrids_migrated));
 
-        return RxJava2Adapter.maybeToMono(result).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to retrieve Environment with id {}", id, error)));
+        return RxJava2Adapter.maybeToMono(result).doOnError((error) -> LOGGER.error("unable to retrieve Environment with id {}", id, error));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(environment))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -211,12 +209,12 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository implements
 
     
 private Mono<Environment> retrieveDomainRestrictions_migrated(Environment environment) {
-        return domainRestrictionRepository.findAllByEnvironmentId_migrated(environment.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcEnvironment.DomainRestriction::getDomainRestriction)).collectList().doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(domainRestrictions -> LOGGER.debug("findById({}) fetch {} domainRestrictions", environment.getId(), domainRestrictions.size()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment::setDomainRestrictions)).map(RxJavaReactorMigrationUtil.toJdkFunction(domainRestriction -> environment));
+        return domainRestrictionRepository.findAllByEnvironmentId_migrated(environment.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcEnvironment.DomainRestriction::getDomainRestriction)).collectList().doOnSuccess(domainRestrictions -> LOGGER.debug("findById({}) fetch {} domainRestrictions", environment.getId(), domainRestrictions.size())).doOnSuccess(environment::setDomainRestrictions).map(RxJavaReactorMigrationUtil.toJdkFunction(domainRestriction -> environment));
     }
 
     
 private Mono<Environment> retrieveHrids_migrated(Environment environment) {
-        return hridsRepository.findAllByEnvironmentId_migrated(environment.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcEnvironment.Hrid::getHrid)).collectList().doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(hrids -> LOGGER.debug("findById({}) fetch {} hrids", environment.getId(), hrids.size()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(environment::setHrids)).map(RxJavaReactorMigrationUtil.toJdkFunction(hrids -> environment));
+        return hridsRepository.findAllByEnvironmentId_migrated(environment.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(JdbcEnvironment.Hrid::getHrid)).collectList().doOnSuccess(hrids -> LOGGER.debug("findById({}) fetch {} hrids", environment.getId(), hrids.size())).doOnSuccess(environment::setHrids).map(RxJavaReactorMigrationUtil.toJdkFunction(hrids -> environment));
     }
 
     private Mono<Void> storeDomainRestrictions(Environment environment, boolean deleteFirst) {

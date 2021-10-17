@@ -119,7 +119,7 @@ if (ex instanceof UserNotFoundException) {
 return RxJava2Adapter.monoToSingle(getUserService().update_migrated(referenceType, referenceId, id, updateUser).map(RxJavaReactorMigrationUtil.toJdkFunction(this::setInternalStatus)));
 }
 return RxJava2Adapter.monoToSingle(Mono.error(ex));
-}).apply(err))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer((io.gravitee.am.model.User user1)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).oldValue(user).user(user1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((Throwable throwable)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable))))));
+}).apply(err))).doOnSuccess((io.gravitee.am.model.User user1)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).oldValue(user).user(user1))).doOnError((Throwable throwable)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateStatus_migrated(referenceType, referenceId, id, status, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -133,7 +133,7 @@ return RxJava2Adapter.monoToSingle(Mono.error(ex));
         return getUserService().findById_migrated(referenceType, referenceId, id).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user -> {
                     user.setEnabled(status);
                     return RxJava2Adapter.monoToSingle(getUserService().update_migrated(user));
-                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).user(user1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).throwable(throwable))));
+                }).apply(v)))).doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).user(user1))).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type((status ? EventType.USER_ENABLED : EventType.USER_DISABLED)).throwable(throwable)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(referenceType, referenceId, userId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -157,7 +157,7 @@ return RxJava2Adapter.monoToCompletable(Mono.empty());
 }
 return RxJava2Adapter.monoToCompletable(Mono.error(ex));
 });
-}).apply(y)))).then(getUserService().delete_migrated(userId)).then(RxJava2Adapter.completableToMono(Completable.wrap((ReferenceType.ORGANIZATION != referenceType) ? RxJava2Adapter.monoToCompletable(Mono.empty()) : RxJava2Adapter.monoToCompletable(membershipService.findByMember_migrated(userId, MemberType.USER).flatMap(v->membershipService.delete_migrated(v.getId())).then()))))).doOnComplete(()->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).user(user)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((Throwable throwable)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).throwable(throwable))))).then();
+}).apply(y)))).then(getUserService().delete_migrated(userId)).then(RxJava2Adapter.completableToMono(Completable.wrap((ReferenceType.ORGANIZATION != referenceType) ? RxJava2Adapter.monoToCompletable(Mono.empty()) : RxJava2Adapter.monoToCompletable(membershipService.findByMember_migrated(userId, MemberType.USER).flatMap(v->membershipService.delete_migrated(v.getId())).then()))))).doOnComplete(()->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).user(user)))).doOnError((Throwable throwable)->auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_DELETED).throwable(throwable)))).then();
     }
 
     protected io.gravitee.am.identityprovider.api.User convert(NewUser newUser) {

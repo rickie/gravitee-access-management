@@ -145,7 +145,7 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
 
                     LOGGER.error("An error occurs while trying to create a resource", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a resource", ex)));
-                }).apply(err))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).resource(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).throwable(throwable))));
+                }).apply(err))).doOnSuccess(factor1 -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).resource(factor1))).doOnError(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_CREATED).throwable(throwable)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateResource, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -168,7 +168,7 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
                                 // send sync event to refresh plugins that are using this resource
                                 Event event = new Event(Type.RESOURCE, new Payload(resource1.getId(), resource1.getReferenceType(), resource1.getReferenceId(), Action.UPDATE));
                                 return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(resource1)));
-                            }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(factor1 -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_UPDATED).oldValue(oldServiceResource).resource(factor1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_UPDATED).throwable(throwable)))));
+                            }).apply(v)))).doOnSuccess(factor1 -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_UPDATED).oldValue(oldServiceResource).resource(factor1))).doOnError(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_UPDATED).throwable(throwable))));
                 }).apply(y)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<ServiceResource>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
@@ -188,7 +188,7 @@ public class ServiceResourceServiceImpl implements ServiceResourceService {
 @Override
     public Mono<Void> delete_migrated(String domain, String resourceId, User principal) {
         LOGGER.debug("Delete resource {}", resourceId);
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(serviceResourceRepository.findById_migrated(resourceId).switchIfEmpty(Mono.error(new ServiceResourceNotFoundException(resourceId))).flatMap(y->factorService.findByDomain_migrated(domain).filter(RxJavaReactorMigrationUtil.toJdkPredicate((Factor factor)->factor.getConfiguration() != null && factor.getConfiguration().contains("\"" + resourceId + "\""))).collectList().flatMap((List<Factor> v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((List<Factor> factors)->{
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(serviceResourceRepository.findById_migrated(resourceId).switchIfEmpty(Mono.error(new ServiceResourceNotFoundException(resourceId))).flatMap(y->factorService.findByDomain_migrated(domain).filter((Factor factor)->factor.getConfiguration() != null && factor.getConfiguration().contains("\"" + resourceId + "\"")).collectList().flatMap((List<Factor> v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((List<Factor> factors)->{
 if (factors.isEmpty()) {
 return RxJava2Adapter.monoToSingle(Mono.just(y));
 } else {
@@ -197,7 +197,7 @@ return RxJava2Adapter.monoToSingle(Mono.error(new ServiceResourceCurrentlyUsedEx
 }).apply(v)))).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<ServiceResource, CompletableSource>)resource -> {
                             Event event = new Event(Type.RESOURCE, new Payload(resource.getId(), resource.getReferenceType(), resource.getReferenceId(), Action.DELETE));
                             return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(serviceResourceRepository.delete_migrated(resourceId).then(eventService.create_migrated(event)).then())
-                                    .doOnComplete(() -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_DELETED).resource(resource)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_DELETED).throwable(throwable)))));
+                                    .doOnComplete(() -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_DELETED).resource(resource)))).doOnError(throwable -> auditService.report(AuditBuilder.builder(ServiceResourceAuditBuilder.class).principal(principal).type(EventType.RESOURCE_DELETED).throwable(throwable))));
                         }).apply((ServiceResource) y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {

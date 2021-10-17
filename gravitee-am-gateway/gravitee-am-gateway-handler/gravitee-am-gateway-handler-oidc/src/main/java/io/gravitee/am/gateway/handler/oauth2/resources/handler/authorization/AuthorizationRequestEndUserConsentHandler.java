@@ -128,7 +128,7 @@ public class AuthorizationRequestEndUserConsentHandler implements Handler<Routin
     }
 
     private void checkUserConsent(Client client, io.gravitee.am.model.User user, Handler<AsyncResult<Set<String>>> handler) {
-        userConsentService.checkConsent_migrated(client, user).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(result -> handler.handle(Future.succeededFuture(result))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+        userConsentService.checkConsent_migrated(client, user).subscribe(result -> handler.handle(Future.succeededFuture(result)), error -> handler.handle(Future.failedFuture(error)));
     }
 
     private boolean skipConsent(Set<String> requestedConsent, Client client) {

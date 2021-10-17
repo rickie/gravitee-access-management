@@ -63,7 +63,7 @@ public class MongoPolicyRepository extends AbstractManagementMongoRepository imp
 }
 @Override
     public Mono<Boolean> collectionExists_migrated() {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromPublisher(mongoOperations.listCollectionNames()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(collectionName -> collectionName.equalsIgnoreCase(COLLECTION_NAME))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(mongoOperations.listCollectionNames())), BackpressureStrategy.BUFFER).filter(collectionName -> collectionName.equalsIgnoreCase(COLLECTION_NAME)))
                 .isEmpty()).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> !isEmpty));
     }
 

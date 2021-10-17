@@ -70,12 +70,12 @@ public class PermissionEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
-        this.extractRequest_migrated(context).flatMap(this::bodyValidation_migrated).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toPermissionRequest)).flatMap(permissionRequests->permissionTicketService.create_migrated(permissionRequests, domain.getId(), client.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(PermissionTicketResponse::from)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(permission -> context.response()
+        this.extractRequest_migrated(context).flatMap(this::bodyValidation_migrated).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toPermissionRequest)).flatMap(permissionRequests->permissionTicketService.create_migrated(permissionRequests, domain.getId(), client.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(PermissionTicketResponse::from)).subscribe(permission -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.CREATED_201)
-                                .end(Json.encodePrettily(permission))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                .end(Json.encodePrettily(permission)), context::fail);
     }
 
     

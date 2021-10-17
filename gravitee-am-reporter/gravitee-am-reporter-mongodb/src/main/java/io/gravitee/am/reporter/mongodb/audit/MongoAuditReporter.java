@@ -125,8 +125,8 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         Bson query = query(referenceType, referenceId, criteria);
 
         // run search query
-        Single<Long> countOperation = Observable.fromPublisher(reportableCollection.countDocuments(query)).first(0l);
-        Single<List<Audit>> auditsOperation = Observable.fromPublisher(reportableCollection.find(query).sort(new BasicDBObject(FIELD_TIMESTAMP, -1)).skip(size * page).limit(size)).map(this::convert).collect(LinkedList::new, List::add);
+        Single<Long> countOperation = RxJava2Adapter.fluxToObservable(Flux.from(reportableCollection.countDocuments(query))).first(0l);
+        Single<List<Audit>> auditsOperation = RxJava2Adapter.fluxToObservable(Flux.from(reportableCollection.find(query).sort(new BasicDBObject(FIELD_TIMESTAMP, -1)).skip(size * page).limit(size))).map(this::convert).collect(LinkedList::new, List::add);
         return RxJava2Adapter.singleToMono(Single.zip(countOperation, auditsOperation, (count, audits) -> new Page<>(audits, page, count)));
     }
 
@@ -160,7 +160,7 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
 }
 @Override
     public Mono<Audit> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(reportableCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(reportableCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @Override
@@ -212,7 +212,7 @@ private Mono<Map<Object,Object>> executeHistogram_migrated(AuditReportableCriter
         Map<Long, Long> intervals = intervals(criteria);
         String fieldSuccess = (criteria.types().get(0) + "_" + Status.SUCCESS).toLowerCase();
         String fieldFailure = (criteria.types().get(0) + "_" + Status.FAILURE).toLowerCase();
-        return RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.aggregate(Arrays.asList(
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.from(reportableCollection.aggregate(Arrays.asList(
                 Aggregates.match(query),
                 Aggregates.group(
                         new BasicDBObject("_id",
@@ -222,7 +222,7 @@ private Mono<Map<Object,Object>> executeHistogram_migrated(AuditReportableCriter
                                                 new BasicDBObject("$mod", Arrays.asList(new BasicDBObject("$subtract", Arrays.asList("$timestamp", new Date(0))), criteria.interval()))
                                         ))),
                         Accumulators.sum(fieldSuccess, new BasicDBObject("$cond", Arrays.asList(new BasicDBObject("$eq", Arrays.asList("$outcome.status", Status.SUCCESS)), 1, 0))),
-                        Accumulators.sum(fieldFailure, new BasicDBObject("$cond", Arrays.asList(new BasicDBObject("$eq", Arrays.asList("$outcome.status", Status.FAILURE)), 1, 0))))), Document.class))
+                        Accumulators.sum(fieldFailure, new BasicDBObject("$cond", Arrays.asList(new BasicDBObject("$eq", Arrays.asList("$outcome.status", Status.FAILURE)), 1, 0))))), Document.class)))
                 .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(docs -> {
                     Map<Long, Long> successResult = new HashMap<>();
                     Map<Long, Long> failureResult = new HashMap<>();
@@ -249,18 +249,18 @@ private Mono<Map<Object,Object>> executeHistogram_migrated(AuditReportableCriter
 
 
 private Mono<Map<Object,Object>> executeGroupBy_migrated(AuditReportableCriteria criteria, Bson query) {
-        return RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.aggregate(
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.from(reportableCollection.aggregate(
                 Arrays.asList(
                         Aggregates.match(query),
                         Aggregates.group(new BasicDBObject("_id", "$" + criteria.field()), Accumulators.sum("count", 1)),
                         Aggregates.limit(criteria.size() != null ? criteria.size() : 50)), Document.class
-        ))
+        )))
                 .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(docs -> docs.stream().collect(Collectors.toMap(d -> ((Document) d.get("_id")).get("_id"), d -> d.get("count")))));
     }
 
 
 private Mono<Map<Object,Object>> executeCount_migrated(Bson query) {
-        return RxJava2Adapter.singleToMono(Observable.fromPublisher(reportableCollection.countDocuments(query)).first(0l)).map(RxJavaReactorMigrationUtil.toJdkFunction(data -> Collections.singletonMap("data", data)));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.from(reportableCollection.countDocuments(query))).first(0l)).map(RxJavaReactorMigrationUtil.toJdkFunction(data -> Collections.singletonMap("data", data)));
     }
 
 

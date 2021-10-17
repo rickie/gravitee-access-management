@@ -22,7 +22,6 @@ import io.gravitee.am.management.handlers.management.api.model.EnrolledFactorEnt
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.management.service.UserService;
 import io.gravitee.am.model.Acl;
-
 import io.gravitee.am.model.factor.EnrolledFactor;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.DomainService;
@@ -30,9 +29,7 @@ import io.gravitee.am.service.FactorService;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.am.service.exception.UserNotFoundException;
 import io.gravitee.common.http.MediaType;
-
 import io.reactivex.Observable;
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -45,9 +42,9 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -90,7 +87,7 @@ public class UserFactorsResource extends AbstractResource {
                             if (user1.getFactors() == null) {
                                 return RxJava2Adapter.monoToSingle(Mono.just(Collections.emptyList()));
                             }
-                            return Observable.fromIterable(user1.getFactors())
+                            return RxJava2Adapter.fluxToObservable(Flux.fromIterable(user1.getFactors()))
                                     .flatMapMaybe(enrolledFactor ->
                                             RxJava2Adapter.monoToMaybe(factorService.findById_migrated(enrolledFactor.getFactorId()).map(RxJavaReactorMigrationUtil.toJdkFunction(factor -> {
                                                         EnrolledFactorEntity enrolledFactorEntity = new EnrolledFactorEntity(enrolledFactor);

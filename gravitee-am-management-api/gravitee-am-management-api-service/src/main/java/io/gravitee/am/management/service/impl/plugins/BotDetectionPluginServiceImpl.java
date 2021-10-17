@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -53,7 +54,7 @@ public class BotDetectionPluginServiceImpl implements BotDetectionPluginService 
 @Override
     public Mono<List<BotDetectionPlugin>> findAll_migrated() {
         LOGGER.debug("List all bot detection plugins");
-        return RxJava2Adapter.singleToMono(Observable.fromIterable(pluginManager.getAll())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(pluginManager.getAll()))
                 .map(this::convert)
                 .toList());
     }

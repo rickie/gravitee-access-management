@@ -204,8 +204,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 }
 @Override
     public Flux<Email> copyFromClient_migrated(String domain, String clientSource, String clientTarget) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(findByClient_migrated(ReferenceType.DOMAIN, domain, clientSource))
-                .flatMapSingle(source -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(findByClient_migrated(ReferenceType.DOMAIN, domain, clientSource))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Email, Single<Email>>toJdkFunction(source -> {
                     NewEmail email = new NewEmail();
                     email.setEnabled(source.isEnabled());
                     email.setTemplate(Template.parse(source.getTemplate()));
@@ -215,7 +214,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                     email.setContent(source.getContent());
                     email.setExpiresAfter(source.getExpiresAfter());
                     return RxJava2Adapter.monoToSingle(this.create_migrated(domain, clientTarget, email));
-                }));
+                }).apply(e)))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId, newEmail, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -302,7 +301,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                     Event event = new Event(Type.EMAIL, new Payload(email.getId(), email.getReferenceType(), email.getReferenceId(), Action.DELETE));
                     return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(emailRepository.delete_migrated(emailId).then(eventService.create_migrated(event)))
                             .toCompletable()
-                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_DELETED).email(email)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_DELETED).throwable(throwable)))));
+                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_DELETED).email(email)))).doOnError(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_DELETED).throwable(throwable))));
                 }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -348,7 +347,7 @@ private Mono<Email> create0_migrated(ReferenceType referenceType, String referen
 
                     LOGGER.error("An error occurs while trying to create a email", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a email", ex)));
-                }).apply(err))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(email -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_CREATED).email(email)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_CREATED).throwable(throwable))));
+                }).apply(err))).doOnSuccess(email -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_CREATED).email(email))).doOnError(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_CREATED).throwable(throwable)));
     }
 
     
@@ -367,7 +366,7 @@ private Mono<Email> update0_migrated(ReferenceType referenceType, String referen
                                 // create event for sync process
                                 Event event = new Event(Type.EMAIL, new Payload(email.getId(), email.getReferenceType(), email.getReferenceId(), Action.UPDATE));
                                 return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(email)));
-                            }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(email -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_UPDATED).oldValue(oldEmail).email(email)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_UPDATED).throwable(throwable)))));
+                            }).apply(v)))).doOnSuccess(email -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_UPDATED).oldValue(oldEmail).email(email))).doOnError(throwable -> auditService.report(AuditBuilder.builder(EmailTemplateAuditBuilder.class).principal(principal).type(EventType.EMAIL_TEMPLATE_UPDATED).throwable(throwable))));
                 }).apply(y)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Email>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));

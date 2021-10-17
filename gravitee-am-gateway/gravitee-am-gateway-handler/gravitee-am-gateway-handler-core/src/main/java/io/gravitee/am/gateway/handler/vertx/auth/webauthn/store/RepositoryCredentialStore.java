@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -118,7 +119,7 @@ public class RepositoryCredentialStore {
                                 .map(this::convert)
                                 .collect(Collectors.toList())));
                     }
-                }).apply(v))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(promise::complete), RxJavaReactorMigrationUtil.toJdkConsumer(promise::fail));
+                }).apply(v))).subscribe(promise::complete, promise::fail);
 
         return promise.future();
     }
@@ -132,7 +133,7 @@ public class RepositoryCredentialStore {
                         return RxJava2Adapter.monoToCompletable(create_migrated(authenticator));
                     } else {
                         // update current credentials
-                        return Observable.fromIterable(credentials)
+                        return RxJava2Adapter.fluxToObservable(Flux.fromIterable(credentials))
                                 .flatMapCompletable(credential -> {
                                     credential.setCounter(authenticator.getCounter());
                                     credential.setUpdatedAt(new Date());

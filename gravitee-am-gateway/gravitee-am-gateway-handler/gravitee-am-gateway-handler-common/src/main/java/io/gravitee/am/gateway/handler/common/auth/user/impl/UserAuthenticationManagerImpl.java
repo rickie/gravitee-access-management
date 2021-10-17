@@ -56,6 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -114,7 +115,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
             return Mono.error(new InternalAuthenticationServiceException("No identity provider found for client : " + client.getClientId()));
         }
 
-        return RxJava2Adapter.singleToMono(Observable.fromIterable(identities)
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(identities))
                 .flatMapMaybe(authProvider -> RxJava2Adapter.monoToMaybe(authenticate0_migrated(client, authentication, authProvider, preAuthenticated)))
                 .takeUntil(userAuthentication -> userAuthentication.getUser() != null || userAuthentication.getLastException() instanceof AccountLockedException)
                 .lastOrError()).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<UserAuthentication, SingleSource<io.gravitee.am.model.User>>toJdkFunction(userAuthentication -> {
@@ -143,7 +144,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
                         // complete user connection
                         return RxJava2Adapter.monoToSingle(connect_migrated(user));
                     }
-                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> eventManager.publishEvent(AuthenticationEvent.SUCCESS, new AuthenticationDetails(authentication, domain, client, user)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> eventManager.publishEvent(AuthenticationEvent.FAILURE, new AuthenticationDetails(authentication, domain, client, throwable))));
+                }).apply(v)))).doOnSuccess(user -> eventManager.publishEvent(AuthenticationEvent.SUCCESS, new AuthenticationDetails(authentication, domain, client, user))).doOnError(throwable -> eventManager.publishEvent(AuthenticationEvent.FAILURE, new AuthenticationDetails(authentication, domain, client, throwable)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(client, username, request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -175,7 +176,7 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
         }
 
         final Authentication authentication = new EndUserAuthentication(username, null, new SimpleAuthenticationContext(request));
-        return RxJava2Adapter.singleToMono(Observable.fromIterable(identities)
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(identities))
                 .flatMapMaybe(authProvider -> RxJava2Adapter.monoToMaybe(loadUserByUsername0_migrated(client, authentication, authProvider, true)))
                 .takeUntil(userAuthentication -> userAuthentication.getUser() != null)
                 .lastOrError()).flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<UserAuthenticationManagerImpl.UserAuthentication, MaybeSource<User>>)userAuthentication -> {

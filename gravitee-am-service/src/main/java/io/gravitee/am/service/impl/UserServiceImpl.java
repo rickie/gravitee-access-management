@@ -338,7 +338,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                                     removeSensitiveFactorsData(oldUser.getFactors());
                                     auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).user(user1).oldValue(oldUser));
                                 }
-                            })).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))));
+                            })).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable))));
                 }).apply(y))));
     }
 
@@ -360,7 +360,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
                             .collect(Collectors.toList());
                     User userToUpdate = new User(oldUser);
                     userToUpdate.setFactors(enrolledFactors);
-                    return RxJava2Adapter.monoToCompletable(update_migrated(userToUpdate).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).user(user1).oldValue(oldUser)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable)))).then());
+                    return RxJava2Adapter.monoToCompletable(update_migrated(userToUpdate).doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).user(user1).oldValue(oldUser))).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_UPDATED).throwable(throwable))).then());
                 }).apply(y)))).then();
     }
 

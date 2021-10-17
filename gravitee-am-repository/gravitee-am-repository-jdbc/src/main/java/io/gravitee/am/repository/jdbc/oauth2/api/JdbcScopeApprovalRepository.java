@@ -72,7 +72,7 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
     public Flux<ScopeApproval> findByDomainAndUserAndClient_migrated(String domain, String userId, String clientId) {
         LOGGER.debug("findByDomainAndUserAndClient({}, {}, {})", domain, userId, clientId);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return scopeApprovalRepository.findByDomainAndUserAndClient_migrated(domain, userId, clientId).filter(RxJavaReactorMigrationUtil.toJdkPredicate(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
+        return scopeApprovalRepository.findByDomainAndUserAndClient_migrated(domain, userId, clientId).filter(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndUser_migrated(domain, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -85,7 +85,7 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
     public Flux<ScopeApproval> findByDomainAndUser_migrated(String domain, String user) {
         LOGGER.debug("findByDomainAndUser({}, {}, {})", domain, user);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return scopeApprovalRepository.findByDomainAndUser_migrated(domain, user).filter(RxJavaReactorMigrationUtil.toJdkPredicate(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
+        return scopeApprovalRepository.findByDomainAndUser_migrated(domain, user).filter(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.upsert_migrated(scopeApproval))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -169,7 +169,7 @@ public class JdbcScopeApprovalRepository extends AbstractJdbcRepository implemen
     public Mono<ScopeApproval> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return RxJava2Adapter.maybeToMono(scopeApprovalRepository.findById(id)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
+        return RxJava2Adapter.maybeToMono(scopeApprovalRepository.findById(id)).filter(bean -> bean.getExpiresAt() == null || bean.getExpiresAt().isAfter(now)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

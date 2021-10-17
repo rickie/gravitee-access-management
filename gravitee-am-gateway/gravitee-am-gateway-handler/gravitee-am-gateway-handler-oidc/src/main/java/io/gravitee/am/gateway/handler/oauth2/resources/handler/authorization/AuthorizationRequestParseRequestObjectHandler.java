@@ -119,7 +119,7 @@ public class AuthorizationRequestParseRequestObjectHandler extends AbstractAutho
                             } catch (Exception ex) {
                                 context.fail(ex);
                             }
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail), RxJavaReactorMigrationUtil.toRunnable(context::next));
+                        }), context::fail, context::next);
     }
 
     private void checkRequestObjectParameters(RoutingContext context) {

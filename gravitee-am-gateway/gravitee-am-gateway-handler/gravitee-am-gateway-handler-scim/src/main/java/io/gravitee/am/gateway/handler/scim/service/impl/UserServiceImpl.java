@@ -31,7 +31,6 @@ import io.gravitee.am.gateway.handler.scim.model.User;
 import io.gravitee.am.gateway.handler.scim.service.GroupService;
 import io.gravitee.am.gateway.handler.scim.service.UserService;
 import io.gravitee.am.identityprovider.api.DefaultUser;
-
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.Role;
@@ -44,7 +43,6 @@ import io.gravitee.am.service.utils.UserFactorUpdater;
 import io.gravitee.am.service.validators.PasswordValidator;
 import io.gravitee.am.service.validators.UserValidator;
 import io.reactivex.Completable;
-
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -56,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -112,7 +111,7 @@ public class UserServiceImpl implements UserService {
                         return RxJava2Adapter.monoToSingle(Mono.just(new ListResponse<User>(null, userPage.getCurrentPage() + 1, userPage.getTotalCount(), 0)));
                     } else {
                         // SCIM use 1-based index (increment current page)
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(userPage.getData())
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(userPage.getData()))
                                 .map(user1 -> convert(user1, baseUrl, true))
                                 // set groups
                                 .flatMapSingle((io.gravitee.am.gateway.handler.scim.model.User ident) -> RxJava2Adapter.monoToSingle(setGroups_migrated(ident)))

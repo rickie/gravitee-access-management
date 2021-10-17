@@ -56,11 +56,11 @@ public class UserConsentsEndpointHandler extends AbstractUserConsentEndpointHand
                         return RxJava2Adapter.monoToSingle(userService.consents_migrated(userId, optClient.get()));
                     }
                     return RxJava2Adapter.monoToSingle(userService.consents_migrated(userId));
-                }).apply(v))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(scopeApprovals -> context.response()
+                }).apply(v))).subscribe(scopeApprovals -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .end(Json.encodePrettily(scopeApprovals))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                .end(Json.encodePrettily(scopeApprovals)), context::fail);
 
     }
 

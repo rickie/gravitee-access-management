@@ -68,10 +68,10 @@ public class UserConsentServiceImpl implements UserConsentService {
 }
 @Override
     public Mono<Set<String>> checkConsent_migrated(Client client, io.gravitee.am.model.User user) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUserAndClient_migrated(domain.getId(), user.getId(), client.getClientId()).filter(RxJavaReactorMigrationUtil.toJdkPredicate(approval -> {
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUserAndClient_migrated(domain.getId(), user.getId(), client.getClientId()).filter(approval -> {
                     Date today = new Date();
                     return (approval.getExpiresAt().after(today) && approval.getStatus() == ScopeApproval.ApprovalStatus.APPROVED);
-                })).map(RxJavaReactorMigrationUtil.toJdkFunction(ScopeApproval::getScope)))
+                }).map(RxJavaReactorMigrationUtil.toJdkFunction(ScopeApproval::getScope)))
                 .collect(HashSet::new, Set::add));
     }
 

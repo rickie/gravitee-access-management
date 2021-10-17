@@ -26,7 +26,7 @@ import io.gravitee.am.management.handlers.management.api.model.ScopeEntity;
 import io.gravitee.am.management.handlers.management.api.resources.AbstractResource;
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.Domain;
-
+import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.ApplicationService;
 import io.gravitee.am.service.DomainService;
@@ -36,10 +36,7 @@ import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.common.http.MediaType;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
-
-
-
-
+import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -93,20 +90,19 @@ public class UserConsentsResource extends AbstractResource {
             @QueryParam("clientId") String clientId,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapPublisher(__ -> {
                             if (clientId == null || clientId.isEmpty()) {
                                 return scopeApprovalService.findByDomainAndUser_migrated(domain, user);
                             }
                             return scopeApprovalService.findByDomainAndUserAndClient_migrated(domain, user, clientId);
-                        })
-                        .flatMapSingle(scopeApproval ->
+                        })).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<ScopeApproval, Single<ScopeApprovalEntity>>toJdkFunction(scopeApproval ->
                                 RxJava2Adapter.monoToSingle(getClient_migrated(scopeApproval.getDomain(), scopeApproval.getClientId()).zipWith(getScope_migrated(scopeApproval.getDomain(), scopeApproval.getScope()), RxJavaReactorMigrationUtil.toJdkBiFunction(((clientEntity, scopeEntity) -> {
                                             ScopeApprovalEntity scopeApprovalEntity = new ScopeApprovalEntity(scopeApproval);
                                             scopeApprovalEntity.setClientEntity(clientEntity);
                                             scopeApprovalEntity.setScopeEntity(scopeEntity);
                                             return scopeApprovalEntity;
-                                        })))))).collectList()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                                        }))))).apply(e))))).collectList()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE

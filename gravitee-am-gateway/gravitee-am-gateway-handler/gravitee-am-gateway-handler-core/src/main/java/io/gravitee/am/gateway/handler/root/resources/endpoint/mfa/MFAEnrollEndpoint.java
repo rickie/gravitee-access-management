@@ -24,7 +24,6 @@ import io.gravitee.am.gateway.handler.common.factor.FactorManager;
 import io.gravitee.am.gateway.handler.common.utils.ConstantKeys;
 import io.gravitee.am.gateway.handler.common.vertx.utils.RequestUtils;
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
-
 import io.gravitee.am.gateway.handler.root.resources.endpoint.AbstractEndpoint;
 import io.gravitee.am.model.Template;
 import io.gravitee.am.model.User;
@@ -33,7 +32,6 @@ import io.gravitee.am.model.factor.EnrolledFactorChannel;
 import io.gravitee.am.model.factor.EnrolledFactorSecurity;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.http.HttpHeaders;
-
 import io.reactivex.Observable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -43,7 +41,6 @@ import io.vertx.reactivex.core.http.HttpServerRequest;
 import io.vertx.reactivex.core.http.HttpServerResponse;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import io.vertx.reactivex.ext.web.common.template.TemplateEngine;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,6 +48,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -200,10 +198,10 @@ public class MFAEnrollEndpoint extends AbstractEndpoint implements Handler<Routi
     }
 
     private void load(Map<io.gravitee.am.model.Factor, FactorProvider> providers, User user, Handler<AsyncResult<List<Factor>>> handler) {
-        RxJava2Adapter.singleToMono(Observable.fromIterable(providers.entrySet())
+        RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(providers.entrySet()))
                 .flatMapSingle(entry -> RxJava2Adapter.monoToSingle(entry.getValue().enroll_migrated(user.getUsername()).map(RxJavaReactorMigrationUtil.toJdkFunction(enrollment -> new Factor(entry.getKey(), enrollment))))
                 )
-                .toList()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(factors -> handler.handle(Future.succeededFuture(factors))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+                .toList()).subscribe(factors -> handler.handle(Future.succeededFuture(factors)), error -> handler.handle(Future.failedFuture(error)));
     }
 
     private Map<io.gravitee.am.model.Factor, FactorProvider> getFactors(Client client) {

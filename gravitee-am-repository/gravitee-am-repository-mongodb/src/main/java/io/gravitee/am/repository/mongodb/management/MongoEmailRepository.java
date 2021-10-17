@@ -99,14 +99,13 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Email> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(
-                emailsCollection.find(
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(emailsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_TEMPLATE, template),
                                 exists(FIELD_CLIENT, false)))
-                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+                        .first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndTemplate_migrated(domain, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -128,14 +127,13 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Email> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(
-                emailsCollection.find(
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(emailsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_CLIENT, client),
                                 eq(FIELD_TEMPLATE, template)))
-                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+                        .first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientAndTemplate_migrated(domain, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -157,7 +155,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Email> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(emailsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(emailsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -168,7 +166,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Email> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(emailsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(emailsCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -181,7 +179,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
     public Mono<Email> create_migrated(Email item) {
         EmailMongo email = convert(item);
         email.setId(email.getId() == null ? RandomString.generate() : email.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(emailsCollection.insertOne(email))).flatMap(success->findById_migrated(email.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(emailsCollection.insertOne(email)))).flatMap(success->findById_migrated(email.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -193,7 +191,7 @@ public class MongoEmailRepository extends AbstractManagementMongoRepository impl
 @Override
     public Mono<Email> update_migrated(Email item) {
         EmailMongo email = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(emailsCollection.replaceOne(eq(FIELD_ID, email.getId()), email))).flatMap(updateResult->findById_migrated(email.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(emailsCollection.replaceOne(eq(FIELD_ID, email.getId()), email)))).flatMap(updateResult->findById_migrated(email.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

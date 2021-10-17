@@ -101,7 +101,7 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
                         String userId = currentSession.get(USER_ID_KEY);
                         if (!StringUtils.isEmpty(userId)) {
                             // Load the user and put it back in the context.
-                            return RxJava2Adapter.monoToSingle(userService.findById_migrated(userId).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> context.getDelegate().setUser(new User(user)))).flatMap(userService::enhance_migrated).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> currentSession)).switchIfEmpty(cleanupSession_migrated(currentSession)))
+                            return RxJava2Adapter.monoToSingle(userService.findById_migrated(userId).doOnSuccess(user -> context.getDelegate().setUser(new User(user))).flatMap(userService::enhance_migrated).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> currentSession)).switchIfEmpty(cleanupSession_migrated(currentSession)))
                                     .onErrorResumeNext(RxJava2Adapter.monoToSingle(cleanupSession_migrated(currentSession)));
                         } else {
                             return RxJava2Adapter.monoToSingle(Mono.just(currentSession));
@@ -110,7 +110,7 @@ public class CookieSessionHandler implements Handler<RoutingContext> {
         }
 
         // Need to wait the session to be ready before invoking next.
-        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(sessionObs).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(t -> logger.warn("Unable to restore the session", t))))
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(sessionObs).doOnError(t -> logger.warn("Unable to restore the session", t)))
                 .doFinally(context::next)).subscribe();
     }
 

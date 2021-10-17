@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -71,7 +72,7 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
 @Override
     public Mono<List<PolicyPlugin>> findAll_migrated(List<String> expand) {
         LOGGER.debug("List all policy plugins");
-        return RxJava2Adapter.singleToMono(Observable.fromIterable(policyPluginManager.getAll())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(policyPluginManager.getAll()))
             .map(policyPlugin -> convert(policyPlugin, expand))
             .toList());
     }
@@ -194,9 +195,9 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
             for (String s : expand) {
                 switch (s) {
                     case "schema":
-                        getSchema_migrated(plugin.getId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(plugin::setSchema));
+                        getSchema_migrated(plugin.getId()).subscribe(plugin::setSchema);
                     case "icon":
-                        getIcon_migrated(plugin.getId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(plugin::setIcon));
+                        getIcon_migrated(plugin.getId()).subscribe(plugin::setIcon);
                     default:
                         break;
                 }

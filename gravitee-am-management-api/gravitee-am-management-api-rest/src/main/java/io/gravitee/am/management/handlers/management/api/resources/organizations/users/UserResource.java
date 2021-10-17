@@ -153,7 +153,7 @@ public class UserResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
         final io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE).then(organizationUserService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, user).filter(RxJavaReactorMigrationUtil.toJdkPredicate(existingUser -> IdentityProviderManagerImpl.IDP_GRAVITEE.equals(existingUser.getSource()))).switchIfEmpty(Mono.error(new UserInvalidException("Unable to reset password"))).flatMap(existingUser->organizationUserService.resetPassword_migrated(organizationId, existingUser, password.getPassword(), authenticatedUser)).then()))
+        RxJava2Adapter.monoToCompletable(checkPermission_migrated(ReferenceType.ORGANIZATION, organizationId, Permission.ORGANIZATION_USER, Acl.UPDATE).then(organizationUserService.findById_migrated(ReferenceType.ORGANIZATION, organizationId, user).filter(existingUser -> IdentityProviderManagerImpl.IDP_GRAVITEE.equals(existingUser.getSource())).switchIfEmpty(Mono.error(new UserInvalidException("Unable to reset password"))).flatMap(existingUser->organizationUserService.resetPassword_migrated(organizationId, existingUser, password.getPassword(), authenticatedUser)).then()))
                 .subscribe(() -> response.resume(Response.noContent().build()), response::resume);
 
     }

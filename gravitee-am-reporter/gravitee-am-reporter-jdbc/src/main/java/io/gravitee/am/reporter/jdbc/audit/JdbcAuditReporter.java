@@ -156,8 +156,8 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
                 .concatMap(this::fillWithActor)
                 .concatMap(this::fillWithTarget)
                 .concatMap(this::fillWithAccessPoint)
-                .concatMap(this::fillWithOutcomes).collectList().flatMap(content->total.map(RxJavaReactorMigrationUtil.toJdkFunction((Long value)->new Page<Audit>(content, page, value)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve reports for referenceType {} and referenceId {}",
-                        referenceType, referenceId, error)));
+                .concatMap(this::fillWithOutcomes).collectList().flatMap(content->total.map(RxJavaReactorMigrationUtil.toJdkFunction((Long value)->new Page<Audit>(content, page, value)))).doOnError(error -> LOGGER.error("Unable to retrieve reports for referenceType {} and referenceId {}",
+                        referenceType, referenceId, error));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(referenceType, referenceId, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -290,8 +290,8 @@ private Mono<Map<Object,Object>> executeGroupBy_migrated(SearchQuery searchQuery
                 .flatMap(this::fillWithAccessPoint)
                 .flatMap(this::fillWithOutcomes);
 
-        return auditMono.doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve the Report with referenceType {}, referenceId {} and id {}",
-                        referenceType, referenceId, id, error)));
+        return auditMono.doOnError(error -> LOGGER.error("Unable to retrieve the Report with referenceType {}, referenceId {} and id {}",
+                        referenceType, referenceId, id, error));
     }
 
     private Mono<Audit> fillWithActor(Audit audit) {

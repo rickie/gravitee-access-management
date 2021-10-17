@@ -89,7 +89,7 @@ public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
                         return RxJava2Adapter.fluxToFlowable(Flux.error(new UsernameNotFoundException(username)));
                     }
                     return RxJava2Adapter.fluxToFlowable(Flux.fromIterable(users));
-                })).filter(RxJavaReactorMigrationUtil.toJdkPredicate(user -> {
+                })).filter(user -> {
                     String password = user.getString(this.configuration.getPasswordField());
                     String presentedPassword = authentication.getCredentials().toString();
 
@@ -112,7 +112,7 @@ public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
                     }
 
                     return true;
-                })).collectList().flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Document>, MaybeSource<User>>)users -> {
+                }).collectList().flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Document>, MaybeSource<User>>)users -> {
                     if (users.isEmpty()) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Bad credentials")));
                     }
@@ -149,7 +149,7 @@ private Mono<Document> findUserByUsername_migrated(String username) {
         String rawQuery = this.configuration.getFindUserByUsernameQuery().replaceAll("\\?", username);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(usersCol.find(query).first()), BackpressureStrategy.BUFFER).next();
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(usersCol.find(query).first())), BackpressureStrategy.BUFFER).next();
     }
 
     private User createUser(AuthenticationContext authContext, Document document) {

@@ -443,7 +443,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }).apply(y)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(application1 -> {
                     Event event = new Event(Type.APPLICATION, new Payload(application1.getId(), ReferenceType.DOMAIN, application1.getDomain(), Action.UPDATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(domain1->Mono.just(application1)));
-                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(updatedApplication -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CLIENT_SECRET_RENEWED).application(updatedApplication)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CLIENT_SECRET_RENEWED).throwable(throwable)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Application>>toJdkFunction(ex -> {
+                }).apply(v)))).doOnSuccess(updatedApplication -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CLIENT_SECRET_RENEWED).application(updatedApplication))).doOnError(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CLIENT_SECRET_RENEWED).throwable(throwable))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Application>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
@@ -466,7 +466,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     // create event for sync process
                     Event event = new Event(Type.APPLICATION, new Payload(application.getId(), ReferenceType.DOMAIN, application.getDomain(), Action.DELETE));
                     return RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(applicationRepository.delete_migrated(id).then(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(eventService.create_migrated(event)).toCompletable())).then(emailTemplateService.findByClient_migrated(ReferenceType.DOMAIN, application.getDomain(), application.getId()).flatMap(v->emailTemplateService.delete_migrated(v.getId())).then()).then(formService.findByDomainAndClient_migrated(application.getDomain(), application.getId()).flatMap(v->formService.delete_migrated(application.getDomain(), v.getId())).then()).then(membershipService.findByReference_migrated(application.getId(), ReferenceType.APPLICATION).flatMap(v->membershipService.delete_migrated(v.getId())).then()))
-                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_DELETED).application(application)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_DELETED).throwable(throwable)))));
+                            .doOnComplete(() -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_DELETED).application(application)))).doOnError(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_DELETED).throwable(throwable))));
                 }).apply(y)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -527,7 +527,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Mono<Set<TopApplication>> findTopApplications_migrated() {
         LOGGER.debug("Find top applications");
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.findAll_migrated(0, Integer.MAX_VALUE))
-                .flatMapObservable(pagedApplications -> Observable.fromIterable(pagedApplications.getData()))
+                .flatMapObservable(pagedApplications -> RxJava2Adapter.fluxToObservable(Flux.fromIterable(pagedApplications.getData())))
                 .flatMapSingle(application -> RxJava2Adapter.monoToSingle(tokenService.findTotalTokensByApplication_migrated(application).map(RxJavaReactorMigrationUtil.toJdkFunction(totalToken -> {
                             TopApplication topApplication = new TopApplication();
                             topApplication.setApplication(application);
@@ -551,7 +551,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Mono<Set<TopApplication>> findTopApplicationsByDomain_migrated(String domain) {
         LOGGER.debug("Find top applications for domain: {}", domain);
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationRepository.findByDomain_migrated(domain, 0, Integer.MAX_VALUE))
-                .flatMapObservable(pagedApplications -> Observable.fromIterable(pagedApplications.getData()))
+                .flatMapObservable(pagedApplications -> RxJava2Adapter.fluxToObservable(Flux.fromIterable(pagedApplications.getData())))
                 .flatMapSingle(application -> RxJava2Adapter.monoToSingle(tokenService.findTotalTokensByApplication_migrated(application).map(RxJavaReactorMigrationUtil.toJdkFunction(totalToken -> {
                             TopApplication topApplication = new TopApplication();
                             topApplication.setApplication(application);
@@ -591,7 +591,7 @@ private Mono<Application> create0_migrated(String domain, Application applicatio
                 }).apply(v)))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Object, SingleSource<Application>>toJdkFunction(application1 -> {
                     Event event = new Event(Type.APPLICATION, new Payload(application.getId(), ReferenceType.DOMAIN, application.getDomain(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(domain1->Mono.just(application)));
-                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(application1 -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CREATED).application(application1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CREATED).throwable(throwable))));
+                }).apply(v)))).doOnSuccess(application1 -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CREATED).application(application1))).doOnError(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_CREATED).throwable(throwable)));
     }
 
     
@@ -603,7 +603,7 @@ private Mono<Application> update0_migrated(String domain, Application currentApp
         return validateApplicationMetadata_migrated(applicationToUpdate).flatMap(this::validateApplicationIdentityProviders_migrated).flatMap(applicationRepository::update_migrated).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Application, SingleSource<Application>>toJdkFunction(application1 -> {
                     Event event = new Event(Type.APPLICATION, new Payload(application1.getId(), ReferenceType.DOMAIN, application1.getDomain(), Action.UPDATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(domain1->Mono.just(application1)));
-                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(application -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_UPDATED).oldValue(currentApplication).application(application)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_UPDATED).throwable(throwable))));
+                }).apply(v)))).doOnSuccess(application -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_UPDATED).oldValue(currentApplication).application(application))).doOnError(throwable -> auditService.report(AuditBuilder.builder(ApplicationAuditBuilder.class).principal(principal).type(EventType.APPLICATION_UPDATED).throwable(throwable)));
     }
 
     
@@ -643,7 +643,7 @@ private Mono<Application> validateApplicationIdentityProviders_migrated(Applicat
         if (application.getIdentities() == null || application.getIdentities().isEmpty()) {
             return Mono.just(application);
         }
-        return RxJava2Adapter.singleToMono(Observable.fromIterable(application.getIdentities())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(application.getIdentities()))
                 .flatMapSingle(identity -> RxJava2Adapter.monoToSingle(identityProviderService.findById_migrated(identity).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()).single()))
                 .toList()).map(RxJavaReactorMigrationUtil.toJdkFunction(optionalIdentities -> {
                     if (optionalIdentities == null || optionalIdentities.isEmpty()) {

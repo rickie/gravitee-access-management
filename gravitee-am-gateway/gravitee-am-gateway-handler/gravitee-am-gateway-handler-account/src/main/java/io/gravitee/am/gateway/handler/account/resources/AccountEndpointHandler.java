@@ -57,7 +57,7 @@ public class AccountEndpointHandler {
                         }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> {
                             LOGGER.error("Unable to retrieve user for Id {}", token.getSub());
                             routingContext.fail(error);
-                        }), RxJavaReactorMigrationUtil.toRunnable(() -> routingContext.fail(new UserNotFoundException(token.getSub()))));
+                        }), () -> routingContext.fail(new UserNotFoundException(token.getSub())));
     }
 
     public void getProfile(RoutingContext routingContext) {
@@ -70,7 +70,7 @@ public class AccountEndpointHandler {
         final int page = ContextPathParamUtil.getPageNumber(routingContext);
         final int size = ContextPathParamUtil.getPageSize(routingContext);
 
-        accountService.getActivity_migrated(user, criteria, page, size).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(activities -> AccountResponseHandler.handleDefaultResponse(routingContext, activities)), RxJavaReactorMigrationUtil.toJdkConsumer(routingContext::fail));
+        accountService.getActivity_migrated(user, criteria, page, size).subscribe(activities -> AccountResponseHandler.handleDefaultResponse(routingContext, activities), routingContext::fail);
     }
 
     public void redirectForgotPassword(RoutingContext routingContext) {
@@ -83,7 +83,7 @@ public class AccountEndpointHandler {
         User user = getUserFromContext(routingContext);
         User updatedUser = mapRequestToUser(user, routingContext);
         if (Objects.equals(user.getId(), updatedUser.getId())) {
-            accountService.update_migrated(user).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(nestedResult -> AccountResponseHandler.handleUpdateUserResponse(routingContext))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(er -> AccountResponseHandler.handleUpdateUserResponse(routingContext, er.getMessage()))).subscribe();
+            accountService.update_migrated(user).doOnSuccess(nestedResult -> AccountResponseHandler.handleUpdateUserResponse(routingContext)).doOnError(er -> AccountResponseHandler.handleUpdateUserResponse(routingContext, er.getMessage())).subscribe();
         } else {
             AccountResponseHandler.handleUpdateUserResponse(routingContext, "Mismatched user IDs", 401);
         }

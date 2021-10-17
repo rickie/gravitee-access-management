@@ -62,7 +62,7 @@ public class FormManagerImpl implements FormManager, InitializingBean, EventList
         formService.findAll_migrated(ReferenceType.ORGANIZATION).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(form -> {
                             updateForm(form);
                             logger.info("Forms loaded");
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize forms", error)));
+                        }), error -> logger.error("Unable to initialize forms", error));
     }
 
     @Override
@@ -92,7 +92,7 @@ public class FormManagerImpl implements FormManager, InitializingBean, EventList
                                 updateForm(form);
                             }
                             logger.info("Form {} {}d", formId, eventType);
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} form {}", eventType, formId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No form found with id {}", formId)));
+                        }), error -> logger.error("Unable to {} form {}", eventType, formId, error), () -> logger.error("No form found with id {}", formId));
     }
 
     private void removeForm(String formId) {

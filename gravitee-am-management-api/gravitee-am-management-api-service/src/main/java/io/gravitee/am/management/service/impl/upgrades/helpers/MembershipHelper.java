@@ -71,7 +71,7 @@ public class MembershipHelper {
 
         MembershipCriteria criteria = new MembershipCriteria();
         criteria.setRoleId(organizationPrimaryOwnerRole.getId());
-        Membership member = RxJava2Adapter.fluxToFlowable(membershipService.findByCriteria_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT, criteria).filter(RxJavaReactorMigrationUtil.toJdkPredicate(membership -> membership.getMemberType() == MemberType.USER))).blockingFirst(null);
+        Membership member = RxJava2Adapter.fluxToFlowable(membershipService.findByCriteria_migrated(ReferenceType.ORGANIZATION, Organization.DEFAULT, criteria).filter(membership -> membership.getMemberType() == MemberType.USER)).blockingFirst(null);
 
         if (member != null) {
             membershipService.setPlatformAdmin_migrated(member.getMemberId()).block();

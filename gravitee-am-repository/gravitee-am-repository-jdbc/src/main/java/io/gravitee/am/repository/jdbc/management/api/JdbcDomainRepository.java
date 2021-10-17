@@ -236,7 +236,7 @@ public class JdbcDomainRepository extends AbstractJdbcRepository implements Doma
                 .matching(from(where("id").is(domainId)))
                 .fetch().rowsUpdated()
                 .then(deleteChildEntities(domainId))
-                .as(trx::transactional).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to delete Domain with id {}", domainId, error))).then();
+                .as(trx::transactional).doOnError((error) -> LOGGER.error("unable to delete Domain with id {}", domainId, error)).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.search_migrated(environmentId, query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

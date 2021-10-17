@@ -51,7 +51,6 @@ import io.gravitee.am.service.utils.GrantTypeUtils;
 import io.gravitee.am.service.utils.ResponseTypeUtils;
 import io.reactivex.*;
 import io.reactivex.BackpressureStrategy;
-
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
@@ -74,6 +73,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -323,7 +323,7 @@ private Mono<DynamicClientRegistrationRequest> enforceWithSoftwareStatement_migr
                 if (jwt instanceof SignedJWT) {
                     final SignedJWT signedJWT = (SignedJWT) jwt;
                     if (isSignAlgCompliantWithFapi(signedJWT.getHeader().getAlgorithm().getName())) {
-                        return jwkService.getKeys_migrated(directoryJwksUri).flatMap(z->jwkService.getKey_migrated(z, signedJWT.getHeader().getKeyID())).switchIfEmpty(Mono.error(new TechnicalManagementException("Invalid jwks_uri for OpenBanking Directory"))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(jwk -> jwsService.isValidSignature(signedJWT, jwk))).switchIfEmpty(Mono.error(new InvalidClientMetadataException("Invalid signature for software_statement"))).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> {
+                        return jwkService.getKeys_migrated(directoryJwksUri).flatMap(z->jwkService.getKey_migrated(z, signedJWT.getHeader().getKeyID())).switchIfEmpty(Mono.error(new TechnicalManagementException("Invalid jwks_uri for OpenBanking Directory"))).filter(jwk -> jwsService.isValidSignature(signedJWT, jwk)).switchIfEmpty(Mono.error(new InvalidClientMetadataException("Invalid signature for software_statement"))).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> {
                                     LOGGER.debug("software_statement is valid, check claims regarding the registration request information");
                                     JSONObject softwareStatement = signedJWT.getPayload().toJSONObject();
                                     final Number iat = softwareStatement.getAsNumber("iat");
@@ -591,7 +591,7 @@ private Mono<DynamicClientRegistrationRequest> validateSectorIdentifierUri_migra
                     .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(HttpResponse::bodyAsString)).map(RxJavaReactorMigrationUtil.toJdkFunction(JsonArray::new)))
                     .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unable to parse sector_identifier_uri : "+ uri.toString()))))).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(Flowable::fromIterable)))
                     .cast(String.class)
-                    .collect(HashSet::new,HashSet::add)).flatMap(allowedRedirectUris->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromIterable(request.getRedirectUris().get()), BackpressureStrategy.BUFFER).filter(RxJavaReactorMigrationUtil.toJdkPredicate((String redirectUri)->!allowedRedirectUris.contains(redirectUri)))).collect(ArrayList<String>::new, ArrayList::add)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ArrayList<String>, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((ArrayList<String> missing)->{
+                    .collect(HashSet::new,HashSet::add)).flatMap(allowedRedirectUris->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.fromIterable(request.getRedirectUris().get())), BackpressureStrategy.BUFFER).filter((String redirectUri)->!allowedRedirectUris.contains(redirectUri))).collect(ArrayList<String>::new, ArrayList::add)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ArrayList<String>, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((ArrayList<String> missing)->{
 if (!missing.isEmpty()) {
 return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRedirectUriException("redirect uris are not allowed according to sector_identifier_uri: " + String.join(" ", missing))));
 } else {

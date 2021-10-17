@@ -281,7 +281,7 @@ public class GroupServiceImpl implements GroupService {
                         LOGGER.error("An error occurs while trying to create a group", ex);
                         return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a group", ex)));
                     }
-                }).apply(err))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(group -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_CREATED).group(group)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_CREATED).throwable(throwable))));
+                }).apply(err))).doOnSuccess(group -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_CREATED).group(group))).doOnError(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_CREATED).throwable(throwable)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, newGroup, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -322,7 +322,7 @@ return e;
                     return RxJava2Adapter.monoToSingle(setMembers_migrated(groupToUpdate).flatMap(groupRepository::update_migrated).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Group, SingleSource<Group>>toJdkFunction(group -> {
                                 Event event = new Event(Type.GROUP, new Payload(group.getId(), group.getReferenceType(), group.getReferenceId(), Action.UPDATE));
                                 return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(group)));
-                            }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(group -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_UPDATED).oldValue(oldGroup).group(group)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_UPDATED).throwable(throwable)))));
+                            }).apply(v)))).doOnSuccess(group -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_UPDATED).oldValue(oldGroup).group(group))).doOnError(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_UPDATED).throwable(throwable))));
 
                 }).apply(y)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Group>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
@@ -356,7 +356,7 @@ return e;
     public Mono<Void> delete_migrated(ReferenceType referenceType, String referenceId, String groupId, io.gravitee.am.identityprovider.api.User principal) {
         LOGGER.debug("Delete group {}", groupId);
 
-        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(findById_migrated(referenceType, referenceId, groupId).flatMap(group->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(groupRepository.delete_migrated(groupId).then(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(eventService.create_migrated(new Event(Type.DOMAIN, new Payload(group.getId(), group.getReferenceType(), group.getReferenceId(), Action.DELETE)))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_DELETED).group(group)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((Throwable throwable)->auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_DELETED).throwable(throwable))))).then())
+        return RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(findById_migrated(referenceType, referenceId, groupId).flatMap(group->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(groupRepository.delete_migrated(groupId).then(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(eventService.create_migrated(new Event(Type.DOMAIN, new Payload(group.getId(), group.getReferenceType(), group.getReferenceId(), Action.DELETE)))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_DELETED).group(group)))).doOnError((Throwable throwable)->auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_DELETED).throwable(throwable)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));
@@ -402,7 +402,7 @@ private Mono<Group> assignRoles0_migrated(ReferenceType referenceType, String re
                         groupToUpdate.setRoles(roles);
                     }
                     // check roles
-                    return RxJava2Adapter.monoToSingle(checkRoles_migrated(roles).then(Mono.defer(()->groupRepository.update_migrated(groupToUpdate))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(group1 -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_ROLES_ASSIGNED).oldValue(oldGroup).group(group1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_ROLES_ASSIGNED).throwable(throwable)))));
+                    return RxJava2Adapter.monoToSingle(checkRoles_migrated(roles).then(Mono.defer(()->groupRepository.update_migrated(groupToUpdate))).doOnSuccess(group1 -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_ROLES_ASSIGNED).oldValue(oldGroup).group(group1))).doOnError(throwable -> auditService.report(AuditBuilder.builder(GroupAuditBuilder.class).principal(principal).type(EventType.GROUP_ROLES_ASSIGNED).throwable(throwable))));
                 }).apply(v)));
     }
 

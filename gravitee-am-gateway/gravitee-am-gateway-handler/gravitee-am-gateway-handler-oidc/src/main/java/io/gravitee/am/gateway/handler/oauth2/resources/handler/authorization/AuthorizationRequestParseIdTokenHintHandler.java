@@ -122,6 +122,6 @@ public class AuthorizationRequestParseIdTokenHintHandler implements Handler<Rout
     }
 
     private void extractUser(String idToken, Client client, Handler<AsyncResult<io.gravitee.am.model.User>> handler) {
-        idTokenService.extractUser_migrated(idToken, client).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user -> handler.handle(Future.succeededFuture(user))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+        idTokenService.extractUser_migrated(idToken, client).subscribe(user -> handler.handle(Future.succeededFuture(user)), error -> handler.handle(Future.failedFuture(error)));
     }
 }

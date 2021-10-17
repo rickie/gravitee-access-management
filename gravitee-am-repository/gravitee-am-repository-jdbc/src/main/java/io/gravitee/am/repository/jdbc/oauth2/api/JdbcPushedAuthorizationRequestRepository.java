@@ -65,7 +65,7 @@ public class JdbcPushedAuthorizationRequestRepository extends AbstractJdbcReposi
     public Mono<PushedAuthorizationRequest> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
         LocalDateTime now = LocalDateTime.now(UTC);
-        return RxJava2Adapter.maybeToMono(parRepository.findById(id)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve PushedAuthorizationRequest with id {}", id, error)));
+        return RxJava2Adapter.maybeToMono(parRepository.findById(id)).filter(bean -> bean.getExpireAt() == null || bean.getExpireAt().isAfter(now)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(error -> LOGGER.error("Unable to retrieve PushedAuthorizationRequest with id {}", id, error));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(par))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -84,7 +84,7 @@ public class JdbcPushedAuthorizationRequestRepository extends AbstractJdbcReposi
                 .using(toJdbcEntity(par))
                 .fetch().rowsUpdated();
 
-        return action.flatMap(i->RxJava2Adapter.maybeToMono(parRepository.findById(par.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("Unable to create PushedAuthorizationRequest with id {}", par.getId(), error)));
+        return action.flatMap(i->RxJava2Adapter.maybeToMono(parRepository.findById(par.getId())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).single()).doOnError((error) -> LOGGER.error("Unable to create PushedAuthorizationRequest with id {}", par.getId(), error));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -96,7 +96,7 @@ public class JdbcPushedAuthorizationRequestRepository extends AbstractJdbcReposi
 @Override
     public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return parRepository.deleteById(id).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete PushedAuthorizationRequest with id {}", id, error)));
+        return parRepository.deleteById(id).as(RxJava2Adapter::completableToMono).doOnError(error -> LOGGER.error("Unable to delete PushedAuthorizationRequest with id {}", id, error));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -110,6 +110,6 @@ public Mono<Void> purgeExpiredData_migrated() {
         return dbClient.delete()
                 .from(JdbcPushedAuthorizationRequest.class)
                 .matching(where("expire_at")
-                        .lessThan(now)).then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to purge PushedAuthorizationRequest", error)));
+                        .lessThan(now)).then().doOnError(error -> LOGGER.error("Unable to purge PushedAuthorizationRequest", error));
     }
 }

@@ -87,7 +87,7 @@ public class PushedAuthorizationRequestEndpoint implements Handler<RoutingContex
                                     .putHeader(io.gravitee.common.http.HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(io.gravitee.common.http.HttpHeaders.PRAGMA, "no-cache")
                                     .end(Json.encodePrettily(response));
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                        }), context::fail);
     }
 
     private MultiValueMap<String, String> extractRequestParameters(HttpServerRequest request) {

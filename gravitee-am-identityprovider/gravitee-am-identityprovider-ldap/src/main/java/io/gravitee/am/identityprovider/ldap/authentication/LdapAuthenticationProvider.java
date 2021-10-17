@@ -135,7 +135,7 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
-        return Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
+        return Mono.fromSupplier(() -> {
             try {
                 String username = (String) authentication.getPrincipal();
                 String password = (String) authentication.getCredentials();
@@ -152,7 +152,7 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
                 LOGGER.error("An error occurs during LDAP authentication", e);
                 throw new InternalAuthenticationServiceException(e.getMessage(), e);
             }
-        })).map(RxJavaReactorMigrationUtil.toJdkFunction(ldapUser -> createUser(authentication.getContext(), ldapUser)));
+        }).map(RxJavaReactorMigrationUtil.toJdkFunction(ldapUser -> createUser(authentication.getContext(), ldapUser)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -163,7 +163,7 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
 }
 @Override
     public Mono<User> loadUserByUsername_migrated(String username) {
-        return Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> {
+        return Mono.fromSupplier(() -> {
             try {
                 // find user
                 SearchFilter searchFilter = createSearchFilter(userSearchExecutor, username);
@@ -178,7 +178,7 @@ public class LdapAuthenticationProvider extends AbstractService<AuthenticationPr
                 LOGGER.error("An error occurs while searching for a LDAP user", e);
                 throw new InternalAuthenticationServiceException(e.getMessage(), e);
             }
-        })).map(RxJavaReactorMigrationUtil.toJdkFunction(ldapUser -> createUser(new SimpleAuthenticationContext(), ldapUser)));
+        }).map(RxJavaReactorMigrationUtil.toJdkFunction(ldapUser -> createUser(new SimpleAuthenticationContext(), ldapUser)));
 
     }
 

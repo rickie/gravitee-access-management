@@ -101,7 +101,7 @@ public class ResourceManagerImpl extends AbstractService implements ResourceMana
                             provider.start();
                             resourceProviders.put(res.getId(), provider);
                             logger.info("Resource {} loaded for domain {}", res.getName(), domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize resources for domain {}", domain.getName(), error)));
+                        }), error -> logger.error("Unable to initialize resources for domain {}", domain.getName(), error));
     }
 
     public ResourceProvider getResourceProvider(String resourceId) {
@@ -129,7 +129,7 @@ public class ResourceManagerImpl extends AbstractService implements ResourceMana
         resourceService.findById_migrated(resourceId).switchIfEmpty(Mono.error(new ResourceNotFoundException("Resource " + resourceId + " not found"))).map(RxJavaReactorMigrationUtil.toJdkFunction(res -> resourcePluginManager.create(res.getType(), res.getConfiguration()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(provider -> {
                             provider.start();
                             this.resourceProviders.put(resourceId, provider);
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Initialization of Resource provider '{}' failed", error)));
+                        }), error -> logger.error("Initialization of Resource provider '{}' failed", error));
     }
 
     private void refreshResource(String resourceId) {

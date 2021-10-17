@@ -147,7 +147,7 @@ public class TokenServiceImpl implements TokenService {
 @Override
     public Mono<Token> create_migrated(OAuth2Request oAuth2Request, Client client, User endUser) {
         // create execution context
-        return Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> createExecutionContext(oAuth2Request, client, endUser))).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<ExecutionContext, Single<Token>>)executionContext -> {
+        return Mono.fromSupplier(() -> createExecutionContext(oAuth2Request, client, endUser)).flatMap(v->RxJava2Adapter.singleToMono((Single<Token>)RxJavaReactorMigrationUtil.toJdkFunction((Function<ExecutionContext, Single<Token>>)executionContext -> {
                     // create JWT access token
                     JWT accessToken = createAccessTokenJWT(oAuth2Request, client, endUser, executionContext);
                     // create JWT refresh token
@@ -157,7 +157,7 @@ public class TokenServiceImpl implements TokenService {
                     return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.zip(
                             RxJava2Adapter.monoToSingle(jwtService.encode_migrated(accessToken, client)),
                             (refreshToken != null ? RxJava2Adapter.monoToSingle(jwtService.encode_migrated(refreshToken, client).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of))) : RxJava2Adapter.monoToSingle(Mono.just(Optional.<String>empty()))),
-                            (encodedAccessToken, optionalEncodedRefreshToken) -> convert(accessToken, encodedAccessToken, optionalEncodedRefreshToken.orElse(null), oAuth2Request))).flatMap(accessToken1->tokenEnhancer.enhance_migrated(accessToken1, oAuth2Request, client, endUser, executionContext)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(token -> storeTokens(accessToken, refreshToken, oAuth2Request))));
+                            (encodedAccessToken, optionalEncodedRefreshToken) -> convert(accessToken, encodedAccessToken, optionalEncodedRefreshToken.orElse(null), oAuth2Request))).flatMap(accessToken1->tokenEnhancer.enhance_migrated(accessToken1, oAuth2Request, client, endUser, executionContext)).doOnSuccess(token -> storeTokens(accessToken, refreshToken, oAuth2Request)));
 
                 }).apply(v)));
     }

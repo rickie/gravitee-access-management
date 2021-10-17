@@ -81,7 +81,7 @@ public class MongoReporterRepository extends AbstractManagementMongoRepository i
 }
 @Override
     public Mono<Reporter> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(reportersCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(reportersCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -94,7 +94,7 @@ public class MongoReporterRepository extends AbstractManagementMongoRepository i
     public Mono<Reporter> create_migrated(Reporter item) {
         ReporterMongo reporter = convert(item);
         reporter.setId(reporter.getId() == null ? RandomString.generate() : reporter.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(reportersCollection.insertOne(reporter))).flatMap(success->findById_migrated(reporter.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(reportersCollection.insertOne(reporter)))).flatMap(success->findById_migrated(reporter.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -106,7 +106,7 @@ public class MongoReporterRepository extends AbstractManagementMongoRepository i
 @Override
     public Mono<Reporter> update_migrated(Reporter item) {
         ReporterMongo reporter = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(reportersCollection.replaceOne(eq(FIELD_ID, reporter.getId()), reporter))).flatMap(updateResult->findById_migrated(reporter.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(reportersCollection.replaceOne(eq(FIELD_ID, reporter.getId()), reporter)))).flatMap(updateResult->findById_migrated(reporter.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

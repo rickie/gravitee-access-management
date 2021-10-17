@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -130,7 +131,7 @@ private Mono<AnalyticsResponse> fetchMetadata_migrated(AnalyticsGroupByResponse 
         if (values == null && values.isEmpty()) {
             return Mono.just(analyticsGroupByResponse);
         }
-        return RxJava2Adapter.singleToMono(Observable.fromIterable(values.keySet())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(values.keySet()))
                 .flatMapMaybe(appId -> RxJava2Adapter.monoToMaybe(applicationService.findById_migrated((String) appId).map(RxJavaReactorMigrationUtil.toJdkFunction(application -> {
                             Map<String, Object> data = new HashMap<>();
                             data.put("name", application.getName());

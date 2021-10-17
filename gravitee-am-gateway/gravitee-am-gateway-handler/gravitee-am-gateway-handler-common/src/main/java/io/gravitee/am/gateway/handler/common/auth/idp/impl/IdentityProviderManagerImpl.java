@@ -149,7 +149,7 @@ public class IdentityProviderManagerImpl extends AbstractService implements Iden
         identityProviderRepository.findById_migrated(identityProviderId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(identityProvider -> {
                             updateAuthenticationProvider(identityProvider);
                             logger.info("Identity provider {} {}d for domain {}", identityProviderId, eventType, domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} identity provider for domain {}", eventType, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No identity provider found with id {}", identityProviderId)));
+                        }), error -> logger.error("Unable to {} identity provider for domain {}", eventType, domain.getName(), error), () -> logger.error("No identity provider found with id {}", identityProviderId));
     }
 
     private void removeIdentityProvider(String identityProviderId) {

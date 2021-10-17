@@ -39,6 +39,7 @@ import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -68,8 +69,7 @@ public class MongoRefreshTokenRepository extends AbstractOAuth2MongoRepository i
 
     
 private Mono<RefreshToken> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(refreshTokenCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(refreshTokenCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -80,8 +80,7 @@ private Mono<RefreshToken> findById_migrated(String id) {
 }
 @Override
     public Mono<RefreshToken> findByToken_migrated(String token) {
-        return RxJava2Adapter.observableToFlux(Observable
-                .fromPublisher(refreshTokenCollection.find(eq(FIELD_TOKEN, token)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(refreshTokenCollection.find(eq(FIELD_TOKEN, token)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(refreshToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -96,8 +95,7 @@ private Mono<RefreshToken> findById_migrated(String id) {
             refreshToken.setId(RandomString.generate());
         }
 
-        return RxJava2Adapter.singleToMono(Single
-                .fromPublisher(refreshTokenCollection.insertOne(convert(refreshToken)))).flatMap(success->findById_migrated(refreshToken.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(refreshTokenCollection.insertOne(convert(refreshToken))))).flatMap(success->findById_migrated(refreshToken.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(refreshTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

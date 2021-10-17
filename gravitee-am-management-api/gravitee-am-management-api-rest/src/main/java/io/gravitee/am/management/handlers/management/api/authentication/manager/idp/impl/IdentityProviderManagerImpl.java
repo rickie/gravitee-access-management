@@ -113,7 +113,7 @@ public class IdentityProviderManagerImpl implements IdentityProviderManager, Ini
         identityProviderService.findById_migrated(identityProviderId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(identityProvider -> {
                             updateAuthenticationProvider(identityProvider);
                             logger.info("Identity provider {} {}d for organization {}", identityProviderId, eventType, organizationId);
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} identity provider for organization {}", eventType, organizationId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No identity provider found with id {}", identityProviderId)));
+                        }), error -> logger.error("Unable to {} identity provider for organization {}", eventType, organizationId, error), () -> logger.error("No identity provider found with id {}", identityProviderId));
     }
 
     private void updateAuthenticationProvider(IdentityProvider identityProvider) {

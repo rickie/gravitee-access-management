@@ -16,7 +16,6 @@
 package io.gravitee.am.management.service.impl.plugins;
 
 import com.google.errorprone.annotations.InlineMe;
-
 import io.gravitee.am.management.service.ResourcePluginService;
 import io.gravitee.am.plugins.resource.core.ResourcePluginManager;
 import io.gravitee.am.service.exception.TechnicalManagementException;
@@ -31,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -55,7 +55,7 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
 @Override
     public Mono<List<ResourcePlugin>> findAll_migrated(List<String> expand) {
         LOGGER.debug("List all resource plugins");
-        return RxJava2Adapter.singleToMono(Observable.fromIterable(resourcePluginManager.getAll())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(resourcePluginManager.getAll()))
                 .map(plugin -> convert(plugin, expand))
                 .toList());
     }
@@ -150,7 +150,7 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
         }
         if (expand != null) {
             if (expand.contains(ResourcePluginService.EXPAND_ICON)) {
-                this.getIcon_migrated(plugin.getId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(plugin::setIcon));
+                this.getIcon_migrated(plugin.getId()).subscribe(plugin::setIcon);
             }
         }
         return plugin;
