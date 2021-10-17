@@ -26,7 +26,7 @@ import io.gravitee.am.management.handlers.management.api.resources.AbstractResou
 import io.gravitee.am.model.Acl;
 
 
-import io.gravitee.am.model.oauth2.ScopeApproval;
+
 import io.gravitee.am.model.permissions.Permission;
 import io.gravitee.am.service.ApplicationService;
 import io.gravitee.am.service.DomainService;
@@ -37,8 +37,8 @@ import io.gravitee.common.http.MediaType;
 
 
 
-import io.reactivex.Single;
-import io.reactivex.SingleSource;
+
+
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
