@@ -20,15 +20,15 @@ import static io.gravitee.am.common.oauth2.ResponseType.CODE;
 import static io.gravitee.am.common.oauth2.ResponseType.TOKEN;
 import static io.gravitee.am.common.oidc.ResponseType.*;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.Application;
 import io.gravitee.am.model.application.ApplicationOAuthSettings;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.service.exception.InvalidClientMetadataException;
-import io.reactivex.Single;
+
 import java.util.*;
 import java.util.stream.Collectors;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

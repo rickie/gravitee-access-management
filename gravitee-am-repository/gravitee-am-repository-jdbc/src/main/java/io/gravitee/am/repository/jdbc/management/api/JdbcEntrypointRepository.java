@@ -29,7 +29,7 @@ import io.gravitee.am.repository.jdbc.management.api.spring.entrypoint.SpringEnt
 import io.gravitee.am.repository.jdbc.management.api.spring.entrypoint.SpringEntrypointTagRepository;
 import io.gravitee.am.repository.management.api.EntrypointRepository;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;

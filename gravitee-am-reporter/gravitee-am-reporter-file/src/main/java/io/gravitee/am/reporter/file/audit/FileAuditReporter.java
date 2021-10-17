@@ -35,7 +35,7 @@ import io.gravitee.common.service.AbstractService;
 import io.gravitee.node.api.Node;
 import io.gravitee.reporter.api.Reportable;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import java.io.IOException;

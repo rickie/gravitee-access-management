@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.factor.otp.provider;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.mfa.InvalidCodeException;
 import io.gravitee.am.factor.api.Enrollment;
 import io.gravitee.am.factor.api.FactorContext;
@@ -28,8 +28,8 @@ import io.gravitee.am.model.User;
 import io.gravitee.am.model.factor.EnrolledFactor;
 import io.gravitee.am.model.factor.EnrolledFactorSecurity;
 import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

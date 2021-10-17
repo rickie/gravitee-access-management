@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.oauth2.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.jwt.JWTException;
 import io.gravitee.am.common.exception.oauth2.InvalidTokenException;
 import io.gravitee.am.common.jwt.JWT;

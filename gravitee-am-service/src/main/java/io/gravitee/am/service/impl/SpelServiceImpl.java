@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.service.SpelService;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.common.http.HttpHeaders;

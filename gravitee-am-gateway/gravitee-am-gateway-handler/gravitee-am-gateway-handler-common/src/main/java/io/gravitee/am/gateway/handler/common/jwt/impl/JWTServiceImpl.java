@@ -16,7 +16,7 @@
 package io.gravitee.am.gateway.handler.common.jwt.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.errorprone.annotations.InlineMe;
+
 import com.nimbusds.jose.JWSAlgorithm;
 import io.gravitee.am.common.exception.oauth2.InvalidTokenException;
 import io.gravitee.am.common.jwt.JWT;

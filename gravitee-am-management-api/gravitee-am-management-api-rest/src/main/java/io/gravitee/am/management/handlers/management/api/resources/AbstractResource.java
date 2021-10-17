@@ -20,7 +20,7 @@ import static io.gravitee.am.management.service.permissions.Permissions.or;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.management.service.PermissionService;
 import io.gravitee.am.management.service.permissions.PermissionAcls;
@@ -28,7 +28,7 @@ import io.gravitee.am.management.service.permissions.Permissions;
 import io.gravitee.am.model.Acl;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.permissions.Permission;
-import io.reactivex.Completable;
+
 
 import io.reactivex.Single;
 

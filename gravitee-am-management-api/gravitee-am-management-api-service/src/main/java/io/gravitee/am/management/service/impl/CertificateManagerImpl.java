@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.service.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.certificate.api.CertificateProvider;
 import io.gravitee.am.common.event.CertificateEvent;
 import io.gravitee.am.management.service.CertificateManager;
@@ -27,7 +27,7 @@ import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.event.EventManager;
 import io.gravitee.common.service.AbstractService;
-import io.reactivex.Maybe;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;

@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.flow.implicit;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.common.oauth2.ResponseType;
 import io.gravitee.am.common.oidc.idtoken.Claims;
@@ -29,10 +29,10 @@ import io.gravitee.am.gateway.handler.oidc.service.flow.AbstractFlow;
 import io.gravitee.am.gateway.handler.oidc.service.idtoken.IDTokenService;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Single;
+
 import java.util.Arrays;
 import java.util.List;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

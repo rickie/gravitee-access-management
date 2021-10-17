@@ -31,7 +31,7 @@ import io.gravitee.am.repository.jdbc.management.api.spring.SpringMembershipRepo
 import io.gravitee.am.repository.management.api.MembershipRepository;
 import io.gravitee.am.repository.management.api.search.MembershipCriteria;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 

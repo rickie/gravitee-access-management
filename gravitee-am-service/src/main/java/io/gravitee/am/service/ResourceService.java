@@ -21,8 +21,8 @@ import io.gravitee.am.model.uma.Resource;
 import io.gravitee.am.model.uma.policy.AccessPolicy;
 import io.gravitee.am.service.model.NewResource;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
+
+
 import io.reactivex.Single;
 import java.util.*;
 import java.util.List;

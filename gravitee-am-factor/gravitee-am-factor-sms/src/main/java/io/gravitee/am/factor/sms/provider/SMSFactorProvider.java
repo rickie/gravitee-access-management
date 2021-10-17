@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.factor.sms.provider;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
@@ -32,13 +32,13 @@ import io.gravitee.am.resource.api.mfa.MFAChallenge;
 import io.gravitee.am.resource.api.mfa.MFALink;
 import io.gravitee.am.resource.api.mfa.MFAResourceProvider;
 import io.gravitee.am.resource.api.mfa.MFAType;
-import io.reactivex.Completable;
-import io.reactivex.Single;
+
+
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

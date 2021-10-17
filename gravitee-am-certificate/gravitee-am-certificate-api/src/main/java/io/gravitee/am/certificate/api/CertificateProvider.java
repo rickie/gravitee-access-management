@@ -15,15 +15,15 @@
  */
 package io.gravitee.am.certificate.api;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.certificate.api.CertificateKey;
 import io.gravitee.am.model.jose.JWK;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
+
+
 import java.security.cert.Certificate;
 import java.util.Collections;
 import java.util.List;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

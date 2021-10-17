@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.auth.user.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.authentication.*;
 import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.gateway.handler.common.auth.AuthenticationDetails;

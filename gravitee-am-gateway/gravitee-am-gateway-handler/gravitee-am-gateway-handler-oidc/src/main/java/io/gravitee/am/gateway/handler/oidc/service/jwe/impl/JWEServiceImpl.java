@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.oidc.service.jwe.impl;
 
 import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.*;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.*;
 import com.nimbusds.jose.crypto.impl.*;

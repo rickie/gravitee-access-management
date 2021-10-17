@@ -18,7 +18,7 @@ package io.gravitee.am.repository.jdbc.management.api.spring;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcAccessPolicy;
 import io.reactivex.Flowable;
-import io.reactivex.Single;
+
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;

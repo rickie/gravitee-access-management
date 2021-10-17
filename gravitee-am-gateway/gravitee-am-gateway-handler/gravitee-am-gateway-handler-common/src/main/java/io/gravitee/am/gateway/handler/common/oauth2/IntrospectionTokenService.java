@@ -15,10 +15,10 @@
  */
 package io.gravitee.am.gateway.handler.common.oauth2;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.jwt.JWT;
-import io.reactivex.Single;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
+
 import reactor.core.publisher.Mono;
 
 /**

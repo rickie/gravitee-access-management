@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.flow.hybrid;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.common.oidc.ResponseType;
 import io.gravitee.am.common.oidc.idtoken.Claims;

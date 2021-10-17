@@ -15,10 +15,10 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.assertion;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Maybe;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
+
 import reactor.core.publisher.Mono;
 
 /**

@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.users.resources.consents;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.jwt.Claims;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
@@ -25,11 +25,11 @@ import io.gravitee.am.gateway.handler.users.service.UserService;
 import io.gravitee.am.identityprovider.api.DefaultUser;
 import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.Domain;
-import io.reactivex.Single;
+
 import io.vertx.reactivex.ext.web.RoutingContext;
 import java.util.HashMap;
 import java.util.Map;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

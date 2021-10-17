@@ -29,7 +29,7 @@ import io.gravitee.am.repository.jdbc.management.api.model.JdbcFlow;
 import io.gravitee.am.repository.jdbc.management.api.spring.SpringFlowRepository;
 import io.gravitee.am.repository.management.api.FlowRepository;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 

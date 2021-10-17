@@ -15,13 +15,13 @@
  */
 package io.gravitee.am.management.service;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.plugin.alert.AlertTriggerProviderManager;
-import io.reactivex.Single;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

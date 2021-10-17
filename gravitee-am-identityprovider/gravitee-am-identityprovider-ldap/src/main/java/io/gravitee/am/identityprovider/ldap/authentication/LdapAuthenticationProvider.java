@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.identityprovider.ldap.authentication;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.exception.authentication.InternalAuthenticationServiceException;
 import io.gravitee.am.common.exception.authentication.UsernameNotFoundException;
@@ -25,7 +25,7 @@ import io.gravitee.am.identityprovider.ldap.LdapIdentityProviderConfiguration;
 import io.gravitee.am.identityprovider.ldap.authentication.spring.LdapAuthenticationProviderConfiguration;
 import io.gravitee.am.identityprovider.ldap.common.utils.LdapUtils;
 import io.gravitee.common.service.AbstractService;
-import io.reactivex.Maybe;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +41,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

@@ -29,7 +29,7 @@ import io.gravitee.am.repository.jdbc.management.api.spring.scope.SpringScopeCla
 import io.gravitee.am.repository.jdbc.management.api.spring.scope.SpringScopeRepository;
 import io.gravitee.am.repository.management.api.ScopeRepository;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.time.LocalDateTime;

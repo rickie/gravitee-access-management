@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.root.service.user.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.exception.authentication.AccountInactiveException;
 import io.gravitee.am.common.jwt.JWT;

@@ -29,7 +29,7 @@ import io.gravitee.am.repository.jdbc.management.api.spring.resources.SpringReso
 import io.gravitee.am.repository.jdbc.management.api.spring.resources.SpringResourceScopeRepository;
 import io.gravitee.am.repository.management.api.ResourceRepository;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.List;

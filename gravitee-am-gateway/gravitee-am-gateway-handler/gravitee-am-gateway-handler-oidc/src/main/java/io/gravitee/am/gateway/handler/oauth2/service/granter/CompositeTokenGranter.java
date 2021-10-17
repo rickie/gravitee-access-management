@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.gateway.handler.common.auth.user.UserAuthenticationManager;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
@@ -40,7 +40,7 @@ import io.gravitee.am.service.PermissionTicketService;
 import io.gravitee.am.service.ResourceService;
 
 
-import io.reactivex.Single;
+
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

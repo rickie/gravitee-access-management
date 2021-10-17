@@ -15,10 +15,10 @@
  */
 package io.gravitee.am.gateway.handler.saml2.service.sp;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.identityprovider.api.Metadata;
-import io.reactivex.Single;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
+
 import reactor.core.publisher.Mono;
 
 /**

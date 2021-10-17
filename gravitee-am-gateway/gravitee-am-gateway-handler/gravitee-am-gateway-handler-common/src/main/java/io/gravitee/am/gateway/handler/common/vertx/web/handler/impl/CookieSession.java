@@ -15,17 +15,17 @@
  */
 package io.gravitee.am.gateway.handler.common.vertx.web.handler.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.certificate.CertificateProvider;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
-import io.reactivex.Single;
+
 import io.vertx.ext.web.Session;
 import io.vertx.ext.web.sstore.AbstractSession;
 import java.util.Date;
 import java.util.HashMap;
 import org.springframework.util.StringUtils;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

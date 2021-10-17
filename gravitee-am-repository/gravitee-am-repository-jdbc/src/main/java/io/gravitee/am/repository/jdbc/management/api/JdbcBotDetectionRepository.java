@@ -27,7 +27,7 @@ import io.gravitee.am.repository.jdbc.management.AbstractJdbcRepository;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcBotDetection;
 import io.gravitee.am.repository.management.api.BotDetectionRepository;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import org.springframework.stereotype.Repository;

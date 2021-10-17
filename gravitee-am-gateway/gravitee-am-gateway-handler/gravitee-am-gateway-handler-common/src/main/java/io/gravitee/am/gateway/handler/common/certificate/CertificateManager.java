@@ -15,12 +15,12 @@
  */
 package io.gravitee.am.gateway.handler.common.certificate;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.gateway.certificate.CertificateProvider;
 import io.gravitee.common.service.Service;
-import io.reactivex.Maybe;
+
 import java.util.Collection;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

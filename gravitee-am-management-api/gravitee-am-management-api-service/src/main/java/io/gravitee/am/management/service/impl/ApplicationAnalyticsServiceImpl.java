@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.service.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.analytics.Field;
 import io.gravitee.am.common.audit.Status;
 import io.gravitee.am.management.service.ApplicationAnalyticsService;
@@ -23,13 +23,13 @@ import io.gravitee.am.management.service.AuditService;
 import io.gravitee.am.model.analytics.*;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
 import io.gravitee.am.service.UserService;
-import io.reactivex.Single;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

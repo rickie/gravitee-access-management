@@ -34,7 +34,7 @@ import io.gravitee.common.http.MediaType;
 import io.gravitee.el.TemplateEngine;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
-import io.reactivex.Maybe;
+
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import io.vertx.core.http.HttpMethod;

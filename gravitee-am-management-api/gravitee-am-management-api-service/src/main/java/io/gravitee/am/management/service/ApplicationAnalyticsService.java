@@ -15,11 +15,11 @@
  */
 package io.gravitee.am.management.service;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.analytics.AnalyticsQuery;
 import io.gravitee.am.model.analytics.AnalyticsResponse;
-import io.reactivex.Single;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
+
 import reactor.core.publisher.Mono;
 
 public interface ApplicationAnalyticsService {

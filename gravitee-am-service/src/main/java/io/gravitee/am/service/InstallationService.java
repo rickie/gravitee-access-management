@@ -18,7 +18,7 @@ package io.gravitee.am.service;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.Installation;
 import io.reactivex.Completable;
-import io.reactivex.Single;
+
 import java.util.Map;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;

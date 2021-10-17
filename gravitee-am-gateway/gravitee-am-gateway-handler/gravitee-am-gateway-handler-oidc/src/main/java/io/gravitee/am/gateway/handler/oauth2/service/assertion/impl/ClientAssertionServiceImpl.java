@@ -18,7 +18,7 @@ package io.gravitee.am.gateway.handler.oauth2.service.assertion.impl;
 import static io.gravitee.am.common.oidc.ClientAuthenticationMethod.JWT_BEARER;
 import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.isSignAlgCompliantWithFapi;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;

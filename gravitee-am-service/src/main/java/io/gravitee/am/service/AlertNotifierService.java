@@ -23,7 +23,7 @@ import io.gravitee.am.repository.management.api.search.AlertNotifierCriteria;
 import io.gravitee.am.service.model.NewAlertNotifier;
 import io.gravitee.am.service.model.PatchAlertNotifier;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;

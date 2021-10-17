@@ -34,7 +34,7 @@ import io.gravitee.am.service.exception.*;
 import io.gravitee.am.service.model.NewUser;
 import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.UserAuditBuilder;
-import io.reactivex.Completable;
+
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Single;

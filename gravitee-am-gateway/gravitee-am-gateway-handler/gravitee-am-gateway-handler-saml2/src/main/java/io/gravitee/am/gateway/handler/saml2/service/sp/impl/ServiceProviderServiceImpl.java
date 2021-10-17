@@ -15,17 +15,17 @@
  */
 package io.gravitee.am.gateway.handler.saml2.service.sp.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.gateway.handler.common.auth.idp.IdentityProviderManager;
 import io.gravitee.am.gateway.handler.saml2.service.sp.ServiceProviderService;
 import io.gravitee.am.identityprovider.api.Metadata;
 import io.gravitee.am.service.exception.IdentityProviderMetadataNotFoundException;
 import io.gravitee.am.service.exception.IdentityProviderNotFoundException;
-import io.reactivex.Single;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

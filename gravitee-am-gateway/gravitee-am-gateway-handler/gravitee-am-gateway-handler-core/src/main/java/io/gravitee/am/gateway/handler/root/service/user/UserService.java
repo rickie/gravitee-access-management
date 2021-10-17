@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.root.service.user;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.gateway.handler.root.service.response.RegistrationResponse;
 import io.gravitee.am.gateway.handler.root.service.response.ResetPasswordResponse;
 import io.gravitee.am.gateway.handler.root.service.user.model.ForgotPasswordParameters;
@@ -23,10 +23,10 @@ import io.gravitee.am.gateway.handler.root.service.user.model.UserToken;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.factor.EnrolledFactor;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
+
+
+
 import reactor.core.publisher.Mono;
 
 /**

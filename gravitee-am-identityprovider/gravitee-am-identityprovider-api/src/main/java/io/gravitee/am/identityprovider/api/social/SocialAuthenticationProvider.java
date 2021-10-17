@@ -15,12 +15,12 @@
  */
 package io.gravitee.am.identityprovider.api.social;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.identityprovider.api.Authentication;
 import io.gravitee.am.identityprovider.api.AuthenticationProvider;
 import io.gravitee.am.identityprovider.api.common.Request;
-import io.reactivex.Maybe;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
+
 import reactor.core.publisher.Mono;
 
 /**

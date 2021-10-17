@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.certificate.javakeystore.provider;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyOperation;
 import com.nimbusds.jose.jwk.KeyUse;
@@ -25,8 +25,8 @@ import io.gravitee.am.certificate.javakeystore.JavaKeyStoreConfiguration;
 import io.gravitee.am.common.jwt.SignatureAlgorithm;
 import io.gravitee.am.model.jose.JWK;
 import io.gravitee.am.model.jose.RSAKey;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
+
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.Key;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

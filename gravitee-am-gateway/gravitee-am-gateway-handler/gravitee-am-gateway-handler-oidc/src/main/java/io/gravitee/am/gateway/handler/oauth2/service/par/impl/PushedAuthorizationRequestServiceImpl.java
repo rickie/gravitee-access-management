@@ -19,7 +19,7 @@ import static io.gravitee.am.common.oidc.ClientAuthenticationMethod.JWT_BEARER;
 import static io.gravitee.am.gateway.handler.oauth2.resources.handler.authorization.ParamUtils.redirectMatches;
 import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.isSignAlgCompliantWithFapi;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import com.nimbusds.jwt.*;
 import com.nimbusds.jwt.JWT;
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;

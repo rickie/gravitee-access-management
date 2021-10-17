@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter.refresh;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.oauth2.GrantType;
 import io.gravitee.am.common.oauth2.Parameters;
@@ -28,8 +28,8 @@ import io.gravitee.am.gateway.handler.oauth2.service.token.Token;
 import io.gravitee.am.gateway.handler.oauth2.service.token.TokenService;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;

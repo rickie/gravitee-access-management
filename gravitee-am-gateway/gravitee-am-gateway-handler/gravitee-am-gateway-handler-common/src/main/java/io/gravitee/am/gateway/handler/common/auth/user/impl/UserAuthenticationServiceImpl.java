@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.auth.user.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.audit.EventType;
 import io.gravitee.am.common.exception.authentication.AccountDisabledException;
 import io.gravitee.am.common.oauth2.Parameters;
@@ -43,7 +43,7 @@ import io.gravitee.am.service.exception.UserNotFoundException;
 import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.UserAuditBuilder;
 import io.gravitee.gateway.api.Request;
-import io.reactivex.Completable;
+
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Single;

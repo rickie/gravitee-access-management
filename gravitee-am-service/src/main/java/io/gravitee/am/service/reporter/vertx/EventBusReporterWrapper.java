@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.service.reporter.vertx;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.analytics.Type;
 import io.gravitee.am.model.Platform;
 import io.gravitee.am.model.ReferenceType;
@@ -25,7 +25,7 @@ import io.gravitee.am.reporter.api.provider.ReportableCriteria;
 import io.gravitee.am.reporter.api.provider.Reporter;
 import io.gravitee.common.component.Lifecycle;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import io.vertx.core.Handler;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.eventbus.Message;

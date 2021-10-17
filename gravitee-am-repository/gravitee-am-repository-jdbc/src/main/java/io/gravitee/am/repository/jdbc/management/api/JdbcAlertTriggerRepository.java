@@ -31,7 +31,7 @@ import io.gravitee.am.repository.jdbc.management.api.spring.alert.SpringAlertTri
 import io.gravitee.am.repository.management.api.AlertTriggerRepository;
 import io.gravitee.am.repository.management.api.search.AlertTriggerCriteria;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Single;

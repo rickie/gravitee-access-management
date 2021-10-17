@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.service.impl.ReCaptchaServiceImpl;
 
 import io.reactivex.Single;

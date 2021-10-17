@@ -21,7 +21,7 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.reporter.api.Reportable;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import java.util.Map;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;

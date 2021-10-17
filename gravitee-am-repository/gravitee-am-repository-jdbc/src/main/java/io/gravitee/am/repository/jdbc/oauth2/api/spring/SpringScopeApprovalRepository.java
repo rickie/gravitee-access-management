@@ -15,14 +15,14 @@
  */
 package io.gravitee.am.repository.jdbc.oauth2.api.spring;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
+
+
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
 import org.springframework.stereotype.Repository;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

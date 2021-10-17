@@ -30,7 +30,7 @@ import io.gravitee.am.repository.jdbc.management.api.spring.role.SpringRoleOauth
 import io.gravitee.am.repository.jdbc.management.api.spring.role.SpringRoleRepository;
 import io.gravitee.am.repository.management.api.RoleRepository;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Single;

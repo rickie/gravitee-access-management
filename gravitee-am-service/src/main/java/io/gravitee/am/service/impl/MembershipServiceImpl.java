@@ -40,7 +40,7 @@ import io.gravitee.am.service.reporter.builder.management.DomainAuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.MembershipAuditBuilder;
 import io.reactivex.Completable;
 
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
 import io.reactivex.Single;

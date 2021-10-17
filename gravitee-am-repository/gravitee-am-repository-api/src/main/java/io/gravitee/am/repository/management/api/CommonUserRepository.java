@@ -21,9 +21,9 @@ import io.gravitee.am.model.User;
 import io.gravitee.am.model.common.Page;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;

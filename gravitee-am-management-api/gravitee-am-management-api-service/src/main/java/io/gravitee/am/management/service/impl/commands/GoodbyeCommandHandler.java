@@ -15,22 +15,22 @@
  */
 package io.gravitee.am.management.service.impl.commands;
 
-import static io.gravitee.am.model.Installation.COCKPIT_INSTALLATION_STATUS;
+
 
 
 import io.gravitee.am.service.InstallationService;
 import io.gravitee.cockpit.api.command.Command;
 import io.gravitee.cockpit.api.command.CommandHandler;
-import io.gravitee.cockpit.api.command.CommandStatus;
+
 import io.gravitee.cockpit.api.command.goodbye.GoodbyeCommand;
 import io.gravitee.cockpit.api.command.goodbye.GoodbyeReply;
-import io.reactivex.Single;
-import java.util.Collections;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import reactor.adapter.rxjava.RxJava2Adapter;
-import reactor.core.publisher.Mono;
+
+
 
 
 /**

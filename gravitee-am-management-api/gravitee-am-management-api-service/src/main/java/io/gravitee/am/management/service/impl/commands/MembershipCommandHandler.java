@@ -15,14 +15,14 @@
  */
 package io.gravitee.am.management.service.impl.commands;
 
-import static io.gravitee.am.management.service.impl.commands.UserCommandHandler.COCKPIT_SOURCE;
 
 
-import io.gravitee.am.model.Membership;
+
+
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.model.Role;
-import io.gravitee.am.model.User;
-import io.gravitee.am.model.membership.MemberType;
+
+
 import io.gravitee.am.model.permissions.DefaultRole;
 import io.gravitee.am.model.permissions.SystemRole;
 import io.gravitee.am.service.MembershipService;
@@ -32,17 +32,17 @@ import io.gravitee.am.service.RoleService;
 import io.gravitee.am.service.exception.InvalidRoleException;
 import io.gravitee.cockpit.api.command.Command;
 import io.gravitee.cockpit.api.command.CommandHandler;
-import io.gravitee.cockpit.api.command.CommandStatus;
+
 import io.gravitee.cockpit.api.command.membership.MembershipCommand;
-import io.gravitee.cockpit.api.command.membership.MembershipPayload;
+
 import io.gravitee.cockpit.api.command.membership.MembershipReply;
-import io.reactivex.Single;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)
@@ -74,22 +74,5 @@ public class MembershipCommandHandler implements CommandHandler<MembershipComman
 
 
     
-private Mono<Role> findRole_migrated(String roleName, String organizationId, ReferenceType assignableType) {
 
-        SystemRole systemRole = SystemRole.fromName(roleName);
-
-        // First try to map to a system role.
-        if (systemRole != null) {
-            return roleService.findSystemRole_migrated(systemRole, assignableType).single();
-        } else {
-            // Then try to find a default role.
-            DefaultRole defaultRole = DefaultRole.fromName(roleName);
-
-            if (defaultRole != null) {
-                return roleService.findDefaultRole_migrated(organizationId, defaultRole, assignableType).single();
-            }
-        }
-
-        return Mono.error(new InvalidRoleException(String.format("Unable to find role [%s] for organization [%s].", roleName, organizationId)));
-    }
 }

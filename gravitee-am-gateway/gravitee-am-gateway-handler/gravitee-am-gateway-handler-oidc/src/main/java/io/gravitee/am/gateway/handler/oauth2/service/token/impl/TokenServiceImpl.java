@@ -48,8 +48,8 @@ import io.gravitee.common.util.Maps;
 import io.gravitee.common.util.MultiValueMap;
 import io.gravitee.gateway.api.ExecutionContext;
 import io.gravitee.gateway.api.context.SimpleExecutionContext;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
+
+
 
 import io.reactivex.Single;
 import io.reactivex.functions.Function;

@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.policy.enrich.profile;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.User;
 import io.gravitee.am.policy.enrich.profile.configuration.EnrichProfilePolicyConfiguration;
 import io.gravitee.am.policy.enrich.profile.configuration.Property;
@@ -27,12 +27,12 @@ import io.gravitee.gateway.api.Response;
 import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.PolicyResult;
 import io.gravitee.policy.api.annotations.OnRequest;
-import io.reactivex.Single;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
