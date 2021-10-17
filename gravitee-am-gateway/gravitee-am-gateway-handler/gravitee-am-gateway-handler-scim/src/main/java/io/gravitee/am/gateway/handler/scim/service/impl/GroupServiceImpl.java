@@ -184,7 +184,7 @@ if (!y.getId().equals(group1.getId())) {
 throw new UniquenessException("Group with display name [" + group.getDisplayName() + "] already exists");
 }
 return y;
-})).defaultIfEmpty(y)).flatMapSingle((io.gravitee.am.model.Group irrelevant)->RxJava2Adapter.monoToSingle(setMembers_migrated(group, baseUrl)))).flatMap((io.gravitee.am.gateway.handler.scim.model.Group v)->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.gateway.handler.scim.model.Group group1)->{
+})).defaultIfEmpty(y)).flatMapSingle((io.gravitee.am.model.Group irrelevant)->RxJava2Adapter.monoToSingle(setMembers_migrated(group, baseUrl)))).flatMap((io.gravitee.am.gateway.handler.scim.model.Group v)->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.gateway.handler.scim.model.Group group1)->{
 io.gravitee.am.model.Group groupToUpdate = convert(group1);
 groupToUpdate.setId(y.getId());
 groupToUpdate.setReferenceType(y.getReferenceType());
@@ -192,7 +192,7 @@ groupToUpdate.setReferenceId(y.getReferenceId());
 groupToUpdate.setCreatedAt(y.getCreatedAt());
 groupToUpdate.setUpdatedAt(new Date());
 return RxJava2Adapter.monoToSingle(groupRepository.update_migrated(groupToUpdate));
-}).apply(v))))).map(RxJavaReactorMigrationUtil.toJdkFunction(group1 -> convert(group1, baseUrl, false))).flatMap(group1->setMembers_migrated(group1, baseUrl)).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Group>>toJdkFunction(ex -> {
+}).apply(v)))).map(RxJavaReactorMigrationUtil.toJdkFunction(group1 -> convert(group1, baseUrl, false))).flatMap(group1->setMembers_migrated(group1, baseUrl)).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Group>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException || ex instanceof SCIMException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     } else {
