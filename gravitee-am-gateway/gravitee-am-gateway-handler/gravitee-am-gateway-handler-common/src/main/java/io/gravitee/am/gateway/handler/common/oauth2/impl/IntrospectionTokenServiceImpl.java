@@ -65,7 +65,7 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
 }
 @Override
     public Mono<JWT> introspect_migrated(String token, boolean offlineVerification) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(jwtService.decode_migrated(token).flatMap(e->clientService.findByDomainAndClientId_migrated(e.getDomain(), e.getAud())).switchIfEmpty(Mono.error(new InvalidTokenException("Invalid or unknown client for this token"))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(jwtService.decode_migrated(token).flatMap(e->clientService.findByDomainAndClientId_migrated(e.getDomain(), e.getAud())).switchIfEmpty(Mono.error(new InvalidTokenException("Invalid or unknown client for this token"))))
                 .flatMapSingle(client -> RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(token, client)))).flatMap(v->RxJava2Adapter.singleToMono((Single<JWT>)RxJavaReactorMigrationUtil.toJdkFunction((Function<JWT, Single<JWT>>)jwt -> {
                     // Just check the JWT signature and JWT validity if offline verification option is enabled
                     // or if the token has just been created (could not be in database so far because of async database storing process delay)
@@ -80,7 +80,7 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
                                 }
                                 return jwt;
                             })));
-                }).apply(v))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction(ex -> {
+                }).apply(v))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction(ex -> {
                     if (ex instanceof JWTException) {
                         LOGGER.debug("An error occurs while decoding JWT access token : {}", token, ex);
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidTokenException(ex.getMessage(), ex)));

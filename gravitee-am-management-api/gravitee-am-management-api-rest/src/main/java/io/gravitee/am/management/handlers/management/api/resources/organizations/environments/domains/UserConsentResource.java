@@ -87,11 +87,11 @@ public class UserConsentResource extends AbstractResource {
             @PathParam("consent") String consent,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->scopeApprovalService.findById_migrated(consent)).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consent))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ScopeApproval, SingleSource<ScopeApprovalEntity>>toJdkFunction(scopeApproval -> RxJava2Adapter.monoToSingle(getClient_migrated(scopeApproval.getDomain(), scopeApproval.getClientId()).map(RxJavaReactorMigrationUtil.toJdkFunction(clientEntity -> {
-                                    ScopeApprovalEntity scopeApprovalEntity = new ScopeApprovalEntity(scopeApproval);
-                                    scopeApprovalEntity.setClientEntity(clientEntity);
-                                    return scopeApprovalEntity;
-                                })))).apply(y))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->scopeApprovalService.findById_migrated(consent)).switchIfEmpty(Mono.error(new ScopeApprovalNotFoundException(consent))).flatMap(y->getClient_migrated(y.getDomain(), y.getClientId()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.management.handlers.management.api.model.ApplicationEntity clientEntity)->{
+ScopeApprovalEntity scopeApprovalEntity = new ScopeApprovalEntity(y);
+scopeApprovalEntity.setClientEntity(clientEntity);
+return scopeApprovalEntity;
+})))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE

@@ -58,7 +58,7 @@ public class EventServiceImpl implements EventService {
 
         event.setCreatedAt(new Date());
         event.setUpdatedAt(event.getCreatedAt());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventRepository.create_migrated(event))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Event>>toJdkFunction(ex -> {
+        return eventRepository.create_migrated(event).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Event>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
@@ -76,7 +76,7 @@ public class EventServiceImpl implements EventService {
 @Override
     public Mono<List<Event>> findByTimeFrame_migrated(long from, long to) {
         LOGGER.debug("Find events with time frame {} and {}", from, to);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(eventRepository.findByTimeFrame_migrated(from, to).collectList())).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<List<Event>>>toJdkFunction(ex -> {
+        return eventRepository.findByTimeFrame_migrated(from, to).collectList().onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<List<Event>>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }

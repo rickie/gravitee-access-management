@@ -129,7 +129,7 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Mono<Credential> create_migrated(Credential credential) {
         LOGGER.debug("Create a new credential {}", credential);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.create_migrated(credential))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Credential>>toJdkFunction(ex -> {
+        return credentialRepository.create_migrated(credential).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Credential>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
@@ -147,7 +147,7 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Mono<Credential> update_migrated(Credential credential) {
         LOGGER.debug("Update a credential {}", credential);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(credentialRepository.findById_migrated(credential.getId()).switchIfEmpty(Mono.error(new CredentialNotFoundException(credential.getId()))).flatMap(y->credentialRepository.update_migrated(credential)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Credential>>toJdkFunction(ex -> {
+        return credentialRepository.findById_migrated(credential.getId()).switchIfEmpty(Mono.error(new CredentialNotFoundException(credential.getId()))).flatMap(y->credentialRepository.update_migrated(credential)).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Credential>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }

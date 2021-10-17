@@ -83,7 +83,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String organizationId = details.get(Claims.organization);
 
         final String source = details.get(SOURCE);
-        io.gravitee.am.model.User endUser = RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userService.findByExternalIdAndSource_migrated(ReferenceType.ORGANIZATION, organizationId, principal.getId(), source).switchIfEmpty(Mono.defer(()->userService.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, organizationId, principal.getUsername(), source))).switchIfEmpty(Mono.error(new UserNotFoundException(principal.getUsername()))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(existingUser -> {
+        io.gravitee.am.model.User endUser = userService.findByExternalIdAndSource_migrated(ReferenceType.ORGANIZATION, organizationId, principal.getId(), source).switchIfEmpty(Mono.defer(()->userService.findByUsernameAndSource_migrated(ReferenceType.ORGANIZATION, organizationId, principal.getUsername(), source))).switchIfEmpty(Mono.error(new UserNotFoundException(principal.getUsername()))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(existingUser -> {
                     existingUser.setSource(details.get(SOURCE));
                     existingUser.setLoggedAt(new Date());
                     existingUser.setLoginsCount(existingUser.getLoginsCount() + 1);
@@ -93,7 +93,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         existingUser.setAdditionalInformation(new HashMap<>(principal.getAdditionalInformation()));
                     }
                     return RxJava2Adapter.monoToSingle(userService.update_migrated(existingUser).flatMap(user->updateRoles_migrated(principal, existingUser).then(Mono.just(user))));
-                }).apply(y)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<io.gravitee.am.model.User>>toJdkFunction(ex -> {
+                }).apply(y)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<io.gravitee.am.model.User>>toJdkFunction(ex -> {
                     if (ex instanceof UserNotFoundException) {
                         final io.gravitee.am.model.User newUser = new io.gravitee.am.model.User();
                         newUser.setInternal(false);

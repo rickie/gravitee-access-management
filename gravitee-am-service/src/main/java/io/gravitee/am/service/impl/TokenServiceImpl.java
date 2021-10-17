@@ -66,14 +66,14 @@ public class TokenServiceImpl implements TokenService {
 @Override
     public Mono<TotalToken> findTotalTokensByDomain_migrated(String domain) {
         LOGGER.debug("Find total tokens by domain: {}", domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.findByDomain_migrated(domain))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.findByDomain_migrated(domain))
                 .flatMapObservable(Observable::fromIterable)
                 .flatMapSingle((io.gravitee.am.model.Application ident) -> RxJava2Adapter.monoToSingle(countByClientId_migrated(ident)))
                 .toList()).flatMap(v->RxJava2Adapter.singleToMono((Single<TotalToken>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Long>, Single<TotalToken>>)totalAccessTokens -> {
                     TotalToken totalToken = new TotalToken();
                     totalToken.setTotalAccessTokens(totalAccessTokens.stream().mapToLong(Long::longValue).sum());
                     return RxJava2Adapter.monoToSingle(Mono.just(totalToken));
-                }).apply(v))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<TotalToken>>toJdkFunction(ex -> {
+                }).apply(v))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<TotalToken>>toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find total tokens by domain: {}", domain, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find total tokens by domain: %s", domain), ex)));
@@ -89,11 +89,11 @@ public class TokenServiceImpl implements TokenService {
 @Override
     public Mono<TotalToken> findTotalTokensByApplication_migrated(Application application) {
         LOGGER.debug("Find total tokens by application : {}", application);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(countByClientId_migrated(application).map(RxJavaReactorMigrationUtil.toJdkFunction(totalAccessTokens -> {
+        return countByClientId_migrated(application).map(RxJavaReactorMigrationUtil.toJdkFunction(totalAccessTokens -> {
                     TotalToken totalToken = new TotalToken();
                     totalToken.setTotalAccessTokens(totalAccessTokens);
                     return totalToken;
-                })))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<TotalToken>>toJdkFunction(ex -> {
+                })).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<TotalToken>>toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find total tokens by application: {}", application, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find total tokens by application: %s", application), ex)));
@@ -109,14 +109,14 @@ public class TokenServiceImpl implements TokenService {
 @Override
     public Mono<TotalToken> findTotalTokens_migrated() {
         LOGGER.debug("Find total tokens");
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.findAll_migrated())
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.findAll_migrated())
                 .flatMapObservable(Observable::fromIterable)
                 .flatMapSingle((io.gravitee.am.model.Application ident) -> RxJava2Adapter.monoToSingle(countByClientId_migrated(ident)))
                 .toList()).flatMap(v->RxJava2Adapter.singleToMono((Single<TotalToken>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Long>, Single<TotalToken>>)totalAccessTokens -> {
                     TotalToken totalToken = new TotalToken();
                     totalToken.setTotalAccessTokens(totalAccessTokens.stream().mapToLong(Long::longValue).sum());
                     return RxJava2Adapter.monoToSingle(Mono.just(totalToken));
-                }).apply(v))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<TotalToken>>toJdkFunction(ex -> {
+                }).apply(v))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<TotalToken>>toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find total tokens", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to find total tokens", ex)));
                 }).apply(err)));

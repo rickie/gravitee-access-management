@@ -180,7 +180,7 @@ public class PushedAuthorizationRequestServiceImpl implements PushedAuthorizatio
 
     
 private Mono<JWT> readRequestObject_migrated(Client client, String request) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jweService.decrypt_migrated(request, false))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction((ex) -> {
+        return jweService.decrypt_migrated(request, false).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction((ex) -> {
                     if (ex instanceof OAuth2Exception) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
