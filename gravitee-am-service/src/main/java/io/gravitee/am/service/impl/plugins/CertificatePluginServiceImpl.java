@@ -47,12 +47,7 @@ public class CertificatePluginServiceImpl implements CertificatePluginService {
     @Autowired
     private CertificatePluginManager certificatePluginManager;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Set<CertificatePlugin>> findAll() {
- return RxJava2Adapter.monoToSingle(findAll_migrated());
-}
+    
 @Override
     public Mono<Set<CertificatePlugin>> findAll_migrated() {
         LOGGER.debug("List all certificate plugins");
@@ -93,12 +88,7 @@ public class CertificatePluginServiceImpl implements CertificatePluginService {
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(certificatePluginId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<String> getSchema(String certificatePluginId) {
- return RxJava2Adapter.monoToMaybe(getSchema_migrated(certificatePluginId));
-}
+    
 @Override
     public Mono<String> getSchema_migrated(String certificatePluginId) {
         LOGGER.debug("Find certificate plugin schema by ID: {}", certificatePluginId);

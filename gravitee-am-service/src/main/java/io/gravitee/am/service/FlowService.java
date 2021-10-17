@@ -34,23 +34,11 @@ import reactor.core.publisher.Mono;
  */
 public interface FlowService {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId, excludeApps))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Flow> findAll(ReferenceType referenceType, String referenceId, boolean excludeApps) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId, excludeApps));
-}
-default Flux<Flow> findAll_migrated(ReferenceType referenceType, String referenceId, boolean excludeApps) {
-    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId, excludeApps));
-}
+      
+Flux<Flow> findAll_migrated(ReferenceType referenceType, String referenceId, boolean excludeApps);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByApplication_migrated(referenceType, referenceId, application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Flow> findByApplication(ReferenceType referenceType, String referenceId, String application) {
-    return RxJava2Adapter.fluxToFlowable(findByApplication_migrated(referenceType, referenceId, application));
-}
-default Flux<Flow> findByApplication_migrated(ReferenceType referenceType, String referenceId, String application) {
-    return RxJava2Adapter.flowableToFlux(findByApplication(referenceType, referenceId, application));
-}
+      
+Flux<Flow> findByApplication_migrated(ReferenceType referenceType, String referenceId, String application);
 
     List<Flow> defaultFlows(ReferenceType referenceType, String referenceId);
 
@@ -126,22 +114,10 @@ default Mono<Void> delete_migrated(String id, User principal) {
     return RxJava2Adapter.completableToMono(delete(id, principal));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getSchema_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<String> getSchema() {
-    return RxJava2Adapter.monoToSingle(getSchema_migrated());
-}
-default Mono<String> getSchema_migrated() {
-    return RxJava2Adapter.singleToMono(getSchema());
-}
+      
+Mono<String> getSchema_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Flow> findAll(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}default Flux<Flow> findAll_migrated(ReferenceType referenceType, String referenceId) {
-        return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId, false));
-    }
+      Flux<Flow> findAll_migrated(ReferenceType referenceType, String referenceId);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId, flow))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

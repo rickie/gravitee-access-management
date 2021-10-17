@@ -86,12 +86,7 @@ public class TagServiceImpl implements TagService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Tag> findAll(String organizationId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
-}
+    
 @Override
     public Flux<Tag> findAll_migrated(String organizationId) {
         LOGGER.debug("Find all tags");

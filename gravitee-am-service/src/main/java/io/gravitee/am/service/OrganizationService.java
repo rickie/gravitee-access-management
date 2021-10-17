@@ -40,14 +40,8 @@ default Mono<Organization> findById_migrated(String organizationId) {
     return RxJava2Adapter.singleToMono(findById(organizationId));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.createDefault_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Organization> createDefault() {
-    return RxJava2Adapter.monoToMaybe(createDefault_migrated());
-}
-default Mono<Organization> createDefault_migrated() {
-    return RxJava2Adapter.maybeToMono(createDefault());
-}
+      
+Mono<Organization> createDefault_migrated();
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOrUpdate_migrated(organizationId, newOrganization, byUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

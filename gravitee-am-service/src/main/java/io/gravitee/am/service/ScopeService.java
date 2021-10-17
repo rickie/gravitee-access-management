@@ -76,23 +76,11 @@ default Mono<Page<Scope>> findByDomain_migrated(String domain, int page, int siz
     return RxJava2Adapter.singleToMono(findByDomain(domain, page, size));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndKey_migrated(domain, scopeKey))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Scope> findByDomainAndKey(String domain, String scopeKey) {
-    return RxJava2Adapter.monoToMaybe(findByDomainAndKey_migrated(domain, scopeKey));
-}
-default Mono<Scope> findByDomainAndKey_migrated(String domain, String scopeKey) {
-    return RxJava2Adapter.maybeToMono(findByDomainAndKey(domain, scopeKey));
-}
+      
+Mono<Scope> findByDomainAndKey_migrated(String domain, String scopeKey);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomainAndKeys_migrated(domain, scopeKeys))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<Scope>> findByDomainAndKeys(String domain, List<String> scopeKeys) {
-    return RxJava2Adapter.monoToSingle(findByDomainAndKeys_migrated(domain, scopeKeys));
-}
-default Mono<List<Scope>> findByDomainAndKeys_migrated(String domain, List<String> scopeKeys) {
-    return RxJava2Adapter.singleToMono(findByDomainAndKeys(domain, scopeKeys));
-}
+      
+Mono<List<Scope>> findByDomainAndKeys_migrated(String domain, List<String> scopeKeys);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.patch_migrated(domain, id, patchScope, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -130,27 +118,15 @@ default Mono<Void> delete_migrated(String scopeId, boolean force, User principal
     return RxJava2Adapter.completableToMono(delete(scopeId, force, principal));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Page<Scope>> search(String domain, String query, int page, int size) {
-    return RxJava2Adapter.monoToSingle(search_migrated(domain, query, page, size));
-}
-default Mono<Page<Scope>> search_migrated(String domain, String query, int page, int size) {
-    return RxJava2Adapter.singleToMono(search(domain, query, page, size));
-}
+      
+Mono<Page<Scope>> search_migrated(String domain, String query, int page, int size);
 
     /**
      * Throw InvalidClientMetadataException if null or empty, or contains unknown scope.
      * @param scopes Array of scope to validate.
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validateScope_migrated(domain, scopes))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Boolean> validateScope(String domain, List<String> scopes) {
-    return RxJava2Adapter.monoToSingle(validateScope_migrated(domain, scopes));
-}
-default Mono<Boolean> validateScope_migrated(String domain, List<String> scopes) {
-    return RxJava2Adapter.singleToMono(validateScope(domain, scopes));
-}
+      
+Mono<Boolean> validateScope_migrated(String domain, List<String> scopes);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, scope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

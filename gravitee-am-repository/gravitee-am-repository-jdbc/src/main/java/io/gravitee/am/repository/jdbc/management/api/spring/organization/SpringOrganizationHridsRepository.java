@@ -30,12 +30,6 @@ import reactor.core.publisher.Flux;
  */
 @Repository
 public interface SpringOrganizationHridsRepository extends RxJava2CrudRepository<JdbcOrganization.Hrid, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByOrganizationId_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Hrid> findAllByOrganizationId(String organizationId) {
-    return RxJava2Adapter.fluxToFlowable(findAllByOrganizationId_migrated(organizationId));
-}
-default Flux<Hrid> findAllByOrganizationId_migrated(String organizationId) {
-    return RxJava2Adapter.flowableToFlux(findAllByOrganizationId(organizationId));
-}
+      
+Flux<Hrid> findAllByOrganizationId_migrated(String organizationId);
 }

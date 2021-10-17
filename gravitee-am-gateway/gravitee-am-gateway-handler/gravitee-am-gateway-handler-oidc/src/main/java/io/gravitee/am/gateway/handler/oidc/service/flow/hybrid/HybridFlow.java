@@ -75,12 +75,7 @@ public class HybridFlow extends AbstractFlow {
         this.idTokenService = idTokenService;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.prepareResponse_migrated(authorizationRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    protected Single<AuthorizationResponse> prepareResponse(AuthorizationRequest authorizationRequest, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(prepareResponse_migrated(authorizationRequest, client, endUser));
-}
+    
 @Override
     protected Mono<AuthorizationResponse> prepareResponse_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
         // Authorization Code is always returned when using the Hybrid Flow.

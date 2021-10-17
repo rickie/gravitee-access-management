@@ -39,12 +39,6 @@ default Mono<Tag> findById_migrated(String id, String organizationId) {
     return RxJava2Adapter.maybeToMono(findById(id, organizationId));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Tag> findAll(String organizationId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
-}
-default Flux<Tag> findAll_migrated(String organizationId) {
-    return RxJava2Adapter.flowableToFlux(findAll(organizationId));
-}
+      
+Flux<Tag> findAll_migrated(String organizationId);
 }

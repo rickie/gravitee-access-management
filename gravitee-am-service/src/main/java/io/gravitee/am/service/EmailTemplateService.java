@@ -36,68 +36,26 @@ import reactor.core.publisher.Mono;
  */
 public interface EmailTemplateService {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Email> findAll() {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
-default Flux<Email> findAll_migrated() {
-    return RxJava2Adapter.flowableToFlux(findAll());
-}
+      
+Flux<Email> findAll_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Email> findAll(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
-default Flux<Email> findAll_migrated(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
-}
+      
+Flux<Email> findAll_migrated(ReferenceType referenceType, String referenceId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByClient_migrated(referenceType, referenceId, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Email> findByClient(ReferenceType referenceType, String referenceId, String client) {
-    return RxJava2Adapter.fluxToFlowable(findByClient_migrated(referenceType, referenceId, client));
-}
-default Flux<Email> findByClient_migrated(ReferenceType referenceType, String referenceId, String client) {
-    return RxJava2Adapter.flowableToFlux(findByClient(referenceType, referenceId, client));
-}
+      
+Flux<Email> findByClient_migrated(ReferenceType referenceType, String referenceId, String client);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByTemplate_migrated(referenceType, referenceId, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Email> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
-    return RxJava2Adapter.monoToMaybe(findByTemplate_migrated(referenceType, referenceId, template));
-}
-default Mono<Email> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template) {
-    return RxJava2Adapter.maybeToMono(findByTemplate(referenceType, referenceId, template));
-}
+      
+Mono<Email> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndTemplate_migrated(domain, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Email> findByDomainAndTemplate(String domain, String template) {
-    return RxJava2Adapter.monoToMaybe(findByDomainAndTemplate_migrated(domain, template));
-}
-default Mono<Email> findByDomainAndTemplate_migrated(String domain, String template) {
-    return RxJava2Adapter.maybeToMono(findByDomainAndTemplate(domain, template));
-}
+      
+Mono<Email> findByDomainAndTemplate_migrated(String domain, String template);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientAndTemplate_migrated(referenceType, referenceId, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Email> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
-    return RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(referenceType, referenceId, client, template));
-}
-default Mono<Email> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template) {
-    return RxJava2Adapter.maybeToMono(findByClientAndTemplate(referenceType, referenceId, client, template));
-}
+      
+Mono<Email> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientAndTemplate_migrated(domain, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Email> findByDomainAndClientAndTemplate(String domain, String client, String template) {
-    return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndTemplate_migrated(domain, client, template));
-}
-default Mono<Email> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template) {
-    return RxJava2Adapter.maybeToMono(findByDomainAndClientAndTemplate(domain, client, template));
-}
+      
+Mono<Email> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -108,14 +66,8 @@ default Mono<Email> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.copyFromClient_migrated(domain, clientSource, clientTarget))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Email> copyFromClient(String domain, String clientSource, String clientTarget) {
-    return RxJava2Adapter.fluxToFlowable(copyFromClient_migrated(domain, clientSource, clientTarget));
-}
-default Flux<Email> copyFromClient_migrated(String domain, String clientSource, String clientTarget) {
-    return RxJava2Adapter.flowableToFlux(copyFromClient(domain, clientSource, clientTarget));
-}
+      
+Flux<Email> copyFromClient_migrated(String domain, String clientSource, String clientTarget);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId, newEmail, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

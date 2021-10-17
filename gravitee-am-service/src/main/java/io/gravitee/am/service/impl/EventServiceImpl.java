@@ -67,12 +67,7 @@ public class EventServiceImpl implements EventService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByTimeFrame_migrated(from, to))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<Event>> findByTimeFrame(long from, long to) {
- return RxJava2Adapter.monoToSingle(findByTimeFrame_migrated(from, to));
-}
+    
 @Override
     public Mono<List<Event>> findByTimeFrame_migrated(long from, long to) {
         LOGGER.debug("Find events with time frame {} and {}", from, to);

@@ -51,34 +51,19 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
     @Autowired
     private IdentityProviderPluginManager identityProviderPluginManager;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<IdentityProviderPlugin>> findAll(List<String> expand) {
- return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
-}
+    
 @Override
     public Mono<List<IdentityProviderPlugin>> findAll_migrated(List<String> expand) {
         return this.findAll_migrated(false, null);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(external))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<IdentityProviderPlugin>> findAll(Boolean external) {
- return RxJava2Adapter.monoToSingle(findAll_migrated(external));
-}
+    
 @Override
     public Mono<List<IdentityProviderPlugin>> findAll_migrated(Boolean external) {
         return this.findAll_migrated(external, null);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(external, expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<IdentityProviderPlugin>> findAll(Boolean external, List<String> expand) {
- return RxJava2Adapter.monoToSingle(findAll_migrated(external, expand));
-}
+    
 @Override
     public Mono<List<IdentityProviderPlugin>> findAll_migrated(Boolean external, List<String> expand) {
         LOGGER.debug("List all identity provider plugins");
@@ -114,12 +99,7 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(identityProviderId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<String> getSchema(String identityProviderId) {
- return RxJava2Adapter.monoToMaybe(getSchema_migrated(identityProviderId));
-}
+    
 @Override
     public Mono<String> getSchema_migrated(String identityProviderId) {
         LOGGER.debug("Find identity provider plugin schema by ID: {}", identityProviderId);
@@ -138,12 +118,7 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(identityProviderId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<String> getIcon(String identityProviderId) {
- return RxJava2Adapter.monoToMaybe(getIcon_migrated(identityProviderId));
-}
+    
 @Override
     public Mono<String> getIcon_migrated(String identityProviderId) {
         LOGGER.debug("Find identity provider plugin schema by ID: {}", identityProviderId);

@@ -55,23 +55,13 @@ public class ClientSyncServiceImpl implements ClientSyncService {
         return RxJava2Adapter.maybeToMono(client != null ? RxJava2Adapter.monoToMaybe(Mono.just(client)) : RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientId_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Client> findByClientId(String clientId) {
- return RxJava2Adapter.monoToMaybe(findByClientId_migrated(clientId));
-}
+    
 @Override
     public Mono<Client> findByClientId_migrated(String clientId) {
         return findByDomainAndClientId_migrated(domain.getId(), clientId);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientId_migrated(domain, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Client> findByDomainAndClientId(String domain, String clientId) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndClientId_migrated(domain, clientId));
-}
+    
 @Override
     public Mono<Client> findByDomainAndClientId_migrated(String domain, String clientId) {
         final Optional<Client> optClient = clientManager.entities()
@@ -81,12 +71,7 @@ public class ClientSyncServiceImpl implements ClientSyncService {
         return RxJava2Adapter.maybeToMono(optClient.isPresent() ? RxJava2Adapter.monoToMaybe(Mono.just(optClient.get())) : RxJava2Adapter.monoToMaybe(Mono.empty()));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTemplates_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<Client>> findTemplates() {
- return RxJava2Adapter.monoToSingle(findTemplates_migrated());
-}
+    
 @Override
     public Mono<List<Client>> findTemplates_migrated() {
         final List<Client> templates = clientManager.entities()

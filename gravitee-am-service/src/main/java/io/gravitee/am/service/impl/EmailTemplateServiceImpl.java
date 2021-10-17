@@ -76,12 +76,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
     @Autowired
     private AuditService auditService;
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Email> findAll(ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
+    
 @Override
     public Flux<Email> findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("Find all emails for {} {}", referenceType, referenceId);
@@ -91,12 +86,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Email> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<Email> findAll_migrated() {
         LOGGER.debug("Find all emails");
@@ -106,12 +96,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByClient_migrated(referenceType, referenceId, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Email> findByClient(ReferenceType referenceType, String referenceId, String client) {
- return RxJava2Adapter.fluxToFlowable(findByClient_migrated(referenceType, referenceId, client));
-}
+    
 @Override
     public Flux<Email> findByClient_migrated(ReferenceType referenceType, String referenceId, String client) {
         LOGGER.debug("Find email by {} {} and client {}", referenceType, referenceId, client);
@@ -122,12 +107,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByTemplate_migrated(referenceType, referenceId, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Email> findByTemplate(ReferenceType referenceType, String referenceId, String template) {
- return RxJava2Adapter.monoToMaybe(findByTemplate_migrated(referenceType, referenceId, template));
-}
+    
 @Override
     public Mono<Email> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template) {
         LOGGER.debug("Find email by {} {} and template {}", referenceType, referenceId, template);
@@ -139,24 +119,14 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndTemplate_migrated(domain, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Email> findByDomainAndTemplate(String domain, String template) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndTemplate_migrated(domain, template));
-}
+    
 @Override
     public Mono<Email> findByDomainAndTemplate_migrated(String domain, String template) {
 
         return findByTemplate_migrated(ReferenceType.DOMAIN, domain, template);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientAndTemplate_migrated(referenceType, referenceId, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Email> findByClientAndTemplate(ReferenceType referenceType, String referenceId, String client, String template) {
- return RxJava2Adapter.monoToMaybe(findByClientAndTemplate_migrated(referenceType, referenceId, client, template));
-}
+    
 @Override
     public Mono<Email> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template) {
         LOGGER.debug("Find email by {} {}, client {} and template {}", referenceType, referenceId, client, template);
@@ -168,12 +138,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientAndTemplate_migrated(domain, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Email> findByDomainAndClientAndTemplate(String domain, String client, String template) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndTemplate_migrated(domain, client, template));
-}
+    
 @Override
     public Mono<Email> findByDomainAndClientAndTemplate_migrated(String domain, String client, String template) {
         return findByClientAndTemplate_migrated(ReferenceType.DOMAIN, domain, client, template);
@@ -196,12 +161,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.copyFromClient_migrated(domain, clientSource, clientTarget))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Email> copyFromClient(String domain, String clientSource, String clientTarget) {
- return RxJava2Adapter.fluxToFlowable(copyFromClient_migrated(domain, clientSource, clientTarget));
-}
+    
 @Override
     public Flux<Email> copyFromClient_migrated(String domain, String clientSource, String clientTarget) {
         return findByClient_migrated(ReferenceType.DOMAIN, domain, clientSource).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Email, Single<Email>>toJdkFunction(source -> {

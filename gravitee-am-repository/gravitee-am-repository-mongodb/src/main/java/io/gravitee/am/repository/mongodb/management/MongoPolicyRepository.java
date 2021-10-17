@@ -43,36 +43,21 @@ public class MongoPolicyRepository extends AbstractManagementMongoRepository imp
 
     public static final String COLLECTION_NAME = "policies";
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Policy> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<Policy> findAll_migrated() {
         MongoCollection<PolicyMongo> policiesCollection = mongoOperations.getCollection(COLLECTION_NAME, PolicyMongo.class);
         return Flux.from(policiesCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.collectionExists_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Boolean> collectionExists() {
- return RxJava2Adapter.monoToSingle(collectionExists_migrated());
-}
+    
 @Override
     public Mono<Boolean> collectionExists_migrated() {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.from(mongoOperations.listCollectionNames()).filter(collectionName -> collectionName.equalsIgnoreCase(COLLECTION_NAME)))
                 .isEmpty()).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> !isEmpty));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteCollection_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteCollection() {
- return RxJava2Adapter.monoToCompletable(deleteCollection_migrated());
-}
+    
 @Override
     public Mono<Void> deleteCollection_migrated() {
         return Mono.from(mongoOperations.getCollection(COLLECTION_NAME).drop());

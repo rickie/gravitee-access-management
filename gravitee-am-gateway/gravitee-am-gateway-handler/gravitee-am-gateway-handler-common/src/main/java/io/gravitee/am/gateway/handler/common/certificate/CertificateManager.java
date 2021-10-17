@@ -29,23 +29,11 @@ import reactor.core.publisher.Mono;
  */
 public interface CertificateManager extends io.gravitee.am.certificate.api.CertificateManager, Service {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.get_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<CertificateProvider> get(String id) {
-    return RxJava2Adapter.monoToMaybe(get_migrated(id));
-}
-default Mono<CertificateProvider> get_migrated(String id) {
-    return RxJava2Adapter.maybeToMono(get(id));
-}
+      
+Mono<CertificateProvider> get_migrated(String id);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByAlgorithm_migrated(algorithm))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<CertificateProvider> findByAlgorithm(String algorithm) {
-    return RxJava2Adapter.monoToMaybe(findByAlgorithm_migrated(algorithm));
-}
-default Mono<CertificateProvider> findByAlgorithm_migrated(String algorithm) {
-    return RxJava2Adapter.maybeToMono(findByAlgorithm(algorithm));
-}
+      
+Mono<CertificateProvider> findByAlgorithm_migrated(String algorithm);
 
     Collection<CertificateProvider> providers();
 

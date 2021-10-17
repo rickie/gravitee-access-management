@@ -29,39 +29,15 @@ import reactor.core.publisher.Mono;
  */
 public interface TokenService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTotalTokensByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<TotalToken> findTotalTokensByDomain(String domain) {
-    return RxJava2Adapter.monoToSingle(findTotalTokensByDomain_migrated(domain));
-}
-default Mono<TotalToken> findTotalTokensByDomain_migrated(String domain) {
-    return RxJava2Adapter.singleToMono(findTotalTokensByDomain(domain));
-}
+      
+Mono<TotalToken> findTotalTokensByDomain_migrated(String domain);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTotalTokensByApplication_migrated(application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<TotalToken> findTotalTokensByApplication(Application application) {
-    return RxJava2Adapter.monoToSingle(findTotalTokensByApplication_migrated(application));
-}
-default Mono<TotalToken> findTotalTokensByApplication_migrated(Application application) {
-    return RxJava2Adapter.singleToMono(findTotalTokensByApplication(application));
-}
+      
+Mono<TotalToken> findTotalTokensByApplication_migrated(Application application);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findTotalTokens_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<TotalToken> findTotalTokens() {
-    return RxJava2Adapter.monoToSingle(findTotalTokens_migrated());
-}
-default Mono<TotalToken> findTotalTokens_migrated() {
-    return RxJava2Adapter.singleToMono(findTotalTokens());
-}
+      
+Mono<TotalToken> findTotalTokens_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable deleteByUserId(String userId) {
-    return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(userId));
-}
-default Mono<Void> deleteByUserId_migrated(String userId) {
-    return RxJava2Adapter.completableToMono(deleteByUserId(userId));
-}
+      
+Mono<Void> deleteByUserId_migrated(String userId);
 }

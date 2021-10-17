@@ -97,12 +97,7 @@ private Mono<Long> countByDomain_migrated(String domain) {
                 .fetch().first();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Scope>> search(String domain, String query, int page, int size) {
- return RxJava2Adapter.monoToSingle(search_migrated(domain, query, page, size));
-}
+    
 @Override
     public Mono<Page<Scope>> search_migrated(String domain, String query, int page, int size) {
         LOGGER.debug("search({}, {})", domain, query);
@@ -131,12 +126,7 @@ private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String 
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndKey_migrated(domain, key))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Scope> findByDomainAndKey(String domain, String key) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndKey_migrated(domain, key));
-}
+    
 @Override
     public Mono<Scope> findByDomainAndKey_migrated(String domain, String key) {
         LOGGER.debug("findByDomainAndKey({}, {})", domain, key);
@@ -148,12 +138,7 @@ private Mono<Scope> completeWithClaims_migrated(Maybe<Scope> maybeScope, String 
                 .first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(z->completeWithClaims_migrated(RxJava2Adapter.monoToMaybe(Mono.just(z)), z.getId()));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndKeys_migrated(domain, keys))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Scope> findByDomainAndKeys(String domain, List<String> keys) {
- return RxJava2Adapter.fluxToFlowable(findByDomainAndKeys_migrated(domain, keys));
-}
+    
 @Override
     public Flux<Scope> findByDomainAndKeys_migrated(String domain, List<String> keys) {
         LOGGER.debug("findByDomainAndKeys({}, {})", domain, keys);

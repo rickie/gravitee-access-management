@@ -72,12 +72,7 @@ public class MongoEntrypointRepository extends AbstractManagementMongoRepository
         return Flux.from(collection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Entrypoint> findAll(String organizationId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
-}
+    
 @Override
     public Flux<Entrypoint> findAll_migrated(String organizationId) {
         return Flux.from(collection.find(eq("organizationId", organizationId))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));

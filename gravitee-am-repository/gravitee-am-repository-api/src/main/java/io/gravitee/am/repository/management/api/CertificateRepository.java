@@ -28,14 +28,8 @@ import reactor.core.publisher.Flux;
  */
 public interface CertificateRepository extends CrudRepository<Certificate, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Certificate> findAll() {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
-default Flux<Certificate> findAll_migrated() {
-    return RxJava2Adapter.flowableToFlux(findAll());
-}
+      
+Flux<Certificate> findAll_migrated();
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

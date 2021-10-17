@@ -33,32 +33,14 @@ import reactor.core.publisher.Mono;
  */
 public interface AuditService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Page<Audit>> search(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
-    return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
-}
-default Mono<Page<Audit>> search_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
-    return RxJava2Adapter.singleToMono(search(referenceType, referenceId, criteria, page, size));
-}
+      
+Mono<Page<Audit>> search_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Page<Audit>> search(String domain, AuditReportableCriteria criteria, int page, int size) {
-    return RxJava2Adapter.monoToSingle(search_migrated(domain, criteria, page, size));
-}
-default Mono<Page<Audit>> search_migrated(String domain, AuditReportableCriteria criteria, int page, int size) {
-    return RxJava2Adapter.singleToMono(search(domain, criteria, page, size));
-}
+      
+Mono<Page<Audit>> search_migrated(String domain, AuditReportableCriteria criteria, int page, int size);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(domain, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Map<Object, Object>> aggregate(String domain, AuditReportableCriteria criteria, io.gravitee.am.common.analytics.Type analyticsType) {
-    return RxJava2Adapter.monoToSingle(aggregate_migrated(domain, criteria, analyticsType));
-}
-default Mono<Map<Object, Object>> aggregate_migrated(String domain, AuditReportableCriteria criteria, Type analyticsType) {
-    return RxJava2Adapter.singleToMono(aggregate(domain, criteria, analyticsType));
-}
+      
+Mono<Map<Object, Object>> aggregate_migrated(String domain, AuditReportableCriteria criteria, Type analyticsType);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findById_migrated(referenceType, referenceId, auditId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

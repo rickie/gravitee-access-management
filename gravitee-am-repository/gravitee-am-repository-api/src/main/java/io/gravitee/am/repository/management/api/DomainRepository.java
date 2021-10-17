@@ -33,57 +33,21 @@ import reactor.core.publisher.Mono;
  */
 public interface DomainRepository extends CrudRepository<Domain, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Domain> findAll() {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
-default Flux<Domain> findAll_migrated() {
-    return RxJava2Adapter.flowableToFlux(findAll());
-}
+      
+Flux<Domain> findAll_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByReferenceId_migrated(environmentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Domain> findAllByReferenceId(String environmentId) {
-    return RxJava2Adapter.fluxToFlowable(findAllByReferenceId_migrated(environmentId));
-}
-default Flux<Domain> findAllByReferenceId_migrated(String environmentId) {
-    return RxJava2Adapter.flowableToFlux(findAllByReferenceId(environmentId));
-}
+      
+Flux<Domain> findAllByReferenceId_migrated(String environmentId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.search_migrated(environmentId, query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Domain> search(String environmentId, String query) {
-    return RxJava2Adapter.fluxToFlowable(search_migrated(environmentId, query));
-}
-default Flux<Domain> search_migrated(String environmentId, String query) {
-    return RxJava2Adapter.flowableToFlux(search(environmentId, query));
-}
+      
+Flux<Domain> search_migrated(String environmentId, String query);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByHrid_migrated(referenceType, referenceId, hrid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Domain> findByHrid(ReferenceType referenceType, String referenceId, String hrid) {
-    return RxJava2Adapter.monoToMaybe(findByHrid_migrated(referenceType, referenceId, hrid));
-}
-default Mono<Domain> findByHrid_migrated(ReferenceType referenceType, String referenceId, String hrid) {
-    return RxJava2Adapter.maybeToMono(findByHrid(referenceType, referenceId, hrid));
-}
+      
+Mono<Domain> findByHrid_migrated(ReferenceType referenceType, String referenceId, String hrid);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Domain> findByIdIn(Collection<String> ids) {
-    return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
-}
-default Flux<Domain> findByIdIn_migrated(Collection<String> ids) {
-    return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
-}
+      
+Flux<Domain> findByIdIn_migrated(Collection<String> ids);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Domain> findAllByCriteria(DomainCriteria criteria) {
-    return RxJava2Adapter.fluxToFlowable(findAllByCriteria_migrated(criteria));
-}
-default Flux<Domain> findAllByCriteria_migrated(DomainCriteria criteria) {
-    return RxJava2Adapter.flowableToFlux(findAllByCriteria(criteria));
-}
+      
+Flux<Domain> findAllByCriteria_migrated(DomainCriteria criteria);
 }

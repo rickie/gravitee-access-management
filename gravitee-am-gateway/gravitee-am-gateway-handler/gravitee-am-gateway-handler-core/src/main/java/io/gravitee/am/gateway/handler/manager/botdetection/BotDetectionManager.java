@@ -33,12 +33,6 @@ public interface BotDetectionManager extends Service {
 
     Map<String, Object> getTemplateVariables(Domain domain, Client client);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.validate_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Boolean> validate(BotDetectionContext context) {
-    return RxJava2Adapter.monoToSingle(validate_migrated(context));
-}
-default Mono<Boolean> validate_migrated(BotDetectionContext context) {
-    return RxJava2Adapter.singleToMono(validate(context));
-}
+      
+Mono<Boolean> validate_migrated(BotDetectionContext context);
 }

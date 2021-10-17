@@ -107,12 +107,7 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.privateKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<JWK> privateKey() {
- return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
-}
+    
 @Override
     public Flux<JWK> privateKey_migrated() {
         // CertificateProvider only manage RSA key.
@@ -123,23 +118,13 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
         return Flux.fromIterable(convert(nimbusJwk, true).collect(Collectors.toList()));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.key_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<io.gravitee.am.certificate.api.Key> key() {
- return RxJava2Adapter.monoToSingle(key_migrated());
-}
+    
 @Override
     public Mono<io.gravitee.am.certificate.api.Key> key_migrated() {
         return Mono.just(certificateKey);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.publicKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<String> publicKey() {
- return RxJava2Adapter.monoToSingle(publicKey_migrated());
-}
+    
 @Override
     public Mono<String> publicKey_migrated() {
         // fallback to ssh-rsa
@@ -151,23 +136,13 @@ public class PKCS12Provider implements CertificateProvider, InitializingBean {
                         .get());
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.publicKeys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<CertificateKey>> publicKeys() {
- return RxJava2Adapter.monoToSingle(publicKeys_migrated());
-}
+    
 @Override
     public Mono<List<CertificateKey>> publicKeys_migrated() {
         return Mono.just(certificateKeys);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.keys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<JWK> keys() {
- return RxJava2Adapter.fluxToFlowable(keys_migrated());
-}
+    
 @Override
     public Flux<JWK> keys_migrated() {
         return Flux.fromIterable(keys);

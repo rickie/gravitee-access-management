@@ -45,12 +45,7 @@ public class BotDetectionPluginServiceImpl implements BotDetectionPluginService 
     @Autowired
     private BotDetectionPluginManager pluginManager;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<BotDetectionPlugin>> findAll() {
- return RxJava2Adapter.monoToSingle(findAll_migrated());
-}
+    
 @Override
     public Mono<List<BotDetectionPlugin>> findAll_migrated() {
         LOGGER.debug("List all bot detection plugins");
@@ -83,12 +78,7 @@ public class BotDetectionPluginServiceImpl implements BotDetectionPluginService 
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(pluginId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<String> getSchema(String pluginId) {
- return RxJava2Adapter.monoToMaybe(getSchema_migrated(pluginId));
-}
+    
 @Override
     public Mono<String> getSchema_migrated(String pluginId) {
         LOGGER.debug("Find bot detection plugin schema by ID: {}", pluginId);

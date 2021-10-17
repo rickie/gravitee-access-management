@@ -126,12 +126,7 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
         return true;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Audit>> search(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
- return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
-}
+    
 @Override
     public Mono<Page<Audit>> search_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
         LOGGER.debug("search on ({}, {})", referenceType, referenceType);
@@ -160,12 +155,7 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
                         referenceType, referenceId, error));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(referenceType, referenceId, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
- return RxJava2Adapter.monoToSingle(aggregate_migrated(referenceType, referenceId, criteria, analyticsType));
-}
+    
 @Override
     public Mono<Map<Object,Object>> aggregate_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
         LOGGER.debug("aggregate on ({}, {}) with type {}", referenceType, referenceType, analyticsType);
@@ -184,11 +174,7 @@ public class JdbcAuditReporter extends AbstractService implements AuditReporter,
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.executeHistogramAggregation_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Single<Map<Object, Object>> executeHistogramAggregation(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
- return RxJava2Adapter.monoToSingle(executeHistogramAggregation_migrated(referenceType, referenceId, criteria));
-}
+    
 protected Mono<Map<Object,Object>> executeHistogramAggregation_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
         Map<Long, Long> intervals = intervals(criteria);
         String fieldSuccess = (criteria.types().get(0) + "_" + Status.SUCCESS).toLowerCase();

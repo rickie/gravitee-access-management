@@ -64,12 +64,6 @@ default Mono<Client> delete_migrated(Client toDelete) {
     return RxJava2Adapter.singleToMono(delete(toDelete));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.renewSecret_migrated(toRenew, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Client> renewSecret(Client toRenew, String basePath) {
-    return RxJava2Adapter.monoToSingle(renewSecret_migrated(toRenew, basePath));
-}
-default Mono<Client> renewSecret_migrated(Client toRenew, String basePath) {
-    return RxJava2Adapter.singleToMono(renewSecret(toRenew, basePath));
-}
+      
+Mono<Client> renewSecret_migrated(Client toRenew, String basePath);
 }

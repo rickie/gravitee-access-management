@@ -36,14 +36,8 @@ import reactor.core.publisher.Mono;
  */
 public interface GroupService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Page<Group>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
-    return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
-}
-default Mono<Page<Group>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
-    return RxJava2Adapter.singleToMono(findAll(referenceType, referenceId, page, size));
-}
+      
+Mono<Page<Group>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomain_migrated(domain, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -54,23 +48,11 @@ default Mono<Page<Group>> findByDomain_migrated(String domain, int page, int siz
     return RxJava2Adapter.singleToMono(findByDomain(domain, page, size));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findMembers_migrated(referenceType, referenceId, groupId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Page<io.gravitee.am.model.User>> findMembers(ReferenceType referenceType, String referenceId, String groupId, int page, int size) {
-    return RxJava2Adapter.monoToSingle(findMembers_migrated(referenceType, referenceId, groupId, page, size));
-}
-default Mono<Page<io.gravitee.am.model.User>> findMembers_migrated(ReferenceType referenceType, String referenceId, String groupId, int page, int size) {
-    return RxJava2Adapter.singleToMono(findMembers(referenceType, referenceId, groupId, page, size));
-}
+      
+Mono<Page<io.gravitee.am.model.User>> findMembers_migrated(ReferenceType referenceType, String referenceId, String groupId, int page, int size);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Group> findAll(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
-default Flux<Group> findAll_migrated(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
-}
+      
+Flux<Group> findAll_migrated(ReferenceType referenceType, String referenceId);
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -81,32 +63,14 @@ default Flux<Group> findByDomain_migrated(String domain) {
     return RxJava2Adapter.flowableToFlux(findByDomain(domain));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Group> findByMember(String userId) {
-    return RxJava2Adapter.fluxToFlowable(findByMember_migrated(userId));
-}
-default Flux<Group> findByMember_migrated(String userId) {
-    return RxJava2Adapter.flowableToFlux(findByMember(userId));
-}
+      
+Flux<Group> findByMember_migrated(String userId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Group> findByIdIn(List<String> ids) {
-    return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
-}
-default Flux<Group> findByIdIn_migrated(List<String> ids) {
-    return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
-}
+      
+Flux<Group> findByIdIn_migrated(List<String> ids);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByName_migrated(referenceType, referenceId, groupName))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Group> findByName(ReferenceType referenceType, String referenceId, String groupName) {
-    return RxJava2Adapter.monoToMaybe(findByName_migrated(referenceType, referenceId, groupName));
-}
-default Mono<Group> findByName_migrated(ReferenceType referenceType, String referenceId, String groupName) {
-    return RxJava2Adapter.maybeToMono(findByName(referenceType, referenceId, groupName));
-}
+      
+Mono<Group> findByName_migrated(ReferenceType referenceType, String referenceId, String groupName);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -171,14 +135,8 @@ default Mono<Void> delete_migrated(ReferenceType referenceType, String reference
     return RxJava2Adapter.completableToMono(delete(referenceType, referenceId, groupId, principal));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.assignRoles_migrated(referenceType, referenceId, groupId, roles, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Group> assignRoles(ReferenceType referenceType, String referenceId, String groupId, List<String> roles, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.monoToSingle(assignRoles_migrated(referenceType, referenceId, groupId, roles, principal));
-}
-default Mono<Group> assignRoles_migrated(ReferenceType referenceType, String referenceId, String groupId, List<String> roles, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.singleToMono(assignRoles(referenceType, referenceId, groupId, roles, principal));
-}
+      
+Mono<Group> assignRoles_migrated(ReferenceType referenceType, String referenceId, String groupId, List<String> roles, io.gravitee.am.identityprovider.api.User principal);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.revokeRoles_migrated(referenceType, referenceId, groupId, roles, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -213,13 +171,7 @@ default Completable delete(ReferenceType referenceType, String referenceId, Stri
         return RxJava2Adapter.completableToMono(delete(referenceType, referenceId, groupId, null));
     }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.assignRoles_migrated(referenceType, referenceId, groupId, roles))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Group> assignRoles(ReferenceType referenceType, String referenceId, String groupId, List<String> roles) {
-    return RxJava2Adapter.monoToSingle(assignRoles_migrated(referenceType, referenceId, groupId, roles));
-}default Mono<Group> assignRoles_migrated(ReferenceType referenceType, String referenceId, String groupId, List<String> roles) {
-        return RxJava2Adapter.singleToMono(assignRoles(referenceType, referenceId, groupId, roles, null));
-    }
+      Mono<Group> assignRoles_migrated(ReferenceType referenceType, String referenceId, String groupId, List<String> roles);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.revokeRoles_migrated(referenceType, referenceId, groupId, roles))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

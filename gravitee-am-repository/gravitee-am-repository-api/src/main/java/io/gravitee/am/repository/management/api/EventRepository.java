@@ -28,13 +28,7 @@ import reactor.core.publisher.Flux;
  */
 public interface EventRepository extends CrudRepository<Event, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTimeFrame_migrated(from, to))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Event> findByTimeFrame(long from, long to) {
-    return RxJava2Adapter.fluxToFlowable(findByTimeFrame_migrated(from, to));
-}
-default Flux<Event> findByTimeFrame_migrated(long from, long to) {
-    return RxJava2Adapter.flowableToFlux(findByTimeFrame(from, to));
-}
+      
+Flux<Event> findByTimeFrame_migrated(long from, long to);
 
 }

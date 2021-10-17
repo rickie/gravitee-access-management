@@ -33,41 +33,17 @@ import reactor.core.publisher.Mono;
  */
 public interface CertificateProvider {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.key_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<io.gravitee.am.certificate.api.Key> key() {
-    return RxJava2Adapter.monoToSingle(key_migrated());
-}
-default Mono<io.gravitee.am.certificate.api.Key> key_migrated() {
-    return RxJava2Adapter.singleToMono(key());
-}
+      
+Mono<io.gravitee.am.certificate.api.Key> key_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.publicKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<String> publicKey() {
-    return RxJava2Adapter.monoToSingle(publicKey_migrated());
-}
-default Mono<String> publicKey_migrated() {
-    return RxJava2Adapter.singleToMono(publicKey());
-}
+      
+Mono<String> publicKey_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.privateKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JWK> privateKey() {
-    return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
-}
-default Flux<JWK> privateKey_migrated() {
-    return RxJava2Adapter.flowableToFlux(privateKey());
-}
+      
+Flux<JWK> privateKey_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.keys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JWK> keys() {
-    return RxJava2Adapter.fluxToFlowable(keys_migrated());
-}
-default Flux<JWK> keys_migrated() {
-    return RxJava2Adapter.flowableToFlux(keys());
-}
+      
+Flux<JWK> keys_migrated();
 
     CertificateMetadata certificateMetadata();
 
@@ -77,11 +53,7 @@ default Flux<JWK> keys_migrated() {
         return null;
     }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.publicKeys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<CertificateKey>> publicKeys() {
-    return RxJava2Adapter.monoToSingle(publicKeys_migrated());
-}default Mono<List<CertificateKey>> publicKeys_migrated() {
+      default Mono<List<CertificateKey>> publicKeys_migrated() {
         return Mono.just(Collections.emptyList());
     }
 }

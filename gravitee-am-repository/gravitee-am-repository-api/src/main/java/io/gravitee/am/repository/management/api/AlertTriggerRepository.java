@@ -37,14 +37,8 @@ public interface AlertTriggerRepository extends CrudRepository<AlertTrigger, Str
      * @param referenceId the reference id.
      * @return the list of alert triggers.
      */
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<AlertTrigger> findAll(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
-default Flux<AlertTrigger> findAll_migrated(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
-}
+      
+Flux<AlertTrigger> findAll_migrated(ReferenceType referenceType, String referenceId);
 
     /**
      * Find all alert triggers for a given reference type and id and matching specified criteria.
@@ -53,12 +47,6 @@ default Flux<AlertTrigger> findAll_migrated(ReferenceType referenceType, String 
      * @param referenceId the reference id.
      * @return the list of alert triggers.
      */
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<AlertTrigger> findByCriteria(ReferenceType referenceType, String referenceId, AlertTriggerCriteria criteria) {
-    return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
-}
-default Flux<AlertTrigger> findByCriteria_migrated(ReferenceType referenceType, String referenceId, AlertTriggerCriteria criteria) {
-    return RxJava2Adapter.flowableToFlux(findByCriteria(referenceType, referenceId, criteria));
-}
+      
+Flux<AlertTrigger> findByCriteria_migrated(ReferenceType referenceType, String referenceId, AlertTriggerCriteria criteria);
 }

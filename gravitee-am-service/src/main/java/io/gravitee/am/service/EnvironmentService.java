@@ -50,23 +50,11 @@ default Mono<Environment> findById_migrated(String id) {
     return RxJava2Adapter.singleToMono(findById(id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Environment> findAll(String organizationId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
-}
-default Flux<Environment> findAll_migrated(String organizationId) {
-    return RxJava2Adapter.flowableToFlux(findAll(organizationId));
-}
+      
+Flux<Environment> findAll_migrated(String organizationId);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.createDefault_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Environment> createDefault() {
-    return RxJava2Adapter.monoToMaybe(createDefault_migrated());
-}
-default Mono<Environment> createDefault_migrated() {
-    return RxJava2Adapter.maybeToMono(createDefault());
-}
+      
+Mono<Environment> createDefault_migrated();
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOrUpdate_migrated(organizationId, environmentId, newEnvironment, createdBy))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

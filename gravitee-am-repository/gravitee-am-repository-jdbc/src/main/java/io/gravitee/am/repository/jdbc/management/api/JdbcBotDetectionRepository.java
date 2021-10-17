@@ -55,12 +55,7 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
         return mapper.map(entity, JdbcBotDetection.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<BotDetection> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<BotDetection> findAll_migrated() {
         LOGGER.debug("findAll()");
@@ -70,12 +65,7 @@ public class JdbcBotDetectionRepository extends AbstractJdbcRepository implement
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<BotDetection> findByReference(ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
-}
+    
 @Override
     public Flux<BotDetection> findByReference_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findByReference({}, {})", referenceType, referenceId);

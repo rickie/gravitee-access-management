@@ -48,31 +48,14 @@ String id) {
     return RxJava2Adapter.maybeToMono(findById(referenceType, referenceId, id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcFlow> findAll(@Param(value = "refType")
+      
+Flux<JdbcFlow> findAll_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
-String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
-default Flux<JdbcFlow> findAll_migrated(@Param(value = "refType")
-String referenceType, @Param(value = "refId")
-String referenceId) {
-    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
-}
+String referenceId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByApplication_migrated(referenceType, referenceId, appId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcFlow> findByApplication(@Param(value = "refType")
+      
+Flux<JdbcFlow> findByApplication_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
 String referenceId, @Param(value = "appId")
-String appId) {
-    return RxJava2Adapter.fluxToFlowable(findByApplication_migrated(referenceType, referenceId, appId));
-}
-default Flux<JdbcFlow> findByApplication_migrated(@Param(value = "refType")
-String referenceType, @Param(value = "refId")
-String referenceId, @Param(value = "appId")
-String appId) {
-    return RxJava2Adapter.flowableToFlux(findByApplication(referenceType, referenceId, appId));
-}
+String appId);
 }

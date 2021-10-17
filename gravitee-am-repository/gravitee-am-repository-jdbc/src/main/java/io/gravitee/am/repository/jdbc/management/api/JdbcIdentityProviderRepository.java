@@ -69,36 +69,21 @@ public class JdbcIdentityProviderRepository extends AbstractJdbcRepository imple
         return mapper.map(entity, JdbcIdentityProvider.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<IdentityProvider> findAll(ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
+    
 @Override
     public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findAll({}, {}", referenceType, referenceId);
         return this.identityProviderRepository.findAll_migrated(referenceType.name(), referenceId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<IdentityProvider> findAll(ReferenceType referenceType) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType));
-}
+    
 @Override
     public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType) {
         LOGGER.debug("findAll()");
         return this.identityProviderRepository.findAll_migrated(referenceType.name()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<IdentityProvider> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<IdentityProvider> findAll_migrated() {
         LOGGER.debug("findAll()");

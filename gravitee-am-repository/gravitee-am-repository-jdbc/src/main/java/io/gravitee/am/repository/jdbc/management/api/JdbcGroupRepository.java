@@ -72,12 +72,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
         return mapper.map(entity, JdbcGroup .class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Group> findByMember(String memberId) {
- return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId));
-}
+    
 @Override
     public Flux<Group> findByMember_migrated(String memberId) {
         LOGGER.debug("findByMember({})", memberId);
@@ -93,12 +88,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
         return RxJava2Adapter.flowableToFlux(flow).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(group -> completeWithMembersAndRole_migrated(RxJava2Adapter.monoToMaybe(Mono.just(group)), group.getId()).flux()), CONCURRENT_FLATMAP);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Group> findAll(ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
+    
 @Override
     public Flux<Group> findAll_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findAll({}, {})", referenceType, referenceId);
@@ -114,12 +104,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
         return RxJava2Adapter.flowableToFlux(flow).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(group -> completeWithMembersAndRole_migrated(RxJava2Adapter.monoToMaybe(Mono.just(group)), group.getId()).flux()), CONCURRENT_FLATMAP);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Group>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
- return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
-}
+    
 @Override
     public Mono<Page<Group>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
         LOGGER.debug("findAll({}, {}, {}, {})", referenceType, referenceId, page, size);
@@ -142,12 +127,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
                 .as(JdbcGroup.class).fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(group -> completeWithMembersAndRole_migrated(RxJava2Adapter.monoToMaybe(Mono.just(group)), group.getId()).flux()), CONCURRENT_FLATMAP).collectList().flatMap(content->RxJava2Adapter.singleToMono(counter).map(RxJavaReactorMigrationUtil.toJdkFunction((Long count)->new Page<Group>(content, page, count))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Group> findByIdIn(List<String> ids) {
- return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
-}
+    
 @Override
     public Flux<Group> findByIdIn_migrated(List<String> ids) {
         LOGGER.debug("findByIdIn with ids {}", ids);
@@ -165,12 +145,7 @@ public class JdbcGroupRepository extends AbstractJdbcRepository implements Group
         return RxJava2Adapter.flowableToFlux(flow).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(group -> completeWithMembersAndRole_migrated(RxJava2Adapter.monoToMaybe(Mono.just(group)), group.getId()).flux()), CONCURRENT_FLATMAP);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByName_migrated(referenceType, referenceId, groupName))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Group> findByName(ReferenceType referenceType, String referenceId, String groupName) {
- return RxJava2Adapter.monoToMaybe(findByName_migrated(referenceType, referenceId, groupName));
-}
+    
 @Override
     public Mono<Group> findByName_migrated(ReferenceType referenceType, String referenceId, String groupName) {
         LOGGER.debug("findByName({}, {}, {})", referenceType, referenceId, groupName);

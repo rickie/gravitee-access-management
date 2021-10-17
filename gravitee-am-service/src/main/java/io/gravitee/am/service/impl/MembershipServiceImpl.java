@@ -102,12 +102,7 @@ public class MembershipServiceImpl implements MembershipService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Membership> findByCriteria(ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
- return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
-}
+    
 @Override
     public Flux<Membership> findByCriteria_migrated(ReferenceType referenceType, String referenceId, MembershipCriteria criteria) {
 
@@ -116,12 +111,7 @@ public class MembershipServiceImpl implements MembershipService {
         return membershipRepository.findByCriteria_migrated(referenceType, referenceId, criteria);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceId, referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Membership> findByReference(String referenceId, ReferenceType referenceType) {
- return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceId, referenceType));
-}
+    
 @Override
     public Flux<Membership> findByReference_migrated(String referenceId, ReferenceType referenceType) {
         LOGGER.debug("Find memberships by reference id {} and reference type {}", referenceId, referenceType);
@@ -132,12 +122,7 @@ public class MembershipServiceImpl implements MembershipService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId, memberType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Membership> findByMember(String memberId, MemberType memberType) {
- return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId, memberType));
-}
+    
 @Override
     public Flux<Membership> findByMember_migrated(String memberId, MemberType memberType) {
         LOGGER.debug("Find memberships by member id {} and member type {}", memberId, memberType);
@@ -193,12 +178,7 @@ public class MembershipServiceImpl implements MembershipService {
                         })));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setPlatformAdmin_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Membership> setPlatformAdmin(String userId) {
- return RxJava2Adapter.monoToSingle(setPlatformAdmin_migrated(userId));
-}
+    
 @Override
     public Mono<Membership> setPlatformAdmin_migrated(String userId) {
 
@@ -220,12 +200,7 @@ return RxJava2Adapter.monoToSingle(createInternal_migrated(membership, null));
     }
 
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getMetadata_migrated(memberships))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Map<String, Map<String, Object>>> getMetadata(List<Membership> memberships) {
- return RxJava2Adapter.monoToSingle(getMetadata_migrated(memberships));
-}
+    
 @Override
     public Mono<Map<String,Map<String,Object>>> getMetadata_migrated(List<Membership> memberships) {
         if (memberships == null || memberships.isEmpty()) {
@@ -268,12 +243,7 @@ return RxJava2Adapter.monoToSingle(createInternal_migrated(membership, null));
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.addDomainUserRoleIfNecessary_migrated(organizationId, environmentId, domainId, newMembership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable addDomainUserRoleIfNecessary(String organizationId, String environmentId, String domainId, NewMembership newMembership, User principal) {
- return RxJava2Adapter.monoToCompletable(addDomainUserRoleIfNecessary_migrated(organizationId, environmentId, domainId, newMembership, principal));
-}
+    
 @Override
     public Mono<Void> addDomainUserRoleIfNecessary_migrated(String organizationId, String environmentId, String domainId, NewMembership newMembership, User principal) {
 
@@ -291,12 +261,7 @@ return RxJava2Adapter.monoToSingle(createInternal_migrated(membership, null));
                         })).flux())).ignoreElements().then().then(addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable addEnvironmentUserRoleIfNecessary(String organizationId, String environmentId, NewMembership newMembership, User principal) {
- return RxJava2Adapter.monoToCompletable(addEnvironmentUserRoleIfNecessary_migrated(organizationId, environmentId, newMembership, principal));
-}
+    
 @Override
     public Mono<Void> addEnvironmentUserRoleIfNecessary_migrated(String organizationId, String environmentId, NewMembership newMembership, User principal) {
 

@@ -30,12 +30,7 @@ import reactor.core.publisher.Mono;
  */
 public class GraviteeUserProvider implements UserProvider {
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> findByUsername(String username) {
- return RxJava2Adapter.monoToMaybe(findByUsername_migrated(username));
-}
+    
 @Override
     public Mono<User> findByUsername_migrated(String username) {
         return Mono.empty();

@@ -42,12 +42,7 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private OrganizationUserService userService;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadUserByUsername(Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
-}
+    
 @Override
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
         final AuthenticationContext context = authentication.getContext();
@@ -86,12 +81,7 @@ public class GraviteeAuthenticationProvider implements AuthenticationProvider {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadUserByUsername(String username) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-}
+    
 @Override
     public Mono<User> loadUserByUsername_migrated(String username) {
         // not relevant for Organization users

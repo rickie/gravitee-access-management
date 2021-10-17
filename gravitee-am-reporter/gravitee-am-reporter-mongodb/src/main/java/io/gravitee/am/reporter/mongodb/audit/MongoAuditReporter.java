@@ -113,12 +113,7 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
     public boolean canSearch() {
         return true;
     }
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Audit>> search(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
- return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
-}
+    
 @Override
     public Mono<Page<Audit>> search_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
         // build query
@@ -130,12 +125,7 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
         return RxJava2Adapter.singleToMono(Single.zip(countOperation, auditsOperation, (count, audits) -> new Page<>(audits, page, count)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(referenceType, referenceId, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Map<Object, Object>> aggregate(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
- return RxJava2Adapter.monoToSingle(aggregate_migrated(referenceType, referenceId, criteria, analyticsType));
-}
+    
 @Override
     public Mono<Map<Object,Object>> aggregate_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, Type analyticsType) {
         // build query

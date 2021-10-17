@@ -84,12 +84,7 @@ public class RoleServiceImpl implements RoleService {
     @Autowired
     private EventService eventService;
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllAssignable_migrated(referenceType, referenceId, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Role> findAllAssignable(ReferenceType referenceType, String referenceId, ReferenceType assignableType) {
- return RxJava2Adapter.fluxToFlowable(findAllAssignable_migrated(referenceType, referenceId, assignableType));
-}
+    
 @Override
     public Flux<Role> findAllAssignable_migrated(ReferenceType referenceType, String referenceId, ReferenceType assignableType) {
         LOGGER.debug("Find roles by {}: {} assignable to {}", referenceType, referenceId, assignableType);
@@ -124,12 +119,7 @@ public class RoleServiceImpl implements RoleService {
         return roleRepository.findAll_migrated(ReferenceType.DOMAIN, domain, page, size);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.searchByDomain_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Role>> searchByDomain(String domain, String query, int page, int size) {
- return RxJava2Adapter.monoToSingle(searchByDomain_migrated(domain, query, page, size));
-}
+    
 @Override
     public Mono<Page<Role>> searchByDomain_migrated(String domain, String query, int page, int size) {
         return roleRepository.search_migrated(ReferenceType.DOMAIN, domain, query, page, size);
@@ -170,12 +160,7 @@ public class RoleServiceImpl implements RoleService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findSystemRole_migrated(systemRole, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Role> findSystemRole(SystemRole systemRole, ReferenceType assignableType) {
- return RxJava2Adapter.monoToMaybe(findSystemRole_migrated(systemRole, assignableType));
-}
+    
 @Override
     public Mono<Role> findSystemRole_migrated(SystemRole systemRole, ReferenceType assignableType) {
         LOGGER.debug("Find system role : {} for the type : {}", systemRole.name(), assignableType);
@@ -187,12 +172,7 @@ public class RoleServiceImpl implements RoleService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findRolesByName_migrated(referenceType, referenceId, assignableType, roleNames))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Role> findRolesByName(ReferenceType referenceType, String referenceId, ReferenceType assignableType, List<String> roleNames) {
- return RxJava2Adapter.fluxToFlowable(findRolesByName_migrated(referenceType, referenceId, assignableType, roleNames));
-}
+    
 @Override
     public Flux<Role> findRolesByName_migrated(ReferenceType referenceType, String referenceId, ReferenceType assignableType, List<String> roleNames) {
         return roleRepository.findByNamesAndAssignableType_migrated(referenceType, referenceId, roleNames, assignableType).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(ex -> {
@@ -203,12 +183,7 @@ public class RoleServiceImpl implements RoleService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findDefaultRole_migrated(organizationId, defaultRole, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Role> findDefaultRole(String organizationId, DefaultRole defaultRole, ReferenceType assignableType) {
- return RxJava2Adapter.monoToMaybe(findDefaultRole_migrated(organizationId, defaultRole, assignableType));
-}
+    
 @Override
     public Mono<Role> findDefaultRole_migrated(String organizationId, DefaultRole defaultRole, ReferenceType assignableType) {
         LOGGER.debug("Find default role {} of organization {} for the type {}", defaultRole.name(), organizationId, assignableType);
@@ -220,12 +195,7 @@ public class RoleServiceImpl implements RoleService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Set<Role>> findByIdIn(List<String> ids) {
- return RxJava2Adapter.monoToSingle(findByIdIn_migrated(ids));
-}
+    
 @Override
     public Mono<Set<Role>> findByIdIn_migrated(List<String> ids) {
         LOGGER.debug("Find roles by ids: {}", ids);
@@ -368,12 +338,7 @@ public class RoleServiceImpl implements RoleService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.createOrUpdateSystemRoles_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable createOrUpdateSystemRoles() {
- return RxJava2Adapter.monoToCompletable(createOrUpdateSystemRoles_migrated());
-}
+    
 @Override
     public Mono<Void> createOrUpdateSystemRoles_migrated() {
 
@@ -383,12 +348,7 @@ public class RoleServiceImpl implements RoleService {
                 .flatMapCompletable((Role ident) -> RxJava2Adapter.monoToCompletable(upsert_migrated(ident))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.createDefaultRoles_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable createDefaultRoles(String organizationId) {
- return RxJava2Adapter.monoToCompletable(createDefaultRoles_migrated(organizationId));
-}
+    
 @Override
     public Mono<Void> createDefaultRoles_migrated(String organizationId) {
 

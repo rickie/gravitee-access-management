@@ -52,17 +52,5 @@ public class EnvironmentCommandHandler implements CommandHandler<EnvironmentComm
         return Command.Type.ENVIRONMENT_COMMAND;
     }
 
-    @Override
-    public Single<EnvironmentReply> handle(EnvironmentCommand command) {
-
-        EnvironmentPayload environmentPayload = command.getPayload();
-        NewEnvironment newEnvironment = new NewEnvironment();
-        newEnvironment.setHrids(environmentPayload.getHrids());
-        newEnvironment.setName(environmentPayload.getName());
-        newEnvironment.setDescription(environmentPayload.getDescription());
-        newEnvironment.setDomainRestrictions(environmentPayload.getDomainRestrictions());
-
-        return RxJava2Adapter.monoToSingle(environmentService.createOrUpdate_migrated(environmentPayload.getOrganizationId(), environmentPayload.getId(), newEnvironment, null).map(RxJavaReactorMigrationUtil.toJdkFunction(organization -> new EnvironmentReply(command.getId(), CommandStatus.SUCCEEDED))).doOnSuccess(reply -> logger.info("Environment [{}] handled with id [{}].", environmentPayload.getName(), environmentPayload.getId())).doOnError(error -> logger.error("Error occurred when handling environment [{}] with id [{}].", environmentPayload.getName(), environmentPayload.getId(), error)))
-                .onErrorReturn(throwable -> new EnvironmentReply(command.getId(), CommandStatus.ERROR));
-    }
+    
 }

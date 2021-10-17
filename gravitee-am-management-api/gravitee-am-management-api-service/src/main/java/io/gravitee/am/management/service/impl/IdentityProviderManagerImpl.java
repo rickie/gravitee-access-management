@@ -203,12 +203,7 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
         return provider;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getUserProvider_migrated(userProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<UserProvider> getUserProvider(String userProvider) {
- return RxJava2Adapter.monoToMaybe(getUserProvider_migrated(userProvider));
-}
+    
 @Override
     public Mono<UserProvider> getUserProvider_migrated(String userProvider) {
         if (userProvider == null) {

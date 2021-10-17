@@ -87,45 +87,25 @@ public class CertificateProviderManagerTest {
         certificateMetadata.setMetadata(Collections.singletonMap(CertificateMetadata.DIGEST_ALGORITHM_NAME, "none"));
 
         io.gravitee.am.certificate.api.CertificateProvider noneProvider = new io.gravitee.am.certificate.api.CertificateProvider() {
-            @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(privateKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-            public Flowable<JWK> privateKey() {
- return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
-}
+            
 @Override
             public Flux<JWK> privateKey_migrated() {
                 throw new UnsupportedOperationException("No private key for \"none\" algorithm");
             }
 
-            @InlineMe(replacement = "RxJava2Adapter.monoToSingle(key_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-            public Single<io.gravitee.am.certificate.api.Key> key() {
- return RxJava2Adapter.monoToSingle(key_migrated());
-}
+            
 @Override
             public Mono<io.gravitee.am.certificate.api.Key> key_migrated() {
                 throw new UnsupportedOperationException("No key for \"none\" algorithm");
             }
 
-            @InlineMe(replacement = "RxJava2Adapter.monoToSingle(publicKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-            public Single<String> publicKey() {
- return RxJava2Adapter.monoToSingle(publicKey_migrated());
-}
+            
 @Override
             public Mono<String> publicKey_migrated() {
                 throw new UnsupportedOperationException("No public key for \"none\" algorithm");
             }
 
-            @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(keys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-            public Flowable<JWK> keys() {
- return RxJava2Adapter.fluxToFlowable(keys_migrated());
-}
+            
 @Override
             public Flux<JWK> keys_migrated() {
                 throw new UnsupportedOperationException("No keys for \"none\" algorithm");
@@ -153,45 +133,25 @@ public class CertificateProviderManagerTest {
         certificateMetadata.setMetadata(Collections.singletonMap(CertificateMetadata.DIGEST_ALGORITHM_NAME, defaultDigestAlgorithm));
 
         io.gravitee.am.certificate.api.CertificateProvider defaultProvider = new io.gravitee.am.certificate.api.CertificateProvider() {
-            @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(privateKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-            public Flowable<JWK> privateKey() {
- return RxJava2Adapter.fluxToFlowable(privateKey_migrated());
-}
+            
 @Override
             public Flux<JWK> privateKey_migrated() {
                return null;
             }
 
-            @InlineMe(replacement = "RxJava2Adapter.monoToSingle(key_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-            public Single<io.gravitee.am.certificate.api.Key> key() {
- return RxJava2Adapter.monoToSingle(key_migrated());
-}
+            
 @Override
             public Mono<io.gravitee.am.certificate.api.Key> key_migrated() {
                 return Mono.just(certificateKey);
             }
 
-            @InlineMe(replacement = "RxJava2Adapter.monoToSingle(publicKey_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-            public Single<String> publicKey() {
- return RxJava2Adapter.monoToSingle(publicKey_migrated());
-}
+            
 @Override
             public Mono<String> publicKey_migrated() {
                 return null;
             }
 
-            @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(keys_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-            public Flowable<JWK> keys() {
- return RxJava2Adapter.fluxToFlowable(keys_migrated());
-}
+            
 @Override
             public Flux<JWK> keys_migrated() {
                 return null;

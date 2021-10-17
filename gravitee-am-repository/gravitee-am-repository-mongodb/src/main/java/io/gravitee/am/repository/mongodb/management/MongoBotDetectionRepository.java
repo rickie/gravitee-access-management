@@ -52,23 +52,13 @@ public class MongoBotDetectionRepository extends AbstractManagementMongoReposito
         super.createIndex(botDetectionMongoCollection,new Document(FIELD_REFERENCE_ID, 1).append(FIELD_REFERENCE_TYPE, 1));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<BotDetection> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<BotDetection> findAll_migrated() {
         return Flux.from(botDetectionMongoCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<BotDetection> findByReference(ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
-}
+    
 @Override
     public Flux<BotDetection> findByReference_migrated(ReferenceType referenceType, String referenceId) {
         return Flux.from(botDetectionMongoCollection.find(and(eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_REFERENCE_TYPE, referenceType.name())))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));

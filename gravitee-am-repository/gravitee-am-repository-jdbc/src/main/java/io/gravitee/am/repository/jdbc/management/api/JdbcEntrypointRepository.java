@@ -74,12 +74,7 @@ public class JdbcEntrypointRepository extends AbstractJdbcRepository implements 
                         id, organizationId, error));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Entrypoint> findAll(String organizationId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
-}
+    
 @Override
     public Flux<Entrypoint> findAll_migrated(String organizationId) {
         LOGGER.debug("findAll({})", organizationId);

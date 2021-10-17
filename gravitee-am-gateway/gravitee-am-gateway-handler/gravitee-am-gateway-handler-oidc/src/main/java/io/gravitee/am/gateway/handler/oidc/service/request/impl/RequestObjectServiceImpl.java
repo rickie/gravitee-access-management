@@ -82,12 +82,7 @@ public class RequestObjectServiceImpl implements RequestObjectService {
     @Autowired
     private Domain domain;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.readRequestObject_migrated(request, client, encRequired))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<JWT> readRequestObject(String request, Client client, boolean encRequired) {
- return RxJava2Adapter.monoToSingle(readRequestObject_migrated(request, client, encRequired));
-}
+    
 @Override
     public Mono<JWT> readRequestObject_migrated(String request, Client client, boolean encRequired) {
         return jweService.decrypt_migrated(request, encRequired).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction(err2 -> {
@@ -100,12 +95,7 @@ public class RequestObjectServiceImpl implements RequestObjectService {
                 }).apply(v))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.readRequestObjectFromURI_migrated(requestUri, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<JWT> readRequestObjectFromURI(String requestUri, Client client) {
- return RxJava2Adapter.monoToSingle(readRequestObjectFromURI_migrated(requestUri, client));
-}
+    
 @Override
     public Mono<JWT> readRequestObjectFromURI_migrated(String requestUri, Client client) {
         try {
@@ -130,12 +120,7 @@ public class RequestObjectServiceImpl implements RequestObjectService {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.registerRequestObject_migrated(request, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<RequestObjectRegistrationResponse> registerRequestObject(RequestObjectRegistrationRequest request, Client client) {
- return RxJava2Adapter.monoToSingle(registerRequestObject_migrated(request, client));
-}
+    
 @Override
     public Mono<RequestObjectRegistrationResponse> registerRequestObject_migrated(RequestObjectRegistrationRequest request, Client client) {
         try {

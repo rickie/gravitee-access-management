@@ -72,21 +72,13 @@ public class PermissionService {
         this.consistencyCache = new ConcurrentHashMap<>();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAllPermissions_migrated(user, referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Single<Map<Permission, Set<Acl>>> findAllPermissions(User user, ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.monoToSingle(findAllPermissions_migrated(user, referenceType, referenceId));
-}
+    
 public Mono<Map<Permission,Set<Acl>>> findAllPermissions_migrated(User user, ReferenceType referenceType, String referenceId) {
 
         return findMembershipPermissions_migrated(user, Collections.singletonMap(referenceType, referenceId).entrySet().stream()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::aclsPerPermission));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.hasPermission_migrated(user, permissions))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Single<Boolean> hasPermission(User user, PermissionAcls permissions) {
- return RxJava2Adapter.monoToSingle(hasPermission_migrated(user, permissions));
-}
+    
 public Mono<Boolean> hasPermission_migrated(User user, PermissionAcls permissions) {
 
         return haveConsistentReferenceIds_migrated(permissions).flatMap(v->RxJava2Adapter.singleToMono((Single<Boolean>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<Boolean>>)consistent -> {
@@ -97,11 +89,7 @@ public Mono<Boolean> hasPermission_migrated(User user, PermissionAcls permission
                 }).apply(v)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.haveConsistentReferenceIds_migrated(permissionAcls))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Single<Boolean> haveConsistentReferenceIds(PermissionAcls permissionAcls) {
- return RxJava2Adapter.monoToSingle(haveConsistentReferenceIds_migrated(permissionAcls));
-}
+    
 protected Mono<Boolean> haveConsistentReferenceIds_migrated(PermissionAcls permissionAcls) {
 
         try {

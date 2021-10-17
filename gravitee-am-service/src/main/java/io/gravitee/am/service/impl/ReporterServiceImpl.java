@@ -99,12 +99,7 @@ public class ReporterServiceImpl implements ReporterService {
     @Autowired
     private DomainService domainService;
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Reporter> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<Reporter> findAll_migrated() {
         LOGGER.debug("Find all reporters");
@@ -145,12 +140,7 @@ public class ReporterServiceImpl implements ReporterService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createDefault_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Reporter> createDefault(String domain) {
- return RxJava2Adapter.monoToSingle(createDefault_migrated(domain));
-}
+    
 @Override
     public Mono<Reporter> createDefault_migrated(String domain) {
         LOGGER.debug("Create default reporter for domain {}", domain);

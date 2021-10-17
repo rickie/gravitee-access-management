@@ -30,12 +30,6 @@ import reactor.core.publisher.Flux;
  */
 @Repository
 public interface SpringEnvironmentHridsRepository extends RxJava2CrudRepository<JdbcEnvironment.Hrid, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByEnvironmentId_migrated(environmentId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Hrid> findAllByEnvironmentId(String environmentId) {
-    return RxJava2Adapter.fluxToFlowable(findAllByEnvironmentId_migrated(environmentId));
-}
-default Flux<Hrid> findAllByEnvironmentId_migrated(String environmentId) {
-    return RxJava2Adapter.flowableToFlux(findAllByEnvironmentId(environmentId));
-}
+      
+Flux<Hrid> findAllByEnvironmentId_migrated(String environmentId);
 }

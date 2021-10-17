@@ -115,12 +115,7 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByEmail_migrated(email))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> findByEmail(String email) {
- return RxJava2Adapter.monoToMaybe(findByEmail_migrated(email));
-}
+    
 @Override
     public Mono<User> findByEmail_migrated(String email) {
         return selectUserByEmail_migrated(email).map(RxJavaReactorMigrationUtil.toJdkFunction(this::createUser));
@@ -132,12 +127,7 @@ private Mono<Map<String,Object>> selectUserByEmail_migrated(String email) {
         return query_migrated(sql, email).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(result -> result.map(ColumnMapRowMapper::mapRow))).next();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> findByUsername(String username) {
- return RxJava2Adapter.monoToMaybe(findByUsername_migrated(username));
-}
+    
 @Override
     public Mono<User> findByUsername_migrated(String username) {
         return selectUserByUsername_migrated(username).map(RxJavaReactorMigrationUtil.toJdkFunction(this::createUser));

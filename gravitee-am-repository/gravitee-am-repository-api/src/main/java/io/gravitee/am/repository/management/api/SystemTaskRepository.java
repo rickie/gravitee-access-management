@@ -28,12 +28,6 @@ import reactor.core.publisher.Mono;
  */
 public interface SystemTaskRepository extends CrudRepository<SystemTask, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.updateIf_migrated(item, operationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<SystemTask> updateIf(SystemTask item, String operationId) {
-    return RxJava2Adapter.monoToSingle(updateIf_migrated(item, operationId));
-}
-default Mono<SystemTask> updateIf_migrated(SystemTask item, String operationId) {
-    return RxJava2Adapter.singleToMono(updateIf(item, operationId));
-}
+      
+Mono<SystemTask> updateIf_migrated(SystemTask item, String operationId);
 }

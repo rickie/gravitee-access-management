@@ -64,12 +64,7 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository implements
         return mapper.map(entity, JdbcEnvironment.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Environment> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<Environment> findAll_migrated() {
         LOGGER.debug("findAll()");
@@ -79,12 +74,7 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository implements
         return RxJava2Adapter.flowableToFlux(result.doOnError((error) -> LOGGER.error("unable to retrieve all environments", error)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Environment> findAll(String organizationId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
-}
+    
 @Override
     public Flux<Environment> findAll_migrated(String organizationId) {
         LOGGER.debug("findAll({})", organizationId);
@@ -108,12 +98,7 @@ public class JdbcEnvironmentRepository extends AbstractJdbcRepository implements
     }
 
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> count() {
- return RxJava2Adapter.monoToSingle(count_migrated());
-}
+    
 @Override
     public Mono<Long> count_migrated() {
         return RxJava2Adapter.singleToMono(this.environmentRepository.count());

@@ -60,12 +60,7 @@ public class UserConsentServiceImpl implements UserConsentService {
     @Value("${oauth2.approval.expiry:-1}")
     private int approvalExpirySeconds;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.checkConsent_migrated(client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Set<String>> checkConsent(Client client, io.gravitee.am.model.User user) {
- return RxJava2Adapter.monoToSingle(checkConsent_migrated(client, user));
-}
+    
 @Override
     public Mono<Set<String>> checkConsent_migrated(Client client, io.gravitee.am.model.User user) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(scopeApprovalService.findByDomainAndUserAndClient_migrated(domain.getId(), user.getId(), client.getClientId()).filter(approval -> {
@@ -95,12 +90,7 @@ public class UserConsentServiceImpl implements UserConsentService {
         return scopeApprovalService.saveConsent_migrated(domain.getId(), client, approvals);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getConsentInformation_migrated(consent))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<Scope>> getConsentInformation(Set<String> consent) {
- return RxJava2Adapter.monoToSingle(getConsentInformation_migrated(consent));
-}
+    
 @Override
     public Mono<List<Scope>> getConsentInformation_migrated(Set<String> consent) {
         return scopeService.getAll_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(scopes -> {

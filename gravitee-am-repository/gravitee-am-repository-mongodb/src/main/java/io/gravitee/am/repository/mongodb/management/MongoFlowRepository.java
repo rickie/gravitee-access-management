@@ -57,12 +57,7 @@ public class MongoFlowRepository extends AbstractManagementMongoRepository imple
         super.createIndex(flowsCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_ID, 1));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Flow> findAll(ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
+    
 @Override
     public Flux<Flow> findAll_migrated(ReferenceType referenceType, String referenceId) {
         return Flux.from(flowsCollection.find(
@@ -73,12 +68,7 @@ public class MongoFlowRepository extends AbstractManagementMongoRepository imple
                 )).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByApplication_migrated(referenceType, referenceId, application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Flow> findByApplication(ReferenceType referenceType, String referenceId, String application) {
- return RxJava2Adapter.fluxToFlowable(findByApplication_migrated(referenceType, referenceId, application));
-}
+    
 @Override
     public Flux<Flow> findByApplication_migrated(ReferenceType referenceType, String referenceId, String application) {
         return Flux.from(flowsCollection.find(

@@ -100,12 +100,7 @@ private Mono<Resource> completeWithScopes_migrated(Maybe<Resource> maybeResource
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomainAndClient_migrated(domain, client, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Resource>> findByDomainAndClient(String domain, String client, int page, int size) {
- return RxJava2Adapter.monoToSingle(findByDomainAndClient_migrated(domain, client, page, size));
-}
+    
 @Override
     public Mono<Page<Resource>> findByDomainAndClient_migrated(String domain, String client, int page, int size) {
         LOGGER.debug("findByDomainAndClient({}, {}, {}, {})", domain, client, page, size);
@@ -113,12 +108,7 @@ private Mono<Resource> completeWithScopes_migrated(Maybe<Resource> maybeResource
         return findResourcePage_migrated(domain, page, size, whereClause);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByResources_migrated(resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Resource> findByResources(List<String> resources) {
- return RxJava2Adapter.fluxToFlowable(findByResources_migrated(resources));
-}
+    
 @Override
     public Flux<Resource> findByResources_migrated(List<String> resources) {
         LOGGER.debug("findByResources({})", resources);
@@ -128,36 +118,21 @@ private Mono<Resource> completeWithScopes_migrated(Maybe<Resource> maybeResource
         return resourceRepository.findByIdIn_migrated(resources).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> RxJava2Adapter.fluxToFlowable(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(resource)), resource.getId()).flux())));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndClientAndUser_migrated(domain, client, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Resource> findByDomainAndClientAndUser(String domain, String client, String userId) {
- return RxJava2Adapter.fluxToFlowable(findByDomainAndClientAndUser_migrated(domain, client, userId));
-}
+    
 @Override
     public Flux<Resource> findByDomainAndClientAndUser_migrated(String domain, String client, String userId) {
         LOGGER.debug("findByDomainAndClientAndUser({},{},{})", domain, client, userId);
         return resourceRepository.findByDomainAndClientAndUser_migrated(domain, client, userId).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> RxJava2Adapter.fluxToFlowable(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(resource)), resource.getId()).flux())));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndClientAndResources_migrated(domain, client, resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Resource> findByDomainAndClientAndResources(String domain, String client, List<String> resources) {
- return RxJava2Adapter.fluxToFlowable(findByDomainAndClientAndResources_migrated(domain, client, resources));
-}
+    
 @Override
     public Flux<Resource> findByDomainAndClientAndResources_migrated(String domain, String client, List<String> resources) {
         LOGGER.debug("findByDomainAndClientAndUser({},{},{})", domain, client, resources);
         return resourceRepository.findByDomainAndClientAndResources_migrated(domain, client, resources).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(resource -> RxJava2Adapter.fluxToFlowable(completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(resource)), resource.getId()).flux())));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientAndUserAndResource_migrated(domain, client, userId, resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Resource> findByDomainAndClientAndUserAndResource(String domain, String client, String userId, String resource) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndUserAndResource_migrated(domain, client, userId, resource));
-}
+    
 @Override
     public Mono<Resource> findByDomainAndClientAndUserAndResource_migrated(String domain, String client, String userId, String resource) {
         LOGGER.debug("findByDomainAndClientAndUserAndResource({},{},{},{})", domain, client, userId, resource);

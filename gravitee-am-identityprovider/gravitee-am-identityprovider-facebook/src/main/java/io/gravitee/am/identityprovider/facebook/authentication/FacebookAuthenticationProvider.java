@@ -94,22 +94,13 @@ public class FacebookAuthenticationProvider extends AbstractSocialAuthentication
         return this.client;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadUserByUsername(Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
-}
+    
 @Override
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
         return authenticate_migrated(authentication).flatMap(z->this.profile_migrated(z, authentication));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.authenticate_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Maybe<Token> authenticate(Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(authenticate_migrated(authentication));
-}
+    
 protected Mono<Token> authenticate_migrated(Authentication authentication) {
 
         // Prepare body request parameters.
@@ -137,11 +128,7 @@ protected Mono<Token> authenticate_migrated(Authentication authentication) {
                 }).apply(v))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.profile_migrated(accessToken, auth))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Maybe<User> profile(Token accessToken, Authentication auth) {
- return RxJava2Adapter.monoToMaybe(profile_migrated(accessToken, auth));
-}
+    
 protected Mono<User> profile_migrated(Token accessToken, Authentication auth) {
 
         return RxJava2Adapter.singleToMono(client.postAbs(configuration.getUserProfileUri())

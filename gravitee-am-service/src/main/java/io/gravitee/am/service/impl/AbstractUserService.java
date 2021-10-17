@@ -77,12 +77,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
 
     protected abstract T getUserRepository();
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<User> findByIdIn(List<String> ids) {
- return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
-}
+    
 @Override
     public Flux<User> findByIdIn_migrated(List<String> ids) {
         String userIds = String.join(",", ids);
@@ -93,12 +88,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<User>> findAll(ReferenceType referenceType, String referenceId, int page, int size) {
- return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
-}
+    
 @Override
     public Mono<Page<User>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
         LOGGER.debug("Find users by {}: {}", referenceType, referenceId);
@@ -108,12 +98,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<User>> search(ReferenceType referenceType, String referenceId, String query, int page, int size) {
- return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, query, page, size));
-}
+    
 @Override
     public Mono<Page<User>> search_migrated(ReferenceType referenceType, String referenceId, String query, int page, int size) {
         LOGGER.debug("Search users for {} {} with query {}", referenceType, referenceId, query);
@@ -123,12 +108,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, filterCriteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<User>> search(ReferenceType referenceType, String referenceId, FilterCriteria filterCriteria, int page, int size) {
- return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, filterCriteria, page, size));
-}
+    
 @Override
     public Mono<Page<User>> search_migrated(ReferenceType referenceType, String referenceId, FilterCriteria filterCriteria, int page, int size) {
         LOGGER.debug("Search users for {} {} with filter {}", referenceType, referenceId, filterCriteria);
@@ -158,12 +138,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                 })).switchIfEmpty(Mono.error(new UserNotFoundException(id)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsernameAndSource_migrated(referenceType, referenceId, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> findByUsernameAndSource(ReferenceType referenceType, String referenceId, String username, String source) {
- return RxJava2Adapter.monoToMaybe(findByUsernameAndSource_migrated(referenceType, referenceId, username, source));
-}
+    
 @Override
     public Mono<User> findByUsernameAndSource_migrated(ReferenceType referenceType, String referenceId, String username, String source) {
         LOGGER.debug("Find user by {} {}, username and source: {} {}", referenceType, referenceId, username, source);
@@ -175,12 +150,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByExternalIdAndSource_migrated(referenceType, referenceId, externalId, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> findByExternalIdAndSource(ReferenceType referenceType, String referenceId, String externalId, String source) {
- return RxJava2Adapter.monoToMaybe(findByExternalIdAndSource_migrated(referenceType, referenceId, externalId, source));
-}
+    
 @Override
     public Mono<User> findByExternalIdAndSource_migrated(ReferenceType referenceType, String referenceId, String externalId, String source) {
         LOGGER.debug("Find user by {} {}, externalId and source: {} {}", referenceType, referenceId, externalId, source);
@@ -332,12 +302,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enhance_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<User> enhance(User user) {
- return RxJava2Adapter.monoToSingle(enhance_migrated(user));
-}
+    
 @Override
     public Mono<User> enhance_migrated(User user) {
         LOGGER.debug("Enhance user {}", user.getId());

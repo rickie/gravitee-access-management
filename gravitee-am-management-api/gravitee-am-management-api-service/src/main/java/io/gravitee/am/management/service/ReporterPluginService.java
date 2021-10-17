@@ -29,14 +29,8 @@ import reactor.core.publisher.Mono;
  */
 public interface ReporterPluginService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<ReporterPlugin>> findAll() {
-    return RxJava2Adapter.monoToSingle(findAll_migrated());
-}
-default Mono<List<ReporterPlugin>> findAll_migrated() {
-    return RxJava2Adapter.singleToMono(findAll());
-}
+      
+Mono<List<ReporterPlugin>> findAll_migrated();
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(reporterId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -47,12 +41,6 @@ default Mono<ReporterPlugin> findById_migrated(String reporterId) {
     return RxJava2Adapter.maybeToMono(findById(reporterId));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(reporterId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<String> getSchema(String reporterId) {
-    return RxJava2Adapter.monoToMaybe(getSchema_migrated(reporterId));
-}
-default Mono<String> getSchema_migrated(String reporterId) {
-    return RxJava2Adapter.maybeToMono(getSchema(reporterId));
-}
+      
+Mono<String> getSchema_migrated(String reporterId);
 }

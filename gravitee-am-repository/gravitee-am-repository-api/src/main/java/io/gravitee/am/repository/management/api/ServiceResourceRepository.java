@@ -29,13 +29,7 @@ import reactor.core.publisher.Flux;
  */
 public interface ServiceResourceRepository extends CrudRepository<ServiceResource, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<ServiceResource> findByReference(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
-}
-default Flux<ServiceResource> findByReference_migrated(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.flowableToFlux(findByReference(referenceType, referenceId));
-}
+      
+Flux<ServiceResource> findByReference_migrated(ReferenceType referenceType, String referenceId);
 
 }

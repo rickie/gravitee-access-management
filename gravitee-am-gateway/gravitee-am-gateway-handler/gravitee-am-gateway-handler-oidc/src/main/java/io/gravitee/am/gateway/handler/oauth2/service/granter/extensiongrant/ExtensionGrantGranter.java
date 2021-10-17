@@ -85,12 +85,7 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
         return super.handle(grantType, client) && canHandle(client);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.parseRequest_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
- return RxJava2Adapter.monoToSingle(parseRequest_migrated(tokenRequest, client));
-}
+    
 @Override
     protected Mono<TokenRequest> parseRequest_migrated(TokenRequest tokenRequest, Client client) {
         // Is client allowed to use such grant type ?
@@ -100,12 +95,7 @@ public class ExtensionGrantGranter extends AbstractTokenGranter {
         return Mono.just(tokenRequest);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.resolveResourceOwner_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
- return RxJava2Adapter.monoToMaybe(resolveResourceOwner_migrated(tokenRequest, client));
-}
+    
 @Override
     protected Mono<User> resolveResourceOwner_migrated(TokenRequest tokenRequest, Client client) {
         return RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(extensionGrantProvider.grant_migrated(convert(tokenRequest))

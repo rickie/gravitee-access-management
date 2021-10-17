@@ -46,12 +46,7 @@ public class IntrospectionServiceImpl implements IntrospectionService {
     @Autowired
     private UserService userService;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.introspect_migrated(introspectionRequest))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<IntrospectionResponse> introspect(IntrospectionRequest introspectionRequest) {
- return RxJava2Adapter.monoToSingle(introspect_migrated(introspectionRequest));
-}
+    
 @Override
     public Mono<IntrospectionResponse> introspect_migrated(IntrospectionRequest introspectionRequest) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tokenService.introspect_migrated(introspectionRequest.getToken()).flatMap(v->RxJava2Adapter.singleToMono((Single<IntrospectionResponse>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Token, Single<IntrospectionResponse>>)token -> {

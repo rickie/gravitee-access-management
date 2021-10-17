@@ -84,12 +84,7 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadUserByUsername(Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
-}
+    
 @Override
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
         try {
@@ -130,23 +125,13 @@ public class HttpAuthenticationProvider implements AuthenticationProvider {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadPreAuthenticatedUser_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadPreAuthenticatedUser(Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(authentication));
-}
+    
 @Override
     public Mono<User> loadPreAuthenticatedUser_migrated(Authentication authentication) {
         return loadByUsername0_migrated(authentication.getContext(), new DefaultUser((io.gravitee.am.model.User) authentication.getPrincipal()));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadUserByUsername(String username) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-}
+    
 @Override
     public Mono<User> loadUserByUsername_migrated(String username) {
         return loadByUsername0_migrated(new SimpleAuthenticationContext(), new DefaultUser(username));

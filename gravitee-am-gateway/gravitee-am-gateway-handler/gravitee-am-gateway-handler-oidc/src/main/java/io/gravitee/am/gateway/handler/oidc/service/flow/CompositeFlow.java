@@ -66,12 +66,7 @@ public class CompositeFlow implements Flow, InitializingBean  {
         return false;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.run_migrated(authorizationRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<AuthorizationResponse> run(AuthorizationRequest authorizationRequest, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(run_migrated(authorizationRequest, client, endUser));
-}
+    
 @Override
     public Mono<AuthorizationResponse> run_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(flows).filter(flow -> flow.handle(authorizationRequest.getResponseType())))

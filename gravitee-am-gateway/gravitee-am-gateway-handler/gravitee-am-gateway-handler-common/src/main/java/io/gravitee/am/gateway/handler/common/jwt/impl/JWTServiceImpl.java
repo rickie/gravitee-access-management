@@ -51,36 +51,21 @@ public class JWTServiceImpl implements JWTService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encode_migrated(jwt, certificateProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<String> encode(JWT jwt, CertificateProvider certificateProvider) {
- return RxJava2Adapter.monoToSingle(encode_migrated(jwt, certificateProvider));
-}
+    
 @Override
     public Mono<String> encode_migrated(JWT jwt, CertificateProvider certificateProvider) {
         Objects.requireNonNull(certificateProvider, "Certificate provider is required to sign JWT");
         return sign_migrated(certificateProvider, jwt);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encode_migrated(jwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<String> encode(JWT jwt, Client client) {
- return RxJava2Adapter.monoToSingle(encode_migrated(jwt, client));
-}
+    
 @Override
     public Mono<String> encode_migrated(JWT jwt, Client client) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(certificateManager.get_migrated(client.getCertificate()).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
                 .flatMapSingle(certificateProvider -> RxJava2Adapter.monoToSingle(encode_migrated(jwt, certificateProvider))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encodeUserinfo_migrated(jwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<String> encodeUserinfo(JWT jwt, Client client) {
- return RxJava2Adapter.monoToSingle(encodeUserinfo_migrated(jwt, client));
-}
+    
 @Override
     public Mono<String> encodeUserinfo_migrated(JWT jwt, Client client) {
         //Userinfo may not be signed but only encrypted
@@ -92,12 +77,7 @@ public class JWTServiceImpl implements JWTService {
                 .flatMapSingle(certificateProvider -> RxJava2Adapter.monoToSingle(encode_migrated(jwt, certificateProvider))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encodeAuthorization_migrated(jwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<String> encodeAuthorization(JWT jwt, Client client) {
- return RxJava2Adapter.monoToSingle(encodeAuthorization_migrated(jwt, client));
-}
+    
 @Override
     public Mono<String> encodeAuthorization_migrated(JWT jwt, Client client) {
         // Signing an authorization response is required
@@ -114,35 +94,20 @@ public class JWTServiceImpl implements JWTService {
                 .flatMapSingle(certificateProvider -> RxJava2Adapter.monoToSingle(encode_migrated(jwt, certificateProvider))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decodeAndVerify_migrated(jwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<JWT> decodeAndVerify(String jwt, Client client) {
- return RxJava2Adapter.monoToSingle(decodeAndVerify_migrated(jwt, client));
-}
+    
 @Override
     public Mono<JWT> decodeAndVerify_migrated(String jwt, Client client) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(certificateManager.get_migrated(client.getCertificate()).defaultIfEmpty(certificateManager.defaultCertificateProvider()))
                 .flatMapSingle(certificateProvider -> RxJava2Adapter.monoToSingle(decodeAndVerify_migrated(jwt, certificateProvider))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decodeAndVerify_migrated(jwt, certificateProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<JWT> decodeAndVerify(String jwt, CertificateProvider certificateProvider) {
- return RxJava2Adapter.monoToSingle(decodeAndVerify_migrated(jwt, certificateProvider));
-}
+    
 @Override
     public Mono<JWT> decodeAndVerify_migrated(String jwt, CertificateProvider certificateProvider) {
         return decode_migrated(certificateProvider, jwt).map(RxJavaReactorMigrationUtil.toJdkFunction(JWT::new));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decode_migrated(jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<JWT> decode(String jwt) {
- return RxJava2Adapter.monoToSingle(decode_migrated(jwt));
-}
+    
 @Override
     public Mono<JWT> decode_migrated(String jwt) {
         return RxJava2Adapter.singleToMono(Single.create(emitter -> {

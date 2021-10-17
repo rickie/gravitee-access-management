@@ -109,12 +109,7 @@ public class JdbcServiceResourceRepository extends AbstractJdbcRepository implem
         return RxJava2Adapter.completableToMono(serviceResourceRepository.deleteById(id));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<ServiceResource> findByReference(ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.fluxToFlowable(findByReference_migrated(referenceType, referenceId));
-}
+    
 @Override
     public Flux<ServiceResource> findByReference_migrated(ReferenceType referenceType, String referenceId) {
         LOGGER.debug("findByReference({}, {})", referenceType, referenceId);

@@ -47,12 +47,7 @@ public class ExtensionGrantPluginServiceImpl implements ExtensionGrantPluginServ
     @Autowired
     private ExtensionGrantPluginManager extensionGrantPluginManager;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Set<ExtensionGrantPlugin>> findAll() {
- return RxJava2Adapter.monoToSingle(findAll_migrated());
-}
+    
 @Override
     public Mono<Set<ExtensionGrantPlugin>> findAll_migrated() {
         LOGGER.debug("List all extension grant plugins");
@@ -93,12 +88,7 @@ public class ExtensionGrantPluginServiceImpl implements ExtensionGrantPluginServ
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(extensionGrantPluginId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<String> getSchema(String extensionGrantPluginId) {
- return RxJava2Adapter.monoToMaybe(getSchema_migrated(extensionGrantPluginId));
-}
+    
 @Override
     public Mono<String> getSchema_migrated(String extensionGrantPluginId) {
         LOGGER.debug("Find extension grant plugin schema by ID: {}", extensionGrantPluginId);

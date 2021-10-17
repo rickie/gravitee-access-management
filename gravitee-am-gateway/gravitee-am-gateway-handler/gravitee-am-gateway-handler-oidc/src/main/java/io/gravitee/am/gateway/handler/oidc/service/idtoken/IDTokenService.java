@@ -47,12 +47,6 @@ default Mono<String> create_migrated(OAuth2Request oAuth2Request, Client client,
     return RxJava2Adapter.singleToMono(create(oAuth2Request, client, user, executionContext));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.extractUser_migrated(idToken, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<User> extractUser(String idToken, Client client) {
-    return RxJava2Adapter.monoToSingle(extractUser_migrated(idToken, client));
-}
-default Mono<User> extractUser_migrated(String idToken, Client client) {
-    return RxJava2Adapter.singleToMono(extractUser(idToken, client));
-}
+      
+Mono<User> extractUser_migrated(String idToken, Client client);
 }

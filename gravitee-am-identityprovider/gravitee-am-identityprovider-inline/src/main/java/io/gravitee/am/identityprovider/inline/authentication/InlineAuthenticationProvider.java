@@ -69,12 +69,7 @@ public class InlineAuthenticationProvider implements AuthenticationProvider, Ini
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadUserByUsername(Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
-}
+    
 @Override
     public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
         return userDetailsService.loadUserByUsername_migrated((String) authentication.getPrincipal()).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> {
@@ -87,12 +82,7 @@ public class InlineAuthenticationProvider implements AuthenticationProvider, Ini
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> loadUserByUsername(String username) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-}
+    
 @Override
     public Mono<User> loadUserByUsername_migrated(String username) {
         return userDetailsService.loadUserByUsername_migrated(username).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> createUser(new SimpleAuthenticationContext(), user)));

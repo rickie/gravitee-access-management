@@ -153,12 +153,7 @@ public class ClientServiceImpl implements ClientService {
         return applicationService.delete_migrated(clientId, principal);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.renewClientSecret_migrated(domain, id, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Client> renewClientSecret(String domain, String id, User principal) {
- return RxJava2Adapter.monoToSingle(renewClientSecret_migrated(domain, id, principal));
-}
+    
 @Override
     public Mono<Client> renewClientSecret_migrated(String domain, String id, User principal) {
         LOGGER.debug("Renew client secret for client {} in domain {}", id, domain);

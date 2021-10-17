@@ -81,12 +81,7 @@ public class FlowServiceImpl implements FlowService {
     @Autowired
     private AuditService auditService;
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId, excludeApps))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Flow> findAll(ReferenceType referenceType, String referenceId, boolean excludeApps) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId, excludeApps));
-}
+    
 @Override
     public Flux<Flow> findAll_migrated(ReferenceType referenceType, String referenceId, boolean excludeApps) {
         LOGGER.debug("Find all flows for {} {}", referenceType, referenceId);
@@ -96,12 +91,7 @@ public class FlowServiceImpl implements FlowService {
             }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByApplication_migrated(referenceType, referenceId, application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Flow> findByApplication(ReferenceType referenceType, String referenceId, String application) {
- return RxJava2Adapter.fluxToFlowable(findByApplication_migrated(referenceType, referenceId, application));
-}
+    
 @Override
     public Flux<Flow> findByApplication_migrated(ReferenceType referenceType, String referenceId, String application) {
         LOGGER.debug("Find all flows for {} {} and application {}", referenceType, referenceId, application);
@@ -296,12 +286,7 @@ public class FlowServiceImpl implements FlowService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getSchema_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<String> getSchema() {
- return RxJava2Adapter.monoToSingle(getSchema_migrated());
-}
+    
 @Override
     public Mono<String> getSchema_migrated() {
         return RxJava2Adapter.singleToMono(Single.create(emitter -> {
@@ -315,8 +300,13 @@ public class FlowServiceImpl implements FlowService {
         }));
     }
 
-    
-private Mono<List<Flow>> createOrUpdate0_migrated(ReferenceType referenceType, String referenceId, String application, List<Flow> flows, User principal) {
+    @Override
+    public Flux<Flow> findAll_migrated(ReferenceType referenceType, String referenceId) {
+        return findAll_migrated(referenceType, referenceId, false);
+    }
+
+
+    private Mono<List<Flow>> createOrUpdate0_migrated(ReferenceType referenceType, String referenceId, String application, List<Flow> flows, User principal) {
 
         computeFlowOrders(flows);
 

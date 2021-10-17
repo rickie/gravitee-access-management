@@ -28,11 +28,7 @@ import reactor.core.publisher.Mono;
  */
 public class TokenRequestResolver extends AbstractRequestResolver<TokenRequest> {
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.resolve_migrated(tokenRequest, client, endUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Single<TokenRequest> resolve(TokenRequest tokenRequest, Client client, User endUser) {
- return RxJava2Adapter.monoToSingle(resolve_migrated(tokenRequest, client, endUser));
-}
+    
 public Mono<TokenRequest> resolve_migrated(TokenRequest tokenRequest, Client client, User endUser) {
         return resolveAuthorizedScopes_migrated(tokenRequest, client, endUser);
     }

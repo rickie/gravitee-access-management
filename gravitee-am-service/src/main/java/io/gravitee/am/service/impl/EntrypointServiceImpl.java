@@ -90,12 +90,7 @@ public class EntrypointServiceImpl implements EntrypointService {
         return entrypointRepository.findById_migrated(id, organizationId).switchIfEmpty(Mono.error(new EntrypointNotFoundException(id)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Entrypoint> findAll(String organizationId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
-}
+    
 @Override
     public Flux<Entrypoint> findAll_migrated(String organizationId) {
 
@@ -125,12 +120,7 @@ public class EntrypointServiceImpl implements EntrypointService {
         return createInternal_migrated(toCreate, principal);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.createDefaults_migrated(organization))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Entrypoint> createDefaults(Organization organization) {
- return RxJava2Adapter.fluxToFlowable(createDefaults_migrated(organization));
-}
+    
 @Override
     public Flux<Entrypoint> createDefaults_migrated(Organization organization) {
 

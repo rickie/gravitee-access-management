@@ -32,29 +32,14 @@ import reactor.core.publisher.Mono;
  */
 @Repository
 public interface SpringIdentityProviderRepository extends RxJava2CrudRepository<JdbcIdentityProvider, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcIdentityProvider> findAll(@Param(value = "refType")
+      
+Flux<JdbcIdentityProvider> findAll_migrated(@Param(value = "refType")
 String referenceType, @Param(value = "refId")
-String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
-default Flux<JdbcIdentityProvider> findAll_migrated(@Param(value = "refType")
-String referenceType, @Param(value = "refId")
-String referenceId) {
-    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
-}
+String referenceId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcIdentityProvider> findAll(@Param(value = "refType")
-String referenceType) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType));
-}
-default Flux<JdbcIdentityProvider> findAll_migrated(@Param(value = "refType")
-String referenceType) {
-    return RxJava2Adapter.flowableToFlux(findAll(referenceType));
-}
+      
+Flux<JdbcIdentityProvider> findAll_migrated(@Param(value = "refType")
+String referenceType);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

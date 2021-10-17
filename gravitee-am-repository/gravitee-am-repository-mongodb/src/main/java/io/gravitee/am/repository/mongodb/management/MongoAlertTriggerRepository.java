@@ -64,12 +64,7 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
         return Flux.from(collection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<AlertTrigger> findAll(ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
+    
 @Override
     public Flux<AlertTrigger> findAll_migrated(ReferenceType referenceType, String referenceId) {
         Bson eqReference = and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId));
@@ -77,12 +72,7 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
         return Flux.from(collection.find(eqReference)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCriteria_migrated(referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<AlertTrigger> findByCriteria(ReferenceType referenceType, String referenceId, AlertTriggerCriteria criteria) {
- return RxJava2Adapter.fluxToFlowable(findByCriteria_migrated(referenceType, referenceId, criteria));
-}
+    
 @Override
     public Flux<AlertTrigger> findByCriteria_migrated(ReferenceType referenceType, String referenceId, AlertTriggerCriteria criteria) {
         Bson eqReference = and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId));

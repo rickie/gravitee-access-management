@@ -39,12 +39,6 @@ default Flux<ExtensionGrant> findByDomain_migrated(String domain) {
     return RxJava2Adapter.flowableToFlux(findByDomain(domain));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndName_migrated(domain, name))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<ExtensionGrant> findByDomainAndName(String domain, String name) {
-    return RxJava2Adapter.monoToMaybe(findByDomainAndName_migrated(domain, name));
-}
-default Mono<ExtensionGrant> findByDomainAndName_migrated(String domain, String name) {
-    return RxJava2Adapter.maybeToMono(findByDomainAndName(domain, name));
-}
+      
+Mono<ExtensionGrant> findByDomainAndName_migrated(String domain, String name);
 }

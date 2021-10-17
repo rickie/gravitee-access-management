@@ -46,12 +46,7 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
     @Autowired
     private ResourcePluginManager resourcePluginManager;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<ResourcePlugin>> findAll(List<String> expand) {
- return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
-}
+    
 @Override
     public Mono<List<ResourcePlugin>> findAll_migrated(List<String> expand) {
         LOGGER.debug("List all resource plugins");
@@ -84,12 +79,7 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(resourceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<String> getSchema(String resourceId) {
- return RxJava2Adapter.monoToMaybe(getSchema_migrated(resourceId));
-}
+    
 @Override
     public Mono<String> getSchema_migrated(String resourceId) {
         LOGGER.debug("Find resource plugin schema by ID: {}", resourceId);
@@ -108,12 +98,7 @@ public class ResourcePluginServiceImpl implements ResourcePluginService {
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(resourceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<String> getIcon(String resourceId) {
- return RxJava2Adapter.monoToMaybe(getIcon_migrated(resourceId));
-}
+    
 @Override
     public Mono<String> getIcon_migrated(String resourceId) {
         LOGGER.debug("Find resource plugin icon by ID: {}", resourceId);

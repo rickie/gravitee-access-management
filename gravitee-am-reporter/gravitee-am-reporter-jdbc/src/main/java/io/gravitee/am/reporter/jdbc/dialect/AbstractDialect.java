@@ -238,12 +238,7 @@ public abstract class AbstractDialect implements DialectHelper {
         return " ORDER BY a.timestamp DESC LIMIT " + size + " OFFSET " + (page * size);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.buildAndProcessHistogram_migrated(dbClient, referenceType, referenceId, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<Map<String, Object>>> buildAndProcessHistogram(DatabaseClient dbClient, ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
- return RxJava2Adapter.monoToSingle(buildAndProcessHistogram_migrated(dbClient, referenceType, referenceId, criteria));
-}
+    
 @Override
     public Mono<List<Map<String,Object>>> buildAndProcessHistogram_migrated(DatabaseClient dbClient, ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria) {
         SearchQuery searchQuery = buildHistogramQuery(referenceType, referenceId, criteria);

@@ -124,12 +124,7 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
         throw new IllegalStateException("signInUrl isn't implemented for Twitter IdP");
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.asyncSignInUrl_migrated(redirectUri, state))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Request> asyncSignInUrl(String redirectUri, String state) {
- return RxJava2Adapter.monoToMaybe(asyncSignInUrl_migrated(redirectUri, state));
-}
+    
 @Override
     public Mono<Request> asyncSignInUrl_migrated(String redirectUri, String state) {
         try {
@@ -194,12 +189,7 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.authenticate_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    protected Maybe<Token> authenticate(Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(authenticate_migrated(authentication));
-}
+    
 @Override
     protected Mono<Token> authenticate_migrated(Authentication authentication) {
         final String oauthToken = authentication.getContext().request().parameters().getFirst(configuration.getCodeParameter());
@@ -257,12 +247,7 @@ public class TwitterAuthenticationProvider extends AbstractSocialAuthenticationP
                 }).apply(v))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.profile_migrated(token, authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    protected Maybe<User> profile(Token token, Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(profile_migrated(token, authentication));
-}
+    
 @Override
     protected Mono<User> profile_migrated(Token token, Authentication authentication) {
         Map<String, String> parameters = Maps.<String, String>builder()

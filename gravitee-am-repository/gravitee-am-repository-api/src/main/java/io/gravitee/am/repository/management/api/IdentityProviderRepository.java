@@ -31,32 +31,14 @@ import reactor.core.publisher.Mono;
  */
 public interface IdentityProviderRepository extends CrudRepository<IdentityProvider, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<IdentityProvider> findAll(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
-default Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
-}
+      
+Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType, String referenceId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<IdentityProvider> findAll(ReferenceType referenceType) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType));
-}
-default Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType) {
-    return RxJava2Adapter.flowableToFlux(findAll(referenceType));
-}
+      
+Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<IdentityProvider> findAll() {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
-default Flux<IdentityProvider> findAll_migrated() {
-    return RxJava2Adapter.flowableToFlux(findAll());
-}
+      
+Flux<IdentityProvider> findAll_migrated();
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, identityProviderId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

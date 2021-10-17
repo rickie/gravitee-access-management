@@ -47,12 +47,7 @@ public class AuditServiceImpl implements AuditService {
     @Autowired
     private AuditReporterManager auditReporterManager;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Audit>> search(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
- return RxJava2Adapter.monoToSingle(search_migrated(referenceType, referenceId, criteria, page, size));
-}
+    
 @Override
     public Mono<Page<Audit>> search_migrated(ReferenceType referenceType, String referenceId, AuditReportableCriteria criteria, int page, int size) {
         try {
@@ -63,24 +58,14 @@ public class AuditServiceImpl implements AuditService {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, criteria, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Audit>> search(String domain, AuditReportableCriteria criteria, int page, int size) {
- return RxJava2Adapter.monoToSingle(search_migrated(domain, criteria, page, size));
-}
+    
 @Override
     public Mono<Page<Audit>> search_migrated(String domain, AuditReportableCriteria criteria, int page, int size) {
 
         return search_migrated(ReferenceType.DOMAIN, domain, criteria, page, size);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.aggregate_migrated(domain, criteria, analyticsType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Map<Object, Object>> aggregate(String domain, AuditReportableCriteria criteria, Type analyticsType) {
- return RxJava2Adapter.monoToSingle(aggregate_migrated(domain, criteria, analyticsType));
-}
+    
 @Override
     public Mono<Map<Object,Object>> aggregate_migrated(String domain, AuditReportableCriteria criteria, Type analyticsType) {
         try {

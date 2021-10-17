@@ -35,72 +35,30 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface SpringResourceRepository extends RxJava2CrudRepository<JdbcResource, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Long> countByDomain(@Param(value = "domain")
-String domain) {
-    return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
-}
-default Mono<Long> countByDomain_migrated(@Param(value = "domain")
-String domain) {
-    return RxJava2Adapter.singleToMono(countByDomain(domain));
-}
+      
+Mono<Long> countByDomain_migrated(@Param(value = "domain")
+String domain);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcResource> findByIdIn(@Param(value = "ids")
-List<String> resources) {
-    return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(resources));
-}
-default Flux<JdbcResource> findByIdIn_migrated(@Param(value = "ids")
-List<String> resources) {
-    return RxJava2Adapter.flowableToFlux(findByIdIn(resources));
-}
+      
+Flux<JdbcResource> findByIdIn_migrated(@Param(value = "ids")
+List<String> resources);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndClientAndUser_migrated(domain, client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcResource> findByDomainAndClientAndUser(@Param(value = "domain")
+      
+Flux<JdbcResource> findByDomainAndClientAndUser_migrated(@Param(value = "domain")
 String domain, @Param(value = "client")
 String client, @Param(value = "uid")
-String user) {
-    return RxJava2Adapter.fluxToFlowable(findByDomainAndClientAndUser_migrated(domain, client, user));
-}
-default Flux<JdbcResource> findByDomainAndClientAndUser_migrated(@Param(value = "domain")
-String domain, @Param(value = "client")
-String client, @Param(value = "uid")
-String user) {
-    return RxJava2Adapter.flowableToFlux(findByDomainAndClientAndUser(domain, client, user));
-}
+String user);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndClientAndResources_migrated(domain, client, resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcResource> findByDomainAndClientAndResources(@Param(value = "domain")
+      
+Flux<JdbcResource> findByDomainAndClientAndResources_migrated(@Param(value = "domain")
 String domain, @Param(value = "client")
 String client, @Param(value = "ids")
-List<String> resources) {
-    return RxJava2Adapter.fluxToFlowable(findByDomainAndClientAndResources_migrated(domain, client, resources));
-}
-default Flux<JdbcResource> findByDomainAndClientAndResources_migrated(@Param(value = "domain")
-String domain, @Param(value = "client")
-String client, @Param(value = "ids")
-List<String> resources) {
-    return RxJava2Adapter.flowableToFlux(findByDomainAndClientAndResources(domain, client, resources));
-}
+List<String> resources);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientAndUserIdAndResource_migrated(domain, client, user, resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JdbcResource> findByDomainAndClientAndUserIdAndResource(@Param(value = "domain")
+      
+Mono<JdbcResource> findByDomainAndClientAndUserIdAndResource_migrated(@Param(value = "domain")
 String domain, @Param(value = "client")
 String client, @Param(value = "uid")
 String user, @Param(value = "rid")
-String resource) {
-    return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndUserIdAndResource_migrated(domain, client, user, resource));
-}
-default Mono<JdbcResource> findByDomainAndClientAndUserIdAndResource_migrated(@Param(value = "domain")
-String domain, @Param(value = "client")
-String client, @Param(value = "uid")
-String user, @Param(value = "rid")
-String resource) {
-    return RxJava2Adapter.maybeToMono(findByDomainAndClientAndUserIdAndResource(domain, client, user, resource));
-}
+String resource);
 }

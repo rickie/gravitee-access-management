@@ -70,36 +70,7 @@ public class MembershipCommandHandler implements CommandHandler<MembershipComman
         return Command.Type.MEMBERSHIP_COMMAND;
     }
 
-    @Override
-    public Single<MembershipReply> handle(MembershipCommand command) {
-
-        MembershipPayload membershipPayload = command.getPayload();
-        ReferenceType assignableType;
-
-        try {
-            assignableType = ReferenceType.valueOf(membershipPayload.getReferenceType());
-        } catch (Exception e) {
-            logger.error("Invalid referenceType [{}].", membershipPayload.getReferenceType());
-            return RxJava2Adapter.monoToSingle(Mono.just(new MembershipReply(command.getId(), CommandStatus.ERROR)));
-        }
-
-        Single<String> userObs = RxJava2Adapter.monoToSingle(userService.findByExternalIdAndSource_migrated(ReferenceType.ORGANIZATION, membershipPayload.getOrganizationId(), membershipPayload.getUserId(), COCKPIT_SOURCE).map(RxJavaReactorMigrationUtil.toJdkFunction(User::getId)).single());
-        Single<Role> roleObs = RxJava2Adapter.monoToSingle(findRole_migrated(membershipPayload.getRole(), membershipPayload.getOrganizationId(), assignableType));
-
-
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Single.zip(roleObs, userObs,
-                (role, userId) -> {
-                    Membership membership = new Membership();
-                    membership.setMemberType(MemberType.USER);
-                    membership.setMemberId(userId);
-                    membership.setReferenceType(assignableType);
-                    membership.setReferenceId(membershipPayload.getReferenceId());
-                    membership.setRoleId(role.getId());
-
-                    return membership;
-                })).flatMap(membership->membershipService.addOrUpdate_migrated(membershipPayload.getOrganizationId(), membership)).doOnSuccess(membership -> logger.info("Role [{}] assigned on {} [{}] for user [{}] and organization [{}].", membershipPayload.getRole(), membershipPayload.getReferenceType(), membershipPayload.getReferenceId(), membership.getMemberId(), membershipPayload.getOrganizationId())).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> new MembershipReply(command.getId(), CommandStatus.SUCCEEDED))).doOnError(error -> logger.error("Error occurred when trying to assign role [{}] on {} [{}] for cockpit user [{}] and organization [{}].", membershipPayload.getRole(), membershipPayload.getReferenceType(), membershipPayload.getReferenceId(), membershipPayload.getUserId(), membershipPayload.getOrganizationId(), error)))
-                .onErrorReturn(throwable -> new MembershipReply(command.getId(), CommandStatus.ERROR));
-    }
+    
 
 
     

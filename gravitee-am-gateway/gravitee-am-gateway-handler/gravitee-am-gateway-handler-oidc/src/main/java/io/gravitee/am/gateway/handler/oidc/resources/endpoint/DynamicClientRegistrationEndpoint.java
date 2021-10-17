@@ -76,11 +76,7 @@ public class DynamicClientRegistrationEndpoint implements Handler<RoutingContext
                                 .end(Json.encodePrettily(DynamicClientRegistrationResponse.fromClient(client))), context::fail);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.extractRequest_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Single<DynamicClientRegistrationRequest> extractRequest(RoutingContext context) {
- return RxJava2Adapter.monoToSingle(extractRequest_migrated(context));
-}
+    
 protected Mono<DynamicClientRegistrationRequest> extractRequest_migrated(RoutingContext context) {
         try{
             if(context.getBodyAsJson()==null) {

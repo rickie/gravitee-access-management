@@ -73,12 +73,7 @@ public class GroupServiceImpl implements GroupService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.list_migrated(page, size, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<ListResponse<Group>> list(int page, int size, String baseUrl) {
- return RxJava2Adapter.monoToSingle(list_migrated(page, size, baseUrl));
-}
+    
 @Override
     public Mono<ListResponse<Group>> list_migrated(int page, int size, String baseUrl) {
         LOGGER.debug("Find groups by domain : {}", domain.getId());
@@ -102,12 +97,7 @@ public class GroupServiceImpl implements GroupService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByMember_migrated(memberId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Group> findByMember(String memberId) {
- return RxJava2Adapter.fluxToFlowable(findByMember_migrated(memberId));
-}
+    
 @Override
     public Flux<Group> findByMember_migrated(String memberId) {
         LOGGER.debug("Find groups by member : {}", memberId);
@@ -118,12 +108,7 @@ public class GroupServiceImpl implements GroupService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.get_migrated(groupId, baseUrl))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Group> get(String groupId, String baseUrl) {
- return RxJava2Adapter.monoToMaybe(get_migrated(groupId, baseUrl));
-}
+    
 @Override
     public Mono<Group> get_migrated(String groupId, String baseUrl) {
         LOGGER.debug("Find group by id : {}", groupId);

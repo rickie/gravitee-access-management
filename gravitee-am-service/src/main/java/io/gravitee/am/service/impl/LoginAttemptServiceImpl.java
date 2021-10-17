@@ -52,12 +52,7 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
     @Autowired
     private LoginAttemptRepository loginAttemptRepository;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.loginFailed_migrated(criteria, accountSettings))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<LoginAttempt> loginFailed(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
- return RxJava2Adapter.monoToSingle(loginFailed_migrated(criteria, accountSettings));
-}
+    
 @Override
     public Mono<LoginAttempt> loginFailed_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
         LOGGER.debug("Add login attempt for {}", criteria);
@@ -97,12 +92,7 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.loginSucceeded_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable loginSucceeded(LoginAttemptCriteria criteria) {
- return RxJava2Adapter.monoToCompletable(loginSucceeded_migrated(criteria));
-}
+    
 @Override
     public Mono<Void> loginSucceeded_migrated(LoginAttemptCriteria criteria) {
         LOGGER.debug("Delete login attempt for {}", criteria);
@@ -117,23 +107,13 @@ public class LoginAttemptServiceImpl implements LoginAttemptService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.reset_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable reset(LoginAttemptCriteria criteria) {
- return RxJava2Adapter.monoToCompletable(reset_migrated(criteria));
-}
+    
 @Override
     public Mono<Void> reset_migrated(LoginAttemptCriteria criteria) {
         return loginSucceeded_migrated(criteria);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.checkAccount_migrated(criteria, accountSettings))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<LoginAttempt> checkAccount(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
- return RxJava2Adapter.monoToMaybe(checkAccount_migrated(criteria, accountSettings));
-}
+    
 @Override
     public Mono<LoginAttempt> checkAccount_migrated(LoginAttemptCriteria criteria, AccountSettings accountSettings) {
         LOGGER.debug("Check account status for {}", criteria);

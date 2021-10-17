@@ -61,12 +61,7 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         setUserAuthenticationManager(userAuthenticationManager);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.parseRequest_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    protected Single<TokenRequest> parseRequest(TokenRequest tokenRequest, Client client) {
- return RxJava2Adapter.monoToSingle(parseRequest_migrated(tokenRequest, client));
-}
+    
 @Override
     protected Mono<TokenRequest> parseRequest_migrated(TokenRequest tokenRequest, Client client) {
         MultiValueMap<String, String> parameters = tokenRequest.parameters();
@@ -88,12 +83,7 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         return super.parseRequest_migrated(tokenRequest, client);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.resolveResourceOwner_migrated(tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    protected Maybe<User> resolveResourceOwner(TokenRequest tokenRequest, Client client) {
- return RxJava2Adapter.monoToMaybe(resolveResourceOwner_migrated(tokenRequest, client));
-}
+    
 @Override
     protected Mono<User> resolveResourceOwner_migrated(TokenRequest tokenRequest, Client client) {
         String username = tokenRequest.getUsername();

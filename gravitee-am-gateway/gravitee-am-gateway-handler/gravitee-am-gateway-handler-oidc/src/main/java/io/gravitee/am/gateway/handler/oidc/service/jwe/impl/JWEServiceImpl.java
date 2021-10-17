@@ -70,12 +70,7 @@ public class JWEServiceImpl implements JWEService {
     @Autowired
     private Domain domain;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encryptIdToken_migrated(signedJwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<String> encryptIdToken(String signedJwt, Client client) {
- return RxJava2Adapter.monoToSingle(encryptIdToken_migrated(signedJwt, client));
-}
+    
 @Override
     public Mono<String> encryptIdToken_migrated(String signedJwt, Client client) {
         //Return input without encryption if client does not require JWE or algorithm is set to none
@@ -100,12 +95,7 @@ public class JWEServiceImpl implements JWEService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encryptUserinfo_migrated(signedJwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<String> encryptUserinfo(String signedJwt, Client client) {
- return RxJava2Adapter.monoToSingle(encryptUserinfo_migrated(signedJwt, client));
-}
+    
 @Override
     public Mono<String> encryptUserinfo_migrated(String signedJwt, Client client) {
         //Return input without encryption if client does not require JWE or algorithm is set to none
@@ -130,12 +120,7 @@ public class JWEServiceImpl implements JWEService {
                 }).apply(err)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isEncrypted_migrated(jwt))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Boolean> isEncrypted(String jwt) {
- return RxJava2Adapter.monoToSingle(isEncrypted_migrated(jwt));
-}
+    
 @Override
     public Mono<Boolean> isEncrypted_migrated(String jwt) {
         try {
@@ -145,23 +130,13 @@ public class JWEServiceImpl implements JWEService {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decrypt_migrated(jwt, encRequired))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<JWT> decrypt(String jwt, boolean encRequired) {
- return RxJava2Adapter.monoToSingle(decrypt_migrated(jwt, encRequired));
-}
+    
 @Override
     public Mono<JWT> decrypt_migrated(String jwt, boolean encRequired) {
         return decrypt_migrated(jwt, null, encRequired);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.decrypt_migrated(jwt, client, encRequired))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<JWT> decrypt(String jwt, Client client, boolean encRequired) {
- return RxJava2Adapter.monoToSingle(decrypt_migrated(jwt, client, encRequired));
-}
+    
 @Override
     public Mono<JWT> decrypt_migrated(String jwt, Client client, boolean encRequired) {
         try {
@@ -237,11 +212,7 @@ private Mono<JWT> decrypt_migrated(JWEObject jwe, Client client, Predicate<JWK> 
                 })).filter(RxJavaReactorMigrationUtil.toJdkPredicate(Optional::isPresent)).map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::get)).next().single();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.encryptAuthorization_migrated(signedJwt, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Single<String> encryptAuthorization(String signedJwt, Client client) {
- return RxJava2Adapter.monoToSingle(encryptAuthorization_migrated(signedJwt, client));
-}
+    
 public Mono<String> encryptAuthorization_migrated(String signedJwt, Client client) {
         //Return input without encryption if client does not require JWE or algorithm is set to none
         if (client.getAuthorizationEncryptedResponseAlg() == null || JWEAlgorithm.NONE.getName().equals(client.getAuthorizationEncryptedResponseAlg())) {

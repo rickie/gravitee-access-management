@@ -34,14 +34,8 @@ public interface InstallationService {
      *
      * @return the current installation or an {@link io.gravitee.am.service.exception.InstallationNotFoundException} exception.
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.get_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Installation> get() {
-    return RxJava2Adapter.monoToSingle(get_migrated());
-}
-default Mono<Installation> get_migrated() {
-    return RxJava2Adapter.singleToMono(get());
-}
+      
+Mono<Installation> get_migrated();
 
 
     /**
@@ -49,14 +43,8 @@ default Mono<Installation> get_migrated() {
      *
      * @return the created or already existing installation.
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getOrInitialize_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Installation> getOrInitialize() {
-    return RxJava2Adapter.monoToSingle(getOrInitialize_migrated());
-}
-default Mono<Installation> getOrInitialize_migrated() {
-    return RxJava2Adapter.singleToMono(getOrInitialize());
-}
+      
+Mono<Installation> getOrInitialize_migrated();
 
     /**
      * Set additional information of the current installation.
@@ -65,14 +53,8 @@ default Mono<Installation> getOrInitialize_migrated() {
      *
      * @return the updated installation
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setAdditionalInformation_migrated(additionalInformation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Installation> setAdditionalInformation(Map<String, String> additionalInformation) {
-    return RxJava2Adapter.monoToSingle(setAdditionalInformation_migrated(additionalInformation));
-}
-default Mono<Installation> setAdditionalInformation_migrated(Map<String, String> additionalInformation) {
-    return RxJava2Adapter.singleToMono(setAdditionalInformation(additionalInformation));
-}
+      
+Mono<Installation> setAdditionalInformation_migrated(Map<String, String> additionalInformation);
 
     /**
      * Add or update the additional information of the current installation.
@@ -81,14 +63,8 @@ default Mono<Installation> setAdditionalInformation_migrated(Map<String, String>
      *
      * @return the updated installation.
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addAdditionalInformation_migrated(additionalInformation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Installation> addAdditionalInformation(Map<String, String> additionalInformation) {
-    return RxJava2Adapter.monoToSingle(addAdditionalInformation_migrated(additionalInformation));
-}
-default Mono<Installation> addAdditionalInformation_migrated(Map<String, String> additionalInformation) {
-    return RxJava2Adapter.singleToMono(addAdditionalInformation(additionalInformation));
-}
+      
+Mono<Installation> addAdditionalInformation_migrated(Map<String, String> additionalInformation);
 
     /**
      * Delete the current installation.

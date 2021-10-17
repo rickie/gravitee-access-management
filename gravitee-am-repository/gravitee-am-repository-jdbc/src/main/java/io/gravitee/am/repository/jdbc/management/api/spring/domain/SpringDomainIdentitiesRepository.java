@@ -30,12 +30,6 @@ import reactor.core.publisher.Flux;
  */
 @Repository
 public interface SpringDomainIdentitiesRepository extends RxJava2CrudRepository<JdbcDomain.Identity, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByDomainId_migrated(domainId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Identity> findAllByDomainId(String domainId) {
-    return RxJava2Adapter.fluxToFlowable(findAllByDomainId_migrated(domainId));
-}
-default Flux<Identity> findAllByDomainId_migrated(String domainId) {
-    return RxJava2Adapter.flowableToFlux(findAllByDomainId(domainId));
-}
+      
+Flux<Identity> findAllByDomainId_migrated(String domainId);
 }

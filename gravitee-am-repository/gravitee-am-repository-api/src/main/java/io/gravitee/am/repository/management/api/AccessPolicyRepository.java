@@ -48,20 +48,8 @@ default Flowable<AccessPolicy> findByDomainAndResource(String domain, String res
 default Flux<AccessPolicy> findByDomainAndResource_migrated(String domain, String resource) {
     return RxJava2Adapter.flowableToFlux(findByDomainAndResource(domain, resource));
 }
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByResources_migrated(resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<AccessPolicy> findByResources(List<String> resources) {
-    return RxJava2Adapter.fluxToFlowable(findByResources_migrated(resources));
-}
-default Flux<AccessPolicy> findByResources_migrated(List<String> resources) {
-    return RxJava2Adapter.flowableToFlux(findByResources(resources));
-}
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByResource_migrated(resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Long> countByResource(String resource) {
-    return RxJava2Adapter.monoToSingle(countByResource_migrated(resource));
-}
-default Mono<Long> countByResource_migrated(String resource) {
-    return RxJava2Adapter.singleToMono(countByResource(resource));
-}
+      
+Flux<AccessPolicy> findByResources_migrated(List<String> resources);
+      
+Mono<Long> countByResource_migrated(String resource);
 }

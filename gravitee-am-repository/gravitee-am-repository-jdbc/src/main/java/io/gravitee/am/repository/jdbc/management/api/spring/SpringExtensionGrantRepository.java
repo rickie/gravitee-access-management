@@ -41,16 +41,8 @@ String domain) {
     return RxJava2Adapter.flowableToFlux(findByDomain(domain));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndName_migrated(domain, name))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JdbcExtensionGrant> findByDomainAndName(@Param(value = "domain")
+      
+Mono<JdbcExtensionGrant> findByDomainAndName_migrated(@Param(value = "domain")
 String domain, @Param(value = "name")
-String name) {
-    return RxJava2Adapter.monoToMaybe(findByDomainAndName_migrated(domain, name));
-}
-default Mono<JdbcExtensionGrant> findByDomainAndName_migrated(@Param(value = "domain")
-String domain, @Param(value = "name")
-String name) {
-    return RxJava2Adapter.maybeToMono(findByDomainAndName(domain, name));
-}
+String name);
 }

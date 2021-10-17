@@ -77,12 +77,7 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
         return Flux.from(loginAttemptsCollection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<LoginAttempt> findByCriteria(LoginAttemptCriteria criteria) {
- return RxJava2Adapter.monoToMaybe(findByCriteria_migrated(criteria));
-}
+    
 @Override
     public Mono<LoginAttempt> findByCriteria_migrated(LoginAttemptCriteria criteria) {
         return Flux.from(loginAttemptsCollection.find(query(criteria)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));

@@ -28,12 +28,6 @@ import reactor.core.publisher.Mono;
  */
 public interface CertificateManager extends Service<CertificateManager> {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getCertificateProvider_migrated(certificateId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<CertificateProvider> getCertificateProvider(String certificateId) {
-    return RxJava2Adapter.monoToMaybe(getCertificateProvider_migrated(certificateId));
-}
-default Mono<CertificateProvider> getCertificateProvider_migrated(String certificateId) {
-    return RxJava2Adapter.maybeToMono(getCertificateProvider(certificateId));
-}
+      
+Mono<CertificateProvider> getCertificateProvider_migrated(String certificateId);
 }

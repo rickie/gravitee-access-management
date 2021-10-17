@@ -31,14 +31,8 @@ import reactor.core.publisher.Mono;
  */
 public interface IdentityProviderManager extends Service<IdentityProviderManager> {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getUserProvider_migrated(userProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<UserProvider> getUserProvider(String userProvider) {
-    return RxJava2Adapter.monoToMaybe(getUserProvider_migrated(userProvider));
-}
-default Mono<UserProvider> getUserProvider_migrated(String userProvider) {
-    return RxJava2Adapter.maybeToMono(getUserProvider(userProvider));
-}
+      
+Mono<UserProvider> getUserProvider_migrated(String userProvider);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

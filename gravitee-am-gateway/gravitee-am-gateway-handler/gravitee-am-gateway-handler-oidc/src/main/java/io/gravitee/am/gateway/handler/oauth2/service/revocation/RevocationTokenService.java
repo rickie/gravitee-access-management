@@ -28,12 +28,6 @@ import reactor.core.publisher.Mono;
  */
 public interface RevocationTokenService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.revoke_migrated(request, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable revoke(RevocationTokenRequest request, Client client) {
-    return RxJava2Adapter.monoToCompletable(revoke_migrated(request, client));
-}
-default Mono<Void> revoke_migrated(RevocationTokenRequest request, Client client) {
-    return RxJava2Adapter.completableToMono(revoke(request, client));
-}
+      
+Mono<Void> revoke_migrated(RevocationTokenRequest request, Client client);
 }

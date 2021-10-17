@@ -118,12 +118,7 @@ public class MongoScopeRepository extends AbstractManagementMongoRepository impl
         return RxJava2Adapter.singleToMono(Single.zip(countOperation, scopesOperation, (count, scope) -> new Page<Scope>(scope, page, count)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Scope>> search(String domain, String query, int page, int size) {
- return RxJava2Adapter.monoToSingle(search_migrated(domain, query, page, size));
-}
+    
 @Override
     public Mono<Page<Scope>> search_migrated(String domain, String query, int page, int size) {
         Bson searchQuery = eq(FIELD_KEY, query);
@@ -144,23 +139,13 @@ public class MongoScopeRepository extends AbstractManagementMongoRepository impl
         return RxJava2Adapter.singleToMono(Single.zip(countOperation, scopesOperation, (count, scopes) -> new Page<>(scopes, page, count)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndKey_migrated(domain, key))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Scope> findByDomainAndKey(String domain, String key) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndKey_migrated(domain, key));
-}
+    
 @Override
     public Mono<Scope> findByDomainAndKey_migrated(String domain, String key) {
         return Flux.from(scopesCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_KEY, key))).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndKeys_migrated(domain, keys))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Scope> findByDomainAndKeys(String domain, List<String> keys) {
- return RxJava2Adapter.fluxToFlowable(findByDomainAndKeys_migrated(domain, keys));
-}
+    
 @Override
     public Flux<Scope> findByDomainAndKeys_migrated(String domain, List<String> keys) {
         return Flux.from(scopesCollection.find(and(eq(FIELD_DOMAIN, domain), in(FIELD_KEY, keys)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));

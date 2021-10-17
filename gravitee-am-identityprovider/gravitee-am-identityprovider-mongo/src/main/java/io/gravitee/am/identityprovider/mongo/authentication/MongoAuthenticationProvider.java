@@ -77,11 +77,7 @@ public class MongoAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private MongoClient mongoClient;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Maybe<User> loadUserByUsername(Authentication authentication) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
-}
+    
 public Mono<User> loadUserByUsername_migrated(Authentication authentication) {
         String username = ((String) authentication.getPrincipal()).toLowerCase();
         return findUserByMultipleField_migrated(username).collectList().flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(users -> {
@@ -133,11 +129,7 @@ private Flux<Document> findUserByMultipleField_migrated(String value) {
         return Flux.from(usersCol.find(query));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Maybe<User> loadUserByUsername(String username) {
- return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-}
+    
 public Mono<User> loadUserByUsername_migrated(String username) {
         final String encodedUsername = username.toLowerCase();
         return findUserByUsername_migrated(encodedUsername).map(RxJavaReactorMigrationUtil.toJdkFunction(document -> createUser(new SimpleAuthenticationContext(), document)));

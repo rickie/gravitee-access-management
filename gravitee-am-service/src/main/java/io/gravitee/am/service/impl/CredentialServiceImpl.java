@@ -72,12 +72,7 @@ public class CredentialServiceImpl implements CredentialService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Credential> findByUserId(ReferenceType referenceType, String referenceId, String userId) {
- return RxJava2Adapter.fluxToFlowable(findByUserId_migrated(referenceType, referenceId, userId));
-}
+    
 @Override
     public Flux<Credential> findByUserId_migrated(ReferenceType referenceType, String referenceId, String userId) {
         LOGGER.debug("Find credentials by {} {} and user id: {}", referenceType, referenceId, userId);
@@ -88,12 +83,7 @@ public class CredentialServiceImpl implements CredentialService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUsername_migrated(referenceType, referenceId, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Credential> findByUsername(ReferenceType referenceType, String referenceId, String username) {
- return RxJava2Adapter.fluxToFlowable(findByUsername_migrated(referenceType, referenceId, username));
-}
+    
 @Override
     public Flux<Credential> findByUsername_migrated(ReferenceType referenceType, String referenceId, String username) {
         LOGGER.debug("Find credentials by {} {} and username: {}", referenceType, referenceId, username);
@@ -104,12 +94,7 @@ public class CredentialServiceImpl implements CredentialService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCredentialId_migrated(referenceType, referenceId, credentialId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Credential> findByCredentialId(ReferenceType referenceType, String referenceId, String credentialId) {
- return RxJava2Adapter.fluxToFlowable(findByCredentialId_migrated(referenceType, referenceId, credentialId));
-}
+    
 @Override
     public Flux<Credential> findByCredentialId_migrated(ReferenceType referenceType, String referenceId, String credentialId) {
         LOGGER.debug("Find credentials by {} {} and credential ID: {}", referenceType, referenceId, credentialId);
@@ -196,12 +181,7 @@ public class CredentialServiceImpl implements CredentialService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByUserId(ReferenceType referenceType, String referenceId, String userId) {
- return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(referenceType, referenceId, userId));
-}
+    
 @Override
     public Mono<Void> deleteByUserId_migrated(ReferenceType referenceType, String referenceId, String userId) {
         LOGGER.debug("Delete credentials by {} {} and user id: {}", referenceType, referenceId, userId);
@@ -216,12 +196,7 @@ public class CredentialServiceImpl implements CredentialService {
                 }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByAaguid_migrated(referenceType, referenceId, aaguid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByAaguid(ReferenceType referenceType, String referenceId, String aaguid) {
- return RxJava2Adapter.monoToCompletable(deleteByAaguid_migrated(referenceType, referenceId, aaguid));
-}
+    
 @Override
     public Mono<Void> deleteByAaguid_migrated(ReferenceType referenceType, String referenceId, String aaguid) {
         LOGGER.debug("Delete credentials by {} {} and aaguid: {}", referenceType, referenceId, aaguid);

@@ -52,16 +52,7 @@ public abstract class AbstractUsersResource extends AbstractResource {
     @Autowired
     protected DomainService domainService;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.searchUsers_migrated(referenceType, referenceId, query, filter, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Single<Page<User>> searchUsers(ReferenceType referenceType,
-                                             String referenceId,
-                                             String query,
-                                             String filter,
-                                             int page,
-                                             int size) {
- return RxJava2Adapter.monoToSingle(searchUsers_migrated(referenceType, referenceId, query, filter, page, size));
-}
+    
 protected Mono<Page<User>> searchUsers_migrated(ReferenceType referenceType,
                                              String referenceId,
                                              String query,

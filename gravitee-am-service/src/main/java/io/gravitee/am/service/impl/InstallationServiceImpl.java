@@ -54,34 +54,19 @@ public class InstallationServiceImpl implements InstallationService {
         this.installationRepository = installationRepository;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.get_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Installation> get() {
- return RxJava2Adapter.monoToSingle(get_migrated());
-}
+    
 @Override
     public Mono<Installation> get_migrated() {
         return this.installationRepository.find_migrated().switchIfEmpty(Mono.error(new InstallationNotFoundException()));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.getOrInitialize_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Installation> getOrInitialize() {
- return RxJava2Adapter.monoToSingle(getOrInitialize_migrated());
-}
+    
 @Override
     public Mono<Installation> getOrInitialize_migrated() {
         return this.installationRepository.find_migrated().switchIfEmpty(createInternal_migrated());
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setAdditionalInformation_migrated(additionalInformation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Installation> setAdditionalInformation(Map<String, String> additionalInformation) {
- return RxJava2Adapter.monoToSingle(setAdditionalInformation_migrated(additionalInformation));
-}
+    
 @Override
     public Mono<Installation> setAdditionalInformation_migrated(Map<String, String> additionalInformation) {
         return get_migrated().flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)installation -> {
@@ -92,12 +77,7 @@ public class InstallationServiceImpl implements InstallationService {
                 }).apply(v)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addAdditionalInformation_migrated(additionalInformation))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Installation> addAdditionalInformation(Map<String, String> additionalInformation) {
- return RxJava2Adapter.monoToSingle(addAdditionalInformation_migrated(additionalInformation));
-}
+    
 @Override
     public Mono<Installation> addAdditionalInformation_migrated(Map<String, String> additionalInformation) {
         return getOrInitialize_migrated().doOnSuccess(installation -> installation.getAdditionalInformation().putAll(additionalInformation)).flatMap(v->RxJava2Adapter.singleToMono((Single<Installation>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Installation, Single<Installation>>)(Installation ident) -> RxJava2Adapter.monoToSingle(updateInternal_migrated(ident))).apply(v)));

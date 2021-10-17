@@ -554,7 +554,7 @@
                             -Xep:MissingOverride:OFF
                             -Xep:ReturnMissingNullable:OFF
 
-<!--                            -XepDisableAllChecks-->
+                            -XepDisableAllChecks
 <!--                            -Xep:CountMethods:ERROR-->
 <!--                            -XepOpt:Directory=p2_run_22-->
 

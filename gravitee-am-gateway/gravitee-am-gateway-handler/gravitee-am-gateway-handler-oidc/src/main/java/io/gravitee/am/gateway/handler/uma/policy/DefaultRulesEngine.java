@@ -47,12 +47,7 @@ public class DefaultRulesEngine implements RulesEngine {
     @Autowired
     private PolicyPluginManager policyPluginManager;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.fire_migrated(rules, executionContext))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable fire(List<Rule> rules, ExecutionContext executionContext) {
- return RxJava2Adapter.monoToCompletable(fire_migrated(rules, executionContext));
-}
+    
 @Override
     public Mono<Void> fire_migrated(List<Rule> rules, ExecutionContext executionContext) {
         if (rules.isEmpty()) {

@@ -45,12 +45,7 @@ public class ReporterPluginServiceImpl implements ReporterPluginService {
     @Autowired
     private ReporterPluginManager reporterPluginManager;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<ReporterPlugin>> findAll() {
- return RxJava2Adapter.monoToSingle(findAll_migrated());
-}
+    
 @Override
     public Mono<List<ReporterPlugin>> findAll_migrated() {
         LOGGER.debug("List all reporter plugins");
@@ -83,12 +78,7 @@ public class ReporterPluginServiceImpl implements ReporterPluginService {
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(reporterId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<String> getSchema(String reporterId) {
- return RxJava2Adapter.monoToMaybe(getSchema_migrated(reporterId));
-}
+    
 @Override
     public Mono<String> getSchema_migrated(String reporterId) {
         LOGGER.debug("Find reporter plugin schema by ID: {}", reporterId);

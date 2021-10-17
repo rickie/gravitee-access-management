@@ -68,12 +68,7 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
                 .as(JdbcAuthenticationFlowContext.class).one().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findLastByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<AuthenticationFlowContext> findLastByTransactionId(String transactionId) {
- return RxJava2Adapter.monoToMaybe(findLastByTransactionId_migrated(transactionId));
-}
+    
 @Override
     public Mono<AuthenticationFlowContext> findLastByTransactionId_migrated(String transactionId) {
         LOGGER.debug("findLastByTransactionId({})", transactionId);
@@ -89,12 +84,7 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
                 .as(JdbcAuthenticationFlowContext.class).first().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<AuthenticationFlowContext> findByTransactionId(String transactionId) {
- return RxJava2Adapter.fluxToFlowable(findByTransactionId_migrated(transactionId));
-}
+    
 @Override
     public Flux<AuthenticationFlowContext> findByTransactionId_migrated(String transactionId) {
         LOGGER.debug("findByTransactionId({})", transactionId);
@@ -164,12 +154,7 @@ public class JdbcAuthenticationFlowContextRepository extends AbstractJdbcReposit
                 .matching(from(where("transaction_id").is(transactionId).and(where("version").is(version)))).fetch().rowsUpdated().then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable purgeExpiredData() {
- return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
-}
+    
 @Override
     public Mono<Void> purgeExpiredData_migrated() {
         LOGGER.debug("purgeExpiredData()");

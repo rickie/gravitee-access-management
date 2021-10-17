@@ -30,14 +30,8 @@ import reactor.core.publisher.Mono;
  */
 public interface LoginAttemptRepository extends CrudRepository<LoginAttempt, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<LoginAttempt> findByCriteria(LoginAttemptCriteria criteria) {
-    return RxJava2Adapter.monoToMaybe(findByCriteria_migrated(criteria));
-}
-default Mono<LoginAttempt> findByCriteria_migrated(LoginAttemptCriteria criteria) {
-    return RxJava2Adapter.maybeToMono(findByCriteria(criteria));
-}
+      
+Mono<LoginAttempt> findByCriteria_migrated(LoginAttemptCriteria criteria);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -48,11 +42,7 @@ default Mono<Void> delete_migrated(LoginAttemptCriteria criteria) {
     return RxJava2Adapter.completableToMono(delete(criteria));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable purgeExpiredData() {
-    return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
-}default Mono<Void> purgeExpiredData_migrated() {
+      default Mono<Void> purgeExpiredData_migrated() {
         return Mono.empty();
     }
 }

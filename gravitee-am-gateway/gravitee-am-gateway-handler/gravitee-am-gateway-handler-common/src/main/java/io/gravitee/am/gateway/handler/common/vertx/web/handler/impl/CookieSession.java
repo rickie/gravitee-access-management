@@ -79,11 +79,7 @@ public class CookieSession extends AbstractSession {
         return super.put(key, obj);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.setValue_migrated(payload))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-protected Single<CookieSession> setValue(String payload) {
- return RxJava2Adapter.monoToSingle(setValue_migrated(payload));
-}
+    
 protected Mono<CookieSession> setValue_migrated(String payload) {
 
         if (StringUtils.isEmpty(payload)) {

@@ -52,14 +52,8 @@ default Mono<io.gravitee.am.model.User> findById_migrated(String id) {
      * @param source user identity provider
      * @return end user
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndExternalIdAndSource_migrated(domain, externalId, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<io.gravitee.am.model.User> findByDomainAndExternalIdAndSource(String domain, String externalId, String source) {
-    return RxJava2Adapter.monoToMaybe(findByDomainAndExternalIdAndSource_migrated(domain, externalId, source));
-}
-default Mono<io.gravitee.am.model.User> findByDomainAndExternalIdAndSource_migrated(String domain, String externalId, String source) {
-    return RxJava2Adapter.maybeToMono(findByDomainAndExternalIdAndSource(domain, externalId, source));
-}
+      
+Mono<io.gravitee.am.model.User> findByDomainAndExternalIdAndSource_migrated(String domain, String externalId, String source);
 
     /**
      * Find a user by its domain, its username and its identity provider
@@ -68,14 +62,8 @@ default Mono<io.gravitee.am.model.User> findByDomainAndExternalIdAndSource_migra
      * @param source user identity provider
      * @return end user
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndUsernameAndSource_migrated(domain, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<io.gravitee.am.model.User> findByDomainAndUsernameAndSource(String domain, String username, String source) {
-    return RxJava2Adapter.monoToMaybe(findByDomainAndUsernameAndSource_migrated(domain, username, source));
-}
-default Mono<io.gravitee.am.model.User> findByDomainAndUsernameAndSource_migrated(String domain, String username, String source) {
-    return RxJava2Adapter.maybeToMono(findByDomainAndUsernameAndSource(domain, username, source));
-}
+      
+Mono<io.gravitee.am.model.User> findByDomainAndUsernameAndSource_migrated(String domain, String username, String source);
 
     /**
      * Find users by security domain and email
@@ -83,14 +71,8 @@ default Mono<io.gravitee.am.model.User> findByDomainAndUsernameAndSource_migrate
      * @param criteria search criteria
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomainAndCriteria_migrated(domain, criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<io.gravitee.am.model.User>> findByDomainAndCriteria(String domain, FilterCriteria criteria) {
-    return RxJava2Adapter.monoToSingle(findByDomainAndCriteria_migrated(domain, criteria));
-}
-default Mono<List<io.gravitee.am.model.User>> findByDomainAndCriteria_migrated(String domain, FilterCriteria criteria) {
-    return RxJava2Adapter.singleToMono(findByDomainAndCriteria(domain, criteria));
-}
+      
+Mono<List<io.gravitee.am.model.User>> findByDomainAndCriteria_migrated(String domain, FilterCriteria criteria);
 
     /**
      * Create a new user
@@ -125,14 +107,8 @@ default Mono<io.gravitee.am.model.User> update_migrated(User user) {
      * @param user end user
      * @return Enhanced user
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enhance_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<io.gravitee.am.model.User> enhance(io.gravitee.am.model.User user) {
-    return RxJava2Adapter.monoToSingle(enhance_migrated(user));
-}
-default Mono<io.gravitee.am.model.User> enhance_migrated(User user) {
-    return RxJava2Adapter.singleToMono(enhance(user));
-}
+      
+Mono<io.gravitee.am.model.User> enhance_migrated(User user);
 
     /**
      * Add an MFA factor to an end-user
@@ -141,12 +117,6 @@ default Mono<io.gravitee.am.model.User> enhance_migrated(User user) {
      * @param principal the user who has performed this action
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addFactor_migrated(userId, enrolledFactor, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<io.gravitee.am.model.User> addFactor(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.monoToSingle(addFactor_migrated(userId, enrolledFactor, principal));
-}
-default Mono<io.gravitee.am.model.User> addFactor_migrated(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal) {
-    return RxJava2Adapter.singleToMono(addFactor(userId, enrolledFactor, principal));
-}
+      
+Mono<io.gravitee.am.model.User> addFactor_migrated(String userId, EnrolledFactor enrolledFactor, io.gravitee.am.identityprovider.api.User principal);
 }

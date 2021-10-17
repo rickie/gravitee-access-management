@@ -82,12 +82,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         return organizationRepository.findById_migrated(id).switchIfEmpty(Mono.error(new OrganizationNotFoundException(id)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.createDefault_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Organization> createDefault() {
- return RxJava2Adapter.monoToMaybe(createDefault_migrated());
-}
+    
 @Override
     public Mono<Organization> createDefault_migrated() {
 

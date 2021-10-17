@@ -40,14 +40,8 @@ import reactor.core.publisher.Mono;
  */
 public interface RoleService {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllAssignable_migrated(referenceType, referenceId, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Role> findAllAssignable(ReferenceType referenceType, String referenceId, ReferenceType assignableType) {
-    return RxJava2Adapter.fluxToFlowable(findAllAssignable_migrated(referenceType, referenceId, assignableType));
-}
-default Flux<Role> findAllAssignable_migrated(ReferenceType referenceType, String referenceId, ReferenceType assignableType) {
-    return RxJava2Adapter.flowableToFlux(findAllAssignable(referenceType, referenceId, assignableType));
-}
+      
+Flux<Role> findAllAssignable_migrated(ReferenceType referenceType, String referenceId, ReferenceType assignableType);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -67,14 +61,8 @@ default Mono<Page<Role>> findByDomain_migrated(String domain, int page, int size
     return RxJava2Adapter.singleToMono(findByDomain(domain, page, size));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.searchByDomain_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Page<Role>> searchByDomain(String domain, String query, int page, int size) {
-    return RxJava2Adapter.monoToSingle(searchByDomain_migrated(domain, query, page, size));
-}
-default Mono<Page<Role>> searchByDomain_migrated(String domain, String query, int page, int size) {
-    return RxJava2Adapter.singleToMono(searchByDomain(domain, query, page, size));
-}
+      
+Mono<Page<Role>> searchByDomain_migrated(String domain, String query, int page, int size);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -94,41 +82,17 @@ default Mono<Role> findById_migrated(String id) {
     return RxJava2Adapter.maybeToMono(findById(id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findSystemRole_migrated(systemRole, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Role> findSystemRole(SystemRole systemRole, ReferenceType assignableType) {
-    return RxJava2Adapter.monoToMaybe(findSystemRole_migrated(systemRole, assignableType));
-}
-default Mono<Role> findSystemRole_migrated(SystemRole systemRole, ReferenceType assignableType) {
-    return RxJava2Adapter.maybeToMono(findSystemRole(systemRole, assignableType));
-}
+      
+Mono<Role> findSystemRole_migrated(SystemRole systemRole, ReferenceType assignableType);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findRolesByName_migrated(referenceType, referenceId, assignableType, roleNames))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Role> findRolesByName(ReferenceType referenceType, String referenceId, ReferenceType assignableType, List<String> roleNames) {
-    return RxJava2Adapter.fluxToFlowable(findRolesByName_migrated(referenceType, referenceId, assignableType, roleNames));
-}
-default Flux<Role> findRolesByName_migrated(ReferenceType referenceType, String referenceId, ReferenceType assignableType, List<String> roleNames) {
-    return RxJava2Adapter.flowableToFlux(findRolesByName(referenceType, referenceId, assignableType, roleNames));
-}
+      
+Flux<Role> findRolesByName_migrated(ReferenceType referenceType, String referenceId, ReferenceType assignableType, List<String> roleNames);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findDefaultRole_migrated(organizationId, defaultRole, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Role> findDefaultRole(String organizationId, DefaultRole defaultRole, ReferenceType assignableType) {
-    return RxJava2Adapter.monoToMaybe(findDefaultRole_migrated(organizationId, defaultRole, assignableType));
-}
-default Mono<Role> findDefaultRole_migrated(String organizationId, DefaultRole defaultRole, ReferenceType assignableType) {
-    return RxJava2Adapter.maybeToMono(findDefaultRole(organizationId, defaultRole, assignableType));
-}
+      
+Mono<Role> findDefaultRole_migrated(String organizationId, DefaultRole defaultRole, ReferenceType assignableType);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Set<Role>> findByIdIn(List<String> ids) {
-    return RxJava2Adapter.monoToSingle(findByIdIn_migrated(ids));
-}
-default Mono<Set<Role>> findByIdIn_migrated(List<String> ids) {
-    return RxJava2Adapter.singleToMono(findByIdIn(ids));
-}
+      
+Mono<Set<Role>> findByIdIn_migrated(List<String> ids);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(referenceType, referenceId, newRole, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -175,14 +139,8 @@ default Mono<Void> delete_migrated(ReferenceType referenceType, String reference
     return RxJava2Adapter.completableToMono(delete(referenceType, referenceId, roleId, principal));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.createOrUpdateSystemRoles_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable createOrUpdateSystemRoles() {
-    return RxJava2Adapter.monoToCompletable(createOrUpdateSystemRoles_migrated());
-}
-default Mono<Void> createOrUpdateSystemRoles_migrated() {
-    return RxJava2Adapter.completableToMono(createOrUpdateSystemRoles());
-}
+      
+Mono<Void> createOrUpdateSystemRoles_migrated();
 
       @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, role))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -208,12 +166,6 @@ default Completable delete(ReferenceType referenceType, String referenceId, Stri
         return RxJava2Adapter.completableToMono(delete(referenceType, referenceId, roleId, null));
     }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.createDefaultRoles_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable createDefaultRoles(String organizationId) {
-    return RxJava2Adapter.monoToCompletable(createDefaultRoles_migrated(organizationId));
-}
-default Mono<Void> createDefaultRoles_migrated(String organizationId) {
-    return RxJava2Adapter.completableToMono(createDefaultRoles(organizationId));
-}
+      
+Mono<Void> createDefaultRoles_migrated(String organizationId);
 }

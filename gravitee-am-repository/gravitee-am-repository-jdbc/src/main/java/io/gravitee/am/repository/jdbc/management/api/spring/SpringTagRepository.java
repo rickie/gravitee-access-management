@@ -30,16 +30,9 @@ import reactor.core.publisher.Mono;
  * @author GraviteeSource Team
  */
 public interface SpringTagRepository extends RxJava2CrudRepository<JdbcTag, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByOrganization_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcTag> findByOrganization(@Param(value = "orgId")
-String organizationId) {
-    return RxJava2Adapter.fluxToFlowable(findByOrganization_migrated(organizationId));
-}
-default Flux<JdbcTag> findByOrganization_migrated(@Param(value = "orgId")
-String organizationId) {
-    return RxJava2Adapter.flowableToFlux(findByOrganization(organizationId));
-}
+      
+Flux<JdbcTag> findByOrganization_migrated(@Param(value = "orgId")
+String organizationId);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

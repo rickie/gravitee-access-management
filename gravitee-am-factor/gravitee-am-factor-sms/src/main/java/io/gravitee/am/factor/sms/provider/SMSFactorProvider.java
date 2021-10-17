@@ -52,12 +52,7 @@ public class SMSFactorProvider implements FactorProvider {
     @Autowired
     private SMSFactorConfiguration configuration;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.verify_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable verify(FactorContext context) {
- return RxJava2Adapter.monoToCompletable(verify_migrated(context));
-}
+    
 @Override
     public Mono<Void> verify_migrated(FactorContext context) {
         final String code = context.getData(FactorContext.KEY_CODE, String.class);
@@ -73,12 +68,7 @@ public class SMSFactorProvider implements FactorProvider {
         }
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enroll_migrated(account))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Enrollment> enroll(String account) {
- return RxJava2Adapter.monoToSingle(enroll_migrated(account));
-}
+    
 @Override
     public Mono<Enrollment> enroll_migrated(String account) {
         return Mono.just(new Enrollment(this.configuration.countries()));
@@ -89,12 +79,7 @@ public class SMSFactorProvider implements FactorProvider {
         return true;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.sendChallenge_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable sendChallenge(FactorContext context) {
- return RxJava2Adapter.monoToCompletable(sendChallenge_migrated(context));
-}
+    
 @Override
     public Mono<Void> sendChallenge_migrated(FactorContext context) {
         final EnrolledFactor enrolledFactor = context.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class);

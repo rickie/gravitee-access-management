@@ -57,12 +57,7 @@ public class MongoCredentialRepository extends AbstractManagementMongoRepository
         super.createIndex(credentialsCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1).append(FIELD_CREDENTIAL_ID, 1));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Credential> findByUserId(ReferenceType referenceType, String referenceId, String userId) {
- return RxJava2Adapter.fluxToFlowable(findByUserId_migrated(referenceType, referenceId, userId));
-}
+    
 @Override
     public Flux<Credential> findByUserId_migrated(ReferenceType referenceType, String referenceId, String userId) {
         return Flux.from(credentialsCollection.find(
@@ -74,12 +69,7 @@ public class MongoCredentialRepository extends AbstractManagementMongoRepository
                 )).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUsername_migrated(referenceType, referenceId, username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Credential> findByUsername(ReferenceType referenceType, String referenceId, String username) {
- return RxJava2Adapter.fluxToFlowable(findByUsername_migrated(referenceType, referenceId, username));
-}
+    
 @Override
     public Flux<Credential> findByUsername_migrated(ReferenceType referenceType, String referenceId, String username) {
         return Flux.from(credentialsCollection.find(
@@ -91,12 +81,7 @@ public class MongoCredentialRepository extends AbstractManagementMongoRepository
                 )).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCredentialId_migrated(referenceType, referenceId, credentialId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Credential> findByCredentialId(ReferenceType referenceType, String referenceId, String credentialId) {
- return RxJava2Adapter.fluxToFlowable(findByCredentialId_migrated(referenceType, referenceId, credentialId));
-}
+    
 @Override
     public Flux<Credential> findByCredentialId_migrated(ReferenceType referenceType, String referenceId, String credentialId) {
         return Flux.from(credentialsCollection.find(
@@ -155,12 +140,7 @@ public class MongoCredentialRepository extends AbstractManagementMongoRepository
         return Mono.from(credentialsCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(referenceType, referenceId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByUserId(ReferenceType referenceType, String referenceId, String userId) {
- return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(referenceType, referenceId, userId));
-}
+    
 @Override
     public Mono<Void> deleteByUserId_migrated(ReferenceType referenceType, String referenceId, String userId) {
         return Mono.from(credentialsCollection.deleteMany(
@@ -172,12 +152,7 @@ public class MongoCredentialRepository extends AbstractManagementMongoRepository
                 )).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByAaguid_migrated(referenceType, referenceId, aaguid))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByAaguid(ReferenceType referenceType, String referenceId, String aaguid) {
- return RxJava2Adapter.monoToCompletable(deleteByAaguid_migrated(referenceType, referenceId, aaguid));
-}
+    
 @Override
     public Mono<Void> deleteByAaguid_migrated(ReferenceType referenceType, String referenceId, String aaguid) {
         return Mono.from(credentialsCollection.deleteMany(

@@ -98,24 +98,14 @@ return app;
 })));// do not read grant tables, information already present into the settings object
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Application> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<Application> findAll_migrated() {
         LOGGER.debug("findAll()");
         return RxJava2Adapter.flowableToFlux(applicationRepository.findAll()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(completeApplication_migrated(app).flux())));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Application>> findAll(int page, int size) {
- return RxJava2Adapter.monoToSingle(findAll_migrated(page, size));
-}
+    
 @Override
     public Mono<Page<Application>> findAll_migrated(int page, int size) {
         LOGGER.debug("findAll({}, {})", page, size);
@@ -155,12 +145,7 @@ return app;
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> completeApplication_migrated(app).flux()), MAX_CONCURRENCY).collectList().flatMap(data->applicationRepository.countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((Long total)->new Page<Application>(data, page, total)))).doOnError((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.search_migrated(domain, query, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Application>> search(String domain, String query, int page, int size) {
- return RxJava2Adapter.monoToSingle(search_migrated(domain, query, page, size));
-}
+    
 @Override
     public Mono<Page<Application>> search_migrated(String domain, String query, int page, int size) {
         LOGGER.debug("search({}, {}, {}, {})", domain, query, page, size);
@@ -179,24 +164,14 @@ return app;
                 .all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(completeApplication_migrated(app).flux()))).collectList().flatMap(data->dbClient.execute(count).bind("domain", domain).bind("value", wildcardMatch ? wildcardQuery.toUpperCase() : query.toUpperCase()).as(Long.class).fetch().first().map(RxJavaReactorMigrationUtil.toJdkFunction((Long total)->new Page<Application>(data, page, total)))).doOnError((error) -> LOGGER.error("Unable to retrieve all applications with domain {} (page={}/size={})", domain, page, size, error));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCertificate_migrated(certificate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Application> findByCertificate(String certificate) {
- return RxJava2Adapter.fluxToFlowable(findByCertificate_migrated(certificate));
-}
+    
 @Override
     public Flux<Application> findByCertificate_migrated(String certificate) {
         LOGGER.debug("findByCertificate({})", certificate);
         return applicationRepository.findByCertificate_migrated(certificate).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(completeApplication_migrated(app).flux())));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdentityProvider_migrated(identityProvider))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Application> findByIdentityProvider(String identityProvider) {
- return RxJava2Adapter.fluxToFlowable(findByIdentityProvider_migrated(identityProvider));
-}
+    
 @Override
     public Flux<Application> findByIdentityProvider_migrated(String identityProvider) {
         LOGGER.debug("findByIdentityProvider({})", identityProvider);
@@ -207,36 +182,21 @@ return app;
                 .bind("identity", identityProvider).as(JdbcApplication.class).fetch().all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(completeApplication_migrated(app).flux())));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByFactor_migrated(factor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Application> findByFactor(String factor) {
- return RxJava2Adapter.fluxToFlowable(findByFactor_migrated(factor));
-}
+    
 @Override
     public Flux<Application> findByFactor_migrated(String factor) {
         LOGGER.debug("findByFactor({})", factor);
         return applicationRepository.findAllByFactor_migrated(factor).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(completeApplication_migrated(app).flux())));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndExtensionGrant_migrated(domain, extensionGrant))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Application> findByDomainAndExtensionGrant(String domain, String extensionGrant) {
- return RxJava2Adapter.fluxToFlowable(findByDomainAndExtensionGrant_migrated(domain, extensionGrant));
-}
+    
 @Override
     public Flux<Application> findByDomainAndExtensionGrant_migrated(String domain, String extensionGrant) {
         LOGGER.debug("findByDomainAndExtensionGrant({}, {})", domain, extensionGrant);
         return applicationRepository.findAllByDomainAndGrant_migrated(domain, extensionGrant).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(completeApplication_migrated(app).flux())));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Application> findByIdIn(List<String> ids) {
- return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
-}
+    
 @Override
     public Flux<Application> findByIdIn_migrated(List<String> ids) {
         LOGGER.debug("findByIdIn({})", ids);
@@ -246,34 +206,19 @@ return app;
         return applicationRepository.findByIdIn_migrated(ids).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(app -> RxJava2Adapter.fluxToFlowable(completeApplication_migrated(app).flux())));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> count() {
- return RxJava2Adapter.monoToSingle(count_migrated());
-}
+    
 @Override
     public Mono<Long> count_migrated() {
         return RxJava2Adapter.singleToMono(applicationRepository.count());
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> countByDomain(String domain) {
- return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
-}
+    
 @Override
     public Mono<Long> countByDomain_migrated(String domain) {
         return applicationRepository.countByDomain_migrated(domain);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientId_migrated(domain, clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Application> findByDomainAndClientId(String domain, String clientId) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndClientId_migrated(domain, clientId));
-}
+    
 @Override
     public Mono<Application> findByDomainAndClientId_migrated(String domain, String clientId) {
         LOGGER.debug("findByDomainAndClientId({}, {})", domain, clientId);

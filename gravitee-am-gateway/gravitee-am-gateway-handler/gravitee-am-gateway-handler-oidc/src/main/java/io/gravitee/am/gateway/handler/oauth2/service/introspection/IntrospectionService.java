@@ -28,12 +28,6 @@ import reactor.core.publisher.Mono;
  */
 public interface IntrospectionService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.introspect_migrated(request))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<IntrospectionResponse> introspect(IntrospectionRequest request) {
-    return RxJava2Adapter.monoToSingle(introspect_migrated(request));
-}
-default Mono<IntrospectionResponse> introspect_migrated(IntrospectionRequest request) {
-    return RxJava2Adapter.singleToMono(introspect(request));
-}
+      
+Mono<IntrospectionResponse> introspect_migrated(IntrospectionRequest request);
 }

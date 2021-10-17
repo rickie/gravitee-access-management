@@ -31,23 +31,11 @@ import reactor.core.publisher.Mono;
  */
 public interface EnvironmentRepository extends CrudRepository<Environment, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Environment> findAll() {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
-default Flux<Environment> findAll_migrated() {
-    return RxJava2Adapter.flowableToFlux(findAll());
-}
+      
+Flux<Environment> findAll_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Environment> findAll(String organizationId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(organizationId));
-}
-default Flux<Environment> findAll_migrated(String organizationId) {
-    return RxJava2Adapter.flowableToFlux(findAll(organizationId));
-}
+      
+Flux<Environment> findAll_migrated(String organizationId);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id, organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -58,12 +46,6 @@ default Mono<Environment> findById_migrated(String id, String organizationId) {
     return RxJava2Adapter.maybeToMono(findById(id, organizationId));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Long> count() {
-    return RxJava2Adapter.monoToSingle(count_migrated());
-}
-default Mono<Long> count_migrated() {
-    return RxJava2Adapter.singleToMono(count());
-}
+      
+Mono<Long> count_migrated();
 }

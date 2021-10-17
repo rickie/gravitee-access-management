@@ -65,12 +65,7 @@ public class ReCaptchaServiceImpl implements ReCaptchaService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isValid_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Boolean> isValid(String token) {
- return RxJava2Adapter.monoToSingle(isValid_migrated(token));
-}
+    
 @Override
     public Mono<Boolean> isValid_migrated(String token) {
 

@@ -67,12 +67,7 @@ public class EmailFactorProvider implements FactorProvider {
     @Autowired
     private EmailFactorConfiguration configuration;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.verify_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable verify(FactorContext context) {
- return RxJava2Adapter.monoToCompletable(verify_migrated(context));
-}
+    
 @Override
     public Mono<Void> verify_migrated(FactorContext context) {
         final String code = context.getData(FactorContext.KEY_CODE, String.class);
@@ -97,12 +92,7 @@ public class EmailFactorProvider implements FactorProvider {
 
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.enroll_migrated(account))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Enrollment> enroll(String account) {
- return RxJava2Adapter.monoToSingle(enroll_migrated(account));
-}
+    
 @Override
     public Mono<Enrollment> enroll_migrated(String account) {
         return Mono.fromSupplier(() -> new Enrollment(SharedSecret.generate()));
@@ -138,12 +128,7 @@ public class EmailFactorProvider implements FactorProvider {
         return true;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.sendChallenge_migrated(context))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable sendChallenge(FactorContext context) {
- return RxJava2Adapter.monoToCompletable(sendChallenge_migrated(context));
-}
+    
 @Override
     public Mono<Void> sendChallenge_migrated(FactorContext context) {
         final EnrolledFactor enrolledFactor = context.getData(FactorContext.KEY_ENROLLED_FACTOR, EnrolledFactor.class);
@@ -200,12 +185,7 @@ private Mono<Void> generateCodeAndSendEmail_migrated(FactorContext context, Emai
         return true;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.changeVariableFactorSecurity_migrated(factor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<EnrolledFactor> changeVariableFactorSecurity(EnrolledFactor factor) {
- return RxJava2Adapter.monoToSingle(changeVariableFactorSecurity_migrated(factor));
-}
+    
 @Override
     public Mono<EnrolledFactor> changeVariableFactorSecurity_migrated(EnrolledFactor factor) {
         return Mono.fromSupplier(() -> {

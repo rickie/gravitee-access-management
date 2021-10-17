@@ -37,12 +37,6 @@ default Mono<Event> create_migrated(Event event) {
     return RxJava2Adapter.singleToMono(create(event));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByTimeFrame_migrated(from, to))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<List<Event>> findByTimeFrame(long from, long to) {
-    return RxJava2Adapter.monoToSingle(findByTimeFrame_migrated(from, to));
-}
-default Mono<List<Event>> findByTimeFrame_migrated(long from, long to) {
-    return RxJava2Adapter.singleToMono(findByTimeFrame(from, to));
-}
+      
+Mono<List<Event>> findByTimeFrame_migrated(long from, long to);
 }

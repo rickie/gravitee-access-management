@@ -52,23 +52,13 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<PolicyPlugin>> findAll() {
- return RxJava2Adapter.monoToSingle(findAll_migrated());
-}
+    
 @Override
     public Mono<List<PolicyPlugin>> findAll_migrated() {
         return findAll_migrated(null);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findAll_migrated(expand))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<List<PolicyPlugin>> findAll(List<String> expand) {
- return RxJava2Adapter.monoToSingle(findAll_migrated(expand));
-}
+    
 @Override
     public Mono<List<PolicyPlugin>> findAll_migrated(List<String> expand) {
         LOGGER.debug("List all policy plugins");
@@ -101,12 +91,7 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getSchema_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<String> getSchema(String policyId) {
- return RxJava2Adapter.monoToMaybe(getSchema_migrated(policyId));
-}
+    
 @Override
     public Mono<String> getSchema_migrated(String policyId) {
         LOGGER.debug("Find policy plugin schema by ID: {}", policyId);
@@ -133,12 +118,7 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getIcon_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<String> getIcon(String policyId) {
- return RxJava2Adapter.monoToMaybe(getIcon_migrated(policyId));
-}
+    
 @Override
     public Mono<String> getIcon_migrated(String policyId) {
         LOGGER.debug("Find policy plugin icon by ID: {}", policyId);
@@ -157,12 +137,7 @@ public class PolicyPluginServiceImpl implements PolicyPluginService {
         }));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getDocumentation_migrated(policyId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<String> getDocumentation(String policyId) {
- return RxJava2Adapter.monoToMaybe(getDocumentation_migrated(policyId));
-}
+    
 @Override
     public Mono<String> getDocumentation_migrated(String policyId) {
         LOGGER.debug("Find policy plugin documentation by ID: {}", policyId);

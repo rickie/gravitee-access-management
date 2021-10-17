@@ -65,34 +65,19 @@ public class MongoIdentityProviderRepository extends AbstractManagementMongoRepo
         super.createIndex(identitiesCollection, new Document(FIELD_REFERENCE_TYPE, 1).append(FIELD_REFERENCE_ID, 1));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<IdentityProvider> findAll(ReferenceType referenceType, String referenceId) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
+    
 @Override
     public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType, String referenceId) {
         return Flux.from(identitiesCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<IdentityProvider> findAll(ReferenceType referenceType) {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType));
-}
+    
 @Override
     public Flux<IdentityProvider> findAll_migrated(ReferenceType referenceType) {
         return Flux.from(identitiesCollection.find(eq(FIELD_REFERENCE_TYPE, referenceType.name()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<IdentityProvider> findAll() {
- return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
+    
 @Override
     public Flux<IdentityProvider> findAll_migrated() {
         return Flux.from(identitiesCollection.find()).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));

@@ -45,28 +45,16 @@ default Mono<AuthenticationFlowContext> findById_migrated(String id) {
      * @param transactionId transactionId id
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findLastByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<AuthenticationFlowContext> findLastByTransactionId(String transactionId) {
-    return RxJava2Adapter.monoToMaybe(findLastByTransactionId_migrated(transactionId));
-}
-default Mono<AuthenticationFlowContext> findLastByTransactionId_migrated(String transactionId) {
-    return RxJava2Adapter.maybeToMono(findLastByTransactionId(transactionId));
-}
+      
+Mono<AuthenticationFlowContext> findLastByTransactionId_migrated(String transactionId);
     /**
      * Find all contexts data for given sessionId
      *
      * @param transactionId transactionId id
      * @return
      */
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<AuthenticationFlowContext> findByTransactionId(String transactionId) {
-    return RxJava2Adapter.fluxToFlowable(findByTransactionId_migrated(transactionId));
-}
-default Flux<AuthenticationFlowContext> findByTransactionId_migrated(String transactionId) {
-    return RxJava2Adapter.flowableToFlux(findByTransactionId(transactionId));
-}
+      
+Flux<AuthenticationFlowContext> findByTransactionId_migrated(String transactionId);
 
     /**
      * Create authentication context
@@ -111,11 +99,7 @@ default Mono<Void> delete_migrated(String transactionId, int version) {
     return RxJava2Adapter.completableToMono(delete(transactionId, version));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable purgeExpiredData() {
-    return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
-}default Mono<Void> purgeExpiredData_migrated() {
+      default Mono<Void> purgeExpiredData_migrated() {
         return Mono.empty();
     }
 }

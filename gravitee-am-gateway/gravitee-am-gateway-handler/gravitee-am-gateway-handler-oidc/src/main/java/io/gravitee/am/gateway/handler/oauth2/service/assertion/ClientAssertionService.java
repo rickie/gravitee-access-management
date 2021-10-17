@@ -30,12 +30,6 @@ import reactor.core.publisher.Mono;
  */
 public interface ClientAssertionService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.assertClient_migrated(assertionType, assertion, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Client> assertClient(String assertionType, String assertion, String basePath) {
-    return RxJava2Adapter.monoToMaybe(assertClient_migrated(assertionType, assertion, basePath));
-}
-default Mono<Client> assertClient_migrated(String assertionType, String assertion, String basePath) {
-    return RxJava2Adapter.maybeToMono(assertClient(assertionType, assertion, basePath));
-}
+      
+Mono<Client> assertClient_migrated(String assertionType, String assertion, String basePath);
 }

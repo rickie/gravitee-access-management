@@ -68,12 +68,7 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
         return mapper.map(entity, JdbcOrganization.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByHrids_migrated(hrids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Organization> findByHrids(List<String> hrids) {
- return RxJava2Adapter.fluxToFlowable(findByHrids_migrated(hrids));
-}
+    
 @Override
     public Flux<Organization> findByHrids_migrated(List<String> hrids) {
         LOGGER.debug("findByHrids({})", hrids);
@@ -81,12 +76,7 @@ public class JdbcOrganizationRepository extends AbstractJdbcRepository implement
         return organizationRepository.findByHrids_migrated(hrids).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toOrganization));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> count() {
- return RxJava2Adapter.monoToSingle(count_migrated());
-}
+    
 @Override
     public Mono<Long> count_migrated() {
         return RxJava2Adapter.singleToMono(organizationRepository.count());

@@ -64,12 +64,7 @@ public class MongoExtensionGrantRepository extends AbstractManagementMongoReposi
         return Flux.from(extensionGrantsCollection.find(eq(FIELD_DOMAIN, domain))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndName_migrated(domain, name))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<ExtensionGrant> findByDomainAndName(String domain, String name) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndName_migrated(domain, name));
-}
+    
 @Override
     public Mono<ExtensionGrant> findByDomainAndName_migrated(String domain, String name) {
         return Flux.from(extensionGrantsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_NAME, name))).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));

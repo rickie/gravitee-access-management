@@ -32,14 +32,7 @@ import reactor.core.publisher.Flux;
 @Repository
 public interface SpringResourceScopeRepository extends RxJava2CrudRepository<JdbcResource.Scope, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByResourceId_migrated(resourceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Scope> findAllByResourceId(@Param(value = "rid")
-String resourceId) {
-    return RxJava2Adapter.fluxToFlowable(findAllByResourceId_migrated(resourceId));
-}
-default Flux<Scope> findAllByResourceId_migrated(@Param(value = "rid")
-String resourceId) {
-    return RxJava2Adapter.flowableToFlux(findAllByResourceId(resourceId));
-}
+      
+Flux<Scope> findAllByResourceId_migrated(@Param(value = "rid")
+String resourceId);
 }

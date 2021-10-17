@@ -58,12 +58,7 @@ public class MongoResourceRepository extends AbstractManagementMongoRepository i
         super.createIndex(resourceCollection, new Document(FIELD_DOMAIN, 1).append(FIELD_CLIENT_ID, 1).append(FIELD_USER_ID, 1));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.findByDomainAndClient_migrated(domain, client, page, size))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Page<Resource>> findByDomainAndClient(String domain, String client, int page, int size) {
- return RxJava2Adapter.monoToSingle(findByDomainAndClient_migrated(domain, client, page, size));
-}
+    
 @Override
     public Mono<Page<Resource>> findByDomainAndClient_migrated(String domain, String client, int page, int size) {
         Single<Long> countOperation = RxJava2Adapter.fluxToObservable(Flux.from(resourceCollection.countDocuments(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client))))).first(0l);
@@ -118,12 +113,7 @@ public class MongoResourceRepository extends AbstractManagementMongoRepository i
         return Mono.from(resourceCollection.deleteOne(eq(FIELD_ID, id))).then();
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndClientAndUser_migrated(domain, client, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Resource> findByDomainAndClientAndUser(String domain, String client, String user) {
- return RxJava2Adapter.fluxToFlowable(findByDomainAndClientAndUser_migrated(domain, client, user));
-}
+    
 @Override
     public Flux<Resource> findByDomainAndClientAndUser_migrated(String domain, String client, String user) {
         return Flux.from(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), eq(FIELD_USER_ID, user)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
@@ -142,34 +132,19 @@ public class MongoResourceRepository extends AbstractManagementMongoRepository i
         return RxJava2Adapter.singleToMono(Single.zip(countOperation, resourceSetOperation, (count, resourceSet) -> new Page<>(resourceSet, page, count)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByResources_migrated(resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Resource> findByResources(List<String> resources) {
- return RxJava2Adapter.fluxToFlowable(findByResources_migrated(resources));
-}
+    
 @Override
     public Flux<Resource> findByResources_migrated(List<String> resources) {
         return Flux.from(resourceCollection.find(in(FIELD_ID, resources))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomainAndClientAndResources_migrated(domain, client, resources))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Flowable<Resource> findByDomainAndClientAndResources(String domain, String client, List<String> resources) {
- return RxJava2Adapter.fluxToFlowable(findByDomainAndClientAndResources_migrated(domain, client, resources));
-}
+    
 @Override
     public Flux<Resource> findByDomainAndClientAndResources_migrated(String domain, String client, List<String> resources) {
         return Flux.from(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), in(FIELD_ID, resources)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByDomainAndClientAndUserAndResource_migrated(domain, client, user, resource))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Resource> findByDomainAndClientAndUserAndResource(String domain, String client, String user, String resource) {
- return RxJava2Adapter.monoToMaybe(findByDomainAndClientAndUserAndResource_migrated(domain, client, user, resource));
-}
+    
 @Override
     public Mono<Resource> findByDomainAndClientAndUserAndResource_migrated(String domain, String client, String user, String resource) {
         return Flux.from(resourceCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_CLIENT_ID, client), eq(FIELD_USER_ID, user), eq(FIELD_ID, resource))).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));

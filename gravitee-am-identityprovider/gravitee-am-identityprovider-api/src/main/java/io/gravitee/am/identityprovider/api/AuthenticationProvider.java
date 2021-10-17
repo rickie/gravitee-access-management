@@ -30,29 +30,13 @@ import reactor.core.publisher.Mono;
  */
 public interface AuthenticationProvider extends Service<AuthenticationProvider> {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(Authentication authentication) {
-    return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(authentication));
-}
-default Mono<io.gravitee.am.identityprovider.api.User> loadUserByUsername_migrated(Authentication authentication) {
-    return RxJava2Adapter.maybeToMono(loadUserByUsername(authentication));
-}
+      
+Mono<io.gravitee.am.identityprovider.api.User> loadUserByUsername_migrated(Authentication authentication);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadUserByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<io.gravitee.am.identityprovider.api.User> loadUserByUsername(String username) {
-    return RxJava2Adapter.monoToMaybe(loadUserByUsername_migrated(username));
-}
-default Mono<io.gravitee.am.identityprovider.api.User> loadUserByUsername_migrated(String username) {
-    return RxJava2Adapter.maybeToMono(loadUserByUsername(username));
-}
+      
+Mono<io.gravitee.am.identityprovider.api.User> loadUserByUsername_migrated(String username);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.loadPreAuthenticatedUser_migrated(authentication))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<io.gravitee.am.identityprovider.api.User> loadPreAuthenticatedUser(Authentication authentication) {
-    return RxJava2Adapter.monoToMaybe(loadPreAuthenticatedUser_migrated(authentication));
-}default Mono<User> loadPreAuthenticatedUser_migrated(Authentication authentication) {
+      default Mono<User> loadPreAuthenticatedUser_migrated(Authentication authentication) {
         io.gravitee.am.model.User user = (io.gravitee.am.model.User) authentication.getPrincipal();
         return loadUserByUsername_migrated(user.getUsername());
     }

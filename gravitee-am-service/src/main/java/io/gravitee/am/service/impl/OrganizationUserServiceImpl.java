@@ -76,20 +76,12 @@ public class OrganizationUserServiceImpl extends AbstractUserService implements 
         return this.userRepository;
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.setRoles_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Completable setRoles(io.gravitee.am.model.User user) {
- return RxJava2Adapter.monoToCompletable(setRoles_migrated(user));
-}
+    
 public Mono<Void> setRoles_migrated(io.gravitee.am.model.User user) {
         return setRoles_migrated(null, user);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.setRoles_migrated(principal, user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Completable setRoles(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
- return RxJava2Adapter.monoToCompletable(setRoles_migrated(principal, user));
-}
+    
 public Mono<Void> setRoles_migrated(io.gravitee.am.identityprovider.api.User principal, io.gravitee.am.model.User user) {
 
         final Maybe<Role> defaultRoleObs = RxJava2Adapter.monoToMaybe(roleService.findDefaultRole_migrated(user.getReferenceId(), DefaultRole.ORGANIZATION_USER, ReferenceType.ORGANIZATION));

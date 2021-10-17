@@ -57,12 +57,7 @@ public class IntrospectionTokenServiceImpl implements IntrospectionTokenService 
     @Autowired
     private AccessTokenRepository accessTokenRepository;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.introspect_migrated(token, offlineVerification))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<JWT> introspect(String token, boolean offlineVerification) {
- return RxJava2Adapter.monoToSingle(introspect_migrated(token, offlineVerification));
-}
+    
 @Override
     public Mono<JWT> introspect_migrated(String token, boolean offlineVerification) {
         return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(jwtService.decode_migrated(token).flatMap(e->clientService.findByDomainAndClientId_migrated(e.getDomain(), e.getAud())).switchIfEmpty(Mono.error(new InvalidTokenException("Invalid or unknown client for this token"))))

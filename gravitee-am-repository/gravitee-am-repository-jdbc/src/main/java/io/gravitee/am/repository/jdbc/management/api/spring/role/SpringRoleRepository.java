@@ -35,42 +35,19 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface SpringRoleRepository extends RxJava2CrudRepository<JdbcRole, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByReference_migrated(refType, refId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Long> countByReference(@Param(value = "refType")
+      
+Mono<Long> countByReference_migrated(@Param(value = "refType")
 String refType, @Param(value = "refId")
-String refId) {
-    return RxJava2Adapter.monoToSingle(countByReference_migrated(refType, refId));
-}
-default Mono<Long> countByReference_migrated(@Param(value = "refType")
-String refType, @Param(value = "refId")
-String refId) {
-    return RxJava2Adapter.singleToMono(countByReference(refType, refId));
-}
+String refId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(refType, refId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcRole> findByReference(@Param(value = "refType")
+      
+Flux<JdbcRole> findByReference_migrated(@Param(value = "refType")
 String refType, @Param(value = "refId")
-String refId) {
-    return RxJava2Adapter.fluxToFlowable(findByReference_migrated(refType, refId));
-}
-default Flux<JdbcRole> findByReference_migrated(@Param(value = "refType")
-String refType, @Param(value = "refId")
-String refId) {
-    return RxJava2Adapter.flowableToFlux(findByReference(refType, refId));
-}
+String refId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(roles))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcRole> findByIdIn(@Param(value = "rid")
-List<String> roles) {
-    return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(roles));
-}
-default Flux<JdbcRole> findByIdIn_migrated(@Param(value = "rid")
-List<String> roles) {
-    return RxJava2Adapter.flowableToFlux(findByIdIn(roles));
-}
+      
+Flux<JdbcRole> findByIdIn_migrated(@Param(value = "rid")
+List<String> roles);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(refType, refId, role))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -87,37 +64,17 @@ String role) {
     return RxJava2Adapter.maybeToMono(findById(refType, refId, role));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByNameAndAssignableType_migrated(refType, refId, name, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JdbcRole> findByNameAndAssignableType(@Param(value = "refType")
+      
+Mono<JdbcRole> findByNameAndAssignableType_migrated(@Param(value = "refType")
 String refType, @Param(value = "refId")
 String refId, @Param(value = "name")
 String name, @Param(value = "assignable")
-String assignableType) {
-    return RxJava2Adapter.monoToMaybe(findByNameAndAssignableType_migrated(refType, refId, name, assignableType));
-}
-default Mono<JdbcRole> findByNameAndAssignableType_migrated(@Param(value = "refType")
-String refType, @Param(value = "refId")
-String refId, @Param(value = "name")
-String name, @Param(value = "assignable")
-String assignableType) {
-    return RxJava2Adapter.maybeToMono(findByNameAndAssignableType(refType, refId, name, assignableType));
-}
+String assignableType);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByNamesAndAssignableType_migrated(refType, refId, names, assignableType))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcRole> findByNamesAndAssignableType(@Param(value = "refType")
+      
+Flux<JdbcRole> findByNamesAndAssignableType_migrated(@Param(value = "refType")
 String refType, @Param(value = "refId")
 String refId, @Param(value = "names")
 List<String> names, @Param(value = "assignable")
-String assignableType) {
-    return RxJava2Adapter.fluxToFlowable(findByNamesAndAssignableType_migrated(refType, refId, names, assignableType));
-}
-default Flux<JdbcRole> findByNamesAndAssignableType_migrated(@Param(value = "refType")
-String refType, @Param(value = "refId")
-String refId, @Param(value = "names")
-List<String> names, @Param(value = "assignable")
-String assignableType) {
-    return RxJava2Adapter.flowableToFlux(findByNamesAndAssignableType(refType, refId, names, assignableType));
-}
+String assignableType);
 }

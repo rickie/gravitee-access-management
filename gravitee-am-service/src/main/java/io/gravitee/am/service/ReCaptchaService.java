@@ -26,14 +26,8 @@ import reactor.core.publisher.Mono;
  */
 public interface ReCaptchaService {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.isValid_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Boolean> isValid(String token) {
-    return RxJava2Adapter.monoToSingle(isValid_migrated(token));
-}
-default Mono<Boolean> isValid_migrated(String token) {
-    return RxJava2Adapter.singleToMono(isValid(token));
-}
+      
+Mono<Boolean> isValid_migrated(String token);
 
     boolean isEnabled();
 

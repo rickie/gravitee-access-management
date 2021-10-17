@@ -77,12 +77,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
 
     private MongoCollection<Document> usersCollection;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByEmail_migrated(email))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> findByEmail(String email) {
- return RxJava2Adapter.monoToMaybe(findByEmail_migrated(email));
-}
+    
 @Override
     public Mono<User> findByEmail_migrated(String email) {
         String rawQuery = this.configuration.getFindUserByEmailQuery().replaceAll("\\?", email);
@@ -91,12 +86,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
         return Flux.from(usersCollection.find(query).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<User> findByUsername(String username) {
- return RxJava2Adapter.monoToMaybe(findByUsername_migrated(username));
-}
+    
 @Override
     public Mono<User> findByUsername_migrated(String username) {
         // lowercase username since case-sensitivity feature

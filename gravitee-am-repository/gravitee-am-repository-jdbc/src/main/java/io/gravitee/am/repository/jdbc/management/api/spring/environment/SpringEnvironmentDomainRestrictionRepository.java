@@ -30,13 +30,7 @@ import reactor.core.publisher.Flux;
  */
 @Repository
 public interface SpringEnvironmentDomainRestrictionRepository extends RxJava2CrudRepository<JdbcEnvironment.DomainRestriction, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByEnvironmentId_migrated(envId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<DomainRestriction> findAllByEnvironmentId(String envId) {
-    return RxJava2Adapter.fluxToFlowable(findAllByEnvironmentId_migrated(envId));
-}
-default Flux<DomainRestriction> findAllByEnvironmentId_migrated(String envId) {
-    return RxJava2Adapter.flowableToFlux(findAllByEnvironmentId(envId));
-}
+      
+Flux<DomainRestriction> findAllByEnvironmentId_migrated(String envId);
 
 }

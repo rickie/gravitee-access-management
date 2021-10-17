@@ -82,12 +82,7 @@ public class ClientAssertionServiceImpl implements ClientAssertionService {
     @Autowired
     private Domain domain;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.assertClient_migrated(assertionType, assertion, basePath))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Client> assertClient(String assertionType, String assertion, String basePath) {
- return RxJava2Adapter.monoToMaybe(assertClient_migrated(assertionType, assertion, basePath));
-}
+    
 @Override
     public Mono<Client> assertClient_migrated(String assertionType, String assertion, String basePath) {
 

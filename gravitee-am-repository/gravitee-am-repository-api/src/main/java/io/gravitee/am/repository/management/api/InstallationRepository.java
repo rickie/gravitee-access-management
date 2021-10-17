@@ -28,12 +28,6 @@ import reactor.core.publisher.Mono;
  */
 public interface InstallationRepository extends CrudRepository<Installation, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.find_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<Installation> find() {
-    return RxJava2Adapter.monoToMaybe(find_migrated());
-}
-default Mono<Installation> find_migrated() {
-    return RxJava2Adapter.maybeToMono(find());
-}
+      
+Mono<Installation> find_migrated();
 }

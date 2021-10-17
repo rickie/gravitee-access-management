@@ -54,14 +54,8 @@ default Mono<Client> create_migrated(Client client) {
     return RxJava2Adapter.singleToMono(create(client));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.renewClientSecret_migrated(domain, id, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Client> renewClientSecret(String domain, String id, User principal) {
-    return RxJava2Adapter.monoToSingle(renewClientSecret_migrated(domain, id, principal));
-}
-default Mono<Client> renewClientSecret_migrated(String domain, String id, User principal) {
-    return RxJava2Adapter.singleToMono(renewClientSecret(domain, id, principal));
-}
+      
+Mono<Client> renewClientSecret_migrated(String domain, String id, User principal);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(clientId, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -81,13 +75,7 @@ default Mono<Client> update_migrated(Client client) {
     return RxJava2Adapter.singleToMono(update(client));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.renewClientSecret_migrated(domain, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Client> renewClientSecret(String domain, String id) {
-    return RxJava2Adapter.monoToSingle(renewClientSecret_migrated(domain, id));
-}default Mono<Client> renewClientSecret_migrated(String domain, String id) {
-        return RxJava2Adapter.singleToMono(renewClientSecret(domain, id, null));
-    }
+      Mono<Client> renewClientSecret_migrated(String domain, String id);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

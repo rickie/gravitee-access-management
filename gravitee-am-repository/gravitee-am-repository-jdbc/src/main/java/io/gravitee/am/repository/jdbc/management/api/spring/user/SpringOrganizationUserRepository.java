@@ -35,18 +35,10 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface SpringOrganizationUserRepository extends RxJava2CrudRepository<JdbcOrganizationUser, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByReference_migrated(refType, refId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Long> countByReference(@Param(value = "refType")
+      
+Mono<Long> countByReference_migrated(@Param(value = "refType")
 String refType, @Param(value = "refId")
-String refId) {
-    return RxJava2Adapter.monoToSingle(countByReference_migrated(refType, refId));
-}
-default Mono<Long> countByReference_migrated(@Param(value = "refType")
-String refType, @Param(value = "refId")
-String refId) {
-    return RxJava2Adapter.singleToMono(countByReference(refType, refId));
-}
+String refId);
 
       @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(refType, refId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -63,61 +55,26 @@ String id) {
     return RxJava2Adapter.maybeToMono(findById(refType, refId, id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByExternalIdAndSource_migrated(refType, refId, externalId, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JdbcOrganizationUser> findByExternalIdAndSource(@Param(value = "refType")
+      
+Mono<JdbcOrganizationUser> findByExternalIdAndSource_migrated(@Param(value = "refType")
 String refType, @Param(value = "refId")
 String refId, @Param(value = "id")
 String externalId, @Param(value = "src")
-String source) {
-    return RxJava2Adapter.monoToMaybe(findByExternalIdAndSource_migrated(refType, refId, externalId, source));
-}
-default Mono<JdbcOrganizationUser> findByExternalIdAndSource_migrated(@Param(value = "refType")
-String refType, @Param(value = "refId")
-String refId, @Param(value = "id")
-String externalId, @Param(value = "src")
-String source) {
-    return RxJava2Adapter.maybeToMono(findByExternalIdAndSource(refType, refId, externalId, source));
-}
+String source);
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsernameAndSource_migrated(refType, refId, username, source))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Maybe<JdbcOrganizationUser> findByUsernameAndSource(@Param(value = "refType")
+      
+Mono<JdbcOrganizationUser> findByUsernameAndSource_migrated(@Param(value = "refType")
 String refType, @Param(value = "refId")
 String refId, @Param(value = "name")
 String username, @Param(value = "src")
-String source) {
-    return RxJava2Adapter.monoToMaybe(findByUsernameAndSource_migrated(refType, refId, username, source));
-}
-default Mono<JdbcOrganizationUser> findByUsernameAndSource_migrated(@Param(value = "refType")
-String refType, @Param(value = "refId")
-String refId, @Param(value = "name")
-String username, @Param(value = "src")
-String source) {
-    return RxJava2Adapter.maybeToMono(findByUsernameAndSource(refType, refId, username, source));
-}
+String source);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcOrganizationUser> findByIdIn(@Param(value = "ids")
-List<String> ids) {
-    return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
-}
-default Flux<JdbcOrganizationUser> findByIdIn_migrated(@Param(value = "ids")
-List<String> ids) {
-    return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
-}
+      
+Flux<JdbcOrganizationUser> findByIdIn_migrated(@Param(value = "ids")
+List<String> ids);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByReference_migrated(refType, refId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcOrganizationUser> findByReference(@Param(value = "refType")
+      
+Flux<JdbcOrganizationUser> findByReference_migrated(@Param(value = "refType")
 String refType, @Param(value = "refId")
-String refId) {
-    return RxJava2Adapter.fluxToFlowable(findByReference_migrated(refType, refId));
-}
-default Flux<JdbcOrganizationUser> findByReference_migrated(@Param(value = "refType")
-String refType, @Param(value = "refId")
-String refId) {
-    return RxJava2Adapter.flowableToFlux(findByReference(refType, refId));
-}
+String refId);
 }

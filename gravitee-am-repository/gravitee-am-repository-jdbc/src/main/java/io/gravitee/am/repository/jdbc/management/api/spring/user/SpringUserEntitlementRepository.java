@@ -31,14 +31,7 @@ import reactor.core.publisher.Flux;
  */
 @Repository
 public interface SpringUserEntitlementRepository extends RxJava2CrudRepository<JdbcUser.Entitlements, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Entitlements> findByUserId(@Param(value = "user")
-String userId) {
-    return RxJava2Adapter.fluxToFlowable(findByUserId_migrated(userId));
-}
-default Flux<Entitlements> findByUserId_migrated(@Param(value = "user")
-String userId) {
-    return RxJava2Adapter.flowableToFlux(findByUserId(userId));
-}
+      
+Flux<Entitlements> findByUserId_migrated(@Param(value = "user")
+String userId);
 }

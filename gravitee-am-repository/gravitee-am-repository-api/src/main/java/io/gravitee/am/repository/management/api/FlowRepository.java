@@ -40,21 +40,9 @@ default Mono<Flow> findById_migrated(ReferenceType referenceType, String referen
     return RxJava2Adapter.maybeToMono(findById(referenceType, referenceId, id));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Flow> findAll(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-}
-default Flux<Flow> findAll_migrated(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.flowableToFlux(findAll(referenceType, referenceId));
-}
+      
+Flux<Flow> findAll_migrated(ReferenceType referenceType, String referenceId);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByApplication_migrated(referenceType, referenceId, application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Flow> findByApplication(ReferenceType referenceType, String referenceId, String application) {
-    return RxJava2Adapter.fluxToFlowable(findByApplication_migrated(referenceType, referenceId, application));
-}
-default Flux<Flow> findByApplication_migrated(ReferenceType referenceType, String referenceId, String application) {
-    return RxJava2Adapter.flowableToFlux(findByApplication(referenceType, referenceId, application));
-}
+      
+Flux<Flow> findByApplication_migrated(ReferenceType referenceType, String referenceId, String application);
 }

@@ -50,17 +50,5 @@ public class OrganizationCommandHandler implements CommandHandler<OrganizationCo
         return Command.Type.ORGANIZATION_COMMAND;
     }
 
-    @Override
-    public Single<OrganizationReply> handle(OrganizationCommand command) {
-
-        OrganizationPayload organizationPayload = command.getPayload();
-        NewOrganization newOrganization = new NewOrganization();
-        newOrganization.setHrids(organizationPayload.getHrids());
-        newOrganization.setName(organizationPayload.getName());
-        newOrganization.setDescription(organizationPayload.getDescription());
-        newOrganization.setDomainRestrictions(organizationPayload.getDomainRestrictions());
-
-        return RxJava2Adapter.monoToSingle(organizationService.createOrUpdate_migrated(organizationPayload.getId(), newOrganization, null).map(RxJavaReactorMigrationUtil.toJdkFunction(organization -> new OrganizationReply(command.getId(), CommandStatus.SUCCEEDED))).doOnSuccess(reply -> logger.info("Organization [{}] handled with id [{}].", organizationPayload.getName(), organizationPayload.getId())).doOnError(error -> logger.error("Error occurred when handling organization [{}] with id [{}].", organizationPayload.getName(), organizationPayload.getId(), error)))
-                .onErrorReturn(throwable -> new OrganizationReply(command.getId(), CommandStatus.ERROR));
-    }
+    
 }

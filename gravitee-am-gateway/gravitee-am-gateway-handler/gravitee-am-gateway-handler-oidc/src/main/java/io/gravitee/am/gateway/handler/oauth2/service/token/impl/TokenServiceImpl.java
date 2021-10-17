@@ -95,12 +95,7 @@ public class TokenServiceImpl implements TokenService {
     @Autowired
     private IntrospectionTokenService introspectionTokenService;
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getAccessToken_migrated(token, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Token> getAccessToken(String token, Client client) {
- return RxJava2Adapter.monoToMaybe(getAccessToken_migrated(token, client));
-}
+    
 @Override
     public Mono<Token> getAccessToken_migrated(String token, Client client) {
         return jwtService.decodeAndVerify_migrated(token, client).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction(ex -> {
@@ -111,12 +106,7 @@ public class TokenServiceImpl implements TokenService {
                 }).apply(err))).flatMap(e->accessTokenRepository.findByToken_migrated(e.getJti()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.oauth2.model.AccessToken accessToken)->convertAccessToken(e))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.getRefreshToken_migrated(refreshToken, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<Token> getRefreshToken(String refreshToken, Client client) {
- return RxJava2Adapter.monoToMaybe(getRefreshToken_migrated(refreshToken, client));
-}
+    
 @Override
     public Mono<Token> getRefreshToken_migrated(String refreshToken, Client client) {
         return jwtService.decodeAndVerify_migrated(refreshToken, client).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction(ex -> {
@@ -127,12 +117,7 @@ public class TokenServiceImpl implements TokenService {
                 }).apply(err))).flatMap(e->refreshTokenRepository.findByToken_migrated(e.getJti()).map(RxJavaReactorMigrationUtil.toJdkFunction((io.gravitee.am.repository.oauth2.model.RefreshToken refreshToken1)->convertRefreshToken(e))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.introspect_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Token> introspect(String token) {
- return RxJava2Adapter.monoToSingle(introspect_migrated(token));
-}
+    
 @Override
     public Mono<Token> introspect_migrated(String token) {
         return introspectionTokenService.introspect_migrated(token, false).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convertAccessToken));
@@ -162,12 +147,7 @@ public class TokenServiceImpl implements TokenService {
                 }).apply(v)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.refresh_migrated(refreshToken, tokenRequest, client))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Token> refresh(String refreshToken, TokenRequest tokenRequest, Client client) {
- return RxJava2Adapter.monoToSingle(refresh_migrated(refreshToken, tokenRequest, client));
-}
+    
 @Override
     public Mono<Token> refresh_migrated(String refreshToken, TokenRequest tokenRequest, Client client) {
         // invalid_grant : The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is
@@ -189,23 +169,13 @@ public class TokenServiceImpl implements TokenService {
                 }).apply(v)));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteAccessToken_migrated(accessToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteAccessToken(String accessToken) {
- return RxJava2Adapter.monoToCompletable(deleteAccessToken_migrated(accessToken));
-}
+    
 @Override
     public Mono<Void> deleteAccessToken_migrated(String accessToken) {
         return accessTokenRepository.delete_migrated(accessToken);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteRefreshToken_migrated(refreshToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteRefreshToken(String refreshToken) {
- return RxJava2Adapter.monoToCompletable(deleteRefreshToken_migrated(refreshToken));
-}
+    
 @Override
     public Mono<Void> deleteRefreshToken_migrated(String refreshToken) {
         return refreshTokenRepository.delete_migrated(refreshToken);

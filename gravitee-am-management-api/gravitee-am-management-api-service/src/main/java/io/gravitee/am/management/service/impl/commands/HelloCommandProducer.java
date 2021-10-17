@@ -63,29 +63,7 @@ public class HelloCommandProducer implements CommandProducer<HelloCommand, Hello
         return Command.Type.HELLO_COMMAND;
     }
 
-    @Override
-    public Single<HelloCommand> prepare(HelloCommand command) {
+    
 
-        return RxJava2Adapter.monoToSingle(installationService.getOrInitialize_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(installation -> {
-            command.getPayload().getNode().setInstallationId(installation.getId());
-            command.getPayload().getNode().setHostname(node.hostname());
-            command.getPayload().getAdditionalInformation().putAll(installation.getAdditionalInformation());
-            command.getPayload().getAdditionalInformation().put(API_URL, apiURL);
-            command.getPayload().getAdditionalInformation().put(UI_URL, uiURL);
-            command.getPayload().setDefaultOrganizationId(Organization.DEFAULT);
-            command.getPayload().setDefaultEnvironmentId(Environment.DEFAULT);
-
-            return command;
-        })));
-    }
-
-    @Override
-    public Single<HelloReply> handleReply(HelloReply reply) {
-
-        if (reply.getCommandStatus() == CommandStatus.SUCCEEDED) {
-            return RxJava2Adapter.monoToSingle(installationService.get_migrated().map(RxJavaReactorMigrationUtil.toJdkFunction(Installation::getAdditionalInformation)).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(infos -> infos.put(Installation.COCKPIT_INSTALLATION_ID, reply.getInstallationId()))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(infos -> infos.put(Installation.COCKPIT_INSTALLATION_STATUS, reply.getInstallationStatus()))).flatMap(installationService::setAdditionalInformation_migrated).map(RxJavaReactorMigrationUtil.toJdkFunction(installation -> reply)));
-        }
-
-        return RxJava2Adapter.monoToSingle(Mono.just(reply));
-    }
+    
 }

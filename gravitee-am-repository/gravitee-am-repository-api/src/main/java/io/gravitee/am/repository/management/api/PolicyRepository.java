@@ -34,30 +34,12 @@ import reactor.core.publisher.Mono;
 @Deprecated
 public interface PolicyRepository {
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Policy> findAll() {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated());
-}
-default Flux<Policy> findAll_migrated() {
-    return RxJava2Adapter.flowableToFlux(findAll());
-}
+      
+Flux<Policy> findAll_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.collectionExists_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Boolean> collectionExists() {
-    return RxJava2Adapter.monoToSingle(collectionExists_migrated());
-}
-default Mono<Boolean> collectionExists_migrated() {
-    return RxJava2Adapter.singleToMono(collectionExists());
-}
+      
+Mono<Boolean> collectionExists_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteCollection_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Completable deleteCollection() {
-    return RxJava2Adapter.monoToCompletable(deleteCollection_migrated());
-}
-default Mono<Void> deleteCollection_migrated() {
-    return RxJava2Adapter.completableToMono(deleteCollection());
-}
+      
+Mono<Void> deleteCollection_migrated();
 }

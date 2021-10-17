@@ -29,16 +29,8 @@ import reactor.core.publisher.Flux;
  * @author GraviteeSource Team
  */
 public interface SpringEventRepository extends RxJava2CrudRepository<JdbcEvent, String> {
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTimeFrame_migrated(from, to))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcEvent> findByTimeFrame(@Param(value = "from")
+      
+Flux<JdbcEvent> findByTimeFrame_migrated(@Param(value = "from")
 LocalDateTime from, @Param(value = "to")
-LocalDateTime to) {
-    return RxJava2Adapter.fluxToFlowable(findByTimeFrame_migrated(from, to));
-}
-default Flux<JdbcEvent> findByTimeFrame_migrated(@Param(value = "from")
-LocalDateTime from, @Param(value = "to")
-LocalDateTime to) {
-    return RxJava2Adapter.flowableToFlux(findByTimeFrame(from, to));
-}
+LocalDateTime to);
 }

@@ -31,21 +31,9 @@ import reactor.core.publisher.Mono;
  */
 public interface OrganizationRepository extends CrudRepository<Organization, String> {
 
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.count_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Long> count() {
-    return RxJava2Adapter.monoToSingle(count_migrated());
-}
-default Mono<Long> count_migrated() {
-    return RxJava2Adapter.singleToMono(count());
-}
+      
+Mono<Long> count_migrated();
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByHrids_migrated(hrids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<Organization> findByHrids(List<String> hrids) {
-    return RxJava2Adapter.fluxToFlowable(findByHrids_migrated(hrids));
-}
-default Flux<Organization> findByHrids_migrated(List<String> hrids) {
-    return RxJava2Adapter.flowableToFlux(findByHrids(hrids));
-}
+      
+Flux<Organization> findByHrids_migrated(List<String> hrids);
 }

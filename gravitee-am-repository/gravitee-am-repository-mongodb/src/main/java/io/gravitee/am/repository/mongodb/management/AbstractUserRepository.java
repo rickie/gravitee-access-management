@@ -122,15 +122,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
             .append(FIELD_SOURCE, 1));
   }
 
-  @InlineMe(
-      replacement =
-          "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))",
-      imports = "reactor.adapter.rxjava.RxJava2Adapter")
-  @Deprecated
-  @Override
-  public Flowable<User> findAll(ReferenceType referenceType, String referenceId) {
-    return RxJava2Adapter.fluxToFlowable(findAll_migrated(referenceType, referenceId));
-  }
+  
 
   @Override
   public Flux<User> findAll_migrated(ReferenceType referenceType, String referenceId) {
@@ -142,16 +134,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
         .map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
   }
 
-  @InlineMe(
-      replacement =
-          "RxJava2Adapter.monoToSingle(this.findAll_migrated(referenceType, referenceId, page, size))",
-      imports = "reactor.adapter.rxjava.RxJava2Adapter")
-  @Deprecated
-  @Override
-  public Single<Page<User>> findAll(
-      ReferenceType referenceType, String referenceId, int page, int size) {
-    return RxJava2Adapter.monoToSingle(findAll_migrated(referenceType, referenceId, page, size));
-  }
+  
 
   @Override
   public Mono<Page<User>> findAll_migrated(
@@ -178,17 +161,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
             countOperation, usersOperation, (count, users) -> new Page<>(users, page, count)));
   }
 
-  @InlineMe(
-      replacement =
-          "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, query, page, size))",
-      imports = "reactor.adapter.rxjava.RxJava2Adapter")
-  @Deprecated
-  @Override
-  public Single<Page<User>> search(
-      ReferenceType referenceType, String referenceId, String query, int page, int size) {
-    return RxJava2Adapter.monoToSingle(
-        search_migrated(referenceType, referenceId, query, page, size));
-  }
+  
 
   @Override
   public Mono<Page<User>> search_migrated(
@@ -233,21 +206,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
         Single.zip(countOperation, usersOperation, (count, users) -> new Page<>(users, 0, count)));
   }
 
-  @InlineMe(
-      replacement =
-          "RxJava2Adapter.monoToSingle(this.search_migrated(referenceType, referenceId, criteria, page, size))",
-      imports = "reactor.adapter.rxjava.RxJava2Adapter")
-  @Deprecated
-  @Override
-  public Single<Page<User>> search(
-      ReferenceType referenceType,
-      String referenceId,
-      FilterCriteria criteria,
-      int page,
-      int size) {
-    return RxJava2Adapter.monoToSingle(
-        search_migrated(referenceType, referenceId, criteria, page, size));
-  }
+  
 
   @Override
   public Mono<Page<User>> search_migrated(
@@ -285,17 +244,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
     }
   }
 
-  @InlineMe(
-      replacement =
-          "RxJava2Adapter.monoToMaybe(this.findByUsernameAndSource_migrated(referenceType, referenceId, username, source))",
-      imports = "reactor.adapter.rxjava.RxJava2Adapter")
-  @Deprecated
-  @Override
-  public Maybe<User> findByUsernameAndSource(
-      ReferenceType referenceType, String referenceId, String username, String source) {
-    return RxJava2Adapter.monoToMaybe(
-        findByUsernameAndSource_migrated(referenceType, referenceId, username, source));
-  }
+  
 
   @Override
   public Mono<User> findByUsernameAndSource_migrated(
@@ -313,17 +262,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
         .map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
   }
 
-  @InlineMe(
-      replacement =
-          "RxJava2Adapter.monoToMaybe(this.findByExternalIdAndSource_migrated(referenceType, referenceId, externalId, source))",
-      imports = "reactor.adapter.rxjava.RxJava2Adapter")
-  @Deprecated
-  @Override
-  public Maybe<User> findByExternalIdAndSource(
-      ReferenceType referenceType, String referenceId, String externalId, String source) {
-    return RxJava2Adapter.monoToMaybe(
-        findByExternalIdAndSource_migrated(referenceType, referenceId, externalId, source));
-  }
+  
 
   @Override
   public Mono<User> findByExternalIdAndSource_migrated(
@@ -341,14 +280,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
         .map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
   }
 
-  @InlineMe(
-      replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))",
-      imports = "reactor.adapter.rxjava.RxJava2Adapter")
-  @Deprecated
-  @Override
-  public Flowable<User> findByIdIn(List<String> ids) {
-    return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
-  }
+  
 
   @Override
   public Flux<User> findByIdIn_migrated(List<String> ids) {

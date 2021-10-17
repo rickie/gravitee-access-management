@@ -56,12 +56,7 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
         return mapper.map(entity, JdbcAccessToken.class);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Maybe<AccessToken> findByToken(String token) {
- return RxJava2Adapter.monoToMaybe(findByToken_migrated(token));
-}
+    
 @Override
     public Mono<AccessToken> findByToken_migrated(String token) {
         LOGGER.debug("findByToken({})", token);
@@ -99,23 +94,13 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
         return RxJava2Adapter.completableToMono(Completable.fromMaybe(RxJava2Adapter.monoToMaybe(findByToken_migrated(token).flatMap(z->dbClient.delete().from(JdbcAccessToken.class).matching(from(where("token").is(token))).fetch().rowsUpdated().map(RxJavaReactorMigrationUtil.toJdkFunction((Integer i)->z))).doOnError(error -> LOGGER.error("Unable to delete AccessToken", error)))));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(accessTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable bulkWrite(List<AccessToken> accessTokens) {
- return RxJava2Adapter.monoToCompletable(bulkWrite_migrated(accessTokens));
-}
+    
 @Override
     public Mono<Void> bulkWrite_migrated(List<AccessToken> accessTokens) {
         return Flux.fromIterable(accessTokens).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(accessToken -> RxJava2Adapter.fluxToFlowable(create_migrated(accessToken).flux()))).ignoreElements().then().doOnError(error -> LOGGER.error("Unable to bulk load access tokens", error));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToObservable(this.findByClientIdAndSubject_migrated(clientId, subject))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Observable<AccessToken> findByClientIdAndSubject(String clientId, String subject) {
- return RxJava2Adapter.fluxToObservable(findByClientIdAndSubject_migrated(clientId, subject));
-}
+    
 @Override
     public Flux<AccessToken> findByClientIdAndSubject_migrated(String clientId, String subject) {
         LOGGER.debug("findByClientIdAndSubject({}, {})", clientId, subject);
@@ -125,12 +110,7 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
                         clientId, subject, error)), BackpressureStrategy.BUFFER);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToObservable(this.findByClientId_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Observable<AccessToken> findByClientId(String clientId) {
- return RxJava2Adapter.fluxToObservable(findByClientId_migrated(clientId));
-}
+    
 @Override
     public Flux<AccessToken> findByClientId_migrated(String clientId) {
         LOGGER.debug("findByClientId({})", clientId);
@@ -140,12 +120,7 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
                         clientId, error)), BackpressureStrategy.BUFFER);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.fluxToObservable(this.findByAuthorizationCode_migrated(authorizationCode))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Observable<AccessToken> findByAuthorizationCode(String authorizationCode) {
- return RxJava2Adapter.fluxToObservable(findByAuthorizationCode_migrated(authorizationCode));
-}
+    
 @Override
     public Flux<AccessToken> findByAuthorizationCode_migrated(String authorizationCode) {
         LOGGER.debug("findByAuthorizationCode({})", authorizationCode);
@@ -155,23 +130,13 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
                         authorizationCode, error)), BackpressureStrategy.BUFFER);
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByClientId_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Single<Long> countByClientId(String clientId) {
- return RxJava2Adapter.monoToSingle(countByClientId_migrated(clientId));
-}
+    
 @Override
     public Mono<Long> countByClientId_migrated(String clientId) {
         return accessTokenRepository.countByClientId_migrated(clientId, LocalDateTime.now(UTC));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByUserId(String userId) {
- return RxJava2Adapter.monoToCompletable(deleteByUserId_migrated(userId));
-}
+    
 @Override
     public Mono<Void> deleteByUserId_migrated(String userId) {
         LOGGER.debug("deleteByUserId({})", userId);
@@ -182,12 +147,7 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
                 userId, error));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainIdClientIdAndUserId_migrated(domainId, clientId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByDomainIdClientIdAndUserId(String domainId, String clientId, String userId) {
- return RxJava2Adapter.monoToCompletable(deleteByDomainIdClientIdAndUserId_migrated(domainId, clientId, userId));
-}
+    
 @Override
     public Mono<Void> deleteByDomainIdClientIdAndUserId_migrated(String domainId, String clientId, String userId) {
         LOGGER.debug("deleteByDomainIdClientIdAndUserId({},{},{})", domainId, clientId, userId);
@@ -201,12 +161,7 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
                         domainId, clientId, userId, error));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByDomainIdAndUserId_migrated(domainId, userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-@Override
-    public Completable deleteByDomainIdAndUserId(String domainId, String userId) {
- return RxJava2Adapter.monoToCompletable(deleteByDomainIdAndUserId_migrated(domainId, userId));
-}
+    
 @Override
     public Mono<Void> deleteByDomainIdAndUserId_migrated(String domainId, String userId) {
         LOGGER.debug("deleteByDomainIdAndUserId({},{})", domainId, userId);
@@ -219,11 +174,7 @@ public class JdbcAccessTokenRepository extends AbstractJdbcRepository implements
                         domainId, userId, error));
     }
 
-    @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.purgeExpiredData_migrated())", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated
-public Completable purgeExpiredData() {
- return RxJava2Adapter.monoToCompletable(purgeExpiredData_migrated());
-}
+    
 public Mono<Void> purgeExpiredData_migrated() {
         LOGGER.debug("purgeExpiredData()");
         LocalDateTime now = LocalDateTime.now(UTC);

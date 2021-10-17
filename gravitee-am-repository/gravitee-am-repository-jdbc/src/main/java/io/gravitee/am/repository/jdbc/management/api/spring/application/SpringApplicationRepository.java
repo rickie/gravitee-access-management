@@ -33,16 +33,9 @@ import reactor.core.publisher.Mono;
  */
 @Repository
 public interface SpringApplicationRepository extends RxJava2CrudRepository<JdbcApplication, String> {
-      @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Single<Long> countByDomain(@Param(value = "domain")
-String domain) {
-    return RxJava2Adapter.monoToSingle(countByDomain_migrated(domain));
-}
-default Mono<Long> countByDomain_migrated(@Param(value = "domain")
-String domain) {
-    return RxJava2Adapter.singleToMono(countByDomain(domain));
-}
+      
+Mono<Long> countByDomain_migrated(@Param(value = "domain")
+String domain);
 
       @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByDomain_migrated(domain))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  
@@ -55,51 +48,22 @@ String domain) {
     return RxJava2Adapter.flowableToFlux(findByDomain(domain));
 }
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByCertificate_migrated(certificate))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcApplication> findByCertificate(@Param(value = "cert")
-String certificate) {
-    return RxJava2Adapter.fluxToFlowable(findByCertificate_migrated(certificate));
-}
-default Flux<JdbcApplication> findByCertificate_migrated(@Param(value = "cert")
-String certificate) {
-    return RxJava2Adapter.flowableToFlux(findByCertificate(certificate));
-}
+      
+Flux<JdbcApplication> findByCertificate_migrated(@Param(value = "cert")
+String certificate);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByFactor_migrated(factor))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcApplication> findAllByFactor(@Param(value = "factor")
-String factor) {
-    return RxJava2Adapter.fluxToFlowable(findAllByFactor_migrated(factor));
-}
-default Flux<JdbcApplication> findAllByFactor_migrated(@Param(value = "factor")
-String factor) {
-    return RxJava2Adapter.flowableToFlux(findAllByFactor(factor));
-}
+      
+Flux<JdbcApplication> findAllByFactor_migrated(@Param(value = "factor")
+String factor);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAllByDomainAndGrant_migrated(domain, grant))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcApplication> findAllByDomainAndGrant(@Param(value = "domain")
+      
+Flux<JdbcApplication> findAllByDomainAndGrant_migrated(@Param(value = "domain")
 String domain, @Param(value = "grant")
-String grant) {
-    return RxJava2Adapter.fluxToFlowable(findAllByDomainAndGrant_migrated(domain, grant));
-}
-default Flux<JdbcApplication> findAllByDomainAndGrant_migrated(@Param(value = "domain")
-String domain, @Param(value = "grant")
-String grant) {
-    return RxJava2Adapter.flowableToFlux(findAllByDomainAndGrant(domain, grant));
-}
+String grant);
 
-      @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByIdIn_migrated(ids))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
-@Deprecated  
-default Flowable<JdbcApplication> findByIdIn(@Param(value = "ids")
-List<String> ids) {
-    return RxJava2Adapter.fluxToFlowable(findByIdIn_migrated(ids));
-}
-default Flux<JdbcApplication> findByIdIn_migrated(@Param(value = "ids")
-List<String> ids) {
-    return RxJava2Adapter.flowableToFlux(findByIdIn(ids));
-}
+      
+Flux<JdbcApplication> findByIdIn_migrated(@Param(value = "ids")
+List<String> ids);
 
 
 }
