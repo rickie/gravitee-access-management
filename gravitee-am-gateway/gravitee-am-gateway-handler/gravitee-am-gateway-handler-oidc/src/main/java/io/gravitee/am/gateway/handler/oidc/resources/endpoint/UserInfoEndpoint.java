@@ -38,7 +38,7 @@ import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.MediaType;
 
 import io.reactivex.Single;
-import io.reactivex.SingleSource;
+
 import io.reactivex.functions.Function;
 import io.vertx.core.Handler;
 import io.vertx.core.json.Json;

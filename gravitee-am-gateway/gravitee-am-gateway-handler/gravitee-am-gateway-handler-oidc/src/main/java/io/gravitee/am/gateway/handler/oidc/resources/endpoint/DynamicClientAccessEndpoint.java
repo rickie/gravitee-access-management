@@ -112,7 +112,7 @@ public class DynamicClientAccessEndpoint extends DynamicClientRegistrationEndpoi
     public void delete(RoutingContext context) {
         LOGGER.debug("Dynamic client registration DELETE endpoint");
 
-        this.getClient_migrated(context).flatMap(y->dcrService.delete_migrated(y)).map(RxJavaReactorMigrationUtil.toJdkFunction(this.clientSyncService::removeDynamicClientRegistred)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response().setStatusCode(HttpStatusCode.NO_CONTENT_204).end()), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+        this.getClient_migrated(context).flatMap(dcrService::delete_migrated).map(RxJavaReactorMigrationUtil.toJdkFunction(this.clientSyncService::removeDynamicClientRegistred)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> context.response().setStatusCode(HttpStatusCode.NO_CONTENT_204).end()), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
     }
 
     /**
