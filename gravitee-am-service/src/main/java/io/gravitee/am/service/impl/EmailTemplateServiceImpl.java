@@ -204,7 +204,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 }
 @Override
     public Flux<Email> copyFromClient_migrated(String domain, String clientSource, String clientTarget) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(findByClient_migrated(ReferenceType.DOMAIN, domain, clientSource))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Email, Single<Email>>toJdkFunction(source -> {
+        return findByClient_migrated(ReferenceType.DOMAIN, domain, clientSource).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Email, Single<Email>>toJdkFunction(source -> {
                     NewEmail email = new NewEmail();
                     email.setEnabled(source.isEnabled());
                     email.setTemplate(Template.parse(source.getTemplate()));

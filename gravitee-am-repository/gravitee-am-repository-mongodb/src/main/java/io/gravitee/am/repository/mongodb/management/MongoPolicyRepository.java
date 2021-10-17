@@ -21,7 +21,7 @@ import io.gravitee.am.common.policy.ExtensionPoint;
 import io.gravitee.am.model.Policy;
 import io.gravitee.am.repository.management.api.PolicyRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.PolicyMongo;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
 

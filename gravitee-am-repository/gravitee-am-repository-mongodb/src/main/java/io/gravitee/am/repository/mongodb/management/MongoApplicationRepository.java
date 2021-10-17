@@ -36,7 +36,7 @@ import io.gravitee.am.repository.management.api.ApplicationRepository;
 import io.gravitee.am.repository.mongodb.management.MongoApplicationRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.*;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;

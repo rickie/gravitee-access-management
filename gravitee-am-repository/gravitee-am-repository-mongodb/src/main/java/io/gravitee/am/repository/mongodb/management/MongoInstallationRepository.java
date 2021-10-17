@@ -23,7 +23,7 @@ import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.Installation;
 import io.gravitee.am.repository.management.api.InstallationRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.InstallationMongo;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 

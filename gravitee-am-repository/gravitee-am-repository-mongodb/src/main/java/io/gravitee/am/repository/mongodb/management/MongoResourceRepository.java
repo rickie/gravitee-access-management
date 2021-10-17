@@ -26,7 +26,7 @@ import io.gravitee.am.model.uma.Resource;
 import io.gravitee.am.repository.management.api.ResourceRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.uma.ResourceMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

@@ -25,7 +25,7 @@ import io.gravitee.am.model.ExtensionGrant;
 import io.gravitee.am.repository.management.api.ExtensionGrantRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.ExtensionGrantMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 
 
 import javax.annotation.PostConstruct;

@@ -21,7 +21,7 @@ import io.gravitee.am.plugins.idp.core.IdentityProviderPluginManager;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.plugin.IdentityProviderPlugin;
 import io.gravitee.plugin.core.api.Plugin;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Maybe;
 
 import io.reactivex.Single;

@@ -22,7 +22,7 @@ import io.gravitee.am.common.utils.RandomString;
 import io.gravitee.am.model.SystemTask;
 import io.gravitee.am.repository.management.api.SystemTaskRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.SystemTaskMongo;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 

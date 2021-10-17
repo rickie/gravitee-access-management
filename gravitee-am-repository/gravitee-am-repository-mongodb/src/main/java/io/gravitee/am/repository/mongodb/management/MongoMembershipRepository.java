@@ -27,7 +27,7 @@ import io.gravitee.am.repository.management.api.MembershipRepository;
 import io.gravitee.am.repository.management.api.search.MembershipCriteria;
 import io.gravitee.am.repository.mongodb.management.internal.model.MembershipMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Single;
 import javax.annotation.PostConstruct;
 import org.bson.Document;

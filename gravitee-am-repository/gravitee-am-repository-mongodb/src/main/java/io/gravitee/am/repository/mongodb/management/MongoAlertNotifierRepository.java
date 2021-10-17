@@ -26,7 +26,7 @@ import io.gravitee.am.repository.management.api.AlertNotifierRepository;
 import io.gravitee.am.repository.management.api.search.AlertNotifierCriteria;
 import io.gravitee.am.repository.mongodb.management.internal.model.AlertNotifierMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;

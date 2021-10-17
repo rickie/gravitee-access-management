@@ -27,7 +27,7 @@ import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.repository.management.api.LoginAttemptRepository;
 import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
 import io.gravitee.am.repository.mongodb.management.internal.model.LoginAttemptMongo;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 

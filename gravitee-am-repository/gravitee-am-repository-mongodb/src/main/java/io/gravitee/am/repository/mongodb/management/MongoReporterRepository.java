@@ -24,7 +24,7 @@ import io.gravitee.am.model.Reporter;
 import io.gravitee.am.repository.management.api.ReporterRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.ReporterMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 
 
 import javax.annotation.PostConstruct;

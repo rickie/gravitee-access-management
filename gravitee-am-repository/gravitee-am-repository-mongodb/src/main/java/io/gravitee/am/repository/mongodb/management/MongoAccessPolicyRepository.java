@@ -27,7 +27,7 @@ import io.gravitee.am.model.uma.policy.AccessPolicyType;
 import io.gravitee.am.repository.management.api.AccessPolicyRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.uma.AccessPolicyMongo;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.bson.Document;

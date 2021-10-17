@@ -165,7 +165,7 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Mono<Void> update_migrated(ReferenceType referenceType, String referenceId, String credentialId, Credential credential) {
         LOGGER.debug("Update a credential {}", credentialId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByCredentialId_migrated(referenceType, referenceId, credentialId))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Credential, Single<Credential>>toJdkFunction(credentialToUpdate -> {
+        return credentialRepository.findByCredentialId_migrated(referenceType, referenceId, credentialId).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Credential, Single<Credential>>toJdkFunction(credentialToUpdate -> {
                     // update only business values (i.e not set via the vert.x authenticator object)
                     credentialToUpdate.setUserId(credential.getUserId());
                     credentialToUpdate.setIpAddress(credential.getIpAddress());

@@ -48,7 +48,7 @@ import io.gravitee.am.reporter.mongodb.audit.model.AuditMongo;
 import io.gravitee.am.reporter.mongodb.audit.model.AuditOutcomeMongo;
 import io.gravitee.common.service.AbstractService;
 import io.gravitee.reporter.api.Reportable;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Maybe;
 
 import io.reactivex.Single;

@@ -26,7 +26,7 @@ import io.gravitee.am.model.oauth2.ScopeApproval;
 import io.gravitee.am.repository.mongodb.oauth2.internal.model.ScopeApprovalMongo;
 import io.gravitee.am.repository.oauth2.api.ScopeApprovalRepository;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;

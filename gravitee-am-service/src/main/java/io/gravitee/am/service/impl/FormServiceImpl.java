@@ -227,7 +227,7 @@ public class FormServiceImpl implements FormService {
 }
 @Override
     public Mono<List<Form>> copyFromClient_migrated(String domain, String clientSource, String clientTarget) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(findByDomainAndClient_migrated(domain, clientSource))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Form, Single<Form>>toJdkFunction(source -> {
+        return findByDomainAndClient_migrated(domain, clientSource).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Form, Single<Form>>toJdkFunction(source -> {
                     NewForm form = new NewForm();
                     form.setEnabled(source.isEnabled());
                     form.setTemplate(Template.parse(source.getTemplate()));
