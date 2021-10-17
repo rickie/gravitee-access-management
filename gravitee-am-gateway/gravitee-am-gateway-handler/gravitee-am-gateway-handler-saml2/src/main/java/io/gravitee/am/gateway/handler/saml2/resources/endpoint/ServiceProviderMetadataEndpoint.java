@@ -68,10 +68,10 @@ public class ServiceProviderMetadataEndpoint implements Handler<RoutingContext> 
                             response
                                     .setStatusCode(HttpStatusCode.OK_200)
                                     .end(result.getBody());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error ->
+                        }), error ->
                                 routingContext
                                         .response()
                                         .setStatusCode(error instanceof AbstractManagementException ? ((AbstractManagementException) error).getHttpStatusCode() : 500)
-                                        .end()));
+                                        .end());
     }
 }

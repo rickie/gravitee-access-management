@@ -69,12 +69,12 @@ public class ResourceAccessPoliciesEndpoint {
         final Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         final String resource = context.request().getParam(RESOURCE_ID);
 
-        resourceService.findAccessPolicies_migrated(domain.getId(), client.getId(), accessToken.getSub(), resource).map(RxJavaReactorMigrationUtil.toJdkFunction(AccessPolicy::getId)).collectList().subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response -> context.response()
+        resourceService.findAccessPolicies_migrated(domain.getId(), client.getId(), accessToken.getSub(), resource).map(RxJavaReactorMigrationUtil.toJdkFunction(AccessPolicy::getId)).collectList().subscribe(response -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(response.isEmpty() ? HttpStatusCode.NO_CONTENT_204 : HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(response))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                .end(Json.encodePrettily(response)), context::fail);
     }
 
     public void create(RoutingContext context) {
@@ -87,14 +87,14 @@ public class ResourceAccessPoliciesEndpoint {
         AccessPolicy accessPolicy = extractRequest(context);
 
         // store the access policy
-        resourceService.createAccessPolicy_migrated(accessPolicy, domain.getId(), client.getId(), accessToken.getSub(), resource).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(p ->
+        resourceService.createAccessPolicy_migrated(accessPolicy, domain.getId(), client.getId(), accessToken.getSub(), resource).subscribe(p ->
                             context.response()
                                     .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(HttpHeaders.LOCATION, resourceLocation(basePath, p))
                                     .setStatusCode(HttpStatusCode.CREATED_201)
-                                    .end(Json.encodePrettily(p))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                    .end(Json.encodePrettily(p)), context::fail);
     }
 
     public void get(RoutingContext context) {
@@ -103,11 +103,11 @@ public class ResourceAccessPoliciesEndpoint {
         final String resource = context.request().getParam(RESOURCE_ID);
         final String accessPolicyId = context.request().getParam(POLICY_ID);
 
-        resourceService.findAccessPolicy_migrated(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId).switchIfEmpty(Mono.error(new AccessPolicyNotFoundException(accessPolicyId))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response -> context.response()
+        resourceService.findAccessPolicy_migrated(domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId).switchIfEmpty(Mono.error(new AccessPolicyNotFoundException(accessPolicyId))).subscribe(response -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .end(Json.encodePrettily(response))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                .end(Json.encodePrettily(response)), context::fail);
     }
 
     public void update(RoutingContext context) {
@@ -120,11 +120,11 @@ public class ResourceAccessPoliciesEndpoint {
         AccessPolicy accessPolicy = extractRequest(context);
 
         // update the access policy
-        resourceService.updateAccessPolicy_migrated(accessPolicy, domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response -> context.response()
+        resourceService.updateAccessPolicy_migrated(accessPolicy, domain.getId(), client.getId(), accessToken.getSub(), resource, accessPolicyId).subscribe(response -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .end(Json.encodePrettily(response))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                .end(Json.encodePrettily(response)), context::fail);
     }
 
     public void delete(RoutingContext context) {

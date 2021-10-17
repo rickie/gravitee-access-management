@@ -87,8 +87,8 @@ public class MongoGroupRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Page<Group>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
-        Single<Long> countOperation = Observable.fromPublisher(groupsCollection.countDocuments(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).first(0l);
-        Single<List<Group>> groupsOperation = Observable.fromPublisher(groupsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))).sort(new BasicDBObject(FIELD_NAME, 1)).skip(size * page).limit(size)).map(this::convert).collect(LinkedList::new, List::add);
+        Single<Long> countOperation = RxJava2Adapter.fluxToObservable(Flux.from(groupsCollection.countDocuments(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))))).first(0l);
+        Single<List<Group>> groupsOperation = RxJava2Adapter.fluxToObservable(Flux.from(groupsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))).sort(new BasicDBObject(FIELD_NAME, 1)).skip(size * page).limit(size))).map(this::convert).collect(LinkedList::new, List::add);
         return RxJava2Adapter.singleToMono(Single.zip(countOperation, groupsOperation, (count, groups) -> new Page<>(groups, page, count)));
     }
 
@@ -111,11 +111,10 @@ public class MongoGroupRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Group> findByName_migrated(ReferenceType referenceType, String referenceId, String groupName) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(
-                groupsCollection
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(groupsCollection
                         .find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_NAME, groupName)))
                         .limit(1)
-                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+                        .first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, group))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -126,7 +125,7 @@ public class MongoGroupRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Group> findById_migrated(ReferenceType referenceType, String referenceId, String group) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(groupsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, group))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(groupsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, group))).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(group))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -137,7 +136,7 @@ public class MongoGroupRepository extends AbstractManagementMongoRepository impl
 }
 @Override
     public Mono<Group> findById_migrated(String group) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(groupsCollection.find(eq(FIELD_ID, group)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(groupsCollection.find(eq(FIELD_ID, group)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -150,7 +149,7 @@ public class MongoGroupRepository extends AbstractManagementMongoRepository impl
     public Mono<Group> create_migrated(Group item) {
         GroupMongo group = convert(item);
         group.setId(group.getId() == null ? RandomString.generate() : group.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(groupsCollection.insertOne(group))).flatMap(success->findById_migrated(group.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(groupsCollection.insertOne(group)))).flatMap(success->findById_migrated(group.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -162,7 +161,7 @@ public class MongoGroupRepository extends AbstractManagementMongoRepository impl
 @Override
     public Mono<Group> update_migrated(Group item) {
         GroupMongo group = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(groupsCollection.replaceOne(eq(FIELD_ID, group.getId()), group))).flatMap(success->findById_migrated(group.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(groupsCollection.replaceOne(eq(FIELD_ID, group.getId()), group)))).flatMap(success->findById_migrated(group.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

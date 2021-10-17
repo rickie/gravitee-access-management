@@ -98,11 +98,10 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
 }
 @Override
     public Mono<User> findByUsernameAndDomain_migrated(String domain, String username) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(
-                usersCollection
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(usersCollection
                         .find(and(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, domain), eq(FIELD_USERNAME, username)))
                         .limit(1)
-                        .first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+                        .first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -113,7 +112,7 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
 }
 @Override
     public Mono<Long> countByReference_migrated(ReferenceType referenceType, String referenceId) {
-        return RxJava2Adapter.singleToMono(Observable.fromPublisher(usersCollection.countDocuments(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId)))).first(0l));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.countDocuments(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId))))).first(0l));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByApplication_migrated(domain, application))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -124,7 +123,7 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
 }
 @Override
     public Mono<Long> countByApplication_migrated(String domain, String application) {
-        return RxJava2Adapter.singleToMono(Observable.fromPublisher(usersCollection.countDocuments(and(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, domain), eq(FIELD_CLIENT, application)))).first(0l));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.countDocuments(and(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, domain), eq(FIELD_CLIENT, application))))).first(0l));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.statistics_migrated(query))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -152,7 +151,7 @@ private Mono<Map<Object,Object>> usersStatusRepartition_migrated(AnalyticsQuery 
             filters.add(eq(FIELD_CLIENT, query.getApplication()));
         }
 
-        return RxJava2Adapter.singleToMono(Observable.fromPublisher(usersCollection.aggregate(
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.aggregate(
                 Arrays.asList(
                         Aggregates.match(and(filters)),
                         Aggregates.group(
@@ -162,7 +161,7 @@ private Mono<Map<Object,Object>> usersStatusRepartition_migrated(AnalyticsQuery 
                                 Accumulators.sum("locked", new BasicDBObject("$cond", Arrays.asList(new BasicDBObject("$and", Arrays.asList(new BasicDBObject("$eq", Arrays.asList("$accountNonLocked", false)), new BasicDBObject("$gte", Arrays.asList("$accountLockedUntil", new Date())))), 1, 0))),
                                 Accumulators.sum("inactive", new BasicDBObject("$cond", Arrays.asList(new BasicDBObject("$lte", Arrays.asList("$loggedAt", new Date(Instant.now().minus(90, ChronoUnit.DAYS).toEpochMilli()))), 1, 0)))
                         )
-                ), Document.class))
+                ), Document.class)))
                 .map(doc -> {
                     Long nonActiveUsers = ((Number) doc.get("disabled")).longValue() + ((Number) doc.get("locked")).longValue() + ((Number) doc.get("inactive")).longValue();
                     Long activeUsers = ((Number) doc.get("total")).longValue() - nonActiveUsers;
@@ -179,13 +178,13 @@ private Mono<Map<Object,Object>> usersStatusRepartition_migrated(AnalyticsQuery 
 
     
 private Mono<Map<Object,Object>> registrationsStatusRepartition_migrated(AnalyticsQuery query) {
-        return RxJava2Adapter.singleToMono(Observable.fromPublisher(usersCollection.aggregate(
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.aggregate(
                 Arrays.asList(
                         Aggregates.match(and(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, query.getDomain()), eq(FIELD_PRE_REGISTRATION, true))),
                         Aggregates.group(new BasicDBObject("_id", query.getField()),
                                 Accumulators.sum("total", 1),
                                 Accumulators.sum("completed", new BasicDBObject("$cond", Arrays.asList(new BasicDBObject("$eq", Arrays.asList("$registrationCompleted", true)), 1, 0))))
-                ), Document.class))
+                ), Document.class)))
                 .map(doc -> {
                     Map<Object, Object> registrations = new HashMap<>();
                     registrations.putAll(doc.entrySet()

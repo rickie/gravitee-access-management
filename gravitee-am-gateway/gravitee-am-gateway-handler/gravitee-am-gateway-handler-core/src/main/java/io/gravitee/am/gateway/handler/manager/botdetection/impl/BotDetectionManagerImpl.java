@@ -90,7 +90,7 @@ public class BotDetectionManagerImpl extends AbstractService implements BotDetec
         botDetectionService.findByDomain_migrated(domain.getId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(detection -> {
                             updateBotDetection(detection);
                             LOGGER.info("Bot detection {} loaded for domain {}", detection.getName(), domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to initialize bot detections for domain {}", domain.getName(), error)));
+                        }), error -> LOGGER.error("Unable to initialize bot detections for domain {}", domain.getName(), error));
     }
 
     @Override
@@ -166,7 +166,7 @@ public class BotDetectionManagerImpl extends AbstractService implements BotDetec
     private void updateBotDetection(String pluginId, BotDetectionEvent event) {
         final String eventType = event.toString().toLowerCase();
         LOGGER.info("Domain {} has received {} bot detection event for {}", domain.getName(), eventType, pluginId);
-        botDetectionService.findById_migrated(pluginId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::updateBotDetection), RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to load bot detection for domain {}", domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> LOGGER.error("No bot detection found with id {}", pluginId)));
+        botDetectionService.findById_migrated(pluginId).subscribe(this::updateBotDetection, error -> LOGGER.error("Unable to load bot detection for domain {}", domain.getName(), error), () -> LOGGER.error("No bot detection found with id {}", pluginId));
     }
 
     private void removeBotDetection(String pluginId) {

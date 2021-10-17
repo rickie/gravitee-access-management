@@ -41,6 +41,6 @@ public class OAuth2AuthProviderImpl implements OAuth2AuthProvider {
 
     @Override
     public void decodeToken(String token, boolean offlineVerification, Handler<AsyncResult<OAuth2AuthResponse>> handler) {
-        introspectionTokenService.introspect_migrated(token, offlineVerification).flatMap(e->clientSyncService.findByDomainAndClientId_migrated(e.getDomain(), e.getAud()).map(RxJavaReactorMigrationUtil.toJdkFunction((Client client)->new OAuth2AuthResponse(e, client)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(accessToken -> handler.handle(Future.succeededFuture(accessToken))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+        introspectionTokenService.introspect_migrated(token, offlineVerification).flatMap(e->clientSyncService.findByDomainAndClientId_migrated(e.getDomain(), e.getAud()).map(RxJavaReactorMigrationUtil.toJdkFunction((Client client)->new OAuth2AuthResponse(e, client)))).subscribe(accessToken -> handler.handle(Future.succeededFuture(accessToken)), error -> handler.handle(Future.failedFuture(error)));
     }
 }

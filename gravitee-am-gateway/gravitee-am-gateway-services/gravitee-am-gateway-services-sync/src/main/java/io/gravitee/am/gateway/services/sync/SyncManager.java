@@ -138,7 +138,7 @@ public class SyncManager implements InitializingBean {
 
     private void deployDomains() {
         logger.info("Starting security domains initialization ...");
-        List<Domain> domains = domainRepository.findAll_migrated().filter(RxJavaReactorMigrationUtil.toJdkPredicate(Domain::isEnabled)).filter(RxJavaReactorMigrationUtil.toJdkPredicate(this::canHandle)).collectList().block();
+        List<Domain> domains = domainRepository.findAll_migrated().filter(RxJavaReactorMigrationUtil.toJdkPredicate(Domain::isEnabled)).filter(this::canHandle).collectList().block();
 
         // deploy security domains
         domains.stream().forEach(securityDomainManager::deploy);
@@ -240,16 +240,16 @@ public class SyncManager implements InitializingBean {
         if (organizations.isPresent()) {
             final List<Organization> foundOrgs = organizationRepository.findByHrids_migrated(this.organizations.get()).collectList().block();
             this.environmentIds = foundOrgs.stream().flatMap(org ->{
-                return environmentRepository.findAll_migrated(org.getId()).filter(RxJavaReactorMigrationUtil.toJdkPredicate(environment1 -> {
+                return environmentRepository.findAll_migrated(org.getId()).filter(environment1 -> {
                             if (!environments.isPresent()) {
                                 return true;
                             } else {
                                 return environment1.getHrids().stream().anyMatch(h -> environments.get().contains(h));
                             }
-                        })).map(RxJavaReactorMigrationUtil.toJdkFunction(io.gravitee.am.model.Environment::getId)).collectList().block().stream();
+                        }).map(RxJavaReactorMigrationUtil.toJdkFunction(io.gravitee.am.model.Environment::getId)).collectList().block().stream();
             }).distinct().collect(Collectors.toList());
         } else if (environments.isPresent()) {
-            environmentIds = environmentRepository.findAll_migrated().filter(RxJavaReactorMigrationUtil.toJdkPredicate(environment1 -> environment1.getHrids().stream().anyMatch(h -> environments.get().contains(h)))).map(RxJavaReactorMigrationUtil.toJdkFunction(io.gravitee.am.model.Environment::getId)).collectList().block();
+            environmentIds = environmentRepository.findAll_migrated().filter(environment1 -> environment1.getHrids().stream().anyMatch(h -> environments.get().contains(h))).map(RxJavaReactorMigrationUtil.toJdkFunction(io.gravitee.am.model.Environment::getId)).collectList().block();
         }
     }
 

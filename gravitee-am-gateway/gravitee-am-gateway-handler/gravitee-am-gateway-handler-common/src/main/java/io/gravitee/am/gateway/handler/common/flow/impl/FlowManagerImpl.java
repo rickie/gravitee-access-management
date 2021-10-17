@@ -168,7 +168,7 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
                             loadFlow(flow);
                             flows.put(flow.getId(), flow);
                             logger.info("Flow {} has been deployed for domain {}", flowId, domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to deploy flow {} for domain {}", flowId, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No flow found with id {}", flowId)));
+                        }), error -> logger.error("Unable to deploy flow {} for domain {}", flowId, domain.getName(), error), () -> logger.error("No flow found with id {}", flowId));
     }
 
     private void removeFlow(String flowId) {
@@ -186,7 +186,7 @@ public class FlowManagerImpl extends AbstractService implements FlowManager, Ini
                                 flows.put(flow.getId(), flow);
                                 logger.info("Flow {} loaded for domain {}", flow.getType(), domain.getName());
                             }
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize flows for domain {}", domain.getName(), error)));
+                        }), error -> logger.error("Unable to initialize flows for domain {}", domain.getName(), error));
     }
 
     private void loadFlow(Flow flow) {

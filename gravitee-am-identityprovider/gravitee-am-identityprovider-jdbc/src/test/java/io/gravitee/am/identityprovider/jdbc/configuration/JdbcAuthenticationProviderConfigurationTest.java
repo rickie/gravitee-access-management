@@ -54,9 +54,9 @@ public abstract class JdbcAuthenticationProviderConfigurationTest implements Ini
     }
 
     protected void initData(Connection connection) {
-        RxJava2Adapter.singleToMono(Single.fromPublisher(connection.createStatement("create table users(id varchar(256), username varchar(256), password varchar(256), email varchar(256), metadata text)").execute())).subscribe();
-        RxJava2Adapter.singleToMono(Single.fromPublisher(connection.createStatement("insert into users values('1', 'bob', 'bobspassword', null, null)").execute())).subscribe();
-        RxJava2Adapter.singleToMono(Single.fromPublisher(connection.createStatement("insert into users values('2', 'user01', 'user01', 'user01@acme.com', null)").execute())).subscribe();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(connection.createStatement("create table users(id varchar(256), username varchar(256), password varchar(256), email varchar(256), metadata text)").execute()))).subscribe();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(connection.createStatement("insert into users values('1', 'bob', 'bobspassword', null, null)").execute()))).subscribe();
+        RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(connection.createStatement("insert into users values('2', 'user01', 'user01', 'user01@acme.com', null)").execute()))).subscribe();
     }
 
     @Bean

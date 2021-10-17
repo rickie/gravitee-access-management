@@ -43,6 +43,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -81,7 +82,7 @@ public class UsersResource extends AbstractUsersResource {
 
         io.gravitee.am.identityprovider.api.User authenticatedUser = getAuthenticatedUser();
 
-        permissionService.findAllPermissions_migrated(authenticatedUser, ReferenceType.ORGANIZATION, organizationId).flatMap(organizationPermissions->checkPermission_migrated(organizationPermissions, Permission.ORGANIZATION_USER, Acl.LIST).then(searchUsers_migrated(ReferenceType.ORGANIZATION, organizationId, query, filter, page, size).flatMap(pagedUsers->RxJava2Adapter.singleToMono(Observable.fromIterable(pagedUsers.getData()).flatMapSingle((io.gravitee.am.model.User user)->RxJava2Adapter.monoToSingle(filterUserInfos_migrated(organizationPermissions, user))).toSortedList(Comparator.comparing(User::getUsername))).map(RxJavaReactorMigrationUtil.toJdkFunction((List<io.gravitee.am.model.User> users)->new Page<>(users, pagedUsers.getCurrentPage(), pagedUsers.getTotalCount())))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        permissionService.findAllPermissions_migrated(authenticatedUser, ReferenceType.ORGANIZATION, organizationId).flatMap(organizationPermissions->checkPermission_migrated(organizationPermissions, Permission.ORGANIZATION_USER, Acl.LIST).then(searchUsers_migrated(ReferenceType.ORGANIZATION, organizationId, query, filter, page, size).flatMap(pagedUsers->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(pagedUsers.getData())).flatMapSingle((io.gravitee.am.model.User user)->RxJava2Adapter.monoToSingle(filterUserInfos_migrated(organizationPermissions, user))).toSortedList(Comparator.comparing(User::getUsername))).map(RxJavaReactorMigrationUtil.toJdkFunction((List<io.gravitee.am.model.User> users)->new Page<>(users, pagedUsers.getCurrentPage(), pagedUsers.getTotalCount())))))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST

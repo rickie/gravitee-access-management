@@ -188,7 +188,7 @@ public class AuthorizationRequestFailureHandler implements Handler<RoutingContex
                                             authorizationRequest.getRedirectUri(),
                                             authorizationRequest.getResponseType(),
                                             authorizationRequest.getResponseMode(),
-                                            jwt)))), RxJavaReactorMigrationUtil.toJdkConsumer(ex -> handler.handle(Future.failedFuture(ex))));
+                                            jwt)))), ex -> handler.handle(Future.failedFuture(ex)));
         } catch (Exception e) {
             handler.handle(Future.failedFuture(e));
         }

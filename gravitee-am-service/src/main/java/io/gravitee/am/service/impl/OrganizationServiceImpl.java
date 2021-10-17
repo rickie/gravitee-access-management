@@ -99,7 +99,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         organization.setDomainRestrictions(Collections.emptyList());
 
         // No need to create default organization if one or more organizations already exist.
-        return organizationRepository.count_migrated().filter(RxJavaReactorMigrationUtil.toJdkPredicate(aLong -> aLong == 0)).flatMap(z->createInternal_migrated(organization, null));
+        return organizationRepository.count_migrated().filter(aLong -> aLong == 0).flatMap(z->createInternal_migrated(organization, null));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.createOrUpdate_migrated(organizationId, newOrganization, byUser))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -152,7 +152,7 @@ private Mono<Organization> createInternal_migrated(Organization toCreate, User o
         toCreate.setUpdatedAt(now);
 
         // Creates an organization and set ownership.
-        return organizationRepository.create_migrated(toCreate).flatMap(createdOrganization->RxJava2Adapter.completableToMono(Completable.mergeArrayDelayError(RxJava2Adapter.monoToCompletable(entrypointService.createDefaults_migrated(createdOrganization).ignoreElements().then()), RxJava2Adapter.monoToCompletable(roleService.createDefaultRoles_migrated(createdOrganization.getId())))).then(Mono.just(createdOrganization))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(organization -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(organization).principal(owner)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(toCreate).principal(owner).throwable(throwable))));
+        return organizationRepository.create_migrated(toCreate).flatMap(createdOrganization->RxJava2Adapter.completableToMono(Completable.mergeArrayDelayError(RxJava2Adapter.monoToCompletable(entrypointService.createDefaults_migrated(createdOrganization).ignoreElements().then()), RxJava2Adapter.monoToCompletable(roleService.createDefaultRoles_migrated(createdOrganization.getId())))).then(Mono.just(createdOrganization))).doOnSuccess(organization -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(organization).principal(owner))).doOnError(throwable -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_CREATED).organization(toCreate).principal(owner).throwable(throwable)));
     }
 
     
@@ -160,6 +160,6 @@ private Mono<Organization> updateInternal_migrated(Organization organization, Us
 
         organization.setUpdatedAt(new Date());
 
-        return organizationRepository.update_migrated(organization).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(updated -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_UPDATED).organization(updated).principal(updatedBy).oldValue(previous)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_UPDATED).organization(previous).principal(updatedBy).throwable(throwable))));
+        return organizationRepository.update_migrated(organization).doOnSuccess(updated -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_UPDATED).organization(updated).principal(updatedBy).oldValue(previous))).doOnError(throwable -> auditService.report(AuditBuilder.builder(OrganizationAuditBuilder.class).type(EventType.ORGANIZATION_UPDATED).organization(previous).principal(updatedBy).throwable(throwable)));
     }
 }

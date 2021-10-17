@@ -64,7 +64,7 @@ public class TokenManagerImpl extends AbstractService implements TokenManager {
                         flushInterval,
                         TimeUnit.SECONDS,
                         bulkActions
-                )).filter(RxJavaReactorMigrationUtil.toJdkPredicate(accessTokens -> accessTokens != null && !accessTokens.isEmpty())))
+                )).filter(accessTokens -> accessTokens != null && !accessTokens.isEmpty()))
                 .subscribe(new AccessTokenBulkProcessor(accessTokenRepository));
 
         // init bulk processors
@@ -75,7 +75,7 @@ public class TokenManagerImpl extends AbstractService implements TokenManager {
                         flushInterval,
                         TimeUnit.SECONDS,
                         bulkActions
-                )).filter(RxJavaReactorMigrationUtil.toJdkPredicate(refreshTokens -> refreshTokens != null && !refreshTokens.isEmpty())))
+                )).filter(refreshTokens -> refreshTokens != null && !refreshTokens.isEmpty()))
                 .subscribe(new RefreshTokenBulkProcessor(refreshTokenRepository));
     }
 

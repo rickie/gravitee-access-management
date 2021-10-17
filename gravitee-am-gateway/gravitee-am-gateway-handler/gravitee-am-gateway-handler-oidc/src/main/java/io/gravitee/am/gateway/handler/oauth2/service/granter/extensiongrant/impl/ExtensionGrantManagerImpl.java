@@ -97,7 +97,7 @@ public class ExtensionGrantManagerImpl extends AbstractService implements Extens
                             minDate = minDate == null ? extensionGrant.getCreatedAt() : minDate.after(extensionGrant.getCreatedAt()) ? extensionGrant.getCreatedAt() : minDate;
                             updateExtensionGrantProvider(extensionGrant);
                             logger.info("Extension grants loaded for domain {}", domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize extension grants for domain {}", domain.getName(), error)));
+                        }), error -> logger.error("Unable to initialize extension grants for domain {}", domain.getName(), error));
 
         logger.info("Register event listener for extension grant events for domain {}", domain.getName());
         eventManager.subscribeForEvents(this, ExtensionGrantEvent.class, domain.getId());
@@ -136,7 +136,7 @@ public class ExtensionGrantManagerImpl extends AbstractService implements Extens
                             }
                             updateExtensionGrantProvider(extensionGrant);
                             logger.info("Extension grant {} {}d for domain {}", extensionGrantId, eventType, domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} extension grant for domain {}", eventType, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No extension grant found with id {}", extensionGrantId)));
+                        }), error -> logger.error("Unable to {} extension grant for domain {}", eventType, domain.getName(), error), () -> logger.error("No extension grant found with id {}", extensionGrantId));
     }
 
     private void removeExtensionGrant(String extensionGrantId) {

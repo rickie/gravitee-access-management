@@ -64,6 +64,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.StringUtils;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -114,7 +115,7 @@ public class UserServiceImpl implements UserService {
 }
 @Override
     public Mono<UserToken> verifyToken_migrated(String token) {
-        return Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> jwtParser.parse(token))).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<UserToken>>toJdkFunction(jwt -> {
+        return Mono.fromSupplier(() -> jwtParser.parse(token)).flatMap(v->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<JWT, MaybeSource<UserToken>>toJdkFunction(jwt -> {
                     return RxJava2Adapter.monoToMaybe(userService.findById_migrated(jwt.getSub()).zipWith(RxJava2Adapter.maybeToMono(Maybe.wrap(clientSource(jwt.getAud()))), RxJavaReactorMigrationUtil.toJdkBiFunction((user, optionalClient) -> {
                                 return new UserToken(user, optionalClient.orElse(null), jwt);
                             })));
@@ -171,7 +172,7 @@ public class UserServiceImpl implements UserService {
                             final User user1 = registrationResponse.getUser();
                             io.gravitee.am.identityprovider.api.User principal1 = reloadPrincipal(principal, user1);
                             auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(client).principal(principal1).type(EventType.USER_REGISTERED));
-                        })).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_REGISTERED).throwable(throwable)))));
+                        })).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_REGISTERED).throwable(throwable))));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.confirmRegistration_migrated(client, user, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -214,7 +215,7 @@ public class UserServiceImpl implements UserService {
                 }).apply(v)))).flatMap(userService::enhance_migrated).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> {
                     AccountSettings accountSettings = AccountSettings.getInstance(domain, client);
                     return new RegistrationResponse(user1, accountSettings != null ? accountSettings.getRedirectUriAfterRegistration() : null, accountSettings != null ? accountSettings.isAutoLoginAfterRegistration() : false);
-                })).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(response -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.REGISTRATION_CONFIRMATION)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.REGISTRATION_CONFIRMATION).throwable(throwable))));
+                })).doOnSuccess(response -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.REGISTRATION_CONFIRMATION))).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.REGISTRATION_CONFIRMATION).throwable(throwable)));
 
     }
 
@@ -283,7 +284,7 @@ public class UserServiceImpl implements UserService {
                         return RxJava2Adapter.monoToSingle(credentialService.deleteByUserId_migrated(user1.getReferenceType(), user1.getReferenceId(), user1.getId()).then(Mono.just(user1)));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(user1));
-                }).apply(v)))).flatMap(userService::enhance_migrated).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> new ResetPasswordResponse(user1, accountSettings != null ? accountSettings.getRedirectUriAfterResetPassword() : null, accountSettings != null ? accountSettings.isAutoLoginAfterResetPassword() : false))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(response -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_PASSWORD_RESET)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_PASSWORD_RESET).throwable(throwable))));
+                }).apply(v)))).flatMap(userService::enhance_migrated).map(RxJavaReactorMigrationUtil.toJdkFunction(user1 -> new ResetPasswordResponse(user1, accountSettings != null ? accountSettings.getRedirectUriAfterResetPassword() : null, accountSettings != null ? accountSettings.isAutoLoginAfterResetPassword() : false))).doOnSuccess(response -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_PASSWORD_RESET))).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(user.getClient()).principal(principal).type(EventType.USER_PASSWORD_RESET).throwable(throwable)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.forgotPassword_migrated(params, client, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -362,7 +363,7 @@ public class UserServiceImpl implements UserService {
 
                     // Single field search using email or username with IdP linked to the clientApp
                     // email used in priority for backward compatibility
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(client.getIdentities())
+                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(client.getIdentities()))
                             .flatMapMaybe(authProvider -> {
                                 return RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(authProvider).flatMap(a->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.<UserProvider, MaybeSource<Optional<UserAuthentication>>>toJdkFunction(userProvider -> {
                                             final String username = params.getUsername();
@@ -388,11 +389,11 @@ public class UserServiceImpl implements UserService {
                                         });
                             }).apply(a)))))
                             .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.error(new UserNotFoundException(email != null ? email : params.getUsername()))));
-                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> new Thread(() -> emailService.send(Template.RESET_PASSWORD, user, client)).start())).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> {
+                }).apply(v)))).doOnSuccess(user -> new Thread(() -> emailService.send(Template.RESET_PASSWORD, user, client)).start()).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> {
                     // reload principal
                     io.gravitee.am.identityprovider.api.User principal1 = reloadPrincipal(principal, user1);
                     auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(client).principal(principal1).type(EventType.FORGOT_PASSWORD_REQUESTED));
-                })).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(client).principal(principal).type(EventType.FORGOT_PASSWORD_REQUESTED).throwable(throwable)))).then();
+                })).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).domain(domain.getId()).client(client).principal(principal).type(EventType.FORGOT_PASSWORD_REQUESTED).throwable(throwable))).then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.addFactor_migrated(userId, enrolledFactor, principal))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

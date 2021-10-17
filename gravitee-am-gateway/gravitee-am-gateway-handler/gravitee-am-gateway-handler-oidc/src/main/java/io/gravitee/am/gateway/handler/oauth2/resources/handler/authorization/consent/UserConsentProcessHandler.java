@@ -106,7 +106,7 @@ public class UserConsentProcessHandler implements Handler<RoutingContext> {
     }
 
     private void saveConsent(HttpServerRequest request, io.gravitee.am.model.User endUser, Client client, List<ScopeApproval> approvals, Handler<AsyncResult<List<ScopeApproval>>> handler) {
-        userConsentService.saveConsent_migrated(client, approvals, getAuthenticatedUser(request, endUser)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(approvals1 -> handler.handle(Future.succeededFuture(approvals1))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+        userConsentService.saveConsent_migrated(client, approvals, getAuthenticatedUser(request, endUser)).subscribe(approvals1 -> handler.handle(Future.succeededFuture(approvals1)), error -> handler.handle(Future.failedFuture(error)));
     }
 
     private io.gravitee.am.identityprovider.api.User getAuthenticatedUser(HttpServerRequest request, io.gravitee.am.model.User user) {

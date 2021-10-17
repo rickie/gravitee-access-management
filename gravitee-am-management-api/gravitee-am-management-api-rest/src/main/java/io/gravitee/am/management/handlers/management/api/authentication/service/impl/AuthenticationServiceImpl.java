@@ -108,8 +108,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         return RxJava2Adapter.monoToSingle(userService.create_migrated(newUser).flatMap(user->userService.setRoles_migrated(principal, user).then(Mono.just(user))));
                     }
                     return RxJava2Adapter.monoToSingle(Mono.error(ex));
-                }).apply(err))).flatMap(userService::enhance_migrated).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user -> auditService.report(AuditBuilder.builder(AuthenticationAuditBuilder.class).principal(authentication).referenceType(ReferenceType.ORGANIZATION)
-                        .referenceId(organizationId).user(user)))).block();
+                }).apply(err))).flatMap(userService::enhance_migrated).doOnSuccess(user -> auditService.report(AuditBuilder.builder(AuthenticationAuditBuilder.class).principal(authentication).referenceType(ReferenceType.ORGANIZATION)
+                        .referenceId(organizationId).user(user))).block();
 
         principal.setId(endUser.getId());
         principal.setUsername(endUser.getUsername());
@@ -148,7 +148,7 @@ private Mono<Void> updateRoles_migrated(User principal, io.gravitee.am.model.Use
         final String roleId = principal.getRoles().get(0);
 
         // update membership if necessary
-        return membershipService.findByMember_migrated(existingUser.getId(), MemberType.USER).filter(RxJavaReactorMigrationUtil.toJdkPredicate(membership -> ReferenceType.ORGANIZATION == membership.getReferenceType())).next().map(RxJavaReactorMigrationUtil.toJdkFunction(membership -> !membership.getRoleId().equals(roleId))).switchIfEmpty(Mono.just(false)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)mustChangeOrganizationRole -> {
+        return membershipService.findByMember_migrated(existingUser.getId(), MemberType.USER).filter(membership -> ReferenceType.ORGANIZATION == membership.getReferenceType()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(membership -> !membership.getRoleId().equals(roleId))).switchIfEmpty(Mono.just(false)).flatMap(y->RxJava2Adapter.completableToMono(Completable.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, CompletableSource>)mustChangeOrganizationRole -> {
 
                     if (!mustChangeOrganizationRole) {
                         return RxJava2Adapter.monoToCompletable(Mono.empty());

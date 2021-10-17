@@ -163,7 +163,7 @@ public Mono<User> createGraviteeUser_migrated(Organization organization, NewUser
                                     userToPersist.setReferenceId(organization.getId());
                                     userToPersist.setReferenceType(ReferenceType.ORGANIZATION);
 
-                                    return RxJava2Adapter.monoToSingle(userValidator.validate_migrated(userToPersist).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).throwable(throwable)))).then(userProvider.create_migrated(convert(newUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(idpUser -> {
+                                    return RxJava2Adapter.monoToSingle(userValidator.validate_migrated(userToPersist).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).throwable(throwable))).then(userProvider.create_migrated(convert(newUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(idpUser -> {
                                                 // Excepted for GraviteeIDP that manage Organization Users
                                                 // AM 'users' collection is not made for authentication (but only management stuff)
                                                 userToPersist.setPassword(PWD_ENCODER.encode(newUser.getPassword()));
@@ -173,7 +173,7 @@ public Mono<User> createGraviteeUser_migrated(Organization organization, NewUser
                                                 userToPersist.setExternalId(userToPersist.getId());
                                                 return userToPersist;
                                             })).flatMap(a->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(newOrgUser -> {
-                                                return RxJava2Adapter.monoToSingle(userService.create_migrated(newOrgUser).flatMap(newlyCreatedUser->userService.setRoles_migrated(newlyCreatedUser).then(Mono.just(newlyCreatedUser))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).user(user1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).throwable(throwable)))));
+                                                return RxJava2Adapter.monoToSingle(userService.create_migrated(newOrgUser).flatMap(newlyCreatedUser->userService.setRoles_migrated(newlyCreatedUser).then(Mono.just(newlyCreatedUser))).doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).user(user1))).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_CREATED).throwable(throwable))));
                                             }).apply(a)))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::setInternalStatus))));
                                 });
 
@@ -199,6 +199,6 @@ public Mono<Void> resetPassword_migrated(String organizationId, User user, Strin
         user.setLastPasswordReset(new Date());
         user.setUpdatedAt(new Date());
         user.setPassword(PWD_ENCODER.encode(password));
-        return userService.update_migrated(user).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_PASSWORD_RESET).user(user)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_PASSWORD_RESET).throwable(throwable)))).then();
+        return userService.update_migrated(user).doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_PASSWORD_RESET).user(user))).doOnError(throwable -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).principal(principal).type(EventType.USER_PASSWORD_RESET).throwable(throwable))).then();
     }
 }

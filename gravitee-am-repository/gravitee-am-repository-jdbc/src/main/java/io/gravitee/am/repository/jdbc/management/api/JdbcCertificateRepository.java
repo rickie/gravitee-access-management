@@ -104,7 +104,7 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
 @Override
     public Mono<Certificate> findById_migrated(String id) {
         LOGGER.debug("findById({})", id);
-        return RxJava2Adapter.maybeToMono(this.certificateRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to retrieve Certificate with id {}", id, error)));
+        return RxJava2Adapter.maybeToMono(this.certificateRepository.findById(id)).map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)).doOnError(error -> LOGGER.error("Unable to retrieve Certificate with id {}", id, error));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -132,7 +132,7 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
 
         Mono<Integer> action = insertSpec.fetch().rowsUpdated();
 
-        return action.flatMap(i->this.findById_migrated(item.getId()).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to create certificate with id {}", item.getId(), error)));
+        return action.flatMap(i->this.findById_migrated(item.getId()).single()).doOnError((error) -> LOGGER.error("unable to create certificate with id {}", item.getId(), error));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -159,7 +159,7 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
 
         Mono<Integer> action = updatedSpec.using(Update.from(updateFields)).matching(from(where("id").is(item.getId()))).fetch().rowsUpdated();
 
-        return action.flatMap(i->this.findById_migrated(item.getId()).single()).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.error("unable to update certificate with id {}", item.getId(), error)));
+        return action.flatMap(i->this.findById_migrated(item.getId()).single()).doOnError((error) -> LOGGER.error("unable to update certificate with id {}", item.getId(), error));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -171,6 +171,6 @@ public class JdbcCertificateRepository extends AbstractJdbcRepository implements
 @Override
     public Mono<Void> delete_migrated(String id) {
         LOGGER.debug("delete({})", id);
-        return this.certificateRepository.deleteById(id).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(error -> LOGGER.error("Unable to delete Certificate with id {}", id, error)));
+        return this.certificateRepository.deleteById(id).as(RxJava2Adapter::completableToMono).doOnError(error -> LOGGER.error("Unable to delete Certificate with id {}", id, error));
     }
 }

@@ -25,6 +25,7 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
 /**
@@ -44,7 +45,7 @@ public class MongodbRepositoriesTestInitializer implements RepositoriesTestIniti
 
     @Override
     public void after(Class testClass) throws Exception {
-        RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(Observable.fromPublisher(mongoDatabase.listCollectionNames()), BackpressureStrategy.BUFFER).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<String, ObservableSource<DeleteResult>>toJdkFunction(collectionName -> Observable.fromPublisher(mongoDatabase.getCollection(collectionName).deleteMany(new Document()))).apply(z)), BackpressureStrategy.BUFFER)))
+        RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(mongoDatabase.listCollectionNames())), BackpressureStrategy.BUFFER).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<String, ObservableSource<DeleteResult>>toJdkFunction(collectionName -> RxJava2Adapter.fluxToObservable(Flux.from(mongoDatabase.getCollection(collectionName).deleteMany(new Document())))).apply(z)), BackpressureStrategy.BUFFER)))
                 .blockingSubscribe();
     }
 }

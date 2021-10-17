@@ -159,7 +159,7 @@ public class AuditReporterManagerImpl extends AbstractService implements AuditRe
                         RxJava2Adapter.monoToSingle(environmentService.findById_migrated(domain.getReferenceId()).map(RxJavaReactorMigrationUtil.toJdkFunction(env -> new GraviteeContext(env.getOrganizationId(), env.getId(), domain.getId()))).map(RxJavaReactorMigrationUtil.toJdkFunction(ctx -> Tuples.of(reporter, ctx)))))).subscribeOn(Schedulers.boundedElastic()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(tupleReporterContext -> {
                             updateReporterProvider(tupleReporterContext.getT1(), tupleReporterContext.getT2());
                             logger.info("Reporter {} {}d for domain {}", reporterId, eventType, domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} reporter for domain {}", eventType, domain.getName(), error)));
+                        }), error -> logger.error("Unable to {} reporter for domain {}", eventType, domain.getName(), error));
     }
 
     private void deployReporter(String reporterId, ReporterEvent reporterEvent) {
@@ -174,7 +174,7 @@ public class AuditReporterManagerImpl extends AbstractService implements AuditRe
                                 startReporterProvider(tupleReporterContext.getT1(), tupleReporterContext.getT2());
                             }
                             logger.info("Reporter {} {}d for domain {}", reporterId, eventType, domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} reporter for domain {}", eventType, domain.getName(), error)));
+                        }), error -> logger.error("Unable to {} reporter for domain {}", eventType, domain.getName(), error));
     }
 
     private void removeReporter(String reporterId) {

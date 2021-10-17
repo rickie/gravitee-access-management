@@ -98,7 +98,7 @@ public class AuthorizationEndpoint implements Handler<RoutingContext> {
                                 logger.error("Unable to redirect to client redirect_uri", e);
                                 context.fail(new ServerErrorException());
                             }
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                        }), context::fail);
 
     }
 

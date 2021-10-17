@@ -38,6 +38,7 @@ import javax.annotation.PostConstruct;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -69,7 +70,7 @@ public class MongoPermissionTicketRepository extends AbstractManagementMongoRepo
 }
 @Override
     public Mono<PermissionTicket> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(permissionTicketCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(permissionTicketCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(ticket))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -82,7 +83,7 @@ public class MongoPermissionTicketRepository extends AbstractManagementMongoRepo
     public Mono<PermissionTicket> create_migrated(PermissionTicket ticket) {
         PermissionTicketMongo permissionTicket = convert(ticket);
         permissionTicket.setId(permissionTicket.getId() == null ? RandomString.generate() : permissionTicket.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(permissionTicketCollection.insertOne(permissionTicket))).flatMap(success->findById_migrated(permissionTicket.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(permissionTicketCollection.insertOne(permissionTicket)))).flatMap(success->findById_migrated(permissionTicket.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(ticket))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -94,7 +95,7 @@ public class MongoPermissionTicketRepository extends AbstractManagementMongoRepo
 @Override
     public Mono<PermissionTicket> update_migrated(PermissionTicket ticket) {
         PermissionTicketMongo permissionTicket = convert(ticket);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(permissionTicketCollection.replaceOne(eq(FIELD_ID, permissionTicket.getId()), permissionTicket))).flatMap(success->findById_migrated(permissionTicket.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(permissionTicketCollection.replaceOne(eq(FIELD_ID, permissionTicket.getId()), permissionTicket)))).flatMap(success->findById_migrated(permissionTicket.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

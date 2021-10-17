@@ -28,7 +28,6 @@ import io.gravitee.am.service.ResourceService;
 import io.gravitee.am.service.exception.ApplicationNotFoundException;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.common.http.MediaType;
-
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
@@ -40,11 +39,11 @@ import java.util.List;
 import javax.ws.rs.*;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.ResourceContext;
-
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -90,7 +89,7 @@ public class ApplicationResourcesResource extends AbstractResource {
 
         checkAnyPermission_migrated(organizationId, environmentId, domain, application, Permission.APPLICATION_RESOURCE, Acl.LIST).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))).flatMap(z->applicationService.findById_migrated(application)).switchIfEmpty(Mono.error(new ApplicationNotFoundException(application))))
                         .flatMapSingle(application1 -> RxJava2Adapter.monoToSingle(resourceService.findByDomainAndClient_migrated(domain, application1.getId(), page, Integer.min(MAX_RESOURCES_SIZE_PER_PAGE, size))))).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Page<Resource>, SingleSource<Page>>toJdkFunction(pagedResources -> {
-                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(pagedResources.getData())
+                            return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(pagedResources.getData()))
                                     .flatMapSingle(r -> RxJava2Adapter.monoToSingle(resourceService.countAccessPolicyByResource_migrated(r.getId()).map(RxJavaReactorMigrationUtil.toJdkFunction(policies -> {
                                                 ResourceEntity resourceEntity = new ResourceEntity(r);
                                                 resourceEntity.setPolicies(policies);

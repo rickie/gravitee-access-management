@@ -116,7 +116,7 @@ public class MongoCredentialRepository extends AbstractManagementMongoRepository
 }
 @Override
     public Mono<Credential> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(credentialsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(credentialsCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -129,7 +129,7 @@ public class MongoCredentialRepository extends AbstractManagementMongoRepository
     public Mono<Credential> create_migrated(Credential item) {
         CredentialMongo credential = convert(item);
         credential.setId(credential.getId() == null ? RandomString.generate() : credential.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(credentialsCollection.insertOne(credential))).flatMap(success->findById_migrated(credential.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(credentialsCollection.insertOne(credential)))).flatMap(success->findById_migrated(credential.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -141,7 +141,7 @@ public class MongoCredentialRepository extends AbstractManagementMongoRepository
 @Override
     public Mono<Credential> update_migrated(Credential item) {
         CredentialMongo credential = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(credentialsCollection.replaceOne(eq(FIELD_ID, credential.getId()), credential))).flatMap(updateResult->findById_migrated(credential.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(credentialsCollection.replaceOne(eq(FIELD_ID, credential.getId()), credential)))).flatMap(updateResult->findById_migrated(credential.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

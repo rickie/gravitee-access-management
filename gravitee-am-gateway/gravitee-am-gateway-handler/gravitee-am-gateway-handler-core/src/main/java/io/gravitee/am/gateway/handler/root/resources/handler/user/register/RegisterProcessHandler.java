@@ -79,7 +79,7 @@ public class RegisterProcessHandler extends UserRequestHandler {
     }
 
     private void register(Client client, User user, io.gravitee.am.identityprovider.api.User principal, Handler<AsyncResult<RegistrationResponse>> handler) {
-        userService.register_migrated(client, user, principal).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response -> handler.handle(Future.succeededFuture(response))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+        userService.register_migrated(client, user, principal).subscribe(response -> handler.handle(Future.succeededFuture(response)), error -> handler.handle(Future.failedFuture(error)));
     }
 
     @Override

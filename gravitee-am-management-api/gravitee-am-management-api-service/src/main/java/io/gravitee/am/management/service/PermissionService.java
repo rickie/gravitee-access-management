@@ -139,7 +139,7 @@ protected Mono<Boolean> haveConsistentReferenceIds_migrated(PermissionAcls permi
                 obs.add(RxJava2Adapter.monoToSingle(isEnvironmentIdConsistent_migrated(environmentId, organizationId)));
             }
 
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Single.merge(obs)).all(RxJavaReactorMigrationUtil.toJdkPredicate(consistent -> consistent)))
+            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.flowableToFlux(Single.merge(obs)).all(consistent -> consistent))
                     .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.just(false)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(consistent -> consistencyCache.put(key, consistent)));
         } catch (Exception e){
             return Mono.just(false);

@@ -61,7 +61,7 @@ public class FormManagerImpl extends AbstractService implements FormManager, Ini
     @Override
     public void afterPropertiesSet() {
         logger.info("Initializing forms for domain {}", domain.getName());
-        formRepository.findAll_migrated(ReferenceType.DOMAIN, domain.getId()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::updateForm), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to initialize forms for domain {}", domain.getName(), error)));
+        formRepository.findAll_migrated(ReferenceType.DOMAIN, domain.getId()).subscribe(this::updateForm, error -> logger.error("Unable to initialize forms for domain {}", domain.getName(), error));
     }
 
     @Override
@@ -106,7 +106,7 @@ public class FormManagerImpl extends AbstractService implements FormManager, Ini
                                 updateForm(form);
                             }
                             logger.info("Form {} {}d for domain {}", formId, eventType, domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to {} form for domain {}", eventType, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No form found with id {}", formId)));
+                        }), error -> logger.error("Unable to {} form for domain {}", eventType, domain.getName(), error), () -> logger.error("No form found with id {}", formId));
     }
 
     private void removeForm(String formId) {

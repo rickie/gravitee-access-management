@@ -361,7 +361,7 @@ public class IdentityProviderManagerImpl extends AbstractService<IdentityProvide
 
     private void deployUserProvider(String identityProviderId) {
         logger.info("Management API has received a deploy identity provider event for {}", identityProviderId);
-        identityProviderService.findById_migrated(identityProviderId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(this::loadUserProvider), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("Unable to deploy user provider  {}", identityProviderId, error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No identity provider found with id {}", identityProviderId)));
+        identityProviderService.findById_migrated(identityProviderId).subscribe(this::loadUserProvider, error -> logger.error("Unable to deploy user provider  {}", identityProviderId, error), () -> logger.error("No identity provider found with id {}", identityProviderId));
     }
 
     private void removeUserProvider(String identityProviderId) {

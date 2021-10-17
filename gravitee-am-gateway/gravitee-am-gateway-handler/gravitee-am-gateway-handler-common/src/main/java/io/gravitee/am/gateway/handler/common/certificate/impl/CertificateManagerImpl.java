@@ -104,7 +104,7 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
                             certificateProviderManager.create(certificate);
                             certificates.put(certificate.getId(), certificate);
                             logger.info("Certificate {} loaded for domain {}", certificate.getName(), domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("An error has occurred when loading certificates for domain {}", domain.getName(), error)));
+                        }), error -> logger.error("An error has occurred when loading certificates for domain {}", domain.getName(), error));
     }
 
     @Override
@@ -219,7 +219,7 @@ public class CertificateManagerImpl extends AbstractService implements Certifica
                                 logger.error("Unable to load certificate {} for domain {}", certificate.getName(), certificate.getDomain(), ex);
                                 certificates.remove(certificateId, certificate);
                             }
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("An error has occurred when loading certificate {} for domain {}", certificateId, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No certificate found with id {}", certificateId)));
+                        }), error -> logger.error("An error has occurred when loading certificate {} for domain {}", certificateId, domain.getName(), error), () -> logger.error("No certificate found with id {}", certificateId));
     }
 
     private void removeCertificate(String certificateId) {

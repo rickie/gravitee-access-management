@@ -157,22 +157,20 @@ public abstract class AbstractUserRepository<T extends UserMongo>
   public Mono<Page<User>> findAll_migrated(
       ReferenceType referenceType, String referenceId, int page, int size) {
     Single<Long> countOperation =
-        Observable.fromPublisher(
-                usersCollection.countDocuments(
+        RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.countDocuments(
                     and(
                         eq(FIELD_REFERENCE_TYPE, referenceType.name()),
-                        eq(FIELD_REFERENCE_ID, referenceId))))
+                        eq(FIELD_REFERENCE_ID, referenceId)))))
             .first(0l);
     Single<Set<User>> usersOperation =
-        Observable.fromPublisher(
-                usersCollection
+        RxJava2Adapter.fluxToObservable(Flux.from(usersCollection
                     .find(
                         and(
                             eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                             eq(FIELD_REFERENCE_ID, referenceId)))
                     .sort(new BasicDBObject(FIELD_USERNAME, 1))
                     .skip(size * page)
-                    .limit(size))
+                    .limit(size)))
             .map(this::convert)
             .collect(LinkedHashSet::new, Set::add);
     return RxJava2Adapter.singleToMono(
@@ -226,9 +224,9 @@ public abstract class AbstractUserRepository<T extends UserMongo>
             searchQuery);
 
     Single<Long> countOperation =
-        Observable.fromPublisher(usersCollection.countDocuments(mongoQuery)).first(0l);
+        RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.countDocuments(mongoQuery))).first(0l);
     Single<Set<User>> usersOperation =
-        Observable.fromPublisher(usersCollection.find(mongoQuery).skip(size * page).limit(size))
+        RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.find(mongoQuery).skip(size * page).limit(size)))
             .map(this::convert)
             .collect(LinkedHashSet::new, Set::add);
     return RxJava2Adapter.singleToMono(
@@ -268,9 +266,9 @@ public abstract class AbstractUserRepository<T extends UserMongo>
               searchQuery);
 
       Single<Long> countOperation =
-          Observable.fromPublisher(usersCollection.countDocuments(mongoQuery)).first(0l);
+          RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.countDocuments(mongoQuery))).first(0l);
       Single<Set<User>> usersOperation =
-          Observable.fromPublisher(usersCollection.find(mongoQuery).skip(size * page).limit(size))
+          RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.find(mongoQuery).skip(size * page).limit(size)))
               .map(this::convert)
               .collect(LinkedHashSet::new, Set::add);
       return RxJava2Adapter.singleToMono(
@@ -303,8 +301,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
   public Mono<User> findByUsernameAndSource_migrated(
       ReferenceType referenceType, String referenceId, String username, String source) {
     return RxJava2Adapter.observableToFlux(
-            Observable.fromPublisher(
-                usersCollection
+            RxJava2Adapter.fluxToObservable(Flux.from(usersCollection
                     .find(
                         and(
                             eq(FIELD_REFERENCE_TYPE, referenceType.name()),
@@ -312,7 +309,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
                             eq(FIELD_USERNAME, username),
                             eq(FIELD_SOURCE, source)))
                     .limit(1)
-                    .first()),
+                    .first())),
             BackpressureStrategy.BUFFER)
         .next()
         .map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
@@ -334,8 +331,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
   public Mono<User> findByExternalIdAndSource_migrated(
       ReferenceType referenceType, String referenceId, String externalId, String source) {
     return RxJava2Adapter.observableToFlux(
-            Observable.fromPublisher(
-                usersCollection
+            RxJava2Adapter.fluxToObservable(Flux.from(usersCollection
                     .find(
                         and(
                             eq(FIELD_REFERENCE_TYPE, referenceType.name()),
@@ -343,7 +339,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
                             eq(FIELD_EXTERNAL_ID, externalId),
                             eq(FIELD_SOURCE, source)))
                     .limit(1)
-                    .first()),
+                    .first())),
             BackpressureStrategy.BUFFER)
         .next()
         .map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
@@ -378,14 +374,13 @@ public abstract class AbstractUserRepository<T extends UserMongo>
   public Mono<User> findById_migrated(
       ReferenceType referenceType, String referenceId, String userId) {
     return RxJava2Adapter.observableToFlux(
-            Observable.fromPublisher(
-                usersCollection
+            RxJava2Adapter.fluxToObservable(Flux.from(usersCollection
                     .find(
                         and(
                             eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                             eq(FIELD_REFERENCE_ID, referenceId),
                             eq(FIELD_ID, userId)))
-                    .first()),
+                    .first())),
             BackpressureStrategy.BUFFER)
         .next()
         .map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
@@ -403,7 +398,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
   @Override
   public Mono<User> findById_migrated(String userId) {
     return RxJava2Adapter.observableToFlux(
-            Observable.fromPublisher(usersCollection.find(eq(FIELD_ID, userId)).first()),
+            RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.find(eq(FIELD_ID, userId)).first())),
             BackpressureStrategy.BUFFER)
         .next()
         .map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
@@ -422,7 +417,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
   public Mono<User> create_migrated(User item) {
     UserMongo user = convert(item);
     user.setId(user.getId() == null ? RandomString.generate() : user.getId());
-    return RxJava2Adapter.singleToMono(Single.fromPublisher(usersCollection.insertOne((T) user)))
+    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(usersCollection.insertOne((T) user))))
         .flatMap(
             success ->
                 findById_migrated(user.getId())
@@ -442,7 +437,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
   public Mono<User> update_migrated(User item) {
     UserMongo user = convert(item);
     return RxJava2Adapter.singleToMono(
-            Single.fromPublisher(usersCollection.replaceOne(eq(FIELD_ID, user.getId()), (T) user)))
+            RxJava2Adapter.monoToSingle(Mono.from(usersCollection.replaceOne(eq(FIELD_ID, user.getId()), (T) user))))
         .flatMap(
             updateResult ->
                 findById_migrated(user.getId())

@@ -151,7 +151,7 @@ return RxJava2Adapter.monoToMaybe(update_migrated(z, idpUser, false).flatMap(use
                         new Thread(() -> emailService.send(Template.BLOCKED_ACCOUNT, user1, client)).start();
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(user));
-                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).type(EventType.USER_LOCKED).domain(criteria.domain()).client(criteria.client()).principal(null).user(user1)))).then();
+                }).apply(v)))).doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).type(EventType.USER_LOCKED).domain(criteria.domain()).client(criteria.client()).principal(null).user(user1))).then();
     }
 
     

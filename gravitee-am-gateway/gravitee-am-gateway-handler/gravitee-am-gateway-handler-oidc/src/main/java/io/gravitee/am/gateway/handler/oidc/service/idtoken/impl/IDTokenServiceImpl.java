@@ -101,7 +101,7 @@ public class IDTokenServiceImpl implements IDTokenService {
 @Override
     public Mono<String> create_migrated(OAuth2Request oAuth2Request, Client client, User user, ExecutionContext executionContext) {
         // use or create execution context
-        return Mono.fromSupplier(RxJavaReactorMigrationUtil.callableAsSupplier(() -> executionContext != null ? executionContext : createExecution(oAuth2Request, client, user))).flatMap(v->RxJava2Adapter.singleToMono((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<ExecutionContext, Single<String>>)executionContext1 -> {
+        return Mono.fromSupplier(() -> executionContext != null ? executionContext : createExecution(oAuth2Request, client, user)).flatMap(v->RxJava2Adapter.singleToMono((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<ExecutionContext, Single<String>>)executionContext1 -> {
                     // create JWT ID Token
                     IDToken idToken = createIDTokenJWT(oAuth2Request, client, user, executionContext);
 

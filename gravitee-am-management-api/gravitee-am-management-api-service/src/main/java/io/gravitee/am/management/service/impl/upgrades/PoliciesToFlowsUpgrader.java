@@ -17,7 +17,6 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.POLICY_FLOW_UPGRADER;
 
-
 import io.gravitee.am.common.policy.ExtensionPoint;
 import io.gravitee.am.management.service.PolicyPluginService;
 import io.gravitee.am.model.Policy;
@@ -43,6 +42,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -113,9 +113,9 @@ private Mono<Void> migrateToFlows_migrated(List<Policy> policies, String domain)
             }
         }
 
-        return Observable.fromIterable(flows.values())
+        return RxJava2Adapter.fluxToObservable(Flux.fromIterable(flows.values()))
                 .flatMapCompletable(flow -> RxJava2Adapter.monoToSingle(flowService.create_migrated(ReferenceType.DOMAIN, domain, flow)).toCompletable())
-                .doOnComplete(() -> LOGGER.info("Policies migrated to flows for domain {}", domain)).as(RxJava2Adapter::completableToMono).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((error) -> LOGGER.info("Error during policies migration for domain {}", domain, error)));
+                .doOnComplete(() -> LOGGER.info("Policies migrated to flows for domain {}", domain)).as(RxJava2Adapter::completableToMono).doOnError((error) -> LOGGER.info("Error during policies migration for domain {}", domain, error));
     }
 
     private Step createStep(Policy policy) {

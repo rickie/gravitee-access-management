@@ -71,7 +71,7 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
 @Override
     public Mono<Organization> findById_migrated(String id) {
 
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(collection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(collection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(organization))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -85,7 +85,7 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
 
         organization.setId(organization.getId() == null ? RandomString.generate() : organization.getId());
 
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.insertOne(convert(organization)))).flatMap(success->findById_migrated(organization.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(collection.insertOne(convert(organization))))).flatMap(success->findById_migrated(organization.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(organization))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -97,7 +97,7 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
 @Override
     public Mono<Organization> update_migrated(Organization organization) {
 
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.replaceOne(eq(FIELD_ID, organization.getId()), convert(organization)))).flatMap(updateResult->findById_migrated(organization.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(collection.replaceOne(eq(FIELD_ID, organization.getId()), convert(organization))))).flatMap(updateResult->findById_migrated(organization.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -120,7 +120,7 @@ public class MongoOrganizationRepository extends AbstractManagementMongoReposito
 @Override
     public Mono<Long> count_migrated() {
 
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(collection.countDocuments()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(collection.countDocuments())));
     }
 
     private Organization convert(OrganizationMongo organizationMongo) {

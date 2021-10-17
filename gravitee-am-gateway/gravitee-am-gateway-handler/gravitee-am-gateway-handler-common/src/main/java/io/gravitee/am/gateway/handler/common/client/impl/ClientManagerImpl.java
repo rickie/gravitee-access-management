@@ -68,7 +68,7 @@ public class ClientManagerImpl extends AbstractService implements ClientManager,
                 .subscribeOn(Schedulers.io())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> {
                             clients.put(client.getId(), client);
                             logger.info("Application {} loaded for domain {}", client.getClientName(), domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("An error has occurred when loading applications for domain {}", domain.getName(), error)));
+                        }), error -> logger.error("An error has occurred when loading applications for domain {}", domain.getName(), error));
     }
 
     @Override
@@ -144,7 +144,7 @@ public class ClientManagerImpl extends AbstractService implements ClientManager,
                 .subscribeOn(Schedulers.io())).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> {
                             clients.put(client.getId(), client);
                             logger.info("Application {} loaded for domain {}", applicationId, domain.getName());
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(error -> logger.error("An error has occurred when loading application {} for domain {}", applicationId, domain.getName(), error)), RxJavaReactorMigrationUtil.toRunnable(() -> logger.error("No application found with id {}", applicationId)));
+                        }), error -> logger.error("An error has occurred when loading application {} for domain {}", applicationId, domain.getName(), error), () -> logger.error("No application found with id {}", applicationId));
     }
 
     private void removeClient(String applicationId) {

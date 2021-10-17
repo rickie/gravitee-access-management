@@ -66,8 +66,8 @@ public class MongoAccessPolicyRepository extends AbstractManagementMongoReposito
 }
 @Override
     public Mono<Page<AccessPolicy>> findByDomain_migrated(String domain, int page, int size) {
-        Single<Long> countOperation = Observable.fromPublisher(accessPoliciesCollection.countDocuments(eq(FIELD_DOMAIN, domain))).first(0l);
-        Single<List<AccessPolicy>> accessPoliciesOperation = Observable.fromPublisher(accessPoliciesCollection.find(eq(FIELD_DOMAIN, domain)).sort(new BasicDBObject(FIELD_UPDATED_AT, -1)).skip(size * page).limit(size)).map(this::convert).toList();
+        Single<Long> countOperation = RxJava2Adapter.fluxToObservable(Flux.from(accessPoliciesCollection.countDocuments(eq(FIELD_DOMAIN, domain)))).first(0l);
+        Single<List<AccessPolicy>> accessPoliciesOperation = RxJava2Adapter.fluxToObservable(Flux.from(accessPoliciesCollection.find(eq(FIELD_DOMAIN, domain)).sort(new BasicDBObject(FIELD_UPDATED_AT, -1)).skip(size * page).limit(size))).map(this::convert).toList();
         return RxJava2Adapter.singleToMono(Single.zip(countOperation, accessPoliciesOperation, (count, accessPolicies) -> new Page<>(accessPolicies, page, count)));
     }
 
@@ -101,7 +101,7 @@ public class MongoAccessPolicyRepository extends AbstractManagementMongoReposito
 }
 @Override
     public Mono<Long> countByResource_migrated(String resource) {
-        return RxJava2Adapter.singleToMono(Observable.fromPublisher(accessPoliciesCollection.countDocuments(eq(FIELD_RESOURCE, resource))).first(0l));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.from(accessPoliciesCollection.countDocuments(eq(FIELD_RESOURCE, resource)))).first(0l));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -112,7 +112,7 @@ public class MongoAccessPolicyRepository extends AbstractManagementMongoReposito
 }
 @Override
     public Mono<AccessPolicy> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(accessPoliciesCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(accessPoliciesCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -125,7 +125,7 @@ public class MongoAccessPolicyRepository extends AbstractManagementMongoReposito
     public Mono<AccessPolicy> create_migrated(AccessPolicy item) {
         AccessPolicyMongo accessPolicy = convert(item);
         accessPolicy.setId(accessPolicy.getId() == null ? RandomString.generate() : accessPolicy.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(accessPoliciesCollection.insertOne(accessPolicy))).flatMap(success->findById_migrated(accessPolicy.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(accessPoliciesCollection.insertOne(accessPolicy)))).flatMap(success->findById_migrated(accessPolicy.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -137,7 +137,7 @@ public class MongoAccessPolicyRepository extends AbstractManagementMongoReposito
 @Override
     public Mono<AccessPolicy> update_migrated(AccessPolicy item) {
         AccessPolicyMongo accessPolicy = convert(item);
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(accessPoliciesCollection.replaceOne(eq(FIELD_ID, accessPolicy.getId()), accessPolicy))).flatMap(success->findById_migrated(accessPolicy.getId()).single());
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(accessPoliciesCollection.replaceOne(eq(FIELD_ID, accessPolicy.getId()), accessPolicy)))).flatMap(success->findById_migrated(accessPolicy.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

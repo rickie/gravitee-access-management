@@ -83,7 +83,7 @@ public class UsersEndpoint extends AbstractUserEndpoint {
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                                .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(users))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(users))), context::fail);
     }
 
     /**
@@ -154,7 +154,7 @@ public class UsersEndpoint extends AbstractUserEndpoint {
                                     .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                     .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                     .putHeader(HttpHeaders.LOCATION, user1.getMeta().getLocation())
-                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user1))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                    .end(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(user1))), context::fail);
         } catch (DecodeException ex) {
             context.fail(new InvalidSyntaxException("Unable to parse body message", ex));
         }

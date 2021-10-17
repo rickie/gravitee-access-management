@@ -86,7 +86,7 @@ public class CertificatesResource extends AbstractResource {
             @Suspended final AsyncResponse response) {
 
         checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_CERTIFICATE, Acl.LIST).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
-                        .flatMapPublisher(__ -> certificateService.findByDomain_migrated(domain))).filter(RxJavaReactorMigrationUtil.toJdkPredicate(c -> {
+                        .flatMapPublisher(__ -> certificateService.findByDomain_migrated(domain))).filter(c -> {
                             if (!StringUtils.isEmpty(use)) {
                                 final JsonObject config = JsonObject.mapFrom(Json.decodeValue(c.getConfiguration(), HashMap.class));
                                 if (config != null && config.getJsonArray("use") != null) {
@@ -95,7 +95,7 @@ public class CertificatesResource extends AbstractResource {
                             }
                             // no value, return true as sig should be the default
                             return true;
-                        })).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterCertificateInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(sortedCertificates -> Response.ok(sortedCertificates).build()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                        }).map(RxJavaReactorMigrationUtil.toJdkFunction(this::filterCertificateInfos)).sort((o1, o2) -> String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName())).collectList().map(RxJavaReactorMigrationUtil.toJdkFunction(sortedCertificates -> Response.ok(sortedCertificates).build()))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @POST

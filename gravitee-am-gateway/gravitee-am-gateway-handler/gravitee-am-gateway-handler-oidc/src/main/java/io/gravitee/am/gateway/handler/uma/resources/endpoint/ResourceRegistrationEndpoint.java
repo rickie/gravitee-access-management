@@ -71,12 +71,12 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
 
         RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToFlowable(this.resourceService.listByDomainAndClientAndUser_migrated(domain.getId(), client.getId(), accessToken.getSub()).map(RxJavaReactorMigrationUtil.toJdkFunction(Resource::getId)))
-                .collect(JsonArray::new, JsonArray::add)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(buffer -> context.response()
+                .collect(JsonArray::new, JsonArray::add)).subscribe(buffer -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(buffer.isEmpty()?HttpStatusCode.NO_CONTENT_204:HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(buffer))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                .end(Json.encodePrettily(buffer)), context::fail);
     }
 
     public void create(RoutingContext context) {
@@ -93,7 +93,7 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
                                     .putHeader(HttpHeaders.LOCATION, resourceLocation)
                                     .setStatusCode(HttpStatusCode.CREATED_201)
                                     .end(Json.encodePrettily(ResourceResponse.from(resource, resourceLocation)));
-                        }), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                        }), context::fail);
     }
 
     public void get(RoutingContext context) {
@@ -101,12 +101,12 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String resource_id = context.request().getParam(RESOURCE_ID);
 
-        this.resourceService.findByDomainAndClientAndUserAndResource_migrated(domain.getId(), client.getId(), accessToken.getSub(), resource_id).switchIfEmpty(Mono.error(new ResourceNotFoundException(resource_id))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(resource -> context.response()
+        this.resourceService.findByDomainAndClientAndUserAndResource_migrated(domain.getId(), client.getId(), accessToken.getSub(), resource_id).switchIfEmpty(Mono.error(new ResourceNotFoundException(resource_id))).subscribe(resource -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(ResourceResponse.from(resource)))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                .end(Json.encodePrettily(ResourceResponse.from(resource))), context::fail);
     }
 
     /**
@@ -120,12 +120,12 @@ public class ResourceRegistrationEndpoint implements Handler<RoutingContext> {
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String resource_id = context.request().getParam(RESOURCE_ID);
 
-        this.extractRequest_migrated(context).flatMap(request->this.resourceService.update_migrated(request, domain.getId(), client.getId(), accessToken.getSub(), resource_id)).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(resource -> context.response()
+        this.extractRequest_migrated(context).flatMap(request->this.resourceService.update_migrated(request, domain.getId(), client.getId(), accessToken.getSub(), resource_id)).subscribe(resource -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
                                 .putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .setStatusCode(HttpStatusCode.OK_200)
-                                .end(Json.encodePrettily(ResourceResponse.from(resource)))), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                .end(Json.encodePrettily(ResourceResponse.from(resource))), context::fail);
     }
 
     public void delete(RoutingContext context) {

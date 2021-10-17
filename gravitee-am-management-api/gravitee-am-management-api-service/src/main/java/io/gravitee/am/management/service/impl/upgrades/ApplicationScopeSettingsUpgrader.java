@@ -17,7 +17,7 @@ package io.gravitee.am.management.service.impl.upgrades;
 
 import static io.gravitee.am.management.service.impl.upgrades.UpgraderOrder.APPLICATION_SCOPE_SETTINGS_UPGRADER;
 
-
+import io.gravitee.am.model.Application;
 import io.gravitee.am.model.SystemTask;
 import io.gravitee.am.model.SystemTaskStatus;
 import io.gravitee.am.model.SystemTaskTypes;
@@ -132,7 +132,7 @@ private Mono<SystemTask>  updateSystemTask_migrated(SystemTask task, SystemTaskS
 
     
 private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findAll_migrated()).flatMapSingle(app -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(applicationRepository.findAll_migrated())).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Application, Single<Application>>toJdkFunction(app -> {
                     logger.debug("Process application '{}'", app.getId());
                     if (app.getSettings() != null && app.getSettings().getOauth() != null) {
                         final ApplicationOAuthSettings oauthSettings = app.getSettings().getOauth();
@@ -165,7 +165,7 @@ private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
                         logger.debug("No scope to process for application '{}'", app.getId());
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(app));
-                })).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> updateSystemTask_migrated(task, (SystemTaskStatus.FAILURE), task.getOperationId()).subscribe())).then(updateSystemTask_migrated(task, SystemTaskStatus.SUCCESS, task.getOperationId()).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> true)).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Boolean>>toJdkFunction((err2) -> {
+                }).apply(e))))).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> updateSystemTask_migrated(task, (SystemTaskStatus.FAILURE), task.getOperationId()).subscribe())).then(updateSystemTask_migrated(task, SystemTaskStatus.SUCCESS, task.getOperationId()).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> true)).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Boolean>>toJdkFunction((err2) -> {
                             logger.error("Unable to update status for migrate scope options task: {}", err2.getMessage());
                             return RxJava2Adapter.monoToSingle(Mono.just(false));
                         }).apply(err)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Boolean>>toJdkFunction((err2) -> {

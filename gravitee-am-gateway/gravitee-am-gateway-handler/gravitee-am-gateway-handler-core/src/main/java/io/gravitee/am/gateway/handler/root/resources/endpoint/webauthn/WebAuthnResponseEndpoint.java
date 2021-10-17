@@ -183,7 +183,7 @@ public class WebAuthnResponseEndpoint extends WebAuthnEndpoint {
 
     private void authenticateUser(AuthenticationContext authenticationContext, Client client, String username, Handler<AsyncResult<User>> handler) {
         final Authentication authentication = new EndUserAuthentication(username, null, authenticationContext);
-        userAuthenticationManager.authenticate_migrated(client, authentication, true).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user -> handler.handle(Future.succeededFuture(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user)))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+        userAuthenticationManager.authenticate_migrated(client, authentication, true).subscribe(user -> handler.handle(Future.succeededFuture(new io.gravitee.am.gateway.handler.common.vertx.web.auth.user.User(user))), error -> handler.handle(Future.failedFuture(error)));
     }
 
     private void updateCredential(AuthenticationContext authenticationContext, String credentialId, String userId, Handler<AsyncResult<Void>> handler) {

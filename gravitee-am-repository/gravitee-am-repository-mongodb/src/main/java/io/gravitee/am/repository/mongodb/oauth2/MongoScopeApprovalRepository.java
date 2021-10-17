@@ -96,7 +96,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 }
 @Override
     public Mono<ScopeApproval> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(Observable.fromPublisher(scopeApprovalsCollection.find(eq(FIELD_ID, id)).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(scopeApprovalsCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(scopeApproval))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -109,7 +109,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
     public Mono<ScopeApproval> create_migrated(ScopeApproval scopeApproval) {
         ScopeApprovalMongo scopeApprovalMongo = convert(scopeApproval);
         scopeApprovalMongo.setId(scopeApprovalMongo.getId() == null ? RandomString.generate() : scopeApprovalMongo.getId());
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.insertOne(scopeApprovalMongo))).flatMap(success->_findById_migrated(scopeApprovalMongo.getId()));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(scopeApprovalsCollection.insertOne(scopeApprovalMongo)))).flatMap(success->_findById_migrated(scopeApprovalMongo.getId()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(scopeApproval))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -122,12 +122,12 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
     public Mono<ScopeApproval> update_migrated(ScopeApproval scopeApproval) {
         ScopeApprovalMongo scopeApprovalMongo = convert(scopeApproval);
 
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.replaceOne(
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(scopeApprovalsCollection.replaceOne(
                 and(eq(FIELD_DOMAIN, scopeApproval.getDomain()),
                         eq(FIELD_CLIENT_ID, scopeApproval.getClientId()),
                         eq(FIELD_USER_ID, scopeApproval.getUserId()),
                         eq(FIELD_SCOPE, scopeApproval.getScope()))
-                , scopeApprovalMongo))).flatMap(updateResult->_findById_migrated(scopeApprovalMongo.getId()));
+                , scopeApprovalMongo)))).flatMap(updateResult->_findById_migrated(scopeApprovalMongo.getId()));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.upsert_migrated(scopeApproval))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -138,11 +138,11 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 }
 @Override
     public Mono<ScopeApproval> upsert_migrated(ScopeApproval scopeApproval) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(Observable.fromPublisher(scopeApprovalsCollection.find(
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(scopeApprovalsCollection.find(
                 and(eq(FIELD_DOMAIN, scopeApproval.getDomain()),
                         eq(FIELD_CLIENT_ID, scopeApproval.getClientId()),
                         eq(FIELD_USER_ID, scopeApproval.getUserId()),
-                        eq(FIELD_SCOPE, scopeApproval.getScope()))).first()), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
+                        eq(FIELD_SCOPE, scopeApproval.getScope()))).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(Optional::of)).defaultIfEmpty(Optional.empty()))
                 .flatMapSingle(optionalApproval -> {
                     if (!optionalApproval.isPresent()) {
                         scopeApproval.setCreatedAt(new Date());
@@ -205,7 +205,7 @@ public class MongoScopeApprovalRepository extends AbstractOAuth2MongoRepository 
 
     
 private Mono<ScopeApproval> _findById_migrated(String id) {
-        return RxJava2Adapter.singleToMono(Single.fromPublisher(scopeApprovalsCollection.find(eq(FIELD_ID, id)).first())).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(scopeApprovalsCollection.find(eq(FIELD_ID, id)).first()))).map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     private ScopeApproval convert(ScopeApprovalMongo scopeApprovalMongo) {

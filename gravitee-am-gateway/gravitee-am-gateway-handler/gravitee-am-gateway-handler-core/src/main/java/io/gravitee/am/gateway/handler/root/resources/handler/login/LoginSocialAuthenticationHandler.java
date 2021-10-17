@@ -18,14 +18,12 @@ package io.gravitee.am.gateway.handler.root.resources.handler.login;
 import static io.gravitee.am.gateway.handler.common.utils.ConstantKeys.*;
 import static io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest.CONTEXT_PATH;
 
-
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.common.web.UriBuilder;
 import io.gravitee.am.gateway.handler.common.auth.idp.IdentityProviderManager;
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
-
 import io.gravitee.am.gateway.handler.common.vertx.utils.UriBuilderRequest;
 import io.gravitee.am.identityprovider.api.AuthenticationProvider;
 import io.gravitee.am.identityprovider.api.common.Request;
@@ -39,14 +37,13 @@ import io.reactivex.Observable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-
-
 import io.vertx.reactivex.ext.web.RoutingContext;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -147,14 +144,14 @@ public class LoginSocialAuthenticationHandler implements Handler<RoutingContext>
     }
 
     private void enhanceSocialIdentityProviders(List<IdentityProvider> identityProviders, RoutingContext context, Handler<AsyncResult<List<SocialProviderData>>> resultHandler) {
-        RxJava2Adapter.singleToMono(Observable.fromIterable(identityProviders)
+        RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(identityProviders))
                 .flatMapMaybe(identityProvider -> {
                     // get social identity provider type (currently use for display purpose (logo, description, ...)
                     identityProvider.setType(socialProviders.getOrDefault(identityProvider.getType(), identityProvider.getType()));
                     // get social sign in url
                     return RxJava2Adapter.monoToMaybe(getAuthorizeUrl_migrated(identityProvider.getId(), context).map(RxJavaReactorMigrationUtil.toJdkFunction(authorizeUrl -> new SocialProviderData(identityProvider, authorizeUrl))).defaultIfEmpty(new SocialProviderData(identityProvider, null)));
                 })
-                .toList()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(socialProviderData -> resultHandler.handle(Future.succeededFuture(socialProviderData))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> resultHandler.handle(Future.failedFuture(error))));
+                .toList()).subscribe(socialProviderData -> resultHandler.handle(Future.succeededFuture(socialProviderData)), error -> resultHandler.handle(Future.failedFuture(error)));
     }
 
     

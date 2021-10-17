@@ -141,7 +141,7 @@ public class ClientAuthHandlerImpl implements Handler<RoutingContext> {
                 return;
             }
             // get client
-            clientSyncService.findByClientId_migrated(clientId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> handler.handle(Future.succeededFuture(client))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new InvalidClientException(ClientAuthHandler.GENERIC_ERROR_MESSAGE)))));
+            clientSyncService.findByClientId_migrated(clientId).subscribe(client -> handler.handle(Future.succeededFuture(client)), error -> handler.handle(Future.failedFuture(error)), () -> handler.handle(Future.failedFuture(new InvalidClientException(ClientAuthHandler.GENERIC_ERROR_MESSAGE))));
 
         });
     }

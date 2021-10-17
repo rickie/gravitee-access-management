@@ -105,10 +105,10 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
 
                             return RxJava2Adapter.monoToSingle(jwtService.encodeUserinfo_migrated(jwt, client).flatMap(userinfo->jweService.encryptUserinfo_migrated(userinfo, client)));//Encrypt if needed, else return JWT
                         }
-                    }).apply(v))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(buffer -> context.response()
+                    }).apply(v))).subscribe(buffer -> context.response()
                                 .putHeader(HttpHeaders.CACHE_CONTROL, "no-store")
                                 .putHeader(HttpHeaders.PRAGMA, "no-cache")
-                                .end(buffer)), RxJavaReactorMigrationUtil.toJdkConsumer(context::fail));
+                                .end(buffer), context::fail);
     }
 
     /**

@@ -81,13 +81,13 @@ public class UserAuthProviderImpl implements UserAuthProvider {
             authenticationContext.set(Claims.user_agent, userAgent);
             authenticationContext.set(Claims.domain, client.getDomain());
 
-            userAuthenticationManager.authenticate_migrated(client, authentication).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(user -> handler.handle(Future.succeededFuture(new User(user)))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> handler.handle(Future.failedFuture(error))));
+            userAuthenticationManager.authenticate_migrated(client, authentication).subscribe(user -> handler.handle(Future.succeededFuture(new User(user))), error -> handler.handle(Future.failedFuture(error)));
         });
     }
 
     private void parseClient(String clientId, Handler<AsyncResult<Client>> authHandler) {
         logger.debug("Attempt authentication with client " + clientId);
 
-        clientSyncService.findByClientId_migrated(clientId).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client -> authHandler.handle(Future.succeededFuture(client))), RxJavaReactorMigrationUtil.toJdkConsumer(error -> authHandler.handle(Future.failedFuture(new ServerErrorException("Server error: unable to find client with client_id " + clientId)))), RxJavaReactorMigrationUtil.toRunnable(() -> authHandler.handle(Future.failedFuture(new InvalidRequestException("No client found for client_id " + clientId)))));
+        clientSyncService.findByClientId_migrated(clientId).subscribe(client -> authHandler.handle(Future.succeededFuture(client)), error -> authHandler.handle(Future.failedFuture(new ServerErrorException("Server error: unable to find client with client_id " + clientId))), () -> authHandler.handle(Future.failedFuture(new InvalidRequestException("No client found for client_id " + clientId))));
     }
 }

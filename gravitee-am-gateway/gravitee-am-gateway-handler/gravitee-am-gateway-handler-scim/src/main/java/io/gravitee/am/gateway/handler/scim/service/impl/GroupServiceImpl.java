@@ -90,7 +90,7 @@ public class GroupServiceImpl implements GroupService {
                         return RxJava2Adapter.monoToSingle(Mono.just(new ListResponse<Group>(null, groupPage.getCurrentPage() + 1, groupPage.getTotalCount(), 0)));
                     } else {
                         // SCIM use 1-based index (increment current page)
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(Observable.fromIterable(groupPage.getData())
+                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(groupPage.getData()))
                                 .map(group -> convert(group, baseUrl, true))
                                 // set members
                                 .flatMapSingle(group -> RxJava2Adapter.monoToSingle(setMembers_migrated(group, baseUrl)))

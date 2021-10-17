@@ -100,7 +100,7 @@ public class ClientAssertionAuthProvider implements ClientAuthProvider {
                         return RxJava2Adapter.monoToMaybe(Mono.error(new InvalidClientException("client_id parameter does not match with assertion")));
                     }
                     return RxJava2Adapter.monoToMaybe(Mono.just(client1));
-                }).apply(v)))).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(client1 -> handler.handle(Future.succeededFuture(client1))), RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> {
+                }).apply(v)))).subscribe(client1 -> handler.handle(Future.succeededFuture(client1)), RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> {
                             if (throwable instanceof InvalidClientException) {
                                 logger.debug("Failed to authenticate client with assertion method", throwable);
                                 handler.handle(Future.failedFuture(throwable));
@@ -108,7 +108,7 @@ public class ClientAssertionAuthProvider implements ClientAuthProvider {
                                 logger.error("Failed to authenticate client with assertion method", throwable);
                                 handler.handle(Future.failedFuture(new InvalidClientException("Invalid client: Failed to authenticate client with assertion method", throwable)));
                             }
-                        }), RxJavaReactorMigrationUtil.toRunnable(() -> handler.handle(Future.failedFuture(new InvalidClientException(ClientAuthHandler.GENERIC_ERROR_MESSAGE)))));
+                        }), () -> handler.handle(Future.failedFuture(new InvalidClientException(ClientAuthHandler.GENERIC_ERROR_MESSAGE))));
     }
 
     public void setClientAssertionService(ClientAssertionService clientAssertionService) {

@@ -72,7 +72,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
                         return RxJava2Adapter.fluxToFlowable(Flux.error(new UsernameNotFoundException(username)));
                     }
                     return RxJava2Adapter.fluxToFlowable(Flux.fromIterable(users));
-                })).filter(RxJavaReactorMigrationUtil.toJdkPredicate(result -> {
+                })).filter(result -> {
                     // check password
                     String password = String.valueOf(result.get(configuration.getPasswordAttribute()));
                     if (password == null) {
@@ -94,7 +94,7 @@ public class JdbcAuthenticationProvider extends JdbcAbstractProvider<Authenticat
                     }
 
                     return true;
-                })).collectList().flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Map<String, Object>>, MaybeSource<User>>)users -> {
+                }).collectList().flatMap(e->RxJava2Adapter.maybeToMono(Maybe.wrap(RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Map<String, Object>>, MaybeSource<User>>)users -> {
                     if (users.isEmpty()) {
                         return RxJava2Adapter.monoToMaybe(Mono.error(new BadCredentialsException("Bad credentials")));
                     }

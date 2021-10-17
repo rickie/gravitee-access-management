@@ -55,6 +55,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 
@@ -165,7 +166,7 @@ public class ScopeServiceImpl implements ScopeService {
 
                     LOGGER.error("An error occurs while trying to create a scope", ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException("An error occurs while trying to create a scope", ex)));
-                }).apply(err))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(scope -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_CREATED).scope(scope)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_CREATED).throwable(throwable))));
+                }).apply(err))).doOnSuccess(scope -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_CREATED).scope(scope))).doOnError(throwable -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_CREATED).throwable(throwable)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(domain, newScope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -270,7 +271,7 @@ private Mono<Scope> update_migrated(String domain, Scope toUpdate, Scope oldValu
                     // create event for sync process
                     Event event = new Event(Type.SCOPE, new Payload(scope1.getId(), ReferenceType.DOMAIN, scope1.getDomain(), Action.UPDATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(scope1)));
-                }).apply(v)))).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(scope1 -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_UPDATED).oldValue(oldValue).scope(scope1)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_UPDATED).throwable(throwable))));
+                }).apply(v)))).doOnSuccess(scope1 -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_UPDATED).oldValue(oldValue).scope(scope1))).doOnError(throwable -> auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_UPDATED).throwable(throwable)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(domain, id, updateScope))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -318,14 +319,14 @@ private Mono<Scope> update_migrated(String domain, Scope toUpdate, Scope oldValu
                         throw new SystemScopeDeleteException(scopeId);
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(scope));
-                }).apply(y)))).flatMap(scope->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(roleService.findByDomain_migrated(scope.getDomain())).flatMapObservable((Set<Role> roles)->Observable.fromIterable(roles.stream().filter((Role role)->role.getOauthScopes() != null && role.getOauthScopes().contains(scope.getKey())).collect(Collectors.toList()))).flatMapSingle((Role role)->{
+                }).apply(y)))).flatMap(scope->RxJava2Adapter.completableToMono(RxJava2Adapter.monoToCompletable(RxJava2Adapter.completableToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(roleService.findByDomain_migrated(scope.getDomain())).flatMapObservable((Set<Role> roles)->RxJava2Adapter.fluxToObservable(Flux.fromIterable(roles.stream().filter((Role role)->role.getOauthScopes() != null && role.getOauthScopes().contains(scope.getKey())).collect(Collectors.toList())))).flatMapSingle((Role role)->{
 role.getOauthScopes().remove(scope.getKey());
 UpdateRole updatedRole = new UpdateRole();
 updatedRole.setName(role.getName());
 updatedRole.setDescription(role.getDescription());
 updatedRole.setPermissions(role.getOauthScopes());
 return roleService.update(scope.getDomain(), role.getId(), updatedRole);
-}).toList())).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.findByDomain_migrated(scope.getDomain())).flatMapObservable((Set<Application> applications)->Observable.fromIterable(applications.stream().filter((Application application)->{
+}).toList())).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(applicationService.findByDomain_migrated(scope.getDomain())).flatMapObservable((Set<Application> applications)->RxJava2Adapter.fluxToObservable(Flux.fromIterable(applications.stream().filter((Application application)->{
 if (application.getSettings() == null) {
 return false;
 }
@@ -334,11 +335,11 @@ return false;
 }
 ApplicationOAuthSettings oAuthSettings = application.getSettings().getOauth();
 return oAuthSettings.getScopeSettings() != null && !oAuthSettings.getScopeSettings().stream().filter((ApplicationScopeSettings s)->s.getScope().equals(scope.getKey())).findFirst().isEmpty();
-}).collect(Collectors.toList()))).flatMapSingle((Application application)->{
+}).collect(Collectors.toList())))).flatMapSingle((Application application)->{
 final List<ApplicationScopeSettings> cleanScopes = application.getSettings().getOauth().getScopeSettings().stream().filter((ApplicationScopeSettings s)->!s.getScope().equals(scope.getKey())).collect(Collectors.toList());
 application.getSettings().getOauth().setScopeSettings(cleanScopes);
 return RxJava2Adapter.monoToSingle(applicationService.update_migrated(application));
-}).toList()))).toCompletable()).then(RxJava2Adapter.completableToMono(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey()))).then(scopeRepository.delete_migrated(scopeId)).then(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(eventService.create_migrated(new Event(Type.SCOPE, new Payload(scope.getId(), ReferenceType.DOMAIN, scope.getDomain(), Action.DELETE)))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_DELETED).scope(scope)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer((Throwable throwable)->auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_DELETED).throwable(throwable))))).then())
+}).toList()))).toCompletable()).then(RxJava2Adapter.completableToMono(scopeApprovalRepository.deleteByDomainAndScopeKey(scope.getDomain(), scope.getKey()))).then(scopeRepository.delete_migrated(scopeId)).then(RxJava2Adapter.completableToMono(Completable.fromSingle(RxJava2Adapter.monoToSingle(eventService.create_migrated(new Event(Type.SCOPE, new Payload(scope.getId(), ReferenceType.DOMAIN, scope.getDomain(), Action.DELETE)))))))).doOnComplete(()->auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_DELETED).scope(scope)))).doOnError((Throwable throwable)->auditService.report(AuditBuilder.builder(ScopeAuditBuilder.class).principal(principal).type(EventType.SCOPE_DELETED).throwable(throwable)))).then())
                 .onErrorResumeNext(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToCompletable(Mono.error(ex));

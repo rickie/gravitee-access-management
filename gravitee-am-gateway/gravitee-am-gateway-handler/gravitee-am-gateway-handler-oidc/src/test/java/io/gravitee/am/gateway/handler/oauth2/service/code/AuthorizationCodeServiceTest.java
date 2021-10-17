@@ -133,7 +133,7 @@ public class AuthorizationCodeServiceTest {
         List<AccessToken> tokens = Arrays.asList(accessToken, accessToken2);
 
         when(authorizationCodeRepository.findByCode_migrated(any())).thenReturn(Mono.empty());
-        when(accessTokenRepository.findByAuthorizationCode_migrated(anyString())).thenReturn(RxJava2Adapter.observableToFlux(Observable.fromIterable(tokens), BackpressureStrategy.BUFFER));
+        when(accessTokenRepository.findByAuthorizationCode_migrated(anyString())).thenReturn(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.fromIterable(tokens)), BackpressureStrategy.BUFFER));
         when(accessTokenRepository.delete_migrated(anyString())).thenReturn(Mono.empty());
 
         TestObserver<AuthorizationCode> testObserver = RxJava2Adapter.monoToMaybe(authorizationCodeService.remove_migrated(authorizationCode.getCode(), client)).test();
@@ -171,7 +171,7 @@ public class AuthorizationCodeServiceTest {
         List<AccessToken> tokens = Arrays.asList(accessToken, accessToken2);
 
         when(authorizationCodeRepository.findByCode_migrated(any())).thenReturn(Mono.empty());
-        when(accessTokenRepository.findByAuthorizationCode_migrated(anyString())).thenReturn(RxJava2Adapter.observableToFlux(Observable.fromIterable(tokens), BackpressureStrategy.BUFFER));
+        when(accessTokenRepository.findByAuthorizationCode_migrated(anyString())).thenReturn(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.fromIterable(tokens)), BackpressureStrategy.BUFFER));
         when(accessTokenRepository.delete_migrated(anyString())).thenReturn(Mono.empty());
         when(refreshTokenRepository.delete_migrated(anyString())).thenReturn(Mono.empty());
 
