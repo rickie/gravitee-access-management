@@ -15,11 +15,11 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.jwe;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import com.nimbusds.jwt.JWT;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Single;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
+
 import reactor.core.publisher.Mono;
 
 /**

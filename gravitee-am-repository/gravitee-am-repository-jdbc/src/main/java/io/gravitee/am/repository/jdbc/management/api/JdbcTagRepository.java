@@ -25,7 +25,7 @@ import io.gravitee.am.repository.jdbc.management.api.model.JdbcTag;
 import io.gravitee.am.repository.jdbc.management.api.spring.SpringTagRepository;
 import io.gravitee.am.repository.management.api.TagRepository;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import org.springframework.beans.factory.annotation.Autowired;

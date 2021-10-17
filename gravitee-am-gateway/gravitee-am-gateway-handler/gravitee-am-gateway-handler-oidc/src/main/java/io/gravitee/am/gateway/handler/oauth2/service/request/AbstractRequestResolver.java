@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.oauth2.service.request;
 
 import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.gateway.handler.oauth2.exception.InvalidScopeException;
 import io.gravitee.am.gateway.handler.oauth2.service.scope.ScopeManager;
 import io.gravitee.am.gateway.handler.oauth2.service.utils.ParameterizedScopeUtils;
@@ -25,10 +25,10 @@ import io.gravitee.am.model.Role;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.application.ApplicationScopeSettings;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Single;
+
 import java.util.*;
 import java.util.stream.Collectors;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

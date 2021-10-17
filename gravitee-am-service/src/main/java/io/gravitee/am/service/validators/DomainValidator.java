@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.service.validators;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.VirtualHost;
 import io.gravitee.am.service.exception.InvalidDomainException;

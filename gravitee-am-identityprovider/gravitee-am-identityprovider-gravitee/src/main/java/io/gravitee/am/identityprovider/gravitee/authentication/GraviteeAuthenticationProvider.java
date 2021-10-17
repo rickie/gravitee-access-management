@@ -15,17 +15,17 @@
  */
 package io.gravitee.am.identityprovider.gravitee.authentication;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.identityprovider.api.*;
 import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.service.OrganizationUserService;
 import io.gravitee.am.service.authentication.crypto.password.bcrypt.BCryptPasswordEncoder;
-import io.reactivex.Maybe;
+
 import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

@@ -18,7 +18,7 @@ package io.gravitee.am.repository.mongodb.management;
 import static com.mongodb.client.model.Filters.*;
 import static io.gravitee.am.model.ReferenceType.DOMAIN;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
@@ -35,10 +35,10 @@ import io.gravitee.am.repository.mongodb.management.internal.model.scim.AddressM
 import io.gravitee.am.repository.mongodb.management.internal.model.scim.AttributeMongo;
 import io.gravitee.am.repository.mongodb.management.internal.model.scim.CertificateMongo;
 
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
 
-import io.reactivex.Single;
+
+
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;

@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.identityprovider.mongo.authentication;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;

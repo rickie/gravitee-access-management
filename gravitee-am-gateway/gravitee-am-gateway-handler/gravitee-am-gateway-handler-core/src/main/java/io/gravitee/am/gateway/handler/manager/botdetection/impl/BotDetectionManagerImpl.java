@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.manager.botdetection.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.botdetection.api.BotDetectionContext;
 import io.gravitee.am.botdetection.api.BotDetectionProvider;
 import io.gravitee.am.common.event.BotDetectionEvent;
@@ -35,7 +35,7 @@ import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
-import io.reactivex.Single;
+
 
 import java.util.HashMap;
 
@@ -46,7 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
 

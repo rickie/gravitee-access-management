@@ -29,7 +29,7 @@ import io.gravitee.am.repository.jdbc.management.api.model.JdbcIdentityProvider;
 import io.gravitee.am.repository.jdbc.management.api.spring.SpringIdentityProviderRepository;
 import io.gravitee.am.repository.management.api.IdentityProviderRepository;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.time.LocalDateTime;

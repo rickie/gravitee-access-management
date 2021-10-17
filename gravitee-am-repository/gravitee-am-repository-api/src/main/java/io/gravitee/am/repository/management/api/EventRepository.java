@@ -15,11 +15,11 @@
  */
 package io.gravitee.am.repository.management.api;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.common.event.Event;
 import io.gravitee.am.repository.common.CrudRepository;
-import io.reactivex.Flowable;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
+
 import reactor.core.publisher.Flux;
 
 /**

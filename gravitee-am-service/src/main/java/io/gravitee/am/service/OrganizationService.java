@@ -20,7 +20,7 @@ import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.model.Organization;
 import io.gravitee.am.service.model.NewOrganization;
 import io.gravitee.am.service.model.PatchOrganization;
-import io.reactivex.Maybe;
+
 import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;

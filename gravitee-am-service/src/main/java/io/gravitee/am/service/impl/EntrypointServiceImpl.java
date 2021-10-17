@@ -34,7 +34,7 @@ import io.gravitee.am.service.validators.VirtualHostValidator;
 import io.gravitee.common.utils.UUID;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
-import io.reactivex.Flowable;
+
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import java.net.MalformedURLException;

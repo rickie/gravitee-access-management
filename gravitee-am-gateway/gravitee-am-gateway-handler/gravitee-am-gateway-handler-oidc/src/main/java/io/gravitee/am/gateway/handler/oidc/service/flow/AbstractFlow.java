@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.flow;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.gateway.handler.common.jwt.JWTService;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
 import io.gravitee.am.gateway.handler.oauth2.service.response.AuthorizationResponse;
@@ -24,7 +24,7 @@ import io.gravitee.am.gateway.handler.oidc.service.discovery.OpenIDDiscoveryServ
 import io.gravitee.am.gateway.handler.oidc.service.jwe.JWEService;
 import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
-import io.reactivex.Single;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -60,7 +60,7 @@ public abstract class AbstractFlow implements Flow {
     
 @Override
     public Mono<AuthorizationResponse> run_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(prepareResponse_migrated(authorizationRequest, client, endUser))).flatMap(response->processResponse_migrated(response, authorizationRequest, client, endUser));
+        return prepareResponse_migrated(authorizationRequest, client, endUser).flatMap(response->processResponse_migrated(response, authorizationRequest, client, endUser));
     }
 
     

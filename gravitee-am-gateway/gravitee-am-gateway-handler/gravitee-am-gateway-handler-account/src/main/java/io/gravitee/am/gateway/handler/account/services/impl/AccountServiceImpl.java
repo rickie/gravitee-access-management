@@ -37,8 +37,8 @@ import io.gravitee.am.service.exception.UserInvalidException;
 import io.gravitee.am.service.exception.UserNotFoundException;
 import io.gravitee.am.service.exception.UserProviderNotFoundException;
 import io.gravitee.am.service.validators.UserValidator;
-import io.reactivex.Completable;
-import io.reactivex.Maybe;
+
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import java.util.*;

@@ -15,14 +15,14 @@
  */
 package io.gravitee.am.service.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.AuthenticationFlowContext;
 import io.gravitee.am.repository.management.api.AuthenticationFlowContextRepository;
 import io.gravitee.am.service.AuthenticationFlowContextService;
 import io.gravitee.am.service.exception.AuthenticationFlowConsistencyException;
-import io.reactivex.Completable;
+
 import io.reactivex.Flowable;
-import io.reactivex.Maybe;
+
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
 import java.util.Date;

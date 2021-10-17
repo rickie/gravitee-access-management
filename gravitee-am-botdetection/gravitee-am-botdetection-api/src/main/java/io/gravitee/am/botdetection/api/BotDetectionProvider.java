@@ -15,12 +15,12 @@
  */
 package io.gravitee.am.botdetection.api;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.botdetection.api.BotDetectionContext;
 import io.gravitee.common.component.Lifecycle;
 import io.gravitee.common.service.Service;
-import io.reactivex.Single;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
+
 import reactor.core.publisher.Mono;
 
 /**

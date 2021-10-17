@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.auth.idp.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.event.EventManager;
 import io.gravitee.am.common.event.IdentityProviderEvent;
 import io.gravitee.am.gateway.handler.common.auth.idp.IdentityProviderManager;
@@ -31,7 +31,7 @@ import io.gravitee.am.repository.management.api.IdentityProviderRepository;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
-import io.reactivex.Maybe;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;

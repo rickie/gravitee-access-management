@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.oidc.service.request.impl;
 
 import static io.gravitee.am.gateway.handler.oidc.service.utils.JWAlgorithmUtils.isSignAlgCompliantWithFapi;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;

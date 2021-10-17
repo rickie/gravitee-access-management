@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter.code;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.oauth2.InvalidRequestException;
 import io.gravitee.am.common.oauth2.CodeChallengeMethod;
 import io.gravitee.am.common.oauth2.GrantType;
@@ -35,8 +35,8 @@ import io.gravitee.am.model.oidc.Client;
 import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
 import io.gravitee.am.service.AuthenticationFlowContextService;
 import io.gravitee.common.util.MultiValueMap;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -19,9 +19,9 @@ import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.model.account.AccountSettings;
 import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
-import io.reactivex.Completable;
+
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
 

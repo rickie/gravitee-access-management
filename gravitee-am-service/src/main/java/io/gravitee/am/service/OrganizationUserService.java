@@ -15,10 +15,10 @@
  */
 package io.gravitee.am.service;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.User;
-import io.reactivex.Completable;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
+
 import reactor.core.publisher.Mono;
 
 /**

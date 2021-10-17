@@ -17,20 +17,20 @@ package io.gravitee.am.gateway.certificate;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.certificate.api.CertificateMetadata;
 import io.gravitee.am.certificate.api.DefaultKey;
 import io.gravitee.am.common.jwt.JWT;
 import io.gravitee.am.gateway.certificate.impl.CertificateProviderManagerImpl;
 import io.gravitee.am.model.jose.JWK;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
+
+
 
 import java.security.Key;
 import java.util.Collections;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Test;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

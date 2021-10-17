@@ -19,7 +19,7 @@ import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
 import static io.gravitee.am.common.web.UriBuilder.encodeURIComponent;
 
 import com.google.common.base.Strings;
-import com.google.errorprone.annotations.InlineMe;
+
 import com.nimbusds.jwt.proc.JWTProcessor;
 import io.gravitee.am.common.exception.authentication.BadCredentialsException;
 import io.gravitee.am.common.jwt.SignatureAlgorithm;
@@ -52,7 +52,7 @@ import io.gravitee.am.model.http.NameValuePair;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.HttpMethod;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Maybe;
+
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.core.buffer.Buffer;
 import java.util.*;

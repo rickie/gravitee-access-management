@@ -31,7 +31,7 @@ import io.gravitee.am.repository.jdbc.management.api.spring.organization.SpringO
 import io.gravitee.am.repository.jdbc.management.api.spring.organization.SpringOrganizationRepository;
 import io.gravitee.am.repository.management.api.OrganizationRepository;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.util.ArrayList;

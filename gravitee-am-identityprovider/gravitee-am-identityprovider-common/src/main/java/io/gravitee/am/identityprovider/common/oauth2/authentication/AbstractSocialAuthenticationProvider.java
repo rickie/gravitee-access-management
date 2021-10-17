@@ -17,7 +17,7 @@ package io.gravitee.am.identityprovider.common.oauth2.authentication;
 
 import static io.gravitee.am.common.oidc.Scope.SCOPE_DELIMITER;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.oauth2.Parameters;
 import io.gravitee.am.common.oauth2.TokenTypeHint;
 import io.gravitee.am.common.web.UriBuilder;

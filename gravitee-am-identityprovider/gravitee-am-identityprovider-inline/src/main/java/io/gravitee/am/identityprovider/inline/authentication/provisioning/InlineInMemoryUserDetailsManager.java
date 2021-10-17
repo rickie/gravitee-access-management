@@ -15,9 +15,9 @@
  */
 package io.gravitee.am.identityprovider.inline.authentication.provisioning;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.identityprovider.inline.model.User;
-import io.reactivex.Maybe;
+
 import java.util.HashMap;
 import java.util.Map;
 import reactor.adapter.rxjava.RxJava2Adapter;

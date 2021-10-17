@@ -15,12 +15,12 @@
  */
 package io.gravitee.am.service.validators;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.service.exception.InvalidPathException;
-import io.reactivex.Completable;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

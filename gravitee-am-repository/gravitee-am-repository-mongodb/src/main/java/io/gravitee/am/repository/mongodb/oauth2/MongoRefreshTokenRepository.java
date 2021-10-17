@@ -29,7 +29,7 @@ import io.gravitee.am.repository.oauth2.api.RefreshTokenRepository;
 import io.gravitee.am.repository.oauth2.model.RefreshToken;
 
 import io.reactivex.Completable;
-import io.reactivex.Maybe;
+
 
 import io.reactivex.Single;
 import java.util.List;

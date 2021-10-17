@@ -28,7 +28,7 @@ import io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcAuthorizationCode;
 import io.gravitee.am.repository.jdbc.oauth2.api.spring.SpringAuthorizationCodeRepository;
 import io.gravitee.am.repository.oauth2.api.AuthorizationCodeRepository;
 import io.gravitee.am.repository.oauth2.model.AuthorizationCode;
-import io.reactivex.Completable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.time.LocalDateTime;

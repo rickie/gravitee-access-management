@@ -15,15 +15,15 @@
  */
 package io.gravitee.am.gateway.handler.common.flow;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.policy.ExtensionPoint;
 import io.gravitee.am.gateway.handler.common.flow.FlowPredicate;
 import io.gravitee.am.gateway.policy.Policy;
 import io.gravitee.am.model.oidc.Client;
 import io.gravitee.common.service.Service;
-import io.reactivex.Single;
+
 import java.util.List;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

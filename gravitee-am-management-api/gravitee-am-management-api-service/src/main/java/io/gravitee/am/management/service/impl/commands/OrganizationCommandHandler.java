@@ -16,19 +16,19 @@
 package io.gravitee.am.management.service.impl.commands;
 
 import io.gravitee.am.service.OrganizationService;
-import io.gravitee.am.service.model.NewOrganization;
+
 import io.gravitee.cockpit.api.command.Command;
 import io.gravitee.cockpit.api.command.CommandHandler;
-import io.gravitee.cockpit.api.command.CommandStatus;
+
 import io.gravitee.cockpit.api.command.organization.OrganizationCommand;
-import io.gravitee.cockpit.api.command.organization.OrganizationPayload;
+
 import io.gravitee.cockpit.api.command.organization.OrganizationReply;
-import io.reactivex.Single;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import reactor.adapter.rxjava.RxJava2Adapter;
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
+
 
 /**
  * @author Jeoffrey HAEYAERT (jeoffrey.haeyaert at graviteesource.com)

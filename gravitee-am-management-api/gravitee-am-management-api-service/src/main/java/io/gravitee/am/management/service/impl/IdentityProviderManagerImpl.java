@@ -37,7 +37,7 @@ import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.event.EventManager;
 import io.gravitee.common.service.AbstractService;
-import io.reactivex.Maybe;
+
 import io.reactivex.Single;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

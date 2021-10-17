@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.resource.twilio.provider;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import com.twilio.Twilio;
 import com.twilio.exception.ApiException;
 import com.twilio.http.NetworkHttpClient;

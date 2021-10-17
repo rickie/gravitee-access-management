@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.handlers.management.api.resources;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.scim.parser.SCIMFilterParser;
 import io.gravitee.am.management.service.CommonUserService;
 import io.gravitee.am.management.service.OrganizationUserService;

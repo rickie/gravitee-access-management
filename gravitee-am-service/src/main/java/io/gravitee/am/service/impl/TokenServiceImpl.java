@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.service.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.model.Application;
 import io.gravitee.am.repository.oauth2.api.AccessTokenRepository;
 import io.gravitee.am.repository.oauth2.api.RefreshTokenRepository;
@@ -23,7 +23,7 @@ import io.gravitee.am.service.ApplicationService;
 import io.gravitee.am.service.TokenService;
 import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.TotalToken;
-import io.reactivex.Completable;
+
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.functions.Function;

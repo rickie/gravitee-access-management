@@ -23,7 +23,7 @@ import io.gravitee.am.service.model.plugin.ReporterPlugin;
 import io.gravitee.plugin.core.api.Plugin;
 import io.reactivex.Maybe;
 
-import io.reactivex.Single;
+
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

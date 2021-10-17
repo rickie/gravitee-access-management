@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.extensiongrant.jwtbearer.provider;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.jwt.ExpiredJWTException;
 import io.gravitee.am.common.exception.jwt.MalformedJWTException;
 import io.gravitee.am.common.exception.jwt.PrematureJWTException;
@@ -32,7 +32,7 @@ import io.gravitee.am.jwt.DefaultJWTParser;
 import io.gravitee.am.jwt.JWTParser;
 import io.gravitee.am.repository.oauth2.model.request.TokenRequest;
 
-import io.reactivex.Maybe;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -48,7 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 

@@ -21,7 +21,7 @@ import io.gravitee.am.gateway.handler.common.client.ClientSyncService;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

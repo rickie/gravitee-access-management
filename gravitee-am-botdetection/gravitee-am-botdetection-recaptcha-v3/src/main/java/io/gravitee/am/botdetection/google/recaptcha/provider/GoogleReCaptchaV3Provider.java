@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.botdetection.google.recaptcha.provider;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.botdetection.api.BotDetectionContext;
 import io.gravitee.am.botdetection.api.BotDetectionProvider;
 import io.gravitee.am.botdetection.google.recaptcha.GoogleReCaptchaV3Configuration;

@@ -34,7 +34,7 @@ import io.gravitee.am.repository.jdbc.management.api.spring.user.*;
 import io.gravitee.am.repository.management.api.OrganizationUserRepository;
 import io.gravitee.am.repository.management.api.search.FilterCriteria;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.time.LocalDateTime;

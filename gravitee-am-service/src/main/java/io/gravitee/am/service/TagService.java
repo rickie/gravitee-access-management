@@ -21,7 +21,7 @@ import io.gravitee.am.model.Tag;
 import io.gravitee.am.service.model.NewTag;
 import io.gravitee.am.service.model.UpdateTag;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import reactor.adapter.rxjava.RxJava2Adapter;

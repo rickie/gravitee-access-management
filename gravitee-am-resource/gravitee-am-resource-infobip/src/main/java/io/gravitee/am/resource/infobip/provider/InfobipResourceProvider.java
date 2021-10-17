@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.resource.infobip.provider;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import com.infobip.ApiClient;
 import com.infobip.ApiException;
 import com.infobip.api.TfaApi;

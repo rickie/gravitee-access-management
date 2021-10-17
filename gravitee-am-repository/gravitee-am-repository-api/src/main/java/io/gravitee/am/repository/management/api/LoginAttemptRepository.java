@@ -20,7 +20,7 @@ import io.gravitee.am.model.LoginAttempt;
 import io.gravitee.am.repository.common.CrudRepository;
 import io.gravitee.am.repository.management.api.search.LoginAttemptCriteria;
 import io.reactivex.Completable;
-import io.reactivex.Maybe;
+
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
 

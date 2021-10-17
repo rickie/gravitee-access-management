@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.uma.policy;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.gateway.handler.uma.policy.Rule;
 import io.gravitee.am.gateway.policy.Policy;
 import io.gravitee.am.gateway.policy.PolicyChainException;

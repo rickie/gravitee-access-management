@@ -18,10 +18,10 @@ package io.gravitee.am.repository.oauth2.api;
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.oauth2.model.AccessToken;
 import io.reactivex.*;
-import io.reactivex.BackpressureStrategy;
+
 import io.reactivex.Completable;
-import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
+
 import io.reactivex.Single;
 import java.util.List;
 import reactor.adapter.rxjava.RxJava2Adapter;

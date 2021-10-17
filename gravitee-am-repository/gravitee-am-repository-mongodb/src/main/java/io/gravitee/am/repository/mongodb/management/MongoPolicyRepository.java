@@ -15,17 +15,17 @@
  */
 package io.gravitee.am.repository.mongodb.management;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import com.mongodb.reactivestreams.client.MongoCollection;
 import io.gravitee.am.common.policy.ExtensionPoint;
 import io.gravitee.am.model.Policy;
 import io.gravitee.am.repository.management.api.PolicyRepository;
 import io.gravitee.am.repository.mongodb.management.internal.model.PolicyMongo;
 
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
 
-import io.reactivex.Single;
+
+
+
 
 
 import org.springframework.stereotype.Component;

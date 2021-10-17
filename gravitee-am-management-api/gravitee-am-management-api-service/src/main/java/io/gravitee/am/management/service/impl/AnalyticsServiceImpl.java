@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.management.service.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.analytics.Field;
 import io.gravitee.am.common.analytics.Type;
 import io.gravitee.am.common.audit.EventType;
@@ -27,7 +27,7 @@ import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
 import io.gravitee.am.service.ApplicationService;
 import io.gravitee.am.service.UserService;
 
-import io.reactivex.Single;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;

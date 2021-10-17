@@ -16,18 +16,18 @@
 package io.gravitee.am.service.validators;
 
 import com.google.common.net.InternetDomainName;
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.utils.PathUtils;
 import io.gravitee.am.model.Domain;
 import io.gravitee.am.model.VirtualHost;
 import io.gravitee.am.service.exception.InvalidVirtualHostException;
-import io.reactivex.Completable;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import java.util.stream.Collectors;
 import org.springframework.util.CollectionUtils;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Mono;
 
 /**

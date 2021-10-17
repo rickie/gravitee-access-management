@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.jwk.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.web.UriBuilder;
 import io.gravitee.am.gateway.handler.common.certificate.CertificateManager;
 import io.gravitee.am.gateway.handler.oidc.service.jwk.JWKService;
@@ -27,7 +27,7 @@ import io.gravitee.am.service.exception.InvalidClientMetadataException;
 
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
-import io.reactivex.Single;
+
 import io.reactivex.functions.Function;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;

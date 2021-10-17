@@ -15,13 +15,13 @@
  */
 package io.gravitee.am.repository.jdbc.management.api.spring;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcEvent;
-import io.reactivex.Flowable;
+
 import java.time.LocalDateTime;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;
-import reactor.adapter.rxjava.RxJava2Adapter;
+
 import reactor.core.publisher.Flux;
 
 /**

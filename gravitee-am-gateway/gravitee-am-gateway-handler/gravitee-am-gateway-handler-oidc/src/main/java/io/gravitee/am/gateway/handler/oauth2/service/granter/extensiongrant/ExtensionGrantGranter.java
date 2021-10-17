@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oauth2.service.granter.extensiongrant;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.oidc.StandardClaims;
 import io.gravitee.am.common.oidc.idtoken.Claims;
 import io.gravitee.am.extensiongrant.api.ExtensionGrantProvider;
@@ -38,7 +38,7 @@ import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
-import io.reactivex.Single;
+
 import io.reactivex.functions.Function;
 import java.util.Date;
 import java.util.HashMap;

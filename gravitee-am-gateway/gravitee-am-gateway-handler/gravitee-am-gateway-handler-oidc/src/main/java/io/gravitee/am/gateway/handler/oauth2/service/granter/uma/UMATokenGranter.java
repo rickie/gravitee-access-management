@@ -17,7 +17,7 @@ package io.gravitee.am.gateway.handler.oauth2.service.granter.uma;
 
 import static io.gravitee.am.common.oauth2.Parameters.*;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.oauth2.InvalidTokenException;
 import io.gravitee.am.common.exception.uma.RequiredClaims;
 import io.gravitee.am.common.exception.uma.UmaException;
@@ -53,7 +53,7 @@ import io.gravitee.am.service.exception.UserInvalidException;
 import io.gravitee.common.util.MultiValueMap;
 import io.gravitee.gateway.api.ExecutionContext;
 import io.gravitee.gateway.api.context.SimpleExecutionContext;
-import io.reactivex.Maybe;
+
 
 import io.reactivex.Single;
 import io.reactivex.functions.Function;

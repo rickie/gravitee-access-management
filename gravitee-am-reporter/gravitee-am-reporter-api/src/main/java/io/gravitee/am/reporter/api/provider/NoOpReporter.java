@@ -26,7 +26,7 @@ import io.gravitee.am.reporter.api.audit.model.Audit;
 import io.gravitee.common.component.Lifecycle;
 import io.gravitee.reporter.api.Reportable;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

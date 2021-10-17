@@ -29,7 +29,7 @@ import io.gravitee.am.repository.jdbc.oauth2.api.model.JdbcScopeApproval;
 import io.gravitee.am.repository.jdbc.oauth2.api.spring.SpringScopeApprovalRepository;
 import io.gravitee.am.repository.oauth2.api.ScopeApprovalRepository;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.time.LocalDateTime;

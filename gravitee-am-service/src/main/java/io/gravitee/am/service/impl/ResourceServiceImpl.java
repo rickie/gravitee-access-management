@@ -33,8 +33,8 @@ import io.gravitee.am.service.exception.*;
 import io.gravitee.am.service.model.NewResource;
 import io.reactivex.Completable;
 
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
+
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;

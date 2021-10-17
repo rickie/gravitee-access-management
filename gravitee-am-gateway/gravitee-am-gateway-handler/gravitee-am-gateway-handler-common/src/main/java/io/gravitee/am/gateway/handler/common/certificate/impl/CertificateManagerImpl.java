@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.common.certificate.impl;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.certificate.api.CertificateMetadata;
 import io.gravitee.am.certificate.api.DefaultKey;
 import io.gravitee.am.certificate.api.Keys;
@@ -34,9 +34,9 @@ import io.gravitee.am.repository.management.api.CertificateRepository;
 import io.gravitee.common.event.Event;
 import io.gravitee.common.event.EventListener;
 import io.gravitee.common.service.AbstractService;
-import io.reactivex.Flowable;
-import io.reactivex.Maybe;
-import io.reactivex.Single;
+
+
+
 import io.reactivex.schedulers.Schedulers;
 import java.security.InvalidKeyException;
 import java.security.Key;

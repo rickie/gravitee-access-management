@@ -14,9 +14,9 @@
 package io.gravitee.am.management.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.management.service.NewsletterService;
-import io.reactivex.Single;
+
 import io.vertx.reactivex.core.buffer.Buffer;
 import io.vertx.reactivex.ext.web.client.HttpResponse;
 import io.vertx.reactivex.ext.web.client.WebClient;

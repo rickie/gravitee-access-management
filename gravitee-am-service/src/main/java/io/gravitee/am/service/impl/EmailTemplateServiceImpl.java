@@ -40,7 +40,7 @@ import io.gravitee.am.service.reporter.builder.AuditBuilder;
 import io.gravitee.am.service.reporter.builder.management.EmailTemplateAuditBuilder;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;

@@ -216,7 +216,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
                                                             if (ex instanceof UserAlreadyExistsException) {
                                                                 return RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated(newUser.getUsername()))
                                                                         // double check user existence for case sensitive
-                                                                        .flatMapSingle(idpUser -> RxJava2Adapter.monoToSingle(userService.findByDomainAndUsernameAndSource_migrated(domain.getId(), idpUser.getUsername(), newUser.getSource()).hasElement().map(RxJavaReactorMigrationUtil.<Boolean, io.gravitee.am.service.model.NewUser>toJdkFunction(empty -> {
+                                                                        .flatMapSingle(idpUser -> RxJava2Adapter.monoToSingle(userService.findByDomainAndUsernameAndSource_migrated(domain.getId(), idpUser.getUsername(), newUser.getSource()).hasElement().map(RxJavaReactorMigrationUtil.<Boolean, NewUser>toJdkFunction(empty -> {
                                                                                     if (!empty) {
                                                                                         throw new UserAlreadyExistsException(newUser.getUsername());
                                                                                     } else {

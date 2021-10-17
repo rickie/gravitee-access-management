@@ -17,9 +17,9 @@ package io.gravitee.am.repository.jdbc.management.api.spring.role;
 
 import com.google.errorprone.annotations.InlineMe;
 import io.gravitee.am.repository.jdbc.management.api.model.JdbcRole;
-import io.reactivex.Flowable;
+
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import java.util.List;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.RxJava2CrudRepository;

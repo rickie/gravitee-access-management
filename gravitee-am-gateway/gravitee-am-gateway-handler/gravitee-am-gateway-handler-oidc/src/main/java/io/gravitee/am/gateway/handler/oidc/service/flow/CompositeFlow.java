@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.gateway.handler.oidc.service.flow;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.gateway.handler.oauth2.exception.UnsupportedResponseTypeException;
 import io.gravitee.am.gateway.handler.oauth2.service.code.AuthorizationCodeService;
 import io.gravitee.am.gateway.handler.oauth2.service.request.AuthorizationRequest;
@@ -29,7 +29,7 @@ import io.gravitee.am.model.User;
 import io.gravitee.am.model.oidc.Client;
 
 import io.reactivex.Observable;
-import io.reactivex.Single;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

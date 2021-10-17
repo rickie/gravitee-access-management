@@ -46,7 +46,7 @@ import io.gravitee.reporter.api.Reportable;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.ConnectionFactory;
 import io.reactivex.Maybe;
-import io.reactivex.Single;
+
 import io.reactivex.processors.PublishProcessor;
 import java.io.BufferedReader;
 import java.io.InputStream;

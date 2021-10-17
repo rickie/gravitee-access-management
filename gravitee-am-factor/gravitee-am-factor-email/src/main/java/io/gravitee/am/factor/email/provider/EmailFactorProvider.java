@@ -17,7 +17,7 @@ package io.gravitee.am.factor.email.provider;
 
 import static java.util.Arrays.asList;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.mfa.InvalidCodeException;
 import io.gravitee.am.common.factor.FactorDataKeys;
 import io.gravitee.am.factor.api.Enrollment;

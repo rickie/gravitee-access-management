@@ -33,7 +33,7 @@ import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Statement;
 import io.reactivex.Completable;
 
-import io.reactivex.Maybe;
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;

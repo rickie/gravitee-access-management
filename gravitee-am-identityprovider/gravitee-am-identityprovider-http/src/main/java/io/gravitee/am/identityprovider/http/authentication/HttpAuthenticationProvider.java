@@ -15,7 +15,7 @@
  */
 package io.gravitee.am.identityprovider.http.authentication;
 
-import com.google.errorprone.annotations.InlineMe;
+
 import io.gravitee.am.common.exception.authentication.AuthenticationException;
 import io.gravitee.am.common.exception.authentication.InternalAuthenticationServiceException;
 import io.gravitee.am.common.oidc.StandardClaims;
@@ -34,7 +34,7 @@ import io.gravitee.common.http.HttpHeader;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.MediaType;
 import io.gravitee.el.TemplateEngine;
-import io.reactivex.Maybe;
+
 import io.reactivex.Single;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
