@@ -165,10 +165,10 @@ private Mono<Boolean> migrateScopeSettings_migrated(SystemTask task) {
                         logger.debug("No scope to process for application '{}'", app.getId());
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(app));
-                })).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> updateSystemTask_migrated(task, (SystemTaskStatus.FAILURE), task.getOperationId()).subscribe())).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateSystemTask_migrated(task, SystemTaskStatus.SUCCESS, task.getOperationId()).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> true)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Boolean>>toJdkFunction((err2) -> {
+                })).ignoreElements().then().doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(err -> updateSystemTask_migrated(task, (SystemTaskStatus.FAILURE), task.getOperationId()).subscribe())).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(updateSystemTask_migrated(task, SystemTaskStatus.SUCCESS, task.getOperationId()).map(RxJavaReactorMigrationUtil.toJdkFunction(__ -> true)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Boolean>>toJdkFunction((err2) -> {
                             logger.error("Unable to update status for migrate scope options task: {}", err2.getMessage());
                             return RxJava2Adapter.monoToSingle(Mono.just(false));
-                        }).apply(err)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Boolean>>toJdkFunction((err2) -> {
+                        }).apply(err)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Boolean>>toJdkFunction((err2) -> {
                     logger.error("Unable to migrate scope options for applications: {}", err2.getMessage());
                     return RxJava2Adapter.monoToSingle(Mono.just(false));
                 }).apply(err)));

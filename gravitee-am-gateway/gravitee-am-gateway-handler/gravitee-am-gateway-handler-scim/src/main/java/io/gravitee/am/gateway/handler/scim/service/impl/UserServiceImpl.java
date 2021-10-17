@@ -179,14 +179,14 @@ public class UserServiceImpl implements UserService {
                     userModel.setEnabled(userModel.getPassword() != null);
 
                     // store user in its identity provider
-                    return RxJava2Adapter.monoToSingle(userValidator.validate_migrated(userModel).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userProvider.create_migrated(convert(userModel)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(idpUser -> {
+                    return RxJava2Adapter.monoToSingle(userValidator.validate_migrated(userModel).then(userProvider.create_migrated(convert(userModel)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.identityprovider.api.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(idpUser -> {
                                 // AM 'users' collection is not made for authentication (but only management stuff)
                                 // clear password
                                 userModel.setPassword(null);
                                 // set external id
                                 userModel.setExternalId(idpUser.getId());
                                 return RxJava2Adapter.monoToSingle(userRepository.create_migrated(userModel));
-                            }).apply(v)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<io.gravitee.am.model.User>>toJdkFunction(ex -> {
+                            }).apply(v)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<io.gravitee.am.model.User>>toJdkFunction(ex -> {
                                 if (ex instanceof UserAlreadyExistsException) {
                                     return RxJava2Adapter.monoToSingle(Mono.error(new UniquenessException("User with username [" + user.getUserName() + "] already exists")));
                                 }
@@ -238,7 +238,7 @@ public class UserServiceImpl implements UserService {
 
                                 UserFactorUpdater.updateFactors(existingUser.getFactors(), existingUser, userToUpdate);
 
-                                return RxJava2Adapter.monoToSingle(userValidator.validate_migrated(userToUpdate).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(userToUpdate.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(userToUpdate.getSource()))))
+                                return RxJava2Adapter.monoToSingle(userValidator.validate_migrated(userToUpdate).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(identityProviderManager.getUserProvider_migrated(userToUpdate.getSource()).switchIfEmpty(Mono.error(new UserProviderNotFoundException(userToUpdate.getSource()))))
                                         .flatMapSingle(userProvider -> {
                                             // no idp user check if we need to create it
                                             if (userToUpdate.getExternalId() == null) {
@@ -257,7 +257,7 @@ public class UserServiceImpl implements UserService {
                                                 userToUpdate.setLastPasswordReset(new Date());
                                             }
                                             return RxJava2Adapter.monoToSingle(userRepository.update_migrated(userToUpdate));
-                                        }).apply(v)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<io.gravitee.am.model.User>>toJdkFunction(ex -> {
+                                        }).apply(v)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<io.gravitee.am.model.User>>toJdkFunction(ex -> {
                                             if (ex instanceof UserNotFoundException || ex instanceof UserInvalidException) {
                                                 // idp user does not exist, only update AM user
                                                 // clear password
