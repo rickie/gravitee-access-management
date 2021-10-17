@@ -514,7 +514,7 @@
 
                             <!-- Turn these on once. -->
                             -Xep:MethodReferenceUsage:ERROR
-                            -Xep:RemoveOldMethods:OFF
+                            -Xep:RemoveOldMethods:ERROR
                             -Xep:UnwrapExpressions:ERROR
 
                             -Xep:Refaster:ERROR
@@ -556,7 +556,7 @@
 
 <!--                            -XepDisableAllChecks-->
 <!--                            -Xep:CountMethods:ERROR-->
-<!--                            -XepOpt:Directory=p2_run_13-->
+<!--                            -XepOpt:Directory=p2_run_22-->
 
                             <!-- Error Prone args for patch checks -->
                             ${error-prone.args}
