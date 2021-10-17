@@ -90,7 +90,7 @@ public class UserConsentsResource extends AbstractResource {
             @QueryParam("clientId") String clientId,
             @Suspended final AsyncResponse response) {
 
-        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
+        checkAnyPermission_migrated(organizationId, environmentId, domain, Permission.DOMAIN_USER, Acl.READ).then(RxJava2Adapter.flowableToFlux(RxJava2Adapter.monoToMaybe(domainService.findById_migrated(domain).switchIfEmpty(Mono.error(new DomainNotFoundException(domain))))
                         .flatMapPublisher(__ -> {
                             if (clientId == null || clientId.isEmpty()) {
                                 return scopeApprovalService.findByDomainAndUser_migrated(domain, user);
@@ -102,7 +102,7 @@ public class UserConsentsResource extends AbstractResource {
                                             scopeApprovalEntity.setClientEntity(clientEntity);
                                             scopeApprovalEntity.setScopeEntity(scopeEntity);
                                             return scopeApprovalEntity;
-                                        }))))).apply(e))))).collectList()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+                                        }))))).apply(e))).collectList()).subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 
     @DELETE

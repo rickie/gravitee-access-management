@@ -48,7 +48,7 @@ import io.vertx.reactivex.ext.web.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
 
 /**
  * The callback route to verify attestations and assertions. Usually this route is <pre>/webauthn/response</pre>

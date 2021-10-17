@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)

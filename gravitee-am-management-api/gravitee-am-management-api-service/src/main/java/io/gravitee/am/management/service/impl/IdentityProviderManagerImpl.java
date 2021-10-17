@@ -56,7 +56,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)

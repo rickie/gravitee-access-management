@@ -29,7 +29,7 @@ import io.gravitee.am.service.FlowService;
 import io.gravitee.am.service.model.plugin.PolicyPlugin;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
-import io.reactivex.Observable;
+
 import io.reactivex.flowables.GroupedFlowable;
 import io.reactivex.functions.Function;
 import java.util.List;

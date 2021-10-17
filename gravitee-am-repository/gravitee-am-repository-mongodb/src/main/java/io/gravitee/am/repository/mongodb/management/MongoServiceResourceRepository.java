@@ -70,7 +70,7 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
 }
 @Override
     public Mono<ServiceResource> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(resourceCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(resourceCollection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -83,7 +83,7 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
     public Mono<ServiceResource> create_migrated(ServiceResource item) {
         ServiceResourceMongo res = convert(item);
         res.setId(res.getId() == null ? RandomString.generate() : res.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(resourceCollection.insertOne(res)))).flatMap(success->findById_migrated(res.getId()).single());
+        return Mono.from(resourceCollection.insertOne(res)).flatMap(success->findById_migrated(res.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -95,7 +95,7 @@ public class MongoServiceResourceRepository extends AbstractManagementMongoRepos
 @Override
     public Mono<ServiceResource> update_migrated(ServiceResource item) {
         ServiceResourceMongo authenticator = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(resourceCollection.replaceOne(eq(FIELD_ID, authenticator.getId()), authenticator)))).flatMap(updateResult->findById_migrated(authenticator.getId()).single());
+        return Mono.from(resourceCollection.replaceOne(eq(FIELD_ID, authenticator.getId()), authenticator)).flatMap(updateResult->findById_migrated(authenticator.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

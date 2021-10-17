@@ -34,7 +34,7 @@ import io.gravitee.am.service.exception.UserNotFoundException;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
@@ -88,7 +88,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
         String rawQuery = this.configuration.getFindUserByEmailQuery().replaceAll("\\?", email);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.find(query).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(usersCollection.find(query).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByUsername_migrated(username))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -105,7 +105,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
         String rawQuery = this.configuration.getFindUserByUsernameQuery().replaceAll("\\?", encodedUsername);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.find(query).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(usersCollection.find(query).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(user))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -145,7 +145,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
                         // set date fields
                         document.put(FIELD_CREATED_AT, new Date());
                         document.put(FIELD_UPDATED_AT, document.get(FIELD_CREATED_AT));
-                        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(usersCollection.insertOne(document)))).flatMap(success->findById_migrated(document.getString(FIELD_ID)).single()));
+                        return RxJava2Adapter.monoToSingle(Mono.from(usersCollection.insertOne(document)).flatMap(success->findById_migrated(document.getString(FIELD_ID)).single()));
                     }
                 }).apply(v)));
     }
@@ -181,7 +181,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
                     // set date fields
                     document.put(FIELD_CREATED_AT, oldUser.getCreatedAt());
                     document.put(FIELD_UPDATED_AT, new Date());
-                    return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(usersCollection.replaceOne(eq(FIELD_ID, oldUser.getId()), document)))).flatMap(updateResult->findById_migrated(oldUser.getId()).single()));
+                    return RxJava2Adapter.monoToSingle(Mono.from(usersCollection.replaceOne(eq(FIELD_ID, oldUser.getId()), document)).flatMap(updateResult->findById_migrated(oldUser.getId()).single()));
                 }).apply(y))));
     }
 
@@ -206,7 +206,7 @@ public class MongoUserProvider implements UserProvider, InitializingBean {
 
     
 private Mono<User> findById_migrated(String userId) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.find(eq(FIELD_ID, userId)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(usersCollection.find(eq(FIELD_ID, userId)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     private User convert(Document document) {

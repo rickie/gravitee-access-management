@@ -28,7 +28,7 @@ import io.gravitee.common.util.LinkedMultiValueMap;
 import io.gravitee.common.util.MultiValueMap;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -65,7 +65,7 @@ public class MongoAuthorizationCodeRepository extends AbstractOAuth2MongoReposit
 
     
 private Mono<AuthorizationCode> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(authorizationCodeCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(authorizationCodeCollection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(authorizationCode))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -80,7 +80,7 @@ private Mono<AuthorizationCode> findById_migrated(String id) {
             authorizationCode.setId(RandomString.generate());
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(authorizationCodeCollection.insertOne(convert(authorizationCode))))).flatMap(success->findById_migrated(authorizationCode.getId()).single());
+        return Mono.from(authorizationCodeCollection.insertOne(convert(authorizationCode))).flatMap(success->findById_migrated(authorizationCode.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.delete_migrated(code))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -91,7 +91,7 @@ private Mono<AuthorizationCode> findById_migrated(String id) {
 }
 @Override
     public Mono<AuthorizationCode> delete_migrated(String code) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(authorizationCodeCollection.findOneAndDelete(eq(FIELD_ID, code)))), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(authorizationCodeCollection.findOneAndDelete(eq(FIELD_ID, code))).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCode_migrated(code))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -102,7 +102,7 @@ private Mono<AuthorizationCode> findById_migrated(String id) {
 }
 @Override
     public Mono<AuthorizationCode> findByCode_migrated(String code) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(authorizationCodeCollection.find(eq(FIELD_CODE, code)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(authorizationCodeCollection.find(eq(FIELD_CODE, code)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     private AuthorizationCode convert(AuthorizationCodeMongo authorizationCodeMongo) {

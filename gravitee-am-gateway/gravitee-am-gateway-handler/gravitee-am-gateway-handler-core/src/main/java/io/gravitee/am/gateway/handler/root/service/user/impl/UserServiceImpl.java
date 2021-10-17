@@ -52,7 +52,7 @@ import io.gravitee.am.service.validators.UserValidator;
 import io.reactivex.*;
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Predicate;

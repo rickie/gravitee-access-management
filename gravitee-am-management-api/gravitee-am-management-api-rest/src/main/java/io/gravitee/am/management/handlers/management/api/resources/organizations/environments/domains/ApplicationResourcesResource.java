@@ -28,7 +28,7 @@ import io.gravitee.am.service.ResourceService;
 import io.gravitee.am.service.exception.ApplicationNotFoundException;
 import io.gravitee.am.service.exception.DomainNotFoundException;
 import io.gravitee.common.http.MediaType;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.swagger.annotations.ApiOperation;

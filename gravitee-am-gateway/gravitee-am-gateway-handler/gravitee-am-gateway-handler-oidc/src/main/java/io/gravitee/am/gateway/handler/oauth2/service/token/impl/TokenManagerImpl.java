@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import reactor.adapter.rxjava.RxJava2Adapter;
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)

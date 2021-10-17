@@ -37,7 +37,7 @@ import io.gravitee.am.repository.mongodb.management.internal.model.scim.Certific
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -98,10 +98,10 @@ public class MongoUserRepository extends AbstractUserRepository<UserMongo> imple
 }
 @Override
     public Mono<User> findByUsernameAndDomain_migrated(String domain, String username) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(usersCollection
+        return Flux.from(usersCollection
                         .find(and(eq(FIELD_REFERENCE_TYPE, DOMAIN.name()), eq(FIELD_REFERENCE_ID, domain), eq(FIELD_USERNAME, username)))
                         .limit(1)
-                        .first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+                        .first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.countByReference_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

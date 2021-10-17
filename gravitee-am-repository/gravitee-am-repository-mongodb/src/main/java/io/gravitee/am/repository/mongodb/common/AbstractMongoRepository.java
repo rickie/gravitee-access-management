@@ -17,13 +17,13 @@ package io.gravitee.am.repository.mongodb.common;
 
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.reactivestreams.client.MongoCollection;
-import io.reactivex.Single;
+
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)
@@ -51,7 +51,7 @@ public abstract class AbstractMongoRepository {
 
     protected void createIndex(MongoCollection<?> collection, Document document, IndexOptions indexOptions, boolean ensure) {
         if (ensure) {
-            RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(collection.createIndex(document, indexOptions)))).doOnSuccess(s -> logger.debug("Created an index named: {}", s)).doOnError(throwable -> logger.error("Error occurs during creation of index", throwable)).block();
+            Mono.from(collection.createIndex(document, indexOptions)).doOnSuccess(s -> logger.debug("Created an index named: {}", s)).doOnError(throwable -> logger.error("Error occurs during creation of index", throwable)).block();
         }
     }
 }

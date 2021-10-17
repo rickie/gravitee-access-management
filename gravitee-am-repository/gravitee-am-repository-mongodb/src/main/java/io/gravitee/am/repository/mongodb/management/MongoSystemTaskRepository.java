@@ -25,7 +25,7 @@ import io.gravitee.am.repository.mongodb.management.internal.model.SystemTaskMon
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
@@ -61,9 +61,7 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
 
   @Override
   public Mono<SystemTask> findById_migrated(String id) {
-    return RxJava2Adapter.observableToFlux(
-            RxJava2Adapter.fluxToObservable(Flux.from(systemTaskCollection.find(eq(FIELD_ID, id)).first())),
-            BackpressureStrategy.BUFFER)
+    return Flux.from(systemTaskCollection.find(eq(FIELD_ID, id)).first())
         .next()
         .map(RxJavaReactorMigrationUtil.toJdkFunction(SystemTaskMongo::convert));
   }
@@ -81,7 +79,7 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
   public Mono<SystemTask> create_migrated(SystemTask item) {
     SystemTaskMongo task = SystemTaskMongo.convert(item);
     task.setId(task.getId() == null ? RandomString.generate() : task.getId());
-    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(systemTaskCollection.insertOne(task))))
+    return Mono.from(systemTaskCollection.insertOne(task))
         .flatMap(
             success ->
                 findById_migrated(task.getId())
@@ -116,9 +114,8 @@ public class MongoSystemTaskRepository extends AbstractManagementMongoRepository
   @Override
   public Mono<SystemTask> updateIf_migrated(SystemTask item, String operationId) {
     SystemTaskMongo task = SystemTaskMongo.convert(item);
-    return RxJava2Adapter.singleToMono(
-            RxJava2Adapter.monoToSingle(Mono.from(systemTaskCollection.replaceOne(
-                    and(eq(FIELD_ID, task.getId()), eq(FIELD_OPERATION_ID, operationId)), task))))
+    return Mono.from(systemTaskCollection.replaceOne(
+                    and(eq(FIELD_ID, task.getId()), eq(FIELD_OPERATION_ID, operationId)), task))
         .flatMap(
             updateResult ->
                 findById_migrated(task.getId())

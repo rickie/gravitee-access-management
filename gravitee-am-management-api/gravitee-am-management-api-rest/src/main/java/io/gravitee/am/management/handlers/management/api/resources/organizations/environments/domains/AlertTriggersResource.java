@@ -86,6 +86,6 @@ public class AlertTriggersResource extends AbstractResource {
 
         final User authenticatedUser = this.getAuthenticatedUser();
 
-        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.UPDATE).thenMany(Flux.fromIterable(patchAlertTriggers)))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<PatchAlertTrigger, Single<AlertTrigger>>toJdkFunction(patchAlertTrigger -> RxJava2Adapter.monoToSingle(alertTriggerService.createOrUpdate_migrated(ReferenceType.DOMAIN, domainId, patchAlertTrigger, authenticatedUser))).apply(e))))).collectList().subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
+        RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(checkAnyPermission_migrated(organizationId, environmentId, Permission.DOMAIN_ALERT, Acl.UPDATE).thenMany(Flux.fromIterable(patchAlertTriggers)))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<PatchAlertTrigger, Single<AlertTrigger>>toJdkFunction(patchAlertTrigger -> RxJava2Adapter.monoToSingle(alertTriggerService.createOrUpdate_migrated(ReferenceType.DOMAIN, domainId, patchAlertTrigger, authenticatedUser))).apply(e))).collectList().subscribe(RxJavaReactorMigrationUtil.toJdkConsumer(response::resume), RxJavaReactorMigrationUtil.toJdkConsumer(response::resume));
     }
 }

@@ -22,7 +22,7 @@ import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.plugin.BotDetectionPlugin;
 import io.gravitee.plugin.core.api.Plugin;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import java.util.List;
 import org.slf4j.Logger;

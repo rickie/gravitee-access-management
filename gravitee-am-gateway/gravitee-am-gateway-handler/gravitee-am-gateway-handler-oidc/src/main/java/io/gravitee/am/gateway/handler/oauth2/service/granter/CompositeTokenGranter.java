@@ -39,7 +39,7 @@ import io.gravitee.am.service.AuthenticationFlowContextService;
 import io.gravitee.am.service.PermissionTicketService;
 import io.gravitee.am.service.ResourceService;
 import io.reactivex.BackpressureStrategy;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,7 +50,7 @@ import org.springframework.core.env.Environment;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
 
 /**
  * @author David BRASSELY (david.brassely at graviteesource.com)
@@ -107,7 +107,7 @@ public class CompositeTokenGranter implements TokenGranter, InitializingBean {
 }
 @Override
     public Mono<Token> grant_migrated(TokenRequest tokenRequest, Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.fromIterable(tokenGranters.values())), BackpressureStrategy.BUFFER).filter(tokenGranter -> tokenGranter.handle(tokenRequest.getGrantType(), client)).next().switchIfEmpty(Mono.error(new UnsupportedGrantTypeException("Unsupported grant type: " + tokenRequest.getGrantType()))))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToMaybe(Flux.fromIterable(tokenGranters.values()).filter(tokenGranter -> tokenGranter.handle(tokenRequest.getGrantType(), client)).next().switchIfEmpty(Mono.error(new UnsupportedGrantTypeException("Unsupported grant type: " + tokenRequest.getGrantType()))))
                 .flatMapSingle(tokenGranter -> RxJava2Adapter.monoToSingle(tokenGranter.grant_migrated(tokenRequest, client))));
     }
 

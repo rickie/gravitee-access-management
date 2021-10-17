@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
 import reactor.core.publisher.Mono;
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)

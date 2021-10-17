@@ -50,7 +50,7 @@ import io.gravitee.common.service.AbstractService;
 import io.gravitee.reporter.api.Reportable;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import io.reactivex.processors.PublishProcessor;
 import java.time.Instant;
@@ -160,7 +160,7 @@ public class MongoAuditReporter extends AbstractService implements AuditReporter
 }
 @Override
     public Mono<Audit> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(reportableCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(reportableCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @Override

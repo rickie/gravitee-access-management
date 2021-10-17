@@ -29,7 +29,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
 
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
 
 /**
  * OAuth 2.0 Token Introspection Endpoint

@@ -51,7 +51,7 @@ import io.gravitee.am.service.utils.GrantTypeUtils;
 import io.gravitee.am.service.utils.ResponseTypeUtils;
 import io.reactivex.*;
 import io.reactivex.BackpressureStrategy;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.functions.Function;
@@ -591,7 +591,7 @@ private Mono<DynamicClientRegistrationRequest> validateSectorIdentifierUri_migra
                     .rxSend()).map(RxJavaReactorMigrationUtil.toJdkFunction(HttpResponse::bodyAsString)).map(RxJavaReactorMigrationUtil.toJdkFunction(JsonArray::new)))
                     .onErrorResumeNext(RxJava2Adapter.monoToSingle(Mono.error(new InvalidClientMetadataException("Unable to parse sector_identifier_uri : "+ uri.toString()))))).flatMapMany(RxJavaReactorMigrationUtil.toJdkFunction(Flowable::fromIterable)))
                     .cast(String.class)
-                    .collect(HashSet::new,HashSet::add)).flatMap(allowedRedirectUris->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.fromIterable(request.getRedirectUris().get())), BackpressureStrategy.BUFFER).filter((String redirectUri)->!allowedRedirectUris.contains(redirectUri))).collect(ArrayList<String>::new, ArrayList::add)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ArrayList<String>, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((ArrayList<String> missing)->{
+                    .collect(HashSet::new,HashSet::add)).flatMap(allowedRedirectUris->RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(request.getRedirectUris().get()).filter((String redirectUri)->!allowedRedirectUris.contains(redirectUri))).collect(ArrayList<String>::new, ArrayList::add)).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<ArrayList<String>, SingleSource<DynamicClientRegistrationRequest>>toJdkFunction((ArrayList<String> missing)->{
 if (!missing.isEmpty()) {
 return RxJava2Adapter.monoToSingle(Mono.error(new InvalidRedirectUriException("redirect uris are not allowed according to sector_identifier_uri: " + String.join(" ", missing))));
 } else {

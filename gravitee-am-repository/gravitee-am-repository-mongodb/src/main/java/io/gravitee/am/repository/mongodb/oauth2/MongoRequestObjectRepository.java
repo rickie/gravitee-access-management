@@ -26,7 +26,7 @@ import io.gravitee.am.repository.oidc.model.RequestObject;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
@@ -65,7 +65,7 @@ public class MongoRequestObjectRepository extends AbstractOAuth2MongoRepository 
 }
 @Override
     public Mono<RequestObject> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(requestObjectCollection.find(eq(FIELD_ID, id)).limit(1).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(requestObjectCollection.find(eq(FIELD_ID, id)).limit(1).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(requestObject))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -76,7 +76,7 @@ public class MongoRequestObjectRepository extends AbstractOAuth2MongoRepository 
 }
 @Override
     public Mono<RequestObject> create_migrated(RequestObject requestObject) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(requestObjectCollection.insertOne(convert(requestObject))))).flatMap(success->findById_migrated(requestObject.getId()).single());
+        return Mono.from(requestObjectCollection.insertOne(convert(requestObject))).flatMap(success->findById_migrated(requestObject.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

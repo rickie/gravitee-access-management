@@ -27,7 +27,7 @@ import io.gravitee.common.http.MediaType;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
 import reactor.adapter.rxjava.RxJava2Adapter;
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)

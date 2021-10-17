@@ -26,7 +26,7 @@ import io.gravitee.am.model.analytics.*;
 import io.gravitee.am.reporter.api.audit.AuditReportableCriteria;
 import io.gravitee.am.service.ApplicationService;
 import io.gravitee.am.service.UserService;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import java.util.Collections;
 import java.util.HashMap;

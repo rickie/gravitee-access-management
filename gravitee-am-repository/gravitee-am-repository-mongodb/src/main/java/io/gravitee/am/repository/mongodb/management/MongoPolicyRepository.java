@@ -24,7 +24,7 @@ import io.gravitee.am.repository.mongodb.management.internal.model.PolicyMongo;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 
 
@@ -63,7 +63,7 @@ public class MongoPolicyRepository extends AbstractManagementMongoRepository imp
 }
 @Override
     public Mono<Boolean> collectionExists_migrated() {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(mongoOperations.listCollectionNames())), BackpressureStrategy.BUFFER).filter(collectionName -> collectionName.equalsIgnoreCase(COLLECTION_NAME)))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.from(mongoOperations.listCollectionNames()).filter(collectionName -> collectionName.equalsIgnoreCase(COLLECTION_NAME)))
                 .isEmpty()).map(RxJavaReactorMigrationUtil.toJdkFunction(isEmpty -> !isEmpty));
     }
 

@@ -90,10 +90,10 @@ public class JdbcUserProvider extends JdbcAbstractProvider<UserProvider> impleme
 
                 LOGGER.debug("Found {} statements to execute", sqlStatements.size());
 
-                RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(tableExists(configuration.getProtocol(), configuration.getUsersTable())))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<String, Single<Integer>>toJdkFunction(statement -> RxJava2Adapter.fluxToFlowable(query_migrated(statement, new Object[0]).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(Result::getRowsUpdated)))
-                                .first(0)).apply(e))))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(total -> {
+                RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.just(tableExists(configuration.getProtocol(), configuration.getUsersTable())))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<String, Single<Integer>>toJdkFunction(statement -> RxJava2Adapter.fluxToFlowable(query_migrated(statement, new Object[0]).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(Result::getRowsUpdated)))
+                                .first(0)).apply(e))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(total -> {
                                     if (total == 0) {
-                                        return RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(sqlStatements))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<String, Single<Integer>>toJdkFunction(statement -> RxJava2Adapter.fluxToFlowable(query_migrated(statement, new Object[0]).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(Result::getRowsUpdated)))
+                                        return RxJava2Adapter.fluxToFlowable(Flux.fromIterable(sqlStatements).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<String, Single<Integer>>toJdkFunction(statement -> RxJava2Adapter.fluxToFlowable(query_migrated(statement, new Object[0]).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(Result::getRowsUpdated)))
                                                         .first(0)).apply(e))));
                                     } else {
                                         return RxJava2Adapter.fluxToFlowable(Flux.empty());
@@ -154,7 +154,7 @@ private Mono<Map<String,Object>> selectUserByEmail_migrated(String email) {
         // set technical id
         ((DefaultUser)user).setId(user.getId() != null ? user.getId() : RandomString.generate());
 
-       return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(connectionPool.create()))).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Connection, Single<User>>)cnx -> {
+       return Mono.from(connectionPool.create()).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Connection, Single<User>>)cnx -> {
                     return RxJava2Adapter.monoToSingle(selectUserByUsername_migrated(cnx, user.getUsername()).hasElement().flatMap(x->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<User>>toJdkFunction(isEmpty -> {
                                 if (!isEmpty) {
                                     return RxJava2Adapter.monoToSingle(Mono.error(new UserAlreadyExistsException(user.getUsername())));
@@ -325,7 +325,7 @@ private Flux<Result> query_migrated(Connection connection, String sql, Object...
 
     
 private Flux<Result> query_migrated(String sql, Object... args) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(connectionPool.create()))).flux().flatMap(RxJavaReactorMigrationUtil.toJdkFunction(connection ->
+        return Mono.from(connectionPool.create()).flux().flatMap(RxJavaReactorMigrationUtil.toJdkFunction(connection ->
                         RxJava2Adapter.fluxToFlowable(query_migrated(connection, sql, args))
                                 .doFinally(() -> RxJava2Adapter.monoToCompletable(Mono.from(connection.close())).subscribe())));
     }

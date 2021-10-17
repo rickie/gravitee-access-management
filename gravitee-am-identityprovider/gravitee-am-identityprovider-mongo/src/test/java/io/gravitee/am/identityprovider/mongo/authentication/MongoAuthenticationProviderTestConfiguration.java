@@ -20,7 +20,7 @@ import com.mongodb.reactivestreams.client.MongoDatabase;
 import io.gravitee.am.identityprovider.api.*;
 import io.gravitee.am.identityprovider.mongo.MongoIdentityProviderConfiguration;
 import io.gravitee.am.identityprovider.mongo.utils.PasswordEncoder;
-import io.reactivex.Observable;
+
 import org.bson.Document;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
