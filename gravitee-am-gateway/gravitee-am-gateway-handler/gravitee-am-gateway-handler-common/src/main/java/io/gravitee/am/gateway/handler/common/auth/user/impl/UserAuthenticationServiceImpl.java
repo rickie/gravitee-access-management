@@ -134,8 +134,13 @@ return RxJava2Adapter.monoToMaybe(update_migrated(z, idpUser, false).flatMap(use
                 }).apply(v)))).doOnSuccess(user1 -> auditService.report(AuditBuilder.builder(UserAuditBuilder.class).type(EventType.USER_LOCKED).domain(criteria.domain()).client(criteria.client()).principal(null).user(user1))).then();
     }
 
-    
-private Mono<User> saveOrUpdate_migrated(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
+    @Override
+    public Mono<User> connect_migrated(io.gravitee.am.identityprovider.api.User principal) {
+        return connect_migrated(principal, false);
+    }
+
+
+    private Mono<User> saveOrUpdate_migrated(io.gravitee.am.identityprovider.api.User principal, boolean afterAuthentication) {
         String source = (String) principal.getAdditionalInformation().get(SOURCE_FIELD);
         return userService.findByDomainAndExternalIdAndSource_migrated(domain.getId(), principal.getId(), source).switchIfEmpty(Mono.defer(()->userService.findByDomainAndUsernameAndSource_migrated(domain.getId(), principal.getUsername(), source))).switchIfEmpty(Mono.error(new UserNotFoundException(principal.getUsername()))).flatMap(y->update_migrated(y, principal, afterAuthentication)).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
                     if (ex instanceof UserNotFoundException) {

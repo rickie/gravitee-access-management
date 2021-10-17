@@ -18,8 +18,10 @@ package io.gravitee.am.identityprovider.salesforce.authentication;
 import com.nimbusds.jwt.proc.JWTProcessor;
 import io.gravitee.am.common.jwt.SignatureAlgorithm;
 import io.gravitee.am.common.oauth2.ResponseType;
+import io.gravitee.am.identityprovider.api.Authentication;
 import io.gravitee.am.identityprovider.api.IdentityProviderMapper;
 import io.gravitee.am.identityprovider.api.IdentityProviderRoleMapper;
+import io.gravitee.am.identityprovider.api.User;
 import io.gravitee.am.identityprovider.api.oidc.OpenIDConnectIdentityProviderConfiguration;
 import io.gravitee.am.identityprovider.common.oauth2.authentication.AbstractOpenIDConnectAuthenticationProvider;
 import io.gravitee.am.identityprovider.common.oauth2.jwt.jwks.remote.RemoteJWKSourceResolver;
@@ -27,6 +29,7 @@ import io.gravitee.am.identityprovider.common.oauth2.jwt.processor.JWKSKeyProces
 import io.gravitee.am.identityprovider.salesforce.SalesForceIdentityProviderConfiguration;
 import io.gravitee.am.identityprovider.salesforce.authentication.spring.SalesForceAuthenticationProviderConfiguration;
 
+import io.reactivex.Maybe;
 import io.vertx.reactivex.ext.web.client.WebClient;
 import java.util.HashSet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +64,16 @@ public class SalesForceAuthenticationProvider extends AbstractOpenIDConnectAuthe
     @Override
     protected WebClient getClient() {
         return this.client;
+    }
+
+    @Override
+    protected Maybe<Token> authenticate(Authentication authentication) {
+        return null;
+    }
+
+    @Override
+    protected Maybe<User> profile(Token token, Authentication authentication) {
+        return null;
     }
 
     public void setJwtProcessor(JWTProcessor jwtProcessor) {

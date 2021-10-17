@@ -555,8 +555,8 @@
                             -Xep:ReturnMissingNullable:OFF
 
                             -XepDisableAllChecks
-<!--                            -Xep:CountMethods:ERROR-->
-<!--                            -XepOpt:Directory=p2_run_22-->
+                            -Xep:CountMethods:ERROR
+                            -XepOpt:Directory=p3_run_1
 
                             <!-- Error Prone args for patch checks -->
                             ${error-prone.args}

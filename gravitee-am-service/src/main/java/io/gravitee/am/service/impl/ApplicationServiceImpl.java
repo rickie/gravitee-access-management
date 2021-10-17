@@ -495,8 +495,12 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }).apply(err)));
     }
 
-    
-private Mono<Application> create0_migrated(String domain, Application application, User principal) {
+    @Override
+    public Mono<Application> renewClientSecret_migrated(String domain, String id) {
+        return renewClientSecret_migrated(domain, id, null);
+    }
+
+    private Mono<Application> create0_migrated(String domain, Application application, User principal) {
         // created and updated date
         application.setCreatedAt(new Date());
         application.setUpdatedAt(application.getCreatedAt());

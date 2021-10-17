@@ -75,7 +75,9 @@ default Mono<Client> update_migrated(Client client) {
     return RxJava2Adapter.singleToMono(update(client));
 }
 
-      Mono<Client> renewClientSecret_migrated(String domain, String id);
+      default Mono<Client> renewClientSecret_migrated(String domain, String id) {
+          return renewClientSecret_migrated(domain, id, null);
+      }
 
       @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(clientId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
 @Deprecated  

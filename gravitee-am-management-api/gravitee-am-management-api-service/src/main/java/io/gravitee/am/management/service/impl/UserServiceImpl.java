@@ -67,6 +67,21 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
 
     private static final String DEFAULT_IDP_PREFIX = "default-idp-";
 
+    @Override
+    public Mono<Void> unlock_migrated(ReferenceType referenceType, String referenceId, String userId) {
+        return unlock_migrated(referenceType, referenceId, userId, null);
+    }
+
+    @Override
+    public Mono<User> assignRoles_migrated(ReferenceType referenceType, String referenceId, String userId, List<String> roles) {
+        return assignRoles_migrated(referenceType, referenceId, userId, roles, null);
+    }
+
+    @Override
+    public Mono<User> enrollFactors_migrated(String userId, List<EnrolledFactor> factors) {
+        return enrollFactors_migrated(userId, factors, null);
+    }
+
     @Value("${user.registration.token.expire-after:86400}")
     private Integer expireAfter;
 
@@ -201,7 +216,7 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
                                                             if (ex instanceof UserAlreadyExistsException) {
                                                                 return RxJava2Adapter.monoToMaybe(userProvider.findByUsername_migrated(newUser.getUsername()))
                                                                         // double check user existence for case sensitive
-                                                                        .flatMapSingle(idpUser -> RxJava2Adapter.monoToSingle(userService.findByDomainAndUsernameAndSource_migrated(domain.getId(), idpUser.getUsername(), newUser.getSource()).hasElement().map(RxJavaReactorMigrationUtil.toJdkFunction(empty -> {
+                                                                        .flatMapSingle(idpUser -> RxJava2Adapter.monoToSingle(userService.findByDomainAndUsernameAndSource_migrated(domain.getId(), idpUser.getUsername(), newUser.getSource()).hasElement().map(RxJavaReactorMigrationUtil.<Boolean, io.gravitee.am.service.model.NewUser>toJdkFunction(empty -> {
                                                                                     if (!empty) {
                                                                                         throw new UserAlreadyExistsException(newUser.getUsername());
                                                                                     } else {
@@ -253,8 +268,12 @@ public class UserServiceImpl extends AbstractUserService<io.gravitee.am.service.
         return update_migrated(ReferenceType.DOMAIN, domain, id, updateUser, principal);
     }
 
-    
-@Override
+    @Override
+    public Mono<User> updateStatus_migrated(String domain, String userId, boolean status) {
+        return updateStatus_migrated(domain, userId, status, null);
+    }
+
+    @Override
     public Mono<User> updateStatus_migrated(String domain, String id, boolean status, io.gravitee.am.identityprovider.api.User principal) {
         return updateStatus_migrated(ReferenceType.DOMAIN, domain, id, status, principal);
     }

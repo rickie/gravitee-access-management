@@ -87,7 +87,25 @@ public class UserAuthenticationManagerImpl implements UserAuthenticationManager 
     @Autowired
     private UserService userService;
 
-    
+    @Override
+    public Mono<User> authenticate_migrated(Client client, Authentication authentication) {
+        return authenticate_migrated(client, authentication, false);
+    }
+
+    @Override
+    public Mono<User> loadPreAuthenticatedUser_migrated(String subject) {
+        return loadPreAuthenticatedUser_migrated(subject, null);
+    }
+
+    @Override
+    public Mono<User> connect_migrated(io.gravitee.am.identityprovider.api.User user) {
+        return connect_migrated(user, false);
+    }
+
+    @Deprecated
+    public Single<User> authenticate(Client client, Authentication authentication, boolean preAuthenticated) {
+ return RxJava2Adapter.monoToSingle(authenticate_migrated(client, authentication, preAuthenticated));
+}
 @Override
     public Mono<User> authenticate_migrated(Client client, Authentication authentication, boolean preAuthenticated) {
         logger.debug("Trying to authenticate [{}]", authentication);

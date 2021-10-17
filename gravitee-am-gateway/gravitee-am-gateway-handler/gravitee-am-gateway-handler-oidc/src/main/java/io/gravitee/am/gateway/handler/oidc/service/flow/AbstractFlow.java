@@ -60,7 +60,7 @@ public abstract class AbstractFlow implements Flow {
     
 @Override
     public Mono<AuthorizationResponse> run_migrated(AuthorizationRequest authorizationRequest, Client client, User endUser) {
-        return RxJava2Adapter.singleToMono(prepareResponse(authorizationRequest, client, endUser)).flatMap(response->processResponse_migrated(response, authorizationRequest, client, endUser));
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(prepareResponse_migrated(authorizationRequest, client, endUser))).flatMap(response->processResponse_migrated(response, authorizationRequest, client, endUser));
     }
 
     
