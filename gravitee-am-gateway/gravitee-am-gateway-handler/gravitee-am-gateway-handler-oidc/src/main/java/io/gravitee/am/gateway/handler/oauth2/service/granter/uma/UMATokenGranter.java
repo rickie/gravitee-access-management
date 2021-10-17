@@ -260,7 +260,7 @@ private Mono<List<PermissionRequest>> resolveScopeRequestAssessment_migrated(Tok
     
 private Mono<List<PermissionRequest>> extendPermissionWithRPT_migrated(TokenRequest tokenRequest, Client client, User endUser, List<PermissionRequest> requestedPermissions) {
         if(!StringUtils.isEmpty(tokenRequest.getRequestingPartyToken())) {
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(tokenRequest.getRequestingPartyToken(), client).flatMap(rpt->this.checkRequestingPartyToken_migrated(rpt, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(rpt -> this.mergePermissions(rpt, requestedPermissions))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<List<PermissionRequest>>>toJdkFunction(throwable -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException("Requesting Party Token (rpt) not valid")))).apply(err)));
+            return jwtService.decodeAndVerify_migrated(tokenRequest.getRequestingPartyToken(), client).flatMap(rpt->this.checkRequestingPartyToken_migrated(rpt, client, endUser)).map(RxJavaReactorMigrationUtil.toJdkFunction(rpt -> this.mergePermissions(rpt, requestedPermissions))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<List<PermissionRequest>>>toJdkFunction(throwable -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException("Requesting Party Token (rpt) not valid")))).apply(err)));
         }
 
         return Mono.just(requestedPermissions);

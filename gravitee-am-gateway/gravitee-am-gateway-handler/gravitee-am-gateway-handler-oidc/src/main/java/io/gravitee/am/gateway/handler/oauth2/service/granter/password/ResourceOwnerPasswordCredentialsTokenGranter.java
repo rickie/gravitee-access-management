@@ -99,7 +99,7 @@ public class ResourceOwnerPasswordCredentialsTokenGranter extends AbstractTokenG
         String username = tokenRequest.getUsername();
         String password = tokenRequest.getPassword();
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userAuthenticationManager.authenticate_migrated(client, new EndUserAuthentication(username, password, new SimpleAuthenticationContext(tokenRequest))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException(ex.getMessage())))).apply(err)));
+        return userAuthenticationManager.authenticate_migrated(client, new EndUserAuthentication(username, password, new SimpleAuthenticationContext(tokenRequest))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> RxJava2Adapter.monoToSingle(Mono.error(new InvalidGrantException(ex.getMessage())))).apply(err)));
     }
 
     public void setUserAuthenticationManager(UserAuthenticationManager userAuthenticationManager) {

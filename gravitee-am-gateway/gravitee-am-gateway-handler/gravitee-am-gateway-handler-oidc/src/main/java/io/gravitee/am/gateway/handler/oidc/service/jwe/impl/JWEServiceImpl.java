@@ -91,7 +91,7 @@ public class JWEServiceImpl implements JWEService {
                 new Payload(signedJwt)
         );
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<String>>toJdkFunction(throwable -> {
+        return encrypt_migrated(jwe, client).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<String>>toJdkFunction(throwable -> {
                     if(throwable instanceof OAuth2Exception) {
                         return RxJava2Adapter.monoToSingle(Mono.error(throwable));
                     }
@@ -121,7 +121,7 @@ public class JWEServiceImpl implements JWEService {
                 new Payload(signedJwt)
         );
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<String>>toJdkFunction(throwable -> {
+        return encrypt_migrated(jwe, client).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<String>>toJdkFunction(throwable -> {
                     if(throwable instanceof OAuth2Exception) {
                         return RxJava2Adapter.monoToSingle(Mono.error(throwable));
                     }
@@ -256,7 +256,7 @@ public Mono<String> encryptAuthorization_migrated(String signedJwt, Client clien
                 new Payload(signedJwt)
         );
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(encrypt_migrated(jwe, client))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<String>>toJdkFunction(throwable -> {
+        return encrypt_migrated(jwe, client).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<String>>toJdkFunction(throwable -> {
                     if(throwable instanceof OAuth2Exception) {
                         return RxJava2Adapter.monoToSingle(Mono.error(throwable));
                     }

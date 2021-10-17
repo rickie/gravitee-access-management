@@ -90,7 +90,7 @@ public class RequestObjectServiceImpl implements RequestObjectService {
 }
 @Override
     public Mono<JWT> readRequestObject_migrated(String request, Client client, boolean encRequired) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jweService.decrypt_migrated(request, encRequired))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction(err2 -> {
+        return jweService.decrypt_migrated(request, encRequired).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction(err2 -> {
                     if (err2 instanceof InvalidRequestObjectException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(err2));
                     }

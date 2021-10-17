@@ -140,11 +140,11 @@ public class HttpUserProvider implements UserProvider {
             // process request
             final Single<HttpResponse<Buffer>> requestHandler = RxJava2Adapter.monoToSingle(processRequest_migrated(templateEngine, createUserURI, createUserHttpMethod, createUserHttpHeaders, createUserBody));
 
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+            return RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = createResourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return convert(user.getUsername(), userAttributes);
-                    })))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
+                    })).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
                         if (ex instanceof AbstractManagementException) {
                             return RxJava2Adapter.monoToSingle(Mono.error(ex));
                         }
@@ -187,11 +187,11 @@ public class HttpUserProvider implements UserProvider {
             // process request
             final Single<HttpResponse<Buffer>> requestHandler = RxJava2Adapter.monoToSingle(processRequest_migrated(templateEngine, updateUserURI, updateUserHttpMethod, updateUserHttpHeaders, updateUserBody));
 
-            return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
+            return RxJava2Adapter.singleToMono(requestHandler).map(RxJavaReactorMigrationUtil.toJdkFunction(httpResponse -> {
                         final List<HttpResponseErrorCondition> errorConditions = updateResourceConfiguration.getHttpResponseErrorConditions();
                         Map<String, Object> userAttributes = processResponse(templateEngine, errorConditions, httpResponse);
                         return convert(updateUser.getUsername(), userAttributes);
-                    })))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
+                    })).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
                         if (ex instanceof AbstractManagementException) {
                             return RxJava2Adapter.monoToSingle(Mono.error(ex));
                         }

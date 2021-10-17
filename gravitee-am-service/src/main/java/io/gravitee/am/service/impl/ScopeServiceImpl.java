@@ -116,7 +116,7 @@ public class ScopeServiceImpl implements ScopeService {
 @Override
     public Mono<Page<Scope>> search_migrated(String domain, String query, int page, int size) {
         LOGGER.debug("Search scopes by domain and query: {} {}", domain, query);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.search_migrated(domain, query, page, size))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<Scope>>>toJdkFunction(ex -> {
+        return scopeRepository.search_migrated(domain, query, page, size).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<Scope>>>toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find scopes by domain and query : {} {}", domain, query, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find scopes by domain and query: %s %s", domain, query), ex)));
@@ -134,7 +134,7 @@ public class ScopeServiceImpl implements ScopeService {
         LOGGER.debug("Create a new scope {} for domain {}", newScope, domain);
         // replace all whitespace by an underscore (whitespace is a reserved keyword to separate tokens)
         String scopeKey = newScope.getKey().replaceAll("\\s+", "_");
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.findByDomainAndKey_migrated(domain, scopeKey).hasElement().map(RxJavaReactorMigrationUtil.toJdkFunction(empty -> {
+        return scopeRepository.findByDomainAndKey_migrated(domain, scopeKey).hasElement().map(RxJavaReactorMigrationUtil.toJdkFunction(empty -> {
                     if (!empty) {
                         throw new ScopeAlreadyExistsException(scopeKey, domain);
                     }
@@ -156,7 +156,7 @@ public class ScopeServiceImpl implements ScopeService {
                     // create event for sync process
                     Event event = new Event(Type.SCOPE, new Payload(scope.getId(), ReferenceType.DOMAIN, scope.getDomain(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(scope)));
-                }).apply(v)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Scope>>toJdkFunction(ex -> {
+                }).apply(v)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Scope>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
@@ -176,7 +176,7 @@ public class ScopeServiceImpl implements ScopeService {
     public Mono<Scope> create_migrated(String domain, NewSystemScope newScope) {
         LOGGER.debug("Create a new system scope {} for domain {}", newScope, domain);
         String scopeKey = newScope.getKey().toLowerCase();
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.findByDomainAndKey_migrated(domain, scopeKey).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Scope>>toJdkFunction(empty -> {
+        return scopeRepository.findByDomainAndKey_migrated(domain, scopeKey).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Scope>>toJdkFunction(empty -> {
                     if (!empty) {
                         throw new ScopeAlreadyExistsException(scopeKey, domain);
                     }
@@ -198,7 +198,7 @@ public class ScopeServiceImpl implements ScopeService {
                     // create event for sync process
                     Event event = new Event(Type.SCOPE, new Payload(scope.getId(), ReferenceType.DOMAIN, scope.getDomain(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(scope)));
-                }).apply(v))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Scope>>toJdkFunction(ex -> {
+                }).apply(v))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Scope>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
@@ -216,10 +216,10 @@ public class ScopeServiceImpl implements ScopeService {
 @Override
     public Mono<Scope> patch_migrated(String domain, String id, PatchScope patchScope, User principal) {
         LOGGER.debug("Patching a scope {} for domain {}", id, domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(oldScope -> {
+        return scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(oldScope -> {
                     Scope scopeToUpdate = patchScope.patch(oldScope);
                     return RxJava2Adapter.monoToSingle(update_migrated(domain, scopeToUpdate, oldScope, principal));
-                }).apply(y)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Scope>>toJdkFunction(ex -> {
+                }).apply(y)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Scope>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
@@ -237,7 +237,7 @@ public class ScopeServiceImpl implements ScopeService {
 @Override
     public Mono<Scope> update_migrated(String domain, String id, UpdateScope updateScope, User principal) {
         LOGGER.debug("Update a scope {} for domain {}", id, domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(oldScope -> {
+        return scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(oldScope -> {
                     Scope scopeToUpdate = new Scope(oldScope);
                     scopeToUpdate.setName(updateScope.getName());
                     scopeToUpdate.setDescription(updateScope.getDescription());
@@ -251,7 +251,7 @@ public class ScopeServiceImpl implements ScopeService {
                     scopeToUpdate.setIconUri(updateScope.getIconUri());
 
                     return RxJava2Adapter.monoToSingle(update_migrated(domain, scopeToUpdate, oldScope, principal));
-                }).apply(y)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Scope>>toJdkFunction(ex -> {
+                }).apply(y)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Scope>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
@@ -280,7 +280,7 @@ private Mono<Scope> update_migrated(String domain, Scope toUpdate, Scope oldValu
 @Override
     public Mono<Scope> update_migrated(String domain, String id, UpdateSystemScope updateScope) {
         LOGGER.debug("Update a system scope {} for domain {}", id, domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope -> {
+        return scopeRepository.findById_migrated(id).switchIfEmpty(Mono.error(new ScopeNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Scope, SingleSource<Scope>>toJdkFunction(scope -> {
                     scope.setName(updateScope.getName());
                     scope.setDescription(updateScope.getDescription());
                     scope.setUpdatedAt(new Date());
@@ -293,7 +293,7 @@ private Mono<Scope> update_migrated(String domain, Scope toUpdate, Scope oldValu
                     // create event for sync process
                     Event event = new Event(Type.SCOPE, new Payload(scope.getId(), ReferenceType.DOMAIN, scope.getDomain(), Action.UPDATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(scope)));
-                }).apply(v))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Scope>>toJdkFunction(ex -> {
+                }).apply(v))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Scope>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
@@ -357,7 +357,7 @@ return RxJava2Adapter.monoToSingle(applicationService.update_migrated(applicatio
 @Override
     public Mono<Page<Scope>> findByDomain_migrated(String domain, int page, int size) {
         LOGGER.debug("Find scopes by domain: {}", domain);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.findByDomain_migrated(domain, page, size))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<Scope>>>toJdkFunction(ex -> {
+        return scopeRepository.findByDomain_migrated(domain, page, size).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<Scope>>>toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find scopes by domain: {}", domain, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(
                             String.format("An error occurs while trying to find scopes by domain: %s", domain), ex)));
@@ -393,7 +393,7 @@ return RxJava2Adapter.monoToSingle(applicationService.update_migrated(applicatio
         if(scopeKeys==null || scopeKeys.isEmpty()) {
             return Mono.just(Collections.emptyList());
         }
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(scopeRepository.findByDomainAndKeys_migrated(domain, scopeKeys).collectList())).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<List<Scope>>>toJdkFunction(ex -> {
+        return scopeRepository.findByDomainAndKeys_migrated(domain, scopeKeys).collectList().onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<List<Scope>>>toJdkFunction(ex -> {
                     String keys = scopeKeys!=null?String.join(",",scopeKeys):null;
                     LOGGER.error("An error occurs while trying to find scopes by domain: {} and scope keys: {}", domain, keys, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(

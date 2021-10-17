@@ -102,7 +102,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
 @Override
     public Mono<Page<User>> findAll_migrated(ReferenceType referenceType, String referenceId, int page, int size) {
         LOGGER.debug("Find users by {}: {}", referenceType, referenceId);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getUserRepository().findAll_migrated(referenceType, referenceId, page, size))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<User>>>toJdkFunction(ex -> {
+        return getUserRepository().findAll_migrated(referenceType, referenceId, page, size).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<User>>>toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to find users by {} {}", referenceType, referenceId, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to find users by %s %s", referenceType, referenceId), ex)));
                 }).apply(err)));
@@ -117,7 +117,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
 @Override
     public Mono<Page<User>> search_migrated(ReferenceType referenceType, String referenceId, String query, int page, int size) {
         LOGGER.debug("Search users for {} {} with query {}", referenceType, referenceId, query);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getUserRepository().search_migrated(referenceType, referenceId, query, page, size))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<User>>>toJdkFunction(ex -> {
+        return getUserRepository().search_migrated(referenceType, referenceId, query, page, size).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<User>>>toJdkFunction(ex -> {
                     LOGGER.error("An error occurs while trying to search users for {} {} and query {}", referenceType, referenceId, query, ex);
                     return RxJava2Adapter.monoToSingle(Mono.error(new TechnicalManagementException(String.format("An error occurs while trying to find users for %s %s and query %s", referenceType, referenceId, query), ex)));
                 }).apply(err)));
@@ -132,7 +132,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
 @Override
     public Mono<Page<User>> search_migrated(ReferenceType referenceType, String referenceId, FilterCriteria filterCriteria, int page, int size) {
         LOGGER.debug("Search users for {} {} with filter {}", referenceType, referenceId, filterCriteria);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getUserRepository().search_migrated(referenceType, referenceId, filterCriteria, page, size))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<User>>>toJdkFunction(ex -> {
+        return getUserRepository().search_migrated(referenceType, referenceId, filterCriteria, page, size).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Page<User>>>toJdkFunction(ex -> {
                     if (ex instanceof IllegalArgumentException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidParameterException(ex.getMessage())));
                     }
@@ -202,7 +202,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
 @Override
     public Mono<User> create_migrated(ReferenceType referenceType, String referenceId, NewUser newUser) {
         LOGGER.debug("Create a new user {} for {} {}", newUser, referenceType, referenceId);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getUserRepository().findByUsernameAndSource_migrated(referenceType, referenceId, newUser.getUsername(), newUser.getSource()).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
+        return getUserRepository().findByUsernameAndSource_migrated(referenceType, referenceId, newUser.getUsername(), newUser.getSource()).hasElement().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Boolean, Single<User>>)isEmpty -> {
                     if (!isEmpty) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new UserAlreadyExistsException(newUser.getUsername())));
                     } else {
@@ -230,7 +230,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                         user.setUpdatedAt(user.getCreatedAt());
                         return RxJava2Adapter.monoToSingle(create_migrated(user));
                     }
-                }).apply(v))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
+                }).apply(v))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     } else {
@@ -253,11 +253,11 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
         user.setCreatedAt(new Date());
         user.setUpdatedAt(user.getCreatedAt());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userValidator.validate_migrated(user).then(getUserRepository().create_migrated(user)).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)user1 -> {
+        return userValidator.validate_migrated(user).then(getUserRepository().create_migrated(user)).flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<User, Single<User>>)user1 -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user1.getId(), user1.getReferenceType(), user1.getReferenceId(), Action.CREATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(user1)));
-                }).apply(v))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
+                }).apply(v))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
@@ -276,7 +276,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
     public Mono<User> update_migrated(ReferenceType referenceType, String referenceId, String id, UpdateUser updateUser) {
         LOGGER.debug("Update a user {} for {} {}", id, referenceType, referenceId);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getUserRepository().findById_migrated(referenceType, referenceId, id).switchIfEmpty(Mono.error(new UserNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
+        return getUserRepository().findById_migrated(referenceType, referenceId, id).switchIfEmpty(Mono.error(new UserNotFoundException(id))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(oldUser -> {
                     User tmpUser = new User();
                     tmpUser.setEmail(updateUser.getEmail());
                     tmpUser.setAdditionalInformation(updateUser.getAdditionalInformation());
@@ -295,7 +295,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
                     oldUser.setAdditionalInformation(updateUser.getAdditionalInformation());
 
                     return RxJava2Adapter.monoToSingle(update_migrated(oldUser));
-                }).apply(y)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
+                }).apply(y)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
@@ -343,7 +343,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
         LOGGER.debug("Enhance user {}", user.getId());
 
         // fetch user groups
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(groupService.findByMember_migrated(user.getId()).collectList().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Group>, Single<User>>)groups -> {
+        return groupService.findByMember_migrated(user.getId()).collectList().flatMap(v->RxJava2Adapter.singleToMono((Single<User>)RxJavaReactorMigrationUtil.toJdkFunction((Function<List<Group>, Single<User>>)groups -> {
                     Set<String> roles = new HashSet<>();
                     if (groups != null && !groups.isEmpty()) {
                         // set groups
@@ -368,7 +368,7 @@ public abstract class AbstractUserService<T extends CommonUserRepository> implem
 
                     }
                     return RxJava2Adapter.monoToSingle(Mono.just(user));
-                }).apply(v))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
+                }).apply(v))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }

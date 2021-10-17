@@ -183,11 +183,11 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
         LOGGER.debug("Update a user {}", user);
         // updated date
         user.setUpdatedAt(new Date());
-        return userValidator.validate_migrated(user).then(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(getUserRepository().update_migrated(user).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user1 -> {
+        return userValidator.validate_migrated(user).then(getUserRepository().update_migrated(user).flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<io.gravitee.am.model.User, SingleSource<io.gravitee.am.model.User>>toJdkFunction(user1 -> {
                     // create event for sync process
                     Event event = new Event(Type.USER, new Payload(user1.getId(), user1.getReferenceType(), user1.getReferenceId(), Action.UPDATE));
                     return RxJava2Adapter.monoToSingle(eventService.create_migrated(event).flatMap(__->Mono.just(user1)));
-                }).apply(v)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
+                }).apply(v)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<User>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
@@ -206,7 +206,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
     public Mono<Long> countByDomain_migrated(String domain) {
         LOGGER.debug("Count user by domain {}", domain);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userRepository.countByReference_migrated(ReferenceType.DOMAIN, domain))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Long>>toJdkFunction(ex -> {
+        return userRepository.countByReference_migrated(ReferenceType.DOMAIN, domain).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Long>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
@@ -226,7 +226,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
     public Mono<Long> countByApplication_migrated(String domain, String application) {
         LOGGER.debug("Count user by application {}", application);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userRepository.countByApplication_migrated(domain, application))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Long>>toJdkFunction(ex -> {
+        return userRepository.countByApplication_migrated(domain, application).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Long>>toJdkFunction(ex -> {
             if (ex instanceof AbstractManagementException) {
                 return RxJava2Adapter.monoToSingle(Mono.error(ex));
             }
@@ -246,7 +246,7 @@ public class UserServiceImpl extends AbstractUserService implements UserService 
     public Mono<Map<Object,Object>> statistics_migrated(AnalyticsQuery query) {
         LOGGER.debug("Get user collection analytics {}", query);
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(userRepository.statistics_migrated(query))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Map<Object, Object>>>toJdkFunction(ex -> {
+        return userRepository.statistics_migrated(query).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Map<Object, Object>>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }

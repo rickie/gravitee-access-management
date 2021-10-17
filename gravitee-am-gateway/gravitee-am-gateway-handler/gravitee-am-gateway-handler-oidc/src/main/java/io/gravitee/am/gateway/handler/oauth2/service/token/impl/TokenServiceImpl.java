@@ -103,7 +103,7 @@ public class TokenServiceImpl implements TokenService {
 }
 @Override
     public Mono<Token> getAccessToken_migrated(String token, Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(token, client))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction(ex -> {
+        return jwtService.decodeAndVerify_migrated(token, client).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction(ex -> {
                     if (ex instanceof JWTException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidTokenException(ex.getMessage(), ex)));
                     }
@@ -119,7 +119,7 @@ public class TokenServiceImpl implements TokenService {
 }
 @Override
     public Mono<Token> getRefreshToken_migrated(String refreshToken, Client client) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(jwtService.decodeAndVerify_migrated(refreshToken, client))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction(ex -> {
+        return jwtService.decodeAndVerify_migrated(refreshToken, client).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<JWT>>toJdkFunction(ex -> {
                     if (ex instanceof JWTException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(new InvalidTokenException(ex.getMessage(), ex)));
                     }

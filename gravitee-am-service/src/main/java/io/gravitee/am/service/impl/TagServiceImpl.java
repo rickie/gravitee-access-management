@@ -114,7 +114,7 @@ public class TagServiceImpl implements TagService {
         LOGGER.debug("Create a new tag: {}", newTag);
         String id = humanReadableId(newTag.getName());
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.findById_migrated(id, organizationId).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Tag>>toJdkFunction(empty -> {
+        return tagRepository.findById_migrated(id, organizationId).hasElement().flatMap(v->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Boolean, SingleSource<Tag>>toJdkFunction(empty -> {
                     if (!empty) {
                         throw new TagAlreadyExistsException(newTag.getName());
                     } else {
@@ -127,7 +127,7 @@ public class TagServiceImpl implements TagService {
                         tag.setUpdatedAt(tag.getCreatedAt());
                         return RxJava2Adapter.monoToSingle(tagRepository.create_migrated(tag));
                     }
-                }).apply(v)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Tag>>toJdkFunction(ex -> {
+                }).apply(v)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Tag>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }
@@ -146,7 +146,7 @@ public class TagServiceImpl implements TagService {
 @Override
     public Mono<Tag> update_migrated(String tagId, String organizationId, UpdateTag updateTag, User principal) {
         LOGGER.debug("Update an existing tag: {}", updateTag);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(tagRepository.findById_migrated(tagId, organizationId).switchIfEmpty(Mono.error(new TagNotFoundException(tagId))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Tag, SingleSource<Tag>>toJdkFunction(oldTag -> {
+        return tagRepository.findById_migrated(tagId, organizationId).switchIfEmpty(Mono.error(new TagNotFoundException(tagId))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<Tag, SingleSource<Tag>>toJdkFunction(oldTag -> {
                     Tag tag = new Tag();
                     tag.setId(tagId);
                     tag.setName(updateTag.getName());
@@ -155,7 +155,7 @@ public class TagServiceImpl implements TagService {
                     tag.setUpdatedAt(new Date());
 
                     return RxJava2Adapter.monoToSingle(tagRepository.update_migrated(tag).doOnSuccess(RxJavaReactorMigrationUtil.toJdkConsumer(tag1 -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_UPDATED).tag(tag1).oldValue(oldTag)))).doOnError(RxJavaReactorMigrationUtil.toJdkConsumer(throwable -> auditService.report(AuditBuilder.builder(TagAuditBuilder.class).principal(principal).type(EventType.TAG_UPDATED).throwable(throwable)))));
-                }).apply(y)))))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Tag>>toJdkFunction(ex -> {
+                }).apply(y)))).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<Tag>>toJdkFunction(ex -> {
                     if (ex instanceof AbstractManagementException) {
                         return RxJava2Adapter.monoToSingle(Mono.error(ex));
                     }

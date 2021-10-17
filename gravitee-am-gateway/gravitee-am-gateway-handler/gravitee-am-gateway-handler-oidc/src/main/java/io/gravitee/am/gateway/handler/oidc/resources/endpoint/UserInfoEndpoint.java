@@ -89,7 +89,7 @@ public class UserInfoEndpoint implements Handler<RoutingContext> {
         JWT accessToken = context.get(ConstantKeys.TOKEN_CONTEXT_KEY);
         Client client = context.get(ConstantKeys.CLIENT_CONTEXT_KEY);
         String subject = accessToken.getSub();
-        RxJava2Adapter.maybeToMono(RxJava2Adapter.monoToMaybe(userService.findById_migrated(subject).switchIfEmpty(Mono.error(new InvalidTokenException("No user found for this token"))))).flatMap(y->RxJava2Adapter.singleToMono(Single.wrap(RxJavaReactorMigrationUtil.<User, SingleSource<User>>toJdkFunction(user -> RxJava2Adapter.monoToSingle(enhance_migrated(user, accessToken))).apply(y)))).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> processClaims(user, accessToken))).flatMap(v->RxJava2Adapter.singleToMono((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Map<String, Object>, Single<String>>)claims -> {
+        userService.findById_migrated(subject).switchIfEmpty(Mono.error(new InvalidTokenException("No user found for this token"))).flatMap(y->enhance_migrated(y, accessToken)).map(RxJavaReactorMigrationUtil.toJdkFunction(user -> processClaims(user, accessToken))).flatMap(v->RxJava2Adapter.singleToMono((Single<String>)RxJavaReactorMigrationUtil.toJdkFunction((Function<Map<String, Object>, Single<String>>)claims -> {
                         if (!expectSignedOrEncryptedUserInfo(client)) {
                             context.response().putHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
                             return RxJava2Adapter.monoToSingle(Mono.just(Json.encodePrettily(claims)));
