@@ -61,7 +61,7 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
 }
 @Override
     public Mono<AlertTrigger> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(collection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(collection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(referenceType, referenceId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -116,7 +116,7 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
 @Override
     public Mono<AlertTrigger> create_migrated(AlertTrigger alertTrigger) {
         alertTrigger.setId(alertTrigger.getId() == null ? RandomString.generate() : alertTrigger.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(collection.insertOne(convert(alertTrigger))))).flatMap(success->findById_migrated(alertTrigger.getId()).single());
+        return Mono.from(collection.insertOne(convert(alertTrigger))).flatMap(success->findById_migrated(alertTrigger.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(alertTrigger))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -128,7 +128,7 @@ public class MongoAlertTriggerRepository extends AbstractManagementMongoReposito
 @Override
     public Mono<AlertTrigger> update_migrated(AlertTrigger alertTrigger) {
         AlertTriggerMongo alertTriggerMongo = convert(alertTrigger);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(collection.replaceOne(eq(FIELD_ID, alertTriggerMongo.getId()), alertTriggerMongo)))).flatMap(updateResult->findById_migrated(alertTriggerMongo.getId()).single());
+        return Mono.from(collection.replaceOne(eq(FIELD_ID, alertTriggerMongo.getId()), alertTriggerMongo)).flatMap(updateResult->findById_migrated(alertTriggerMongo.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

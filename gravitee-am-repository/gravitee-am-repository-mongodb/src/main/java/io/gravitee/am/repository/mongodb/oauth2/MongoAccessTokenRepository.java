@@ -69,7 +69,7 @@ public class MongoAccessTokenRepository extends AbstractOAuth2MongoRepository im
 
     
 private Mono<AccessToken> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(accessTokenCollection.find(eq(FIELD_ID, id)).limit(1).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(accessTokenCollection.find(eq(FIELD_ID, id)).limit(1).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -80,7 +80,7 @@ private Mono<AccessToken> findById_migrated(String id) {
 }
 @Override
     public Mono<AccessToken> findByToken_migrated(String token) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(accessTokenCollection.find(eq(FIELD_TOKEN, token)).limit(1).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(accessTokenCollection.find(eq(FIELD_TOKEN, token)).limit(1).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(accessToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -91,7 +91,7 @@ private Mono<AccessToken> findById_migrated(String id) {
 }
 @Override
     public Mono<AccessToken> create_migrated(AccessToken accessToken) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(accessTokenCollection.insertOne(convert(accessToken))))).flatMap(success->findById_migrated(accessToken.getId()).single());
+        return Mono.from(accessTokenCollection.insertOne(convert(accessToken))).flatMap(success->findById_migrated(accessToken.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(accessTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -160,7 +160,7 @@ private Mono<AccessToken> findById_migrated(String id) {
 }
 @Override
     public Mono<Long> countByClientId_migrated(String clientId) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(accessTokenCollection.countDocuments(eq(FIELD_CLIENT, clientId)))));
+        return Mono.from(accessTokenCollection.countDocuments(eq(FIELD_CLIENT, clientId)));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.deleteByUserId_migrated(userId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

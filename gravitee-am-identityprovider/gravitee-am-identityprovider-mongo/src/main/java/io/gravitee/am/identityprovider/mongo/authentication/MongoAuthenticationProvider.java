@@ -30,7 +30,7 @@ import io.reactivex.BackpressureStrategy;
 
 import io.reactivex.Maybe;
 import io.reactivex.MaybeSource;
-import io.reactivex.Observable;
+
 import io.reactivex.functions.Function;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -149,7 +149,7 @@ private Mono<Document> findUserByUsername_migrated(String username) {
         String rawQuery = this.configuration.getFindUserByUsernameQuery().replaceAll("\\?", username);
         String jsonQuery = convertToJsonString(rawQuery);
         BsonDocument query = BsonDocument.parse(jsonQuery);
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(usersCol.find(query).first())), BackpressureStrategy.BUFFER).next();
+        return Flux.from(usersCol.find(query).first()).next();
     }
 
     private User createUser(AuthenticationContext authContext, Document document) {

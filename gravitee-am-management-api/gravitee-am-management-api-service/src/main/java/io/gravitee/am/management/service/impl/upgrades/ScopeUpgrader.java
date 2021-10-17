@@ -31,6 +31,7 @@ import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +93,7 @@ private Mono<List<Scope>> upgradeDomain_migrated(Domain domain) {
 
     
 private Mono<List<Scope>> createAppScopes_migrated(Domain domain) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.monoToMaybe(applicationService.findByDomain_migrated(domain.getId()).filter(applications -> applications != null))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.monoToMaybe(applicationService.findByDomain_migrated(domain.getId()).filter(Objects::nonNull))
                 .flatMapObservable(Observable::fromIterable), BackpressureStrategy.BUFFER).filter(app -> app.getSettings() != null && app.getSettings().getOauth() != null).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<Application, ObservableSource<String>>toJdkFunction(app -> RxJava2Adapter.fluxToObservable(Flux.fromIterable(app.getSettings().getOauth().getScopes()))).apply(z)), BackpressureStrategy.BUFFER)))
                 .flatMapSingle(scope -> RxJava2Adapter.monoToSingle(createScope_migrated(domain.getId(), scope)))
                 .toList());
@@ -100,7 +101,7 @@ private Mono<List<Scope>> createAppScopes_migrated(Domain domain) {
 
     
 private Mono<List<Scope>> createRoleScopes_migrated(Domain domain) {
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.monoToMaybe(roleService.findByDomain_migrated(domain.getId()).filter(roles -> roles != null))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.monoToMaybe(roleService.findByDomain_migrated(domain.getId()).filter(Objects::nonNull))
                 .flatMapObservable(Observable::fromIterable), BackpressureStrategy.BUFFER).filter(role -> role.getOauthScopes() != null).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<Role, ObservableSource<String>>toJdkFunction(role -> RxJava2Adapter.fluxToObservable(Flux.fromIterable(role.getOauthScopes()))).apply(z)), BackpressureStrategy.BUFFER)))
                 .flatMapSingle(scope -> RxJava2Adapter.monoToSingle(createScope_migrated(domain.getId(), scope)))
                 .toList());

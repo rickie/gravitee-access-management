@@ -72,7 +72,7 @@ public class MongoExtensionGrantRepository extends AbstractManagementMongoReposi
 }
 @Override
     public Mono<ExtensionGrant> findByDomainAndName_migrated(String domain, String name) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(extensionGrantsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_NAME, name))).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(extensionGrantsCollection.find(and(eq(FIELD_DOMAIN, domain), eq(FIELD_NAME, name))).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(tokenGranterId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -83,7 +83,7 @@ public class MongoExtensionGrantRepository extends AbstractManagementMongoReposi
 }
 @Override
     public Mono<ExtensionGrant> findById_migrated(String tokenGranterId) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(extensionGrantsCollection.find(eq(FIELD_ID, tokenGranterId)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(extensionGrantsCollection.find(eq(FIELD_ID, tokenGranterId)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -96,7 +96,7 @@ public class MongoExtensionGrantRepository extends AbstractManagementMongoReposi
     public Mono<ExtensionGrant> create_migrated(ExtensionGrant item) {
         ExtensionGrantMongo extensionGrant = convert(item);
         extensionGrant.setId(extensionGrant.getId() == null ? RandomString.generate() : extensionGrant.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(extensionGrantsCollection.insertOne(extensionGrant)))).flatMap(success->findById_migrated(extensionGrant.getId()).single());
+        return Mono.from(extensionGrantsCollection.insertOne(extensionGrant)).flatMap(success->findById_migrated(extensionGrant.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -108,7 +108,7 @@ public class MongoExtensionGrantRepository extends AbstractManagementMongoReposi
 @Override
     public Mono<ExtensionGrant> update_migrated(ExtensionGrant item) {
         ExtensionGrantMongo extensionGrant = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(extensionGrantsCollection.replaceOne(eq(FIELD_ID, extensionGrant.getId()), extensionGrant)))).flatMap(updateResult->findById_migrated(extensionGrant.getId()).single());
+        return Mono.from(extensionGrantsCollection.replaceOne(eq(FIELD_ID, extensionGrant.getId()), extensionGrant)).flatMap(updateResult->findById_migrated(extensionGrant.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

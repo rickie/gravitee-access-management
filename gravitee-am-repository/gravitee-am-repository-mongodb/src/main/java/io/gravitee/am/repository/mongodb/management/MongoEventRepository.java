@@ -94,7 +94,7 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
     public Mono<Event> create_migrated(Event item) {
         EventMongo event = convert(item);
         event.setId(event.getId() == null ? RandomString.generate() : event.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(eventsCollection.insertOne(event)))).flatMap(success->findById_migrated(event.getId()).single());
+        return Mono.from(eventsCollection.insertOne(event)).flatMap(success->findById_migrated(event.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -106,7 +106,7 @@ public class MongoEventRepository extends AbstractManagementMongoRepository impl
 @Override
     public Mono<Event> update_migrated(Event item) {
         EventMongo event = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(eventsCollection.replaceOne(eq(FIELD_ID, event.getId()), event)))).flatMap(updateResult->findById_migrated(event.getId()).single());
+        return Mono.from(eventsCollection.replaceOne(eq(FIELD_ID, event.getId()), event)).flatMap(updateResult->findById_migrated(event.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

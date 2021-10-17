@@ -98,13 +98,13 @@ public class MongoFlowRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Mono<Flow> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(flowsCollection.find(
+        return Flux.from(flowsCollection.find(
                         and(
                                 eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                                 eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_ID, id)
                         )
-                ).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+                ).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -115,7 +115,7 @@ public class MongoFlowRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Mono<Flow> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(flowsCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(flowsCollection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -128,7 +128,7 @@ public class MongoFlowRepository extends AbstractManagementMongoRepository imple
     public Mono<Flow> create_migrated(Flow item) {
         FlowMongo flow = convert(item);
         flow.setId(flow.getId() == null ? RandomString.generate() : flow.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(flowsCollection.insertOne(flow)))).flatMap(success->findById_migrated(flow.getId()).single());
+        return Mono.from(flowsCollection.insertOne(flow)).flatMap(success->findById_migrated(flow.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -140,7 +140,7 @@ public class MongoFlowRepository extends AbstractManagementMongoRepository imple
 @Override
     public Mono<Flow> update_migrated(Flow item) {
         FlowMongo flow = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(flowsCollection.replaceOne(eq(FIELD_ID, flow.getId()), flow)))).flatMap(updateResult->findById_migrated(flow.getId()).single());
+        return Mono.from(flowsCollection.replaceOne(eq(FIELD_ID, flow.getId()), flow)).flatMap(updateResult->findById_migrated(flow.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

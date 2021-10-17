@@ -300,8 +300,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
   @Override
   public Mono<User> findByUsernameAndSource_migrated(
       ReferenceType referenceType, String referenceId, String username, String source) {
-    return RxJava2Adapter.observableToFlux(
-            RxJava2Adapter.fluxToObservable(Flux.from(usersCollection
+    return Flux.from(usersCollection
                     .find(
                         and(
                             eq(FIELD_REFERENCE_TYPE, referenceType.name()),
@@ -309,8 +308,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
                             eq(FIELD_USERNAME, username),
                             eq(FIELD_SOURCE, source)))
                     .limit(1)
-                    .first())),
-            BackpressureStrategy.BUFFER)
+                    .first())
         .next()
         .map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
   }
@@ -330,8 +328,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
   @Override
   public Mono<User> findByExternalIdAndSource_migrated(
       ReferenceType referenceType, String referenceId, String externalId, String source) {
-    return RxJava2Adapter.observableToFlux(
-            RxJava2Adapter.fluxToObservable(Flux.from(usersCollection
+    return Flux.from(usersCollection
                     .find(
                         and(
                             eq(FIELD_REFERENCE_TYPE, referenceType.name()),
@@ -339,8 +336,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
                             eq(FIELD_EXTERNAL_ID, externalId),
                             eq(FIELD_SOURCE, source)))
                     .limit(1)
-                    .first())),
-            BackpressureStrategy.BUFFER)
+                    .first())
         .next()
         .map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
   }
@@ -373,15 +369,13 @@ public abstract class AbstractUserRepository<T extends UserMongo>
   @Override
   public Mono<User> findById_migrated(
       ReferenceType referenceType, String referenceId, String userId) {
-    return RxJava2Adapter.observableToFlux(
-            RxJava2Adapter.fluxToObservable(Flux.from(usersCollection
+    return Flux.from(usersCollection
                     .find(
                         and(
                             eq(FIELD_REFERENCE_TYPE, referenceType.name()),
                             eq(FIELD_REFERENCE_ID, referenceId),
                             eq(FIELD_ID, userId)))
-                    .first())),
-            BackpressureStrategy.BUFFER)
+                    .first())
         .next()
         .map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
   }
@@ -397,9 +391,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
 
   @Override
   public Mono<User> findById_migrated(String userId) {
-    return RxJava2Adapter.observableToFlux(
-            RxJava2Adapter.fluxToObservable(Flux.from(usersCollection.find(eq(FIELD_ID, userId)).first())),
-            BackpressureStrategy.BUFFER)
+    return Flux.from(usersCollection.find(eq(FIELD_ID, userId)).first())
         .next()
         .map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
   }
@@ -417,7 +409,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
   public Mono<User> create_migrated(User item) {
     UserMongo user = convert(item);
     user.setId(user.getId() == null ? RandomString.generate() : user.getId());
-    return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(usersCollection.insertOne((T) user))))
+    return Mono.from(usersCollection.insertOne((T) user))
         .flatMap(
             success ->
                 findById_migrated(user.getId())
@@ -436,8 +428,7 @@ public abstract class AbstractUserRepository<T extends UserMongo>
   @Override
   public Mono<User> update_migrated(User item) {
     UserMongo user = convert(item);
-    return RxJava2Adapter.singleToMono(
-            RxJava2Adapter.monoToSingle(Mono.from(usersCollection.replaceOne(eq(FIELD_ID, user.getId()), (T) user))))
+    return Mono.from(usersCollection.replaceOne(eq(FIELD_ID, user.getId()), (T) user))
         .flatMap(
             updateResult ->
                 findById_migrated(user.getId())

@@ -30,7 +30,7 @@ import io.gravitee.am.repository.oauth2.model.RefreshToken;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +69,7 @@ public class MongoRefreshTokenRepository extends AbstractOAuth2MongoRepository i
 
     
 private Mono<RefreshToken> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(refreshTokenCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(refreshTokenCollection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByToken_migrated(token))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -80,7 +80,7 @@ private Mono<RefreshToken> findById_migrated(String id) {
 }
 @Override
     public Mono<RefreshToken> findByToken_migrated(String token) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(refreshTokenCollection.find(eq(FIELD_TOKEN, token)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(refreshTokenCollection.find(eq(FIELD_TOKEN, token)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(refreshToken))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -95,7 +95,7 @@ private Mono<RefreshToken> findById_migrated(String id) {
             refreshToken.setId(RandomString.generate());
         }
 
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(refreshTokenCollection.insertOne(convert(refreshToken))))).flatMap(success->findById_migrated(refreshToken.getId()).single());
+        return Mono.from(refreshTokenCollection.insertOne(convert(refreshToken))).flatMap(success->findById_migrated(refreshToken.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.bulkWrite_migrated(refreshTokens))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

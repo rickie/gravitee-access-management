@@ -45,7 +45,7 @@ public class MongodbRepositoriesTestInitializer implements RepositoriesTestIniti
 
     @Override
     public void after(Class testClass) throws Exception {
-        RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(mongoDatabase.listCollectionNames())), BackpressureStrategy.BUFFER).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<String, ObservableSource<DeleteResult>>toJdkFunction(collectionName -> RxJava2Adapter.fluxToObservable(Flux.from(mongoDatabase.getCollection(collectionName).deleteMany(new Document())))).apply(z)), BackpressureStrategy.BUFFER)))
+        RxJava2Adapter.fluxToObservable(Flux.from(mongoDatabase.listCollectionNames()).flatMap(z->RxJava2Adapter.observableToFlux(Observable.wrap(RxJavaReactorMigrationUtil.<String, ObservableSource<DeleteResult>>toJdkFunction(collectionName -> RxJava2Adapter.fluxToObservable(Flux.from(mongoDatabase.getCollection(collectionName).deleteMany(new Document())))).apply(z)), BackpressureStrategy.BUFFER)))
                 .blockingSubscribe();
     }
 }

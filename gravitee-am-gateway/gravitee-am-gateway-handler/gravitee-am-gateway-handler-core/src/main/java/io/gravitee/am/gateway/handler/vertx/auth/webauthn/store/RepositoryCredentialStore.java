@@ -26,7 +26,7 @@ import io.gravitee.am.model.ReferenceType;
 import io.gravitee.am.service.CredentialService;
 import io.reactivex.Completable;
 import io.reactivex.CompletableSource;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import io.reactivex.functions.Function;
 import io.vertx.core.Future;

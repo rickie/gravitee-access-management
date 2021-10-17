@@ -65,7 +65,7 @@ public class MongoAuthenticationFlowContextRepository extends AbstractManagement
 }
 @Override
     public Mono<AuthenticationFlowContext> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(authContextCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(authContextCollection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findLastByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -76,7 +76,7 @@ public class MongoAuthenticationFlowContextRepository extends AbstractManagement
 }
 @Override
     public Mono<AuthenticationFlowContext> findLastByTransactionId_migrated(String transactionId) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(authContextCollection.find(and(eq(FIELD_TRANSACTION_ID, transactionId), gt(FIELD_RESET_TIME, new Date()))).sort(new BasicDBObject(FIELD_VERSION, -1)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findByTransactionId_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -100,7 +100,7 @@ public class MongoAuthenticationFlowContextRepository extends AbstractManagement
     public Mono<AuthenticationFlowContext> create_migrated(AuthenticationFlowContext context) {
         AuthenticationFlowContextMongo contextMongo = convert(context);
         contextMongo.setId(context.getTransactionId() + "-" + context.getVersion());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(authContextCollection.insertOne(contextMongo)))).flatMap(success->findById_migrated(contextMongo.getId()).single());
+        return Mono.from(authContextCollection.insertOne(contextMongo)).flatMap(success->findById_migrated(contextMongo.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(transactionId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

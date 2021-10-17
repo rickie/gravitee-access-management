@@ -30,7 +30,7 @@ import io.gravitee.am.repository.mongodb.management.internal.model.LoginAttemptM
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +74,7 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
 }
 @Override
     public Mono<LoginAttempt> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(loginAttemptsCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(loginAttemptsCollection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByCriteria_migrated(criteria))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -85,7 +85,7 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
 }
 @Override
     public Mono<LoginAttempt> findByCriteria_migrated(LoginAttemptCriteria criteria) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(loginAttemptsCollection.find(query(criteria)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(loginAttemptsCollection.find(query(criteria)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -98,7 +98,7 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
     public Mono<LoginAttempt> create_migrated(LoginAttempt item) {
         LoginAttemptMongo loginAttempt = convert(item);
         loginAttempt.setId(loginAttempt.getId() == null ? RandomString.generate() : loginAttempt.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(loginAttemptsCollection.insertOne(loginAttempt)))).flatMap(success->findById_migrated(loginAttempt.getId()).single());
+        return Mono.from(loginAttemptsCollection.insertOne(loginAttempt)).flatMap(success->findById_migrated(loginAttempt.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -110,7 +110,7 @@ public class MongoLoginAttemptRepository extends AbstractManagementMongoReposito
 @Override
     public Mono<LoginAttempt> update_migrated(LoginAttempt item) {
         LoginAttemptMongo loginAttempt = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(loginAttemptsCollection.replaceOne(eq(FIELD_ID, loginAttempt.getId()), loginAttempt)))).flatMap(success->findById_migrated(loginAttempt.getId()).single());
+        return Mono.from(loginAttemptsCollection.replaceOne(eq(FIELD_ID, loginAttempt.getId()), loginAttempt)).flatMap(success->findById_migrated(loginAttempt.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

@@ -68,7 +68,7 @@ public Flowable<NotifierPlugin> findAll(String... expand) {
  return RxJava2Adapter.fluxToFlowable(findAll_migrated(expand));
 }
 public Flux<NotifierPlugin> findAll_migrated(String... expand) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(notifierPluginManager.findAll()))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<io.gravitee.plugin.notifier.NotifierPlugin, Single<NotifierPlugin>>toJdkFunction(plugin -> RxJava2Adapter.monoToSingle(convert_migrated(plugin, expand))).apply(e))))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(throwable -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(Flux.fromIterable(notifierPluginManager.findAll()))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<io.gravitee.plugin.notifier.NotifierPlugin, Single<NotifierPlugin>>toJdkFunction(plugin -> RxJava2Adapter.monoToSingle(convert_migrated(plugin, expand))).apply(e))).onErrorResume(RxJavaReactorMigrationUtil.toJdkFunction(throwable -> {
                     return RxJava2Adapter.fluxToFlowable(Flux.error(new TechnicalManagementException("An error occurs while trying to get notifier plugins", throwable)));
                 }));
     }

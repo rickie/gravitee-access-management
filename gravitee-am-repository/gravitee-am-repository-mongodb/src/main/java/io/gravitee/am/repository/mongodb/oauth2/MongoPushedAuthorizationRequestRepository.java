@@ -29,7 +29,7 @@ import io.gravitee.common.util.MultiValueMap;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -69,7 +69,7 @@ public class MongoPushedAuthorizationRequestRepository extends AbstractOAuth2Mon
 }
 @Override
     public Mono<PushedAuthorizationRequest> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(parCollection.find(eq(FIELD_ID, id)).limit(1).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(parCollection.find(eq(FIELD_ID, id)).limit(1).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(par))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -81,7 +81,7 @@ public class MongoPushedAuthorizationRequestRepository extends AbstractOAuth2Mon
 @Override
     public Mono<PushedAuthorizationRequest> create_migrated(PushedAuthorizationRequest par) {
         par.setId(par.getId() == null ? RandomString.generate() : par.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(parCollection.insertOne(convert(par))))).flatMap(success->findById_migrated(par.getId()).single());
+        return Mono.from(parCollection.insertOne(convert(par))).flatMap(success->findById_migrated(par.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

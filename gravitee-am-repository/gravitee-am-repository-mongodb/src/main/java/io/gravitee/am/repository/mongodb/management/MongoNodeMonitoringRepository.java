@@ -24,7 +24,7 @@ import io.gravitee.node.api.NodeMonitoringRepository;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,17 +59,17 @@ public class MongoNodeMonitoringRepository extends AbstractManagementMongoReposi
 
     @Override
     public Maybe<Monitoring> findByNodeIdAndType(String nodeId, String type) {
-        return RxJava2Adapter.monoToMaybe(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(collection.find(and(eq(FIELD_NODE_ID, nodeId), eq(FIELD_TYPE, type))).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
+        return RxJava2Adapter.monoToMaybe(Flux.from(collection.find(and(eq(FIELD_NODE_ID, nodeId), eq(FIELD_TYPE, type))).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert)));
     }
 
     @Override
     public Single<Monitoring> create(Monitoring monitoring) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(collection.insertOne(convert(monitoring))))).map(RxJavaReactorMigrationUtil.toJdkFunction(success -> monitoring)));
+        return RxJava2Adapter.monoToSingle(Mono.from(collection.insertOne(convert(monitoring))).map(RxJavaReactorMigrationUtil.toJdkFunction(success -> monitoring)));
     }
 
     @Override
     public Single<Monitoring> update(Monitoring monitoring) {
-        return RxJava2Adapter.monoToSingle(RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(collection.replaceOne(eq(FIELD_ID, monitoring.getId()), convert(monitoring))))).map(RxJavaReactorMigrationUtil.toJdkFunction(updateResult -> monitoring)));
+        return RxJava2Adapter.monoToSingle(Mono.from(collection.replaceOne(eq(FIELD_ID, monitoring.getId()), convert(monitoring))).map(RxJavaReactorMigrationUtil.toJdkFunction(updateResult -> monitoring)));
     }
 
     @Override

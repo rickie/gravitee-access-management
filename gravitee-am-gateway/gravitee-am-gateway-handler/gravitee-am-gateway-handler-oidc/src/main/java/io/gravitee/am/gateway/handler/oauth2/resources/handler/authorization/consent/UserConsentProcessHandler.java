@@ -38,7 +38,7 @@ import io.vertx.reactivex.ext.web.Session;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
 
 /**
  * @author Titouan COMPIEGNE (titouan.compiegne at graviteesource.com)

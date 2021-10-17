@@ -22,7 +22,7 @@ import io.gravitee.am.service.exception.TechnicalManagementException;
 import io.gravitee.am.service.model.plugin.ResourcePlugin;
 import io.gravitee.plugin.core.api.Plugin;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import java.util.List;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
 
 /**
  * @author Eric LELEU (eric.leleu at graviteesource.com)

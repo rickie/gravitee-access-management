@@ -61,7 +61,7 @@ public class MongoTagRepository extends AbstractManagementMongoRepository implem
 }
 @Override
     public Mono<Tag> findById_migrated(String id, String organizationId) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(tagsCollection.find(and(eq(FIELD_ID, id), eq(FIELD_ORGANIZATION_ID, organizationId))).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(tagsCollection.find(and(eq(FIELD_ID, id), eq(FIELD_ORGANIZATION_ID, organizationId))).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -72,7 +72,7 @@ public class MongoTagRepository extends AbstractManagementMongoRepository implem
 }
 @Override
     public Mono<Tag> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(tagsCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(tagsCollection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.fluxToFlowable(this.findAll_migrated(organizationId))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -96,7 +96,7 @@ public class MongoTagRepository extends AbstractManagementMongoRepository implem
     public Mono<Tag> create_migrated(Tag item) {
         TagMongo tag = convert(item);
         tag.setId(tag.getId() == null ? RandomString.generate() : tag.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(tagsCollection.insertOne(tag)))).flatMap(success->findById_migrated(tag.getId()).single());
+        return Mono.from(tagsCollection.insertOne(tag)).flatMap(success->findById_migrated(tag.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -108,7 +108,7 @@ public class MongoTagRepository extends AbstractManagementMongoRepository implem
 @Override
     public Mono<Tag> update_migrated(Tag item) {
         TagMongo tag = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(tagsCollection.replaceOne(eq(FIELD_ID, tag.getId()), tag)))).flatMap(updateResult->findById_migrated(tag.getId()).single());
+        return Mono.from(tagsCollection.replaceOne(eq(FIELD_ID, tag.getId()), tag)).flatMap(updateResult->findById_migrated(tag.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

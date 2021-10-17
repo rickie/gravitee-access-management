@@ -81,12 +81,12 @@ public class JdbcResourceRepository extends AbstractJdbcRepository implements Re
 
     
 private Mono<Page<Resource>> findResourcePage_migrated(String domain, int page, int size, CriteriaDefinition whereClause) {
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.select()
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(dbClient.select()
                 .from(JdbcResource.class)
                 .matching(whereClause)
                 .orderBy(Sort.Order.asc("id"))
                 .page(PageRequest.of(page, size))
-                .as(JdbcResource.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(res -> completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(res)), res.getId()).flux()), MAX_CONCURRENCY))).collectList().flatMap(content->resourceRepository.countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((Long count)->new Page<Resource>(content, page, count))));
+                .as(JdbcResource.class).all().map(RxJavaReactorMigrationUtil.toJdkFunction(this::toEntity)))).flatMap(RxJavaReactorMigrationUtil.toJdkFunction(res -> completeWithScopes_migrated(RxJava2Adapter.monoToMaybe(Mono.just(res)), res.getId()).flux()), MAX_CONCURRENCY).collectList().flatMap(content->resourceRepository.countByDomain_migrated(domain).map(RxJavaReactorMigrationUtil.toJdkFunction((Long count)->new Page<Resource>(content, page, count))));
     }
 
     

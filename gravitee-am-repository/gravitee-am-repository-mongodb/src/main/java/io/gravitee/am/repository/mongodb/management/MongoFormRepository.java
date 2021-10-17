@@ -97,11 +97,11 @@ public class MongoFormRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Mono<Form> findByTemplate_migrated(ReferenceType referenceType, String referenceId, String template) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(formsCollection.find(
+        return Flux.from(formsCollection.find(
                         and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_TEMPLATE, template),
                                 exists(FIELD_CLIENT, false)))
-                        .first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+                        .first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findByClientAndTemplate_migrated(referenceType, referenceId, client, template))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -112,11 +112,11 @@ public class MongoFormRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Mono<Form> findByClientAndTemplate_migrated(ReferenceType referenceType, String referenceId, String client, String template) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(formsCollection.find(
+        return Flux.from(formsCollection.find(
                         and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId),
                                 eq(FIELD_CLIENT, client),
                                 eq(FIELD_TEMPLATE, template)))
-                        .first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+                        .first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(referenceType, referenceId, id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -127,7 +127,7 @@ public class MongoFormRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Mono<Form> findById_migrated(ReferenceType referenceType, String referenceId, String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(formsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(formsCollection.find(and(eq(FIELD_REFERENCE_TYPE, referenceType.name()), eq(FIELD_REFERENCE_ID, referenceId), eq(FIELD_ID, id))).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToMaybe(this.findById_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -138,7 +138,7 @@ public class MongoFormRepository extends AbstractManagementMongoRepository imple
 }
 @Override
     public Mono<Form> findById_migrated(String id) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(formsCollection.find(eq(FIELD_ID, id)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(formsCollection.find(eq(FIELD_ID, id)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -151,7 +151,7 @@ public class MongoFormRepository extends AbstractManagementMongoRepository imple
     public Mono<Form> create_migrated(Form item) {
         FormMongo page = convert(item);
         page.setId(page.getId() == null ? RandomString.generate() : page.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(formsCollection.insertOne(page)))).flatMap(success->findById_migrated(page.getId()).single());
+        return Mono.from(formsCollection.insertOne(page)).flatMap(success->findById_migrated(page.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -163,7 +163,7 @@ public class MongoFormRepository extends AbstractManagementMongoRepository imple
 @Override
     public Mono<Form> update_migrated(Form item) {
         FormMongo page = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(formsCollection.replaceOne(eq(FIELD_ID, page.getId()), page)))).flatMap(updateResult->findById_migrated(page.getId()).single());
+        return Mono.from(formsCollection.replaceOne(eq(FIELD_ID, page.getId()), page)).flatMap(updateResult->findById_migrated(page.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

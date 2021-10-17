@@ -29,7 +29,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.Json;
 import io.vertx.reactivex.ext.web.RoutingContext;
 
-import tech.picnic.errorprone.migration.util.RxJavaReactorMigrationUtil;
+
 
 /**
  * The token endpoint is used by the client to obtain an access token by presenting its authorization grant or refresh token.

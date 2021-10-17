@@ -82,7 +82,7 @@ public class MongoCertificateRepository extends AbstractManagementMongoRepositor
 }
 @Override
     public Mono<Certificate> findById_migrated(String certificateId) {
-        return RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.from(certificatesCollection.find(eq(FIELD_ID, certificateId)).first())), BackpressureStrategy.BUFFER).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
+        return Flux.from(certificatesCollection.find(eq(FIELD_ID, certificateId)).first()).next().map(RxJavaReactorMigrationUtil.toJdkFunction(this::convert));
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.create_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -95,7 +95,7 @@ public class MongoCertificateRepository extends AbstractManagementMongoRepositor
     public Mono<Certificate> create_migrated(Certificate item) {
         CertificateMongo certificate = convert(item);
         certificate.setId(certificate.getId() == null ? RandomString.generate() : certificate.getId());
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(certificatesCollection.insertOne(certificate)))).flatMap(success->findById_migrated(certificate.getId()).single());
+        return Mono.from(certificatesCollection.insertOne(certificate)).flatMap(success->findById_migrated(certificate.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToSingle(this.update_migrated(item))", imports = "reactor.adapter.rxjava.RxJava2Adapter")
@@ -107,7 +107,7 @@ public class MongoCertificateRepository extends AbstractManagementMongoRepositor
 @Override
     public Mono<Certificate> update_migrated(Certificate item) {
         CertificateMongo certificate = convert(item);
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.monoToSingle(Mono.from(certificatesCollection.replaceOne(eq(FIELD_ID, certificate.getId()), certificate)))).flatMap(updateResult->findById_migrated(certificate.getId()).single());
+        return Mono.from(certificatesCollection.replaceOne(eq(FIELD_ID, certificate.getId()), certificate)).flatMap(updateResult->findById_migrated(certificate.getId()).single());
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

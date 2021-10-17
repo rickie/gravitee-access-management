@@ -165,7 +165,7 @@ public class CredentialServiceImpl implements CredentialService {
 @Override
     public Mono<Void> update_migrated(ReferenceType referenceType, String referenceId, String credentialId, Credential credential) {
         LOGGER.debug("Update a credential {}", credentialId);
-        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByCredentialId_migrated(referenceType, referenceId, credentialId))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Credential, Single<Credential>>toJdkFunction(credentialToUpdate -> {
+        return RxJava2Adapter.flowableToFlux(RxJava2Adapter.fluxToFlowable(credentialRepository.findByCredentialId_migrated(referenceType, referenceId, credentialId))).flatMap(e->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Credential, Single<Credential>>toJdkFunction(credentialToUpdate -> {
                     // update only business values (i.e not set via the vert.x authenticator object)
                     credentialToUpdate.setUserId(credential.getUserId());
                     credentialToUpdate.setIpAddress(credential.getIpAddress());
@@ -173,7 +173,7 @@ public class CredentialServiceImpl implements CredentialService {
                     credentialToUpdate.setUpdatedAt(new Date());
                     credentialToUpdate.setAccessedAt(credentialToUpdate.getUpdatedAt());
                     return RxJava2Adapter.monoToSingle(credentialRepository.update_migrated(credentialToUpdate));
-                }).apply(e))))).ignoreElements().then();
+                }).apply(e))).ignoreElements().then();
     }
 
     @InlineMe(replacement = "RxJava2Adapter.monoToCompletable(this.delete_migrated(id))", imports = "reactor.adapter.rxjava.RxJava2Adapter")

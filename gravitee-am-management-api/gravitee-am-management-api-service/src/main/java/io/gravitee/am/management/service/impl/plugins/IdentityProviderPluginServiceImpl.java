@@ -23,7 +23,7 @@ import io.gravitee.am.service.model.plugin.IdentityProviderPlugin;
 import io.gravitee.plugin.core.api.Plugin;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Maybe;
-import io.reactivex.Observable;
+
 import io.reactivex.Single;
 import java.util.List;
 import org.slf4j.Logger;
@@ -82,7 +82,7 @@ public class IdentityProviderPluginServiceImpl implements IdentityProviderPlugin
 @Override
     public Mono<List<IdentityProviderPlugin>> findAll_migrated(Boolean external, List<String> expand) {
         LOGGER.debug("List all identity provider plugins");
-        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(RxJava2Adapter.observableToFlux(RxJava2Adapter.fluxToObservable(Flux.fromIterable(identityProviderPluginManager.getAll().entrySet())), BackpressureStrategy.BUFFER).filter(entry -> (external != null && external) == entry.getKey().external()))
+        return RxJava2Adapter.singleToMono(RxJava2Adapter.fluxToObservable(Flux.fromIterable(identityProviderPluginManager.getAll().entrySet()).filter(entry -> (external != null && external) == entry.getKey().external()))
             .map(entry -> convert(entry.getValue(), expand))
             .toList()).onErrorResume(err->RxJava2Adapter.singleToMono(RxJavaReactorMigrationUtil.<Throwable, Single<List<IdentityProviderPlugin>>>toJdkFunction(ex -> {
                 LOGGER.error("An error occurs while trying to list all identity provider plugins", ex);
